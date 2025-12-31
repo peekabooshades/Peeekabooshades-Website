@@ -1,0 +1,44 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 140 110">
+  <!-- Background -->
+  <rect x="5" y="5" width="130" height="100" rx="8" fill="#faf8f5"/>
+
+  <!-- Wall -->
+  <rect x="15" y="15" width="110" height="85" fill="#e8e0d5"/>
+
+  <!-- Window Opening/Frame -->
+  <rect x="35" y="30" width="70" height="60" rx="2" fill="#ffffff" stroke="#8E6545" stroke-width="2"/>
+
+  <!-- Window Panes (glass) -->
+  <rect x="37" y="32" width="32" height="26" fill="#d4eaf7"/>
+  <rect x="71" y="32" width="32" height="26" fill="#d4eaf7"/>
+  <rect x="37" y="62" width="32" height="26" fill="#d4eaf7"/>
+  <rect x="71" y="62" width="32" height="26" fill="#d4eaf7"/>
+
+  <!-- Blind Cassette OUTSIDE/ABOVE the frame -->
+  <rect x="25" y="18" width="90" height="12" rx="3" fill="#8E6545"/>
+  <rect x="28" y="20" width="84" height="8" rx="2" fill="#6b4c35"/>
+
+  <!-- Blind Fabric covering outside the frame -->
+  <rect x="27" y="30" width="86" height="45" fill="#d4c4b0" opacity="0.9"/>
+  <line x1="27" y1="38" x2="113" y2="38" stroke="#c4b4a0" stroke-width="0.5"/>
+  <line x1="27" y1="46" x2="113" y2="46" stroke="#c4b4a0" stroke-width="0.5"/>
+  <line x1="27" y1="54" x2="113" y2="54" stroke="#c4b4a0" stroke-width="0.5"/>
+  <line x1="27" y1="62" x2="113" y2="62" stroke="#c4b4a0" stroke-width="0.5"/>
+  <line x1="27" y1="70" x2="113" y2="70" stroke="#c4b4a0" stroke-width="0.5"/>
+
+  <!-- Bottom bar -->
+  <rect x="27" y="72" width="86" height="5" rx="1" fill="#8E6545"/>
+
+  <!-- Arrows showing OUTSIDE mounting (wider than frame) -->
+  <path d="M22 50 L15 50" stroke="#8E6545" stroke-width="1.5" marker-end="url(#arrowOut)"/>
+  <path d="M118 50 L125 50" stroke="#8E6545" stroke-width="1.5" marker-end="url(#arrowOut)"/>
+
+  <defs>
+    <marker id="arrowOut" markerWidth="6" markerHeight="6" refX="5" refY="3" orient="auto">
+      <polygon points="0 0, 6 3, 0 6" fill="#8E6545"/>
+    </marker>
+  </defs>
+
+  <!-- Label -->
+  <text x="70" y="102" font-family="Arial, sans-serif" font-size="9" fill="#666" text-anchor="middle" font-weight="500">OUTSIDE FRAME</text>
+</svg>

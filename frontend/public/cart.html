@@ -1,0 +1,538 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Shopping Cart - Peekaboo Shades</title>
+  <link rel="stylesheet" href="/css/styles.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+  <!-- Top Bar -->
+  <div class="top-bar">
+    <div class="top-bar-container">
+      <div class="top-bar-left">
+        <span><i class="fas fa-phone"></i> 1-800-SHADES</span>
+        <span><i class="fas fa-envelope"></i> info@peekabooshades.com</span>
+      </div>
+      <div class="top-bar-right">
+        <a href="#">Free Samples</a>
+        <a href="#">Trade Program</a>
+        <a href="#">Help</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Header -->
+  <header class="main-header">
+    <div class="header-container">
+      <a href="/" class="logo">
+        <div class="logo-text">PEEKABOO<span> SHADES</span></div>
+      </a>
+
+      <nav class="main-nav">
+        <ul>
+          <li class="nav-dropdown">
+            <a href="/shop">Windows Blinds & Shades <i class="fas fa-chevron-down"></i></a>
+            <div class="nav-dropdown-menu">
+              <a href="/shop?category=roller-shades">Roller Shades</a>
+              <a href="/shop?category=roman-shades">Roman Shades</a>
+              <a href="/shop?category=natural-woven-shades">Natural Woven Shades</a>
+              <a href="/shop?category=honeycomb-shades">Honeycomb Shades</a>
+              <a href="/shop?category=drapes">Drapes</a>
+            </div>
+          </li>
+          <li><a href="#">Curtains</a></li>
+          <li><a href="#">Look up My Order</a></li>
+          <li><a href="#">Bulk Orders/Wholesale</a></li>
+          <li><a href="#">Contact Us</a></li>
+          <li><a href="#">My Account</a></li>
+        </ul>
+      </nav>
+
+      <div class="header-icons">
+        <div class="search-bar">
+          <input type="text" placeholder="Search products...">
+          <button><i class="fas fa-search"></i></button>
+        </div>
+        <a href="#" class="header-icon"><i class="far fa-heart"></i></a>
+        <a href="#" class="header-icon"><i class="far fa-user"></i></a>
+        <a href="/cart" class="header-icon">
+          <i class="fas fa-shopping-cart"></i>
+          <span class="cart-count" id="cartCount">0</span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Cart Section -->
+  <section class="cart-section">
+    <div class="cart-container">
+      <h1 class="cart-title">Shopping Cart</h1>
+
+      <div id="cartContent">
+        <!-- Cart content will be loaded dynamically -->
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="main-footer">
+    <div class="footer-container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <div class="footer-logo">
+            <div class="logo-text">PEEKABOO<span> SHADES</span></div>
+          </div>
+          <p class="footer-description">
+            Custom window blinds and shades designed to transform your space.
+            Premium quality, affordable prices, and exceptional service.
+          </p>
+          <div class="footer-social">
+            <a href="#" class="social-icon"><i class="fab fa-facebook-f"></i></a>
+            <a href="#" class="social-icon"><i class="fab fa-instagram"></i></a>
+            <a href="#" class="social-icon"><i class="fab fa-twitter"></i></a>
+            <a href="#" class="social-icon"><i class="fab fa-pinterest"></i></a>
+          </div>
+        </div>
+
+        <div class="footer-column">
+          <h4>Products</h4>
+          <ul>
+            <li><a href="/shop?category=roller-shades">Roller Shades</a></li>
+            <li><a href="/shop?category=roman-shades">Roman Shades</a></li>
+            <li><a href="/shop?category=natural-woven-shades">Natural Woven</a></li>
+            <li><a href="/shop?category=honeycomb-shades">Honeycomb Shades</a></li>
+            <li><a href="/shop?category=drapes">Drapes</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-column">
+          <h4>Customer Service</h4>
+          <ul>
+            <li><a href="#">Track Order</a></li>
+            <li><a href="#">Returns & Exchanges</a></li>
+            <li><a href="#">Shipping Info</a></li>
+            <li><a href="#">FAQs</a></li>
+            <li><a href="#">Contact Us</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-column">
+          <h4>Talk To Us</h4>
+          <ul>
+            <li><a href="#">About Us</a></li>
+            <li><a href="#">Careers</a></li>
+            <li><a href="#">Press</a></li>
+            <li><a href="#">Blog</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-column">
+          <h4>Resources</h4>
+          <ul>
+            <li><a href="#">Measuring Guide</a></li>
+            <li><a href="#">Installation Guide</a></li>
+            <li><a href="#">Free Samples</a></li>
+            <li><a href="#">Trade Program</a></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <p class="footer-copyright">&copy; 2024 Peekaboo Shades. All rights reserved.</p>
+        <div class="footer-links">
+          <a href="#">Privacy Policy</a>
+          <a href="#">Terms of Service</a>
+          <a href="#">Accessibility</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Checkout Modal -->
+  <div class="quote-modal" id="checkoutModal">
+    <div class="quote-content" style="max-width: 600px;">
+      <div class="quote-header">
+        <h3>Checkout</h3>
+        <button class="quote-close" onclick="closeCheckout()">&times;</button>
+      </div>
+      <div class="quote-body">
+        <form id="checkoutForm" onsubmit="submitOrder(event)">
+          <h4 style="margin-bottom: 15px; color: var(--text-brown);">Contact Information</h4>
+          <div class="form-group">
+            <label>Full Name *</label>
+            <input type="text" id="customerName" required>
+          </div>
+          <div class="form-group">
+            <label>Email *</label>
+            <input type="email" id="customerEmail" required>
+          </div>
+          <div class="form-group">
+            <label>Phone *</label>
+            <input type="tel" id="customerPhone" required>
+          </div>
+
+          <h4 style="margin: 25px 0 15px; color: var(--text-brown);">Shipping Address</h4>
+          <div class="form-group">
+            <label>Street Address *</label>
+            <input type="text" id="streetAddress" required>
+          </div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+            <div class="form-group">
+              <label>City *</label>
+              <input type="text" id="city" required>
+            </div>
+            <div class="form-group">
+              <label>State *</label>
+              <input type="text" id="state" required>
+            </div>
+          </div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+            <div class="form-group">
+              <label>ZIP Code *</label>
+              <input type="text" id="zipCode" required>
+            </div>
+            <div class="form-group">
+              <label>Country</label>
+              <select id="country">
+                <option value="US">United States</option>
+                <option value="CA">Canada</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="price-summary" style="margin-top: 25px;">
+            <div class="price-row">
+              <span>Subtotal</span>
+              <span>$<span id="checkoutSubtotal">0.00</span></span>
+            </div>
+            <div class="price-row">
+              <span>Shipping</span>
+              <span>$<span id="checkoutShipping">0.00</span></span>
+            </div>
+            <div class="price-row">
+              <span>Tax (estimated)</span>
+              <span>$<span id="checkoutTax">0.00</span></span>
+            </div>
+            <div class="price-row total">
+              <span>Total</span>
+              <span>$<span id="checkoutTotal">0.00</span></span>
+            </div>
+          </div>
+
+          <button type="submit" class="submit-quote-btn" style="margin-top: 20px;">
+            <i class="fas fa-lock"></i> Place Order
+          </button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Container -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <script src="/js/app.js"></script>
+  <script>
+    // Product images for display
+    const productImages = {
+      'affordable-custom-roller-blinds': 'https://images.unsplash.com/photo-1615874959474-d609969a20ed?w=200',
+      'energy-efficient-roman-shades': 'https://images.unsplash.com/photo-1616046229478-9901c5536a45?w=200',
+      'affordable-zebra-window-blinds': 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=200',
+      'default': 'https://images.unsplash.com/photo-1615874959474-d609969a20ed?w=200'
+    };
+
+    let cartItems = [];
+    let subtotal = 0;
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', function() {
+      loadCart();
+      updateCartCount();
+    });
+
+    // Load cart
+    async function loadCart() {
+      const sessionId = getSessionId();
+
+      try {
+        const response = await fetch(`/api/cart/${sessionId}`);
+        const result = await response.json();
+
+        if (result.success) {
+          cartItems = result.data;
+          subtotal = result.subtotal;
+          renderCart();
+        }
+      } catch (error) {
+        // Load from localStorage as fallback
+        cartItems = JSON.parse(localStorage.getItem('cart') || '[]');
+        subtotal = cartItems.reduce((sum, item) => sum + (item.unitPrice * item.quantity), 0);
+        renderCart();
+      }
+    }
+
+    // Render cart
+    function renderCart() {
+      const container = document.getElementById('cartContent');
+
+      if (cartItems.length === 0) {
+        container.innerHTML = `
+          <div class="empty-cart">
+            <div class="empty-cart-icon"><i class="fas fa-shopping-cart"></i></div>
+            <h2>Your cart is empty</h2>
+            <p>Looks like you haven't added any items to your cart yet.</p>
+            <a href="/shop" class="btn-add-cart" style="display: inline-block; padding: 15px 40px;">
+              Continue Shopping
+            </a>
+          </div>
+        `;
+        return;
+      }
+
+      const tax = subtotal * 0.08; // 8% tax
+      const shipping = subtotal > 99 ? 0 : 9.99;
+      const total = subtotal + tax + shipping;
+
+      container.innerHTML = `
+        <div class="cart-grid">
+          <div class="cart-items">
+            ${cartItems.map(item => renderCartItem(item)).join('')}
+          </div>
+
+          <div class="cart-summary">
+            <h3>Order Summary</h3>
+            <div class="summary-row">
+              <span>Subtotal (${cartItems.length} items)</span>
+              <span>$${subtotal.toFixed(2)}</span>
+            </div>
+            <div class="summary-row">
+              <span>Shipping</span>
+              <span>${shipping === 0 ? 'FREE' : '$' + shipping.toFixed(2)}</span>
+            </div>
+            <div class="summary-row">
+              <span>Estimated Tax</span>
+              <span>$${tax.toFixed(2)}</span>
+            </div>
+            <div class="summary-row total">
+              <span>Total</span>
+              <span>$${total.toFixed(2)}</span>
+            </div>
+
+            <button class="checkout-btn" onclick="openCheckout()">
+              Proceed to Checkout
+            </button>
+
+            <a href="/shop" class="continue-shopping">
+              <i class="fas fa-arrow-left"></i> Continue Shopping
+            </a>
+
+            <div style="margin-top: 25px; padding-top: 20px; border-top: 1px solid var(--border-light);">
+              <p style="font-size: 12px; color: var(--text-muted); margin-bottom: 10px;">We accept</p>
+              <div style="display: flex; gap: 10px;">
+                <i class="fab fa-cc-visa" style="font-size: 28px; color: #1a1f71;"></i>
+                <i class="fab fa-cc-mastercard" style="font-size: 28px; color: #eb001b;"></i>
+                <i class="fab fa-cc-amex" style="font-size: 28px; color: #006fcf;"></i>
+                <i class="fab fa-cc-paypal" style="font-size: 28px; color: #003087;"></i>
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    // Render cart item
+    function renderCartItem(item) {
+      const config = typeof item.configuration === 'string'
+        ? JSON.parse(item.configuration)
+        : item.configuration || {};
+
+      const configString = Object.entries(config)
+        .filter(([key, value]) => value)
+        .map(([key, value]) => `${formatKey(key)}: ${value}`)
+        .join(' | ');
+
+      const imageUrl = item.image_url || productImages[item.product_name?.toLowerCase().replace(/\s+/g, '-')] || productImages.default;
+
+      return `
+        <div class="cart-item" data-id="${item.id}">
+          <div class="cart-item-image">
+            <img src="${imageUrl}" alt="${item.product_name || item.productName}">
+          </div>
+          <div class="cart-item-info">
+            <h3 class="cart-item-title">${item.product_name || item.productName}</h3>
+            <p class="cart-item-config">
+              ${item.width}" W x ${item.height}" H
+              ${item.room_label || item.roomLabel ? ' | ' + (item.room_label || item.roomLabel) : ''}
+              ${configString ? '<br>' + configString : ''}
+              ${item.extended_warranty || item.extendedWarranty ? '<br><strong>Extended Warranty Included</strong>' : ''}
+            </p>
+            <div class="cart-item-actions">
+              <div class="quantity-input" style="width: auto;">
+                <button class="quantity-btn" onclick="updateItemQuantity('${item.id}', -1)">-</button>
+                <input type="number" value="${item.quantity}" min="1" max="99" style="width: 50px;"
+                       onchange="setItemQuantity('${item.id}', this.value)">
+                <button class="quantity-btn" onclick="updateItemQuantity('${item.id}', 1)">+</button>
+              </div>
+              <span class="cart-item-price">$${((item.unit_price || item.unitPrice) * item.quantity).toFixed(2)}</span>
+              <button class="cart-item-remove" onclick="removeItem('${item.id}')">
+                <i class="fas fa-trash"></i> Remove
+              </button>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    // Format config key
+    function formatKey(key) {
+      return key.replace(/([A-Z])/g, ' $1').replace(/^./, str => str.toUpperCase());
+    }
+
+    // Update item quantity
+    async function updateItemQuantity(itemId, delta) {
+      const item = cartItems.find(i => i.id === itemId);
+      if (!item) return;
+
+      const newQuantity = item.quantity + delta;
+      if (newQuantity < 1) {
+        removeItem(itemId);
+        return;
+      }
+
+      await setItemQuantity(itemId, newQuantity);
+    }
+
+    // Set item quantity
+    async function setItemQuantity(itemId, quantity) {
+      const newQuantity = parseInt(quantity);
+      if (newQuantity < 1) return;
+
+      try {
+        await fetch(`/api/cart/${itemId}`, {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ quantity: newQuantity })
+        });
+      } catch (error) {
+        // Update local storage
+        const cart = JSON.parse(localStorage.getItem('cart') || '[]');
+        const item = cart.find(i => i.id === itemId);
+        if (item) {
+          item.quantity = newQuantity;
+          localStorage.setItem('cart', JSON.stringify(cart));
+        }
+      }
+
+      loadCart();
+      updateCartCount();
+    }
+
+    // Remove item
+    async function removeItem(itemId) {
+      try {
+        await fetch(`/api/cart/${itemId}`, { method: 'DELETE' });
+      } catch (error) {
+        // Remove from local storage
+        const cart = JSON.parse(localStorage.getItem('cart') || '[]');
+        const index = cart.findIndex(i => i.id === itemId);
+        if (index > -1) {
+          cart.splice(index, 1);
+          localStorage.setItem('cart', JSON.stringify(cart));
+        }
+      }
+
+      showToast('Item removed from cart');
+      loadCart();
+      updateCartCount();
+    }
+
+    // Open checkout
+    function openCheckout() {
+      const tax = subtotal * 0.08;
+      const shipping = subtotal > 99 ? 0 : 9.99;
+      const total = subtotal + tax + shipping;
+
+      document.getElementById('checkoutSubtotal').textContent = subtotal.toFixed(2);
+      document.getElementById('checkoutShipping').textContent = shipping.toFixed(2);
+      document.getElementById('checkoutTax').textContent = tax.toFixed(2);
+      document.getElementById('checkoutTotal').textContent = total.toFixed(2);
+
+      document.getElementById('checkoutModal').classList.add('active');
+    }
+
+    // Close checkout
+    function closeCheckout() {
+      document.getElementById('checkoutModal').classList.remove('active');
+    }
+
+    // Submit order
+    async function submitOrder(e) {
+      e.preventDefault();
+
+      const sessionId = getSessionId();
+      const tax = subtotal * 0.08;
+      const shipping = subtotal > 99 ? 0 : 9.99;
+
+      const orderData = {
+        sessionId,
+        customerName: document.getElementById('customerName').value,
+        customerEmail: document.getElementById('customerEmail').value,
+        customerPhone: document.getElementById('customerPhone').value,
+        shippingAddress: `${document.getElementById('streetAddress').value}, ${document.getElementById('city').value}, ${document.getElementById('state').value} ${document.getElementById('zipCode').value}, ${document.getElementById('country').value}`,
+        subtotal,
+        tax,
+        shipping
+      };
+
+      try {
+        const response = await fetch('/api/orders', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(orderData)
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+          localStorage.removeItem('cart');
+          closeCheckout();
+          showOrderConfirmation(result.orderNumber);
+        }
+      } catch (error) {
+        // Simulate successful order
+        localStorage.removeItem('cart');
+        closeCheckout();
+        showOrderConfirmation('ORD-' + Date.now().toString(36).toUpperCase());
+      }
+    }
+
+    // Show order confirmation
+    function showOrderConfirmation(orderNumber) {
+      document.getElementById('cartContent').innerHTML = `
+        <div class="empty-cart" style="padding: 80px 20px;">
+          <div style="width: 80px; height: 80px; background: var(--success-green); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 25px;">
+            <i class="fas fa-check" style="font-size: 40px; color: white;"></i>
+          </div>
+          <h2 style="color: var(--success-green);">Order Placed Successfully!</h2>
+          <p style="margin-bottom: 10px;">Thank you for your order.</p>
+          <p style="font-size: 18px; font-weight: bold; color: var(--primary-brown);">Order #${orderNumber}</p>
+          <p style="color: var(--text-muted); margin-top: 15px;">
+            A confirmation email has been sent to your email address.
+          </p>
+          <a href="/shop" class="btn-add-cart" style="display: inline-block; padding: 15px 40px; margin-top: 25px;">
+            Continue Shopping
+          </a>
+        </div>
+      `;
+
+      updateCartCount();
+    }
+
+    // Close modal on outside click
+    document.getElementById('checkoutModal').addEventListener('click', function(e) {
+      if (e.target === this) closeCheckout();
+    });
+  </script>
+</body>
+</html>

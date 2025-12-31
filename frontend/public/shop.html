@@ -1,0 +1,603 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Shop - Peekaboo Shades</title>
+  <link rel="stylesheet" href="/css/styles.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+  <!-- Top Bar -->
+  <div class="top-bar">
+    <div class="top-bar-container">
+      <div class="top-bar-left">
+        <span><i class="fas fa-phone"></i> 1-800-SHADES</span>
+        <span><i class="fas fa-envelope"></i> info@peekabooshades.com</span>
+      </div>
+      <div class="top-bar-right">
+        <a href="#">Free Samples</a>
+        <a href="#">Trade Program</a>
+        <a href="#">Help</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Header -->
+  <header class="main-header">
+    <div class="header-container">
+      <a href="/" class="logo">
+        <div class="logo-text">PEEKABOO<span> SHADES</span></div>
+      </a>
+
+      <nav class="main-nav">
+        <ul>
+          <li class="nav-dropdown">
+            <a href="/shop" class="active">Windows Blinds & Shades <i class="fas fa-chevron-down"></i></a>
+            <div class="nav-dropdown-menu">
+              <a href="/shop?category=roller-shades">Roller Shades</a>
+              <a href="/shop?category=zebra-shades">Zebra Shades</a>
+              <a href="/shop?category=roman-shades">Roman Shades</a>
+              <a href="/shop?category=honeycomb-shades">Honeycomb Shades</a>
+            </div>
+          </li>
+          <li><a href="#">Curtains</a></li>
+          <li><a href="#">Look up My Order</a></li>
+          <li><a href="#">Bulk Orders/Wholesale</a></li>
+          <li><a href="#">Contact Us</a></li>
+          <li><a href="#">My Account</a></li>
+        </ul>
+      </nav>
+
+      <div class="header-icons">
+        <div class="search-bar">
+          <input type="text" placeholder="Search products..." id="searchInput">
+          <button onclick="searchProducts()"><i class="fas fa-search"></i></button>
+        </div>
+        <a href="#" class="header-icon"><i class="far fa-heart"></i></a>
+        <a href="#" class="header-icon"><i class="far fa-user"></i></a>
+        <a href="/cart" class="header-icon">
+          <i class="fas fa-shopping-cart"></i>
+          <span class="cart-count" id="cartCount">0</span>
+        </a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="hero-section">
+    <div class="hero-container">
+      <p class="hero-subtitle">CHOOSE THE PERFECT BLINDS AND ROLLER</p>
+      <h1 class="hero-title">SHOP NOW</h1>
+    </div>
+  </section>
+
+  <!-- Category Tabs -->
+  <section class="category-tabs">
+    <div class="tabs-container">
+      <div class="tabs-left">
+        <button class="tab-btn active" data-category="zebra-shades">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <rect x="3" y="3" width="18" height="18" rx="1"/>
+            <line x1="3" y1="7" x2="21" y2="7"/>
+            <line x1="3" y1="11" x2="21" y2="11"/>
+            <line x1="3" y1="15" x2="21" y2="15"/>
+            <line x1="3" y1="19" x2="21" y2="19"/>
+          </svg>
+          Zebra Shades
+        </button>
+        <button class="tab-btn" data-category="roller-shades">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <rect x="3" y="3" width="18" height="18" rx="1"/>
+            <rect x="3" y="3" width="18" height="6" fill="currentColor" opacity="0.3"/>
+            <line x1="12" y1="9" x2="12" y2="21"/>
+          </svg>
+          Roller Shades
+        </button>
+        <button class="tab-btn" data-category="roman-shades">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <rect x="3" y="3" width="18" height="18" rx="1"/>
+            <path d="M3 8 Q12 12 21 8"/>
+            <path d="M3 13 Q12 17 21 13"/>
+            <path d="M3 18 Q12 22 21 18"/>
+          </svg>
+          Roman Shades
+        </button>
+        <button class="tab-btn" data-category="natural-woven-shades">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <rect x="3" y="3" width="18" height="18" rx="1"/>
+            <line x1="3" y1="6" x2="21" y2="6"/>
+            <line x1="3" y1="9" x2="21" y2="9"/>
+            <line x1="3" y1="12" x2="21" y2="12"/>
+            <line x1="3" y1="15" x2="21" y2="15"/>
+            <line x1="3" y1="18" x2="21" y2="18"/>
+            <line x1="6" y1="3" x2="6" y2="21"/>
+            <line x1="12" y1="3" x2="12" y2="21"/>
+            <line x1="18" y1="3" x2="18" y2="21"/>
+          </svg>
+          Natural Woven Shades
+        </button>
+        <button class="tab-btn" data-category="honeycomb-shades">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <rect x="3" y="3" width="18" height="18" rx="1"/>
+            <path d="M6 6 L9 3 L12 6 L9 9 Z"/>
+            <path d="M12 6 L15 3 L18 6 L15 9 Z"/>
+            <path d="M6 12 L9 9 L12 12 L9 15 Z"/>
+            <path d="M12 12 L15 9 L18 12 L15 15 Z"/>
+            <path d="M6 18 L9 15 L12 18 L9 21 Z"/>
+            <path d="M12 18 L15 15 L18 18 L15 21 Z"/>
+          </svg>
+          Honeycomb Shades
+        </button>
+        <button class="tab-btn" data-category="drapes">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+            <rect x="3" y="3" width="18" height="3"/>
+            <path d="M5 6 Q3 12 5 21"/>
+            <path d="M9 6 Q7 12 9 21"/>
+            <path d="M15 6 Q17 12 15 21"/>
+            <path d="M19 6 Q21 12 19 21"/>
+          </svg>
+          Drapes
+        </button>
+      </div>
+      <button class="tab-btn build-your-own-btn" onclick="window.location.href='/product/affordable-custom-roller-blinds'">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+          <path d="M3 21L12 12M12 12L21 3M12 12L3 3M12 12L21 21"/>
+          <rect x="8" y="8" width="8" height="8" rx="1"/>
+        </svg>
+        Build Your Own
+      </button>
+    </div>
+  </section>
+
+  <!-- Filter Bar -->
+  <section class="filter-bar">
+    <div class="filter-container">
+      <div class="filter-left">
+        <button class="filter-pill" onclick="toggleFilters()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="4" y1="6" x2="20" y2="6"/>
+            <line x1="8" y1="12" x2="16" y2="12"/>
+            <line x1="10" y1="18" x2="14" y2="18"/>
+          </svg>
+          Filters
+        </button>
+        <button class="filter-pill" onclick="toggleColorFilter()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="9"/>
+            <circle cx="12" cy="12" r="4"/>
+          </svg>
+          Color
+        </button>
+        <button class="filter-pill" onclick="toggleSizeFilter()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M4 4L20 20M4 20L20 4"/>
+          </svg>
+          Size
+        </button>
+        <button class="filter-pill" onclick="togglePriceFilter()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M6 4L6 20M18 4L18 20M6 12L18 12"/>
+          </svg>
+          Price
+        </button>
+        <button class="filter-pill" onclick="toggleRoomFilter()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <rect x="4" y="8" width="16" height="12" rx="1"/>
+            <path d="M8 8V6a4 4 0 018 0v2"/>
+          </svg>
+          Room
+        </button>
+        <select class="sort-select" id="sortFilter" onchange="applyFilters()">
+          <option value="popular">Sort by: Most Popular</option>
+          <option value="newest">Sort by: Newest</option>
+          <option value="price_asc">Sort by: Price Low to High</option>
+          <option value="price_desc">Sort by: Price High to Low</option>
+          <option value="name">Sort by: Name A to Z</option>
+        </select>
+      </div>
+      <div class="filter-right">
+        <span class="products-count"><span id="productsCount">274</span> Products</span>
+      </div>
+    </div>
+  </section>
+
+  <!-- Products Grid -->
+  <section class="products-section">
+    <div class="products-container">
+      <div class="products-grid" id="productsGrid">
+        <!-- Products will be loaded dynamically -->
+      </div>
+
+      <div class="load-more-container">
+        <button class="load-more-btn" id="loadMoreBtn" onclick="loadMore()">Load More</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="main-footer">
+    <div class="footer-container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <div class="footer-logo">
+            <div class="logo-text">PEEKABOO<span> SHADES</span></div>
+          </div>
+          <p class="footer-description">
+            Custom window blinds and shades designed to transform your space.
+            Premium quality, affordable prices, and exceptional service.
+          </p>
+          <div class="footer-social">
+            <a href="#" class="social-icon"><i class="fab fa-facebook-f"></i></a>
+            <a href="#" class="social-icon"><i class="fab fa-instagram"></i></a>
+            <a href="#" class="social-icon"><i class="fab fa-twitter"></i></a>
+            <a href="#" class="social-icon"><i class="fab fa-pinterest"></i></a>
+          </div>
+        </div>
+
+        <div class="footer-column">
+          <h4>Products</h4>
+          <ul>
+            <li><a href="/shop?category=roller-shades">Roller Shades</a></li>
+            <li><a href="/shop?category=roman-shades">Roman Shades</a></li>
+            <li><a href="/shop?category=natural-woven-shades">Natural Woven</a></li>
+            <li><a href="/shop?category=honeycomb-shades">Honeycomb Shades</a></li>
+            <li><a href="/shop?category=drapes">Drapes</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-column">
+          <h4>Customer Service</h4>
+          <ul>
+            <li><a href="#">Track Order</a></li>
+            <li><a href="#">Returns & Exchanges</a></li>
+            <li><a href="#">Shipping Info</a></li>
+            <li><a href="#">FAQs</a></li>
+            <li><a href="#">Contact Us</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-column">
+          <h4>Talk To Us</h4>
+          <ul>
+            <li><a href="#">About Us</a></li>
+            <li><a href="#">Careers</a></li>
+            <li><a href="#">Press</a></li>
+            <li><a href="#">Blog</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-column">
+          <h4>Resources</h4>
+          <ul>
+            <li><a href="#">Measuring Guide</a></li>
+            <li><a href="#">Installation Guide</a></li>
+            <li><a href="#">Free Samples</a></li>
+            <li><a href="#">Trade Program</a></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <p class="footer-copyright">&copy; 2024 Peekaboo Shades. All rights reserved.</p>
+        <div class="footer-links">
+          <a href="#">Privacy Policy</a>
+          <a href="#">Terms of Service</a>
+          <a href="#">Accessibility</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Toast Container -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <script src="/js/app.js"></script>
+  <script>
+    // Products data
+    let allProducts = [];
+    let filteredProducts = [];
+    let currentPage = 1;
+    const productsPerPage = 9;
+    let currentCategory = 'all';
+
+    // Product images (sample images for demo)
+    const productImages = [
+      'https://images.unsplash.com/photo-1615874959474-d609969a20ed?w=400',
+      'https://images.unsplash.com/photo-1616046229478-9901c5536a45?w=400',
+      'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=400',
+      'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=400',
+      'https://images.unsplash.com/photo-1615873968403-89e068629265?w=400',
+      'https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?w=400',
+      'https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?w=400',
+      'https://images.unsplash.com/photo-1582582621959-48d27397dc69?w=400'
+    ];
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', function() {
+      // Check URL params for category
+      const urlParams = new URLSearchParams(window.location.search);
+      const categoryParam = urlParams.get('category');
+      if (categoryParam) {
+        currentCategory = categoryParam;
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+          btn.classList.remove('active');
+          if (btn.dataset.category === categoryParam) {
+            btn.classList.add('active');
+          }
+        });
+      }
+
+      loadProducts();
+      setupCategoryTabs();
+      updateCartCount();
+    });
+
+    // Load products from API
+    async function loadProducts() {
+      try {
+        const categoryParam = currentCategory !== 'all' ? `?category=${currentCategory}` : '';
+        const response = await fetch(`/api/products${categoryParam}`);
+        const result = await response.json();
+
+        if (result.success) {
+          allProducts = result.data.map((product, index) => ({
+            ...product,
+            image_url: product.image_url || productImages[index % productImages.length]
+          }));
+          filteredProducts = [...allProducts];
+          renderProducts();
+        }
+      } catch (error) {
+        console.error('Error loading products:', error);
+        // Load demo products if API fails
+        loadDemoProducts();
+      }
+    }
+
+    // Demo products for when API is not available
+    function loadDemoProducts() {
+      allProducts = [
+        {
+          id: '1',
+          slug: 'affordable-custom-roller-blinds',
+          name: 'Affordable Custom Roller Blinds & shades',
+          category_name: 'Roller Shades',
+          category_slug: 'roller-shades',
+          base_price: 40.00,
+          sale_price: null,
+          image_url: productImages[0]
+        },
+        {
+          id: '2',
+          slug: 'energy-efficient-roman-shades',
+          name: 'Energy Efficient Roman Shades',
+          category_name: 'Roman Shades',
+          category_slug: 'roman-shades',
+          base_price: 89.79,
+          sale_price: null,
+          image_url: productImages[1]
+        },
+        {
+          id: '3',
+          slug: 'affordable-zebra-window-blinds',
+          name: 'Affordable Custom Zebra Window Blinds',
+          category_name: 'Natural Woven Shades',
+          category_slug: 'natural-woven-shades',
+          base_price: 50.00,
+          sale_price: null,
+          image_url: productImages[2]
+        },
+        {
+          id: '4',
+          slug: 'natural-woven-timeless',
+          name: 'Natural Woven Shades - Timeless Elegance',
+          category_name: 'Honeycomb Shades',
+          category_slug: 'honeycomb-shades',
+          base_price: 65.00,
+          sale_price: null,
+          image_url: productImages[3]
+        },
+        {
+          id: '5',
+          slug: 'blackout-roller-blinds',
+          name: 'Affordable Custom Roller Blinds & shades',
+          category_name: 'Roller Shades',
+          category_slug: 'roller-shades',
+          base_price: 40.00,
+          sale_price: null,
+          image_url: productImages[4]
+        },
+        {
+          id: '6',
+          slug: 'premium-roman-shades',
+          name: 'Energy Efficient Roman Shades',
+          category_name: 'Roman Shades',
+          category_slug: 'roman-shades',
+          base_price: 89.79,
+          sale_price: null,
+          image_url: productImages[5]
+        },
+        {
+          id: '7',
+          slug: 'zebra-blinds-premium',
+          name: 'Affordable Custom Zebra Window Blinds',
+          category_name: 'Natural Woven Shades',
+          category_slug: 'natural-woven-shades',
+          base_price: 50.00,
+          sale_price: null,
+          image_url: productImages[6]
+        },
+        {
+          id: '8',
+          slug: 'cellular-shades',
+          name: 'Natural Woven Shades - Timeless Elegance with Organic Appeal',
+          category_name: 'Honeycomb Shades',
+          category_slug: 'honeycomb-shades',
+          base_price: 65.00,
+          sale_price: null,
+          image_url: productImages[7]
+        },
+        {
+          id: '9',
+          slug: 'roller-blackout-2',
+          name: 'Affordable Custom Roller Blinds & shades',
+          category_name: 'Roller Shades',
+          category_slug: 'roller-shades',
+          base_price: 40.00,
+          sale_price: null,
+          image_url: productImages[0]
+        }
+      ];
+
+      filteredProducts = currentCategory === 'all'
+        ? [...allProducts]
+        : allProducts.filter(p => p.category_slug === currentCategory);
+
+      renderProducts();
+    }
+
+    // Render products
+    function renderProducts() {
+      const grid = document.getElementById('productsGrid');
+      const endIndex = currentPage * productsPerPage;
+      const productsToShow = filteredProducts.slice(0, endIndex);
+
+      grid.innerHTML = productsToShow.map(product => `
+        <div class="product-card" onclick="window.location.href='/product/${product.slug}'">
+          <div class="product-image">
+            <img src="${product.image_url}" alt="${product.name}">
+            ${product.sale_price ? '<span class="product-badge">Sale</span>' : ''}
+            <button class="product-wishlist" onclick="event.stopPropagation(); addToWishlist('${product.id}')">
+              <i class="far fa-heart"></i>
+            </button>
+          </div>
+          <div class="product-info">
+            <h3 class="product-title">${product.name}</h3>
+            <div class="product-price">
+              <span class="current-price">$${product.base_price.toFixed(2)} USD</span>
+              ${product.sale_price ? `<span class="original-price">$${product.sale_price.toFixed(2)}</span>` : ''}
+            </div>
+          </div>
+        </div>
+      `).join('');
+
+      // Update count
+      document.getElementById('productsCount').textContent = filteredProducts.length;
+
+      // Show/hide load more button
+      const loadMoreBtn = document.getElementById('loadMoreBtn');
+      if (endIndex >= filteredProducts.length) {
+        loadMoreBtn.style.display = 'none';
+      } else {
+        loadMoreBtn.style.display = 'inline-block';
+      }
+    }
+
+    // Setup category tabs
+    function setupCategoryTabs() {
+      document.querySelectorAll('.tab-btn:not(.build-your-own-btn)').forEach(btn => {
+        btn.addEventListener('click', function() {
+          document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+          this.classList.add('active');
+
+          currentCategory = this.dataset.category;
+          currentPage = 1;
+
+          if (currentCategory === 'all') {
+            filteredProducts = [...allProducts];
+          } else {
+            filteredProducts = allProducts.filter(p => p.category_slug === currentCategory);
+          }
+
+          renderProducts();
+
+          // Update URL
+          const url = new URL(window.location);
+          if (currentCategory === 'all') {
+            url.searchParams.delete('category');
+          } else {
+            url.searchParams.set('category', currentCategory);
+          }
+          window.history.pushState({}, '', url);
+        });
+      });
+    }
+
+    // Apply filters
+    function applyFilters() {
+      const sort = document.getElementById('sortFilter').value;
+      const priceRange = document.getElementById('priceFilter').value;
+
+      // Start with category filtered products
+      let products = currentCategory === 'all'
+        ? [...allProducts]
+        : allProducts.filter(p => p.category_slug === currentCategory);
+
+      // Price filter
+      if (priceRange) {
+        if (priceRange === '200+') {
+          products = products.filter(p => p.base_price >= 200);
+        } else {
+          const [min, max] = priceRange.split('-').map(Number);
+          products = products.filter(p => p.base_price >= min && p.base_price <= max);
+        }
+      }
+
+      // Sort
+      if (sort === 'price_asc') {
+        products.sort((a, b) => a.base_price - b.base_price);
+      } else if (sort === 'price_desc') {
+        products.sort((a, b) => b.base_price - a.base_price);
+      } else if (sort === 'name') {
+        products.sort((a, b) => a.name.localeCompare(b.name));
+      }
+
+      filteredProducts = products;
+      currentPage = 1;
+      renderProducts();
+    }
+
+    // Load more products
+    function loadMore() {
+      currentPage++;
+      renderProducts();
+    }
+
+    // Search products
+    function searchProducts() {
+      const query = document.getElementById('searchInput').value.toLowerCase();
+      if (!query) {
+        filteredProducts = currentCategory === 'all'
+          ? [...allProducts]
+          : allProducts.filter(p => p.category_slug === currentCategory);
+      } else {
+        filteredProducts = allProducts.filter(p =>
+          p.name.toLowerCase().includes(query) ||
+          p.category_name.toLowerCase().includes(query)
+        );
+      }
+      currentPage = 1;
+      renderProducts();
+    }
+
+    // Search on enter key
+    document.getElementById('searchInput').addEventListener('keypress', function(e) {
+      if (e.key === 'Enter') {
+        searchProducts();
+      }
+    });
+
+    // Toggle filters (mobile)
+    function toggleFilters() {
+      // Implement mobile filter panel toggle
+      showToast('Filter panel coming soon!');
+    }
+
+    // Add to wishlist
+    function addToWishlist(productId) {
+      showToast('Added to wishlist!', 'success');
+    }
+  </script>
+</body>
+</html>

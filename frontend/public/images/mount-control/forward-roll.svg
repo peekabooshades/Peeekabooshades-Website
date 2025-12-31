@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 100">
+  <!-- Background -->
+  <rect width="120" height="100" fill="#ffffff"/>
+
+  <!-- Wall/Window Frame -->
+  <rect x="10" y="10" width="60" height="80" fill="#f0f0f0" stroke="#ccc" stroke-width="1"/>
+
+  <!-- Window glass -->
+  <rect x="15" y="20" width="50" height="65" fill="#e3f2fd" stroke="#90caf9" stroke-width="1"/>
+
+  <!-- Roller tube -->
+  <rect x="12" y="12" width="56" height="10" rx="5" fill="#8E6545"/>
+  <circle cx="18" cy="17" r="3" fill="#6b4c35"/>
+  <circle cx="62" cy="17" r="3" fill="#6b4c35"/>
+
+  <!-- Fabric - rolling from FRONT toward window -->
+  <path d="M15 22 C15 22 14 20 18 18 L62 18 C66 20 65 22 65 22 L65 60 L15 60 Z" fill="#d4c4b0" stroke="#b8a690" stroke-width="1"/>
+
+  <!-- Arrow showing fabric direction -->
+  <path d="M80 25 L80 50" stroke="#8E6545" stroke-width="2" marker-end="url(#arrow1)"/>
+  <defs>
+    <marker id="arrow1" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#8E6545"/>
+    </marker>
+  </defs>
+
+  <!-- Labels -->
+  <text x="80" y="20" font-family="Arial" font-size="7" fill="#666" text-anchor="middle">Fabric</text>
+  <text x="80" y="62" font-family="Arial" font-size="7" fill="#666" text-anchor="middle">↓ Front</text>
+
+  <!-- Close to window indicator -->
+  <text x="40" y="95" font-family="Arial" font-size="8" fill="#333" font-weight="bold" text-anchor="middle">Close to Window</text>
+</svg>

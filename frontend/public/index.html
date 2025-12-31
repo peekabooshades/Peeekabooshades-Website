@@ -1,0 +1,1822 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Peekaboo Shades - Transform Your Home</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    /* ============================================
+       PEEKABOO SHADES - Homepage
+       Matching Figma Design Page 3
+       ============================================ */
+
+    :root {
+      --golden-brown: #8E6545;
+      --golden-brown-light: #8E6545;
+      --dark-brown: #8E6545;
+      --text-dark: #333333;
+      --text-brown: #8E6545;
+      --text-light: #666666;
+      --text-muted: #999999;
+      --bg-cream: #F8F6F3;
+      --bg-light: #FAFAFA;
+      --bg-white: #FFFFFF;
+      --border-light: #E8E8E8;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 16px;
+      line-height: 1.6;
+      color: var(--text-dark);
+      background: var(--bg-white);
+    }
+
+    a {
+      text-decoration: none;
+      color: inherit;
+    }
+
+    button {
+      cursor: pointer;
+      border: none;
+      background: none;
+      font-family: inherit;
+    }
+
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 0 40px;
+    }
+
+    /* ============================================
+       TOP BAR
+       ============================================ */
+    .top-bar {
+      background: #8E6545;
+      color: white;
+      padding: 8px 0;
+      font-size: 12px;
+    }
+
+    .top-bar .container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .top-bar-left {
+      display: flex;
+      gap: 25px;
+    }
+
+    .top-bar-left span {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .top-bar-center {
+      display: flex;
+      gap: 20px;
+    }
+
+    .top-bar-center a {
+      color: white;
+      font-weight: 500;
+    }
+
+    .top-bar-right {
+      display: flex;
+      gap: 15px;
+      align-items: center;
+    }
+
+    .top-bar-right a {
+      color: white;
+    }
+
+    /* ============================================
+       MAIN HEADER
+       ============================================ */
+    .main-header {
+      background: transparent;
+      height: 70px;
+      max-width: 1599px;
+      margin: 0 auto;
+      border-bottom: none;
+      position: absolute;
+      top: 35px;
+      left: 0;
+      right: 0;
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+    }
+
+    .header-container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      width: 100%;
+      height: 100%;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .logo-icon {
+      width: 40px;
+      height: 40px;
+      background: #FFFFFF;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .logo-icon svg {
+      width: 24px;
+      height: 24px;
+      fill: var(--golden-brown);
+    }
+
+    .logo-text {
+      font-size: 18px;
+      font-weight: 700;
+    }
+
+    .logo-text .peekaboo {
+      color: #FFFFFF;
+    }
+
+    .logo-text .shades {
+      color: #FFFFFF;
+    }
+
+    .main-nav ul {
+      display: flex;
+      gap: 30px;
+      list-style: none;
+    }
+
+    .main-nav a {
+      font-size: 13px;
+      font-weight: 500;
+      color: #FFFFFF;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    .main-nav a:hover {
+      color: rgba(255, 255, 255, 0.8);
+    }
+
+    .nav-dropdown {
+      position: relative;
+    }
+
+    .nav-dropdown-menu {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      background: #FFFFFF;
+      min-width: 220px;
+      border-radius: 8px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.15);
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(10px);
+      transition: all 0.3s ease;
+      z-index: 1000;
+      padding: 10px 0;
+      margin-top: 10px;
+    }
+
+    .nav-dropdown:hover .nav-dropdown-menu {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+    }
+
+    .nav-dropdown-menu a {
+      display: block;
+      padding: 10px 18px;
+      color: #333333 !important;
+      font-size: 13px;
+      font-weight: 500;
+      transition: all 0.2s;
+    }
+
+    .nav-dropdown-menu a:hover {
+      background: #F8F6F3;
+      color: #8E6545 !important;
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .search-box {
+      display: flex;
+      align-items: center;
+      background: rgba(255, 255, 255, 0.2);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      border-radius: 20px;
+      padding: 8px 15px;
+      width: 180px;
+    }
+
+    .search-box input {
+      border: none;
+      background: none;
+      outline: none;
+      flex: 1;
+      font-size: 13px;
+      color: #FFFFFF;
+    }
+
+    .search-box input::placeholder {
+      color: rgba(255, 255, 255, 0.7);
+    }
+
+    .search-box i {
+      color: #FFFFFF;
+    }
+
+    .header-icons {
+      display: flex;
+      gap: 15px;
+    }
+
+    .header-icon {
+      position: relative;
+      color: #FFFFFF;
+      font-size: 18px;
+    }
+
+    .cart-count {
+      position: absolute;
+      top: -6px;
+      right: -6px;
+      background: var(--golden-brown);
+      color: white;
+      font-size: 10px;
+      width: 16px;
+      height: 16px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    /* ============================================
+       HERO SLIDER SECTION
+       ============================================ */
+    .hero-slider {
+      position: relative;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    .slider-container {
+      position: relative;
+      width: 100%;
+      height: 100%;
+    }
+
+    .slide {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      opacity: 0;
+      transition: opacity 0.8s ease-in-out;
+    }
+
+    .slide.active {
+      opacity: 1;
+    }
+
+    .slide-image {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center center;
+    }
+
+    .slide-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(to right, rgba(0, 0, 0, 0.4) 0%, rgba(0, 0, 0, 0.1) 50%, transparent 100%);
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 10;
+      color: white;
+      max-width: 500px;
+      padding: 0 40px;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      max-width: 1400px;
+      margin: 0 auto;
+    }
+
+    .hero-content-inner {
+      max-width: 900px;
+    }
+
+    .hero-subtitle {
+      font-size: 18px;
+      font-weight: 400;
+      letter-spacing: 3px;
+      margin-bottom: 15px;
+      opacity: 0.9;
+      text-transform: uppercase;
+    }
+
+    .hero-title {
+      font-size: 64px;
+      font-weight: 700;
+      line-height: 1.1;
+      margin-bottom: 35px;
+    }
+
+    .hero-buttons {
+      display: flex;
+      gap: 20px;
+    }
+
+    /* Slider Arrows */
+    .slider-arrow {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 45px;
+      height: 45px;
+      background: rgba(255, 255, 255, 0.2);
+      border: none;
+      border-radius: 50%;
+      color: white;
+      font-size: 18px;
+      cursor: pointer;
+      z-index: 20;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .slider-arrow:hover {
+      background: rgba(255, 255, 255, 0.4);
+    }
+
+    .slider-arrow.prev {
+      left: 30px;
+    }
+
+    .slider-arrow.next {
+      right: 30px;
+    }
+
+    .btn-shop-all,
+    .btn-shop-new {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      padding: 14px 28px;
+      background: #FFFFFF;
+      color: #8E6545;
+      border: none;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      text-decoration: none;
+    }
+
+    .btn-shop-all:hover,
+    .btn-shop-new:hover {
+      background: #F8F6F3;
+      transform: translateY(-2px);
+    }
+
+    .btn-primary {
+      padding: 14px 30px;
+      background: var(--bg-white);
+      color: var(--dark-brown);
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 500;
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      transition: all 0.3s;
+    }
+
+    .btn-primary:hover {
+      background: var(--bg-cream);
+      transform: translateY(-2px);
+    }
+
+    .btn-secondary {
+      padding: 14px 30px;
+      background: transparent;
+      color: white;
+      border: 2px solid white;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 500;
+      display: inline-flex;
+      align-items: center;
+      gap: 12px;
+      transition: all 0.3s;
+    }
+
+    .btn-secondary:hover {
+      background: white;
+      color: var(--dark-brown);
+      transform: translateY(-2px);
+    }
+
+    /* ============================================
+       DESIGNED WITH PURPOSE SECTION
+       ============================================ */
+    .purpose-section {
+      padding: 70px 0;
+      background: var(--bg-white);
+    }
+
+    .section-header {
+      text-align: center;
+      margin-bottom: 50px;
+    }
+
+    .section-subtitle {
+      color: var(--golden-brown);
+      font-size: 14px;
+      font-weight: 500;
+      margin-bottom: 10px;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+    }
+
+    .section-title {
+      font-size: 36px;
+      font-weight: 700;
+      color: var(--golden-brown);
+    }
+
+    .category-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 25px;
+      position: relative;
+    }
+
+    .category-card {
+      background: var(--bg-white);
+      border-radius: 15px;
+      overflow: hidden;
+      box-shadow: 0 5px 20px rgba(0,0,0,0.08);
+      transition: all 0.3s;
+      cursor: pointer;
+    }
+
+    .category-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 15px 40px rgba(0,0,0,0.12);
+    }
+
+    .category-image {
+      height: 350px;
+      overflow: hidden;
+    }
+
+    .category-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.5s;
+    }
+
+    .category-card:hover .category-image img {
+      transform: scale(1.05);
+    }
+
+    .category-info {
+      padding: 20px;
+    }
+
+    .category-name {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--golden-brown);
+      margin-bottom: 8px;
+    }
+
+    .category-desc {
+      font-size: 12px;
+      color: var(--text-light);
+      line-height: 1.6;
+    }
+
+    .nav-arrow {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 45px;
+      height: 45px;
+      background: var(--bg-white);
+      border: 1px solid var(--border-light);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-dark);
+      cursor: pointer;
+      transition: all 0.3s;
+      z-index: 10;
+    }
+
+    .nav-arrow:hover {
+      background: var(--golden-brown);
+      color: white;
+      border-color: var(--golden-brown);
+    }
+
+    .nav-arrow.prev {
+      left: -22px;
+    }
+
+    .nav-arrow.next {
+      right: -22px;
+    }
+
+    /* ============================================
+       IMAGINATION SECTION
+       ============================================ */
+    .imagination-section {
+      padding: 140px 0;
+      background: var(--bg-cream);
+    }
+
+    .imagination-content {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 80px;
+      align-items: center;
+    }
+
+    .imagination-text h3 {
+      color: var(--golden-brown);
+      font-size: 14px;
+      font-weight: 500;
+      margin-bottom: 10px;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+    }
+
+    .imagination-text h2 {
+      font-size: 36px;
+      font-weight: 700;
+      color: var(--golden-brown);
+      margin-bottom: 20px;
+    }
+
+    .imagination-text p {
+      color: var(--text-light);
+      font-size: 14px;
+      line-height: 1.7;
+    }
+
+    .order-samples-box {
+      background: var(--bg-white);
+      border-radius: 15px;
+      padding: 40px;
+      text-align: center;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+    }
+
+    .order-samples-box h3 {
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--text-brown);
+      margin-bottom: 12px;
+    }
+
+    .order-samples-box p {
+      font-size: 13px;
+      color: var(--text-light);
+      margin-bottom: 20px;
+    }
+
+    .btn-order {
+      padding: 12px 28px;
+      background: #8E6545;
+      color: #FFFFFF;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.3s;
+    }
+
+    .btn-order:hover {
+      background: #7A5639;
+      transform: translateY(-2px);
+    }
+
+    /* ============================================
+       MOTORIZED BLINDS SECTION
+       ============================================ */
+    .motorized-section {
+      padding: 70px 0;
+      background: var(--bg-white);
+    }
+
+    .motorized-content {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 60px;
+      align-items: center;
+    }
+
+    .motorized-image {
+      border-radius: 15px;
+      overflow: hidden;
+      box-shadow: 0 15px 40px rgba(0,0,0,0.1);
+    }
+
+    .motorized-image img {
+      width: 100%;
+      height: 400px;
+      object-fit: cover;
+    }
+
+    .motorized-text h2 {
+      font-size: 26px;
+      font-weight: 600;
+      color: var(--text-brown);
+      margin-bottom: 15px;
+    }
+
+    .motorized-text p {
+      font-size: 14px;
+      color: var(--text-light);
+      margin-bottom: 20px;
+      line-height: 1.7;
+    }
+
+    .feature-list {
+      margin-bottom: 30px;
+    }
+
+    .feature-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      margin-bottom: 15px;
+    }
+
+    .feature-item i {
+      color: var(--golden-brown);
+      font-size: 14px;
+      margin-top: 3px;
+    }
+
+    .feature-item span {
+      font-size: 13px;
+      color: var(--text-light);
+    }
+
+    .btn-shop {
+      padding: 12px 28px;
+      background: #8E6545;
+      color: #FFFFFF;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.3s;
+    }
+
+    .btn-shop:hover {
+      background: #7A5639;
+      transform: translateY(-2px);
+    }
+
+    /* ============================================
+       MADE SIMPLE SECTION
+       ============================================ */
+    .simple-section {
+      padding: 70px 0;
+      background: var(--bg-white);
+    }
+
+    .simple-header {
+      text-align: center;
+      margin-bottom: 40px;
+    }
+
+    .simple-header h3 {
+      color: var(--golden-brown);
+      font-size: 14px;
+      font-weight: 500;
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+    }
+
+    .simple-header h2 {
+      font-size: 32px;
+      font-weight: 600;
+      color: var(--text-brown);
+    }
+
+    .showcase-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 25px;
+    }
+
+    .showcase-item {
+      border-radius: 15px;
+      overflow: hidden;
+      height: 300px;
+    }
+
+    .showcase-item img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.5s;
+    }
+
+    .showcase-item:hover img {
+      transform: scale(1.05);
+    }
+
+    /* ============================================
+       LATEST ARRIVALS SECTION
+       ============================================ */
+    .arrivals-section {
+      padding: 70px 0;
+      background: var(--bg-cream);
+    }
+
+    .arrivals-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-end;
+      margin-bottom: 40px;
+    }
+
+    .arrivals-header h3 {
+      color: var(--golden-brown);
+      font-size: 14px;
+      font-weight: 500;
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+    }
+
+    .arrivals-header h2 {
+      font-size: 32px;
+      font-weight: 600;
+      color: var(--text-brown);
+    }
+
+    .btn-shop-link {
+      padding: 12px 24px;
+      background: var(--bg-white);
+      color: var(--golden-brown);
+      border: 1px solid var(--golden-brown);
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      transition: all 0.3s;
+    }
+
+    .btn-shop-link:hover {
+      background: var(--golden-brown);
+      color: white;
+      border-color: var(--golden-brown);
+    }
+
+    .products-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 25px;
+    }
+
+    .product-card {
+      background: var(--bg-white);
+      border-radius: 15px;
+      overflow: hidden;
+      box-shadow: 0 5px 20px rgba(0,0,0,0.05);
+      transition: all 0.3s;
+      cursor: pointer;
+    }
+
+    .product-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 15px 40px rgba(0,0,0,0.1);
+    }
+
+    .product-image {
+      height: 220px;
+      overflow: hidden;
+    }
+
+    .product-image img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.5s;
+    }
+
+    .product-card:hover .product-image img {
+      transform: scale(1.05);
+    }
+
+    .product-info {
+      padding: 18px;
+    }
+
+    .product-title {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-dark);
+      margin-bottom: 6px;
+      line-height: 1.4;
+    }
+
+    .product-price {
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--golden-brown);
+    }
+
+    /* ============================================
+       NEWSLETTER SECTION
+       ============================================ */
+    .newsletter-section {
+      padding: 70px 0;
+      background: linear-gradient(135deg, var(--golden-brown), var(--dark-brown));
+      color: white;
+    }
+
+    .newsletter-content {
+      max-width: 600px;
+      margin: 0 auto;
+      text-align: center;
+    }
+
+    .newsletter-content h2 {
+      font-size: 26px;
+      font-weight: 600;
+      margin-bottom: 10px;
+    }
+
+    .newsletter-content p {
+      font-size: 14px;
+      opacity: 0.9;
+      margin-bottom: 25px;
+    }
+
+    .newsletter-form {
+      display: flex;
+      gap: 10px;
+      max-width: 450px;
+      margin: 0 auto;
+    }
+
+    .newsletter-form input {
+      flex: 1;
+      padding: 12px 18px;
+      border: none;
+      border-radius: 6px;
+      font-size: 14px;
+      outline: none;
+    }
+
+    .newsletter-form button {
+      padding: 12px 24px;
+      background: #FFFFFF;
+      color: #8E6545;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 600;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      transition: all 0.3s;
+    }
+
+    .newsletter-form button:hover {
+      background: #F8F6F3;
+      transform: translateY(-2px);
+    }
+
+    /* ============================================
+       TESTIMONIALS SECTION
+       ============================================ */
+    .testimonials-section {
+      padding: 70px 0;
+      background: var(--bg-white);
+    }
+
+    .testimonials-header {
+      text-align: center;
+      margin-bottom: 50px;
+    }
+
+    .testimonials-header h3 {
+      color: var(--golden-brown);
+      font-size: 14px;
+      font-weight: 500;
+      margin-bottom: 8px;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+    }
+
+    .testimonials-header h2 {
+      font-size: 32px;
+      font-weight: 600;
+      color: var(--text-brown);
+    }
+
+    .testimonial-card {
+      max-width: 700px;
+      margin: 0 auto;
+      text-align: center;
+    }
+
+    .testimonial-text {
+      font-size: 15px;
+      color: var(--text-light);
+      line-height: 1.7;
+      font-style: italic;
+      margin-bottom: 25px;
+    }
+
+    .testimonial-author {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 15px;
+    }
+
+    .author-avatar {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      overflow: hidden;
+    }
+
+    .author-avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .author-info h4 {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text-brown);
+    }
+
+    .author-info p {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    /* ============================================
+       INSTAGRAM SECTION
+       ============================================ */
+    .instagram-section {
+      padding: 50px 0;
+      background: var(--bg-cream);
+    }
+
+    .instagram-header {
+      text-align: center;
+      margin-bottom: 30px;
+    }
+
+    .instagram-header h3 {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text-brown);
+    }
+
+    .instagram-header a {
+      color: var(--golden-brown);
+    }
+
+    .instagram-grid {
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      gap: 15px;
+    }
+
+    .instagram-item {
+      aspect-ratio: 1;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+
+    .instagram-item img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.5s;
+    }
+
+    .instagram-item:hover img {
+      transform: scale(1.1);
+    }
+
+    /* ============================================
+       FOOTER
+       ============================================ */
+    .main-footer {
+      background: var(--bg-white);
+      padding: 60px 0 30px;
+      border-top: 1px solid var(--border-light);
+    }
+
+    .footer-grid {
+      display: grid;
+      grid-template-columns: 1.5fr repeat(4, 1fr);
+      gap: 40px;
+      margin-bottom: 40px;
+    }
+
+    .footer-brand .logo {
+      margin-bottom: 15px;
+    }
+
+    .footer-brand p {
+      font-size: 13px;
+      color: var(--text-light);
+      margin-bottom: 18px;
+      line-height: 1.6;
+    }
+
+    .footer-social {
+      display: flex;
+      gap: 10px;
+    }
+
+    .social-icon {
+      width: 35px;
+      height: 35px;
+      background: var(--bg-light);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--text-dark);
+      transition: all 0.3s;
+    }
+
+    .social-icon:hover {
+      background: var(--golden-brown);
+      color: white;
+    }
+
+    .footer-column h4 {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-dark);
+      margin-bottom: 15px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+    }
+
+    .footer-column ul {
+      list-style: none;
+    }
+
+    .footer-column ul li {
+      margin-bottom: 10px;
+    }
+
+    .footer-column ul a {
+      font-size: 13px;
+      color: var(--text-light);
+      transition: color 0.3s;
+    }
+
+    .footer-column ul a:hover {
+      color: var(--golden-brown);
+    }
+
+    .footer-bottom {
+      border-top: 1px solid var(--border-light);
+      padding-top: 25px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .footer-copyright {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .footer-links {
+      display: flex;
+      gap: 20px;
+    }
+
+    .footer-links a {
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .footer-links a:hover {
+      color: var(--golden-brown);
+    }
+
+    /* ============================================
+       TOAST
+       ============================================ */
+    .toast-container {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      z-index: 9999;
+    }
+
+    .toast {
+      background: var(--text-dark);
+      color: white;
+      padding: 15px 25px;
+      border-radius: 8px;
+      margin-top: 10px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      animation: slideIn 0.3s ease;
+    }
+
+    .toast.success {
+      background: #28a745;
+    }
+
+    @keyframes slideIn {
+      from {
+        transform: translateX(100%);
+        opacity: 0;
+      }
+      to {
+        transform: translateX(0);
+        opacity: 1;
+      }
+    }
+
+    /* ============================================
+       RESPONSIVE
+       ============================================ */
+    @media (max-width: 1200px) {
+      .category-grid,
+      .products-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .instagram-grid {
+        grid-template-columns: repeat(3, 1fr);
+      }
+    }
+
+    @media (max-width: 992px) {
+      .main-nav {
+        display: none;
+      }
+
+      .motorized-content,
+      .zebra-content,
+      .imagination-content {
+        grid-template-columns: 1fr;
+      }
+
+      .footer-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .showcase-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .container {
+        padding: 0 20px;
+      }
+
+      .hero-slider {
+        height: 450px;
+      }
+
+      .hero-title {
+        font-size: 32px;
+      }
+
+      .hero-buttons {
+        flex-direction: column;
+      }
+
+      .slider-arrow {
+        width: 40px;
+        height: 40px;
+        font-size: 14px;
+      }
+
+      .slider-arrow.prev {
+        left: 15px;
+      }
+
+      .slider-arrow.next {
+        right: 15px;
+      }
+
+      .hero-content {
+        padding: 0 20px;
+      }
+
+      .section-title,
+      .arrivals-header h2,
+      .testimonials-header h2 {
+        font-size: 24px;
+      }
+
+      .category-grid,
+      .products-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .newsletter-form {
+        flex-direction: column;
+      }
+
+      .instagram-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+
+      .footer-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .footer-bottom {
+        flex-direction: column;
+        gap: 15px;
+        text-align: center;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Top Bar -->
+  <div class="top-bar">
+    <div class="container">
+      <div class="top-bar-left">
+        <span><i class="fas fa-phone"></i> 1-800-PEEKABOO</span>
+        <span><i class="fas fa-envelope"></i> info@peekabooshades.com</span>
+      </div>
+      <div class="top-bar-center">
+        <a href="#">Free Samples</a>
+        <a href="#">Trade</a>
+      </div>
+      <div class="top-bar-right">
+        <a href="#"><i class="far fa-user"></i></a>
+        <a href="/cart"><i class="fas fa-shopping-cart"></i></a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Header -->
+  <header class="main-header">
+    <div class="container header-container">
+      <a href="/" class="logo">
+        <div class="logo-icon">
+          <svg viewBox="0 0 24 24" fill="currentColor">
+            <path d="M12 2L2 7v10l10 5 10-5V7L12 2zm0 2.18l6.9 3.45L12 11.09 5.1 7.63 12 4.18zM4 8.82l7 3.5v7.36l-7-3.5V8.82zm9 10.86v-7.36l7-3.5v7.36l-7 3.5z"/>
+          </svg>
+        </div>
+        <div class="logo-text">
+          <span class="peekaboo">PEEKABOO</span> <span class="shades">SHADES</span>
+        </div>
+      </a>
+
+      <nav class="main-nav">
+        <ul>
+          <li class="nav-dropdown">
+            <a href="/shop">Windows Blinds & Shades <i class="fas fa-chevron-down"></i></a>
+            <div class="nav-dropdown-menu">
+              <a href="/shop?category=roller-shades">Roller Shades</a>
+              <a href="/shop?category=zebra-shades">Zebra Shades</a>
+              <a href="/shop?category=roman-shades">Roman Shades</a>
+              <a href="/shop?category=honeycomb-shades">Honeycomb Shades</a>
+            </div>
+          </li>
+          <li><a href="#">Curtains</a></li>
+          <li><a href="#">Look up My Order</a></li>
+          <li><a href="#">Bulk Orders/Wholesale</a></li>
+          <li><a href="#">Contact Us</a></li>
+          <li><a href="#">My Account</a></li>
+        </ul>
+      </nav>
+
+      <div class="header-right">
+        <div class="search-box">
+          <input type="text" placeholder="Search">
+          <i class="fas fa-search"></i>
+        </div>
+        <div class="header-icons">
+          <a href="#" class="header-icon"><i class="far fa-heart"></i></a>
+          <a href="/cart" class="header-icon">
+            <i class="fas fa-shopping-cart"></i>
+            <span class="cart-count" id="cartCount">0</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero Slider Section -->
+  <section class="hero-slider">
+    <div class="slider-container">
+      <!-- Slide 1 - Living Room with Roman Shades -->
+      <div class="slide active">
+        <img src="/images/slider-1.jpg" alt="Living Room with Roman Shades" class="slide-image">
+        <div class="slide-overlay"></div>
+      </div>
+      <!-- Slide 2 - Modern Living Room with Sheer Curtains -->
+      <div class="slide">
+        <img src="/images/slider-2.jpg" alt="Modern Living Room with Sheer Curtains" class="slide-image">
+        <div class="slide-overlay"></div>
+      </div>
+      <!-- Slide 3 - Living Room with Window Blinds -->
+      <div class="slide">
+        <img src="/images/slider-3.jpg" alt="Living Room with Window Blinds" class="slide-image">
+        <div class="slide-overlay"></div>
+      </div>
+
+      <!-- Hero Content -->
+      <div class="hero-content">
+        <div class="hero-content-inner">
+          <p class="hero-subtitle">TRANSFORM YOUR HOME WITH</p>
+          <h1 class="hero-title">PEEKABOO<br>SHADES</h1>
+          <div class="hero-buttons">
+            <a href="/shop" class="btn-shop-all">
+              Shop All <i class="fas fa-arrow-up-right-from-square"></i>
+            </a>
+            <a href="/shop?new=true" class="btn-shop-new">
+              Shop New <i class="fas fa-arrow-up-right-from-square"></i>
+            </a>
+          </div>
+        </div>
+      </div>
+
+      <!-- Slider Arrows -->
+      <button class="slider-arrow prev" onclick="changeSlide(-1)">
+        <i class="fas fa-chevron-left"></i>
+      </button>
+      <button class="slider-arrow next" onclick="changeSlide(1)">
+        <i class="fas fa-chevron-right"></i>
+      </button>
+
+    </div>
+  </section>
+
+  <!-- Designed with Purpose Section -->
+  <section class="purpose-section" id="categories">
+    <div class="container">
+      <div class="section-header">
+        <p class="section-subtitle">Shades with Value</p>
+        <h2 class="section-title">Designed with Purpose</h2>
+      </div>
+
+      <div class="category-grid">
+        <button class="nav-arrow prev"><i class="fas fa-chevron-left"></i></button>
+
+        <div class="category-card" onclick="window.location.href='/shop?category=zebra-shades'">
+          <div class="category-image">
+            <img src="/images/zebra-shades.png" alt="Zebra Shades">
+          </div>
+          <div class="category-info">
+            <h3 class="category-name">Zebra Shades</h3>
+            <p class="category-desc">Zebra shades, also known as layered shades, are a unique combination of solid and sheer panels.</p>
+          </div>
+        </div>
+
+        <div class="category-card" onclick="window.location.href='/shop?category=roller-shades'">
+          <div class="category-image">
+            <img src="/images/roller-shades.png" alt="Roller Shades">
+          </div>
+          <div class="category-info">
+            <h3 class="category-name">Roller Shades</h3>
+            <p class="category-desc">Roller shades are a timeless choice for homeowners. Clean lines and sleek aesthetics.</p>
+          </div>
+        </div>
+
+        <div class="category-card" onclick="window.location.href='/shop?category=roman-shades'">
+          <div class="category-image">
+            <img src="/images/roman-shades.png" alt="Roman Shades">
+          </div>
+          <div class="category-info">
+            <h3 class="category-name">Roman Shades</h3>
+            <p class="category-desc">Roman shades combine the softness of drapery with functionality of blinds.</p>
+          </div>
+        </div>
+
+        <div class="category-card" onclick="window.location.href='/shop?category=honeycomb-shades'">
+          <div class="category-image">
+            <img src="/images/honeycomb-shades.png" alt="Honeycomb Shades">
+          </div>
+          <div class="category-info">
+            <h3 class="category-name">Honeycomb Shades</h3>
+            <p class="category-desc">Energy efficient honeycomb shades with superior insulation for your home.</p>
+          </div>
+        </div>
+
+        <button class="nav-arrow next"><i class="fas fa-chevron-right"></i></button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Imagination Section -->
+  <section class="imagination-section">
+    <div class="container">
+      <div class="imagination-content">
+        <div class="imagination-text">
+          <h3>Inspiration at Your Fingertips</h3>
+          <h2>Ready to Ignite Your Imagination</h2>
+          <p>Discover a stylish selection of window coverings at Peekaboo Shades! Shop blinds, shades, and shutters, each product is carefully designed for effortless installation. Plus, enjoy free shipping and exceptional customer service!</p>
+        </div>
+
+        <div class="order-samples-box">
+          <h3>Order samples</h3>
+          <p>To help you make the right choice, we offer fabric samples so you can see the material, color, and texture in person before placing your full order.</p>
+          <a href="#" class="btn-order">
+            Order Now <i class="fas fa-arrow-right"></i>
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Motorized Blinds Section -->
+  <section class="motorized-section">
+    <div class="container">
+      <div class="motorized-content">
+        <div class="motorized-image">
+          <img src="https://images.unsplash.com/photo-1615873968403-89e068629265?w=600" alt="Motorized Blinds">
+        </div>
+
+        <div class="motorized-text">
+          <h2>Enjoy Effortless Control with Motorized Blinds!</h2>
+          <p>Streamline your daily routine with motorized blinds! Combining smart design with effortless convenience, this technology allows you to control your shades seamlessly, adapting to your lifestyle.</p>
+
+          <div class="feature-list">
+            <div class="feature-item">
+              <i class="fas fa-check-circle"></i>
+              <span>Effortlessly control your electric blinds, including our Motorized Roller Shades, with the convenience of a top-down, bottom-up motorized cellular.</span>
+            </div>
+            <div class="feature-item">
+              <i class="fas fa-check-circle"></i>
+              <span>Easily operate your motorized blinds with a simple click or a gentle push on our sleek motorized wand.</span>
+            </div>
+          </div>
+
+          <a href="/shop?category=motorized" class="btn-shop">
+            Shop Motorized Blinds <i class="fas fa-arrow-right"></i>
+          </a>
+        </div>
+      </div>
+    </div>
+  </section>
+
+
+  <!-- Made Simple Section -->
+  <section class="simple-section">
+    <div class="container">
+      <div class="simple-header">
+        <h3>Made Simple</h3>
+        <h2>Window Blinds & Shades</h2>
+      </div>
+
+      <div class="showcase-grid">
+        <div class="showcase-item">
+          <img src="https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?w=500" alt="Living Room">
+        </div>
+        <div class="showcase-item">
+          <img src="https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=500" alt="Bedroom">
+        </div>
+        <div class="showcase-item">
+          <img src="https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=500" alt="Dining Room">
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Latest Arrivals Section -->
+  <section class="arrivals-section">
+    <div class="container">
+      <div class="arrivals-header">
+        <div>
+          <h3>Introducing Our Latest Arrivals</h3>
+          <h2>Fresh Styles, Timeless Appeal</h2>
+        </div>
+        <a href="/shop" class="btn-shop-link">
+          Shop All <i class="fas fa-arrow-right"></i>
+        </a>
+      </div>
+
+      <div class="products-grid" id="productsGrid">
+        <!-- Products loaded dynamically -->
+      </div>
+    </div>
+  </section>
+
+  <!-- Newsletter Section -->
+  <section class="newsletter-section">
+    <div class="container">
+      <div class="newsletter-content">
+        <h2>Join Our Peekaboo Shades Circle to Stay Inspired</h2>
+        <p>Subscribe to receive exclusive updates, design inspiration, and special offers straight to your inbox!</p>
+        <form class="newsletter-form" onsubmit="subscribeNewsletter(event)">
+          <input type="email" placeholder="Enter your email" required>
+          <button type="submit">
+            Subscribe Now! <i class="fas fa-arrow-right"></i>
+          </button>
+        </form>
+      </div>
+    </div>
+  </section>
+
+  <!-- Testimonials Section -->
+  <section class="testimonials-section">
+    <div class="container">
+      <div class="testimonials-header">
+        <h3>Don't take our word for it!</h3>
+        <h2>Hear It From Lovely Homeowners</h2>
+      </div>
+
+      <div class="testimonial-card">
+        <p class="testimonial-text">"Peekaboo Shades has truly transformed my home! Their roller shades and natural wood designs are exactly what my living room needed. The blinds block sunlight perfectly and bring a cozy feel to my space. I couldn't be happier!"</p>
+        <div class="testimonial-author">
+          <div class="author-avatar">
+            <img src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?w=100" alt="Martha">
+          </div>
+          <div class="author-info">
+            <h4>Martha</h4>
+            <p>Homeowner, California</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Instagram Section -->
+  <section class="instagram-section">
+    <div class="container">
+      <div class="instagram-header">
+        <h3><a href="#">@Peekabooshades</a></h3>
+      </div>
+
+      <div class="instagram-grid">
+        <div class="instagram-item">
+          <img src="https://images.unsplash.com/photo-1615874959474-d609969a20ed?w=300" alt="Instagram">
+        </div>
+        <div class="instagram-item">
+          <img src="https://images.unsplash.com/photo-1616046229478-9901c5536a45?w=300" alt="Instagram">
+        </div>
+        <div class="instagram-item">
+          <img src="https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=300" alt="Instagram">
+        </div>
+        <div class="instagram-item">
+          <img src="https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=300" alt="Instagram">
+        </div>
+        <div class="instagram-item">
+          <img src="https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?w=300" alt="Instagram">
+        </div>
+        <div class="instagram-item">
+          <img src="https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?w=300" alt="Instagram">
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="main-footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <div class="logo">
+            <div class="logo-icon">
+              <svg viewBox="0 0 24 24" fill="currentColor" style="width: 20px; height: 20px;">
+                <path d="M12 2L2 7v10l10 5 10-5V7L12 2zm0 2.18l6.9 3.45L12 11.09 5.1 7.63 12 4.18zM4 8.82l7 3.5v7.36l-7-3.5V8.82zm9 10.86v-7.36l7-3.5v7.36l-7 3.5z"/>
+              </svg>
+            </div>
+            <div class="logo-text">
+              <span class="peekaboo">PEEKABOO</span> <span class="shades">SHADES</span>
+            </div>
+          </div>
+          <p>Custom Window Blinds & Coverings designed to transform your space. Quality products at affordable prices.</p>
+          <div class="footer-social">
+            <a href="#" class="social-icon"><i class="fab fa-facebook-f"></i></a>
+            <a href="#" class="social-icon"><i class="fab fa-instagram"></i></a>
+            <a href="#" class="social-icon"><i class="fab fa-twitter"></i></a>
+            <a href="#" class="social-icon"><i class="fab fa-pinterest"></i></a>
+          </div>
+        </div>
+
+        <div class="footer-column">
+          <h4>Products</h4>
+          <ul>
+            <li><a href="/shop?category=roller-shades">Roller Shades</a></li>
+            <li><a href="/shop?category=roman-shades">Roman Shades</a></li>
+            <li><a href="/shop?category=natural-woven-shades">Natural Woven</a></li>
+            <li><a href="/shop?category=honeycomb-shades">Honeycomb</a></li>
+            <li><a href="/shop?category=drapes">Drapes</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-column">
+          <h4>Customer Service</h4>
+          <ul>
+            <li><a href="#">Track Order</a></li>
+            <li><a href="#">Returns</a></li>
+            <li><a href="#">Shipping Info</a></li>
+            <li><a href="#">FAQs</a></li>
+            <li><a href="#">Contact Us</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-column">
+          <h4>Talk To Us</h4>
+          <ul>
+            <li><a href="#">About Us</a></li>
+            <li><a href="#">Careers</a></li>
+            <li><a href="#">Press</a></li>
+            <li><a href="#">Blog</a></li>
+          </ul>
+        </div>
+
+        <div class="footer-column">
+          <h4>Resources</h4>
+          <ul>
+            <li><a href="#">Measuring Guide</a></li>
+            <li><a href="#">Installation</a></li>
+            <li><a href="#">Free Samples</a></li>
+            <li><a href="#">Trade Program</a></li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="footer-bottom">
+        <p class="footer-copyright">&copy; 2024 Peekaboo Shades. All rights reserved.</p>
+        <div class="footer-links">
+          <a href="#">Privacy Policy</a>
+          <a href="#">Terms of Service</a>
+        </div>
+      </div>
+    </div>
+  </footer>
+
+  <!-- Toast Container -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <script src="/js/app.js"></script>
+  <script>
+    // ============================================
+    // HERO SLIDER
+    // ============================================
+    let currentSlide = 0;
+    const slides = document.querySelectorAll('.slide');
+    const totalSlides = slides.length;
+    let slideInterval;
+
+    function showSlide(index) {
+      // Handle wrap-around
+      if (index >= totalSlides) currentSlide = 0;
+      else if (index < 0) currentSlide = totalSlides - 1;
+      else currentSlide = index;
+
+      // Update slides
+      slides.forEach((slide, i) => {
+        slide.classList.remove('active');
+        if (i === currentSlide) slide.classList.add('active');
+      });
+    }
+
+    function changeSlide(direction) {
+      showSlide(currentSlide + direction);
+      resetAutoSlide();
+    }
+
+    function startAutoSlide() {
+      slideInterval = setInterval(() => {
+        showSlide(currentSlide + 1);
+      }, 5000); // Change slide every 5 seconds
+    }
+
+    function resetAutoSlide() {
+      clearInterval(slideInterval);
+      startAutoSlide();
+    }
+
+    // Start auto-slide on page load
+    startAutoSlide();
+
+    // ============================================
+    // LOAD PRODUCTS
+    // ============================================
+    document.addEventListener('DOMContentLoaded', function() {
+      loadProducts();
+      updateCartCount();
+    });
+
+    async function loadProducts() {
+      const productImages = [
+        'https://images.unsplash.com/photo-1615874959474-d609969a20ed?w=400',
+        'https://images.unsplash.com/photo-1616046229478-9901c5536a45?w=400',
+        'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=400',
+        'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=400'
+      ];
+
+      try {
+        const response = await fetch('/api/products?featured=true');
+        const result = await response.json();
+
+        if (result.success) {
+          const products = result.data.slice(0, 4);
+          const grid = document.getElementById('productsGrid');
+
+          grid.innerHTML = products.map((product, index) => `
+            <div class="product-card" onclick="window.location.href='/product/${product.slug}'">
+              <div class="product-image">
+                <img src="${productImages[index % productImages.length]}" alt="${product.name}">
+              </div>
+              <div class="product-info">
+                <h3 class="product-title">${product.name}</h3>
+                <p class="product-price">$${product.base_price.toFixed(2)} USD</p>
+              </div>
+            </div>
+          `).join('');
+        }
+      } catch (error) {
+        console.error('Error loading products:', error);
+      }
+    }
+
+    function subscribeNewsletter(e) {
+      e.preventDefault();
+      const email = e.target.querySelector('input').value;
+      showToast('Thank you for subscribing!', 'success');
+      e.target.reset();
+    }
+  </script>
+</body>
+</html>
