@@ -1,0 +1,440 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Product Catalog - Peekaboo Shades Admin</title>
+  <link rel="stylesheet" href="css/admin.css">
+  <link rel="icon" type="image/png" href="/images/favicon.png">
+  <style>
+    .content-section {
+      background: var(--admin-card);
+      border: 1px solid var(--admin-border);
+      border-radius: 12px;
+      margin-bottom: 24px;
+    }
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px 24px;
+      border-bottom: 1px solid var(--admin-border);
+      cursor: pointer;
+    }
+    .section-header:hover {
+      background: #f9fafb;
+    }
+    .section-title {
+      font-size: 18px;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .section-toggle {
+      transition: transform 0.2s;
+    }
+    .section-header.collapsed .section-toggle {
+      transform: rotate(-90deg);
+    }
+    .section-body {
+      padding: 24px;
+    }
+    .section-body.collapsed {
+      display: none;
+    }
+    .feature-list {
+      list-style: none;
+      padding: 0;
+      margin: 0 0 16px 0;
+    }
+    .feature-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px;
+      background: #f9fafb;
+      border-radius: 8px;
+      margin-bottom: 8px;
+    }
+    .feature-item .drag-handle {
+      cursor: grab;
+      color: var(--admin-text-secondary);
+    }
+    .feature-item .feature-text {
+      flex: 1;
+    }
+    .feature-item .remove-btn {
+      width: 24px;
+      height: 24px;
+      border-radius: 4px;
+      background: transparent;
+      color: #dc2626;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .feature-item .remove-btn:hover {
+      background: #fee2e2;
+    }
+    .add-feature-form {
+      display: flex;
+      gap: 8px;
+    }
+    .add-feature-form input {
+      flex: 1;
+    }
+    .form-textarea {
+      min-height: 120px;
+    }
+  </style>
+</head>
+<body>
+  <div class="admin-layout">
+    <!-- Sidebar -->
+    <aside class="admin-sidebar">
+      <div class="sidebar-header">
+        <a href="/admin/" class="sidebar-logo">
+          <img src="/images/logo.png" alt="Logo" onerror="this.style.display='none'">
+          <span>Peekaboo Shades</span>
+        </a>
+      </div>
+
+      <nav class="sidebar-nav">
+        <div class="nav-section">
+          <a href="/admin/" class="nav-item">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+            </svg>
+            <span>Dashboard</span>
+          </a>
+        </div>
+
+        <div class="nav-section">
+          <div class="nav-section-title">Catalog</div>
+          <a href="/admin/products.html" class="nav-item">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+            </svg>
+            <span>Products</span>
+          </a>
+          <a href="/admin/categories.html" class="nav-item">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+            </svg>
+            <span>Categories</span>
+          </a>
+          <a href="/admin/fabrics.html" class="nav-item">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
+            <span>Fabrics</span>
+          </a>
+          <a href="/admin/hardware-options.html" class="nav-item">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+            <span>Hardware Options</span>
+          </a>
+          <a href="/admin/accessories.html" class="nav-item">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 14v6m-3-3h6M6 10h2a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v2a2 2 0 002 2zm10 0h2a2 2 0 002-2V6a2 2 0 00-2-2h-2a2 2 0 00-2 2v2a2 2 0 002 2zM6 20h2a2 2 0 002-2v-2a2 2 0 00-2-2H6a2 2 0 00-2 2v2a2 2 0 002 2z" />
+            </svg>
+            <span>Accessories</span>
+          </a>
+        </div>
+
+        <div class="nav-section">
+          <div class="nav-section-title">Sales</div>
+          <a href="/admin/orders.html" class="nav-item">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+            </svg>
+            <span>Orders</span>
+          </a>
+          <a href="/admin/quotes.html" class="nav-item">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+            <span>Quotes</span>
+          </a>
+        </div>
+
+        <div class="nav-section">
+          <div class="nav-section-title">Content</div>
+          <a href="/admin/product-content.html" class="nav-item">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
+            <span>Product Content</span>
+          </a>
+          <a href="/admin/product-catalog.html" class="nav-item active">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+            <span>Product Catalog</span>
+          </a>
+          <a href="/admin/faqs.html" class="nav-item">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <span>FAQs</span>
+          </a>
+        </div>
+
+        <div class="nav-section">
+          <div class="nav-section-title">Settings</div>
+          <a href="/admin/settings.html" class="nav-item">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+            <span>Settings</span>
+          </a>
+        </div>
+      </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="admin-main">
+      <!-- Header -->
+      <header class="admin-header">
+        <div class="header-left">
+          <div class="breadcrumb">
+            <a href="/admin/">Dashboard</a>
+            <span class="breadcrumb-separator">/</span>
+            <span class="breadcrumb-current">Product Catalog</span>
+          </div>
+        </div>
+        <div class="header-right">
+          <div class="dropdown">
+            <div class="header-profile">
+              <div class="profile-avatar">A</div>
+              <span class="profile-name">Admin</span>
+            </div>
+            <div class="dropdown-menu profile-dropdown">
+              <a href="/admin/settings.html" class="dropdown-item">Profile</a>
+              <div class="dropdown-divider"></div>
+              <a href="#" class="dropdown-item danger" onclick="Admin.AuthAPI.logout(); return false;">Logout</a>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <!-- Page Content -->
+      <div class="admin-content">
+        <div class="page-header">
+          <h1 class="page-title">Product Catalog</h1>
+        </div>
+
+        <!-- Features Section -->
+        <div class="content-section" id="features-section">
+          <div class="section-header" onclick="toggleSection('features')">
+            <h2 class="section-title">
+              <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4M7.835 4.697a3.42 3.42 0 001.946-.806 3.42 3.42 0 014.438 0 3.42 3.42 0 001.946.806 3.42 3.42 0 013.138 3.138 3.42 3.42 0 00.806 1.946 3.42 3.42 0 010 4.438 3.42 3.42 0 00-.806 1.946 3.42 3.42 0 01-3.138 3.138 3.42 3.42 0 00-1.946.806 3.42 3.42 0 01-4.438 0 3.42 3.42 0 00-1.946-.806 3.42 3.42 0 01-3.138-3.138 3.42 3.42 0 00-.806-1.946 3.42 3.42 0 010-4.438 3.42 3.42 0 00.806-1.946 3.42 3.42 0 013.138-3.138z" />
+              </svg>
+              Product Features
+            </h2>
+            <svg class="section-toggle" xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+            </svg>
+          </div>
+          <div class="section-body" id="features-body">
+            <p style="color: var(--admin-text-secondary); margin-bottom: 16px;">These bullet points appear in the product description.</p>
+            <ul class="feature-list" id="features-list">
+              <!-- Features loaded here -->
+            </ul>
+            <div class="add-feature-form">
+              <input type="text" class="form-input" id="new-feature-input" placeholder="Enter new feature">
+              <button class="btn btn-primary" onclick="addFeature()">Add</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Care Instructions Section -->
+        <div class="content-section" id="care-section">
+          <div class="section-header" onclick="toggleSection('care')">
+            <h2 class="section-title">
+              <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+              </svg>
+              Care Instructions
+            </h2>
+            <svg class="section-toggle" xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+            </svg>
+          </div>
+          <div class="section-body" id="care-body">
+            <div class="form-group">
+              <textarea class="form-textarea" id="care-instructions" rows="6" placeholder="Enter care instructions..."></textarea>
+            </div>
+            <div style="text-align: right;">
+              <button class="btn btn-primary" onclick="saveCare()">Save Care Instructions</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Warranty Section -->
+        <div class="content-section" id="warranty-section">
+          <div class="section-header" onclick="toggleSection('warranty')">
+            <h2 class="section-title">
+              <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+              </svg>
+              Warranty Information
+            </h2>
+            <svg class="section-toggle" xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+            </svg>
+          </div>
+          <div class="section-body" id="warranty-body">
+            <div class="form-group">
+              <textarea class="form-textarea" id="warranty-info" rows="6" placeholder="Enter warranty information..."></textarea>
+            </div>
+            <div style="text-align: right;">
+              <button class="btn btn-primary" onclick="saveWarranty()">Save Warranty Info</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="js/admin.js"></script>
+  <script>
+    // Require authentication
+    if (!Admin.Auth.requireAuth()) {
+      // Will redirect
+    } else {
+      loadCatalogContent();
+    }
+
+    let catalogData = {
+      features: [],
+      careInstructions: '',
+      warrantyInfo: ''
+    };
+
+    async function loadCatalogContent() {
+      try {
+        const data = await Admin.ProductCatalogAPI.get();
+        if (data.success && data.catalog) {
+          catalogData = data.catalog;
+        }
+        renderAll();
+      } catch (error) {
+        Admin.Toast.error('Failed to load catalog content');
+        renderAll();
+      }
+    }
+
+    function renderAll() {
+      renderFeatures();
+      document.getElementById('care-instructions').value = catalogData.careInstructions || '';
+      document.getElementById('warranty-info').value = catalogData.warrantyInfo || '';
+    }
+
+    function renderFeatures() {
+      const list = document.getElementById('features-list');
+      if (!catalogData.features || catalogData.features.length === 0) {
+        list.innerHTML = '<li style="color: var(--admin-text-secondary); padding: 12px;">No features yet</li>';
+        return;
+      }
+
+      list.innerHTML = catalogData.features.map((feature, i) => `
+        <li class="feature-item">
+          <span class="drag-handle">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8h16M4 16h16" />
+            </svg>
+          </span>
+          <span class="feature-text">${Admin.Utils.escapeHtml(feature)}</span>
+          <button class="remove-btn" onclick="removeFeature(${i})" title="Remove">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+            </svg>
+          </button>
+        </li>
+      `).join('');
+    }
+
+    async function addFeature() {
+      const input = document.getElementById('new-feature-input');
+      const feature = input.value.trim();
+
+      if (!feature) {
+        Admin.Toast.warning('Please enter a feature');
+        return;
+      }
+
+      catalogData.features.push(feature);
+      input.value = '';
+
+      try {
+        await Admin.ProductCatalogAPI.updateFeatures(catalogData.features);
+        renderFeatures();
+        Admin.Toast.success('Feature added');
+      } catch (error) {
+        catalogData.features.pop();
+        Admin.Toast.error('Failed to add feature');
+      }
+    }
+
+    async function removeFeature(index) {
+      const removed = catalogData.features.splice(index, 1)[0];
+
+      try {
+        await Admin.ProductCatalogAPI.updateFeatures(catalogData.features);
+        renderFeatures();
+        Admin.Toast.success('Feature removed');
+      } catch (error) {
+        catalogData.features.splice(index, 0, removed);
+        Admin.Toast.error('Failed to remove feature');
+      }
+    }
+
+    async function saveCare() {
+      const careInstructions = document.getElementById('care-instructions').value.trim();
+
+      try {
+        await Admin.ProductCatalogAPI.updateCare(careInstructions);
+        catalogData.careInstructions = careInstructions;
+        Admin.Toast.success('Care instructions saved');
+      } catch (error) {
+        Admin.Toast.error('Failed to save care instructions');
+      }
+    }
+
+    async function saveWarranty() {
+      const warrantyInfo = document.getElementById('warranty-info').value.trim();
+
+      try {
+        await Admin.ProductCatalogAPI.updateWarranty(warrantyInfo);
+        catalogData.warrantyInfo = warrantyInfo;
+        Admin.Toast.success('Warranty info saved');
+      } catch (error) {
+        Admin.Toast.error('Failed to save warranty info');
+      }
+    }
+
+    function toggleSection(section) {
+      const header = document.querySelector(`#${section}-section .section-header`);
+      const body = document.getElementById(`${section}-body`);
+      header.classList.toggle('collapsed');
+      body.classList.toggle('collapsed');
+    }
+
+    // Enter key to add feature
+    document.getElementById('new-feature-input').addEventListener('keypress', function(e) {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        addFeature();
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,852 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title id="page-title">Loading... - Peekaboo Shades</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style id="dynamic-styles"></style>
+  <style>
+    :root {
+      --golden-brown: #8E6545;
+      --dark-brown: #8E6545;
+      --text-dark: #333333;
+      --text-light: #666666;
+      --bg-cream: #F8F6F3;
+      --bg-white: #FFFFFF;
+      --border-light: #E8E8E8;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 14px;
+      line-height: 1.6;
+      color: var(--text-dark);
+      background-color: #F6F1EB;
+    }
+
+    a { text-decoration: none; color: inherit; }
+    button { cursor: pointer; border: none; background: none; font-family: inherit; }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+
+    /* Top Bar */
+    .top-bar {
+      background-color: var(--dark-brown);
+      color: white;
+      padding: 8px 0;
+      font-size: 12px;
+    }
+
+    .top-bar-container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 0 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    /* Header */
+    .main-header {
+      background-color: #FFFFFF;
+      height: 70px;
+      display: flex;
+      align-items: center;
+      border-bottom: 1px solid var(--border-light);
+    }
+
+    .header-container {
+      max-width: 1400px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 0 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .logo-icon {
+      width: 40px;
+      height: 40px;
+      background: var(--golden-brown);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .logo-text {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--golden-brown);
+    }
+
+    .main-nav ul {
+      display: flex;
+      gap: 30px;
+      list-style: none;
+    }
+
+    .main-nav a {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-dark);
+    }
+
+    .main-nav a:hover {
+      color: var(--golden-brown);
+    }
+
+    /* Page Content */
+    .page-content {
+      min-height: calc(100vh - 140px);
+    }
+
+    /* Dynamic Section Styles */
+    .hero-section {
+      background-size: cover;
+      background-position: center;
+      position: relative;
+    }
+
+    .hero-section .container {
+      position: relative;
+      z-index: 1;
+    }
+
+    .hero-section h1 {
+      font-size: 48px;
+      font-weight: 700;
+      margin-bottom: 20px;
+    }
+
+    .hero-section p {
+      font-size: 18px;
+      opacity: 0.9;
+    }
+
+    /* Product Grid */
+    .product-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 24px;
+    }
+
+    .product-card {
+      background: white;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      transition: transform 0.3s, box-shadow 0.3s;
+    }
+
+    .product-card:hover {
+      transform: translateY(-4px);
+      box-shadow: 0 8px 24px rgba(0,0,0,0.15);
+    }
+
+    .product-card img {
+      width: 100%;
+      height: 200px;
+      object-fit: cover;
+    }
+
+    .product-card-body {
+      padding: 16px;
+    }
+
+    .product-card h4 {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
+    .product-card .price {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--golden-brown);
+    }
+
+    /* Fabric Swatches */
+    .fabric-swatches {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 16px;
+      justify-content: center;
+    }
+
+    .fabric-swatch {
+      width: 100px;
+      text-align: center;
+      cursor: pointer;
+      transition: transform 0.2s;
+    }
+
+    .fabric-swatch:hover {
+      transform: scale(1.05);
+    }
+
+    .fabric-swatch img {
+      width: 80px;
+      height: 80px;
+      border-radius: 12px;
+      object-fit: cover;
+      border: 3px solid transparent;
+      transition: border-color 0.2s;
+    }
+
+    .fabric-swatch:hover img {
+      border-color: var(--golden-brown);
+    }
+
+    .fabric-swatch span {
+      display: block;
+      font-size: 12px;
+      margin-top: 8px;
+      color: var(--text-light);
+    }
+
+    /* FAQ Section */
+    .faq-item {
+      background: white;
+      border-radius: 8px;
+      margin-bottom: 12px;
+      overflow: hidden;
+    }
+
+    .faq-question {
+      padding: 16px 20px;
+      font-weight: 600;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .faq-question:hover {
+      background: #f9f9f9;
+    }
+
+    .faq-answer {
+      padding: 0 20px 16px;
+      color: var(--text-light);
+      display: none;
+    }
+
+    .faq-item.open .faq-answer {
+      display: block;
+    }
+
+    /* Contact Form */
+    .contact-form input,
+    .contact-form textarea {
+      width: 100%;
+      padding: 14px 16px;
+      margin-bottom: 16px;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 14px;
+    }
+
+    .contact-form input:focus,
+    .contact-form textarea:focus {
+      outline: none;
+      border-color: var(--golden-brown);
+    }
+
+    .contact-form button {
+      background: var(--golden-brown);
+      color: white;
+      padding: 14px 32px;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 14px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .contact-form button:hover {
+      background: #7a5639;
+    }
+
+    /* Testimonials */
+    .testimonials-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 24px;
+    }
+
+    .testimonial-card {
+      background: white;
+      padding: 24px;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+
+    .testimonial-card .stars {
+      color: #FFD700;
+      margin-bottom: 12px;
+    }
+
+    .testimonial-card .quote {
+      font-style: italic;
+      color: var(--text-light);
+      margin-bottom: 16px;
+    }
+
+    .testimonial-card .author {
+      font-weight: 600;
+    }
+
+    /* Newsletter */
+    .newsletter-form {
+      display: flex;
+      gap: 12px;
+      max-width: 500px;
+      margin: 0 auto;
+    }
+
+    .newsletter-form input {
+      flex: 1;
+      padding: 14px 20px;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+    }
+
+    .newsletter-form button {
+      background: white;
+      color: var(--golden-brown);
+      padding: 14px 24px;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+
+    /* Footer */
+    .footer {
+      background: #333;
+      color: white;
+      padding: 60px 0 30px;
+      margin-top: 60px;
+    }
+
+    .footer-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 40px;
+      margin-bottom: 40px;
+    }
+
+    .footer h4 {
+      font-size: 16px;
+      margin-bottom: 20px;
+    }
+
+    .footer ul {
+      list-style: none;
+    }
+
+    .footer li {
+      margin-bottom: 10px;
+    }
+
+    .footer a {
+      color: #ccc;
+      transition: color 0.2s;
+    }
+
+    .footer a:hover {
+      color: white;
+    }
+
+    .footer-bottom {
+      border-top: 1px solid #444;
+      padding-top: 30px;
+      text-align: center;
+      color: #888;
+      font-size: 13px;
+    }
+
+    /* Loading State */
+    .loading {
+      text-align: center;
+      padding: 60px;
+      color: var(--text-light);
+    }
+
+    .loading-spinner {
+      width: 40px;
+      height: 40px;
+      border: 3px solid #f3f3f3;
+      border-top: 3px solid var(--golden-brown);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+      margin: 0 auto 20px;
+    }
+
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+
+    /* 404 */
+    .page-not-found {
+      text-align: center;
+      padding: 100px 20px;
+    }
+
+    .page-not-found h1 {
+      font-size: 72px;
+      color: var(--golden-brown);
+      margin-bottom: 20px;
+    }
+
+    .page-not-found p {
+      font-size: 18px;
+      color: var(--text-light);
+      margin-bottom: 30px;
+    }
+
+    .page-not-found a {
+      display: inline-block;
+      background: var(--golden-brown);
+      color: white;
+      padding: 14px 32px;
+      border-radius: 8px;
+      font-weight: 600;
+    }
+  </style>
+</head>
+<body>
+  <!-- Top Bar -->
+  <div class="top-bar">
+    <div class="top-bar-container">
+      <div style="display: flex; gap: 25px;">
+        <span><i class="fas fa-phone"></i> (555) 123-4567</span>
+        <span><i class="fas fa-envelope"></i> info@peekabooshades.com</span>
+      </div>
+      <div style="display: flex; gap: 20px;">
+        <a href="/shop.html">Shop</a>
+        <a href="/page.html?slug=about">About</a>
+        <a href="/page.html?slug=contact">Contact</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Header -->
+  <header class="main-header">
+    <div class="header-container">
+      <a href="/" class="logo">
+        <div class="logo-icon">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="white">
+            <rect x="3" y="3" width="18" height="18" rx="2"/>
+          </svg>
+        </div>
+        <span class="logo-text">Peekaboo<span>Shades</span></span>
+      </a>
+      <nav class="main-nav">
+        <ul>
+          <li><a href="/">Home</a></li>
+          <li><a href="/shop.html">Shop</a></li>
+          <li><a href="/product.html">Product</a></li>
+          <li><a href="/page.html?slug=about">About</a></li>
+          <li><a href="/page.html?slug=contact">Contact</a></li>
+        </ul>
+      </nav>
+      <div style="display: flex; gap: 20px; align-items: center;">
+        <a href="/cart.html"><i class="fas fa-shopping-cart"></i></a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Page Content -->
+  <main class="page-content" id="page-content">
+    <div class="loading">
+      <div class="loading-spinner"></div>
+      <p>Loading page...</p>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div>
+          <h4>Peekaboo Shades</h4>
+          <p style="color: #ccc; font-size: 13px;">Custom window treatments made easy. Quality blinds and shades at affordable prices.</p>
+        </div>
+        <div>
+          <h4>Shop</h4>
+          <ul>
+            <li><a href="/shop.html">All Products</a></li>
+            <li><a href="/shop.html?category=roller-shades">Roller Shades</a></li>
+            <li><a href="/shop.html?category=roman-shades">Roman Shades</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Support</h4>
+          <ul>
+            <li><a href="/page.html?slug=faq">FAQ</a></li>
+            <li><a href="/page.html?slug=contact">Contact Us</a></li>
+            <li><a href="/page.html?slug=shipping">Shipping</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Contact</h4>
+          <ul>
+            <li><i class="fas fa-phone"></i> (555) 123-4567</li>
+            <li><i class="fas fa-envelope"></i> info@peekabooshades.com</li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        <p>&copy; 2024 Peekaboo Shades. All rights reserved.</p>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // Get page slug from URL
+    const params = new URLSearchParams(window.location.search);
+    const slug = params.get('slug') || 'home';
+
+    // Load page
+    loadPage(slug);
+
+    async function loadPage(pageSlug) {
+      try {
+        // Fetch page data
+        const response = await fetch('/api/pages/by-slug/' + pageSlug);
+        const data = await response.json();
+
+        if (!data.success || !data.page) {
+          showNotFound();
+          return;
+        }
+
+        const page = data.page;
+        const pageData = JSON.parse(page.content);
+
+        // Update title
+        document.getElementById('page-title').textContent = page.title + ' - Peekaboo Shades';
+
+        // Apply custom CSS
+        if (pageData.customCSS) {
+          document.getElementById('dynamic-styles').textContent = pageData.customCSS;
+        }
+
+        // Render sections
+        const content = document.getElementById('page-content');
+        content.innerHTML = '';
+
+        for (const section of pageData.sections) {
+          const sectionEl = await renderSection(section);
+          content.appendChild(sectionEl);
+        }
+
+        // Execute custom JS
+        if (pageData.customJS) {
+          try {
+            eval(pageData.customJS);
+          } catch (e) {
+            console.error('Custom JS error:', e);
+          }
+        }
+
+      } catch (error) {
+        console.error('Failed to load page:', error);
+        showNotFound();
+      }
+    }
+
+    async function renderSection(section) {
+      const div = document.createElement('section');
+      div.id = section.id;
+      div.className = section.type + '-section';
+
+      // Apply styles
+      if (section.style) {
+        Object.entries(section.style).forEach(([key, value]) => {
+          div.style[key] = value;
+        });
+      }
+
+      // Render based on type
+      switch (section.type) {
+        case 'hero':
+          if (section.imageUrl) {
+            div.style.backgroundImage = `linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.3)), url(${section.imageUrl})`;
+            div.style.backgroundSize = 'cover';
+            div.style.backgroundPosition = 'center';
+          }
+          div.innerHTML = `<div class="container">
+            <h1>${escapeHtml(section.content)}</h1>
+            <p>Your journey to beautiful windows starts here</p>
+          </div>`;
+          break;
+
+        case 'heading':
+          div.innerHTML = `<div class="container">
+            <${section.tag || 'h2'}>${escapeHtml(section.content)}</${section.tag || 'h2'}>
+          </div>`;
+          break;
+
+        case 'text':
+          div.innerHTML = `<div class="container">
+            <p>${escapeHtml(section.content)}</p>
+          </div>`;
+          break;
+
+        case 'image':
+          div.innerHTML = `<div class="container" style="text-align: center;">
+            <img src="${section.imageUrl}" alt="${section.alt || ''}" style="max-width: 100%; height: auto; border-radius: 12px;">
+          </div>`;
+          break;
+
+        case 'button':
+          div.innerHTML = `<div class="container" style="text-align: center;">
+            <a href="${section.linkUrl || '#'}" style="display: inline-block; background: var(--golden-brown); color: white; padding: 14px 32px; border-radius: 8px; font-weight: 600;">${escapeHtml(section.content)}</a>
+          </div>`;
+          break;
+
+        case 'columns':
+          const cols = section.columns || 2;
+          div.innerHTML = `<div class="container">
+            <div style="display: grid; grid-template-columns: repeat(${cols}, 1fr); gap: 30px;">
+              ${(section.content || []).map(c => `<div style="padding: 24px; background: white; border-radius: 12px;">${escapeHtml(c)}</div>`).join('')}
+            </div>
+          </div>`;
+          break;
+
+        case 'product-grid':
+          div.innerHTML = `<div class="container"><div class="product-grid loading"><div class="loading-spinner"></div></div></div>`;
+          loadProducts(div.querySelector('.product-grid'), section);
+          break;
+
+        case 'fabric-swatches':
+          div.innerHTML = `<div class="container"><div class="fabric-swatches loading"><div class="loading-spinner"></div></div></div>`;
+          loadFabrics(div.querySelector('.fabric-swatches'), section);
+          break;
+
+        case 'faq':
+          div.innerHTML = `<div class="container"><div class="faq-list loading"><div class="loading-spinner"></div></div></div>`;
+          loadFAQs(div.querySelector('.faq-list'), section);
+          break;
+
+        case 'testimonials':
+          div.innerHTML = `<div class="container"><div class="testimonials-grid">
+            <div class="testimonial-card">
+              <div class="stars">★★★★★</div>
+              <p class="quote">"Amazing quality and fast delivery! The blinds look perfect in our living room."</p>
+              <p class="author">Sarah M.</p>
+            </div>
+            <div class="testimonial-card">
+              <div class="stars">★★★★★</div>
+              <p class="quote">"Customer service was excellent. They helped me choose the right size."</p>
+              <p class="author">John D.</p>
+            </div>
+            <div class="testimonial-card">
+              <div class="stars">★★★★☆</div>
+              <p class="quote">"Great value for money. Installation was easy too!"</p>
+              <p class="author">Emily R.</p>
+            </div>
+          </div></div>`;
+          break;
+
+        case 'contact-form':
+          div.innerHTML = `<div class="container">
+            <h3 style="text-align: center; margin-bottom: 30px;">${escapeHtml(section.content)}</h3>
+            <form class="contact-form" style="max-width: 500px; margin: 0 auto;" onsubmit="submitContactForm(event)">
+              <input type="text" name="name" placeholder="Your Name" required>
+              <input type="email" name="email" placeholder="Your Email" required>
+              <input type="text" name="phone" placeholder="Phone Number">
+              <textarea name="message" rows="5" placeholder="Your Message" required></textarea>
+              <button type="submit">Send Message</button>
+            </form>
+          </div>`;
+          break;
+
+        case 'newsletter':
+          div.innerHTML = `<div class="container" style="text-align: center;">
+            <h3 style="margin-bottom: 16px;">${escapeHtml(section.content)}</h3>
+            <p style="margin-bottom: 24px; opacity: 0.9;">Get exclusive deals and updates</p>
+            <form class="newsletter-form" onsubmit="submitNewsletter(event)">
+              <input type="email" placeholder="Enter your email" required>
+              <button type="submit">Subscribe</button>
+            </form>
+          </div>`;
+          break;
+
+        default:
+          div.innerHTML = `<div class="container">${escapeHtml(section.content || '')}</div>`;
+      }
+
+      return div;
+    }
+
+    // Load Products from API
+    async function loadProducts(container, section) {
+      try {
+        let url = section.apiEndpoint || '/api/products';
+        if (section.apiFilter) url += '?' + section.apiFilter;
+        if (section.apiLimit) url += (url.includes('?') ? '&' : '?') + 'limit=' + section.apiLimit;
+
+        const response = await fetch(url);
+        const data = await response.json();
+        const products = data.data || data.products || [];
+
+        container.classList.remove('loading');
+        container.innerHTML = products.map(product => `
+          <div class="product-card">
+            <img src="${product.image_url || '/images/placeholder.png'}" alt="${escapeHtml(product.name)}" onerror="this.src='/images/placeholder.png'">
+            <div class="product-card-body">
+              <h4>${escapeHtml(product.name)}</h4>
+              <p class="price">$${(product.sale_price || product.base_price || 0).toFixed(2)}</p>
+            </div>
+          </div>
+        `).join('') || '<p>No products found</p>';
+      } catch (e) {
+        container.innerHTML = '<p>Failed to load products</p>';
+      }
+    }
+
+    // Load Fabrics from API
+    async function loadFabrics(container, section) {
+      try {
+        let url = section.apiEndpoint || '/api/product-content/fabrics';
+
+        const response = await fetch(url);
+        const data = await response.json();
+        let fabrics = data.fabrics || [];
+
+        // Apply filter
+        if (section.apiFilter) {
+          const [key, value] = section.apiFilter.split('=');
+          fabrics = fabrics.filter(f => f[key] === value);
+        }
+
+        // Apply limit
+        if (section.apiLimit) {
+          fabrics = fabrics.slice(0, parseInt(section.apiLimit));
+        }
+
+        container.classList.remove('loading');
+        container.innerHTML = fabrics.map(fabric => `
+          <div class="fabric-swatch" onclick="selectFabric('${fabric.code}')">
+            <img src="${fabric.imageUrl}" alt="${escapeHtml(fabric.name || fabric.code)}" onerror="this.src='/images/placeholder.png'">
+            <span>${escapeHtml(fabric.code)}</span>
+          </div>
+        `).join('') || '<p>No fabrics found</p>';
+      } catch (e) {
+        container.innerHTML = '<p>Failed to load fabrics</p>';
+      }
+    }
+
+    // Load FAQs from API
+    async function loadFAQs(container, section) {
+      try {
+        const url = section.apiEndpoint || '/api/faqs';
+        const response = await fetch(url);
+        const data = await response.json();
+        const faqs = (data.data || data.faqs || []).slice(0, section.apiLimit || 10);
+
+        container.classList.remove('loading');
+        container.innerHTML = faqs.map(faq => `
+          <div class="faq-item" onclick="toggleFAQ(this)">
+            <div class="faq-question">
+              <span>${escapeHtml(faq.question)}</span>
+              <span>+</span>
+            </div>
+            <div class="faq-answer">${escapeHtml(faq.answer)}</div>
+          </div>
+        `).join('') || '<p>No FAQs found</p>';
+      } catch (e) {
+        container.innerHTML = '<p>Failed to load FAQs</p>';
+      }
+    }
+
+    // Toggle FAQ
+    function toggleFAQ(item) {
+      item.classList.toggle('open');
+    }
+
+    // Select Fabric
+    function selectFabric(code) {
+      alert('Selected fabric: ' + code);
+    }
+
+    // Submit Contact Form
+    async function submitContactForm(e) {
+      e.preventDefault();
+      const form = e.target;
+      const data = {
+        name: form.name.value,
+        email: form.email.value,
+        phone: form.phone.value,
+        message: form.message.value
+      };
+
+      try {
+        await fetch('/api/contact', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
+        });
+        alert('Message sent! We\'ll get back to you soon.');
+        form.reset();
+      } catch (e) {
+        alert('Failed to send message. Please try again.');
+      }
+    }
+
+    // Submit Newsletter
+    async function submitNewsletter(e) {
+      e.preventDefault();
+      const email = e.target.querySelector('input').value;
+      alert('Thank you for subscribing with: ' + email);
+      e.target.reset();
+    }
+
+    // Show 404
+    function showNotFound() {
+      document.getElementById('page-title').textContent = 'Page Not Found - Peekaboo Shades';
+      document.getElementById('page-content').innerHTML = `
+        <div class="page-not-found">
+          <h1>404</h1>
+          <p>Oops! The page you're looking for doesn't exist.</p>
+          <a href="/">Go Home</a>
+        </div>
+      `;
+    }
+
+    // Escape HTML
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text || '';
+      return div.innerHTML;
+    }
+  </script>
+</body>
+</html>

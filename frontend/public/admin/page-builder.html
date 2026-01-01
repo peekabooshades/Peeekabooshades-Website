@@ -1,0 +1,3236 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Page Builder - Peekaboo Shades Admin</title>
+  <link rel="stylesheet" href="css/admin.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="icon" type="image/png" href="/images/favicon.png">
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; overflow: hidden; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+
+    .builder-layout {
+      display: flex;
+      height: 100vh;
+      background: #f4f6f8;
+    }
+
+    /* Top Bar */
+    .builder-topbar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 56px;
+      background: #1a1a2e;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 16px;
+      z-index: 1000;
+      color: white;
+    }
+
+    .topbar-left {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .topbar-back {
+      color: #fff;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 14px;
+      opacity: 0.8;
+    }
+
+    .topbar-back:hover { opacity: 1; }
+
+    .topbar-divider {
+      width: 1px;
+      height: 24px;
+      background: rgba(255,255,255,0.2);
+    }
+
+    .page-name-input {
+      background: rgba(255,255,255,0.1);
+      border: 1px solid transparent;
+      border-radius: 6px;
+      padding: 8px 12px;
+      color: white;
+      font-size: 14px;
+      font-weight: 500;
+      width: 200px;
+    }
+
+    .page-name-input:focus {
+      outline: none;
+      border-color: rgba(255,255,255,0.3);
+      background: rgba(255,255,255,0.15);
+    }
+
+    .topbar-center {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 8px;
+      padding: 4px;
+    }
+
+    .device-btn {
+      padding: 8px 16px;
+      border: none;
+      background: transparent;
+      color: rgba(255,255,255,0.6);
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 13px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .device-btn.active {
+      background: rgba(255,255,255,0.2);
+      color: white;
+    }
+
+    .topbar-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .topbar-btn {
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      border: none;
+    }
+
+    .topbar-btn.secondary {
+      background: rgba(255,255,255,0.1);
+      color: white;
+    }
+
+    .topbar-btn.primary {
+      background: #008060;
+      color: white;
+    }
+
+    .topbar-btn:hover { opacity: 0.9; }
+
+    .status-badge {
+      padding: 4px 10px;
+      border-radius: 12px;
+      font-size: 11px;
+      font-weight: 600;
+    }
+
+    .status-badge.draft { background: #ffd79d; color: #6b5900; }
+    .status-badge.published { background: #aee9d1; color: #006b4c; }
+
+    /* Main Content Area */
+    .builder-content {
+      display: flex;
+      margin-top: 56px;
+      height: calc(100vh - 56px);
+      width: 100%;
+    }
+
+    /* Left Sidebar - Sections */
+    .sections-sidebar {
+      width: 280px;
+      background: white;
+      border-right: 1px solid #e1e3e5;
+      display: flex;
+      flex-direction: column;
+      flex-shrink: 0;
+    }
+
+    .sidebar-header {
+      padding: 16px;
+      border-bottom: 1px solid #e1e3e5;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .sidebar-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: #202223;
+    }
+
+    .sidebar-tabs {
+      display: flex;
+      border-bottom: 1px solid #e1e3e5;
+    }
+
+    .sidebar-tab {
+      flex: 1;
+      padding: 12px;
+      border: none;
+      background: none;
+      font-size: 13px;
+      font-weight: 500;
+      color: #6d7175;
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -1px;
+    }
+
+    .sidebar-tab.active {
+      color: #008060;
+      border-bottom-color: #008060;
+    }
+
+    .sidebar-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px;
+    }
+
+    .section-category {
+      margin-bottom: 24px;
+    }
+
+    .section-category-title {
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      color: #6d7175;
+      margin-bottom: 12px;
+      letter-spacing: 0.5px;
+    }
+
+    .section-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+    }
+
+    .section-item {
+      background: #f6f6f7;
+      border: 1px solid #e1e3e5;
+      border-radius: 8px;
+      padding: 12px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.15s;
+      user-select: none;
+    }
+
+    .section-item:hover {
+      border-color: #008060;
+      background: #f0fdf4;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0,128,96,0.15);
+    }
+
+    .section-item:active {
+      transform: translateY(0);
+      box-shadow: none;
+    }
+
+    .section-item i {
+      font-size: 20px;
+      color: #008060;
+      margin-bottom: 6px;
+      display: block;
+    }
+
+    .section-item span {
+      font-size: 11px;
+      font-weight: 500;
+      color: #202223;
+    }
+
+    /* Canvas Area */
+    .canvas-area {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 24px;
+      overflow: auto;
+      background: #f4f6f8;
+    }
+
+    .canvas-frame {
+      background: white;
+      border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      overflow: hidden;
+      transition: width 0.3s;
+      width: 100%;
+      max-width: 1200px;
+    }
+
+    .canvas-frame.tablet { max-width: 768px; }
+    .canvas-frame.mobile { max-width: 375px; }
+
+    .canvas-content {
+      min-height: 500px;
+      position: relative;
+    }
+
+    .canvas-empty {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 400px;
+      color: #6d7175;
+      padding: 40px;
+      text-align: center;
+      border: 2px dashed #d2d5d8;
+      margin: 20px;
+      border-radius: 8px;
+    }
+
+    .canvas-empty i {
+      font-size: 48px;
+      margin-bottom: 16px;
+      color: #d2d5d8;
+    }
+
+    .canvas-empty h3 {
+      margin: 0 0 8px;
+      font-size: 16px;
+      color: #202223;
+    }
+
+    .canvas-empty p {
+      margin: 0 0 20px 0;
+      font-size: 13px;
+    }
+
+    .btn-add-first {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 12px 24px;
+      background: #008060;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-add-first:hover {
+      background: #006e52;
+      transform: translateY(-1px);
+    }
+
+    /* Canvas Sections */
+    .canvas-section {
+      position: relative;
+      border: 2px solid transparent;
+      transition: all 0.15s;
+    }
+
+    .canvas-section:hover {
+      border-color: #008060;
+    }
+
+    .canvas-section.selected {
+      border-color: #008060;
+      box-shadow: 0 0 0 2px rgba(0,128,96,0.2);
+    }
+
+    .section-toolbar {
+      position: absolute;
+      top: -36px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #1a1a2e;
+      border-radius: 6px;
+      padding: 4px;
+      display: none;
+      gap: 2px;
+      z-index: 10;
+    }
+
+    .canvas-section:hover .section-toolbar,
+    .canvas-section.selected .section-toolbar {
+      display: flex;
+    }
+
+    .section-toolbar button {
+      width: 28px;
+      height: 28px;
+      border: none;
+      background: transparent;
+      color: white;
+      border-radius: 4px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+    }
+
+    .section-toolbar button:hover {
+      background: rgba(255,255,255,0.1);
+    }
+
+    .section-toolbar button.delete:hover {
+      background: #dc3545;
+    }
+
+    /* Right Sidebar - Settings */
+    .settings-sidebar {
+      width: 320px;
+      background: white;
+      border-left: 1px solid #e1e3e5;
+      display: flex;
+      flex-direction: column;
+      flex-shrink: 0;
+    }
+
+    .settings-header {
+      padding: 16px;
+      border-bottom: 1px solid #e1e3e5;
+    }
+
+    .settings-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: #202223;
+      margin: 0;
+    }
+
+    .settings-subtitle {
+      font-size: 12px;
+      color: #6d7175;
+      margin-top: 4px;
+    }
+
+    .settings-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px;
+    }
+
+    .setting-group {
+      margin-bottom: 24px;
+    }
+
+    .setting-group-title {
+      font-size: 12px;
+      font-weight: 600;
+      color: #202223;
+      margin-bottom: 12px;
+    }
+
+    .setting-row {
+      margin-bottom: 16px;
+    }
+
+    .setting-label {
+      font-size: 12px;
+      font-weight: 500;
+      color: #202223;
+      margin-bottom: 6px;
+      display: block;
+    }
+
+    .setting-input {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid #c9cccf;
+      border-radius: 6px;
+      font-size: 13px;
+      font-family: inherit;
+    }
+
+    .setting-input:focus {
+      outline: none;
+      border-color: #008060;
+      box-shadow: 0 0 0 2px rgba(0,128,96,0.1);
+    }
+
+    .setting-textarea {
+      min-height: 80px;
+      resize: vertical;
+    }
+
+    .setting-select {
+      appearance: none;
+      background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%236d7175' d='M3 4.5L6 7.5L9 4.5'/%3E%3C/svg%3E") no-repeat right 12px center;
+      padding-right: 32px;
+    }
+
+    .color-row {
+      display: flex;
+      gap: 8px;
+    }
+
+    .color-row input[type="color"] {
+      width: 40px;
+      height: 38px;
+      padding: 2px;
+      border: 1px solid #c9cccf;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    .color-row input[type="text"] {
+      flex: 1;
+    }
+
+    .checkbox-row {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .checkbox-row input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      accent-color: #008060;
+    }
+
+    .btn-image-select {
+      width: 100%;
+      padding: 12px;
+      border: 2px dashed #c9cccf;
+      border-radius: 6px;
+      background: #f6f6f7;
+      cursor: pointer;
+      text-align: center;
+      color: #6d7175;
+      font-size: 13px;
+    }
+
+    .btn-image-select:hover {
+      border-color: #008060;
+      background: #f0fdf4;
+    }
+
+    .image-preview {
+      width: 100%;
+      height: 120px;
+      background-size: cover;
+      background-position: center;
+      border-radius: 6px;
+      margin-bottom: 8px;
+      position: relative;
+    }
+
+    .image-preview .remove-btn {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      width: 24px;
+      height: 24px;
+      background: rgba(0,0,0,0.6);
+      border: none;
+      border-radius: 50%;
+      color: white;
+      cursor: pointer;
+    }
+
+    /* Add Section Button */
+    .add-section-zone {
+      padding: 30px 20px;
+      margin: 20px;
+      border: 2px dashed #008060;
+      border-radius: 12px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s;
+      background: rgba(0,128,96,0.03);
+    }
+
+    .add-section-zone:hover {
+      border-color: #006e52;
+      background: #f0fdf4;
+      transform: scale(1.01);
+    }
+
+    .add-section-zone i {
+      font-size: 32px;
+      color: #008060;
+      margin-bottom: 12px;
+      display: block;
+    }
+
+    .add-section-zone span {
+      display: block;
+      font-size: 14px;
+      font-weight: 600;
+      color: #008060;
+    }
+
+    .add-section-zone small {
+      display: block;
+      font-size: 12px;
+      color: #6d7175;
+      margin-top: 4px;
+    }
+
+    /* Section Previews */
+    .preview-hero {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      padding: 80px 40px;
+      text-align: center;
+      color: white;
+    }
+
+    .preview-hero h1 {
+      font-size: 36px;
+      margin: 0 0 16px;
+    }
+
+    .preview-hero p {
+      font-size: 18px;
+      margin: 0 0 24px;
+      opacity: 0.9;
+    }
+
+    .preview-hero .btn {
+      display: inline-block;
+      padding: 14px 32px;
+      background: white;
+      color: #764ba2;
+      border-radius: 6px;
+      font-weight: 600;
+      text-decoration: none;
+    }
+
+    .preview-text {
+      padding: 40px;
+    }
+
+    .preview-text h2 {
+      font-size: 24px;
+      margin: 0 0 16px;
+      color: #202223;
+    }
+
+    .preview-text p {
+      font-size: 15px;
+      line-height: 1.7;
+      color: #6d7175;
+      margin: 0;
+    }
+
+    .preview-image {
+      padding: 40px;
+      text-align: center;
+    }
+
+    .preview-image img {
+      max-width: 100%;
+      border-radius: 8px;
+    }
+
+    .preview-image-placeholder {
+      height: 200px;
+      background: #f6f6f7;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #6d7175;
+    }
+
+    .preview-columns {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+      padding: 40px;
+    }
+
+    .preview-column {
+      text-align: center;
+    }
+
+    .preview-column i {
+      font-size: 32px;
+      color: #008060;
+      margin-bottom: 16px;
+    }
+
+    .preview-column h3 {
+      font-size: 16px;
+      margin: 0 0 8px;
+      color: #202223;
+    }
+
+    .preview-column p {
+      font-size: 13px;
+      color: #6d7175;
+      margin: 0;
+    }
+
+    .preview-products {
+      padding: 40px;
+    }
+
+    .preview-products h2 {
+      text-align: center;
+      margin: 0 0 32px;
+    }
+
+    .preview-products-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+    }
+
+    .preview-product-card {
+      background: #f6f6f7;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    .preview-product-image {
+      height: 150px;
+      background: #e1e3e5;
+    }
+
+    .preview-product-info {
+      padding: 16px;
+    }
+
+    .preview-product-info h4 {
+      margin: 0 0 8px;
+      font-size: 14px;
+    }
+
+    .preview-product-info span {
+      color: #008060;
+      font-weight: 600;
+    }
+
+    .preview-cta {
+      background: #f6f6f7;
+      padding: 60px 40px;
+      text-align: center;
+    }
+
+    .preview-cta h2 {
+      font-size: 28px;
+      margin: 0 0 16px;
+    }
+
+    .preview-cta p {
+      font-size: 15px;
+      color: #6d7175;
+      margin: 0 0 24px;
+    }
+
+    .preview-cta .btn {
+      display: inline-block;
+      padding: 14px 32px;
+      background: #008060;
+      color: white;
+      border-radius: 6px;
+      font-weight: 600;
+      text-decoration: none;
+    }
+
+    .preview-testimonials {
+      padding: 60px 40px;
+      background: #f9fafb;
+    }
+
+    .preview-testimonials h2 {
+      text-align: center;
+      margin: 0 0 40px;
+    }
+
+    .testimonials-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 24px;
+    }
+
+    .testimonial-card {
+      background: white;
+      padding: 24px;
+      border-radius: 8px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+
+    .testimonial-text {
+      font-size: 14px;
+      line-height: 1.6;
+      color: #6d7175;
+      margin-bottom: 16px;
+      font-style: italic;
+    }
+
+    .testimonial-author {
+      font-weight: 600;
+      font-size: 13px;
+    }
+
+    .preview-faq {
+      padding: 60px 40px;
+    }
+
+    .preview-faq h2 {
+      text-align: center;
+      margin: 0 0 40px;
+    }
+
+    .faq-item {
+      border-bottom: 1px solid #e1e3e5;
+      padding: 16px 0;
+    }
+
+    .faq-question {
+      font-weight: 600;
+      margin-bottom: 8px;
+      display: flex;
+      justify-content: space-between;
+      cursor: pointer;
+    }
+
+    .faq-answer {
+      color: #6d7175;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    .preview-spacer {
+      height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #c9cccf;
+      font-size: 12px;
+      border: 1px dashed #e1e3e5;
+      margin: 0 40px;
+    }
+
+    /* Modal */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.5);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 2000;
+    }
+
+    .modal-overlay.active {
+      display: flex;
+    }
+
+    .modal-content {
+      background: white;
+      border-radius: 12px;
+      width: 90%;
+      max-width: 600px;
+      max-height: 80vh;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .modal-header {
+      padding: 20px;
+      border-bottom: 1px solid #e1e3e5;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .modal-header h2 {
+      margin: 0;
+      font-size: 18px;
+    }
+
+    .modal-close {
+      width: 32px;
+      height: 32px;
+      border: none;
+      background: #f6f6f7;
+      border-radius: 50%;
+      cursor: pointer;
+    }
+
+    .modal-body {
+      padding: 20px;
+      overflow-y: auto;
+      flex: 1;
+    }
+
+    .modal-footer {
+      padding: 16px 20px;
+      border-top: 1px solid #e1e3e5;
+      display: flex;
+      justify-content: flex-end;
+      gap: 12px;
+    }
+
+    .modal-btn {
+      padding: 10px 20px;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      border: none;
+    }
+
+    .modal-btn.cancel {
+      background: #f6f6f7;
+      color: #202223;
+    }
+
+    .modal-btn.primary {
+      background: #008060;
+      color: white;
+    }
+
+    /* Media Grid */
+    .media-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-top: 16px;
+    }
+
+    .media-item {
+      aspect-ratio: 1;
+      border-radius: 8px;
+      overflow: hidden;
+      cursor: pointer;
+      border: 2px solid transparent;
+      position: relative;
+    }
+
+    .media-item:hover {
+      border-color: #008060;
+    }
+
+    .media-item.selected {
+      border-color: #008060;
+    }
+
+    .media-item.selected::after {
+      content: '\\f00c';
+      font-family: 'Font Awesome 6 Free';
+      font-weight: 900;
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      width: 24px;
+      height: 24px;
+      background: #008060;
+      border-radius: 50%;
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+    }
+
+    .media-item img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .upload-zone {
+      border: 2px dashed #c9cccf;
+      border-radius: 8px;
+      padding: 40px;
+      text-align: center;
+      cursor: pointer;
+    }
+
+    .upload-zone:hover {
+      border-color: #008060;
+      background: #f0fdf4;
+    }
+
+    .upload-zone i {
+      font-size: 32px;
+      color: #6d7175;
+      margin-bottom: 12px;
+    }
+
+    /* Pages List in Sidebar */
+    .pages-list {
+      padding: 16px;
+    }
+
+    .page-list-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      margin-bottom: 4px;
+    }
+
+    .page-list-item:hover {
+      background: #f6f6f7;
+    }
+
+    .page-list-item.active {
+      background: #e3f1ed;
+    }
+
+    .page-list-item i {
+      color: #6d7175;
+    }
+
+    .page-list-info {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .page-list-title {
+      font-size: 13px;
+      font-weight: 500;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .page-list-slug {
+      font-size: 11px;
+      color: #6d7175;
+    }
+
+    .page-list-status {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+    }
+
+    .page-list-status.published { background: #008060; }
+    .page-list-status.draft { background: #ffc107; }
+  </style>
+</head>
+<body>
+  <!-- Top Bar -->
+  <div class="builder-topbar">
+    <div class="topbar-left">
+      <a href="/admin/pages.html" class="topbar-back">
+        <i class="fas fa-arrow-left"></i>
+        <span>Pages</span>
+      </a>
+      <div class="topbar-divider"></div>
+      <input type="text" class="page-name-input" id="pageTitle" value="Untitled Page" onchange="updatePageTitle(this.value)">
+      <span class="status-badge draft" id="statusBadge">Draft</span>
+    </div>
+
+    <div class="topbar-center">
+      <button class="device-btn active" data-device="desktop" onclick="setDevice('desktop')">
+        <i class="fas fa-desktop"></i> Desktop
+      </button>
+      <button class="device-btn" data-device="tablet" onclick="setDevice('tablet')">
+        <i class="fas fa-tablet-alt"></i>
+      </button>
+      <button class="device-btn" data-device="mobile" onclick="setDevice('mobile')">
+        <i class="fas fa-mobile-alt"></i>
+      </button>
+    </div>
+
+    <div class="topbar-right">
+      <button class="topbar-btn secondary" onclick="previewPage()">
+        <i class="fas fa-eye"></i> Preview
+      </button>
+      <button class="topbar-btn secondary" onclick="saveDraft()">
+        <i class="fas fa-save"></i> Save
+      </button>
+      <button class="topbar-btn primary" onclick="publishPage()">
+        <i class="fas fa-globe"></i> Publish
+      </button>
+    </div>
+  </div>
+
+  <!-- Main Layout -->
+  <div class="builder-layout">
+    <div class="builder-content">
+      <!-- Left Sidebar - Sections -->
+      <div class="sections-sidebar">
+        <div class="sidebar-tabs">
+          <button class="sidebar-tab active" data-tab="sections" onclick="switchTab('sections')">Add Section</button>
+          <button class="sidebar-tab" data-tab="pages" onclick="switchTab('pages')">Pages</button>
+        </div>
+
+        <div class="sidebar-body" id="tab-sections">
+          <div class="section-category">
+            <div class="section-category-title">Header & Navigation</div>
+            <div class="section-grid">
+              <div class="section-item" draggable="true" data-type="header">
+                <i class="fas fa-bars"></i>
+                <span>Header</span>
+              </div>
+              <div class="section-item" draggable="true" data-type="announcement">
+                <i class="fas fa-bullhorn"></i>
+                <span>Announcement</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="section-category">
+            <div class="section-category-title">Hero & Media</div>
+            <div class="section-grid">
+              <div class="section-item" draggable="true" data-type="hero">
+                <i class="fas fa-image"></i>
+                <span>Hero Banner</span>
+              </div>
+              <div class="section-item" draggable="true" data-type="slider">
+                <i class="fas fa-images"></i>
+                <span>Image Slider</span>
+              </div>
+              <div class="section-item" draggable="true" data-type="video">
+                <i class="fas fa-video"></i>
+                <span>Video</span>
+              </div>
+              <div class="section-item" draggable="true" data-type="image">
+                <i class="fas fa-image"></i>
+                <span>Image</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="section-category">
+            <div class="section-category-title">Text & Content</div>
+            <div class="section-grid">
+              <div class="section-item" draggable="true" data-type="text">
+                <i class="fas fa-align-left"></i>
+                <span>Rich Text</span>
+              </div>
+              <div class="section-item" draggable="true" data-type="heading">
+                <i class="fas fa-heading"></i>
+                <span>Heading</span>
+              </div>
+              <div class="section-item" draggable="true" data-type="image-text">
+                <i class="fas fa-th-large"></i>
+                <span>Image + Text</span>
+              </div>
+              <div class="section-item" draggable="true" data-type="columns">
+                <i class="fas fa-columns"></i>
+                <span>Columns</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="section-category">
+            <div class="section-category-title">E-commerce</div>
+            <div class="section-grid">
+              <div class="section-item" draggable="true" data-type="products">
+                <i class="fas fa-shopping-bag"></i>
+                <span>Products</span>
+              </div>
+              <div class="section-item" draggable="true" data-type="collection">
+                <i class="fas fa-th"></i>
+                <span>Collection</span>
+              </div>
+              <div class="section-item" draggable="true" data-type="featured-product">
+                <i class="fas fa-star"></i>
+                <span>Featured</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="section-category">
+            <div class="section-category-title">Social Proof</div>
+            <div class="section-grid">
+              <div class="section-item" draggable="true" data-type="testimonials">
+                <i class="fas fa-quote-right"></i>
+                <span>Testimonials</span>
+              </div>
+              <div class="section-item" draggable="true" data-type="reviews">
+                <i class="fas fa-star-half-alt"></i>
+                <span>Reviews</span>
+              </div>
+              <div class="section-item" draggable="true" data-type="logos">
+                <i class="fas fa-handshake"></i>
+                <span>Brand Logos</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="section-category">
+            <div class="section-category-title">Engagement</div>
+            <div class="section-grid">
+              <div class="section-item" draggable="true" data-type="cta">
+                <i class="fas fa-mouse-pointer"></i>
+                <span>Call to Action</span>
+              </div>
+              <div class="section-item" draggable="true" data-type="faq">
+                <i class="fas fa-question-circle"></i>
+                <span>FAQ</span>
+              </div>
+              <div class="section-item" draggable="true" data-type="newsletter">
+                <i class="fas fa-envelope"></i>
+                <span>Newsletter</span>
+              </div>
+              <div class="section-item" draggable="true" data-type="contact">
+                <i class="fas fa-phone"></i>
+                <span>Contact</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="section-category">
+            <div class="section-category-title">Layout</div>
+            <div class="section-grid">
+              <div class="section-item" draggable="true" data-type="spacer">
+                <i class="fas fa-arrows-alt-v"></i>
+                <span>Spacer</span>
+              </div>
+              <div class="section-item" draggable="true" data-type="divider">
+                <i class="fas fa-minus"></i>
+                <span>Divider</span>
+              </div>
+              <div class="section-item" draggable="true" data-type="footer">
+                <i class="fas fa-window-minimize"></i>
+                <span>Footer</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="sidebar-body" id="tab-pages" style="display: none;">
+          <button style="width: 100%; padding: 12px; background: #008060; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 500; margin-bottom: 16px;" onclick="createNewPage()">
+            <i class="fas fa-plus"></i> New Page
+          </button>
+          <div class="pages-list" id="pagesList">
+            <!-- Populated by JS -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Canvas -->
+      <div class="canvas-area">
+        <div class="canvas-frame desktop" id="canvasFrame">
+          <div class="canvas-content" id="canvasContent">
+            <!-- Canvas content populated by JS -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Sidebar - Settings -->
+      <div class="settings-sidebar">
+        <div class="settings-header">
+          <h3 class="settings-title" id="settingsTitle">Page Settings</h3>
+          <p class="settings-subtitle" id="settingsSubtitle">Configure page options</p>
+        </div>
+        <div class="settings-body" id="settingsBody">
+          <!-- Settings populated by JS -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Media Modal -->
+  <div class="modal-overlay" id="mediaModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Media Library</h2>
+        <button class="modal-close" onclick="closeMediaModal()"><i class="fas fa-times"></i></button>
+      </div>
+      <div class="modal-body">
+        <div class="upload-zone" onclick="document.getElementById('fileInput').click()">
+          <i class="fas fa-cloud-upload-alt"></i>
+          <p>Click to upload or drag and drop</p>
+          <small style="color: #6d7175;">PNG, JPG, GIF up to 5MB</small>
+          <input type="file" id="fileInput" accept="image/*" style="display: none;" onchange="uploadFile(this.files)">
+        </div>
+        <div class="media-grid" id="mediaGrid">
+          <!-- Media items populated by JS -->
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="modal-btn cancel" onclick="closeMediaModal()">Cancel</button>
+        <button class="modal-btn primary" onclick="selectMediaImage()">Select</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/admin.js"></script>
+  <script>
+    // ==========================================
+    // STATE
+    // ==========================================
+    let page = {
+      id: null,
+      title: 'Untitled Page',
+      slug: 'untitled-page',
+      sections: [],
+      isPublished: false,
+      metaTitle: '',
+      metaDescription: ''
+    };
+
+    let selectedSectionIndex = null;
+    let mediaCallback = null;
+    let selectedMediaUrl = null;
+
+    // ==========================================
+    // INITIALIZATION
+    // ==========================================
+    document.addEventListener('DOMContentLoaded', async () => {
+      if (!Admin.Auth.requireAuth()) return;
+
+      initDragDrop();
+      loadFromUrl();
+      loadPagesList();
+      loadMediaLibrary();
+      renderCanvas();
+      renderPageSettings();
+    });
+
+    // ==========================================
+    // DRAG & DROP
+    // ==========================================
+    function initDragDrop() {
+      document.querySelectorAll('.section-item').forEach(item => {
+        // Drag support
+        item.addEventListener('dragstart', (e) => {
+          e.dataTransfer.setData('type', item.dataset.type);
+          e.dataTransfer.effectAllowed = 'copy';
+        });
+
+        // Click support - add section when clicked
+        item.addEventListener('click', () => {
+          const type = item.dataset.type;
+          if (type) {
+            addSection(type);
+            Admin.Toast.success(`${getSectionTitle(type)} section added`);
+          }
+        });
+      });
+
+      const canvas = document.getElementById('canvasContent');
+
+      canvas.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        e.dataTransfer.dropEffect = 'copy';
+      });
+
+      canvas.addEventListener('drop', (e) => {
+        e.preventDefault();
+        const type = e.dataTransfer.getData('type');
+        if (type) {
+          addSection(type);
+        }
+      });
+    }
+
+    // ==========================================
+    // SECTIONS
+    // ==========================================
+    function addSection(type) {
+      const section = createSectionData(type);
+      page.sections.push(section);
+      selectedSectionIndex = page.sections.length - 1;
+      renderCanvas();
+      renderSectionSettings(selectedSectionIndex);
+    }
+
+    function createSectionData(type) {
+      const defaults = {
+        header: {
+          type: 'header',
+          logo: '',
+          menuItems: [
+            { text: 'Home', link: '/' },
+            { text: 'Shop', link: '/shop' },
+            { text: 'About', link: '/about' },
+            { text: 'Contact', link: '/contact' }
+          ],
+          showCart: true,
+          backgroundColor: '#ffffff',
+          textColor: '#333333'
+        },
+        announcement: {
+          type: 'announcement',
+          text: 'Free shipping on orders over $50!',
+          link: '/shop',
+          backgroundColor: '#8E6545',
+          textColor: '#ffffff'
+        },
+        hero: {
+          type: 'hero',
+          title: 'Welcome to Our Store',
+          subtitle: 'Discover amazing products at great prices',
+          buttonText: 'Shop Now',
+          buttonLink: '/shop',
+          backgroundImage: '',
+          backgroundColor: '#667eea',
+          overlay: true,
+          alignment: 'center'
+        },
+        slider: {
+          type: 'slider',
+          slides: [
+            { image: '', title: 'Slide 1', subtitle: 'Description here', buttonText: 'Shop Now', buttonLink: '/shop' },
+            { image: '', title: 'Slide 2', subtitle: 'Another slide', buttonText: 'Learn More', buttonLink: '/about' }
+          ],
+          autoplay: true,
+          interval: 5000
+        },
+        video: {
+          type: 'video',
+          videoUrl: '',
+          title: 'Watch Our Story',
+          autoplay: false,
+          muted: true
+        },
+        heading: {
+          type: 'heading',
+          text: 'Section Title',
+          level: 'h2',
+          alignment: 'center',
+          subtitle: 'Optional subtitle text here'
+        },
+        text: {
+          type: 'text',
+          heading: 'About Us',
+          content: 'Write your content here. You can add paragraphs, lists, and more. This is a rich text section where you can describe your products, services, or any other information.',
+          alignment: 'left'
+        },
+        'image-text': {
+          type: 'image-text',
+          image: '',
+          title: 'Feature Highlight',
+          text: 'Describe your feature or product benefit here. This layout combines an image with descriptive text.',
+          buttonText: 'Learn More',
+          buttonLink: '#',
+          imagePosition: 'left'
+        },
+        image: {
+          type: 'image',
+          src: '',
+          alt: '',
+          caption: '',
+          fullWidth: false
+        },
+        columns: {
+          type: 'columns',
+          columns: [
+            { icon: 'fa-shipping-fast', title: 'Free Shipping', text: 'On orders over $50' },
+            { icon: 'fa-shield-alt', title: 'Secure Payment', text: '100% secure checkout' },
+            { icon: 'fa-headset', title: '24/7 Support', text: 'Dedicated support' }
+          ]
+        },
+        products: {
+          type: 'products',
+          title: 'Featured Products',
+          count: 6,
+          showFeatured: true,
+          layout: 'grid'
+        },
+        collection: {
+          type: 'collection',
+          title: 'Shop by Category',
+          columns: 3,
+          collections: [
+            { title: 'Roller Shades', image: '', link: '/category/roller-shades' },
+            { title: 'Roman Shades', image: '', link: '/category/roman-shades' },
+            { title: 'Cellular Shades', image: '', link: '/category/cellular-shades' }
+          ]
+        },
+        'featured-product': {
+          type: 'featured-product',
+          productId: '',
+          product: {
+            title: 'Premium Product Name',
+            price: '299.00',
+            description: 'This is a featured product description. Highlight the key benefits and features of your product here.',
+            image: ''
+          }
+        },
+        testimonials: {
+          type: 'testimonials',
+          title: 'What Our Customers Say',
+          items: [
+            { text: 'Amazing quality and fast shipping!', author: 'John D.' },
+            { text: 'Best blinds I have ever purchased.', author: 'Sarah M.' }
+          ]
+        },
+        reviews: {
+          type: 'reviews',
+          title: 'Customer Reviews',
+          averageRating: '4.9',
+          reviews: [
+            { text: 'Excellent product, exceeded my expectations!', author: 'Mike R.' },
+            { text: 'Great quality and fast delivery.', author: 'Lisa K.' },
+            { text: 'Would definitely recommend to others.', author: 'Tom B.' }
+          ]
+        },
+        logos: {
+          type: 'logos',
+          title: 'As Seen In',
+          backgroundColor: '#f9fafb',
+          logos: [
+            { name: 'Brand 1', image: '' },
+            { name: 'Brand 2', image: '' },
+            { name: 'Brand 3', image: '' },
+            { name: 'Brand 4', image: '' }
+          ]
+        },
+        faq: {
+          type: 'faq',
+          title: 'Frequently Asked Questions',
+          items: [],
+          loadFromDatabase: true
+        },
+        cta: {
+          type: 'cta',
+          title: 'Ready to Get Started?',
+          subtitle: 'Join thousands of happy customers today.',
+          buttonText: 'Contact Us',
+          buttonLink: '/contact',
+          backgroundColor: '#f6f6f7'
+        },
+        newsletter: {
+          type: 'newsletter',
+          title: 'Subscribe to Our Newsletter',
+          subtitle: 'Get the latest updates and exclusive offers.',
+          placeholder: 'Enter your email',
+          buttonText: 'Subscribe',
+          backgroundColor: '#f6f6f7'
+        },
+        contact: {
+          type: 'contact',
+          title: 'Get in Touch',
+          buttonText: 'Send Message',
+          email: 'info@example.com',
+          phone: '(555) 123-4567',
+          address: '123 Main St, City, State 12345'
+        },
+        footer: {
+          type: 'footer',
+          logo: '',
+          description: 'Your trusted source for premium window treatments.',
+          copyright: '© 2025 Peekaboo Shades. All rights reserved.',
+          backgroundColor: '#1a1a2e',
+          textColor: '#ffffff',
+          columns: [
+            { title: 'Shop', links: [{ text: 'All Products', url: '/shop' }, { text: 'New Arrivals', url: '/new' }] },
+            { title: 'Support', links: [{ text: 'Contact Us', url: '/contact' }, { text: 'FAQ', url: '/faq' }] },
+            { title: 'Company', links: [{ text: 'About Us', url: '/about' }, { text: 'Blog', url: '/blog' }] }
+          ]
+        },
+        spacer: {
+          type: 'spacer',
+          height: 60
+        },
+        divider: {
+          type: 'divider',
+          style: 'solid'
+        }
+      };
+
+      return { id: 'section-' + Date.now(), ...defaults[type] };
+    }
+
+    function selectSection(index) {
+      selectedSectionIndex = index;
+      renderCanvas();
+      renderSectionSettings(index);
+    }
+
+    function moveSection(index, direction) {
+      const newIndex = index + direction;
+      if (newIndex < 0 || newIndex >= page.sections.length) return;
+
+      const temp = page.sections[index];
+      page.sections[index] = page.sections[newIndex];
+      page.sections[newIndex] = temp;
+
+      if (selectedSectionIndex === index) selectedSectionIndex = newIndex;
+      else if (selectedSectionIndex === newIndex) selectedSectionIndex = index;
+
+      renderCanvas();
+    }
+
+    function duplicateSection(index) {
+      const copy = JSON.parse(JSON.stringify(page.sections[index]));
+      copy.id = 'section-' + Date.now();
+      page.sections.splice(index + 1, 0, copy);
+      selectedSectionIndex = index + 1;
+      renderCanvas();
+      renderSectionSettings(index + 1);
+    }
+
+    function deleteSection(index) {
+      if (!confirm('Delete this section?')) return;
+      page.sections.splice(index, 1);
+      selectedSectionIndex = null;
+      renderCanvas();
+      renderPageSettings();
+    }
+
+    // ==========================================
+    // CANVAS RENDERING
+    // ==========================================
+    function renderCanvas() {
+      const canvas = document.getElementById('canvasContent');
+
+      if (page.sections.length === 0) {
+        canvas.innerHTML = `
+          <div class="canvas-empty">
+            <i class="fas fa-layer-group"></i>
+            <h3>Start Building Your Page</h3>
+            <p>Click any section in the left panel to add it here, or drag and drop.</p>
+            <button class="btn-add-first" onclick="switchTab('sections')">
+              <i class="fas fa-plus"></i> Browse Sections
+            </button>
+          </div>
+        `;
+        return;
+      }
+
+      canvas.innerHTML = page.sections.map((section, index) => `
+        <div class="canvas-section ${selectedSectionIndex === index ? 'selected' : ''}"
+             onclick="selectSection(${index})" data-index="${index}">
+          <div class="section-toolbar">
+            <button onclick="event.stopPropagation(); moveSection(${index}, -1)" title="Move up"><i class="fas fa-arrow-up"></i></button>
+            <button onclick="event.stopPropagation(); moveSection(${index}, 1)" title="Move down"><i class="fas fa-arrow-down"></i></button>
+            <button onclick="event.stopPropagation(); duplicateSection(${index})" title="Duplicate"><i class="fas fa-copy"></i></button>
+            <button class="delete" onclick="event.stopPropagation(); deleteSection(${index})" title="Delete"><i class="fas fa-trash"></i></button>
+          </div>
+          ${renderSectionPreview(section)}
+        </div>
+      `).join('') + `
+        <div class="add-section-zone" onclick="switchTab('sections')">
+          <i class="fas fa-plus-circle"></i>
+          <span>Add Section</span>
+          <small>Click sections in the left panel to add them here</small>
+        </div>
+      `;
+    }
+
+    function renderSectionPreview(section) {
+      switch (section.type) {
+        case 'hero':
+          return `
+            <div class="preview-hero" style="background: ${section.backgroundImage ? `url(${section.backgroundImage}) center/cover` : section.backgroundColor}">
+              <h1>${escapeHtml(section.title)}</h1>
+              <p>${escapeHtml(section.subtitle)}</p>
+              <a href="${section.buttonLink}" class="btn">${escapeHtml(section.buttonText)}</a>
+            </div>
+          `;
+        case 'text':
+          return `
+            <div class="preview-text">
+              <h2>${escapeHtml(section.heading)}</h2>
+              <p>${escapeHtml(section.content)}</p>
+            </div>
+          `;
+        case 'image':
+          return `
+            <div class="preview-image">
+              ${section.src
+                ? `<img src="${section.src}" alt="${escapeHtml(section.alt)}">`
+                : `<div class="preview-image-placeholder"><i class="fas fa-image"></i> Click to add image</div>`
+              }
+            </div>
+          `;
+        case 'columns':
+          return `
+            <div class="preview-columns">
+              ${section.columns.map(col => `
+                <div class="preview-column">
+                  <i class="fas ${col.icon}"></i>
+                  <h3>${escapeHtml(col.title)}</h3>
+                  <p>${escapeHtml(col.text)}</p>
+                </div>
+              `).join('')}
+            </div>
+          `;
+        case 'products':
+          return `
+            <div class="preview-products">
+              <h2>${escapeHtml(section.title)}</h2>
+              <div class="preview-products-grid">
+                ${Array(3).fill(0).map(() => `
+                  <div class="preview-product-card">
+                    <div class="preview-product-image"></div>
+                    <div class="preview-product-info">
+                      <h4>Product Name</h4>
+                      <span>$99.00</span>
+                    </div>
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+          `;
+        case 'testimonials':
+          return `
+            <div class="preview-testimonials">
+              <h2>${escapeHtml(section.title)}</h2>
+              <div class="testimonials-grid">
+                ${section.items.map(item => `
+                  <div class="testimonial-card">
+                    <p class="testimonial-text">"${escapeHtml(item.text)}"</p>
+                    <p class="testimonial-author">- ${escapeHtml(item.author)}</p>
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+          `;
+        case 'faq':
+          return `
+            <div class="preview-faq">
+              <h2>${escapeHtml(section.title)}</h2>
+              <div id="faq-preview-${section.id}">Loading FAQs...</div>
+            </div>
+          `;
+        case 'cta':
+          return `
+            <div class="preview-cta">
+              <h2>${escapeHtml(section.title)}</h2>
+              <p>${escapeHtml(section.subtitle)}</p>
+              <a href="${section.buttonLink}" class="btn">${escapeHtml(section.buttonText)}</a>
+            </div>
+          `;
+        case 'spacer':
+          return `<div class="preview-spacer" style="height: ${section.height}px">Spacer (${section.height}px)</div>`;
+        case 'divider':
+          return `<hr style="margin: 20px 40px; border-style: ${section.style};">`;
+        case 'header':
+          return `
+            <div class="preview-header" style="background: ${section.backgroundColor}; padding: 15px 30px; display: flex; justify-content: space-between; align-items: center;">
+              <div class="header-logo" style="font-weight: bold; font-size: 20px; color: ${section.textColor};">
+                ${section.logo ? `<img src="${section.logo}" alt="Logo" style="height: 40px;">` : 'LOGO'}
+              </div>
+              <nav class="header-nav" style="display: flex; gap: 25px;">
+                ${section.menuItems.map(item => `
+                  <a href="${item.link}" style="color: ${section.textColor}; text-decoration: none; font-size: 14px;">${escapeHtml(item.text)}</a>
+                `).join('')}
+              </nav>
+              <div class="header-actions" style="display: flex; gap: 15px; color: ${section.textColor};">
+                <i class="fas fa-search"></i>
+                <i class="fas fa-user"></i>
+                <i class="fas fa-shopping-cart"></i>
+              </div>
+            </div>
+          `;
+        case 'announcement':
+          return `
+            <div class="preview-announcement" style="background: ${section.backgroundColor}; color: ${section.textColor}; padding: 10px; text-align: center; font-size: 14px;">
+              <i class="fas fa-bullhorn" style="margin-right: 8px;"></i>
+              ${escapeHtml(section.text)}
+              ${section.link ? `<a href="${section.link}" style="color: ${section.textColor}; margin-left: 10px; text-decoration: underline;">Learn more</a>` : ''}
+            </div>
+          `;
+        case 'slider':
+          return `
+            <div class="preview-slider" style="position: relative; height: 400px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); display: flex; align-items: center; justify-content: center;">
+              <button style="position: absolute; left: 20px; background: rgba(255,255,255,0.3); border: none; width: 40px; height: 40px; border-radius: 50%; cursor: pointer;">
+                <i class="fas fa-chevron-left" style="color: white;"></i>
+              </button>
+              <div style="text-align: center; color: white;">
+                <h2 style="font-size: 36px; margin-bottom: 15px;">${escapeHtml(section.slides[0]?.title || 'Slide Title')}</h2>
+                <p style="font-size: 18px; margin-bottom: 20px;">${escapeHtml(section.slides[0]?.subtitle || 'Slide subtitle text')}</p>
+                <a href="#" class="btn" style="background: white; color: #333; padding: 12px 30px; border-radius: 4px; text-decoration: none;">${escapeHtml(section.slides[0]?.buttonText || 'Shop Now')}</a>
+              </div>
+              <button style="position: absolute; right: 20px; background: rgba(255,255,255,0.3); border: none; width: 40px; height: 40px; border-radius: 50%; cursor: pointer;">
+                <i class="fas fa-chevron-right" style="color: white;"></i>
+              </button>
+              <div style="position: absolute; bottom: 20px; display: flex; gap: 8px;">
+                ${section.slides.map((_, i) => `<div style="width: 10px; height: 10px; border-radius: 50%; background: ${i === 0 ? 'white' : 'rgba(255,255,255,0.5)'};"></div>`).join('')}
+              </div>
+            </div>
+          `;
+        case 'video':
+          return `
+            <div class="preview-video" style="background: #000; padding: 40px; text-align: center;">
+              <div style="max-width: 800px; margin: 0 auto; aspect-ratio: 16/9; background: #222; display: flex; align-items: center; justify-content: center; border-radius: 8px;">
+                <div style="text-align: center; color: #666;">
+                  <i class="fas fa-play-circle" style="font-size: 60px; margin-bottom: 15px;"></i>
+                  <p>${section.videoUrl ? 'Video: ' + section.videoUrl : 'Add video URL'}</p>
+                </div>
+              </div>
+              ${section.title ? `<h3 style="color: white; margin-top: 20px;">${escapeHtml(section.title)}</h3>` : ''}
+            </div>
+          `;
+        case 'heading':
+          return `
+            <div class="preview-heading" style="padding: 40px; text-align: ${section.alignment};">
+              <${section.level} style="margin: 0; font-size: ${section.level === 'h1' ? '36px' : section.level === 'h2' ? '28px' : '22px'};">
+                ${escapeHtml(section.text)}
+              </${section.level}>
+              ${section.subtitle ? `<p style="color: #666; margin-top: 10px;">${escapeHtml(section.subtitle)}</p>` : ''}
+            </div>
+          `;
+        case 'image-text':
+          return `
+            <div class="preview-image-text" style="display: flex; align-items: center; padding: 60px 40px; gap: 60px; ${section.imagePosition === 'right' ? 'flex-direction: row-reverse;' : ''}">
+              <div style="flex: 1;">
+                ${section.image
+                  ? `<img src="${section.image}" style="width: 100%; border-radius: 8px;" alt="">`
+                  : `<div style="aspect-ratio: 4/3; background: #e5e7eb; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #999;"><i class="fas fa-image" style="font-size: 40px;"></i></div>`}
+              </div>
+              <div style="flex: 1;">
+                <h2 style="margin: 0 0 15px 0;">${escapeHtml(section.title)}</h2>
+                <p style="color: #666; line-height: 1.6;">${escapeHtml(section.text)}</p>
+                ${section.buttonText ? `<a href="${section.buttonLink}" class="btn" style="display: inline-block; margin-top: 20px; background: #111; color: white; padding: 12px 25px; text-decoration: none; border-radius: 4px;">${escapeHtml(section.buttonText)}</a>` : ''}
+              </div>
+            </div>
+          `;
+        case 'collection':
+          return `
+            <div class="preview-collection" style="padding: 60px 40px;">
+              <h2 style="text-align: center; margin-bottom: 30px;">${escapeHtml(section.title)}</h2>
+              <div style="display: grid; grid-template-columns: repeat(${section.columns}, 1fr); gap: 20px;">
+                ${section.collections.map(col => `
+                  <div style="text-align: center;">
+                    <div style="aspect-ratio: 1; background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%); border-radius: 8px; margin-bottom: 15px; display: flex; align-items: center; justify-content: center;">
+                      ${col.image ? `<img src="${col.image}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 8px;">` : '<i class="fas fa-folder" style="font-size: 40px; color: #999;"></i>'}
+                    </div>
+                    <h4 style="margin: 0;">${escapeHtml(col.title)}</h4>
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+          `;
+        case 'featured-product':
+          return `
+            <div class="preview-featured-product" style="display: flex; padding: 60px 40px; gap: 60px; align-items: center;">
+              <div style="flex: 1;">
+                <div style="aspect-ratio: 1; background: #f3f4f6; border-radius: 8px; display: flex; align-items: center; justify-content: center;">
+                  ${section.product?.image ? `<img src="${section.product.image}" style="max-width: 80%; max-height: 80%;">` : '<i class="fas fa-box" style="font-size: 60px; color: #999;"></i>'}
+                </div>
+              </div>
+              <div style="flex: 1;">
+                <span style="color: #666; font-size: 12px; text-transform: uppercase; letter-spacing: 1px;">Featured Product</span>
+                <h2 style="margin: 10px 0;">${escapeHtml(section.product?.title || 'Product Name')}</h2>
+                <p style="font-size: 24px; font-weight: bold; color: #111;">$${section.product?.price || '99.00'}</p>
+                <p style="color: #666; margin: 15px 0; line-height: 1.6;">${escapeHtml(section.product?.description || 'Product description goes here...')}</p>
+                <button style="background: #111; color: white; border: none; padding: 14px 35px; font-size: 14px; cursor: pointer; border-radius: 4px;">Add to Cart</button>
+              </div>
+            </div>
+          `;
+        case 'reviews':
+          return `
+            <div class="preview-reviews" style="padding: 60px 40px; background: #f9fafb;">
+              <h2 style="text-align: center; margin-bottom: 10px;">${escapeHtml(section.title)}</h2>
+              <div style="text-align: center; margin-bottom: 30px;">
+                <span style="color: #fbbf24; font-size: 24px;">★★★★★</span>
+                <span style="margin-left: 10px; color: #666;">${section.averageRating || '4.9'} out of 5</span>
+              </div>
+              <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; max-width: 1000px; margin: 0 auto;">
+                ${(section.reviews || []).slice(0, 3).map(review => `
+                  <div style="background: white; padding: 25px; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+                    <div style="color: #fbbf24; margin-bottom: 10px;">★★★★★</div>
+                    <p style="color: #333; margin: 0 0 15px 0; line-height: 1.5;">"${escapeHtml(review.text)}"</p>
+                    <p style="color: #666; font-size: 14px; margin: 0;">- ${escapeHtml(review.author)}</p>
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+          `;
+        case 'logos':
+          return `
+            <div class="preview-logos" style="padding: 40px; background: ${section.backgroundColor};">
+              ${section.title ? `<h3 style="text-align: center; margin-bottom: 25px; color: #666; font-weight: normal;">${escapeHtml(section.title)}</h3>` : ''}
+              <div style="display: flex; justify-content: center; align-items: center; gap: 50px; flex-wrap: wrap; opacity: 0.6;">
+                ${section.logos.map(logo => `
+                  <div style="width: 120px; height: 50px; background: #e5e7eb; border-radius: 4px; display: flex; align-items: center; justify-content: center;">
+                    ${logo.image ? `<img src="${logo.image}" style="max-width: 100%; max-height: 100%;">` : '<span style="color: #999; font-size: 12px;">Logo</span>'}
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+          `;
+        case 'newsletter':
+          return `
+            <div class="preview-newsletter" style="padding: 60px 40px; background: ${section.backgroundColor}; text-align: center;">
+              <h2 style="margin: 0 0 10px 0;">${escapeHtml(section.title)}</h2>
+              <p style="color: #666; margin: 0 0 25px 0;">${escapeHtml(section.subtitle)}</p>
+              <form style="display: flex; gap: 10px; max-width: 450px; margin: 0 auto;">
+                <input type="email" placeholder="${escapeHtml(section.placeholder)}" style="flex: 1; padding: 14px 18px; border: 1px solid #ddd; border-radius: 4px; font-size: 14px;">
+                <button type="submit" style="background: #111; color: white; border: none; padding: 14px 28px; font-size: 14px; cursor: pointer; border-radius: 4px;">${escapeHtml(section.buttonText)}</button>
+              </form>
+            </div>
+          `;
+        case 'contact':
+          return `
+            <div class="preview-contact" style="padding: 60px 40px;">
+              <h2 style="text-align: center; margin: 0 0 30px 0;">${escapeHtml(section.title)}</h2>
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 40px; max-width: 900px; margin: 0 auto;">
+                <div>
+                  <form style="display: flex; flex-direction: column; gap: 15px;">
+                    <input type="text" placeholder="Name" style="padding: 12px 15px; border: 1px solid #ddd; border-radius: 4px;">
+                    <input type="email" placeholder="Email" style="padding: 12px 15px; border: 1px solid #ddd; border-radius: 4px;">
+                    <textarea placeholder="Message" rows="5" style="padding: 12px 15px; border: 1px solid #ddd; border-radius: 4px; resize: vertical;"></textarea>
+                    <button style="background: #111; color: white; border: none; padding: 14px; font-size: 14px; cursor: pointer; border-radius: 4px;">${escapeHtml(section.buttonText)}</button>
+                  </form>
+                </div>
+                <div style="display: flex; flex-direction: column; gap: 20px;">
+                  ${section.email ? `<div><i class="fas fa-envelope" style="width: 20px; color: #666;"></i> ${escapeHtml(section.email)}</div>` : ''}
+                  ${section.phone ? `<div><i class="fas fa-phone" style="width: 20px; color: #666;"></i> ${escapeHtml(section.phone)}</div>` : ''}
+                  ${section.address ? `<div><i class="fas fa-map-marker-alt" style="width: 20px; color: #666;"></i> ${escapeHtml(section.address)}</div>` : ''}
+                </div>
+              </div>
+            </div>
+          `;
+        case 'footer':
+          return `
+            <div class="preview-footer" style="background: ${section.backgroundColor}; color: ${section.textColor}; padding: 50px 40px 30px;">
+              <div style="display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 40px; max-width: 1200px; margin: 0 auto;">
+                <div>
+                  <h3 style="margin: 0 0 15px 0;">${section.logo ? `<img src="${section.logo}" style="height: 30px;">` : 'Company'}</h3>
+                  <p style="color: ${section.textColor}; opacity: 0.7; font-size: 14px; line-height: 1.6;">${escapeHtml(section.description || 'Company description goes here.')}</p>
+                </div>
+                ${section.columns.map(col => `
+                  <div>
+                    <h4 style="margin: 0 0 15px 0; font-size: 14px; text-transform: uppercase; letter-spacing: 1px;">${escapeHtml(col.title)}</h4>
+                    <ul style="list-style: none; padding: 0; margin: 0;">
+                      ${col.links.map(link => `
+                        <li style="margin-bottom: 8px;"><a href="${link.url}" style="color: ${section.textColor}; opacity: 0.7; text-decoration: none; font-size: 14px;">${escapeHtml(link.text)}</a></li>
+                      `).join('')}
+                    </ul>
+                  </div>
+                `).join('')}
+              </div>
+              <div style="border-top: 1px solid rgba(255,255,255,0.1); margin-top: 40px; padding-top: 20px; text-align: center; opacity: 0.6; font-size: 13px;">
+                ${escapeHtml(section.copyright || '© 2024 Company. All rights reserved.')}
+              </div>
+            </div>
+          `;
+        default:
+          return `<div style="padding: 40px; text-align: center; color: #999;">Unknown section type</div>`;
+      }
+    }
+
+    function showSectionPicker() {
+      switchTab('sections');
+    }
+
+    // ==========================================
+    // SETTINGS PANEL
+    // ==========================================
+    function renderPageSettings() {
+      document.getElementById('settingsTitle').textContent = 'Page Settings';
+      document.getElementById('settingsSubtitle').textContent = 'Configure page options';
+
+      document.getElementById('settingsBody').innerHTML = `
+        <div class="setting-group">
+          <div class="setting-group-title">Page Details</div>
+          <div class="setting-row">
+            <label class="setting-label">Page Title</label>
+            <input type="text" class="setting-input" value="${escapeHtml(page.title)}"
+                   onchange="page.title = this.value; document.getElementById('pageTitle').value = this.value; updateSlug()">
+          </div>
+          <div class="setting-row">
+            <label class="setting-label">URL Slug</label>
+            <input type="text" class="setting-input" id="slugInput" value="${escapeHtml(page.slug)}"
+                   onchange="page.slug = this.value">
+          </div>
+        </div>
+
+        <div class="setting-group">
+          <div class="setting-group-title">SEO</div>
+          <div class="setting-row">
+            <label class="setting-label">Meta Title</label>
+            <input type="text" class="setting-input" value="${escapeHtml(page.metaTitle)}"
+                   onchange="page.metaTitle = this.value" placeholder="Page title for search engines">
+          </div>
+          <div class="setting-row">
+            <label class="setting-label">Meta Description</label>
+            <textarea class="setting-input setting-textarea" onchange="page.metaDescription = this.value"
+                      placeholder="Brief description for search engines">${escapeHtml(page.metaDescription)}</textarea>
+          </div>
+        </div>
+
+        <div class="setting-group">
+          <div class="setting-group-title">Visibility</div>
+          <div class="setting-row">
+            <div class="checkbox-row">
+              <input type="checkbox" id="publishedCheck" ${page.isPublished ? 'checked' : ''}
+                     onchange="page.isPublished = this.checked; updateStatusBadge()">
+              <label for="publishedCheck" class="setting-label" style="margin: 0;">Published</label>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderSectionSettings(index) {
+      const section = page.sections[index];
+
+      document.getElementById('settingsTitle').textContent = getSectionTitle(section.type);
+      document.getElementById('settingsSubtitle').textContent = 'Edit section properties';
+
+      let html = '';
+
+      switch (section.type) {
+        case 'hero':
+          html = `
+            <div class="setting-group">
+              <div class="setting-group-title">Content</div>
+              <div class="setting-row">
+                <label class="setting-label">Title</label>
+                <input type="text" class="setting-input" value="${escapeHtml(section.title)}"
+                       onchange="updateSection(${index}, 'title', this.value)">
+              </div>
+              <div class="setting-row">
+                <label class="setting-label">Subtitle</label>
+                <input type="text" class="setting-input" value="${escapeHtml(section.subtitle)}"
+                       onchange="updateSection(${index}, 'subtitle', this.value)">
+              </div>
+              <div class="setting-row">
+                <label class="setting-label">Button Text</label>
+                <input type="text" class="setting-input" value="${escapeHtml(section.buttonText)}"
+                       onchange="updateSection(${index}, 'buttonText', this.value)">
+              </div>
+              <div class="setting-row">
+                <label class="setting-label">Button Link</label>
+                <input type="text" class="setting-input" value="${escapeHtml(section.buttonLink)}"
+                       onchange="updateSection(${index}, 'buttonLink', this.value)">
+              </div>
+            </div>
+            <div class="setting-group">
+              <div class="setting-group-title">Background</div>
+              <div class="setting-row">
+                <label class="setting-label">Background Image</label>
+                ${section.backgroundImage
+                  ? `<div class="image-preview" style="background-image: url(${section.backgroundImage})">
+                       <button class="remove-btn" onclick="updateSection(${index}, 'backgroundImage', '')"><i class="fas fa-times"></i></button>
+                     </div>`
+                  : ''
+                }
+                <button class="btn-image-select" onclick="openMediaModal(${index}, 'backgroundImage')">
+                  <i class="fas fa-image"></i> ${section.backgroundImage ? 'Change Image' : 'Select Image'}
+                </button>
+              </div>
+              <div class="setting-row">
+                <label class="setting-label">Background Color</label>
+                <div class="color-row">
+                  <input type="color" value="${section.backgroundColor}"
+                         onchange="updateSection(${index}, 'backgroundColor', this.value)">
+                  <input type="text" class="setting-input" value="${section.backgroundColor}"
+                         onchange="updateSection(${index}, 'backgroundColor', this.value)">
+                </div>
+              </div>
+            </div>
+          `;
+          break;
+
+        case 'text':
+          html = `
+            <div class="setting-group">
+              <div class="setting-group-title">Content</div>
+              <div class="setting-row">
+                <label class="setting-label">Heading</label>
+                <input type="text" class="setting-input" value="${escapeHtml(section.heading)}"
+                       onchange="updateSection(${index}, 'heading', this.value)">
+              </div>
+              <div class="setting-row">
+                <label class="setting-label">Content</label>
+                <textarea class="setting-input setting-textarea" style="min-height: 150px;"
+                          onchange="updateSection(${index}, 'content', this.value)">${escapeHtml(section.content)}</textarea>
+              </div>
+            </div>
+          `;
+          break;
+
+        case 'image':
+          html = `
+            <div class="setting-group">
+              <div class="setting-group-title">Image</div>
+              <div class="setting-row">
+                ${section.src
+                  ? `<div class="image-preview" style="background-image: url(${section.src})">
+                       <button class="remove-btn" onclick="updateSection(${index}, 'src', '')"><i class="fas fa-times"></i></button>
+                     </div>`
+                  : ''
+                }
+                <button class="btn-image-select" onclick="openMediaModal(${index}, 'src')">
+                  <i class="fas fa-image"></i> ${section.src ? 'Change Image' : 'Select Image'}
+                </button>
+              </div>
+              <div class="setting-row">
+                <label class="setting-label">Alt Text</label>
+                <input type="text" class="setting-input" value="${escapeHtml(section.alt)}"
+                       onchange="updateSection(${index}, 'alt', this.value)" placeholder="Describe the image">
+              </div>
+              <div class="setting-row">
+                <label class="setting-label">Caption</label>
+                <input type="text" class="setting-input" value="${escapeHtml(section.caption)}"
+                       onchange="updateSection(${index}, 'caption', this.value)">
+              </div>
+            </div>
+          `;
+          break;
+
+        case 'columns':
+          html = `
+            <div class="setting-group">
+              <div class="setting-group-title">Columns Layout</div>
+              <div class="setting-row">
+                <label class="setting-label">Number of Columns</label>
+                <select class="setting-input" onchange="updateColumnCount(${index}, parseInt(this.value))">
+                  <option value="2" ${section.columns.length === 2 ? 'selected' : ''}>2 Columns</option>
+                  <option value="3" ${section.columns.length === 3 ? 'selected' : ''}>3 Columns</option>
+                  <option value="4" ${section.columns.length === 4 ? 'selected' : ''}>4 Columns</option>
+                </select>
+              </div>
+            </div>
+            <div class="setting-group">
+              <div class="setting-group-title">Column Content</div>
+              ${section.columns.map((col, i) => `
+                <div style="background: #f6f6f7; padding: 12px; border-radius: 6px; margin-bottom: 8px;">
+                  <div style="font-size: 12px; font-weight: 600; margin-bottom: 8px;">Column ${i + 1}</div>
+                  <div class="setting-row">
+                    <label class="setting-label">Icon (FontAwesome)</label>
+                    <input type="text" class="setting-input" value="${escapeHtml(col.icon || '')}"
+                           placeholder="e.g., fa-star"
+                           onchange="updateColumn(${index}, ${i}, 'icon', this.value)">
+                  </div>
+                  <div class="setting-row">
+                    <label class="setting-label">Title</label>
+                    <input type="text" class="setting-input" value="${escapeHtml(col.title || '')}"
+                           onchange="updateColumn(${index}, ${i}, 'title', this.value)">
+                  </div>
+                  <div class="setting-row">
+                    <label class="setting-label">Text</label>
+                    <textarea class="setting-input setting-textarea" style="min-height: 60px;"
+                              onchange="updateColumn(${index}, ${i}, 'text', this.value)">${escapeHtml(col.text || '')}</textarea>
+                  </div>
+                </div>
+              `).join('')}
+            </div>
+          `;
+          break;
+
+        case 'cta':
+          html = `
+            <div class="setting-group">
+              <div class="setting-group-title">Content</div>
+              <div class="setting-row">
+                <label class="setting-label">Title</label>
+                <input type="text" class="setting-input" value="${escapeHtml(section.title)}"
+                       onchange="updateSection(${index}, 'title', this.value)">
+              </div>
+              <div class="setting-row">
+                <label class="setting-label">Subtitle</label>
+                <input type="text" class="setting-input" value="${escapeHtml(section.subtitle)}"
+                       onchange="updateSection(${index}, 'subtitle', this.value)">
+              </div>
+              <div class="setting-row">
+                <label class="setting-label">Button Text</label>
+                <input type="text" class="setting-input" value="${escapeHtml(section.buttonText)}"
+                       onchange="updateSection(${index}, 'buttonText', this.value)">
+              </div>
+              <div class="setting-row">
+                <label class="setting-label">Button Link</label>
+                <input type="text" class="setting-input" value="${escapeHtml(section.buttonLink)}"
+                       onchange="updateSection(${index}, 'buttonLink', this.value)">
+              </div>
+            </div>
+          `;
+          break;
+
+        case 'products':
+          html = `
+            <div class="setting-group">
+              <div class="setting-group-title">Products</div>
+              <div class="setting-row">
+                <label class="setting-label">Section Title</label>
+                <input type="text" class="setting-input" value="${escapeHtml(section.title)}"
+                       onchange="updateSection(${index}, 'title', this.value)">
+              </div>
+              <div class="setting-row">
+                <label class="setting-label">Number of Products</label>
+                <input type="number" class="setting-input" value="${section.count}" min="1" max="12"
+                       onchange="updateSection(${index}, 'count', parseInt(this.value))">
+              </div>
+              <div class="setting-row">
+                <div class="checkbox-row">
+                  <input type="checkbox" ${section.showFeatured ? 'checked' : ''}
+                         onchange="updateSection(${index}, 'showFeatured', this.checked)">
+                  <label class="setting-label" style="margin: 0;">Show featured only</label>
+                </div>
+              </div>
+            </div>
+          `;
+          break;
+
+        case 'testimonials':
+          html = `
+            <div class="setting-group">
+              <div class="setting-group-title">Testimonials</div>
+              <div class="setting-row">
+                <label class="setting-label">Section Title</label>
+                <input type="text" class="setting-input" value="${escapeHtml(section.title)}"
+                       onchange="updateSection(${index}, 'title', this.value)">
+              </div>
+            </div>
+            <div class="setting-group">
+              <div class="setting-group-title">Items</div>
+              ${section.items.map((item, i) => `
+                <div style="background: #f6f6f7; padding: 12px; border-radius: 6px; margin-bottom: 8px;">
+                  <input type="text" class="setting-input" value="${escapeHtml(item.text)}"
+                         placeholder="Testimonial text" style="margin-bottom: 8px;"
+                         onchange="updateTestimonial(${index}, ${i}, 'text', this.value)">
+                  <input type="text" class="setting-input" value="${escapeHtml(item.author)}"
+                         placeholder="Author name"
+                         onchange="updateTestimonial(${index}, ${i}, 'author', this.value)">
+                </div>
+              `).join('')}
+              <button style="width: 100%; padding: 8px; border: 1px dashed #c9cccf; background: none; border-radius: 6px; cursor: pointer;"
+                      onclick="addTestimonial(${index})">+ Add Testimonial</button>
+            </div>
+          `;
+          break;
+
+        case 'faq':
+          html = `
+            <div class="setting-group">
+              <div class="setting-group-title">FAQ</div>
+              <div class="setting-row">
+                <label class="setting-label">Section Title</label>
+                <input type="text" class="setting-input" value="${escapeHtml(section.title)}"
+                       onchange="updateSection(${index}, 'title', this.value)">
+              </div>
+              <p style="color: #6d7175; font-size: 12px;">FAQs are loaded automatically from your FAQ database.</p>
+            </div>
+          `;
+          break;
+
+        case 'spacer':
+          html = `
+            <div class="setting-group">
+              <div class="setting-group-title">Spacer</div>
+              <div class="setting-row">
+                <label class="setting-label">Height (px)</label>
+                <input type="number" class="setting-input" value="${section.height}" min="20" max="200"
+                       onchange="updateSection(${index}, 'height', parseInt(this.value))">
+              </div>
+            </div>
+          `;
+          break;
+
+        case 'header':
+          html = `
+            <div class="setting-group">
+              <div class="setting-group-title">Logo</div>
+              <div class="setting-row">
+                ${section.logo
+                  ? `<div class="image-preview" style="background-image: url(${section.logo})">
+                       <button class="remove-btn" onclick="updateSection(${index}, 'logo', '')"><i class="fas fa-times"></i></button>
+                     </div>`
+                  : ''
+                }
+                <button class="btn-image-select" onclick="openMediaModal(${index}, 'logo')">
+                  <i class="fas fa-image"></i> ${section.logo ? 'Change Logo' : 'Select Logo'}
+                </button>
+              </div>
+            </div>
+            <div class="setting-group">
+              <div class="setting-group-title">Colors</div>
+              <div class="setting-row">
+                <label class="setting-label">Background</label>
+                <div class="color-row">
+                  <input type="color" value="${section.backgroundColor}"
+                         onchange="updateSection(${index}, 'backgroundColor', this.value)">
+                  <input type="text" class="setting-input" value="${section.backgroundColor}"
+                         onchange="updateSection(${index}, 'backgroundColor', this.value)">
+                </div>
+              </div>
+              <div class="setting-row">
+                <label class="setting-label">Text Color</label>
+                <div class="color-row">
+                  <input type="color" value="${section.textColor}"
+                         onchange="updateSection(${index}, 'textColor', this.value)">
+                  <input type="text" class="setting-input" value="${section.textColor}"
+                         onchange="updateSection(${index}, 'textColor', this.value)">
+                </div>
+              </div>
+            </div>
+            <div class="setting-group">
+              <div class="setting-group-title">Menu Items</div>
+              ${section.menuItems.map((item, i) => `
+                <div style="display: flex; gap: 8px; margin-bottom: 8px;">
+                  <input type="text" class="setting-input" value="${escapeHtml(item.text)}" placeholder="Text"
+                         style="flex: 1;" onchange="updateMenuItem(${index}, ${i}, 'text', this.value)">
+                  <input type="text" class="setting-input" value="${escapeHtml(item.link)}" placeholder="Link"
+                         style="flex: 1;" onchange="updateMenuItem(${index}, ${i}, 'link', this.value)">
+                  <button onclick="removeMenuItem(${index}, ${i})" style="background: none; border: none; color: #dc3545; cursor: pointer;"><i class="fas fa-trash"></i></button>
+                </div>
+              `).join('')}
+              <button style="width: 100%; padding: 8px; border: 1px dashed #c9cccf; background: none; border-radius: 6px; cursor: pointer;"
+                      onclick="addMenuItem(${index})">+ Add Menu Item</button>
+            </div>
+          `;
+          break;
+
+        case 'announcement':
+          html = `
+            <div class="setting-group">
+              <div class="setting-group-title">Content</div>
+              <div class="setting-row">
+                <label class="setting-label">Announcement Text</label>
+                <input type="text" class="setting-input" value="${escapeHtml(section.text)}"
+                       onchange="updateSection(${index}, 'text', this.value)">
+              </div>
+              <div class="setting-row">
+                <label class="setting-label">Link (optional)</label>
+                <input type="text" class="setting-input" value="${escapeHtml(section.link || '')}"
+                       onchange="updateSection(${index}, 'link', this.value)">
+              </div>
+            </div>
+            <div class="setting-group">
+              <div class="setting-group-title">Style</div>
+              <div class="setting-row">
+                <label class="setting-label">Background Color</label>
+                <div class="color-row">
+                  <input type="color" value="${section.backgroundColor}"
+                         onchange="updateSection(${index}, 'backgroundColor', this.value)">
+                  <input type="text" class="setting-input" value="${section.backgroundColor}"
+                         onchange="updateSection(${index}, 'backgroundColor', this.value)">
+                </div>
+              </div>
+              <div class="setting-row">
+                <label class="setting-label">Text Color</label>
+                <div class="color-row">
+                  <input type="color" value="${section.textColor}"
+                         onchange="updateSection(${index}, 'textColor', this.value)">
+                  <input type="text" class="setting-input" value="${section.textColor}"
+                         onchange="updateSection(${index}, 'textColor', this.value)">
+                </div>
+              </div>
+            </div>
+          `;
+          break;
+
+        case 'slider':
+          html = `
+            <div class="setting-group">
+              <div class="setting-group-title">Slides</div>
+              ${section.slides.map((slide, i) => `
+                <div style="background: #f6f6f7; padding: 12px; border-radius: 6px; margin-bottom: 8px;">
+                  <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                    <strong style="font-size: 12px;">Slide ${i + 1}</strong>
+                    <button onclick="removeSlide(${index}, ${i})" style="background: none; border: none; color: #dc3545; cursor: pointer; font-size: 12px;"><i class="fas fa-trash"></i></button>
+                  </div>
+                  <input type="text" class="setting-input" value="${escapeHtml(slide.title)}" placeholder="Title"
+                         style="margin-bottom: 8px;" onchange="updateSlide(${index}, ${i}, 'title', this.value)">
+                  <input type="text" class="setting-input" value="${escapeHtml(slide.subtitle)}" placeholder="Subtitle"
+                         style="margin-bottom: 8px;" onchange="updateSlide(${index}, ${i}, 'subtitle', this.value)">
+                  <input type="text" class="setting-input" value="${escapeHtml(slide.buttonText)}" placeholder="Button Text"
+                         style="margin-bottom: 8px;" onchange="updateSlide(${index}, ${i}, 'buttonText', this.value)">
+                  <input type="text" class="setting-input" value="${escapeHtml(slide.buttonLink)}" placeholder="Button Link"
+                         onchange="updateSlide(${index}, ${i}, 'buttonLink', this.value)">
+                </div>
+              `).join('')}
+              <button style="width: 100%; padding: 8px; border: 1px dashed #c9cccf; background: none; border-radius: 6px; cursor: pointer;"
+                      onclick="addSlide(${index})">+ Add Slide</button>
+            </div>
+            <div class="setting-group">
+              <div class="setting-group-title">Settings</div>
+              <div class="setting-row">
+                <div class="checkbox-row">
+                  <input type="checkbox" ${section.autoplay ? 'checked' : ''}
+                         onchange="updateSection(${index}, 'autoplay', this.checked)">
+                  <label class="setting-label" style="margin: 0;">Autoplay</label>
+                </div>
+              </div>
+              <div class="setting-row">
+                <label class="setting-label">Autoplay Interval (ms)</label>
+                <input type="number" class="setting-input" value="${section.interval || 5000}" min="1000" max="10000"
+                       onchange="updateSection(${index}, 'interval', parseInt(this.value))">
+              </div>
+            </div>
+          `;
+          break;
+
+        case 'video':
+          html = `
+            <div class="setting-group">
+              <div class="setting-group-title">Video</div>
+              <div class="setting-row">
+                <label class="setting-label">Video URL (YouTube/Vimeo)</label>
+                <input type="text" class="setting-input" value="${escapeHtml(section.videoUrl)}"
+                       onchange="updateSection(${index}, 'videoUrl', this.value)" placeholder="https://youtube.com/watch?v=...">
+              </div>
+              <div class="setting-row">
+                <label class="setting-label">Title (optional)</label>
+                <input type="text" class="setting-input" value="${escapeHtml(section.title || '')}"
+                       onchange="updateSection(${index}, 'title', this.value)">
+              </div>
+            </div>
+            <div class="setting-group">
+              <div class="setting-group-title">Settings</div>
+              <div class="setting-row">
+                <div class="checkbox-row">
+                  <input type="checkbox" ${section.autoplay ? 'checked' : ''}
+                         onchange="updateSection(${index}, 'autoplay', this.checked)">
+                  <label class="setting-label" style="margin: 0;">Autoplay</label>
+                </div>
+              </div>
+              <div class="setting-row">
+                <div class="checkbox-row">
+                  <input type="checkbox" ${section.muted ? 'checked' : ''}
+                         onchange="updateSection(${index}, 'muted', this.checked)">
+                  <label class="setting-label" style="margin: 0;">Muted</label>
+                </div>
+              </div>
+            </div>
+          `;
+          break;
+
+        case 'heading':
+          html = `
+            <div class="setting-group">
+              <div class="setting-group-title">Content</div>
+              <div class="setting-row">
+                <label class="setting-label">Heading Text</label>
+                <input type="text" class="setting-input" value="${escapeHtml(section.text)}"
+                       onchange="updateSection(${index}, 'text', this.value)">
+              </div>
+              <div class="setting-row">
+                <label class="setting-label">Subtitle (optional)</label>
+                <input type="text" class="setting-input" value="${escapeHtml(section.subtitle || '')}"
+                       onchange="updateSection(${index}, 'subtitle', this.value)">
+              </div>
+            </div>
+            <div class="setting-group">
+              <div class="setting-group-title">Style</div>
+              <div class="setting-row">
+                <label class="setting-label">Level</label>
+                <select class="setting-input" onchange="updateSection(${index}, 'level', this.value)">
+                  <option value="h1" ${section.level === 'h1' ? 'selected' : ''}>H1 - Main Heading</option>
+                  <option value="h2" ${section.level === 'h2' ? 'selected' : ''}>H2 - Section Heading</option>
+                  <option value="h3" ${section.level === 'h3' ? 'selected' : ''}>H3 - Subsection</option>
+                </select>
+              </div>
+              <div class="setting-row">
+                <label class="setting-label">Alignment</label>
+                <select class="setting-input" onchange="updateSection(${index}, 'alignment', this.value)">
+                  <option value="left" ${section.alignment === 'left' ? 'selected' : ''}>Left</option>
+                  <option value="center" ${section.alignment === 'center' ? 'selected' : ''}>Center</option>
+                  <option value="right" ${section.alignment === 'right' ? 'selected' : ''}>Right</option>
+                </select>
+              </div>
+            </div>
+          `;
+          break;
+
+        case 'image-text':
+          html = `
+            <div class="setting-group">
+              <div class="setting-group-title">Image</div>
+              <div class="setting-row">
+                ${section.image
+                  ? `<div class="image-preview" style="background-image: url(${section.image})">
+                       <button class="remove-btn" onclick="updateSection(${index}, 'image', '')"><i class="fas fa-times"></i></button>
+                     </div>`
+                  : ''
+                }
+                <button class="btn-image-select" onclick="openMediaModal(${index}, 'image')">
+                  <i class="fas fa-image"></i> ${section.image ? 'Change Image' : 'Select Image'}
+                </button>
+              </div>
+              <div class="setting-row">
+                <label class="setting-label">Image Position</label>
+                <select class="setting-input" onchange="updateSection(${index}, 'imagePosition', this.value)">
+                  <option value="left" ${section.imagePosition === 'left' ? 'selected' : ''}>Left</option>
+                  <option value="right" ${section.imagePosition === 'right' ? 'selected' : ''}>Right</option>
+                </select>
+              </div>
+            </div>
+            <div class="setting-group">
+              <div class="setting-group-title">Content</div>
+              <div class="setting-row">
+                <label class="setting-label">Title</label>
+                <input type="text" class="setting-input" value="${escapeHtml(section.title)}"
+                       onchange="updateSection(${index}, 'title', this.value)">
+              </div>
+              <div class="setting-row">
+                <label class="setting-label">Text</label>
+                <textarea class="setting-input setting-textarea" style="min-height: 100px;"
+                          onchange="updateSection(${index}, 'text', this.value)">${escapeHtml(section.text)}</textarea>
+              </div>
+              <div class="setting-row">
+                <label class="setting-label">Button Text (optional)</label>
+                <input type="text" class="setting-input" value="${escapeHtml(section.buttonText || '')}"
+                       onchange="updateSection(${index}, 'buttonText', this.value)">
+              </div>
+              <div class="setting-row">
+                <label class="setting-label">Button Link</label>
+                <input type="text" class="setting-input" value="${escapeHtml(section.buttonLink || '')}"
+                       onchange="updateSection(${index}, 'buttonLink', this.value)">
+              </div>
+            </div>
+          `;
+          break;
+
+        case 'collection':
+          html = `
+            <div class="setting-group">
+              <div class="setting-group-title">Settings</div>
+              <div class="setting-row">
+                <label class="setting-label">Section Title</label>
+                <input type="text" class="setting-input" value="${escapeHtml(section.title)}"
+                       onchange="updateSection(${index}, 'title', this.value)">
+              </div>
+              <div class="setting-row">
+                <label class="setting-label">Columns</label>
+                <select class="setting-input" onchange="updateSection(${index}, 'columns', parseInt(this.value))">
+                  <option value="2" ${section.columns === 2 ? 'selected' : ''}>2 Columns</option>
+                  <option value="3" ${section.columns === 3 ? 'selected' : ''}>3 Columns</option>
+                  <option value="4" ${section.columns === 4 ? 'selected' : ''}>4 Columns</option>
+                </select>
+              </div>
+            </div>
+            <div class="setting-group">
+              <div class="setting-group-title">Collections</div>
+              ${section.collections.map((col, i) => `
+                <div style="background: #f6f6f7; padding: 12px; border-radius: 6px; margin-bottom: 8px;">
+                  <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                    <strong style="font-size: 12px;">Collection ${i + 1}</strong>
+                    <button onclick="removeCollection(${index}, ${i})" style="background: none; border: none; color: #dc3545; cursor: pointer; font-size: 12px;"><i class="fas fa-trash"></i></button>
+                  </div>
+                  <input type="text" class="setting-input" value="${escapeHtml(col.title)}" placeholder="Collection Title"
+                         style="margin-bottom: 8px;" onchange="updateCollection(${index}, ${i}, 'title', this.value)">
+                  <input type="text" class="setting-input" value="${escapeHtml(col.link || '')}" placeholder="Link URL"
+                         onchange="updateCollection(${index}, ${i}, 'link', this.value)">
+                </div>
+              `).join('')}
+              <button style="width: 100%; padding: 8px; border: 1px dashed #c9cccf; background: none; border-radius: 6px; cursor: pointer;"
+                      onclick="addCollection(${index})">+ Add Collection</button>
+            </div>
+          `;
+          break;
+
+        case 'featured-product':
+          html = `
+            <div class="setting-group">
+              <div class="setting-group-title">Product</div>
+              <div class="setting-row">
+                <label class="setting-label">Product ID</label>
+                <input type="text" class="setting-input" value="${escapeHtml(section.productId || '')}"
+                       onchange="updateSection(${index}, 'productId', this.value)" placeholder="Enter product ID">
+              </div>
+              <p style="color: #6d7175; font-size: 12px; margin: 8px 0;">Or enter product details manually below:</p>
+            </div>
+            <div class="setting-group">
+              <div class="setting-group-title">Manual Entry</div>
+              <div class="setting-row">
+                <label class="setting-label">Title</label>
+                <input type="text" class="setting-input" value="${escapeHtml(section.product?.title || '')}"
+                       onchange="updateProductField(${index}, 'title', this.value)">
+              </div>
+              <div class="setting-row">
+                <label class="setting-label">Price</label>
+                <input type="text" class="setting-input" value="${escapeHtml(section.product?.price || '')}"
+                       onchange="updateProductField(${index}, 'price', this.value)">
+              </div>
+              <div class="setting-row">
+                <label class="setting-label">Description</label>
+                <textarea class="setting-input setting-textarea"
+                          onchange="updateProductField(${index}, 'description', this.value)">${escapeHtml(section.product?.description || '')}</textarea>
+              </div>
+            </div>
+          `;
+          break;
+
+        case 'reviews':
+          html = `
+            <div class="setting-group">
+              <div class="setting-group-title">Settings</div>
+              <div class="setting-row">
+                <label class="setting-label">Section Title</label>
+                <input type="text" class="setting-input" value="${escapeHtml(section.title)}"
+                       onchange="updateSection(${index}, 'title', this.value)">
+              </div>
+              <div class="setting-row">
+                <label class="setting-label">Average Rating</label>
+                <input type="text" class="setting-input" value="${escapeHtml(section.averageRating || '4.9')}"
+                       onchange="updateSection(${index}, 'averageRating', this.value)">
+              </div>
+            </div>
+            <div class="setting-group">
+              <div class="setting-group-title">Reviews</div>
+              ${(section.reviews || []).map((review, i) => `
+                <div style="background: #f6f6f7; padding: 12px; border-radius: 6px; margin-bottom: 8px;">
+                  <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                    <strong style="font-size: 12px;">Review ${i + 1}</strong>
+                    <button onclick="removeReview(${index}, ${i})" style="background: none; border: none; color: #dc3545; cursor: pointer; font-size: 12px;"><i class="fas fa-trash"></i></button>
+                  </div>
+                  <textarea class="setting-input setting-textarea" style="min-height: 60px; margin-bottom: 8px;"
+                            onchange="updateReview(${index}, ${i}, 'text', this.value)">${escapeHtml(review.text)}</textarea>
+                  <input type="text" class="setting-input" value="${escapeHtml(review.author)}" placeholder="Reviewer Name"
+                         onchange="updateReview(${index}, ${i}, 'author', this.value)">
+                </div>
+              `).join('')}
+              <button style="width: 100%; padding: 8px; border: 1px dashed #c9cccf; background: none; border-radius: 6px; cursor: pointer;"
+                      onclick="addReview(${index})">+ Add Review</button>
+            </div>
+          `;
+          break;
+
+        case 'logos':
+          html = `
+            <div class="setting-group">
+              <div class="setting-group-title">Settings</div>
+              <div class="setting-row">
+                <label class="setting-label">Title (optional)</label>
+                <input type="text" class="setting-input" value="${escapeHtml(section.title || '')}"
+                       onchange="updateSection(${index}, 'title', this.value)" placeholder="As seen in...">
+              </div>
+              <div class="setting-row">
+                <label class="setting-label">Background Color</label>
+                <div class="color-row">
+                  <input type="color" value="${section.backgroundColor}"
+                         onchange="updateSection(${index}, 'backgroundColor', this.value)">
+                  <input type="text" class="setting-input" value="${section.backgroundColor}"
+                         onchange="updateSection(${index}, 'backgroundColor', this.value)">
+                </div>
+              </div>
+            </div>
+            <div class="setting-group">
+              <div class="setting-group-title">Logos</div>
+              <p style="color: #6d7175; font-size: 12px; margin-bottom: 12px;">Add partner/brand logos</p>
+              ${section.logos.map((logo, i) => `
+                <div style="display: flex; gap: 8px; margin-bottom: 8px; align-items: center;">
+                  <div style="width: 60px; height: 30px; background: #e5e7eb; border-radius: 4px; display: flex; align-items: center; justify-content: center; font-size: 10px; color: #999;">
+                    ${logo.image ? `<img src="${logo.image}" style="max-width: 100%; max-height: 100%;">` : 'Logo'}
+                  </div>
+                  <input type="text" class="setting-input" value="${escapeHtml(logo.name || '')}" placeholder="Brand name"
+                         style="flex: 1;" onchange="updateLogo(${index}, ${i}, 'name', this.value)">
+                  <button onclick="removeLogo(${index}, ${i})" style="background: none; border: none; color: #dc3545; cursor: pointer;"><i class="fas fa-trash"></i></button>
+                </div>
+              `).join('')}
+              <button style="width: 100%; padding: 8px; border: 1px dashed #c9cccf; background: none; border-radius: 6px; cursor: pointer;"
+                      onclick="addLogo(${index})">+ Add Logo</button>
+            </div>
+          `;
+          break;
+
+        case 'newsletter':
+          html = `
+            <div class="setting-group">
+              <div class="setting-group-title">Content</div>
+              <div class="setting-row">
+                <label class="setting-label">Title</label>
+                <input type="text" class="setting-input" value="${escapeHtml(section.title)}"
+                       onchange="updateSection(${index}, 'title', this.value)">
+              </div>
+              <div class="setting-row">
+                <label class="setting-label">Subtitle</label>
+                <input type="text" class="setting-input" value="${escapeHtml(section.subtitle)}"
+                       onchange="updateSection(${index}, 'subtitle', this.value)">
+              </div>
+              <div class="setting-row">
+                <label class="setting-label">Placeholder Text</label>
+                <input type="text" class="setting-input" value="${escapeHtml(section.placeholder)}"
+                       onchange="updateSection(${index}, 'placeholder', this.value)">
+              </div>
+              <div class="setting-row">
+                <label class="setting-label">Button Text</label>
+                <input type="text" class="setting-input" value="${escapeHtml(section.buttonText)}"
+                       onchange="updateSection(${index}, 'buttonText', this.value)">
+              </div>
+            </div>
+            <div class="setting-group">
+              <div class="setting-group-title">Style</div>
+              <div class="setting-row">
+                <label class="setting-label">Background Color</label>
+                <div class="color-row">
+                  <input type="color" value="${section.backgroundColor}"
+                         onchange="updateSection(${index}, 'backgroundColor', this.value)">
+                  <input type="text" class="setting-input" value="${section.backgroundColor}"
+                         onchange="updateSection(${index}, 'backgroundColor', this.value)">
+                </div>
+              </div>
+            </div>
+          `;
+          break;
+
+        case 'contact':
+          html = `
+            <div class="setting-group">
+              <div class="setting-group-title">Form Settings</div>
+              <div class="setting-row">
+                <label class="setting-label">Title</label>
+                <input type="text" class="setting-input" value="${escapeHtml(section.title)}"
+                       onchange="updateSection(${index}, 'title', this.value)">
+              </div>
+              <div class="setting-row">
+                <label class="setting-label">Button Text</label>
+                <input type="text" class="setting-input" value="${escapeHtml(section.buttonText)}"
+                       onchange="updateSection(${index}, 'buttonText', this.value)">
+              </div>
+            </div>
+            <div class="setting-group">
+              <div class="setting-group-title">Contact Info</div>
+              <div class="setting-row">
+                <label class="setting-label">Email</label>
+                <input type="email" class="setting-input" value="${escapeHtml(section.email || '')}"
+                       onchange="updateSection(${index}, 'email', this.value)">
+              </div>
+              <div class="setting-row">
+                <label class="setting-label">Phone</label>
+                <input type="tel" class="setting-input" value="${escapeHtml(section.phone || '')}"
+                       onchange="updateSection(${index}, 'phone', this.value)">
+              </div>
+              <div class="setting-row">
+                <label class="setting-label">Address</label>
+                <textarea class="setting-input setting-textarea"
+                          onchange="updateSection(${index}, 'address', this.value)">${escapeHtml(section.address || '')}</textarea>
+              </div>
+            </div>
+          `;
+          break;
+
+        case 'footer':
+          html = `
+            <div class="setting-group">
+              <div class="setting-group-title">Brand</div>
+              <div class="setting-row">
+                ${section.logo
+                  ? `<div class="image-preview" style="background-image: url(${section.logo})">
+                       <button class="remove-btn" onclick="updateSection(${index}, 'logo', '')"><i class="fas fa-times"></i></button>
+                     </div>`
+                  : ''
+                }
+                <button class="btn-image-select" onclick="openMediaModal(${index}, 'logo')">
+                  <i class="fas fa-image"></i> ${section.logo ? 'Change Logo' : 'Select Logo'}
+                </button>
+              </div>
+              <div class="setting-row">
+                <label class="setting-label">Description</label>
+                <textarea class="setting-input setting-textarea"
+                          onchange="updateSection(${index}, 'description', this.value)">${escapeHtml(section.description || '')}</textarea>
+              </div>
+              <div class="setting-row">
+                <label class="setting-label">Copyright</label>
+                <input type="text" class="setting-input" value="${escapeHtml(section.copyright || '')}"
+                       onchange="updateSection(${index}, 'copyright', this.value)">
+              </div>
+            </div>
+            <div class="setting-group">
+              <div class="setting-group-title">Style</div>
+              <div class="setting-row">
+                <label class="setting-label">Background Color</label>
+                <div class="color-row">
+                  <input type="color" value="${section.backgroundColor}"
+                         onchange="updateSection(${index}, 'backgroundColor', this.value)">
+                  <input type="text" class="setting-input" value="${section.backgroundColor}"
+                         onchange="updateSection(${index}, 'backgroundColor', this.value)">
+                </div>
+              </div>
+              <div class="setting-row">
+                <label class="setting-label">Text Color</label>
+                <div class="color-row">
+                  <input type="color" value="${section.textColor}"
+                         onchange="updateSection(${index}, 'textColor', this.value)">
+                  <input type="text" class="setting-input" value="${section.textColor}"
+                         onchange="updateSection(${index}, 'textColor', this.value)">
+                </div>
+              </div>
+            </div>
+          `;
+          break;
+
+        case 'divider':
+          html = `
+            <div class="setting-group">
+              <div class="setting-group-title">Style</div>
+              <div class="setting-row">
+                <label class="setting-label">Line Style</label>
+                <select class="setting-input" onchange="updateSection(${index}, 'style', this.value)">
+                  <option value="solid" ${section.style === 'solid' ? 'selected' : ''}>Solid</option>
+                  <option value="dashed" ${section.style === 'dashed' ? 'selected' : ''}>Dashed</option>
+                  <option value="dotted" ${section.style === 'dotted' ? 'selected' : ''}>Dotted</option>
+                </select>
+              </div>
+            </div>
+          `;
+          break;
+
+        default:
+          html = `<p style="color: #6d7175;">No settings available for this section type.</p>`;
+      }
+
+      html += `
+        <div style="margin-top: 24px; padding-top: 16px; border-top: 1px solid #e1e3e5;">
+          <button style="width: 100%; padding: 10px; background: none; border: 1px solid #dc3545; color: #dc3545; border-radius: 6px; cursor: pointer;"
+                  onclick="deleteSection(${index})">
+            <i class="fas fa-trash"></i> Delete Section
+          </button>
+        </div>
+      `;
+
+      document.getElementById('settingsBody').innerHTML = html;
+    }
+
+    function updateSection(index, key, value) {
+      page.sections[index][key] = value;
+      renderCanvas();
+    }
+
+    function updateTestimonial(sectionIndex, itemIndex, key, value) {
+      page.sections[sectionIndex].items[itemIndex][key] = value;
+      renderCanvas();
+    }
+
+    function addTestimonial(sectionIndex) {
+      page.sections[sectionIndex].items.push({ text: '', author: '' });
+      renderCanvas();
+      renderSectionSettings(sectionIndex);
+    }
+
+    function getSectionTitle(type) {
+      const titles = {
+        hero: 'Hero Banner',
+        text: 'Rich Text',
+        image: 'Image',
+        columns: 'Columns',
+        products: 'Products',
+        testimonials: 'Testimonials',
+        faq: 'FAQ',
+        cta: 'Call to Action',
+        spacer: 'Spacer',
+        divider: 'Divider',
+        header: 'Header',
+        announcement: 'Announcement Bar',
+        slider: 'Image Slider',
+        video: 'Video',
+        heading: 'Heading',
+        'image-text': 'Image with Text',
+        collection: 'Collection List',
+        'featured-product': 'Featured Product',
+        reviews: 'Customer Reviews',
+        logos: 'Logo List',
+        newsletter: 'Newsletter Signup',
+        contact: 'Contact Form',
+        footer: 'Footer'
+      };
+      return titles[type] || 'Section';
+    }
+
+    // Helper functions for Header
+    function updateMenuItem(sectionIndex, itemIndex, key, value) {
+      page.sections[sectionIndex].menuItems[itemIndex][key] = value;
+      renderCanvas();
+    }
+
+    function addMenuItem(sectionIndex) {
+      page.sections[sectionIndex].menuItems.push({ text: 'Link', link: '#' });
+      renderCanvas();
+      renderSectionSettings(sectionIndex);
+    }
+
+    function removeMenuItem(sectionIndex, itemIndex) {
+      page.sections[sectionIndex].menuItems.splice(itemIndex, 1);
+      renderCanvas();
+      renderSectionSettings(sectionIndex);
+    }
+
+    // Helper functions for Slider
+    function updateSlide(sectionIndex, slideIndex, key, value) {
+      page.sections[sectionIndex].slides[slideIndex][key] = value;
+      renderCanvas();
+    }
+
+    function addSlide(sectionIndex) {
+      page.sections[sectionIndex].slides.push({
+        title: 'New Slide',
+        subtitle: 'Slide description',
+        buttonText: 'Shop Now',
+        buttonLink: '#',
+        image: ''
+      });
+      renderCanvas();
+      renderSectionSettings(sectionIndex);
+    }
+
+    function removeSlide(sectionIndex, slideIndex) {
+      page.sections[sectionIndex].slides.splice(slideIndex, 1);
+      renderCanvas();
+      renderSectionSettings(sectionIndex);
+    }
+
+    // Helper functions for Collection
+    function updateCollection(sectionIndex, collIndex, key, value) {
+      page.sections[sectionIndex].collections[collIndex][key] = value;
+      renderCanvas();
+    }
+
+    function addCollection(sectionIndex) {
+      page.sections[sectionIndex].collections.push({ title: 'New Collection', link: '#', image: '' });
+      renderCanvas();
+      renderSectionSettings(sectionIndex);
+    }
+
+    function removeCollection(sectionIndex, collIndex) {
+      page.sections[sectionIndex].collections.splice(collIndex, 1);
+      renderCanvas();
+      renderSectionSettings(sectionIndex);
+    }
+
+    // Helper functions for Featured Product
+    function updateProductField(sectionIndex, key, value) {
+      if (!page.sections[sectionIndex].product) {
+        page.sections[sectionIndex].product = {};
+      }
+      page.sections[sectionIndex].product[key] = value;
+      renderCanvas();
+    }
+
+    // Helper functions for Reviews
+    function updateReview(sectionIndex, reviewIndex, key, value) {
+      page.sections[sectionIndex].reviews[reviewIndex][key] = value;
+      renderCanvas();
+    }
+
+    function addReview(sectionIndex) {
+      if (!page.sections[sectionIndex].reviews) {
+        page.sections[sectionIndex].reviews = [];
+      }
+      page.sections[sectionIndex].reviews.push({ text: 'Great product!', author: 'Customer' });
+      renderCanvas();
+      renderSectionSettings(sectionIndex);
+    }
+
+    function removeReview(sectionIndex, reviewIndex) {
+      page.sections[sectionIndex].reviews.splice(reviewIndex, 1);
+      renderCanvas();
+      renderSectionSettings(sectionIndex);
+    }
+
+    // Helper functions for Logos
+    function updateLogo(sectionIndex, logoIndex, key, value) {
+      page.sections[sectionIndex].logos[logoIndex][key] = value;
+      renderCanvas();
+    }
+
+    function addLogo(sectionIndex) {
+      page.sections[sectionIndex].logos.push({ name: 'Brand', image: '' });
+      renderCanvas();
+      renderSectionSettings(sectionIndex);
+    }
+
+    function removeLogo(sectionIndex, logoIndex) {
+      page.sections[sectionIndex].logos.splice(logoIndex, 1);
+      renderCanvas();
+      renderSectionSettings(sectionIndex);
+    }
+
+    // Helper functions for Columns
+    function updateColumn(sectionIndex, colIndex, key, value) {
+      page.sections[sectionIndex].columns[colIndex][key] = value;
+      renderCanvas();
+    }
+
+    function updateColumnCount(sectionIndex, count) {
+      const section = page.sections[sectionIndex];
+      const currentCount = section.columns.length;
+
+      if (count > currentCount) {
+        // Add new columns
+        for (let i = currentCount; i < count; i++) {
+          section.columns.push({ icon: 'fa-star', title: 'Column ' + (i + 1), text: 'Column content' });
+        }
+      } else if (count < currentCount) {
+        // Remove columns
+        section.columns = section.columns.slice(0, count);
+      }
+
+      renderCanvas();
+      renderSectionSettings(sectionIndex);
+    }
+
+    // ==========================================
+    // MEDIA LIBRARY
+    // ==========================================
+    function openMediaModal(sectionIndex, field) {
+      mediaCallback = { sectionIndex, field };
+      selectedMediaUrl = null;
+      document.querySelectorAll('.media-item').forEach(el => el.classList.remove('selected'));
+      document.getElementById('mediaModal').classList.add('active');
+    }
+
+    function closeMediaModal() {
+      document.getElementById('mediaModal').classList.remove('active');
+      mediaCallback = null;
+    }
+
+    async function loadMediaLibrary() {
+      try {
+        const response = await Admin.API.get('/files');
+        const files = (response.files || []).filter(f => f.mimeType?.startsWith('image/') || f.url?.match(/\.(jpg|jpeg|png|gif|webp)$/i));
+
+        document.getElementById('mediaGrid').innerHTML = files.length === 0
+          ? '<p style="grid-column: 1/-1; text-align: center; color: #6d7175;">No images uploaded yet</p>'
+          : files.map(f => `
+              <div class="media-item" data-url="${f.url}" onclick="selectMediaItem(this, '${f.url}')">
+                <img src="${f.url}" alt="${f.alt || f.filename}">
+              </div>
+            `).join('');
+      } catch (e) {
+        console.error('Failed to load media:', e);
+      }
+    }
+
+    function selectMediaItem(el, url) {
+      document.querySelectorAll('.media-item').forEach(item => item.classList.remove('selected'));
+      el.classList.add('selected');
+      selectedMediaUrl = url;
+    }
+
+    function selectMediaImage() {
+      if (!selectedMediaUrl || !mediaCallback) return;
+      updateSection(mediaCallback.sectionIndex, mediaCallback.field, selectedMediaUrl);
+      renderSectionSettings(mediaCallback.sectionIndex);
+      closeMediaModal();
+    }
+
+    async function uploadFile(files) {
+      if (!files || files.length === 0) return;
+
+      const formData = new FormData();
+      formData.append('file', files[0]);
+
+      try {
+        const response = await fetch('/api/admin/files', {
+          method: 'POST',
+          headers: { 'Authorization': 'Bearer ' + Admin.Auth.getToken() },
+          body: formData
+        });
+
+        const data = await response.json();
+        if (data.success) {
+          Admin.Toast.success('Image uploaded');
+          loadMediaLibrary();
+        }
+      } catch (e) {
+        Admin.Toast.error('Upload failed');
+      }
+    }
+
+    // ==========================================
+    // PAGE OPERATIONS
+    // ==========================================
+    function updatePageTitle(title) {
+      page.title = title;
+      updateSlug();
+    }
+
+    function updateSlug() {
+      page.slug = page.title.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+      const slugInput = document.getElementById('slugInput');
+      if (slugInput) slugInput.value = page.slug;
+    }
+
+    function updateStatusBadge() {
+      const badge = document.getElementById('statusBadge');
+      badge.textContent = page.isPublished ? 'Published' : 'Draft';
+      badge.className = 'status-badge ' + (page.isPublished ? 'published' : 'draft');
+    }
+
+    async function saveDraft() {
+      await savePage(false);
+    }
+
+    async function publishPage() {
+      await savePage(true);
+    }
+
+    async function savePage(publish) {
+      page.isPublished = publish;
+
+      const payload = {
+        title: page.title,
+        slug: '/' + page.slug,
+        content: JSON.stringify({ sections: page.sections }),
+        isPublished: page.isPublished,
+        metaTitle: page.metaTitle,
+        metaDescription: page.metaDescription
+      };
+
+      try {
+        let response;
+        if (page.id) {
+          response = await Admin.API.put('/pages/' + page.id, payload);
+        } else {
+          response = await Admin.API.post('/pages', payload);
+          if (response.success && response.page) {
+            page.id = response.page.id;
+            history.replaceState({}, '', '?id=' + page.id);
+          }
+        }
+
+        if (response.success) {
+          Admin.Toast.success(publish ? 'Page published!' : 'Draft saved');
+          updateStatusBadge();
+          loadPagesList();
+        } else {
+          Admin.Toast.error(response.error || 'Failed to save');
+        }
+      } catch (e) {
+        Admin.Toast.error('Failed to save page');
+      }
+    }
+
+    function previewPage() {
+      if (page.slug) {
+        window.open('/page.html?slug=' + page.slug, '_blank');
+      }
+    }
+
+    function createNewPage() {
+      window.location.href = '/admin/page-builder.html';
+    }
+
+    // ==========================================
+    // PAGES LIST
+    // ==========================================
+    async function loadPagesList() {
+      try {
+        const response = await Admin.API.get('/pages');
+        const pages = response.pages || [];
+
+        document.getElementById('pagesList').innerHTML = pages.length === 0
+          ? '<p style="text-align: center; color: #6d7175; font-size: 13px;">No pages yet</p>'
+          : pages.map(p => `
+              <div class="page-list-item ${page.id === p.id ? 'active' : ''}" onclick="loadPage('${p.id}')">
+                <i class="fas fa-file-alt"></i>
+                <div class="page-list-info">
+                  <div class="page-list-title">${escapeHtml(p.title)}</div>
+                  <div class="page-list-slug">${p.slug}</div>
+                </div>
+                <div class="page-list-status ${p.isPublished || p.isVisible ? 'published' : 'draft'}"></div>
+              </div>
+            `).join('');
+      } catch (e) {
+        console.error('Failed to load pages:', e);
+      }
+    }
+
+    async function loadPage(pageId) {
+      try {
+        const response = await Admin.API.get('/pages/' + pageId);
+        if (response.success && response.page) {
+          const p = response.page;
+          page.id = p.id;
+          page.title = p.title;
+          page.slug = (p.slug || '').replace(/^\//, '');
+          page.isPublished = p.isPublished || p.isVisible;
+          page.metaTitle = p.metaTitle || p.seoTitle || '';
+          page.metaDescription = p.metaDescription || p.seoDescription || '';
+
+          try {
+            const content = JSON.parse(p.content || '{}');
+            page.sections = content.sections || [];
+          } catch (e) {
+            page.sections = [];
+          }
+
+          document.getElementById('pageTitle').value = page.title;
+          updateStatusBadge();
+          selectedSectionIndex = null;
+          renderCanvas();
+          renderPageSettings();
+          loadPagesList();
+
+          history.replaceState({}, '', '?id=' + pageId);
+        }
+      } catch (e) {
+        Admin.Toast.error('Failed to load page');
+      }
+    }
+
+    async function loadFromUrl() {
+      const params = new URLSearchParams(location.search);
+      const id = params.get('id');
+      const template = params.get('template');
+
+      if (id) {
+        await loadPage(id);
+      } else if (template) {
+        await loadTemplate(template);
+      }
+    }
+
+    async function loadTemplate(templateId) {
+      try {
+        const response = await Admin.API.get('/page-templates');
+        const templates = response.templates || [];
+        const template = templates.find(t => t.id === templateId);
+
+        if (template && template.content) {
+          page.title = template.name + ' Page';
+          page.slug = page.title.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+          page.sections = template.content.sections.map(s => ({
+            id: 'section-' + Date.now() + Math.random(),
+            ...createSectionData(s.type),
+            ...s.data
+          }));
+
+          document.getElementById('pageTitle').value = page.title;
+          renderCanvas();
+          renderPageSettings();
+        }
+      } catch (e) {
+        console.error('Failed to load template:', e);
+      }
+    }
+
+    // ==========================================
+    // UI HELPERS
+    // ==========================================
+    function setDevice(device) {
+      document.querySelectorAll('.device-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.device === device);
+      });
+      document.getElementById('canvasFrame').className = 'canvas-frame ' + device;
+    }
+
+    function switchTab(tab) {
+      document.querySelectorAll('.sidebar-tab').forEach(t => {
+        t.classList.toggle('active', t.dataset.tab === tab);
+      });
+      document.getElementById('tab-sections').style.display = tab === 'sections' ? 'block' : 'none';
+      document.getElementById('tab-pages').style.display = tab === 'pages' ? 'block' : 'none';
+    }
+
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text || '';
+      return div.innerHTML;
+    }
+
+    // Canvas click handler
+    document.addEventListener('click', (e) => {
+      if (e.target.closest('.canvas-area') && !e.target.closest('.canvas-section') && !e.target.closest('.add-section-zone')) {
+        selectedSectionIndex = null;
+        renderCanvas();
+        renderPageSettings();
+      }
+    });
+  </script>
+</body>
+</html>

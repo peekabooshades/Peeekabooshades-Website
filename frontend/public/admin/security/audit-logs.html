@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Audit Logs - Security | Peekaboo Shades Admin</title>
+    <link rel="stylesheet" href="../css/admin.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .security-container { display: flex; min-height: 100vh; }
+        .security-sidebar { width: 260px; background: #1a1a2e; padding: 20px 0; flex-shrink: 0; }
+        .security-sidebar h3 { color: #fff; padding: 0 20px; margin-bottom: 20px; font-size: 14px; text-transform: uppercase; letter-spacing: 1px; display: flex; align-items: center; gap: 10px; }
+        .security-sidebar h3 i { color: #28a745; }
+        .security-nav { list-style: none; padding: 0; margin: 0; }
+        .security-nav li a { display: flex; align-items: center; gap: 12px; padding: 12px 20px; color: #a0a0a0; text-decoration: none; transition: all 0.2s; font-size: 14px; }
+        .security-nav li a:hover, .security-nav li a.active { background: rgba(255,255,255,0.1); color: #fff; }
+        .security-nav li a.active { border-left: 3px solid #28a745; }
+        .security-content { flex: 1; padding: 30px; background: #f5f5f5; }
+        .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+        .page-header h1 { margin: 0; font-size: 24px; }
+
+        .btn { padding: 10px 20px; border-radius: 6px; border: none; cursor: pointer; font-size: 14px; display: inline-flex; align-items: center; gap: 8px; }
+        .btn-primary { background: #4a90d9; color: #fff; }
+        .btn-secondary { background: #f0f0f0; color: #333; }
+
+        .filters-bar {
+            background: #fff;
+            padding: 20px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            display: flex;
+            gap: 15px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .search-box {
+            flex: 1;
+            min-width: 200px;
+            position: relative;
+        }
+        .search-box input {
+            width: 100%;
+            padding: 10px 15px 10px 40px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+        }
+        .search-box i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #888;
+        }
+
+        .filter-select {
+            padding: 10px 15px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            background: #fff;
+            min-width: 150px;
+        }
+
+        .date-range {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        .date-range input {
+            padding: 10px 15px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+        }
+
+        .logs-table {
+            background: #fff;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .logs-table table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .logs-table th, .logs-table td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+
+        .logs-table th {
+            background: #f9f9f9;
+            font-weight: 600;
+            font-size: 13px;
+            color: #666;
+        }
+
+        .log-event {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .event-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+        }
+
+        .event-icon.login { background: #e3f2fd; color: #1976d2; }
+        .event-icon.logout { background: #f5f5f5; color: #666; }
+        .event-icon.create { background: #e8f5e9; color: #388e3c; }
+        .event-icon.update { background: #fff3e0; color: #f57c00; }
+        .event-icon.delete { background: #ffebee; color: #c62828; }
+        .event-icon.settings { background: #f3e5f5; color: #7b1fa2; }
+        .event-icon.security { background: #e0f2f1; color: #00796b; }
+        .event-icon.error { background: #ffebee; color: #d32f2f; }
+
+        .event-details {
+            font-size: 14px;
+        }
+        .event-action { font-weight: 500; }
+        .event-target { color: #888; font-size: 13px; }
+
+        .severity-badge {
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 11px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+        .severity-info { background: #e3f2fd; color: #1565c0; }
+        .severity-warning { background: #fff3e0; color: #ef6c00; }
+        .severity-error { background: #ffebee; color: #c62828; }
+        .severity-critical { background: #d32f2f; color: #fff; }
+
+        .user-cell {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .user-avatar {
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: #4a90d9;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 11px;
+            font-weight: 600;
+        }
+
+        .ip-address {
+            font-family: monospace;
+            font-size: 12px;
+            background: #f5f5f5;
+            padding: 3px 8px;
+            border-radius: 4px;
+        }
+
+        .log-details-btn {
+            background: none;
+            border: 1px solid #ddd;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+        .log-details-btn:hover { background: #f5f5f5; }
+
+        .pagination {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+            background: #fff;
+            border-top: 1px solid #eee;
+        }
+        .pagination-info { color: #888; font-size: 13px; }
+        .pagination-controls { display: flex; gap: 5px; }
+        .pagination-controls button {
+            width: 36px;
+            height: 36px;
+            border: 1px solid #ddd;
+            background: #fff;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+        .pagination-controls button.active {
+            background: #4a90d9;
+            color: #fff;
+            border-color: #4a90d9;
+        }
+
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-overlay.active { display: flex; }
+        .modal-content {
+            background: #fff;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 80vh;
+            overflow: hidden;
+        }
+        .modal-header {
+            padding: 20px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .modal-header h2 { margin: 0; font-size: 18px; }
+        .modal-close { background: none; border: none; font-size: 24px; cursor: pointer; color: #666; }
+        .modal-body { padding: 20px; overflow-y: auto; max-height: 60vh; }
+
+        .detail-row {
+            display: flex;
+            border-bottom: 1px solid #f0f0f0;
+            padding: 12px 0;
+        }
+        .detail-label {
+            width: 120px;
+            font-weight: 500;
+            color: #666;
+        }
+        .detail-value { flex: 1; }
+
+        .json-block {
+            background: #1a1a2e;
+            color: #a0e9a0;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: 12px;
+            white-space: pre-wrap;
+            margin-top: 10px;
+        }
+
+        .stats-row {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        .stat-card {
+            background: #fff;
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+        }
+        .stat-value { font-size: 28px; font-weight: 700; }
+        .stat-label { font-size: 12px; color: #888; margin-top: 5px; }
+    </style>
+</head>
+<body>
+    <div class="security-container">
+        <aside class="security-sidebar">
+            <h3><i class="fas fa-shield-alt"></i> Security Center</h3>
+            <ul class="security-nav">
+                <li><a href="index.html"><i class="fas fa-tachometer-alt"></i> Overview</a></li>
+                <li><a href="users.html"><i class="fas fa-users-cog"></i> User Management</a></li>
+                <li><a href="two-factor.html"><i class="fas fa-mobile-alt"></i> Two-Factor Auth</a></li>
+                <li><a href="firewall.html"><i class="fas fa-fire"></i> IP Firewall</a></li>
+                <li><a href="sso.html"><i class="fas fa-key"></i> SSO & Auth Providers</a></li>
+                <li><a href="sessions.html"><i class="fas fa-desktop"></i> Active Sessions</a></li>
+                <li><a href="api-security.html"><i class="fas fa-code"></i> API Security</a></li>
+                <li><a href="audit-logs.html" class="active"><i class="fas fa-history"></i> Audit Logs</a></li>
+                <li><a href="permissions.html"><i class="fas fa-lock"></i> Page Permissions</a></li>
+            </ul>
+            <div style="padding: 20px; margin-top: 30px;">
+                <a href="../index.html" style="color: #a0a0a0; text-decoration: none; font-size: 13px;">
+                    <i class="fas fa-arrow-left"></i> Back to Dashboard
+                </a>
+            </div>
+        </aside>
+
+        <main class="security-content">
+            <div class="page-header">
+                <h1><i class="fas fa-history" style="color: #c2185b;"></i> Audit Logs</h1>
+                <button class="btn btn-secondary" onclick="exportLogs()">
+                    <i class="fas fa-download"></i> Export Logs
+                </button>
+            </div>
+
+            <div class="stats-row">
+                <div class="stat-card">
+                    <div class="stat-value">1,245</div>
+                    <div class="stat-label">Events Today</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">23</div>
+                    <div class="stat-label">Failed Logins</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">5</div>
+                    <div class="stat-label">Security Alerts</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">30d</div>
+                    <div class="stat-label">Log Retention</div>
+                </div>
+            </div>
+
+            <div class="filters-bar">
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" placeholder="Search logs..." id="searchInput">
+                </div>
+                <select class="filter-select" id="eventFilter">
+                    <option value="">All Events</option>
+                    <option value="login">Login/Logout</option>
+                    <option value="create">Create</option>
+                    <option value="update">Update</option>
+                    <option value="delete">Delete</option>
+                    <option value="settings">Settings Change</option>
+                    <option value="security">Security Event</option>
+                </select>
+                <select class="filter-select" id="severityFilter">
+                    <option value="">All Severity</option>
+                    <option value="info">Info</option>
+                    <option value="warning">Warning</option>
+                    <option value="error">Error</option>
+                    <option value="critical">Critical</option>
+                </select>
+                <select class="filter-select" id="userFilter">
+                    <option value="">All Users</option>
+                    <option value="admin">Admin</option>
+                    <option value="john">John Smith</option>
+                    <option value="sarah">Sarah Johnson</option>
+                    <option value="system">System</option>
+                </select>
+                <div class="date-range">
+                    <input type="date" id="startDate">
+                    <span>to</span>
+                    <input type="date" id="endDate">
+                </div>
+            </div>
+
+            <div class="logs-table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Event</th>
+                            <th>Severity</th>
+                            <th>User</th>
+                            <th>IP Address</th>
+                            <th>Timestamp</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody id="logsTable">
+                        <!-- Logs will be loaded here -->
+                    </tbody>
+                </table>
+                <div class="pagination">
+                    <div class="pagination-info">Showing 1-20 of 1,245 events</div>
+                    <div class="pagination-controls">
+                        <button disabled><i class="fas fa-chevron-left"></i></button>
+                        <button class="active">1</button>
+                        <button>2</button>
+                        <button>3</button>
+                        <button>...</button>
+                        <button>63</button>
+                        <button><i class="fas fa-chevron-right"></i></button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Log Details Modal -->
+    <div class="modal-overlay" id="detailsModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Event Details</h2>
+                <button class="modal-close" onclick="closeDetailsModal()">&times;</button>
+            </div>
+            <div class="modal-body" id="detailsContent">
+                <!-- Details will be loaded here -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const logs = [
+            { id: '1', type: 'login', action: 'User logged in', target: 'admin@peekabooshades.com', severity: 'info', user: 'Admin', email: 'admin@peekabooshades.com', ip: '192.168.1.1', timestamp: '2024-06-19T10:30:00', details: { browser: 'Chrome 125', os: 'Windows 11', location: 'New York, US' } },
+            { id: '2', type: 'error', action: 'Failed login attempt', target: 'unknown@email.com', severity: 'warning', user: 'Unknown', email: 'unknown@email.com', ip: '192.168.1.100', timestamp: '2024-06-19T10:25:00', details: { reason: 'Invalid credentials', attempts: 5 } },
+            { id: '3', type: 'update', action: 'Product updated', target: 'SKU-12345', severity: 'info', user: 'John', email: 'john@peekabooshades.com', ip: '192.168.1.50', timestamp: '2024-06-19T10:20:00', details: { changes: { price: { from: 99.99, to: 89.99 }, stock: { from: 50, to: 45 } } } },
+            { id: '4', type: 'security', action: 'IP blocked automatically', target: '192.168.1.200', severity: 'warning', user: 'System', email: 'system', ip: 'N/A', timestamp: '2024-06-19T10:15:00', details: { reason: '10 failed login attempts', duration: '24 hours' } },
+            { id: '5', type: 'create', action: 'New order created', target: 'Order #10234', severity: 'info', user: 'Sarah', email: 'sarah@peekabooshades.com', ip: '192.168.1.75', timestamp: '2024-06-19T10:10:00', details: { total: 249.99, items: 3 } },
+            { id: '6', type: 'settings', action: 'Security settings changed', target: '2FA Policy', severity: 'warning', user: 'Admin', email: 'admin@peekabooshades.com', ip: '192.168.1.1', timestamp: '2024-06-19T10:05:00', details: { changes: { require2FA: { from: false, to: true } } } },
+            { id: '7', type: 'delete', action: 'Product deleted', target: 'SKU-99999', severity: 'warning', user: 'Admin', email: 'admin@peekabooshades.com', ip: '192.168.1.1', timestamp: '2024-06-19T10:00:00', details: { productName: 'Discontinued Item', reason: 'Discontinued' } },
+            { id: '8', type: 'security', action: 'Suspicious login detected', target: 'john@peekabooshades.com', severity: 'critical', user: 'John', email: 'john@peekabooshades.com', ip: '203.0.113.50', timestamp: '2024-06-19T09:55:00', details: { location: 'Moscow, Russia', previousLocation: 'New York, US', timeDifference: '2 hours' } },
+            { id: '9', type: 'logout', action: 'User logged out', target: 'sarah@peekabooshades.com', severity: 'info', user: 'Sarah', email: 'sarah@peekabooshades.com', ip: '192.168.1.75', timestamp: '2024-06-19T09:50:00', details: {} },
+            { id: '10', type: 'update', action: 'Order status changed', target: 'Order #10233', severity: 'info', user: 'John', email: 'john@peekabooshades.com', ip: '192.168.1.50', timestamp: '2024-06-19T09:45:00', details: { status: { from: 'Processing', to: 'Shipped' }, trackingNumber: '1Z999AA10123456784' } }
+        ];
+
+        document.addEventListener('DOMContentLoaded', () => {
+            renderLogs();
+        });
+
+        function renderLogs() {
+            const tbody = document.getElementById('logsTable');
+            tbody.innerHTML = logs.map(log => `
+                <tr>
+                    <td>
+                        <div class="log-event">
+                            <div class="event-icon ${log.type}">
+                                <i class="fas ${getEventIcon(log.type)}"></i>
+                            </div>
+                            <div class="event-details">
+                                <div class="event-action">${log.action}</div>
+                                <div class="event-target">${log.target}</div>
+                            </div>
+                        </div>
+                    </td>
+                    <td><span class="severity-badge severity-${log.severity}">${log.severity}</span></td>
+                    <td>
+                        <div class="user-cell">
+                            <div class="user-avatar">${log.user[0]}</div>
+                            <span>${log.user}</span>
+                        </div>
+                    </td>
+                    <td><span class="ip-address">${log.ip}</span></td>
+                    <td>${formatTimestamp(log.timestamp)}</td>
+                    <td><button class="log-details-btn" onclick="showDetails('${log.id}')">Details</button></td>
+                </tr>
+            `).join('');
+        }
+
+        function getEventIcon(type) {
+            const icons = {
+                login: 'fa-sign-in-alt',
+                logout: 'fa-sign-out-alt',
+                create: 'fa-plus',
+                update: 'fa-edit',
+                delete: 'fa-trash',
+                settings: 'fa-cog',
+                security: 'fa-shield-alt',
+                error: 'fa-exclamation-triangle'
+            };
+            return icons[type] || 'fa-info';
+        }
+
+        function formatTimestamp(ts) {
+            return new Date(ts).toLocaleString('en-US', {
+                month: 'short', day: 'numeric',
+                hour: 'numeric', minute: '2-digit', second: '2-digit'
+            });
+        }
+
+        function showDetails(id) {
+            const log = logs.find(l => l.id === id);
+            if (!log) return;
+
+            const content = document.getElementById('detailsContent');
+            content.innerHTML = `
+                <div class="detail-row">
+                    <div class="detail-label">Event</div>
+                    <div class="detail-value">${log.action}</div>
+                </div>
+                <div class="detail-row">
+                    <div class="detail-label">Target</div>
+                    <div class="detail-value">${log.target}</div>
+                </div>
+                <div class="detail-row">
+                    <div class="detail-label">Severity</div>
+                    <div class="detail-value"><span class="severity-badge severity-${log.severity}">${log.severity}</span></div>
+                </div>
+                <div class="detail-row">
+                    <div class="detail-label">User</div>
+                    <div class="detail-value">${log.email}</div>
+                </div>
+                <div class="detail-row">
+                    <div class="detail-label">IP Address</div>
+                    <div class="detail-value">${log.ip}</div>
+                </div>
+                <div class="detail-row">
+                    <div class="detail-label">Timestamp</div>
+                    <div class="detail-value">${new Date(log.timestamp).toLocaleString()}</div>
+                </div>
+                <div style="margin-top: 20px;">
+                    <strong>Event Data:</strong>
+                    <div class="json-block">${JSON.stringify(log.details, null, 2)}</div>
+                </div>
+            `;
+            document.getElementById('detailsModal').classList.add('active');
+        }
+
+        function closeDetailsModal() {
+            document.getElementById('detailsModal').classList.remove('active');
+        }
+
+        function exportLogs() {
+            alert('Logs would be exported as CSV');
+        }
+    </script>
+</body>
+</html>

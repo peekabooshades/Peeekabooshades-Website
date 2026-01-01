@@ -1,0 +1,672 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Product - Peekaboo Shades Admin</title>
+  <link rel="stylesheet" href="css/admin.css">
+  <link rel="icon" type="image/png" href="/images/favicon.png">
+  <style>
+    .image-upload-zone {
+      border: 2px dashed #e0e0e0;
+      border-radius: 12px;
+      padding: 24px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s;
+      background: #fafafa;
+      min-height: 200px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .image-upload-zone:hover {
+      border-color: #8E6545;
+      background: #fdf8f5;
+    }
+    .image-upload-zone.dragover {
+      border-color: #8E6545;
+      background: #fdf8f5;
+    }
+    .upload-placeholder {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+      color: #888;
+    }
+    .upload-placeholder svg {
+      color: #ccc;
+    }
+    .upload-placeholder small {
+      font-size: 12px;
+      color: #aaa;
+    }
+    .image-preview {
+      position: relative;
+      width: 100%;
+      height: 180px;
+    }
+    .image-preview img {
+      width: 100%;
+      height: 100%;
+      object-fit: contain;
+      border-radius: 8px;
+    }
+    .remove-image-btn {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      background: rgba(220, 53, 69, 0.9);
+      color: white;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+    }
+    .remove-image-btn:hover {
+      background: #dc3545;
+      transform: scale(1.1);
+    }
+    .gallery-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+    }
+    .gallery-slot {
+      aspect-ratio: 1;
+      border: 2px dashed #e0e0e0;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s;
+      background: #fafafa;
+      position: relative;
+      overflow: hidden;
+    }
+    .gallery-slot:hover {
+      border-color: #8E6545;
+      background: #fdf8f5;
+    }
+    .gallery-slot.has-image {
+      border-style: solid;
+      border-color: #e0e0e0;
+    }
+    .gallery-slot img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .gallery-slot .remove-btn {
+      position: absolute;
+      top: 4px;
+      right: 4px;
+      width: 22px;
+      height: 22px;
+      border-radius: 50%;
+      background: rgba(220, 53, 69, 0.9);
+      color: white;
+      border: none;
+      cursor: pointer;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      font-size: 14px;
+    }
+    .gallery-slot:hover .remove-btn {
+      display: flex;
+    }
+    .gallery-slot .add-icon {
+      color: #ccc;
+      font-size: 24px;
+    }
+    .uploading-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(255,255,255,0.8);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    @media (max-width: 768px) {
+      .gallery-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="admin-layout">
+    <!-- Sidebar -->
+    <aside class="admin-sidebar">
+      <div class="sidebar-header">
+        <a href="/admin/" class="sidebar-logo">
+          <img src="/images/logo.png" alt="Logo" onerror="this.style.display='none'">
+          <span>Peekaboo Shades</span>
+        </a>
+      </div>
+
+      <nav class="sidebar-nav">
+        <div class="nav-section">
+          <a href="/admin/" class="nav-item">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+            </svg>
+            <span>Dashboard</span>
+          </a>
+        </div>
+
+        <div class="nav-section">
+          <div class="nav-section-title">Catalog</div>
+          <a href="/admin/products.html" class="nav-item active">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+            </svg>
+            <span>Products</span>
+          </a>
+          <a href="/admin/categories.html" class="nav-item">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+            </svg>
+            <span>Categories</span>
+          </a>
+        </div>
+
+        <div class="nav-section">
+          <div class="nav-section-title">Sales</div>
+          <a href="/admin/orders.html" class="nav-item">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+            </svg>
+            <span>Orders</span>
+          </a>
+          <a href="/admin/quotes.html" class="nav-item">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+            <span>Quotes</span>
+          </a>
+        </div>
+
+        <div class="nav-section">
+          <div class="nav-section-title">Content</div>
+          <a href="/admin/faqs.html" class="nav-item">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <span>FAQs</span>
+          </a>
+        </div>
+
+        <div class="nav-section">
+          <div class="nav-section-title">Settings</div>
+          <a href="/admin/settings.html" class="nav-item">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+            <span>Settings</span>
+          </a>
+        </div>
+      </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="admin-main">
+      <!-- Header -->
+      <header class="admin-header">
+        <div class="header-left">
+          <div class="breadcrumb">
+            <a href="/admin/">Dashboard</a>
+            <span class="breadcrumb-separator">/</span>
+            <a href="/admin/products.html">Products</a>
+            <span class="breadcrumb-separator">/</span>
+            <span class="breadcrumb-current" id="page-title">Add Product</span>
+          </div>
+        </div>
+        <div class="header-right">
+          <div class="dropdown">
+            <div class="header-profile">
+              <div class="profile-avatar">A</div>
+              <span class="profile-name">Admin</span>
+            </div>
+            <div class="dropdown-menu profile-dropdown">
+              <a href="/admin/settings.html" class="dropdown-item">Profile</a>
+              <div class="dropdown-divider"></div>
+              <a href="#" class="dropdown-item danger" onclick="Admin.AuthAPI.logout(); return false;">Logout</a>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <!-- Page Content -->
+      <div class="admin-content">
+        <form id="product-form">
+          <div class="page-header">
+            <h1 class="page-title" id="form-title">Add Product</h1>
+            <div class="page-actions">
+              <a href="/admin/products.html" class="btn btn-secondary">Cancel</a>
+              <button type="submit" class="btn btn-primary" id="save-btn">
+                <span id="btn-text">Save Product</span>
+                <span id="btn-spinner" class="spinner" style="display: none;"></span>
+              </button>
+            </div>
+          </div>
+
+          <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 24px;">
+            <!-- Main Content -->
+            <div>
+              <!-- Basic Info -->
+              <div class="card" style="margin-bottom: 24px;">
+                <div class="card-header">
+                  <h3 class="card-title">Basic Information</h3>
+                </div>
+                <div class="card-body">
+                  <div class="form-group">
+                    <label class="form-label" for="name">Product Name *</label>
+                    <input type="text" class="form-input" id="name" name="name" required placeholder="Enter product name">
+                  </div>
+
+                  <div class="form-group">
+                    <label class="form-label" for="slug">URL Slug *</label>
+                    <input type="text" class="form-input" id="slug" name="slug" required placeholder="product-url-slug">
+                    <p class="form-help">Used in the product URL. Auto-generated from name if left empty.</p>
+                  </div>
+
+                  <div class="form-group">
+                    <label class="form-label" for="description">Description</label>
+                    <textarea class="form-textarea" id="description" name="description" placeholder="Enter product description"></textarea>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Pricing -->
+              <div class="card" style="margin-bottom: 24px;">
+                <div class="card-header">
+                  <h3 class="card-title">Pricing</h3>
+                </div>
+                <div class="card-body">
+                  <div class="form-row">
+                    <div class="form-group">
+                      <label class="form-label" for="base_price">Base Price ($) *</label>
+                      <input type="number" class="form-input" id="base_price" name="base_price" required min="0" step="0.01" placeholder="0.00">
+                    </div>
+                    <div class="form-group">
+                      <label class="form-label" for="sale_price">Sale Price ($)</label>
+                      <input type="number" class="form-input" id="sale_price" name="sale_price" min="0" step="0.01" placeholder="0.00">
+                      <p class="form-help">Leave empty for no sale</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Product Images -->
+              <div class="card">
+                <div class="card-header">
+                  <h3 class="card-title">Product Images</h3>
+                </div>
+                <div class="card-body">
+                  <!-- Main Image -->
+                  <div class="form-group">
+                    <label class="form-label">Main Product Image</label>
+                    <div class="image-upload-zone" id="mainImageZone" onclick="document.getElementById('mainImageInput').click()">
+                      <div class="image-preview" id="mainImagePreview" style="display: none;">
+                        <img id="mainImageImg" src="" alt="Main product image">
+                        <button type="button" class="remove-image-btn" onclick="event.stopPropagation(); removeMainImage();">
+                          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                          </svg>
+                        </button>
+                      </div>
+                      <div class="upload-placeholder" id="mainImagePlaceholder">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                        <span>Click to upload main image</span>
+                        <small>JPG, PNG, WebP up to 5MB</small>
+                      </div>
+                    </div>
+                    <input type="file" id="mainImageInput" accept="image/*" style="display: none;" onchange="handleMainImageUpload(this)">
+                    <input type="hidden" id="image_url" name="image_url">
+                  </div>
+
+                  <!-- Gallery Images -->
+                  <div class="form-group" style="margin-top: 24px;">
+                    <label class="form-label">Gallery Images (up to 4)</label>
+                    <div class="gallery-grid" id="galleryGrid">
+                      <!-- Gallery slots will be rendered by JS -->
+                    </div>
+                    <input type="file" id="galleryImageInput" accept="image/*" style="display: none;" onchange="handleGalleryImageUpload(this)">
+                    <input type="hidden" id="gallery_images" name="gallery_images">
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Sidebar -->
+            <div>
+              <!-- Status -->
+              <div class="card" style="margin-bottom: 24px;">
+                <div class="card-header">
+                  <h3 class="card-title">Status</h3>
+                </div>
+                <div class="card-body">
+                  <div class="form-group" style="margin-bottom: 16px;">
+                    <label class="form-checkbox">
+                      <input type="checkbox" id="is_active" name="is_active" checked>
+                      <span>Active (visible on store)</span>
+                    </label>
+                  </div>
+                  <div class="form-group" style="margin-bottom: 0;">
+                    <label class="form-checkbox">
+                      <input type="checkbox" id="is_featured" name="is_featured">
+                      <span>Featured product</span>
+                    </label>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Category -->
+              <div class="card">
+                <div class="card-header">
+                  <h3 class="card-title">Category</h3>
+                </div>
+                <div class="card-body">
+                  <div class="form-group" style="margin-bottom: 0;">
+                    <label class="form-label" for="category_id">Product Category *</label>
+                    <select class="form-select" id="category_id" name="category_id" required>
+                      <option value="">Select a category</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </form>
+      </div>
+    </main>
+  </div>
+
+  <script src="js/admin.js"></script>
+  <script>
+    // Require authentication
+    if (!Admin.Auth.requireAuth()) {
+      // Will redirect
+    } else {
+      init();
+    }
+
+    let productId = null;
+    let categories = [];
+    let galleryImages = ['', '', '', ''];
+    let currentGallerySlot = 0;
+
+    async function init() {
+      // Get product ID from URL if editing
+      const params = Admin.Utils.getUrlParams();
+      productId = params.id;
+
+      // Load categories first
+      await loadCategories();
+
+      // Initialize gallery grid
+      renderGalleryGrid();
+
+      // If editing, load product data
+      if (productId) {
+        document.getElementById('page-title').textContent = 'Edit Product';
+        document.getElementById('form-title').textContent = 'Edit Product';
+        document.getElementById('btn-text').textContent = 'Update Product';
+        await loadProduct(productId);
+      }
+
+      // Auto-generate slug from name
+      document.getElementById('name').addEventListener('input', function() {
+        const slugInput = document.getElementById('slug');
+        if (!productId && !slugInput.dataset.manual) {
+          slugInput.value = Admin.Utils.slugify(this.value);
+        }
+      });
+
+      document.getElementById('slug').addEventListener('input', function() {
+        this.dataset.manual = 'true';
+      });
+
+      // Form submission
+      document.getElementById('product-form').addEventListener('submit', handleSubmit);
+
+      // Setup drag and drop for main image
+      setupDragDrop();
+    }
+
+    function setupDragDrop() {
+      const zone = document.getElementById('mainImageZone');
+      ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+        zone.addEventListener(eventName, preventDefaults, false);
+      });
+      function preventDefaults(e) {
+        e.preventDefault();
+        e.stopPropagation();
+      }
+      ['dragenter', 'dragover'].forEach(eventName => {
+        zone.addEventListener(eventName, () => zone.classList.add('dragover'), false);
+      });
+      ['dragleave', 'drop'].forEach(eventName => {
+        zone.addEventListener(eventName, () => zone.classList.remove('dragover'), false);
+      });
+      zone.addEventListener('drop', (e) => {
+        const files = e.dataTransfer.files;
+        if (files.length) {
+          document.getElementById('mainImageInput').files = files;
+          handleMainImageUpload(document.getElementById('mainImageInput'));
+        }
+      });
+    }
+
+    function renderGalleryGrid() {
+      const grid = document.getElementById('galleryGrid');
+      grid.innerHTML = galleryImages.map((img, i) => `
+        <div class="gallery-slot ${img ? 'has-image' : ''}" onclick="triggerGalleryUpload(${i})">
+          ${img ? `
+            <img src="${img}" alt="Gallery image ${i + 1}">
+            <button type="button" class="remove-btn" onclick="event.stopPropagation(); removeGalleryImage(${i});">&times;</button>
+          ` : `
+            <span class="add-icon">+</span>
+          `}
+        </div>
+      `).join('');
+    }
+
+    function triggerGalleryUpload(slot) {
+      currentGallerySlot = slot;
+      document.getElementById('galleryImageInput').click();
+    }
+
+    async function handleMainImageUpload(input) {
+      if (!input.files || !input.files[0]) return;
+
+      const file = input.files[0];
+      const formData = new FormData();
+      formData.append('image', file);
+
+      try {
+        const response = await fetch('/api/admin/upload', {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${Admin.Auth.getToken()}` },
+          body: formData
+        });
+        const result = await response.json();
+        if (result.success) {
+          document.getElementById('image_url').value = result.url;
+          document.getElementById('mainImageImg').src = result.url;
+          document.getElementById('mainImagePreview').style.display = 'block';
+          document.getElementById('mainImagePlaceholder').style.display = 'none';
+          Admin.Toast.success('Image uploaded');
+        } else {
+          Admin.Toast.error(result.error || 'Upload failed');
+        }
+      } catch (error) {
+        Admin.Toast.error('Upload failed');
+      }
+      input.value = '';
+    }
+
+    function removeMainImage() {
+      document.getElementById('image_url').value = '';
+      document.getElementById('mainImageImg').src = '';
+      document.getElementById('mainImagePreview').style.display = 'none';
+      document.getElementById('mainImagePlaceholder').style.display = 'flex';
+    }
+
+    async function handleGalleryImageUpload(input) {
+      if (!input.files || !input.files[0]) return;
+
+      const file = input.files[0];
+      const formData = new FormData();
+      formData.append('image', file);
+
+      try {
+        const response = await fetch('/api/admin/upload', {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${Admin.Auth.getToken()}` },
+          body: formData
+        });
+        const result = await response.json();
+        if (result.success) {
+          galleryImages[currentGallerySlot] = result.url;
+          document.getElementById('gallery_images').value = JSON.stringify(galleryImages.filter(Boolean));
+          renderGalleryGrid();
+          Admin.Toast.success('Image uploaded');
+        } else {
+          Admin.Toast.error(result.error || 'Upload failed');
+        }
+      } catch (error) {
+        Admin.Toast.error('Upload failed');
+      }
+      input.value = '';
+    }
+
+    function removeGalleryImage(slot) {
+      galleryImages[slot] = '';
+      document.getElementById('gallery_images').value = JSON.stringify(galleryImages.filter(Boolean));
+      renderGalleryGrid();
+    }
+
+    async function loadCategories() {
+      try {
+        const data = await Admin.CategoriesAPI.getAll();
+        if (data.success) {
+          categories = data.categories;
+          const select = document.getElementById('category_id');
+          categories.forEach(cat => {
+            select.innerHTML += `<option value="${cat.id}">${Admin.Utils.escapeHtml(cat.name)}</option>`;
+          });
+        }
+      } catch (error) {
+        Admin.Toast.error('Failed to load categories');
+      }
+    }
+
+    async function loadProduct(id) {
+      try {
+        Admin.Loading.show();
+        const data = await Admin.ProductsAPI.getById(id);
+        if (data.success) {
+          const product = data.product;
+          document.getElementById('name').value = product.name || '';
+          document.getElementById('slug').value = product.slug || '';
+          document.getElementById('slug').dataset.manual = 'true';
+          document.getElementById('description').value = product.description || '';
+          document.getElementById('base_price').value = product.base_price || '';
+          document.getElementById('sale_price').value = product.sale_price || '';
+          document.getElementById('category_id').value = product.category_id || '';
+          document.getElementById('is_active').checked = product.is_active !== false;
+          document.getElementById('is_featured').checked = product.is_featured === true;
+
+          // Load main image
+          if (product.image_url) {
+            document.getElementById('image_url').value = product.image_url;
+            document.getElementById('mainImageImg').src = product.image_url;
+            document.getElementById('mainImagePreview').style.display = 'block';
+            document.getElementById('mainImagePlaceholder').style.display = 'none';
+          }
+
+          // Load gallery images
+          if (product.gallery_images && Array.isArray(product.gallery_images)) {
+            galleryImages = ['', '', '', ''];
+            product.gallery_images.forEach((img, i) => {
+              if (i < 4) galleryImages[i] = img;
+            });
+            document.getElementById('gallery_images').value = JSON.stringify(product.gallery_images);
+            renderGalleryGrid();
+          }
+        }
+      } catch (error) {
+        Admin.Toast.error('Failed to load product');
+        setTimeout(() => window.location.href = '/admin/products.html', 1500);
+      } finally {
+        Admin.Loading.hide();
+      }
+    }
+
+    async function handleSubmit(e) {
+      e.preventDefault();
+
+      const btn = document.getElementById('save-btn');
+      const btnText = document.getElementById('btn-text');
+      const spinner = document.getElementById('btn-spinner');
+
+      // Show loading
+      btn.disabled = true;
+      btnText.textContent = productId ? 'Updating...' : 'Saving...';
+      spinner.style.display = 'inline-block';
+
+      const formData = {
+        name: document.getElementById('name').value.trim(),
+        slug: document.getElementById('slug').value.trim(),
+        description: document.getElementById('description').value.trim(),
+        base_price: parseFloat(document.getElementById('base_price').value) || 0,
+        sale_price: document.getElementById('sale_price').value ? parseFloat(document.getElementById('sale_price').value) : null,
+        category_id: document.getElementById('category_id').value,
+        is_active: document.getElementById('is_active').checked,
+        is_featured: document.getElementById('is_featured').checked,
+        image_url: document.getElementById('image_url').value || null,
+        gallery_images: galleryImages.filter(Boolean)
+      };
+
+      // Get category name
+      const selectedCategory = categories.find(c => c.id === formData.category_id);
+      if (selectedCategory) {
+        formData.category_name = selectedCategory.name;
+        formData.category_slug = selectedCategory.slug;
+      }
+
+      try {
+        if (productId) {
+          await Admin.ProductsAPI.update(productId, formData);
+          Admin.Toast.success('Product updated successfully');
+        } else {
+          await Admin.ProductsAPI.create(formData);
+          Admin.Toast.success('Product created successfully');
+        }
+        setTimeout(() => window.location.href = '/admin/products.html', 1000);
+      } catch (error) {
+        Admin.Toast.error(error.message || 'Failed to save product');
+        btn.disabled = false;
+        btnText.textContent = productId ? 'Update Product' : 'Save Product';
+        spinner.style.display = 'none';
+      }
+    }
+  </script>
+</body>
+</html>

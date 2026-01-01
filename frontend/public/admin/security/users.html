@@ -1,0 +1,967 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>User Management - Security | Peekaboo Shades Admin</title>
+    <link rel="stylesheet" href="../css/admin.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .security-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .security-sidebar {
+            width: 260px;
+            background: #1a1a2e;
+            padding: 20px 0;
+            flex-shrink: 0;
+        }
+
+        .security-sidebar h3 {
+            color: #fff;
+            padding: 0 20px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .security-sidebar h3 i { color: #28a745; }
+
+        .security-nav {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .security-nav li a {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 20px;
+            color: #a0a0a0;
+            text-decoration: none;
+            transition: all 0.2s;
+            font-size: 14px;
+        }
+
+        .security-nav li a:hover,
+        .security-nav li a.active {
+            background: rgba(255,255,255,0.1);
+            color: #fff;
+        }
+
+        .security-nav li a.active {
+            border-left: 3px solid #28a745;
+        }
+
+        .security-content {
+            flex: 1;
+            padding: 30px;
+            background: #f5f5f5;
+        }
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .page-header h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary {
+            background: #4a90d9;
+            color: #fff;
+        }
+
+        .btn-primary:hover {
+            background: #3a7bc8;
+        }
+
+        .btn-secondary {
+            background: #f0f0f0;
+            color: #333;
+        }
+
+        .btn-danger {
+            background: #dc3545;
+            color: #fff;
+        }
+
+        .users-table {
+            background: #fff;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .users-table table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .users-table th,
+        .users-table td {
+            padding: 15px 20px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+
+        .users-table th {
+            background: #f9f9f9;
+            font-weight: 600;
+            font-size: 13px;
+            color: #666;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #4a90d9;
+            color: #fff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+        }
+
+        .user-name {
+            font-weight: 500;
+        }
+
+        .user-email {
+            font-size: 13px;
+            color: #888;
+        }
+
+        .role-badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .role-admin { background: #e3f2fd; color: #1565c0; }
+        .role-manager { background: #f3e5f5; color: #7b1fa2; }
+        .role-editor { background: #e8f5e9; color: #2e7d32; }
+        .role-viewer { background: #f5f5f5; color: #666; }
+
+        .status-badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .status-active { background: #d4edda; color: #155724; }
+        .status-inactive { background: #f8d7da; color: #721c24; }
+        .status-pending { background: #fff3cd; color: #856404; }
+
+        .tfa-status {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .tfa-status.enabled { color: #28a745; }
+        .tfa-status.disabled { color: #dc3545; }
+
+        .actions-cell {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-icon {
+            width: 32px;
+            height: 32px;
+            border: 1px solid #ddd;
+            background: #fff;
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #666;
+        }
+
+        .btn-icon:hover {
+            background: #f5f5f5;
+        }
+
+        .btn-icon.danger:hover {
+            background: #fee;
+            color: #c00;
+            border-color: #fcc;
+        }
+
+        /* Modal Styles */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: #fff;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .modal-header {
+            padding: 20px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h2 {
+            margin: 0;
+            font-size: 18px;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #666;
+        }
+
+        .modal-body {
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .modal-footer {
+            padding: 15px 20px;
+            border-top: 1px solid #eee;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #333;
+        }
+
+        .form-group input,
+        .form-group select {
+            width: 100%;
+            padding: 10px 15px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .form-help {
+            font-size: 12px;
+            color: #888;
+            margin-top: 6px;
+        }
+
+        .permissions-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .permission-item {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding: 10px;
+            background: #f9f9f9;
+            border-radius: 6px;
+        }
+
+        .permission-item input {
+            width: auto;
+        }
+
+        .permission-item label {
+            margin: 0;
+            font-weight: normal;
+            cursor: pointer;
+        }
+
+        .invite-section {
+            background: #f0f7ff;
+            border: 1px solid #cce5ff;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+        .invite-section h4 {
+            margin: 0 0 10px;
+            font-size: 14px;
+            color: #004085;
+        }
+
+        .invite-section p {
+            margin: 0;
+            font-size: 13px;
+            color: #666;
+        }
+
+        .password-toggle {
+            position: relative;
+        }
+
+        .password-toggle input {
+            padding-right: 40px;
+        }
+
+        .password-toggle button {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #888;
+        }
+
+        .toolbar {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .search-box {
+            flex: 1;
+            max-width: 300px;
+            position: relative;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 10px 15px 10px 40px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+        }
+
+        .search-box i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #888;
+        }
+
+        .filter-select {
+            padding: 10px 15px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            background: #fff;
+        }
+    </style>
+</head>
+<body>
+    <div class="security-container">
+        <aside class="security-sidebar">
+            <h3><i class="fas fa-shield-alt"></i> Security Center</h3>
+            <ul class="security-nav">
+                <li><a href="index.html"><i class="fas fa-tachometer-alt"></i> Overview</a></li>
+                <li><a href="users.html" class="active"><i class="fas fa-users-cog"></i> User Management</a></li>
+                <li><a href="two-factor.html"><i class="fas fa-mobile-alt"></i> Two-Factor Auth</a></li>
+                <li><a href="firewall.html"><i class="fas fa-fire"></i> IP Firewall</a></li>
+                <li><a href="sso.html"><i class="fas fa-key"></i> SSO & Auth Providers</a></li>
+                <li><a href="sessions.html"><i class="fas fa-desktop"></i> Active Sessions</a></li>
+                <li><a href="api-security.html"><i class="fas fa-code"></i> API Security</a></li>
+                <li><a href="audit-logs.html"><i class="fas fa-history"></i> Audit Logs</a></li>
+                <li><a href="permissions.html"><i class="fas fa-lock"></i> Page Permissions</a></li>
+            </ul>
+            <div style="padding: 20px; margin-top: 30px;">
+                <a href="../index.html" style="color: #a0a0a0; text-decoration: none; font-size: 13px;">
+                    <i class="fas fa-arrow-left"></i> Back to Dashboard
+                </a>
+            </div>
+        </aside>
+
+        <main class="security-content">
+            <div class="page-header">
+                <h1>User Management</h1>
+                <div style="display: flex; gap: 10px;">
+                    <button class="btn btn-secondary" onclick="openInviteModal()">
+                        <i class="fas fa-envelope"></i> Invite User
+                    </button>
+                    <button class="btn btn-primary" onclick="openUserModal()">
+                        <i class="fas fa-plus"></i> Add User
+                    </button>
+                </div>
+            </div>
+
+            <div class="toolbar">
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" placeholder="Search users..." id="searchInput" oninput="filterUsers()">
+                </div>
+                <select class="filter-select" id="roleFilter" onchange="filterUsers()">
+                    <option value="">All Roles</option>
+                    <option value="admin">Admin</option>
+                    <option value="manager">Manager</option>
+                    <option value="editor">Editor</option>
+                    <option value="viewer">Viewer</option>
+                </select>
+                <select class="filter-select" id="statusFilter" onchange="filterUsers()">
+                    <option value="">All Status</option>
+                    <option value="active">Active</option>
+                    <option value="inactive">Inactive</option>
+                    <option value="pending">Pending</option>
+                </select>
+            </div>
+
+            <div class="users-table">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>User</th>
+                            <th>Role</th>
+                            <th>Status</th>
+                            <th>2FA</th>
+                            <th>Last Login</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="usersList">
+                        <!-- Users will be loaded here -->
+                    </tbody>
+                </table>
+            </div>
+        </main>
+    </div>
+
+    <!-- Add/Edit User Modal -->
+    <div class="modal-overlay" id="userModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="userModalTitle">Add User</h2>
+                <button class="modal-close" onclick="closeUserModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>First Name *</label>
+                        <input type="text" id="firstName" placeholder="John" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Last Name *</label>
+                        <input type="text" id="lastName" placeholder="Doe" required>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Email Address *</label>
+                    <input type="email" id="userEmail" placeholder="john@peekabooshades.com" required>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Role *</label>
+                        <select id="userRole">
+                            <option value="viewer">Viewer - Read-only access</option>
+                            <option value="editor">Editor - Can edit content</option>
+                            <option value="manager">Manager - Full access except settings</option>
+                            <option value="admin">Admin - Full access</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Status</label>
+                        <select id="userStatus">
+                            <option value="active">Active</option>
+                            <option value="inactive">Inactive</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group" id="passwordGroup">
+                    <label>Password *</label>
+                    <div class="password-toggle">
+                        <input type="password" id="userPassword" placeholder="Min. 8 characters">
+                        <button type="button" onclick="togglePassword()">
+                            <i class="fas fa-eye" id="passwordIcon"></i>
+                        </button>
+                    </div>
+                    <p class="form-help">Password must be at least 8 characters with uppercase, lowercase, and number</p>
+                </div>
+
+                <div class="form-group">
+                    <label>Permissions</label>
+                    <div class="permissions-grid">
+                        <div class="permission-item">
+                            <input type="checkbox" id="perm_products" checked>
+                            <label for="perm_products">Products</label>
+                        </div>
+                        <div class="permission-item">
+                            <input type="checkbox" id="perm_orders" checked>
+                            <label for="perm_orders">Orders</label>
+                        </div>
+                        <div class="permission-item">
+                            <input type="checkbox" id="perm_customers">
+                            <label for="perm_customers">Customers</label>
+                        </div>
+                        <div class="permission-item">
+                            <input type="checkbox" id="perm_marketing">
+                            <label for="perm_marketing">Marketing</label>
+                        </div>
+                        <div class="permission-item">
+                            <input type="checkbox" id="perm_content">
+                            <label for="perm_content">Content/Pages</label>
+                        </div>
+                        <div class="permission-item">
+                            <input type="checkbox" id="perm_settings">
+                            <label for="perm_settings">Settings</label>
+                        </div>
+                        <div class="permission-item">
+                            <input type="checkbox" id="perm_security">
+                            <label for="perm_security">Security</label>
+                        </div>
+                        <div class="permission-item">
+                            <input type="checkbox" id="perm_reports">
+                            <label for="perm_reports">Reports</label>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label style="display: flex; align-items: center; gap: 10px;">
+                        <input type="checkbox" id="requireTFA" style="width: auto;">
+                        Require Two-Factor Authentication
+                    </label>
+                    <p class="form-help">User will be prompted to set up 2FA on first login</p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeUserModal()">Cancel</button>
+                <button class="btn btn-primary" onclick="saveUser()">
+                    <i class="fas fa-check"></i> Save User
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Invite User Modal -->
+    <div class="modal-overlay" id="inviteModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Invite User</h2>
+                <button class="modal-close" onclick="closeInviteModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="invite-section">
+                    <h4><i class="fas fa-info-circle"></i> How it works</h4>
+                    <p>An email will be sent to the user with a secure link to set up their account and password.</p>
+                </div>
+
+                <div class="form-group">
+                    <label>Email Addresses</label>
+                    <textarea id="inviteEmails" placeholder="Enter email addresses (one per line)" style="width: 100%; min-height: 100px; padding: 10px; border: 1px solid #ddd; border-radius: 6px;"></textarea>
+                    <p class="form-help">You can invite multiple users at once</p>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Default Role</label>
+                        <select id="inviteRole">
+                            <option value="viewer">Viewer</option>
+                            <option value="editor">Editor</option>
+                            <option value="manager">Manager</option>
+                            <option value="admin">Admin</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label>Invitation Expires</label>
+                        <select id="inviteExpiry">
+                            <option value="24">24 hours</option>
+                            <option value="72" selected>3 days</option>
+                            <option value="168">7 days</option>
+                            <option value="720">30 days</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Personal Message (Optional)</label>
+                    <textarea id="inviteMessage" placeholder="Add a personal message to the invitation email..." style="width: 100%; min-height: 80px; padding: 10px; border: 1px solid #ddd; border-radius: 6px;"></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeInviteModal()">Cancel</button>
+                <button class="btn btn-primary" onclick="sendInvites()">
+                    <i class="fas fa-paper-plane"></i> Send Invitations
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let users = [];
+        let editingId = null;
+
+        const sampleUsers = [
+            {
+                id: '1',
+                firstName: 'Admin',
+                lastName: 'User',
+                email: 'admin@peekabooshades.com',
+                role: 'admin',
+                status: 'active',
+                twoFactorEnabled: true,
+                lastLogin: '2024-06-19T10:30:00',
+                permissions: ['products', 'orders', 'customers', 'marketing', 'content', 'settings', 'security', 'reports']
+            },
+            {
+                id: '2',
+                firstName: 'John',
+                lastName: 'Smith',
+                email: 'john@peekabooshades.com',
+                role: 'manager',
+                status: 'active',
+                twoFactorEnabled: true,
+                lastLogin: '2024-06-18T14:22:00',
+                permissions: ['products', 'orders', 'customers', 'marketing', 'content', 'reports']
+            },
+            {
+                id: '3',
+                firstName: 'Sarah',
+                lastName: 'Johnson',
+                email: 'sarah@peekabooshades.com',
+                role: 'editor',
+                status: 'active',
+                twoFactorEnabled: false,
+                lastLogin: '2024-06-17T09:15:00',
+                permissions: ['products', 'content']
+            },
+            {
+                id: '4',
+                firstName: 'Mike',
+                lastName: 'Williams',
+                email: 'mike@peekabooshades.com',
+                role: 'viewer',
+                status: 'active',
+                twoFactorEnabled: false,
+                lastLogin: '2024-06-15T16:45:00',
+                permissions: ['products', 'orders']
+            },
+            {
+                id: '5',
+                firstName: 'Emily',
+                lastName: 'Brown',
+                email: 'emily@peekabooshades.com',
+                role: 'editor',
+                status: 'pending',
+                twoFactorEnabled: false,
+                lastLogin: null,
+                permissions: ['products', 'content', 'marketing']
+            }
+        ];
+
+        document.addEventListener('DOMContentLoaded', () => {
+            users = sampleUsers;
+            renderUsers();
+        });
+
+        function renderUsers() {
+            const tbody = document.getElementById('usersList');
+
+            tbody.innerHTML = users.map(user => {
+                const initials = (user.firstName[0] + user.lastName[0]).toUpperCase();
+                const lastLogin = user.lastLogin ? formatDate(user.lastLogin) : 'Never';
+
+                return `
+                    <tr>
+                        <td>
+                            <div class="user-info">
+                                <div class="user-avatar">${initials}</div>
+                                <div>
+                                    <div class="user-name">${user.firstName} ${user.lastName}</div>
+                                    <div class="user-email">${user.email}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <span class="role-badge role-${user.role}">${capitalizeFirst(user.role)}</span>
+                        </td>
+                        <td>
+                            <span class="status-badge status-${user.status}">${capitalizeFirst(user.status)}</span>
+                        </td>
+                        <td>
+                            <span class="tfa-status ${user.twoFactorEnabled ? 'enabled' : 'disabled'}">
+                                <i class="fas fa-${user.twoFactorEnabled ? 'check-circle' : 'times-circle'}"></i>
+                                ${user.twoFactorEnabled ? 'Enabled' : 'Disabled'}
+                            </span>
+                        </td>
+                        <td>${lastLogin}</td>
+                        <td>
+                            <div class="actions-cell">
+                                <button class="btn-icon" onclick="editUser('${user.id}')" title="Edit">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="btn-icon" onclick="resetPassword('${user.id}')" title="Reset Password">
+                                    <i class="fas fa-key"></i>
+                                </button>
+                                ${user.role !== 'admin' ? `
+                                    <button class="btn-icon danger" onclick="deleteUser('${user.id}')" title="Delete">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+                                ` : ''}
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function filterUsers() {
+            const search = document.getElementById('searchInput').value.toLowerCase();
+            const role = document.getElementById('roleFilter').value;
+            const status = document.getElementById('statusFilter').value;
+
+            let filtered = sampleUsers;
+
+            if (search) {
+                filtered = filtered.filter(u =>
+                    u.firstName.toLowerCase().includes(search) ||
+                    u.lastName.toLowerCase().includes(search) ||
+                    u.email.toLowerCase().includes(search)
+                );
+            }
+
+            if (role) {
+                filtered = filtered.filter(u => u.role === role);
+            }
+
+            if (status) {
+                filtered = filtered.filter(u => u.status === status);
+            }
+
+            users = filtered;
+            renderUsers();
+        }
+
+        function formatDate(dateStr) {
+            const date = new Date(dateStr);
+            return date.toLocaleDateString('en-US', {
+                month: 'short',
+                day: 'numeric',
+                hour: 'numeric',
+                minute: '2-digit'
+            });
+        }
+
+        function capitalizeFirst(str) {
+            return str.charAt(0).toUpperCase() + str.slice(1);
+        }
+
+        function openUserModal() {
+            editingId = null;
+            document.getElementById('userModalTitle').textContent = 'Add User';
+            document.getElementById('firstName').value = '';
+            document.getElementById('lastName').value = '';
+            document.getElementById('userEmail').value = '';
+            document.getElementById('userRole').value = 'viewer';
+            document.getElementById('userStatus').value = 'active';
+            document.getElementById('userPassword').value = '';
+            document.getElementById('passwordGroup').style.display = 'block';
+
+            // Reset permissions
+            document.querySelectorAll('[id^="perm_"]').forEach(cb => cb.checked = false);
+            document.getElementById('perm_products').checked = true;
+            document.getElementById('perm_orders').checked = true;
+
+            document.getElementById('userModal').classList.add('active');
+        }
+
+        function closeUserModal() {
+            document.getElementById('userModal').classList.remove('active');
+        }
+
+        function editUser(id) {
+            const user = users.find(u => u.id === id);
+            if (!user) return;
+
+            editingId = id;
+            document.getElementById('userModalTitle').textContent = 'Edit User';
+            document.getElementById('firstName').value = user.firstName;
+            document.getElementById('lastName').value = user.lastName;
+            document.getElementById('userEmail').value = user.email;
+            document.getElementById('userRole').value = user.role;
+            document.getElementById('userStatus').value = user.status;
+            document.getElementById('passwordGroup').style.display = 'none';
+            document.getElementById('requireTFA').checked = user.twoFactorEnabled;
+
+            // Set permissions
+            document.querySelectorAll('[id^="perm_"]').forEach(cb => {
+                const perm = cb.id.replace('perm_', '');
+                cb.checked = user.permissions.includes(perm);
+            });
+
+            document.getElementById('userModal').classList.add('active');
+        }
+
+        function saveUser() {
+            const firstName = document.getElementById('firstName').value;
+            const lastName = document.getElementById('lastName').value;
+            const email = document.getElementById('userEmail').value;
+
+            if (!firstName || !lastName || !email) {
+                alert('Please fill in all required fields');
+                return;
+            }
+
+            if (!editingId) {
+                const password = document.getElementById('userPassword').value;
+                if (!password || password.length < 8) {
+                    alert('Password must be at least 8 characters');
+                    return;
+                }
+            }
+
+            // Collect permissions
+            const permissions = [];
+            document.querySelectorAll('[id^="perm_"]:checked').forEach(cb => {
+                permissions.push(cb.id.replace('perm_', ''));
+            });
+
+            const userData = {
+                id: editingId || Date.now().toString(),
+                firstName,
+                lastName,
+                email,
+                role: document.getElementById('userRole').value,
+                status: document.getElementById('userStatus').value,
+                twoFactorEnabled: document.getElementById('requireTFA').checked,
+                permissions,
+                lastLogin: editingId ? users.find(u => u.id === editingId)?.lastLogin : null
+            };
+
+            if (editingId) {
+                const index = sampleUsers.findIndex(u => u.id === editingId);
+                if (index > -1) sampleUsers[index] = userData;
+            } else {
+                sampleUsers.push(userData);
+            }
+
+            users = sampleUsers;
+            renderUsers();
+            closeUserModal();
+            alert('User saved successfully!');
+        }
+
+        function deleteUser(id) {
+            if (!confirm('Are you sure you want to delete this user?')) return;
+
+            const index = sampleUsers.findIndex(u => u.id === id);
+            if (index > -1) {
+                sampleUsers.splice(index, 1);
+                users = sampleUsers;
+                renderUsers();
+                alert('User deleted successfully');
+            }
+        }
+
+        function resetPassword(id) {
+            const user = users.find(u => u.id === id);
+            if (!user) return;
+
+            if (confirm(`Send password reset email to ${user.email}?`)) {
+                alert(`Password reset email sent to ${user.email}`);
+            }
+        }
+
+        function openInviteModal() {
+            document.getElementById('inviteEmails').value = '';
+            document.getElementById('inviteMessage').value = '';
+            document.getElementById('inviteModal').classList.add('active');
+        }
+
+        function closeInviteModal() {
+            document.getElementById('inviteModal').classList.remove('active');
+        }
+
+        function sendInvites() {
+            const emails = document.getElementById('inviteEmails').value.trim();
+            if (!emails) {
+                alert('Please enter at least one email address');
+                return;
+            }
+
+            const emailList = emails.split('\n').filter(e => e.trim());
+            alert(`Invitations sent to ${emailList.length} user(s)!`);
+            closeInviteModal();
+        }
+
+        function togglePassword() {
+            const input = document.getElementById('userPassword');
+            const icon = document.getElementById('passwordIcon');
+            if (input.type === 'password') {
+                input.type = 'text';
+                icon.className = 'fas fa-eye-slash';
+            } else {
+                input.type = 'password';
+                icon.className = 'fas fa-eye';
+            }
+        }
+    </script>
+</body>
+</html>

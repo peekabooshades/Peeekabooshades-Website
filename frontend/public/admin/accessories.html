@@ -1,0 +1,749 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Accessories - Peekaboo Shades Admin</title>
+  <link rel="stylesheet" href="css/admin.css">
+  <link rel="icon" type="image/png" href="/images/favicon.png">
+  <style>
+    .accessory-card {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 20px;
+    }
+    .accessory-item {
+      background: var(--admin-card);
+      border: 1px solid var(--admin-border);
+      border-radius: 12px;
+      padding: 20px;
+      display: flex;
+      gap: 16px;
+    }
+    .accessory-icon {
+      width: 60px;
+      height: 60px;
+      border-radius: 8px;
+      background: #f3f4f6;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .accessory-icon img {
+      width: 40px;
+      height: 40px;
+      object-fit: contain;
+    }
+    .accessory-info {
+      flex: 1;
+      min-width: 0;
+    }
+    .accessory-name {
+      font-weight: 600;
+      font-size: 16px;
+      margin-bottom: 4px;
+    }
+    .accessory-price {
+      color: var(--admin-success);
+      font-weight: 600;
+      font-size: 18px;
+      margin-bottom: 8px;
+    }
+    .accessory-description {
+      color: var(--admin-text-secondary);
+      font-size: 13px;
+      line-height: 1.4;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .accessory-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .status-badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 500;
+    }
+    .status-badge.active {
+      background: #dcfce7;
+      color: #16a34a;
+    }
+    .status-badge.inactive {
+      background: #fee2e2;
+      color: #dc2626;
+    }
+    .image-preview {
+      width: 100%;
+      max-width: 120px;
+      height: 80px;
+      border: 2px dashed var(--admin-border);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-top: 8px;
+      overflow: hidden;
+      background: #f9fafb;
+    }
+    .image-preview img {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+    }
+    .image-preview-placeholder {
+      color: var(--admin-text-secondary);
+      font-size: 11px;
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="admin-layout">
+    <!-- Sidebar -->
+    <aside class="admin-sidebar">
+      <div class="sidebar-header">
+        <a href="/admin/" class="sidebar-logo">
+          <img src="/images/logo.png" alt="Logo" onerror="this.style.display='none'">
+          <span>Peekaboo Shades</span>
+        </a>
+      </div>
+
+      <nav class="sidebar-nav">
+        <div class="nav-section">
+          <a href="/admin/" class="nav-item">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+            </svg>
+            <span>Dashboard</span>
+          </a>
+        </div>
+
+        <div class="nav-section">
+          <div class="nav-section-title">Catalog</div>
+          <a href="/admin/products.html" class="nav-item">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+            </svg>
+            <span>Products</span>
+          </a>
+          <a href="/admin/categories.html" class="nav-item">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+            </svg>
+            <span>Categories</span>
+          </a>
+          <a href="/admin/fabrics.html" class="nav-item">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
+            <span>Fabrics</span>
+          </a>
+          <a href="/admin/hardware-options.html" class="nav-item">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+            <span>Hardware Options</span>
+          </a>
+          <a href="/admin/accessories.html" class="nav-item active">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 14v6m-3-3h6M6 10h2a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v2a2 2 0 002 2zm10 0h2a2 2 0 002-2V6a2 2 0 00-2-2h-2a2 2 0 00-2 2v2a2 2 0 002 2zM6 20h2a2 2 0 002-2v-2a2 2 0 00-2-2H6a2 2 0 00-2 2v2a2 2 0 002 2z" />
+            </svg>
+            <span>Accessories</span>
+          </a>
+        </div>
+
+        <div class="nav-section">
+          <div class="nav-section-title">Sales</div>
+          <a href="/admin/orders.html" class="nav-item">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+            </svg>
+            <span>Orders</span>
+          </a>
+          <a href="/admin/quotes.html" class="nav-item">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+            <span>Quotes</span>
+          </a>
+        </div>
+
+        <div class="nav-section">
+          <div class="nav-section-title">Content</div>
+          <a href="/admin/product-content.html" class="nav-item">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
+            <span>Product Content</span>
+          </a>
+          <a href="/admin/product-catalog.html" class="nav-item">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+            <span>Product Catalog</span>
+          </a>
+          <a href="/admin/faqs.html" class="nav-item">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <span>FAQs</span>
+          </a>
+        </div>
+
+        <div class="nav-section">
+          <div class="nav-section-title">Settings</div>
+          <a href="/admin/settings.html" class="nav-item">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+            <span>Settings</span>
+          </a>
+        </div>
+      </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="admin-main">
+      <!-- Header -->
+      <header class="admin-header">
+        <div class="header-left">
+          <div class="breadcrumb">
+            <a href="/admin/">Dashboard</a>
+            <span class="breadcrumb-separator">/</span>
+            <span class="breadcrumb-current">Accessories</span>
+          </div>
+        </div>
+        <div class="header-right">
+          <div class="dropdown">
+            <div class="header-profile">
+              <div class="profile-avatar">A</div>
+              <span class="profile-name">Admin</span>
+            </div>
+            <div class="dropdown-menu profile-dropdown">
+              <a href="/admin/settings.html" class="dropdown-item">Profile</a>
+              <div class="dropdown-divider"></div>
+              <a href="#" class="dropdown-item danger" onclick="Admin.AuthAPI.logout(); return false;">Logout</a>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <!-- Page Content -->
+      <div class="admin-content">
+        <div class="page-header">
+          <h1 class="page-title">Accessories</h1>
+          <div class="page-actions">
+            <button class="btn btn-primary" onclick="openModal()">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+              </svg>
+              Add Accessory
+            </button>
+          </div>
+        </div>
+
+        <!-- Accessories Grid -->
+        <div class="accessory-card" id="accessories-container">
+          <div style="grid-column: 1 / -1; text-align: center; padding: 60px;">
+            <div class="spinner"></div>
+            <p style="margin-top: 16px; color: var(--admin-text-secondary);">Loading accessories...</p>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Accessory Modal - Enterprise Edition -->
+  <div class="modal-overlay" id="accessory-modal">
+    <div class="modal" style="max-width: 700px; max-height: 90vh; overflow-y: auto;">
+      <div class="modal-header">
+        <h3 class="modal-title" id="modal-title">Add Accessory</h3>
+        <button class="modal-close" onclick="closeModal()">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+      <form id="accessory-form">
+        <div class="modal-body">
+          <!-- Tabs -->
+          <div class="form-tabs" style="display: flex; gap: 0; margin-bottom: 20px; border-bottom: 1px solid var(--admin-border);">
+            <button type="button" class="form-tab active" data-tab="basic" onclick="switchAccTab('basic')" style="padding: 12px 20px; border: none; background: none; cursor: pointer; font-weight: 500; border-bottom: 2px solid var(--admin-primary); color: var(--admin-primary);">Basic Info</button>
+            <button type="button" class="form-tab" data-tab="details" onclick="switchAccTab('details')" style="padding: 12px 20px; border: none; background: none; cursor: pointer; font-weight: 500; border-bottom: 2px solid transparent; color: var(--admin-text-secondary);">Details & Pricing</button>
+            <button type="button" class="form-tab" data-tab="seo" onclick="switchAccTab('seo')" style="padding: 12px 20px; border: none; background: none; cursor: pointer; font-weight: 500; border-bottom: 2px solid transparent; color: var(--admin-text-secondary);">SEO</button>
+          </div>
+
+          <!-- Basic Info Tab -->
+          <div class="acc-tab-content" id="acc-tab-basic">
+            <div class="form-row" style="display: grid; grid-template-columns: 2fr 1fr; gap: 16px;">
+              <div class="form-group">
+                <label class="form-label" for="acc-name">Name *</label>
+                <input type="text" class="form-input" id="acc-name" required placeholder="e.g., Smart Hub">
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="acc-price">Price ($) *</label>
+                <input type="number" class="form-input" id="acc-price" required value="0" min="0" step="0.01">
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="acc-short-desc">Short Description</label>
+              <textarea class="form-textarea" id="acc-short-desc" rows="2" placeholder="Brief description for product listing" style="resize: vertical;"></textarea>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Accessory Image</label>
+              <div class="image-upload-area" style="border: 2px dashed var(--admin-border); border-radius: 8px; padding: 20px; text-align: center; cursor: pointer; background: #f9fafb;" ondragover="handleAccDragOver(event)" ondragleave="handleAccDragLeave(event)" ondrop="handleAccDrop(event)" onclick="document.getElementById('acc-image-file').click()">
+                <input type="file" id="acc-image-file" accept="image/*" style="display: none;" onchange="handleAccFileSelect(event)">
+                <div id="acc-upload-placeholder">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="color: var(--admin-text-secondary); margin-bottom: 8px;">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                  <p style="color: var(--admin-text-secondary); margin: 0; font-size: 13px;">Drag & drop or click to upload</p>
+                </div>
+                <div id="acc-image-preview" style="display: none;">
+                  <img id="acc-preview-img" src="" alt="Preview" style="max-width: 120px; max-height: 80px; object-fit: contain;">
+                </div>
+              </div>
+              <input type="text" class="form-input" id="acc-icon" placeholder="Or enter image URL directly" style="margin-top: 10px;" oninput="updateImagePreview()">
+            </div>
+            <div class="form-row" style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px;">
+              <div class="form-group">
+                <label class="form-label">Status</label>
+                <div style="padding-top: 8px;">
+                  <label class="status-toggle">
+                    <input type="checkbox" id="acc-active" checked>
+                    <span class="slider"></span>
+                  </label>
+                  <span style="margin-left: 8px; color: var(--admin-text-secondary); font-size: 13px;" id="acc-status-label">Active</span>
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Featured</label>
+                <div style="padding-top: 8px;">
+                  <label class="status-toggle">
+                    <input type="checkbox" id="acc-featured">
+                    <span class="slider"></span>
+                  </label>
+                  <span style="margin-left: 8px; color: var(--admin-text-secondary); font-size: 13px;" id="acc-featured-label">No</span>
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="acc-sort">Sort Order</label>
+                <input type="number" class="form-input" id="acc-sort" value="1" min="1">
+              </div>
+            </div>
+          </div>
+
+          <!-- Details & Pricing Tab -->
+          <div class="acc-tab-content" id="acc-tab-details" style="display: none;">
+            <div class="form-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+              <div class="form-group">
+                <label class="form-label" for="acc-sku">SKU</label>
+                <input type="text" class="form-input" id="acc-sku" placeholder="e.g., ACC-HUB-001">
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="acc-cost">Cost Price ($)</label>
+                <input type="number" class="form-input" id="acc-cost" value="0" min="0" step="0.01">
+              </div>
+            </div>
+            <div class="form-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+              <div class="form-group">
+                <label class="form-label" for="acc-compare">Compare at Price ($)</label>
+                <input type="number" class="form-input" id="acc-compare" value="0" min="0" step="0.01">
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="acc-stock">Stock Status</label>
+                <select class="form-input" id="acc-stock">
+                  <option value="in-stock">In Stock</option>
+                  <option value="low-stock">Low Stock</option>
+                  <option value="out-of-stock">Out of Stock</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="acc-description">Full Description</label>
+              <textarea class="form-textarea" id="acc-description" rows="3" placeholder="Detailed description for product page" style="resize: vertical;"></textarea>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="acc-features">Key Features</label>
+              <textarea class="form-textarea" id="acc-features" rows="3" placeholder="Enter each feature on a new line..." style="resize: vertical;"></textarea>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="acc-compatibility">Compatibility</label>
+              <input type="text" class="form-input" id="acc-compatibility" placeholder="e.g., Works with all motorized shades">
+            </div>
+          </div>
+
+          <!-- SEO Tab -->
+          <div class="acc-tab-content" id="acc-tab-seo" style="display: none;">
+            <div class="form-group">
+              <label class="form-label" for="acc-meta-title">SEO Title</label>
+              <input type="text" class="form-input" id="acc-meta-title" placeholder="e.g., Smart Hub for Motorized Shades" maxlength="60">
+              <p class="form-help"><span id="acc-title-count">0</span>/60 characters</p>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="acc-meta-desc">Meta Description</label>
+              <textarea class="form-textarea" id="acc-meta-desc" rows="3" placeholder="Description for search engines..." maxlength="160" style="resize: vertical;"></textarea>
+              <p class="form-help"><span id="acc-desc-count">0</span>/160 characters</p>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="acc-keywords">Keywords</label>
+              <input type="text" class="form-input" id="acc-keywords" placeholder="e.g., smart hub, motorized blinds, home automation">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="acc-alt-text">Image Alt Text</label>
+              <input type="text" class="form-input" id="acc-alt-text" placeholder="Descriptive text for the image">
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="save-btn">Save Accessory</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="js/admin.js"></script>
+  <script>
+    // Require authentication
+    if (!Admin.Auth.requireAuth()) {
+      // Will redirect
+    } else {
+      loadAccessories();
+    }
+
+    let allAccessories = [];
+    let editingId = null;
+
+    async function loadAccessories() {
+      try {
+        const data = await Admin.AccessoriesAPI.getAll();
+        if (data.success) {
+          allAccessories = data.accessories || [];
+          renderAccessories(allAccessories);
+        }
+      } catch (error) {
+        document.getElementById('accessories-container').innerHTML = `
+          <div style="grid-column: 1 / -1; text-align: center; padding: 60px; color: var(--admin-danger);">
+            Failed to load accessories
+          </div>
+        `;
+        Admin.Toast.error('Failed to load accessories');
+      }
+    }
+
+    function renderAccessories(accessories) {
+      const container = document.getElementById('accessories-container');
+
+      if (!accessories || accessories.length === 0) {
+        container.innerHTML = `
+          <div style="grid-column: 1 / -1;" class="empty-state">
+            <svg xmlns="http://www.w3.org/2000/svg" class="empty-state-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 14v6m-3-3h6M6 10h2a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v2a2 2 0 002 2zm10 0h2a2 2 0 002-2V6a2 2 0 00-2-2h-2a2 2 0 00-2 2v2a2 2 0 002 2zM6 20h2a2 2 0 002-2v-2a2 2 0 00-2-2H6a2 2 0 00-2 2v2a2 2 0 002 2z" />
+            </svg>
+            <h3 class="empty-state-title">No accessories yet</h3>
+            <p class="empty-state-text">Add accessories like Smart Hub, USB Charger, etc.</p>
+            <button class="btn btn-primary" onclick="openModal()">Add Accessory</button>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = accessories.map(acc => `
+        <div class="accessory-item" data-id="${acc.id}">
+          <div class="accessory-icon">
+            ${acc.iconUrl ?
+              `<img src="${acc.iconUrl}" alt="${Admin.Utils.escapeHtml(acc.name)}" onerror="this.style.display='none'">` :
+              `<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="#9ca3af">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 14v6m-3-3h6M6 10h2a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v2a2 2 0 002 2z" />
+              </svg>`
+            }
+          </div>
+          <div class="accessory-info">
+            <div class="accessory-name">${Admin.Utils.escapeHtml(acc.name)}</div>
+            <div class="accessory-price">${Admin.Utils.formatCurrency(acc.price)}</div>
+            <div class="accessory-description">${Admin.Utils.escapeHtml(acc.description || 'No description')}</div>
+            <div style="margin-top: 8px;">
+              <span class="status-badge ${acc.isActive ? 'active' : 'inactive'}">${acc.isActive ? 'Active' : 'Inactive'}</span>
+            </div>
+          </div>
+          <div class="accessory-actions">
+            <button class="action-btn" title="Edit" onclick="editAccessory('${acc.id}')">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+              </svg>
+            </button>
+            <button class="action-btn danger" title="Delete" onclick="deleteAccessory('${acc.id}', '${Admin.Utils.escapeHtml(acc.name)}')">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+              </svg>
+            </button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // ============================================
+    // TAB SWITCHING
+    // ============================================
+    function switchAccTab(tabName) {
+      document.querySelectorAll('.form-tab').forEach(tab => {
+        const isActive = tab.dataset.tab === tabName;
+        tab.style.borderBottomColor = isActive ? 'var(--admin-primary)' : 'transparent';
+        tab.style.color = isActive ? 'var(--admin-primary)' : 'var(--admin-text-secondary)';
+      });
+      document.querySelectorAll('.acc-tab-content').forEach(content => {
+        content.style.display = content.id === `acc-tab-${tabName}` ? 'block' : 'none';
+      });
+    }
+
+    // ============================================
+    // IMAGE UPLOAD
+    // ============================================
+    let accPendingFile = null;
+
+    function handleAccDragOver(e) {
+      e.preventDefault();
+      e.currentTarget.style.borderColor = 'var(--admin-primary)';
+      e.currentTarget.style.background = '#f0f7ff';
+    }
+
+    function handleAccDragLeave(e) {
+      e.preventDefault();
+      e.currentTarget.style.borderColor = 'var(--admin-border)';
+      e.currentTarget.style.background = '#f9fafb';
+    }
+
+    function handleAccDrop(e) {
+      e.preventDefault();
+      handleAccDragLeave(e);
+      if (e.dataTransfer.files.length > 0) {
+        processAccFile(e.dataTransfer.files[0]);
+      }
+    }
+
+    function handleAccFileSelect(e) {
+      if (e.target.files.length > 0) {
+        processAccFile(e.target.files[0]);
+      }
+    }
+
+    function processAccFile(file) {
+      if (!file.type.startsWith('image/')) {
+        Admin.Toast.error('Please select an image file');
+        return;
+      }
+      accPendingFile = file;
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        document.getElementById('acc-upload-placeholder').style.display = 'none';
+        document.getElementById('acc-image-preview').style.display = 'block';
+        document.getElementById('acc-preview-img').src = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    async function uploadAccImage() {
+      if (!accPendingFile) return null;
+      try {
+        const result = await Admin.UploadAPI.upload(accPendingFile, 'accessories');
+        accPendingFile = null;
+        return result.url;
+      } catch (error) {
+        Admin.Toast.error('Failed to upload image');
+        return null;
+      }
+    }
+
+    // ============================================
+    // SEO CHARACTER COUNTS
+    // ============================================
+    document.getElementById('acc-meta-title')?.addEventListener('input', function() {
+      document.getElementById('acc-title-count').textContent = this.value.length;
+    });
+    document.getElementById('acc-meta-desc')?.addEventListener('input', function() {
+      document.getElementById('acc-desc-count').textContent = this.value.length;
+    });
+
+    // Status toggle labels
+    document.getElementById('acc-active')?.addEventListener('change', function() {
+      document.getElementById('acc-status-label').textContent = this.checked ? 'Active' : 'Inactive';
+    });
+    document.getElementById('acc-featured')?.addEventListener('change', function() {
+      document.getElementById('acc-featured-label').textContent = this.checked ? 'Yes' : 'No';
+    });
+
+    function updateImagePreview() {
+      const imageUrl = document.getElementById('acc-icon').value;
+      if (imageUrl) {
+        document.getElementById('acc-upload-placeholder').style.display = 'none';
+        document.getElementById('acc-image-preview').style.display = 'block';
+        document.getElementById('acc-preview-img').src = imageUrl;
+        document.getElementById('acc-preview-img').onerror = function() {
+          this.src = '/images/placeholder.png';
+        };
+      }
+    }
+
+    function openModal(accessory = null) {
+      editingId = accessory ? accessory.id : null;
+      document.getElementById('modal-title').textContent = accessory ? 'Edit Accessory' : 'Add Accessory';
+      document.getElementById('save-btn').textContent = accessory ? 'Update Accessory' : 'Save Accessory';
+
+      // Reset to first tab
+      switchAccTab('basic');
+      accPendingFile = null;
+
+      // Basic Info
+      document.getElementById('acc-name').value = accessory?.name || '';
+      document.getElementById('acc-price').value = accessory?.price || 0;
+      document.getElementById('acc-icon').value = accessory?.iconUrl || '';
+      document.getElementById('acc-short-desc').value = accessory?.shortDescription || '';
+      document.getElementById('acc-active').checked = accessory?.isActive !== false;
+      document.getElementById('acc-featured').checked = accessory?.isFeatured || false;
+      document.getElementById('acc-sort').value = accessory?.sortOrder || (allAccessories.length + 1);
+
+      // Details & Pricing
+      document.getElementById('acc-sku').value = accessory?.sku || '';
+      document.getElementById('acc-cost').value = accessory?.costPrice || 0;
+      document.getElementById('acc-compare').value = accessory?.comparePrice || 0;
+      document.getElementById('acc-stock').value = accessory?.stockStatus || 'in-stock';
+      document.getElementById('acc-description').value = accessory?.description || '';
+      document.getElementById('acc-features').value = accessory?.features?.join('\n') || '';
+      document.getElementById('acc-compatibility').value = accessory?.compatibility || '';
+
+      // SEO
+      document.getElementById('acc-meta-title').value = accessory?.seo?.metaTitle || '';
+      document.getElementById('acc-meta-desc').value = accessory?.seo?.metaDescription || '';
+      document.getElementById('acc-keywords').value = accessory?.seo?.keywords || '';
+      document.getElementById('acc-alt-text').value = accessory?.seo?.altText || '';
+
+      // Update labels
+      document.getElementById('acc-status-label').textContent = document.getElementById('acc-active').checked ? 'Active' : 'Inactive';
+      document.getElementById('acc-featured-label').textContent = document.getElementById('acc-featured').checked ? 'Yes' : 'No';
+      document.getElementById('acc-title-count').textContent = document.getElementById('acc-meta-title').value.length;
+      document.getElementById('acc-desc-count').textContent = document.getElementById('acc-meta-desc').value.length;
+
+      // Image preview
+      if (accessory?.iconUrl) {
+        document.getElementById('acc-upload-placeholder').style.display = 'none';
+        document.getElementById('acc-image-preview').style.display = 'block';
+        document.getElementById('acc-preview-img').src = accessory.iconUrl;
+      } else {
+        document.getElementById('acc-upload-placeholder').style.display = 'block';
+        document.getElementById('acc-image-preview').style.display = 'none';
+      }
+
+      Admin.Modal.show('accessory-modal');
+    }
+
+    function closeModal() {
+      Admin.Modal.hide('accessory-modal');
+      editingId = null;
+      accPendingFile = null;
+    }
+
+    function editAccessory(id) {
+      const accessory = allAccessories.find(a => a.id === id);
+      if (accessory) {
+        openModal(accessory);
+      }
+    }
+
+    async function deleteAccessory(id, name) {
+      const confirmed = await Admin.Modal.confirm(
+        'Delete Accessory',
+        `Are you sure you want to delete "${name}"?`
+      );
+
+      if (confirmed) {
+        try {
+          await Admin.AccessoriesAPI.delete(id);
+          allAccessories = allAccessories.filter(a => a.id !== id);
+          renderAccessories(allAccessories);
+          Admin.Toast.success('Accessory deleted successfully');
+        } catch (error) {
+          Admin.Toast.error('Failed to delete accessory');
+        }
+      }
+    }
+
+    // Form submission
+    document.getElementById('accessory-form').addEventListener('submit', async function(e) {
+      e.preventDefault();
+
+      const saveBtn = document.getElementById('save-btn');
+      const originalText = saveBtn.textContent;
+      saveBtn.disabled = true;
+      saveBtn.textContent = 'Saving...';
+
+      try {
+        // Upload image if pending
+        let iconUrl = document.getElementById('acc-icon').value.trim();
+        if (accPendingFile) {
+          const uploadedUrl = await uploadAccImage();
+          if (uploadedUrl) {
+            iconUrl = uploadedUrl;
+          }
+        }
+
+        // Parse features
+        const featuresText = document.getElementById('acc-features').value.trim();
+        const features = featuresText ? featuresText.split('\n').filter(f => f.trim()) : [];
+
+        const formData = {
+          // Basic Info
+          name: document.getElementById('acc-name').value.trim(),
+          price: parseFloat(document.getElementById('acc-price').value) || 0,
+          iconUrl: iconUrl,
+          shortDescription: document.getElementById('acc-short-desc').value.trim(),
+          isActive: document.getElementById('acc-active').checked,
+          isFeatured: document.getElementById('acc-featured').checked,
+          sortOrder: parseInt(document.getElementById('acc-sort').value) || 1,
+
+          // Details & Pricing
+          sku: document.getElementById('acc-sku').value.trim(),
+          costPrice: parseFloat(document.getElementById('acc-cost').value) || 0,
+          comparePrice: parseFloat(document.getElementById('acc-compare').value) || 0,
+          stockStatus: document.getElementById('acc-stock').value,
+          description: document.getElementById('acc-description').value.trim(),
+          features: features,
+          compatibility: document.getElementById('acc-compatibility').value.trim(),
+
+          // SEO
+          seo: {
+            metaTitle: document.getElementById('acc-meta-title').value.trim(),
+            metaDescription: document.getElementById('acc-meta-desc').value.trim(),
+            keywords: document.getElementById('acc-keywords').value.trim(),
+            altText: document.getElementById('acc-alt-text').value.trim()
+          }
+        };
+
+        if (editingId) {
+          await Admin.AccessoriesAPI.update(editingId, formData);
+          Admin.Toast.success('Accessory updated successfully');
+        } else {
+          await Admin.AccessoriesAPI.create(formData);
+          Admin.Toast.success('Accessory created successfully');
+        }
+        closeModal();
+        loadAccessories();
+      } catch (error) {
+        Admin.Toast.error(error.message || 'Failed to save accessory');
+      } finally {
+        saveBtn.disabled = false;
+        saveBtn.textContent = originalText;
+      }
+    });
+  </script>
+</body>
+</html>

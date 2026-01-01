@@ -1,0 +1,763 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Navigation - Peekaboo Shades Admin</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../css/admin.css">
+    <style>
+        .nav-section {
+            background: white;
+            border-radius: 8px;
+            padding: 24px;
+            margin-bottom: 24px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .nav-section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid #e5e5e5;
+        }
+        .nav-section-header h3 {
+            margin: 0;
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+        }
+        .menu-items-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+        .menu-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            background: #f9f9f9;
+            border: 1px solid #e5e5e5;
+            border-radius: 6px;
+            transition: all 0.2s;
+        }
+        .menu-item:hover {
+            border-color: #8E6545;
+            background: #faf8f6;
+        }
+        .menu-item .drag-handle {
+            cursor: grab;
+            color: #999;
+            font-size: 14px;
+        }
+        .menu-item .drag-handle:active {
+            cursor: grabbing;
+        }
+        .menu-item-content {
+            flex: 1;
+            display: grid;
+            grid-template-columns: 1fr 1fr auto;
+            gap: 12px;
+            align-items: center;
+        }
+        .menu-item-content input {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        .menu-item-content input:focus {
+            outline: none;
+            border-color: #8E6545;
+        }
+        .menu-item-actions {
+            display: flex;
+            gap: 8px;
+        }
+        .menu-item-actions button {
+            padding: 6px 10px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.2s;
+        }
+        .btn-delete {
+            background: #fee;
+            color: #c00;
+        }
+        .btn-delete:hover {
+            background: #fdd;
+        }
+        .btn-add-item {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 16px;
+            background: #f0f0f0;
+            border: 1px dashed #ccc;
+            border-radius: 6px;
+            color: #666;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-top: 12px;
+        }
+        .btn-add-item:hover {
+            background: #e8e8e8;
+            border-color: #8E6545;
+            color: #8E6545;
+        }
+        .footer-column {
+            background: #f9f9f9;
+            border: 1px solid #e5e5e5;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 16px;
+        }
+        .footer-column-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+        .footer-column-header input {
+            font-size: 15px;
+            font-weight: 600;
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            flex: 1;
+            max-width: 300px;
+        }
+        .footer-column-header input:focus {
+            outline: none;
+            border-color: #8E6545;
+        }
+        .footer-link-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 8px;
+        }
+        .footer-link-item input {
+            flex: 1;
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 13px;
+        }
+        .footer-link-item input:focus {
+            outline: none;
+            border-color: #8E6545;
+        }
+        .social-link-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 16px;
+            background: #f9f9f9;
+            border: 1px solid #e5e5e5;
+            border-radius: 6px;
+            margin-bottom: 12px;
+        }
+        .social-link-item select {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            min-width: 150px;
+        }
+        .social-link-item input {
+            flex: 1;
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+        .social-link-item select:focus,
+        .social-link-item input:focus {
+            outline: none;
+            border-color: #8E6545;
+        }
+        .social-icon-preview {
+            width: 36px;
+            height: 36px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: #8E6545;
+            color: white;
+            border-radius: 50%;
+            font-size: 16px;
+        }
+        .page-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            margin-top: 24px;
+            padding-top: 24px;
+            border-top: 1px solid #e5e5e5;
+        }
+        .tabs {
+            display: flex;
+            gap: 4px;
+            margin-bottom: 24px;
+            background: #f0f0f0;
+            padding: 4px;
+            border-radius: 8px;
+            width: fit-content;
+        }
+        .tab {
+            padding: 10px 20px;
+            border: none;
+            background: transparent;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            color: #666;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .tab:hover {
+            color: #333;
+        }
+        .tab.active {
+            background: white;
+            color: #8E6545;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .tab-content {
+            display: none;
+        }
+        .tab-content.active {
+            display: block;
+        }
+        .empty-state {
+            text-align: center;
+            padding: 40px 20px;
+            color: #999;
+        }
+        .empty-state i {
+            font-size: 48px;
+            margin-bottom: 16px;
+            opacity: 0.5;
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-layout">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <a href="../index.html" class="logo">
+                    <i class="fas fa-store"></i>
+                    <span>Peekaboo Admin</span>
+                </a>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="../index.html" class="nav-item">
+                    <i class="fas fa-home"></i>
+                    <span>Dashboard</span>
+                </a>
+
+                <div class="nav-section-title">Catalog</div>
+                <a href="../products.html" class="nav-item">
+                    <i class="fas fa-box"></i>
+                    <span>Products</span>
+                </a>
+                <a href="../categories.html" class="nav-item">
+                    <i class="fas fa-tags"></i>
+                    <span>Categories</span>
+                </a>
+
+                <div class="nav-section-title">Sales</div>
+                <a href="../orders.html" class="nav-item">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span>Orders</span>
+                </a>
+                <a href="../quotes.html" class="nav-item">
+                    <i class="fas fa-file-invoice"></i>
+                    <span>Quotes</span>
+                </a>
+
+                <div class="nav-section-title">Online Store</div>
+                <a href="themes.html" class="nav-item">
+                    <i class="fas fa-palette"></i>
+                    <span>Themes</span>
+                </a>
+                <a href="homepage.html" class="nav-item">
+                    <i class="fas fa-home"></i>
+                    <span>Homepage</span>
+                </a>
+                <a href="navigation.html" class="nav-item active">
+                    <i class="fas fa-bars"></i>
+                    <span>Navigation</span>
+                </a>
+                <a href="banners.html" class="nav-item">
+                    <i class="fas fa-images"></i>
+                    <span>Banners</span>
+                </a>
+                <a href="shop-settings.html" class="nav-item">
+                    <i class="fas fa-store"></i>
+                    <span>Shop Settings</span>
+                </a>
+
+                <div class="nav-section-title">Content</div>
+                <a href="../faqs.html" class="nav-item">
+                    <i class="fas fa-question-circle"></i>
+                    <span>FAQs</span>
+                </a>
+
+                <div class="nav-section-title">Settings</div>
+                <a href="../settings.html" class="nav-item">
+                    <i class="fas fa-cog"></i>
+                    <span>Settings</span>
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="content-header">
+                <div class="header-left">
+                    <h1>Navigation</h1>
+                    <p class="subtitle">Manage menus, footer links, and social media</p>
+                </div>
+                <div class="header-right">
+                    <a href="/" target="_blank" class="btn btn-secondary">
+                        <i class="fas fa-external-link-alt"></i> View Store
+                    </a>
+                </div>
+            </header>
+
+            <div class="content-body">
+                <!-- Tabs -->
+                <div class="tabs">
+                    <button class="tab active" data-tab="main-menu">Main Menu</button>
+                    <button class="tab" data-tab="footer">Footer</button>
+                    <button class="tab" data-tab="social">Social Links</button>
+                </div>
+
+                <!-- Main Menu Tab -->
+                <div id="main-menu" class="tab-content active">
+                    <div class="nav-section">
+                        <div class="nav-section-header">
+                            <h3><i class="fas fa-list"></i> Header Navigation</h3>
+                            <span class="text-muted">Drag to reorder items</span>
+                        </div>
+                        <div id="mainMenuList" class="menu-items-list">
+                            <!-- Menu items will be loaded here -->
+                        </div>
+                        <button class="btn-add-item" onclick="addMainMenuItem()">
+                            <i class="fas fa-plus"></i> Add Menu Item
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Footer Tab -->
+                <div id="footer" class="tab-content">
+                    <div class="nav-section">
+                        <div class="nav-section-header">
+                            <h3><i class="fas fa-columns"></i> Footer Columns</h3>
+                            <button class="btn btn-sm btn-secondary" onclick="addFooterColumn()">
+                                <i class="fas fa-plus"></i> Add Column
+                            </button>
+                        </div>
+                        <div id="footerColumnsList">
+                            <!-- Footer columns will be loaded here -->
+                        </div>
+                    </div>
+
+                    <div class="nav-section">
+                        <div class="nav-section-header">
+                            <h3><i class="fas fa-copyright"></i> Footer Settings</h3>
+                        </div>
+                        <div class="form-group">
+                            <label>Copyright Text</label>
+                            <input type="text" id="copyrightText" class="form-control" placeholder="© 2024 Company Name. All rights reserved.">
+                        </div>
+                        <div class="form-group">
+                            <label>Payment Methods (comma separated)</label>
+                            <input type="text" id="paymentMethods" class="form-control" placeholder="Visa, Mastercard, PayPal">
+                            <small class="form-text">Enter payment method names separated by commas</small>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Social Links Tab -->
+                <div id="social" class="tab-content">
+                    <div class="nav-section">
+                        <div class="nav-section-header">
+                            <h3><i class="fas fa-share-alt"></i> Social Media Links</h3>
+                        </div>
+                        <div id="socialLinksList">
+                            <!-- Social links will be loaded here -->
+                        </div>
+                        <button class="btn-add-item" onclick="addSocialLink()">
+                            <i class="fas fa-plus"></i> Add Social Link
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Page Actions -->
+                <div class="page-actions">
+                    <button class="btn btn-secondary" onclick="loadNavigation()">
+                        <i class="fas fa-undo"></i> Reset Changes
+                    </button>
+                    <button class="btn btn-primary" onclick="saveNavigation()">
+                        <i class="fas fa-save"></i> Save All Changes
+                    </button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast"></div>
+
+    <script src="../js/admin.js"></script>
+    <script>
+        let navigationData = {
+            mainMenu: [],
+            footerColumns: [],
+            socialLinks: []
+        };
+        let footerData = {
+            copyrightText: '',
+            paymentMethods: []
+        };
+
+        const socialPlatforms = [
+            { value: 'facebook', label: 'Facebook', icon: 'fab fa-facebook-f' },
+            { value: 'instagram', label: 'Instagram', icon: 'fab fa-instagram' },
+            { value: 'twitter', label: 'Twitter/X', icon: 'fab fa-twitter' },
+            { value: 'pinterest', label: 'Pinterest', icon: 'fab fa-pinterest-p' },
+            { value: 'youtube', label: 'YouTube', icon: 'fab fa-youtube' },
+            { value: 'linkedin', label: 'LinkedIn', icon: 'fab fa-linkedin-in' },
+            { value: 'tiktok', label: 'TikTok', icon: 'fab fa-tiktok' }
+        ];
+
+        // Tab switching
+        document.querySelectorAll('.tab').forEach(tab => {
+            tab.addEventListener('click', () => {
+                document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                tab.classList.add('active');
+                document.getElementById(tab.dataset.tab).classList.add('active');
+            });
+        });
+
+        // Load navigation data
+        async function loadNavigation() {
+            try {
+                const response = await fetch('/api/site-content/navigation');
+                if (response.ok) {
+                    const data = await response.json();
+                    navigationData = data.navigation || { mainMenu: [], footerColumns: [], socialLinks: [] };
+                }
+
+                const footerResponse = await fetch('/api/site-content');
+                if (footerResponse.ok) {
+                    const data = await footerResponse.json();
+                    footerData = data.footer || { copyrightText: '', paymentMethods: [] };
+                }
+
+                renderMainMenu();
+                renderFooterColumns();
+                renderSocialLinks();
+                renderFooterSettings();
+            } catch (error) {
+                console.error('Error loading navigation:', error);
+                showToast('Error loading navigation data', 'error');
+            }
+        }
+
+        // Render main menu items
+        function renderMainMenu() {
+            const container = document.getElementById('mainMenuList');
+            if (!navigationData.mainMenu || navigationData.mainMenu.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-list"></i>
+                        <p>No menu items yet. Add your first menu item.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = navigationData.mainMenu.map((item, index) => `
+                <div class="menu-item" data-index="${index}">
+                    <span class="drag-handle"><i class="fas fa-grip-vertical"></i></span>
+                    <div class="menu-item-content">
+                        <input type="text" value="${escapeHtml(item.label)}"
+                               onchange="updateMainMenuItem(${index}, 'label', this.value)"
+                               placeholder="Menu Label">
+                        <input type="text" value="${escapeHtml(item.url)}"
+                               onchange="updateMainMenuItem(${index}, 'url', this.value)"
+                               placeholder="/page-url">
+                    </div>
+                    <div class="menu-item-actions">
+                        <button class="btn-delete" onclick="removeMainMenuItem(${index})">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Add main menu item
+        function addMainMenuItem() {
+            if (!navigationData.mainMenu) navigationData.mainMenu = [];
+            navigationData.mainMenu.push({
+                label: 'New Link',
+                url: '/'
+            });
+            renderMainMenu();
+        }
+
+        // Update main menu item
+        function updateMainMenuItem(index, field, value) {
+            navigationData.mainMenu[index][field] = value;
+        }
+
+        // Remove main menu item
+        function removeMainMenuItem(index) {
+            navigationData.mainMenu.splice(index, 1);
+            renderMainMenu();
+        }
+
+        // Render footer columns
+        function renderFooterColumns() {
+            const container = document.getElementById('footerColumnsList');
+            if (!navigationData.footerColumns || navigationData.footerColumns.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-columns"></i>
+                        <p>No footer columns yet. Add your first column.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = navigationData.footerColumns.map((column, colIndex) => `
+                <div class="footer-column" data-index="${colIndex}">
+                    <div class="footer-column-header">
+                        <input type="text" value="${escapeHtml(column.title)}"
+                               onchange="updateFooterColumn(${colIndex}, 'title', this.value)"
+                               placeholder="Column Title">
+                        <button class="btn btn-sm btn-danger" onclick="removeFooterColumn(${colIndex})">
+                            <i class="fas fa-trash"></i> Remove Column
+                        </button>
+                    </div>
+                    <div class="footer-links" id="footerLinks-${colIndex}">
+                        ${(column.links || []).map((link, linkIndex) => `
+                            <div class="footer-link-item">
+                                <input type="text" value="${escapeHtml(link.label)}"
+                                       onchange="updateFooterLink(${colIndex}, ${linkIndex}, 'label', this.value)"
+                                       placeholder="Link Label">
+                                <input type="text" value="${escapeHtml(link.url)}"
+                                       onchange="updateFooterLink(${colIndex}, ${linkIndex}, 'url', this.value)"
+                                       placeholder="/page-url">
+                                <button class="btn-delete" onclick="removeFooterLink(${colIndex}, ${linkIndex})">
+                                    <i class="fas fa-times"></i>
+                                </button>
+                            </div>
+                        `).join('')}
+                    </div>
+                    <button class="btn-add-item" onclick="addFooterLink(${colIndex})" style="margin-top: 8px;">
+                        <i class="fas fa-plus"></i> Add Link
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        // Add footer column
+        function addFooterColumn() {
+            if (!navigationData.footerColumns) navigationData.footerColumns = [];
+            navigationData.footerColumns.push({
+                title: 'New Column',
+                links: []
+            });
+            renderFooterColumns();
+        }
+
+        // Update footer column
+        function updateFooterColumn(colIndex, field, value) {
+            navigationData.footerColumns[colIndex][field] = value;
+        }
+
+        // Remove footer column
+        function removeFooterColumn(colIndex) {
+            navigationData.footerColumns.splice(colIndex, 1);
+            renderFooterColumns();
+        }
+
+        // Add footer link
+        function addFooterLink(colIndex) {
+            if (!navigationData.footerColumns[colIndex].links) {
+                navigationData.footerColumns[colIndex].links = [];
+            }
+            navigationData.footerColumns[colIndex].links.push({
+                label: 'New Link',
+                url: '/'
+            });
+            renderFooterColumns();
+        }
+
+        // Update footer link
+        function updateFooterLink(colIndex, linkIndex, field, value) {
+            navigationData.footerColumns[colIndex].links[linkIndex][field] = value;
+        }
+
+        // Remove footer link
+        function removeFooterLink(colIndex, linkIndex) {
+            navigationData.footerColumns[colIndex].links.splice(linkIndex, 1);
+            renderFooterColumns();
+        }
+
+        // Render footer settings
+        function renderFooterSettings() {
+            document.getElementById('copyrightText').value = footerData.copyrightText || '';
+            document.getElementById('paymentMethods').value = (footerData.paymentMethods || []).join(', ');
+        }
+
+        // Render social links
+        function renderSocialLinks() {
+            const container = document.getElementById('socialLinksList');
+            if (!navigationData.socialLinks || navigationData.socialLinks.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <i class="fas fa-share-alt"></i>
+                        <p>No social links yet. Add your social media profiles.</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = navigationData.socialLinks.map((link, index) => {
+                const platform = socialPlatforms.find(p => p.value === link.platform) || socialPlatforms[0];
+                return `
+                    <div class="social-link-item" data-index="${index}">
+                        <div class="social-icon-preview">
+                            <i class="${platform.icon}"></i>
+                        </div>
+                        <select onchange="updateSocialLink(${index}, 'platform', this.value); renderSocialLinks();">
+                            ${socialPlatforms.map(p => `
+                                <option value="${p.value}" ${link.platform === p.value ? 'selected' : ''}>
+                                    ${p.label}
+                                </option>
+                            `).join('')}
+                        </select>
+                        <input type="text" value="${escapeHtml(link.url)}"
+                               onchange="updateSocialLink(${index}, 'url', this.value)"
+                               placeholder="https://...">
+                        <button class="btn-delete" onclick="removeSocialLink(${index})">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                `;
+            }).join('');
+        }
+
+        // Add social link
+        function addSocialLink() {
+            if (!navigationData.socialLinks) navigationData.socialLinks = [];
+            navigationData.socialLinks.push({
+                platform: 'facebook',
+                url: ''
+            });
+            renderSocialLinks();
+        }
+
+        // Update social link
+        function updateSocialLink(index, field, value) {
+            navigationData.socialLinks[index][field] = value;
+        }
+
+        // Remove social link
+        function removeSocialLink(index) {
+            navigationData.socialLinks.splice(index, 1);
+            renderSocialLinks();
+        }
+
+        // Save all navigation data
+        async function saveNavigation() {
+            try {
+                const token = localStorage.getItem('adminToken');
+                if (!token) {
+                    window.location.href = '../login.html';
+                    return;
+                }
+
+                // Update footer data from inputs
+                footerData.copyrightText = document.getElementById('copyrightText').value;
+                footerData.paymentMethods = document.getElementById('paymentMethods').value
+                    .split(',')
+                    .map(m => m.trim())
+                    .filter(m => m);
+
+                // Save navigation
+                const navResponse = await fetch('/api/admin/site-content/navigation', {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify(navigationData)
+                });
+
+                if (!navResponse.ok) {
+                    throw new Error('Failed to save navigation');
+                }
+
+                // Save footer
+                const footerResponse = await fetch('/api/admin/site-content/footer', {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify(footerData)
+                });
+
+                if (!footerResponse.ok) {
+                    throw new Error('Failed to save footer');
+                }
+
+                showToast('Navigation saved successfully!', 'success');
+            } catch (error) {
+                console.error('Error saving navigation:', error);
+                showToast('Error saving navigation: ' + error.message, 'error');
+            }
+        }
+
+        // Escape HTML
+        function escapeHtml(str) {
+            if (!str) return '';
+            return str.replace(/&/g, '&amp;')
+                      .replace(/</g, '&lt;')
+                      .replace(/>/g, '&gt;')
+                      .replace(/"/g, '&quot;');
+        }
+
+        // Toast notification
+        function showToast(message, type = 'info') {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = `toast ${type} show`;
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            loadNavigation();
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,743 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IP Firewall - Security | Peekaboo Shades Admin</title>
+    <link rel="stylesheet" href="../css/admin.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .security-container { display: flex; min-height: 100vh; }
+        .security-sidebar { width: 260px; background: #1a1a2e; padding: 20px 0; flex-shrink: 0; }
+        .security-sidebar h3 { color: #fff; padding: 0 20px; margin-bottom: 20px; font-size: 14px; text-transform: uppercase; letter-spacing: 1px; display: flex; align-items: center; gap: 10px; }
+        .security-sidebar h3 i { color: #28a745; }
+        .security-nav { list-style: none; padding: 0; margin: 0; }
+        .security-nav li a { display: flex; align-items: center; gap: 12px; padding: 12px 20px; color: #a0a0a0; text-decoration: none; transition: all 0.2s; font-size: 14px; }
+        .security-nav li a:hover, .security-nav li a.active { background: rgba(255,255,255,0.1); color: #fff; }
+        .security-nav li a.active { border-left: 3px solid #28a745; }
+        .security-content { flex: 1; padding: 30px; background: #f5f5f5; }
+        .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+        .page-header h1 { margin: 0; font-size: 24px; }
+
+        .firewall-status {
+            background: linear-gradient(135deg, #28a745, #20c997);
+            color: #fff;
+            padding: 25px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .firewall-status.disabled {
+            background: linear-gradient(135deg, #dc3545, #c82333);
+        }
+
+        .status-icon {
+            width: 60px;
+            height: 60px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+        }
+
+        .status-info { flex: 1; }
+        .status-info h2 { margin: 0 0 5px; font-size: 20px; }
+        .status-info p { margin: 0; opacity: 0.9; }
+
+        .status-toggle {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .toggle-switch {
+            position: relative;
+            width: 60px;
+            height: 32px;
+        }
+
+        .toggle-switch input { opacity: 0; width: 0; height: 0; }
+
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: rgba(255,255,255,0.3);
+            transition: .4s;
+            border-radius: 32px;
+        }
+
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 26px;
+            width: 26px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .toggle-slider { background-color: rgba(255,255,255,0.5); }
+        input:checked + .toggle-slider:before { transform: translateX(28px); }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: #fff;
+            border-radius: 12px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .stat-value { font-size: 32px; font-weight: 700; color: #333; }
+        .stat-label { font-size: 13px; color: #888; margin-top: 5px; }
+
+        .tabs {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 20px;
+            border-bottom: 1px solid #ddd;
+            padding-bottom: 10px;
+        }
+
+        .tab {
+            padding: 10px 20px;
+            border: none;
+            background: none;
+            cursor: pointer;
+            font-size: 14px;
+            color: #666;
+            border-bottom: 2px solid transparent;
+            margin-bottom: -11px;
+        }
+
+        .tab.active {
+            color: #4a90d9;
+            border-color: #4a90d9;
+        }
+
+        .ip-list {
+            background: #fff;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .ip-list-header {
+            padding: 20px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .ip-list-header h3 { margin: 0; font-size: 16px; }
+
+        .btn {
+            padding: 10px 20px;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary { background: #4a90d9; color: #fff; }
+        .btn-danger { background: #dc3545; color: #fff; }
+        .btn-secondary { background: #f0f0f0; color: #333; }
+        .btn-success { background: #28a745; color: #fff; }
+
+        .ip-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .ip-table th, .ip-table td {
+            padding: 15px 20px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+
+        .ip-table th {
+            background: #f9f9f9;
+            font-weight: 600;
+            font-size: 13px;
+            color: #666;
+        }
+
+        .ip-address {
+            font-family: 'Monaco', 'Menlo', monospace;
+            background: #f5f5f5;
+            padding: 4px 10px;
+            border-radius: 4px;
+            font-size: 13px;
+        }
+
+        .type-badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .type-blocked { background: #f8d7da; color: #721c24; }
+        .type-allowed { background: #d4edda; color: #155724; }
+
+        .btn-icon {
+            width: 32px;
+            height: 32px;
+            border: 1px solid #ddd;
+            background: #fff;
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #666;
+        }
+
+        .btn-icon:hover { background: #f5f5f5; }
+        .btn-icon.danger:hover { background: #fee; color: #c00; border-color: #fcc; }
+
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-overlay.active { display: flex; }
+
+        .modal-content {
+            background: #fff;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 500px;
+            overflow: hidden;
+        }
+
+        .modal-header {
+            padding: 20px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h2 { margin: 0; font-size: 18px; }
+        .modal-close { background: none; border: none; font-size: 24px; cursor: pointer; color: #666; }
+        .modal-body { padding: 20px; }
+        .modal-footer { padding: 15px 20px; border-top: 1px solid #eee; display: flex; justify-content: flex-end; gap: 10px; }
+
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; margin-bottom: 8px; font-weight: 500; }
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 10px 15px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        .form-help { font-size: 12px; color: #888; margin-top: 6px; }
+
+        .country-flags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .country-flag {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .country-flag:hover { border-color: #4a90d9; }
+        .country-flag.blocked { background: #f8d7da; border-color: #dc3545; }
+
+        .geo-settings {
+            background: #fff;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 30px;
+        }
+
+        .geo-settings h3 { margin: 0 0 15px; font-size: 16px; }
+
+        .rate-limit-card {
+            background: #fff;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .rate-limit-card h3 {
+            margin: 0 0 15px;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .rate-limit-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px;
+        }
+
+        .rate-limit-item {
+            padding: 15px;
+            background: #f9f9f9;
+            border-radius: 8px;
+        }
+
+        .rate-limit-item label { display: block; font-size: 13px; color: #666; margin-bottom: 8px; }
+        .rate-limit-item input { width: 100%; padding: 8px 12px; border: 1px solid #ddd; border-radius: 4px; }
+    </style>
+</head>
+<body>
+    <div class="security-container">
+        <aside class="security-sidebar">
+            <h3><i class="fas fa-shield-alt"></i> Security Center</h3>
+            <ul class="security-nav">
+                <li><a href="index.html"><i class="fas fa-tachometer-alt"></i> Overview</a></li>
+                <li><a href="users.html"><i class="fas fa-users-cog"></i> User Management</a></li>
+                <li><a href="two-factor.html"><i class="fas fa-mobile-alt"></i> Two-Factor Auth</a></li>
+                <li><a href="firewall.html" class="active"><i class="fas fa-fire"></i> IP Firewall</a></li>
+                <li><a href="sso.html"><i class="fas fa-key"></i> SSO & Auth Providers</a></li>
+                <li><a href="sessions.html"><i class="fas fa-desktop"></i> Active Sessions</a></li>
+                <li><a href="api-security.html"><i class="fas fa-code"></i> API Security</a></li>
+                <li><a href="audit-logs.html"><i class="fas fa-history"></i> Audit Logs</a></li>
+                <li><a href="permissions.html"><i class="fas fa-lock"></i> Page Permissions</a></li>
+            </ul>
+            <div style="padding: 20px; margin-top: 30px;">
+                <a href="../index.html" style="color: #a0a0a0; text-decoration: none; font-size: 13px;">
+                    <i class="fas fa-arrow-left"></i> Back to Dashboard
+                </a>
+            </div>
+        </aside>
+
+        <main class="security-content">
+            <div class="page-header">
+                <h1><i class="fas fa-fire" style="color: #fd7e14;"></i> IP Firewall</h1>
+            </div>
+
+            <div class="firewall-status" id="firewallStatus">
+                <div class="status-icon">
+                    <i class="fas fa-shield-alt"></i>
+                </div>
+                <div class="status-info">
+                    <h2>Firewall Protection Active</h2>
+                    <p>Blocking malicious traffic and unauthorized access attempts</p>
+                </div>
+                <div class="status-toggle">
+                    <span>Protection</span>
+                    <label class="toggle-switch">
+                        <input type="checkbox" id="firewallToggle" checked onchange="toggleFirewall()">
+                        <span class="toggle-slider"></span>
+                    </label>
+                </div>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-value" id="blockedToday">156</div>
+                    <div class="stat-label">Blocked Today</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="blockedWeek">1,234</div>
+                    <div class="stat-label">Blocked This Week</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="blockedIPs">12</div>
+                    <div class="stat-label">Blocked IPs</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="allowedIPs">5</div>
+                    <div class="stat-label">Allowlisted IPs</div>
+                </div>
+            </div>
+
+            <div class="rate-limit-card">
+                <h3><i class="fas fa-tachometer-alt" style="color: #4a90d9;"></i> Rate Limiting</h3>
+                <div class="rate-limit-grid">
+                    <div class="rate-limit-item">
+                        <label>Login Attempts per IP</label>
+                        <input type="number" value="5" id="loginAttempts">
+                        <p class="form-help">Per 15 minutes</p>
+                    </div>
+                    <div class="rate-limit-item">
+                        <label>API Requests per IP</label>
+                        <input type="number" value="100" id="apiRequests">
+                        <p class="form-help">Per minute</p>
+                    </div>
+                    <div class="rate-limit-item">
+                        <label>Auto-block After</label>
+                        <input type="number" value="10" id="autoBlockAfter">
+                        <p class="form-help">Failed attempts</p>
+                    </div>
+                </div>
+                <div style="margin-top: 15px; text-align: right;">
+                    <button class="btn btn-primary" onclick="saveRateLimits()">Save Settings</button>
+                </div>
+            </div>
+
+            <div class="geo-settings">
+                <h3><i class="fas fa-globe" style="color: #28a745;"></i> Geographic Restrictions</h3>
+                <p style="color: #666; margin-bottom: 15px;">Block admin access from specific countries</p>
+                <div class="country-flags" id="countryFlags">
+                    <div class="country-flag blocked" data-country="RU" onclick="toggleCountry('RU')">
+                        <span>&#127479;&#127482;</span> Russia
+                    </div>
+                    <div class="country-flag blocked" data-country="CN" onclick="toggleCountry('CN')">
+                        <span>&#127464;&#127475;</span> China
+                    </div>
+                    <div class="country-flag blocked" data-country="KP" onclick="toggleCountry('KP')">
+                        <span>&#127472;&#127477;</span> North Korea
+                    </div>
+                    <div class="country-flag" data-country="IR" onclick="toggleCountry('IR')">
+                        <span>&#127470;&#127479;</span> Iran
+                    </div>
+                    <div class="country-flag" data-country="NG" onclick="toggleCountry('NG')">
+                        <span>&#127475;&#127468;</span> Nigeria
+                    </div>
+                    <button class="btn btn-secondary" onclick="openGeoModal()" style="margin-left: auto;">
+                        <i class="fas fa-plus"></i> Add Country
+                    </button>
+                </div>
+            </div>
+
+            <div class="tabs">
+                <button class="tab active" onclick="showTab('blocked')">Blocked IPs</button>
+                <button class="tab" onclick="showTab('allowed')">Allowlist</button>
+                <button class="tab" onclick="showTab('history')">Block History</button>
+            </div>
+
+            <div class="ip-list" id="blockedList">
+                <div class="ip-list-header">
+                    <h3>Blocked IP Addresses</h3>
+                    <button class="btn btn-danger" onclick="openBlockModal()">
+                        <i class="fas fa-ban"></i> Block IP
+                    </button>
+                </div>
+                <table class="ip-table">
+                    <thead>
+                        <tr>
+                            <th>IP Address</th>
+                            <th>Reason</th>
+                            <th>Blocked On</th>
+                            <th>Expires</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="blockedTableBody">
+                        <!-- Blocked IPs will be loaded here -->
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="ip-list" id="allowedList" style="display: none;">
+                <div class="ip-list-header">
+                    <h3>Allowlisted IP Addresses</h3>
+                    <button class="btn btn-success" onclick="openAllowModal()">
+                        <i class="fas fa-plus"></i> Add to Allowlist
+                    </button>
+                </div>
+                <table class="ip-table">
+                    <thead>
+                        <tr>
+                            <th>IP Address / Range</th>
+                            <th>Label</th>
+                            <th>Added On</th>
+                            <th>Added By</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="allowedTableBody">
+                        <!-- Allowed IPs will be loaded here -->
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="ip-list" id="historyList" style="display: none;">
+                <div class="ip-list-header">
+                    <h3>Block History</h3>
+                    <button class="btn btn-secondary" onclick="exportHistory()">
+                        <i class="fas fa-download"></i> Export
+                    </button>
+                </div>
+                <table class="ip-table">
+                    <thead>
+                        <tr>
+                            <th>IP Address</th>
+                            <th>Action</th>
+                            <th>Reason</th>
+                            <th>Date</th>
+                            <th>By</th>
+                        </tr>
+                    </thead>
+                    <tbody id="historyTableBody">
+                        <!-- History will be loaded here -->
+                    </tbody>
+                </table>
+            </div>
+        </main>
+    </div>
+
+    <!-- Block IP Modal -->
+    <div class="modal-overlay" id="blockModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Block IP Address</h2>
+                <button class="modal-close" onclick="closeBlockModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>IP Address or CIDR Range</label>
+                    <input type="text" id="blockIP" placeholder="192.168.1.100 or 192.168.1.0/24">
+                    <p class="form-help">Enter a single IP or CIDR range to block multiple IPs</p>
+                </div>
+                <div class="form-group">
+                    <label>Reason</label>
+                    <select id="blockReason">
+                        <option value="manual">Manual block</option>
+                        <option value="brute-force">Brute force attempt</option>
+                        <option value="spam">Spam/Bot activity</option>
+                        <option value="suspicious">Suspicious activity</option>
+                        <option value="attack">Attack attempt</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Block Duration</label>
+                    <select id="blockDuration">
+                        <option value="1">1 hour</option>
+                        <option value="24">24 hours</option>
+                        <option value="168">1 week</option>
+                        <option value="720">30 days</option>
+                        <option value="0">Permanent</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Notes (Optional)</label>
+                    <textarea id="blockNotes" placeholder="Additional information about this block..."></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeBlockModal()">Cancel</button>
+                <button class="btn btn-danger" onclick="blockIPAddress()">
+                    <i class="fas fa-ban"></i> Block IP
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Allow IP Modal -->
+    <div class="modal-overlay" id="allowModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Add to Allowlist</h2>
+                <button class="modal-close" onclick="closeAllowModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>IP Address or CIDR Range</label>
+                    <input type="text" id="allowIP" placeholder="192.168.1.100 or 192.168.1.0/24">
+                    <p class="form-help">Allowlisted IPs bypass rate limiting and geographic restrictions</p>
+                </div>
+                <div class="form-group">
+                    <label>Label</label>
+                    <input type="text" id="allowLabel" placeholder="e.g., Office Network, VPN Server">
+                </div>
+                <div class="form-group">
+                    <label>Notes (Optional)</label>
+                    <textarea id="allowNotes" placeholder="Additional information..."></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeAllowModal()">Cancel</button>
+                <button class="btn btn-success" onclick="allowIPAddress()">
+                    <i class="fas fa-check"></i> Add to Allowlist
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let blockedIPs = [
+            { ip: '192.168.1.100', reason: 'Brute force attempt', blockedOn: '2024-06-19T10:30:00', expires: '2024-06-26T10:30:00', notes: '15 failed login attempts' },
+            { ip: '10.0.0.50', reason: 'Suspicious activity', blockedOn: '2024-06-18T14:22:00', expires: null, notes: 'SQL injection attempt' },
+            { ip: '172.16.0.0/16', reason: 'Manual block', blockedOn: '2024-06-15T09:00:00', expires: '2024-07-15T09:00:00', notes: 'Known malicious range' }
+        ];
+
+        let allowedIPs = [
+            { ip: '192.168.1.1', label: 'Office Network', addedOn: '2024-01-15T10:00:00', addedBy: 'admin@peekabooshades.com' },
+            { ip: '10.10.0.0/24', label: 'VPN Server', addedOn: '2024-02-20T14:30:00', addedBy: 'admin@peekabooshades.com' },
+            { ip: '203.0.113.50', label: 'Home Office - John', addedOn: '2024-03-10T09:15:00', addedBy: 'john@peekabooshades.com' }
+        ];
+
+        let blockHistory = [
+            { ip: '192.168.1.100', action: 'Blocked', reason: 'Auto-blocked after 10 failed attempts', date: '2024-06-19T10:30:00', by: 'System' },
+            { ip: '192.168.1.200', action: 'Unblocked', reason: 'Manual unblock', date: '2024-06-18T16:45:00', by: 'admin@peekabooshades.com' },
+            { ip: '10.0.0.50', action: 'Blocked', reason: 'SQL injection attempt', date: '2024-06-18T14:22:00', by: 'System' }
+        ];
+
+        document.addEventListener('DOMContentLoaded', () => {
+            renderBlockedIPs();
+            renderAllowedIPs();
+            renderHistory();
+        });
+
+        function renderBlockedIPs() {
+            const tbody = document.getElementById('blockedTableBody');
+            tbody.innerHTML = blockedIPs.map(ip => `
+                <tr>
+                    <td><span class="ip-address">${ip.ip}</span></td>
+                    <td>${ip.reason}</td>
+                    <td>${formatDate(ip.blockedOn)}</td>
+                    <td>${ip.expires ? formatDate(ip.expires) : 'Never'}</td>
+                    <td>
+                        <button class="btn-icon" onclick="unblockIP('${ip.ip}')" title="Unblock">
+                            <i class="fas fa-unlock"></i>
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function renderAllowedIPs() {
+            const tbody = document.getElementById('allowedTableBody');
+            tbody.innerHTML = allowedIPs.map(ip => `
+                <tr>
+                    <td><span class="ip-address">${ip.ip}</span></td>
+                    <td>${ip.label}</td>
+                    <td>${formatDate(ip.addedOn)}</td>
+                    <td>${ip.addedBy}</td>
+                    <td>
+                        <button class="btn-icon danger" onclick="removeFromAllowlist('${ip.ip}')" title="Remove">
+                            <i class="fas fa-times"></i>
+                        </button>
+                    </td>
+                </tr>
+            `).join('');
+        }
+
+        function renderHistory() {
+            const tbody = document.getElementById('historyTableBody');
+            tbody.innerHTML = blockHistory.map(entry => `
+                <tr>
+                    <td><span class="ip-address">${entry.ip}</span></td>
+                    <td><span class="type-badge type-${entry.action.toLowerCase()}">${entry.action}</span></td>
+                    <td>${entry.reason}</td>
+                    <td>${formatDate(entry.date)}</td>
+                    <td>${entry.by}</td>
+                </tr>
+            `).join('');
+        }
+
+        function formatDate(dateStr) {
+            return new Date(dateStr).toLocaleDateString('en-US', {
+                month: 'short', day: 'numeric', year: 'numeric',
+                hour: 'numeric', minute: '2-digit'
+            });
+        }
+
+        function showTab(tab) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            event.target.classList.add('active');
+
+            document.getElementById('blockedList').style.display = tab === 'blocked' ? 'block' : 'none';
+            document.getElementById('allowedList').style.display = tab === 'allowed' ? 'block' : 'none';
+            document.getElementById('historyList').style.display = tab === 'history' ? 'block' : 'none';
+        }
+
+        function toggleFirewall() {
+            const enabled = document.getElementById('firewallToggle').checked;
+            const status = document.getElementById('firewallStatus');
+
+            if (enabled) {
+                status.classList.remove('disabled');
+                status.querySelector('h2').textContent = 'Firewall Protection Active';
+                status.querySelector('p').textContent = 'Blocking malicious traffic and unauthorized access attempts';
+            } else {
+                status.classList.add('disabled');
+                status.querySelector('h2').textContent = 'Firewall Protection Disabled';
+                status.querySelector('p').textContent = 'Warning: Your admin panel is vulnerable to attacks';
+            }
+        }
+
+        function toggleCountry(code) {
+            const flag = document.querySelector(`[data-country="${code}"]`);
+            flag.classList.toggle('blocked');
+        }
+
+        function openBlockModal() { document.getElementById('blockModal').classList.add('active'); }
+        function closeBlockModal() { document.getElementById('blockModal').classList.remove('active'); }
+        function openAllowModal() { document.getElementById('allowModal').classList.add('active'); }
+        function closeAllowModal() { document.getElementById('allowModal').classList.remove('active'); }
+
+        function blockIPAddress() {
+            const ip = document.getElementById('blockIP').value;
+            if (!ip) { alert('Please enter an IP address'); return; }
+
+            const reason = document.getElementById('blockReason').options[document.getElementById('blockReason').selectedIndex].text;
+            blockedIPs.push({ ip, reason, blockedOn: new Date().toISOString(), expires: null });
+            renderBlockedIPs();
+            closeBlockModal();
+            alert(`IP ${ip} has been blocked`);
+        }
+
+        function unblockIP(ip) {
+            if (!confirm(`Unblock IP ${ip}?`)) return;
+            blockedIPs = blockedIPs.filter(i => i.ip !== ip);
+            renderBlockedIPs();
+        }
+
+        function allowIPAddress() {
+            const ip = document.getElementById('allowIP').value;
+            const label = document.getElementById('allowLabel').value;
+            if (!ip || !label) { alert('Please fill in all fields'); return; }
+
+            allowedIPs.push({ ip, label, addedOn: new Date().toISOString(), addedBy: 'admin@peekabooshades.com' });
+            renderAllowedIPs();
+            closeAllowModal();
+            alert(`IP ${ip} added to allowlist`);
+        }
+
+        function removeFromAllowlist(ip) {
+            if (!confirm(`Remove ${ip} from allowlist?`)) return;
+            allowedIPs = allowedIPs.filter(i => i.ip !== ip);
+            renderAllowedIPs();
+        }
+
+        function saveRateLimits() {
+            alert('Rate limiting settings saved!');
+        }
+
+        function exportHistory() {
+            alert('Block history would be exported as CSV');
+        }
+    </script>
+</body>
+</html>

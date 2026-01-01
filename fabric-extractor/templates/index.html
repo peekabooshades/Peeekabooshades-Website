@@ -1,0 +1,707 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Fabric Swatch PDF Extractor</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            text-align: center;
+            color: white;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .header p {
+            font-size: 1.1rem;
+            opacity: 0.9;
+        }
+
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        @media (max-width: 1024px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .card {
+            background: white;
+            border-radius: 16px;
+            padding: 24px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+        }
+
+        .card-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            color: #1a1a2e;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .card-title .icon {
+            width: 32px;
+            height: 32px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 16px;
+        }
+
+        /* Upload Area */
+        .upload-area {
+            border: 2px dashed #d1d5db;
+            border-radius: 12px;
+            padding: 60px 20px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background: #fafafa;
+        }
+
+        .upload-area:hover {
+            border-color: #667eea;
+            background: #f0f0ff;
+        }
+
+        .upload-area.dragover {
+            border-color: #667eea;
+            background: #e8e8ff;
+        }
+
+        .upload-icon {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 36px;
+            color: white;
+        }
+
+        .upload-text {
+            font-size: 1.1rem;
+            color: #4b5563;
+            margin-bottom: 10px;
+        }
+
+        .upload-hint {
+            font-size: 0.9rem;
+            color: #9ca3af;
+        }
+
+        #fileInput {
+            display: none;
+        }
+
+        .file-info {
+            display: none;
+            margin-top: 20px;
+            padding: 15px;
+            background: #f0fdf4;
+            border-radius: 8px;
+            border: 1px solid #86efac;
+        }
+
+        .file-info.show {
+            display: block;
+        }
+
+        .file-name {
+            font-weight: 600;
+            color: #166534;
+        }
+
+        /* Extract Button */
+        .extract-btn {
+            width: 100%;
+            padding: 16px;
+            margin-top: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: none;
+        }
+
+        .extract-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .extract-btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .extract-btn.show {
+            display: block;
+        }
+
+        /* Progress */
+        .progress-section {
+            display: none;
+            margin-top: 20px;
+        }
+
+        .progress-section.show {
+            display: block;
+        }
+
+        .progress-bar-container {
+            background: #e5e7eb;
+            border-radius: 10px;
+            height: 20px;
+            overflow: hidden;
+            margin-bottom: 10px;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea, #764ba2);
+            border-radius: 10px;
+            transition: width 0.5s ease;
+            width: 0%;
+        }
+
+        .progress-text {
+            text-align: center;
+            color: #6b7280;
+            font-size: 0.9rem;
+        }
+
+        /* Results Summary */
+        .results-summary {
+            display: none;
+            margin-top: 20px;
+        }
+
+        .results-summary.show {
+            display: block;
+        }
+
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 15px;
+        }
+
+        .summary-item {
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+            padding: 20px;
+            border-radius: 12px;
+            text-align: center;
+        }
+
+        .summary-item.success {
+            background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%);
+        }
+
+        .summary-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #1a1a2e;
+        }
+
+        .summary-label {
+            font-size: 0.85rem;
+            color: #6b7280;
+            margin-top: 5px;
+        }
+
+        /* Download Button */
+        .download-btn {
+            width: 100%;
+            padding: 14px;
+            margin-top: 20px;
+            background: #10b981;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+            display: none;
+        }
+
+        .download-btn.show {
+            display: block;
+        }
+
+        .download-btn:hover {
+            background: #059669;
+        }
+
+        /* Validation Log */
+        .validation-log {
+            max-height: 400px;
+            overflow-y: auto;
+            border: 1px solid #e5e7eb;
+            border-radius: 10px;
+        }
+
+        .log-item {
+            display: flex;
+            align-items: center;
+            padding: 12px 16px;
+            border-bottom: 1px solid #f3f4f6;
+            font-size: 0.9rem;
+        }
+
+        .log-item:last-child {
+            border-bottom: none;
+        }
+
+        .log-status {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-right: 12px;
+            font-size: 12px;
+            flex-shrink: 0;
+        }
+
+        .log-status.pass {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .log-status.fail {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .log-phase {
+            background: #f3f4f6;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            color: #6b7280;
+            margin-right: 10px;
+            flex-shrink: 0;
+        }
+
+        .log-name {
+            flex: 1;
+            color: #374151;
+        }
+
+        .log-details {
+            color: #9ca3af;
+            font-size: 0.8rem;
+            margin-left: 10px;
+        }
+
+        /* Page Count Table */
+        .page-count-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+
+        .page-count-table th,
+        .page-count-table td {
+            padding: 10px 12px;
+            text-align: left;
+            border-bottom: 1px solid #e5e7eb;
+            font-size: 0.9rem;
+        }
+
+        .page-count-table th {
+            background: #f9fafb;
+            font-weight: 600;
+            color: #374151;
+        }
+
+        .page-count-table tr:hover {
+            background: #f9fafb;
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+
+        .status-badge.pass {
+            background: #dcfce7;
+            color: #166534;
+        }
+
+        .status-badge.fail {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        /* Scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #c1c1c1;
+            border-radius: 4px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: #a1a1a1;
+        }
+
+        /* Loading Animation */
+        .spinner {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 2px solid rgba(255,255,255,0.3);
+            border-radius: 50%;
+            border-top-color: white;
+            animation: spin 1s linear infinite;
+            margin-right: 10px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 40px;
+            color: #9ca3af;
+        }
+
+        .empty-state .icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>Fabric Swatch PDF Extractor</h1>
+            <p>Upload your fabric catalogue PDF to extract swatches with 37 validation checks</p>
+        </div>
+
+        <div class="main-grid">
+            <!-- Left Column: Upload & Results -->
+            <div>
+                <div class="card">
+                    <div class="card-title">
+                        <span class="icon">📄</span>
+                        Upload PDF Document
+                    </div>
+
+                    <div class="upload-area" id="uploadArea">
+                        <div class="upload-icon">📁</div>
+                        <div class="upload-text">Drag & drop your PDF here</div>
+                        <div class="upload-hint">or click to browse files</div>
+                        <input type="file" id="fileInput" accept=".pdf">
+                    </div>
+
+                    <div class="file-info" id="fileInfo">
+                        <span class="file-name" id="fileName"></span>
+                    </div>
+
+                    <button class="extract-btn" id="extractBtn">
+                        Extract Fabric Swatches
+                    </button>
+
+                    <div class="progress-section" id="progressSection">
+                        <div class="progress-bar-container">
+                            <div class="progress-bar" id="progressBar"></div>
+                        </div>
+                        <div class="progress-text" id="progressText">Processing...</div>
+                    </div>
+
+                    <div class="results-summary" id="resultsSummary">
+                        <div class="summary-grid">
+                            <div class="summary-item success">
+                                <div class="summary-value" id="totalExtracted">0</div>
+                                <div class="summary-label">Swatches Extracted</div>
+                            </div>
+                            <div class="summary-item">
+                                <div class="summary-value" id="validationsPassed">0/37</div>
+                                <div class="summary-label">Validations Passed</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button class="download-btn" id="downloadBtn">
+                        ⬇️ Download All Swatches (ZIP)
+                    </button>
+                </div>
+
+                <!-- Page Count Validation -->
+                <div class="card" style="margin-top: 20px;">
+                    <div class="card-title">
+                        <span class="icon">📊</span>
+                        Page-Level Count Validation
+                    </div>
+                    <div id="pageCountContainer">
+                        <div class="empty-state">
+                            <div class="icon">📋</div>
+                            <p>Upload a PDF to see page-level validation</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column: Validation Log -->
+            <div class="card">
+                <div class="card-title">
+                    <span class="icon">✅</span>
+                    37 Test Cases Validation Log
+                </div>
+                <div class="validation-log" id="validationLog">
+                    <div class="empty-state">
+                        <div class="icon">🔍</div>
+                        <p>Validation results will appear here after processing</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const uploadArea = document.getElementById('uploadArea');
+        const fileInput = document.getElementById('fileInput');
+        const fileInfo = document.getElementById('fileInfo');
+        const fileName = document.getElementById('fileName');
+        const extractBtn = document.getElementById('extractBtn');
+        const progressSection = document.getElementById('progressSection');
+        const progressBar = document.getElementById('progressBar');
+        const progressText = document.getElementById('progressText');
+        const resultsSummary = document.getElementById('resultsSummary');
+        const validationLog = document.getElementById('validationLog');
+        const pageCountContainer = document.getElementById('pageCountContainer');
+        const downloadBtn = document.getElementById('downloadBtn');
+
+        let selectedFile = null;
+        let zipPath = null;
+
+        // Drag & Drop
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('dragover');
+        });
+
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('dragover');
+        });
+
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('dragover');
+            const files = e.dataTransfer.files;
+            if (files.length > 0 && files[0].type === 'application/pdf') {
+                handleFile(files[0]);
+            }
+        });
+
+        uploadArea.addEventListener('click', () => {
+            fileInput.click();
+        });
+
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                handleFile(e.target.files[0]);
+            }
+        });
+
+        function handleFile(file) {
+            selectedFile = file;
+            fileName.textContent = `📄 ${file.name} (${(file.size / 1024 / 1024).toFixed(2)} MB)`;
+            fileInfo.classList.add('show');
+            extractBtn.classList.add('show');
+        }
+
+        extractBtn.addEventListener('click', async () => {
+            if (!selectedFile) return;
+
+            extractBtn.disabled = true;
+            extractBtn.innerHTML = '<span class="spinner"></span> Processing...';
+            progressSection.classList.add('show');
+            resultsSummary.classList.remove('show');
+            downloadBtn.classList.remove('show');
+
+            // Simulate progress
+            let progress = 0;
+            const progressInterval = setInterval(() => {
+                progress += Math.random() * 15;
+                if (progress > 90) progress = 90;
+                progressBar.style.width = progress + '%';
+                progressText.textContent = `Processing... ${Math.round(progress)}%`;
+            }, 500);
+
+            try {
+                const formData = new FormData();
+                formData.append('pdf', selectedFile);
+
+                const response = await fetch('/upload', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                clearInterval(progressInterval);
+                progressBar.style.width = '100%';
+                progressText.textContent = 'Complete!';
+
+                const data = await response.json();
+
+                if (data.error) {
+                    throw new Error(data.error);
+                }
+
+                // Display results
+                document.getElementById('totalExtracted').textContent = data.total_extracted;
+                document.getElementById('validationsPassed').textContent =
+                    `${data.validations_passed}/${data.validations_total}`;
+
+                resultsSummary.classList.add('show');
+
+                // Display validation log
+                displayValidationLog(data.validation_log);
+
+                // Display page counts
+                displayPageCounts(data.page_counts);
+
+                // Setup download
+                zipPath = data.zip_path;
+                downloadBtn.classList.add('show');
+
+            } catch (error) {
+                alert('Error: ' + error.message);
+            } finally {
+                extractBtn.disabled = false;
+                extractBtn.innerHTML = 'Extract Fabric Swatches';
+            }
+        });
+
+        function displayValidationLog(log) {
+            let html = '';
+            log.forEach(item => {
+                const statusClass = item.status === 'PASS' ? 'pass' : 'fail';
+                const statusIcon = item.status === 'PASS' ? '✓' : '✗';
+                html += `
+                    <div class="log-item">
+                        <div class="log-status ${statusClass}">${statusIcon}</div>
+                        <span class="log-phase">${item.phase}</span>
+                        <span class="log-name">#${item.test_num} ${item.test_name}</span>
+                        <span class="log-details">${item.details}</span>
+                    </div>
+                `;
+            });
+            validationLog.innerHTML = html;
+        }
+
+        function displayPageCounts(counts) {
+            let html = `
+                <table class="page-count-table">
+                    <thead>
+                        <tr>
+                            <th>Page</th>
+                            <th>Series</th>
+                            <th>Codes Extracted</th>
+                            <th>Expected</th>
+                            <th>Status</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+
+            let totalExpected = 0;
+            let totalExtracted = 0;
+
+            counts.forEach(pc => {
+                const status = pc.extracted >= pc.expected ? 'pass' : 'fail';
+                const statusText = pc.extracted >= pc.expected ? '✓' : '✗';
+                totalExpected += pc.expected;
+                totalExtracted += pc.extracted;
+
+                html += `
+                    <tr>
+                        <td>${pc.page}</td>
+                        <td>${pc.series || '-'}</td>
+                        <td>${pc.codes.join(', ') || '-'}</td>
+                        <td>${pc.expected}</td>
+                        <td><span class="status-badge ${status}">${statusText} ${pc.extracted}/${pc.expected}</span></td>
+                    </tr>
+                `;
+            });
+
+            html += `
+                    </tbody>
+                    <tfoot>
+                        <tr style="font-weight: bold; background: #f0f9ff;">
+                            <td colspan="3">TOTAL</td>
+                            <td>${totalExpected}</td>
+                            <td><span class="status-badge pass">✓ ${totalExtracted}</span></td>
+                        </tr>
+                    </tfoot>
+                </table>
+            `;
+
+            pageCountContainer.innerHTML = html;
+        }
+
+        downloadBtn.addEventListener('click', () => {
+            if (zipPath) {
+                window.location.href = `/download/${encodeURIComponent(zipPath)}`;
+            }
+        });
+    </script>
+</body>
+</html>

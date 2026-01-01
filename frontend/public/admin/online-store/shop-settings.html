@@ -1,0 +1,834 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shop Settings - Peekaboo Shades Admin</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="../css/admin.css">
+    <style>
+        .settings-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+        }
+        @media (max-width: 1200px) {
+            .settings-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        .settings-card {
+            background: white;
+            border-radius: 12px;
+            padding: 24px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+        .settings-card h3 {
+            margin: 0 0 20px 0;
+            font-size: 16px;
+            font-weight: 600;
+            color: #333;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid #eee;
+        }
+        .settings-card h3 i {
+            color: #8E6545;
+        }
+        .image-preview-box {
+            width: 100%;
+            height: 150px;
+            background: #f5f5f5;
+            border: 2px dashed #ddd;
+            border-radius: 8px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 12px;
+            overflow: hidden;
+        }
+        .image-preview-box img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+        .image-preview-box.empty i {
+            font-size: 36px;
+            color: #ccc;
+            margin-bottom: 8px;
+        }
+        .image-preview-box.empty span {
+            font-size: 13px;
+            color: #999;
+        }
+        .toggle-group {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 12px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .toggle-group:last-child {
+            border-bottom: none;
+        }
+        .toggle-label {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .toggle-label span {
+            font-weight: 500;
+            color: #333;
+        }
+        .toggle-label small {
+            color: #888;
+            font-size: 12px;
+        }
+        .toggle-switch {
+            position: relative;
+            width: 50px;
+            height: 26px;
+            flex-shrink: 0;
+        }
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: 0.3s;
+            border-radius: 26px;
+        }
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 20px;
+            width: 20px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: 0.3s;
+            border-radius: 50%;
+        }
+        .toggle-switch input:checked + .toggle-slider {
+            background-color: #8E6545;
+        }
+        .toggle-switch input:checked + .toggle-slider:before {
+            transform: translateX(24px);
+        }
+        .grid-preview {
+            display: grid;
+            gap: 8px;
+            padding: 16px;
+            background: #f5f5f5;
+            border-radius: 8px;
+            margin-top: 12px;
+        }
+        .grid-preview.cols-3 { grid-template-columns: repeat(3, 1fr); }
+        .grid-preview.cols-4 { grid-template-columns: repeat(4, 1fr); }
+        .grid-preview.cols-5 { grid-template-columns: repeat(5, 1fr); }
+        .grid-preview-item {
+            aspect-ratio: 1;
+            background: #ddd;
+            border-radius: 4px;
+        }
+        .sorting-options {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: 12px;
+        }
+        .sort-chip {
+            padding: 8px 16px;
+            background: #f0f0f0;
+            border: 1px solid #ddd;
+            border-radius: 20px;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .sort-chip:hover {
+            border-color: #8E6545;
+        }
+        .sort-chip.active {
+            background: #8E6545;
+            color: white;
+            border-color: #8E6545;
+        }
+        .sort-chip i {
+            font-size: 11px;
+        }
+        .page-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 12px;
+            margin-top: 24px;
+            padding-top: 24px;
+            border-top: 1px solid #e5e5e5;
+        }
+        .announcement-preview {
+            background: #333;
+            color: white;
+            padding: 10px 20px;
+            text-align: center;
+            font-size: 14px;
+            border-radius: 8px;
+            margin-top: 16px;
+        }
+        .seo-preview {
+            background: #f9f9f9;
+            border: 1px solid #e5e5e5;
+            border-radius: 8px;
+            padding: 16px;
+            margin-top: 16px;
+        }
+        .seo-preview-title {
+            color: #1a0dab;
+            font-size: 18px;
+            font-weight: 500;
+            margin-bottom: 4px;
+            cursor: pointer;
+        }
+        .seo-preview-title:hover {
+            text-decoration: underline;
+        }
+        .seo-preview-url {
+            color: #006621;
+            font-size: 14px;
+            margin-bottom: 4px;
+        }
+        .seo-preview-desc {
+            color: #545454;
+            font-size: 14px;
+            line-height: 1.4;
+        }
+        .full-width {
+            grid-column: 1 / -1;
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-layout">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <a href="../index.html" class="logo">
+                    <i class="fas fa-store"></i>
+                    <span>Peekaboo Admin</span>
+                </a>
+            </div>
+            <nav class="sidebar-nav">
+                <a href="../index.html" class="nav-item">
+                    <i class="fas fa-home"></i>
+                    <span>Dashboard</span>
+                </a>
+
+                <div class="nav-section-title">Catalog</div>
+                <a href="../products.html" class="nav-item">
+                    <i class="fas fa-box"></i>
+                    <span>Products</span>
+                </a>
+                <a href="../categories.html" class="nav-item">
+                    <i class="fas fa-tags"></i>
+                    <span>Categories</span>
+                </a>
+
+                <div class="nav-section-title">Sales</div>
+                <a href="../orders.html" class="nav-item">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span>Orders</span>
+                </a>
+                <a href="../quotes.html" class="nav-item">
+                    <i class="fas fa-file-invoice"></i>
+                    <span>Quotes</span>
+                </a>
+
+                <div class="nav-section-title">Online Store</div>
+                <a href="themes.html" class="nav-item">
+                    <i class="fas fa-palette"></i>
+                    <span>Themes</span>
+                </a>
+                <a href="homepage.html" class="nav-item">
+                    <i class="fas fa-home"></i>
+                    <span>Homepage</span>
+                </a>
+                <a href="navigation.html" class="nav-item">
+                    <i class="fas fa-bars"></i>
+                    <span>Navigation</span>
+                </a>
+                <a href="banners.html" class="nav-item">
+                    <i class="fas fa-images"></i>
+                    <span>Banners</span>
+                </a>
+                <a href="shop-settings.html" class="nav-item active">
+                    <i class="fas fa-store"></i>
+                    <span>Shop Settings</span>
+                </a>
+
+                <div class="nav-section-title">Content</div>
+                <a href="../faqs.html" class="nav-item">
+                    <i class="fas fa-question-circle"></i>
+                    <span>FAQs</span>
+                </a>
+
+                <div class="nav-section-title">Settings</div>
+                <a href="../settings.html" class="nav-item">
+                    <i class="fas fa-cog"></i>
+                    <span>Settings</span>
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-content">
+            <header class="content-header">
+                <div class="header-left">
+                    <h1>Shop Settings</h1>
+                    <p class="subtitle">Configure shop page layout, filters, and display options</p>
+                </div>
+                <div class="header-right">
+                    <a href="/shop" target="_blank" class="btn btn-secondary">
+                        <i class="fas fa-external-link-alt"></i> View Shop
+                    </a>
+                </div>
+            </header>
+
+            <div class="content-body">
+                <div class="settings-grid">
+                    <!-- Shop Hero Section -->
+                    <div class="settings-card">
+                        <h3><i class="fas fa-image"></i> Shop Hero Banner</h3>
+                        <div class="form-group">
+                            <label>Hero Background Image</label>
+                            <div class="image-preview-box empty" id="heroImagePreview">
+                                <i class="fas fa-image"></i>
+                                <span>Enter image URL below</span>
+                            </div>
+                            <input type="text" id="heroImage" class="form-control" placeholder="https://example.com/shop-hero.jpg" onchange="updateHeroPreview()">
+                        </div>
+                        <div class="form-group">
+                            <label>Hero Title</label>
+                            <input type="text" id="heroTitle" class="form-control" placeholder="Shop All Products">
+                        </div>
+                        <div class="form-group">
+                            <label>Hero Subtitle</label>
+                            <input type="text" id="heroSubtitle" class="form-control" placeholder="Find the perfect window treatments">
+                        </div>
+                    </div>
+
+                    <!-- Product Grid Settings -->
+                    <div class="settings-card">
+                        <h3><i class="fas fa-th"></i> Product Grid</h3>
+                        <div class="form-group">
+                            <label>Products Per Page</label>
+                            <select id="productsPerPage" class="form-control">
+                                <option value="12">12 products</option>
+                                <option value="24">24 products</option>
+                                <option value="36">36 products</option>
+                                <option value="48">48 products</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Grid Columns (Desktop)</label>
+                            <select id="gridColumns" class="form-control" onchange="updateGridPreview()">
+                                <option value="3">3 columns</option>
+                                <option value="4">4 columns</option>
+                                <option value="5">5 columns</option>
+                            </select>
+                            <div class="grid-preview cols-4" id="gridPreview">
+                                <div class="grid-preview-item"></div>
+                                <div class="grid-preview-item"></div>
+                                <div class="grid-preview-item"></div>
+                                <div class="grid-preview-item"></div>
+                                <div class="grid-preview-item"></div>
+                                <div class="grid-preview-item"></div>
+                                <div class="grid-preview-item"></div>
+                                <div class="grid-preview-item"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Sorting Options -->
+                    <div class="settings-card">
+                        <h3><i class="fas fa-sort"></i> Default Sorting</h3>
+                        <div class="form-group">
+                            <label>Default Sort Order</label>
+                            <select id="defaultSort" class="form-control">
+                                <option value="featured">Featured</option>
+                                <option value="newest">Newest First</option>
+                                <option value="price-low">Price: Low to High</option>
+                                <option value="price-high">Price: High to Low</option>
+                                <option value="name-asc">Name: A to Z</option>
+                                <option value="name-desc">Name: Z to A</option>
+                                <option value="bestselling">Best Selling</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Available Sort Options</label>
+                            <small class="form-text" style="margin-bottom: 8px; display: block;">Select which sorting options to show customers</small>
+                            <div class="sorting-options" id="sortOptions">
+                                <label class="sort-chip">
+                                    <input type="checkbox" value="featured" style="display:none" checked>
+                                    <i class="fas fa-check"></i> Featured
+                                </label>
+                                <label class="sort-chip">
+                                    <input type="checkbox" value="newest" style="display:none" checked>
+                                    <i class="fas fa-check"></i> Newest
+                                </label>
+                                <label class="sort-chip">
+                                    <input type="checkbox" value="price-low" style="display:none" checked>
+                                    <i class="fas fa-check"></i> Price: Low to High
+                                </label>
+                                <label class="sort-chip">
+                                    <input type="checkbox" value="price-high" style="display:none" checked>
+                                    <i class="fas fa-check"></i> Price: High to Low
+                                </label>
+                                <label class="sort-chip">
+                                    <input type="checkbox" value="name-asc" style="display:none">
+                                    <i class="fas fa-check"></i> Name: A-Z
+                                </label>
+                                <label class="sort-chip">
+                                    <input type="checkbox" value="bestselling" style="display:none">
+                                    <i class="fas fa-check"></i> Best Selling
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Filter Settings -->
+                    <div class="settings-card">
+                        <h3><i class="fas fa-filter"></i> Filter Options</h3>
+                        <div class="toggle-group">
+                            <div class="toggle-label">
+                                <span>Show Category Filter</span>
+                                <small>Allow filtering by product category</small>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="showCategoryFilter" checked>
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                        <div class="toggle-group">
+                            <div class="toggle-label">
+                                <span>Show Price Filter</span>
+                                <small>Allow filtering by price range</small>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="showPriceFilter" checked>
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                        <div class="toggle-group">
+                            <div class="toggle-label">
+                                <span>Show Color Filter</span>
+                                <small>Allow filtering by color options</small>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="showColorFilter">
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                        <div class="toggle-group">
+                            <div class="toggle-label">
+                                <span>Show Search Box</span>
+                                <small>Show search input on shop page</small>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="showSearchBox" checked>
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                    </div>
+
+                    <!-- Announcement Bar -->
+                    <div class="settings-card">
+                        <h3><i class="fas fa-bullhorn"></i> Announcement Bar</h3>
+                        <div class="toggle-group">
+                            <div class="toggle-label">
+                                <span>Enable Announcement Bar</span>
+                                <small>Show promotional bar at top of page</small>
+                            </div>
+                            <label class="toggle-switch">
+                                <input type="checkbox" id="announcementEnabled" onchange="updateAnnouncementPreview()">
+                                <span class="toggle-slider"></span>
+                            </label>
+                        </div>
+                        <div class="form-group" style="margin-top: 16px;">
+                            <label>Announcement Text</label>
+                            <input type="text" id="announcementText" class="form-control" placeholder="Free shipping on orders over $99!" onchange="updateAnnouncementPreview()">
+                        </div>
+                        <div class="form-group">
+                            <label>Link URL (optional)</label>
+                            <input type="text" id="announcementLink" class="form-control" placeholder="/shop">
+                        </div>
+                        <div class="announcement-preview" id="announcementPreview" style="display: none;">
+                            <span id="announcementPreviewText">Free shipping on orders over $99!</span>
+                        </div>
+                    </div>
+
+                    <!-- SEO Settings -->
+                    <div class="settings-card">
+                        <h3><i class="fas fa-search"></i> SEO Settings</h3>
+                        <div class="form-group">
+                            <label>Shop Page Title</label>
+                            <input type="text" id="shopPageTitle" class="form-control" placeholder="Shop Window Blinds & Shades | Peekaboo Shades" onchange="updateSeoPreview()">
+                            <small class="form-text">Recommended: 50-60 characters</small>
+                        </div>
+                        <div class="form-group">
+                            <label>Shop Page Meta Description</label>
+                            <textarea id="shopPageDescription" class="form-control" rows="3" placeholder="Browse our collection of premium window blinds and shades..." onchange="updateSeoPreview()"></textarea>
+                            <small class="form-text">Recommended: 150-160 characters</small>
+                        </div>
+                        <div class="seo-preview">
+                            <div class="seo-preview-title" id="seoPreviewTitle">Shop Window Blinds & Shades | Peekaboo Shades</div>
+                            <div class="seo-preview-url">https://peekabooshades.com/shop</div>
+                            <div class="seo-preview-desc" id="seoPreviewDesc">Browse our collection of premium window blinds and shades. Custom sizes available with free shipping on orders over $99.</div>
+                        </div>
+                    </div>
+
+                    <!-- Display Options -->
+                    <div class="settings-card full-width">
+                        <h3><i class="fas fa-eye"></i> Display Options</h3>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 16px;">
+                            <div class="toggle-group">
+                                <div class="toggle-label">
+                                    <span>Show Product Prices</span>
+                                    <small>Display prices on product cards</small>
+                                </div>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="showPrices" checked>
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                            <div class="toggle-group">
+                                <div class="toggle-label">
+                                    <span>Show Sale Badges</span>
+                                    <small>Display "Sale" badges on discounted items</small>
+                                </div>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="showSaleBadges" checked>
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                            <div class="toggle-group">
+                                <div class="toggle-label">
+                                    <span>Show Quick View</span>
+                                    <small>Enable quick view modal on hover</small>
+                                </div>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="showQuickView">
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                            <div class="toggle-group">
+                                <div class="toggle-label">
+                                    <span>Show Stock Status</span>
+                                    <small>Display in-stock/out-of-stock status</small>
+                                </div>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="showStockStatus">
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                            <div class="toggle-group">
+                                <div class="toggle-label">
+                                    <span>Show Product Ratings</span>
+                                    <small>Display star ratings on product cards</small>
+                                </div>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="showRatings">
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                            <div class="toggle-group">
+                                <div class="toggle-label">
+                                    <span>Show Add to Cart Button</span>
+                                    <small>Quick add button on product cards</small>
+                                </div>
+                                <label class="toggle-switch">
+                                    <input type="checkbox" id="showAddToCart">
+                                    <span class="toggle-slider"></span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Page Actions -->
+                <div class="page-actions">
+                    <button class="btn btn-secondary" onclick="loadSettings()">
+                        <i class="fas fa-undo"></i> Reset Changes
+                    </button>
+                    <button class="btn btn-primary" onclick="saveSettings()">
+                        <i class="fas fa-save"></i> Save All Settings
+                    </button>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast"></div>
+
+    <script src="../js/admin.js"></script>
+    <script>
+        let shopSettings = {};
+        let announcementSettings = {};
+        let seoSettings = {};
+
+        // Initialize sort chip toggles
+        document.querySelectorAll('.sort-chip').forEach(chip => {
+            const checkbox = chip.querySelector('input[type="checkbox"]');
+            updateChipState(chip, checkbox.checked);
+
+            chip.addEventListener('click', () => {
+                checkbox.checked = !checkbox.checked;
+                updateChipState(chip, checkbox.checked);
+            });
+        });
+
+        function updateChipState(chip, checked) {
+            if (checked) {
+                chip.classList.add('active');
+            } else {
+                chip.classList.remove('active');
+            }
+        }
+
+        // Load settings
+        async function loadSettings() {
+            try {
+                const response = await fetch('/api/site-content');
+                if (response.ok) {
+                    const data = await response.json();
+                    shopSettings = data.shopPage || {};
+                    announcementSettings = data.announcements?.bar || {};
+                    seoSettings = data.seo || {};
+                }
+                populateForm();
+            } catch (error) {
+                console.error('Error loading settings:', error);
+                showToast('Error loading settings', 'error');
+            }
+        }
+
+        // Populate form with loaded data
+        function populateForm() {
+            // Shop Hero
+            document.getElementById('heroImage').value = shopSettings.heroImage || '';
+            document.getElementById('heroTitle').value = shopSettings.heroTitle || 'Shop All Products';
+            document.getElementById('heroSubtitle').value = shopSettings.heroSubtitle || '';
+            updateHeroPreview();
+
+            // Grid Settings
+            document.getElementById('productsPerPage').value = shopSettings.productsPerPage || 24;
+            document.getElementById('gridColumns').value = shopSettings.gridColumns || 4;
+            updateGridPreview();
+
+            // Sorting
+            document.getElementById('defaultSort').value = shopSettings.defaultSort || 'featured';
+            const enabledSorts = shopSettings.enabledSortOptions || ['featured', 'newest', 'price-low', 'price-high'];
+            document.querySelectorAll('#sortOptions input').forEach(input => {
+                input.checked = enabledSorts.includes(input.value);
+                updateChipState(input.parentElement, input.checked);
+            });
+
+            // Filters
+            document.getElementById('showCategoryFilter').checked = shopSettings.showCategoryFilter !== false;
+            document.getElementById('showPriceFilter').checked = shopSettings.showPriceFilter !== false;
+            document.getElementById('showColorFilter').checked = shopSettings.showColorFilter === true;
+            document.getElementById('showSearchBox').checked = shopSettings.showSearchBox !== false;
+
+            // Announcement
+            document.getElementById('announcementEnabled').checked = announcementSettings.enabled === true;
+            document.getElementById('announcementText').value = announcementSettings.text || '';
+            document.getElementById('announcementLink').value = announcementSettings.link || '';
+            updateAnnouncementPreview();
+
+            // SEO
+            document.getElementById('shopPageTitle').value = seoSettings.shopPageTitle || '';
+            document.getElementById('shopPageDescription').value = seoSettings.shopPageDescription || '';
+            updateSeoPreview();
+
+            // Display Options
+            document.getElementById('showPrices').checked = shopSettings.showPrices !== false;
+            document.getElementById('showSaleBadges').checked = shopSettings.showSaleBadges !== false;
+            document.getElementById('showQuickView').checked = shopSettings.showQuickView === true;
+            document.getElementById('showStockStatus').checked = shopSettings.showStockStatus === true;
+            document.getElementById('showRatings').checked = shopSettings.showRatings === true;
+            document.getElementById('showAddToCart').checked = shopSettings.showAddToCart === true;
+        }
+
+        // Update hero image preview
+        function updateHeroPreview() {
+            const url = document.getElementById('heroImage').value;
+            const preview = document.getElementById('heroImagePreview');
+
+            if (url) {
+                preview.innerHTML = `<img src="${escapeHtml(url)}" onerror="this.parentElement.innerHTML='<i class=\\'fas fa-exclamation-triangle\\'></i><span>Invalid image URL</span>'; this.parentElement.classList.add('empty');">`;
+                preview.classList.remove('empty');
+            } else {
+                preview.innerHTML = '<i class="fas fa-image"></i><span>Enter image URL below</span>';
+                preview.classList.add('empty');
+            }
+        }
+
+        // Update grid preview
+        function updateGridPreview() {
+            const cols = document.getElementById('gridColumns').value;
+            const preview = document.getElementById('gridPreview');
+            preview.className = `grid-preview cols-${cols}`;
+        }
+
+        // Update announcement preview
+        function updateAnnouncementPreview() {
+            const enabled = document.getElementById('announcementEnabled').checked;
+            const text = document.getElementById('announcementText').value || 'Your announcement text here';
+            const preview = document.getElementById('announcementPreview');
+            const previewText = document.getElementById('announcementPreviewText');
+
+            preview.style.display = enabled ? 'block' : 'none';
+            previewText.textContent = text;
+        }
+
+        // Update SEO preview
+        function updateSeoPreview() {
+            const title = document.getElementById('shopPageTitle').value || 'Shop Window Blinds & Shades | Peekaboo Shades';
+            const desc = document.getElementById('shopPageDescription').value || 'Browse our collection of premium window blinds and shades.';
+
+            document.getElementById('seoPreviewTitle').textContent = title;
+            document.getElementById('seoPreviewDesc').textContent = desc;
+        }
+
+        // Save all settings
+        async function saveSettings() {
+            const token = localStorage.getItem('adminToken');
+            if (!token) {
+                window.location.href = '../login.html';
+                return;
+            }
+
+            // Gather enabled sort options
+            const enabledSortOptions = [];
+            document.querySelectorAll('#sortOptions input:checked').forEach(input => {
+                enabledSortOptions.push(input.value);
+            });
+
+            const shopData = {
+                heroImage: document.getElementById('heroImage').value,
+                heroTitle: document.getElementById('heroTitle').value,
+                heroSubtitle: document.getElementById('heroSubtitle').value,
+                productsPerPage: parseInt(document.getElementById('productsPerPage').value),
+                gridColumns: parseInt(document.getElementById('gridColumns').value),
+                defaultSort: document.getElementById('defaultSort').value,
+                enabledSortOptions: enabledSortOptions,
+                showCategoryFilter: document.getElementById('showCategoryFilter').checked,
+                showPriceFilter: document.getElementById('showPriceFilter').checked,
+                showColorFilter: document.getElementById('showColorFilter').checked,
+                showSearchBox: document.getElementById('showSearchBox').checked,
+                showPrices: document.getElementById('showPrices').checked,
+                showSaleBadges: document.getElementById('showSaleBadges').checked,
+                showQuickView: document.getElementById('showQuickView').checked,
+                showStockStatus: document.getElementById('showStockStatus').checked,
+                showRatings: document.getElementById('showRatings').checked,
+                showAddToCart: document.getElementById('showAddToCart').checked
+            };
+
+            const announcementData = {
+                enabled: document.getElementById('announcementEnabled').checked,
+                text: document.getElementById('announcementText').value,
+                link: document.getElementById('announcementLink').value
+            };
+
+            const seoData = {
+                shopPageTitle: document.getElementById('shopPageTitle').value,
+                shopPageDescription: document.getElementById('shopPageDescription').value
+            };
+
+            try {
+                // Save shop settings
+                const shopResponse = await fetch('/api/admin/site-content/shop', {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify(shopData)
+                });
+
+                if (!shopResponse.ok) throw new Error('Failed to save shop settings');
+
+                // Save announcement
+                const announcementResponse = await fetch('/api/admin/site-content/announcements', {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify({ bar: announcementData })
+                });
+
+                if (!announcementResponse.ok) throw new Error('Failed to save announcement');
+
+                // Save SEO - we need to merge with existing seo settings
+                const currentSeo = await fetch('/api/site-content').then(r => r.json()).then(d => d.seo || {});
+                const mergedSeo = { ...currentSeo, ...seoData };
+
+                const seoResponse = await fetch('/api/admin/site-content/seo', {
+                    method: 'PUT',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': `Bearer ${token}`
+                    },
+                    body: JSON.stringify(mergedSeo)
+                });
+
+                if (!seoResponse.ok) throw new Error('Failed to save SEO settings');
+
+                showToast('All settings saved successfully!', 'success');
+            } catch (error) {
+                console.error('Error saving settings:', error);
+                showToast('Error saving settings: ' + error.message, 'error');
+            }
+        }
+
+        // Escape HTML
+        function escapeHtml(str) {
+            if (!str) return '';
+            return str.replace(/&/g, '&amp;')
+                      .replace(/</g, '&lt;')
+                      .replace(/>/g, '&gt;')
+                      .replace(/"/g, '&quot;');
+        }
+
+        // Toast notification
+        function showToast(message, type = 'info') {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.className = `toast ${type} show`;
+            setTimeout(() => {
+                toast.classList.remove('show');
+            }, 3000);
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+            loadSettings();
+        });
+    </script>
+</body>
+</html>

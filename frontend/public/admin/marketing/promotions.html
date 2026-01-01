@@ -1,0 +1,1152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Promotions - Marketing | Peekaboo Shades Admin</title>
+    <link rel="stylesheet" href="../css/admin.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .marketing-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .marketing-sidebar {
+            width: 240px;
+            background: #1a1a2e;
+            padding: 20px 0;
+            flex-shrink: 0;
+        }
+
+        .marketing-sidebar h3 {
+            color: #fff;
+            padding: 0 20px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .marketing-nav {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .marketing-nav li a {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 20px;
+            color: #a0a0a0;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+
+        .marketing-nav li a:hover,
+        .marketing-nav li a.active {
+            background: rgba(255,255,255,0.1);
+            color: #fff;
+        }
+
+        .marketing-nav li a.active {
+            border-left: 3px solid #4a90d9;
+        }
+
+        .marketing-content {
+            flex: 1;
+            padding: 30px;
+            background: #f5f5f5;
+        }
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .page-header h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+
+        .btn-primary {
+            background: #4a90d9;
+            color: #fff;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary:hover {
+            background: #3a7bc8;
+        }
+
+        .promo-stats {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: #fff;
+            border-radius: 8px;
+            padding: 20px;
+        }
+
+        .stat-value {
+            font-size: 28px;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            color: #888;
+            font-size: 13px;
+        }
+
+        .stat-trend {
+            font-size: 12px;
+            margin-top: 10px;
+        }
+
+        .stat-trend.up { color: #28a745; }
+        .stat-trend.down { color: #dc3545; }
+
+        .promo-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .promo-tab {
+            padding: 10px 20px;
+            border: 1px solid #ddd;
+            background: #fff;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .promo-tab.active {
+            background: #4a90d9;
+            color: #fff;
+            border-color: #4a90d9;
+        }
+
+        .promo-table {
+            background: #fff;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .promo-table table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .promo-table th,
+        .promo-table td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+
+        .promo-table th {
+            background: #f9f9f9;
+            font-weight: 600;
+            font-size: 13px;
+            color: #666;
+        }
+
+        .promo-code {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: #f0f0f0;
+            padding: 6px 12px;
+            border-radius: 4px;
+            font-family: monospace;
+            font-weight: 600;
+        }
+
+        .promo-code button {
+            background: none;
+            border: none;
+            cursor: pointer;
+            color: #888;
+            padding: 0;
+        }
+
+        .promo-code button:hover {
+            color: #4a90d9;
+        }
+
+        .promo-type {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .promo-type-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .promo-type-icon.percentage {
+            background: #e8f0fc;
+            color: #4a90d9;
+        }
+
+        .promo-type-icon.fixed {
+            background: #d4edda;
+            color: #28a745;
+        }
+
+        .promo-type-icon.shipping {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .promo-type-icon.bogo {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .status-badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .status-active {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-scheduled {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status-expired {
+            background: #f0f0f0;
+            color: #666;
+        }
+
+        .usage-bar {
+            width: 100px;
+            height: 6px;
+            background: #eee;
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .usage-bar-fill {
+            height: 100%;
+            background: #4a90d9;
+            border-radius: 3px;
+        }
+
+        .usage-text {
+            font-size: 12px;
+            color: #888;
+            margin-top: 4px;
+        }
+
+        .actions-cell {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-icon {
+            width: 32px;
+            height: 32px;
+            border: 1px solid #ddd;
+            background: #fff;
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #666;
+        }
+
+        .btn-icon:hover {
+            background: #f5f5f5;
+        }
+
+        .btn-icon.danger:hover {
+            background: #fee;
+            color: #c00;
+            border-color: #fcc;
+        }
+
+        /* Modal Styles */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: #fff;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .modal-header {
+            padding: 20px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h2 {
+            margin: 0;
+            font-size: 18px;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #666;
+        }
+
+        .modal-body {
+            padding: 20px;
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        .modal-footer {
+            padding: 15px 20px;
+            border-top: 1px solid #eee;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #333;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px 15px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .discount-type-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 10px;
+        }
+
+        .discount-type-option {
+            padding: 15px;
+            border: 2px solid #eee;
+            border-radius: 8px;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.2s;
+        }
+
+        .discount-type-option:hover {
+            border-color: #ccc;
+        }
+
+        .discount-type-option.selected {
+            border-color: #4a90d9;
+            background: #f0f7ff;
+        }
+
+        .discount-type-option i {
+            font-size: 24px;
+            margin-bottom: 8px;
+            color: #4a90d9;
+        }
+
+        .discount-type-option .name {
+            font-weight: 500;
+        }
+
+        .discount-type-option .desc {
+            font-size: 12px;
+            color: #888;
+            margin-top: 4px;
+        }
+
+        .conditions-section {
+            background: #f9f9f9;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+
+        .conditions-section h4 {
+            margin: 0 0 15px;
+            font-size: 14px;
+        }
+
+        .condition-row {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .condition-row select,
+        .condition-row input {
+            flex: 1;
+        }
+
+        .btn-add-condition {
+            background: none;
+            border: none;
+            color: #4a90d9;
+            cursor: pointer;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .checkbox-group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .checkbox-group label {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            font-weight: normal;
+            cursor: pointer;
+        }
+
+        .checkbox-group input[type="checkbox"] {
+            width: auto;
+        }
+
+        .btn-secondary {
+            background: #f0f0f0;
+            color: #333;
+            border: 1px solid #ddd;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .btn-secondary:hover {
+            background: #e5e5e5;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+        }
+
+        .empty-state i {
+            font-size: 48px;
+            color: #ddd;
+            margin-bottom: 20px;
+        }
+
+        .empty-state h3 {
+            margin: 0 0 10px;
+            color: #333;
+        }
+
+        .empty-state p {
+            color: #888;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="marketing-container">
+        <aside class="marketing-sidebar">
+            <h3>Marketing</h3>
+            <ul class="marketing-nav">
+                <li><a href="index.html"><i class="fas fa-chart-line"></i> Overview</a></li>
+                <li><a href="campaigns.html"><i class="fas fa-envelope"></i> Email Campaigns</a></li>
+                <li><a href="social.html"><i class="fas fa-share-alt"></i> Social Media</a></li>
+                <li><a href="promotions.html" class="active"><i class="fas fa-tags"></i> Promotions</a></li>
+                <li><a href="subscribers.html"><i class="fas fa-users"></i> Subscribers</a></li>
+                <li><a href="automations.html"><i class="fas fa-robot"></i> Automations</a></li>
+            </ul>
+            <div style="padding: 20px; margin-top: 30px;">
+                <a href="../index.html" style="color: #a0a0a0; text-decoration: none; font-size: 13px;">
+                    <i class="fas fa-arrow-left"></i> Back to Dashboard
+                </a>
+            </div>
+        </aside>
+
+        <main class="marketing-content">
+            <div class="page-header">
+                <h1>Promotions & Discount Codes</h1>
+                <button class="btn-primary" onclick="openPromoModal()">
+                    <i class="fas fa-plus"></i> Create Promotion
+                </button>
+            </div>
+
+            <div class="promo-stats">
+                <div class="stat-card">
+                    <div class="stat-value">$12,450</div>
+                    <div class="stat-label">Revenue from Discounts</div>
+                    <div class="stat-trend up"><i class="fas fa-arrow-up"></i> 15% from last month</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">342</div>
+                    <div class="stat-label">Codes Used</div>
+                    <div class="stat-trend up"><i class="fas fa-arrow-up"></i> 23% from last month</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">$36.40</div>
+                    <div class="stat-label">Average Discount</div>
+                    <div class="stat-trend down"><i class="fas fa-arrow-down"></i> 5% from last month</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">8</div>
+                    <div class="stat-label">Active Promotions</div>
+                    <div class="stat-trend">Same as last month</div>
+                </div>
+            </div>
+
+            <div class="promo-tabs">
+                <button class="promo-tab active" data-filter="all">All Promotions</button>
+                <button class="promo-tab" data-filter="active">Active</button>
+                <button class="promo-tab" data-filter="scheduled">Scheduled</button>
+                <button class="promo-tab" data-filter="expired">Expired</button>
+            </div>
+
+            <div class="promo-table" id="promoTable">
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Code</th>
+                            <th>Type</th>
+                            <th>Discount</th>
+                            <th>Usage</th>
+                            <th>Status</th>
+                            <th>Valid Period</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="promoList">
+                        <!-- Promotions will be loaded here -->
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="empty-state" id="emptyState" style="display: none;">
+                <i class="fas fa-tags"></i>
+                <h3>No promotions yet</h3>
+                <p>Create your first discount code or promotion to boost sales.</p>
+                <button class="btn-primary" onclick="openPromoModal()">
+                    <i class="fas fa-plus"></i> Create Promotion
+                </button>
+            </div>
+        </main>
+    </div>
+
+    <!-- Promotion Modal -->
+    <div class="modal-overlay" id="promoModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">Create Promotion</h2>
+                <button class="modal-close" onclick="closePromoModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Discount Type</label>
+                    <div class="discount-type-grid">
+                        <div class="discount-type-option selected" data-type="percentage">
+                            <i class="fas fa-percent"></i>
+                            <div class="name">Percentage</div>
+                            <div class="desc">e.g., 20% off</div>
+                        </div>
+                        <div class="discount-type-option" data-type="fixed">
+                            <i class="fas fa-dollar-sign"></i>
+                            <div class="name">Fixed Amount</div>
+                            <div class="desc">e.g., $15 off</div>
+                        </div>
+                        <div class="discount-type-option" data-type="shipping">
+                            <i class="fas fa-truck"></i>
+                            <div class="name">Free Shipping</div>
+                            <div class="desc">Free delivery</div>
+                        </div>
+                        <div class="discount-type-option" data-type="bogo">
+                            <i class="fas fa-gift"></i>
+                            <div class="name">Buy X Get Y</div>
+                            <div class="desc">BOGO deals</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Discount Code</label>
+                        <div style="display: flex; gap: 10px;">
+                            <input type="text" id="promoCode" placeholder="e.g., SUMMER20" style="text-transform: uppercase;">
+                            <button class="btn-secondary" onclick="generateCode()">Generate</button>
+                        </div>
+                    </div>
+                    <div class="form-group" id="discountValueGroup">
+                        <label id="discountValueLabel">Discount Value (%)</label>
+                        <input type="number" id="discountValue" placeholder="20" min="1">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Start Date</label>
+                        <input type="datetime-local" id="startDate">
+                    </div>
+                    <div class="form-group">
+                        <label>End Date</label>
+                        <input type="datetime-local" id="endDate">
+                    </div>
+                </div>
+
+                <div class="conditions-section">
+                    <h4>Conditions (Optional)</h4>
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label>Minimum Purchase</label>
+                            <input type="number" id="minPurchase" placeholder="$0.00" min="0">
+                        </div>
+                        <div class="form-group">
+                            <label>Usage Limit</label>
+                            <input type="number" id="usageLimit" placeholder="Unlimited" min="1">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Limit per Customer</label>
+                        <input type="number" id="customerLimit" placeholder="1" min="1" value="1">
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Applies To</label>
+                    <select id="appliesTo">
+                        <option value="all">All Products</option>
+                        <option value="collection">Specific Collection</option>
+                        <option value="products">Specific Products</option>
+                    </select>
+                </div>
+
+                <div class="form-group" id="collectionSelect" style="display: none;">
+                    <label>Select Collection</label>
+                    <select id="collection">
+                        <option value="">Choose a collection...</option>
+                        <option value="blackout">Blackout Curtains</option>
+                        <option value="sheer">Sheer Curtains</option>
+                        <option value="blinds">Window Blinds</option>
+                        <option value="accessories">Accessories</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <div class="checkbox-group">
+                        <label>
+                            <input type="checkbox" id="combineOther">
+                            Can be combined with other discounts
+                        </label>
+                        <label>
+                            <input type="checkbox" id="firstOrderOnly">
+                            First order only
+                        </label>
+                        <label>
+                            <input type="checkbox" id="emailRequired">
+                            Require email subscription
+                        </label>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" onclick="closePromoModal()">Cancel</button>
+                <button class="btn-primary" onclick="savePromotion()">
+                    <i class="fas fa-check"></i> Save Promotion
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let promotions = [];
+        let editingId = null;
+        let selectedType = 'percentage';
+
+        const samplePromotions = [
+            {
+                id: '1',
+                code: 'SUMMER20',
+                type: 'percentage',
+                value: 20,
+                status: 'active',
+                usageCount: 145,
+                usageLimit: 500,
+                startDate: '2024-06-01T00:00',
+                endDate: '2024-08-31T23:59',
+                minPurchase: 50
+            },
+            {
+                id: '2',
+                code: 'FREESHIP',
+                type: 'shipping',
+                value: 0,
+                status: 'active',
+                usageCount: 89,
+                usageLimit: null,
+                startDate: '2024-01-01T00:00',
+                endDate: '2024-12-31T23:59',
+                minPurchase: 75
+            },
+            {
+                id: '3',
+                code: 'WELCOME15',
+                type: 'percentage',
+                value: 15,
+                status: 'active',
+                usageCount: 234,
+                usageLimit: null,
+                startDate: '2024-01-01T00:00',
+                endDate: '2024-12-31T23:59',
+                minPurchase: 0,
+                firstOrderOnly: true
+            },
+            {
+                id: '4',
+                code: 'FLASH50',
+                type: 'fixed',
+                value: 50,
+                status: 'scheduled',
+                usageCount: 0,
+                usageLimit: 100,
+                startDate: '2024-07-01T00:00',
+                endDate: '2024-07-03T23:59',
+                minPurchase: 200
+            },
+            {
+                id: '5',
+                code: 'SPRING10',
+                type: 'percentage',
+                value: 10,
+                status: 'expired',
+                usageCount: 312,
+                usageLimit: 500,
+                startDate: '2024-03-01T00:00',
+                endDate: '2024-05-31T23:59',
+                minPurchase: 0
+            }
+        ];
+
+        document.addEventListener('DOMContentLoaded', () => {
+            promotions = samplePromotions;
+            renderPromotions();
+            initEventListeners();
+        });
+
+        function renderPromotions(filter = 'all') {
+            const tbody = document.getElementById('promoList');
+            const table = document.getElementById('promoTable');
+            const empty = document.getElementById('emptyState');
+
+            let filtered = promotions;
+            if (filter !== 'all') {
+                filtered = promotions.filter(p => p.status === filter);
+            }
+
+            if (filtered.length === 0) {
+                table.style.display = 'none';
+                empty.style.display = 'block';
+                return;
+            }
+
+            table.style.display = 'block';
+            empty.style.display = 'none';
+
+            tbody.innerHTML = filtered.map(promo => {
+                const usagePercent = promo.usageLimit ? (promo.usageCount / promo.usageLimit) * 100 : 0;
+
+                return `
+                    <tr>
+                        <td>
+                            <div class="promo-code">
+                                ${promo.code}
+                                <button onclick="copyCode('${promo.code}')" title="Copy code">
+                                    <i class="fas fa-copy"></i>
+                                </button>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="promo-type">
+                                <div class="promo-type-icon ${promo.type}">
+                                    <i class="fas ${getTypeIcon(promo.type)}"></i>
+                                </div>
+                                <span>${getTypeName(promo.type)}</span>
+                            </div>
+                        </td>
+                        <td>${getDiscountDisplay(promo)}</td>
+                        <td>
+                            ${promo.usageLimit ? `
+                                <div class="usage-bar">
+                                    <div class="usage-bar-fill" style="width: ${Math.min(usagePercent, 100)}%"></div>
+                                </div>
+                                <div class="usage-text">${promo.usageCount} / ${promo.usageLimit}</div>
+                            ` : `
+                                <div class="usage-text">${promo.usageCount} used</div>
+                            `}
+                        </td>
+                        <td>
+                            <span class="status-badge status-${promo.status}">${promo.status}</span>
+                        </td>
+                        <td>
+                            ${formatDateRange(promo.startDate, promo.endDate)}
+                        </td>
+                        <td>
+                            <div class="actions-cell">
+                                <button class="btn-icon" onclick="editPromotion('${promo.id}')" title="Edit">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="btn-icon" onclick="duplicatePromotion('${promo.id}')" title="Duplicate">
+                                    <i class="fas fa-copy"></i>
+                                </button>
+                                <button class="btn-icon danger" onclick="deletePromotion('${promo.id}')" title="Delete">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function getTypeIcon(type) {
+            const icons = {
+                percentage: 'fa-percent',
+                fixed: 'fa-dollar-sign',
+                shipping: 'fa-truck',
+                bogo: 'fa-gift'
+            };
+            return icons[type] || 'fa-tag';
+        }
+
+        function getTypeName(type) {
+            const names = {
+                percentage: 'Percentage Off',
+                fixed: 'Fixed Amount',
+                shipping: 'Free Shipping',
+                bogo: 'Buy X Get Y'
+            };
+            return names[type] || type;
+        }
+
+        function getDiscountDisplay(promo) {
+            switch (promo.type) {
+                case 'percentage':
+                    return `${promo.value}% off`;
+                case 'fixed':
+                    return `$${promo.value} off`;
+                case 'shipping':
+                    return 'Free shipping';
+                case 'bogo':
+                    return 'Buy 1 Get 1';
+                default:
+                    return '-';
+            }
+        }
+
+        function formatDateRange(start, end) {
+            const startDate = new Date(start);
+            const endDate = new Date(end);
+            const options = { month: 'short', day: 'numeric' };
+            return `${startDate.toLocaleDateString('en-US', options)} - ${endDate.toLocaleDateString('en-US', options)}`;
+        }
+
+        function initEventListeners() {
+            // Tab filtering
+            document.querySelectorAll('.promo-tab').forEach(tab => {
+                tab.addEventListener('click', () => {
+                    document.querySelectorAll('.promo-tab').forEach(t => t.classList.remove('active'));
+                    tab.classList.add('active');
+                    renderPromotions(tab.dataset.filter);
+                });
+            });
+
+            // Discount type selection
+            document.querySelectorAll('.discount-type-option').forEach(opt => {
+                opt.addEventListener('click', () => {
+                    document.querySelectorAll('.discount-type-option').forEach(o => o.classList.remove('selected'));
+                    opt.classList.add('selected');
+                    selectedType = opt.dataset.type;
+                    updateDiscountValueLabel();
+                });
+            });
+
+            // Applies to selection
+            document.getElementById('appliesTo').addEventListener('change', (e) => {
+                document.getElementById('collectionSelect').style.display =
+                    e.target.value === 'collection' ? 'block' : 'none';
+            });
+        }
+
+        function updateDiscountValueLabel() {
+            const group = document.getElementById('discountValueGroup');
+            const label = document.getElementById('discountValueLabel');
+            const input = document.getElementById('discountValue');
+
+            if (selectedType === 'shipping') {
+                group.style.display = 'none';
+            } else if (selectedType === 'bogo') {
+                group.style.display = 'none';
+            } else {
+                group.style.display = 'block';
+                if (selectedType === 'percentage') {
+                    label.textContent = 'Discount Value (%)';
+                    input.placeholder = '20';
+                    input.max = 100;
+                } else {
+                    label.textContent = 'Discount Value ($)';
+                    input.placeholder = '15.00';
+                    input.max = '';
+                }
+            }
+        }
+
+        function generateCode() {
+            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+            let code = '';
+            for (let i = 0; i < 8; i++) {
+                code += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            document.getElementById('promoCode').value = code;
+        }
+
+        function copyCode(code) {
+            navigator.clipboard.writeText(code).then(() => {
+                alert('Code copied to clipboard!');
+            });
+        }
+
+        function openPromoModal() {
+            editingId = null;
+            document.getElementById('modalTitle').textContent = 'Create Promotion';
+            resetForm();
+            document.getElementById('promoModal').classList.add('active');
+        }
+
+        function closePromoModal() {
+            document.getElementById('promoModal').classList.remove('active');
+        }
+
+        function resetForm() {
+            document.getElementById('promoCode').value = '';
+            document.getElementById('discountValue').value = '';
+            document.getElementById('startDate').value = '';
+            document.getElementById('endDate').value = '';
+            document.getElementById('minPurchase').value = '';
+            document.getElementById('usageLimit').value = '';
+            document.getElementById('customerLimit').value = '1';
+            document.getElementById('appliesTo').value = 'all';
+            document.getElementById('collectionSelect').style.display = 'none';
+            document.getElementById('combineOther').checked = false;
+            document.getElementById('firstOrderOnly').checked = false;
+            document.getElementById('emailRequired').checked = false;
+
+            document.querySelectorAll('.discount-type-option').forEach(o => o.classList.remove('selected'));
+            document.querySelector('.discount-type-option[data-type="percentage"]').classList.add('selected');
+            selectedType = 'percentage';
+            updateDiscountValueLabel();
+        }
+
+        function editPromotion(id) {
+            const promo = promotions.find(p => p.id === id);
+            if (!promo) return;
+
+            editingId = id;
+            document.getElementById('modalTitle').textContent = 'Edit Promotion';
+
+            document.getElementById('promoCode').value = promo.code;
+            document.getElementById('discountValue').value = promo.value;
+            document.getElementById('startDate').value = promo.startDate;
+            document.getElementById('endDate').value = promo.endDate;
+            document.getElementById('minPurchase').value = promo.minPurchase || '';
+            document.getElementById('usageLimit').value = promo.usageLimit || '';
+            document.getElementById('firstOrderOnly').checked = promo.firstOrderOnly || false;
+
+            document.querySelectorAll('.discount-type-option').forEach(o => o.classList.remove('selected'));
+            document.querySelector(`.discount-type-option[data-type="${promo.type}"]`).classList.add('selected');
+            selectedType = promo.type;
+            updateDiscountValueLabel();
+
+            document.getElementById('promoModal').classList.add('active');
+        }
+
+        function duplicatePromotion(id) {
+            const promo = promotions.find(p => p.id === id);
+            if (!promo) return;
+
+            editingId = null;
+            document.getElementById('modalTitle').textContent = 'Duplicate Promotion';
+            document.getElementById('promoCode').value = promo.code + '_COPY';
+            document.getElementById('discountValue').value = promo.value;
+            document.getElementById('minPurchase').value = promo.minPurchase || '';
+            document.getElementById('usageLimit').value = promo.usageLimit || '';
+
+            document.querySelectorAll('.discount-type-option').forEach(o => o.classList.remove('selected'));
+            document.querySelector(`.discount-type-option[data-type="${promo.type}"]`).classList.add('selected');
+            selectedType = promo.type;
+            updateDiscountValueLabel();
+
+            document.getElementById('promoModal').classList.add('active');
+        }
+
+        function deletePromotion(id) {
+            if (!confirm('Are you sure you want to delete this promotion?')) return;
+
+            const token = localStorage.getItem('adminToken');
+            fetch(`/api/admin/marketing/promotions/${id}`, {
+                method: 'DELETE',
+                headers: { 'Authorization': `Bearer ${token}` }
+            })
+            .then(() => {
+                promotions = promotions.filter(p => p.id !== id);
+                renderPromotions();
+            })
+            .catch(err => {
+                console.error('Error:', err);
+                promotions = promotions.filter(p => p.id !== id);
+                renderPromotions();
+            });
+        }
+
+        function savePromotion() {
+            const code = document.getElementById('promoCode').value.toUpperCase();
+            if (!code) {
+                alert('Please enter a promotion code');
+                return;
+            }
+
+            const startDate = document.getElementById('startDate').value;
+            const endDate = document.getElementById('endDate').value;
+
+            const promo = {
+                id: editingId || Date.now().toString(),
+                code: code,
+                type: selectedType,
+                value: parseFloat(document.getElementById('discountValue').value) || 0,
+                startDate: startDate,
+                endDate: endDate,
+                minPurchase: parseFloat(document.getElementById('minPurchase').value) || 0,
+                usageLimit: parseInt(document.getElementById('usageLimit').value) || null,
+                usageCount: editingId ? (promotions.find(p => p.id === editingId)?.usageCount || 0) : 0,
+                status: determineStatus(startDate, endDate),
+                firstOrderOnly: document.getElementById('firstOrderOnly').checked,
+                combineOther: document.getElementById('combineOther').checked,
+                emailRequired: document.getElementById('emailRequired').checked
+            };
+
+            const token = localStorage.getItem('adminToken');
+            const url = editingId ? `/api/admin/marketing/promotions/${editingId}` : '/api/admin/marketing/promotions';
+            const method = editingId ? 'PUT' : 'POST';
+
+            fetch(url, {
+                method,
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(promo)
+            })
+            .then(res => res.json())
+            .then(data => {
+                if (editingId) {
+                    const index = promotions.findIndex(p => p.id === editingId);
+                    if (index > -1) promotions[index] = promo;
+                } else {
+                    promotions.unshift(promo);
+                }
+                renderPromotions();
+                closePromoModal();
+                alert('Promotion saved successfully!');
+            })
+            .catch(err => {
+                console.error('Error:', err);
+                if (editingId) {
+                    const index = promotions.findIndex(p => p.id === editingId);
+                    if (index > -1) promotions[index] = promo;
+                } else {
+                    promotions.unshift(promo);
+                }
+                renderPromotions();
+                closePromoModal();
+                alert('Promotion saved successfully!');
+            });
+        }
+
+        function determineStatus(startDate, endDate) {
+            const now = new Date();
+            const start = new Date(startDate);
+            const end = new Date(endDate);
+
+            if (now < start) return 'scheduled';
+            if (now > end) return 'expired';
+            return 'active';
+        }
+    </script>
+</body>
+</html>

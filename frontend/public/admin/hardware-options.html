@@ -1,0 +1,859 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hardware Options - Peekaboo Shades Admin</title>
+  <link rel="stylesheet" href="css/admin.css">
+  <link rel="icon" type="image/png" href="/images/favicon.png">
+  <style>
+    .tabs {
+      display: flex;
+      gap: 4px;
+      background: var(--admin-bg);
+      padding: 4px;
+      border-radius: 8px;
+      margin-bottom: 20px;
+      overflow-x: auto;
+      flex-wrap: wrap;
+    }
+    .tab-btn {
+      padding: 10px 16px;
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--admin-text-secondary);
+      border-radius: 6px;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+    .tab-btn:hover {
+      background: var(--admin-card);
+      color: var(--admin-text);
+    }
+    .tab-btn.active {
+      background: var(--admin-primary);
+      color: white;
+    }
+    .tab-content {
+      display: none;
+    }
+    .tab-content.active {
+      display: block;
+    }
+    .option-image {
+      width: 60px;
+      height: 60px;
+      object-fit: contain;
+      border-radius: 6px;
+      border: 1px solid var(--admin-border);
+      background: #f9fafb;
+      padding: 4px;
+    }
+    .price-cell {
+      font-weight: 600;
+      color: var(--admin-success);
+    }
+    .price-cell.zero {
+      color: var(--admin-text-secondary);
+    }
+    .image-preview {
+      width: 100%;
+      max-width: 150px;
+      height: 100px;
+      border: 2px dashed var(--admin-border);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-top: 8px;
+      overflow: hidden;
+      background: #f9fafb;
+    }
+    .image-preview img {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+    }
+    .image-preview-placeholder {
+      color: var(--admin-text-secondary);
+      font-size: 12px;
+      text-align: center;
+    }
+    .category-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+    .category-title {
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--admin-text);
+    }
+    .category-count {
+      font-size: 14px;
+      color: var(--admin-text-secondary);
+      font-weight: normal;
+    }
+  </style>
+</head>
+<body>
+  <div class="admin-layout">
+    <!-- Sidebar -->
+    <aside class="admin-sidebar">
+      <div class="sidebar-header">
+        <a href="/admin/" class="sidebar-logo">
+          <img src="/images/logo.png" alt="Logo" onerror="this.style.display='none'">
+          <span>Peekaboo Shades</span>
+        </a>
+      </div>
+
+      <nav class="sidebar-nav">
+        <div class="nav-section">
+          <a href="/admin/" class="nav-item">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+            </svg>
+            <span>Dashboard</span>
+          </a>
+        </div>
+
+        <div class="nav-section">
+          <div class="nav-section-title">Catalog</div>
+          <a href="/admin/products.html" class="nav-item">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+            </svg>
+            <span>Products</span>
+          </a>
+          <a href="/admin/categories.html" class="nav-item">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+            </svg>
+            <span>Categories</span>
+          </a>
+          <a href="/admin/fabrics.html" class="nav-item">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
+            <span>Fabrics</span>
+          </a>
+          <a href="/admin/hardware-options.html" class="nav-item active">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+            <span>Hardware Options</span>
+          </a>
+          <a href="/admin/accessories.html" class="nav-item">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 14v6m-3-3h6M6 10h2a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v2a2 2 0 002 2zm10 0h2a2 2 0 002-2V6a2 2 0 00-2-2h-2a2 2 0 00-2 2v2a2 2 0 002 2zM6 20h2a2 2 0 002-2v-2a2 2 0 00-2-2H6a2 2 0 00-2 2v2a2 2 0 002 2z" />
+            </svg>
+            <span>Accessories</span>
+          </a>
+        </div>
+
+        <div class="nav-section">
+          <div class="nav-section-title">Sales</div>
+          <a href="/admin/orders.html" class="nav-item">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+            </svg>
+            <span>Orders</span>
+          </a>
+          <a href="/admin/quotes.html" class="nav-item">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+            <span>Quotes</span>
+          </a>
+        </div>
+
+        <div class="nav-section">
+          <div class="nav-section-title">Content</div>
+          <a href="/admin/product-content.html" class="nav-item">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
+            <span>Product Content</span>
+          </a>
+          <a href="/admin/product-catalog.html" class="nav-item">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+            <span>Product Catalog</span>
+          </a>
+          <a href="/admin/faqs.html" class="nav-item">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <span>FAQs</span>
+          </a>
+        </div>
+
+        <div class="nav-section">
+          <div class="nav-section-title">Settings</div>
+          <a href="/admin/settings.html" class="nav-item">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+            <span>Settings</span>
+          </a>
+        </div>
+      </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="admin-main">
+      <!-- Header -->
+      <header class="admin-header">
+        <div class="header-left">
+          <div class="breadcrumb">
+            <a href="/admin/">Dashboard</a>
+            <span class="breadcrumb-separator">/</span>
+            <span class="breadcrumb-current">Hardware Options</span>
+          </div>
+        </div>
+        <div class="header-right">
+          <div class="dropdown">
+            <div class="header-profile">
+              <div class="profile-avatar">A</div>
+              <span class="profile-name">Admin</span>
+            </div>
+            <div class="dropdown-menu profile-dropdown">
+              <a href="/admin/settings.html" class="dropdown-item">Profile</a>
+              <div class="dropdown-divider"></div>
+              <a href="#" class="dropdown-item danger" onclick="Admin.AuthAPI.logout(); return false;">Logout</a>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <!-- Page Content -->
+      <div class="admin-content">
+        <div class="page-header">
+          <h1 class="page-title">Hardware Options</h1>
+        </div>
+
+        <!-- Tabs -->
+        <div class="tabs">
+          <button class="tab-btn active" data-tab="mountType" onclick="switchTab('mountType')">Mount Type</button>
+          <button class="tab-btn" data-tab="controlType" onclick="switchTab('controlType')">Control Type</button>
+          <button class="tab-btn" data-tab="controlSystem" onclick="switchTab('controlSystem')">Control System</button>
+          <button class="tab-btn" data-tab="valanceType" onclick="switchTab('valanceType')">Valance Type</button>
+          <button class="tab-btn" data-tab="bottomRail" onclick="switchTab('bottomRail')">Bottom Rail</button>
+          <button class="tab-btn" data-tab="rollerType" onclick="switchTab('rollerType')">Roller Type</button>
+          <button class="tab-btn" data-tab="sideCover" onclick="switchTab('sideCover')">Side Cover</button>
+          <button class="tab-btn" data-tab="motorType" onclick="switchTab('motorType')">Motor Type</button>
+          <button class="tab-btn" data-tab="remoteType" onclick="switchTab('remoteType')">Remote Type</button>
+          <button class="tab-btn" data-tab="solarType" onclick="switchTab('solarType')">Solar Type</button>
+          <button class="tab-btn" data-tab="chainLocation" onclick="switchTab('chainLocation')">Chain Location</button>
+          <button class="tab-btn" data-tab="motorLocation" onclick="switchTab('motorLocation')">Motor Location</button>
+        </div>
+
+        <!-- Tab Content -->
+        <div id="tab-content-container">
+          <!-- Content will be dynamically loaded -->
+          <div class="card">
+            <div style="text-align: center; padding: 60px;">
+              <div class="spinner"></div>
+              <p style="margin-top: 16px; color: var(--admin-text-secondary);">Loading hardware options...</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Option Modal -->
+  <!-- Hardware Option Modal - Enterprise Edition -->
+  <div class="modal-overlay" id="option-modal">
+    <div class="modal" style="max-width: 700px; max-height: 90vh; overflow-y: auto;">
+      <div class="modal-header">
+        <h3 class="modal-title" id="modal-title">Add Option</h3>
+        <button class="modal-close" onclick="closeModal()">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+      <form id="option-form">
+        <div class="modal-body">
+          <!-- Tabs -->
+          <div class="form-tabs" style="display: flex; gap: 0; margin-bottom: 20px; border-bottom: 1px solid var(--admin-border);">
+            <button type="button" class="form-tab active" data-tab="basic" onclick="switchModalTab('basic')" style="padding: 12px 20px; border: none; background: none; cursor: pointer; font-weight: 500; border-bottom: 2px solid var(--admin-primary); color: var(--admin-primary);">Basic Info</button>
+            <button type="button" class="form-tab" data-tab="details" onclick="switchModalTab('details')" style="padding: 12px 20px; border: none; background: none; cursor: pointer; font-weight: 500; border-bottom: 2px solid transparent; color: var(--admin-text-secondary);">Details & Pricing</button>
+            <button type="button" class="form-tab" data-tab="seo" onclick="switchModalTab('seo')" style="padding: 12px 20px; border: none; background: none; cursor: pointer; font-weight: 500; border-bottom: 2px solid transparent; color: var(--admin-text-secondary);">SEO</button>
+          </div>
+
+          <!-- Basic Info Tab -->
+          <div class="modal-tab-content" id="modal-tab-basic">
+            <div class="form-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+              <div class="form-group">
+                <label class="form-label" for="opt-value">Value *</label>
+                <input type="text" class="form-input" id="opt-value" required placeholder="e.g., inside">
+                <p class="form-help">Internal identifier (no spaces)</p>
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="opt-price">Base Price ($)</label>
+                <input type="number" class="form-input" id="opt-price" value="0" min="0" step="0.01">
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="opt-label">Display Label *</label>
+              <input type="text" class="form-input" id="opt-label" required placeholder="e.g., Inside Mount">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="opt-description">Short Description</label>
+              <textarea class="form-input" id="opt-description" rows="2" placeholder="Brief description of this option..." style="resize: vertical;"></textarea>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Option Image</label>
+              <div class="image-upload-area" style="border: 2px dashed var(--admin-border); border-radius: 8px; padding: 20px; text-align: center; cursor: pointer; background: #f9fafb;" ondragover="handleHwDragOver(event)" ondragleave="handleHwDragLeave(event)" ondrop="handleHwDrop(event)" onclick="document.getElementById('opt-image-file').click()">
+                <input type="file" id="opt-image-file" accept="image/*" style="display: none;" onchange="handleHwFileSelect(event)">
+                <div id="hw-upload-placeholder">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="color: var(--admin-text-secondary); margin-bottom: 8px;">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                  </svg>
+                  <p style="color: var(--admin-text-secondary); margin: 0; font-size: 13px;">Drag & drop or click to upload</p>
+                </div>
+                <div id="hw-image-preview" style="display: none;">
+                  <img id="hw-preview-img" src="" alt="Preview" style="max-width: 120px; max-height: 80px; object-fit: contain;">
+                </div>
+              </div>
+              <input type="text" class="form-input" id="opt-image" placeholder="Or enter image URL directly" style="margin-top: 10px;" oninput="updateImagePreview()">
+            </div>
+            <div class="form-row" style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px;">
+              <div class="form-group">
+                <label class="form-label" for="opt-order">Sort Order</label>
+                <input type="number" class="form-input" id="opt-order" value="1" min="1">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Status</label>
+                <div style="padding-top: 8px;">
+                  <label class="status-toggle">
+                    <input type="checkbox" id="opt-active" checked>
+                    <span class="slider"></span>
+                  </label>
+                  <span style="margin-left: 8px; color: var(--admin-text-secondary); font-size: 13px;" id="opt-status-label">Active</span>
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Popular</label>
+                <div style="padding-top: 8px;">
+                  <label class="status-toggle">
+                    <input type="checkbox" id="opt-popular">
+                    <span class="slider"></span>
+                  </label>
+                  <span style="margin-left: 8px; color: var(--admin-text-secondary); font-size: 13px;" id="opt-popular-label">No</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Details & Pricing Tab -->
+          <div class="modal-tab-content" id="modal-tab-details" style="display: none;">
+            <div class="form-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+              <div class="form-group">
+                <label class="form-label" for="opt-sku">SKU / Part Number</label>
+                <input type="text" class="form-input" id="opt-sku" placeholder="e.g., HW-MT-001">
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="opt-cost">Cost Price ($)</label>
+                <input type="number" class="form-input" id="opt-cost" value="0" min="0" step="0.01" placeholder="Your cost">
+              </div>
+            </div>
+            <div class="form-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+              <div class="form-group">
+                <label class="form-label" for="opt-compare-price">Compare at Price ($)</label>
+                <input type="number" class="form-input" id="opt-compare-price" value="0" min="0" step="0.01" placeholder="Original price for strikethrough">
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="opt-stock">Stock Status</label>
+                <select class="form-input" id="opt-stock">
+                  <option value="in-stock">In Stock</option>
+                  <option value="low-stock">Low Stock</option>
+                  <option value="out-of-stock">Out of Stock</option>
+                  <option value="pre-order">Pre-Order</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="opt-full-description">Full Description</label>
+              <textarea class="form-input" id="opt-full-description" rows="3" placeholder="Detailed description for product page..." style="resize: vertical;"></textarea>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="opt-features">Key Features</label>
+              <textarea class="form-input" id="opt-features" rows="2" placeholder="One feature per line..." style="resize: vertical;"></textarea>
+              <p class="form-help">Enter each feature on a new line</p>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="opt-specs">Specifications</label>
+              <textarea class="form-input" id="opt-specs" rows="2" placeholder="Material: Aluminum&#10;Weight: 0.5 lbs" style="resize: vertical;"></textarea>
+              <p class="form-help">Format: Label: Value (one per line)</p>
+            </div>
+          </div>
+
+          <!-- SEO Tab -->
+          <div class="modal-tab-content" id="modal-tab-seo" style="display: none;">
+            <div class="form-group">
+              <label class="form-label" for="opt-meta-title">SEO Title</label>
+              <input type="text" class="form-input" id="opt-meta-title" placeholder="e.g., Inside Mount Hardware Option | Peekaboo Shades" maxlength="60">
+              <p class="form-help"><span id="hw-title-count">0</span>/60 characters</p>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="opt-meta-desc">Meta Description</label>
+              <textarea class="form-input" id="opt-meta-desc" rows="3" placeholder="Description for search engines..." maxlength="160" style="resize: vertical;"></textarea>
+              <p class="form-help"><span id="hw-desc-count">0</span>/160 characters</p>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="opt-keywords">Keywords</label>
+              <input type="text" class="form-input" id="opt-keywords" placeholder="e.g., inside mount, window hardware, blinds mounting">
+              <p class="form-help">Separate keywords with commas</p>
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="opt-alt-text">Image Alt Text</label>
+              <input type="text" class="form-input" id="opt-alt-text" placeholder="Descriptive text for the image">
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="save-btn">Save Option</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="js/admin.js"></script>
+  <script>
+    // Require authentication
+    if (!Admin.Auth.requireAuth()) {
+      // Will redirect
+    } else {
+      loadHardwareOptions('mountType');
+    }
+
+    const categoryLabels = {
+      mountType: 'Mount Type',
+      controlType: 'Control Type',
+      controlSystem: 'Control System',
+      valanceType: 'Valance Type',
+      bottomRail: 'Bottom Rail',
+      rollerType: 'Roller Type',
+      sideCover: 'Side Cover',
+      motorType: 'Motor Type',
+      remoteType: 'Remote Type',
+      solarType: 'Solar Type',
+      chainLocation: 'Chain Location',
+      motorLocation: 'Motor Location'
+    };
+
+    let currentCategory = 'mountType';
+    let allOptions = [];
+    let editingId = null;
+
+    function switchTab(category) {
+      currentCategory = category;
+
+      // Update active tab
+      document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.tab === category);
+      });
+
+      loadHardwareOptions(category);
+    }
+
+    async function loadHardwareOptions(category) {
+      const container = document.getElementById('tab-content-container');
+      container.innerHTML = `
+        <div class="card">
+          <div style="text-align: center; padding: 60px;">
+            <div class="spinner"></div>
+            <p style="margin-top: 16px; color: var(--admin-text-secondary);">Loading ${categoryLabels[category]}...</p>
+          </div>
+        </div>
+      `;
+
+      try {
+        const data = await Admin.HardwareAPI.getCategory(category);
+        if (data.success) {
+          allOptions = data.options || [];
+          renderOptions(category, allOptions);
+        }
+      } catch (error) {
+        container.innerHTML = `
+          <div class="card">
+            <div style="text-align: center; padding: 60px; color: var(--admin-danger);">
+              Failed to load ${categoryLabels[category]}
+            </div>
+          </div>
+        `;
+        Admin.Toast.error('Failed to load hardware options');
+      }
+    }
+
+    function renderOptions(category, options) {
+      const container = document.getElementById('tab-content-container');
+      const label = categoryLabels[category];
+
+      if (!options || options.length === 0) {
+        container.innerHTML = `
+          <div class="card">
+            <div class="category-header">
+              <h2 class="category-title">${label}</h2>
+              <button class="btn btn-primary" onclick="openModal()">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                </svg>
+                Add Option
+              </button>
+            </div>
+            <div class="empty-state" style="padding: 60px;">
+              <svg xmlns="http://www.w3.org/2000/svg" class="empty-state-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+              </svg>
+              <h3 class="empty-state-title">No options yet</h3>
+              <p class="empty-state-text">Add your first ${label.toLowerCase()} option</p>
+              <button class="btn btn-primary" onclick="openModal()">Add Option</button>
+            </div>
+          </div>
+        `;
+        return;
+      }
+
+      // Sort by sortOrder
+      options.sort((a, b) => (a.sortOrder || 999) - (b.sortOrder || 999));
+
+      container.innerHTML = `
+        <div class="card">
+          <div class="category-header">
+            <h2 class="category-title">${label} <span class="category-count">(${options.length} options)</span></h2>
+            <button class="btn btn-primary" onclick="openModal()">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+              </svg>
+              Add Option
+            </button>
+          </div>
+          <div class="table-container">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th style="width: 80px;">Image</th>
+                  <th>Value</th>
+                  <th>Label</th>
+                  <th style="width: 100px;">Price</th>
+                  <th style="width: 80px;">Order</th>
+                  <th style="width: 120px;">Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${options.map(opt => `
+                  <tr data-id="${opt.id}">
+                    <td>
+                      ${opt.imageUrl ?
+                        `<img src="${opt.imageUrl}" alt="${Admin.Utils.escapeHtml(opt.label)}" class="option-image" onerror="this.src='/images/placeholder.png'">` :
+                        `<div class="option-image" style="display: flex; align-items: center; justify-content: center; color: var(--admin-text-secondary); font-size: 11px;">No image</div>`
+                      }
+                    </td>
+                    <td><code style="background: #f3f4f6; padding: 2px 6px; border-radius: 4px;">${Admin.Utils.escapeHtml(opt.value)}</code></td>
+                    <td style="font-weight: 500;">${Admin.Utils.escapeHtml(opt.label)}</td>
+                    <td class="price-cell ${opt.price === 0 ? 'zero' : ''}">${opt.price === 0 ? 'Free' : Admin.Utils.formatCurrency(opt.price)}</td>
+                    <td style="text-align: center;">${opt.sortOrder || '-'}</td>
+                    <td>
+                      <div class="action-buttons">
+                        <button class="action-btn" title="Edit" onclick="editOption('${opt.id}')">
+                          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                          </svg>
+                        </button>
+                        <button class="action-btn danger" title="Delete" onclick="deleteOption('${opt.id}', '${Admin.Utils.escapeHtml(opt.label)}')">
+                          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                          </svg>
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      `;
+    }
+
+    function updateImagePreview() {
+      const imageUrl = document.getElementById('opt-image').value;
+      const preview = document.getElementById('image-preview');
+
+      if (imageUrl) {
+        preview.innerHTML = `<img src="${imageUrl}" alt="Preview" onerror="this.parentElement.innerHTML='<span class=\\'image-preview-placeholder\\'>Invalid URL</span>'">`;
+      } else {
+        preview.innerHTML = '<span class="image-preview-placeholder">Image preview</span>';
+      }
+    }
+
+    // ============================================
+    // MODAL TAB SWITCHING
+    // ============================================
+    function switchModalTab(tabName) {
+      document.querySelectorAll('.form-tab').forEach(tab => {
+        const isActive = tab.dataset.tab === tabName;
+        tab.style.borderBottomColor = isActive ? 'var(--admin-primary)' : 'transparent';
+        tab.style.color = isActive ? 'var(--admin-primary)' : 'var(--admin-text-secondary)';
+      });
+      document.querySelectorAll('.modal-tab-content').forEach(content => {
+        content.style.display = content.id === `modal-tab-${tabName}` ? 'block' : 'none';
+      });
+    }
+
+    // ============================================
+    // IMAGE UPLOAD FOR HARDWARE
+    // ============================================
+    let hwPendingFile = null;
+
+    function handleHwDragOver(e) {
+      e.preventDefault();
+      e.currentTarget.style.borderColor = 'var(--admin-primary)';
+      e.currentTarget.style.background = '#f0f7ff';
+    }
+
+    function handleHwDragLeave(e) {
+      e.preventDefault();
+      e.currentTarget.style.borderColor = 'var(--admin-border)';
+      e.currentTarget.style.background = '#f9fafb';
+    }
+
+    function handleHwDrop(e) {
+      e.preventDefault();
+      handleHwDragLeave(e);
+      if (e.dataTransfer.files.length > 0) {
+        processHwFile(e.dataTransfer.files[0]);
+      }
+    }
+
+    function handleHwFileSelect(e) {
+      if (e.target.files.length > 0) {
+        processHwFile(e.target.files[0]);
+      }
+    }
+
+    function processHwFile(file) {
+      if (!file.type.startsWith('image/')) {
+        Admin.Toast.error('Please select an image file');
+        return;
+      }
+      hwPendingFile = file;
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        document.getElementById('hw-upload-placeholder').style.display = 'none';
+        document.getElementById('hw-image-preview').style.display = 'block';
+        document.getElementById('hw-preview-img').src = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    async function uploadHwImage() {
+      if (!hwPendingFile) return null;
+      try {
+        const result = await Admin.UploadAPI.upload(hwPendingFile, 'hardware');
+        hwPendingFile = null;
+        return result.url;
+      } catch (error) {
+        Admin.Toast.error('Failed to upload image');
+        return null;
+      }
+    }
+
+    // ============================================
+    // SEO CHARACTER COUNTS
+    // ============================================
+    document.getElementById('opt-meta-title')?.addEventListener('input', function() {
+      document.getElementById('hw-title-count').textContent = this.value.length;
+    });
+    document.getElementById('opt-meta-desc')?.addEventListener('input', function() {
+      document.getElementById('hw-desc-count').textContent = this.value.length;
+    });
+
+    // ============================================
+    // STATUS TOGGLE LABELS
+    // ============================================
+    document.getElementById('opt-active')?.addEventListener('change', function() {
+      document.getElementById('opt-status-label').textContent = this.checked ? 'Active' : 'Inactive';
+    });
+    document.getElementById('opt-popular')?.addEventListener('change', function() {
+      document.getElementById('opt-popular-label').textContent = this.checked ? 'Yes' : 'No';
+    });
+
+    // ============================================
+    // MODAL FUNCTIONS
+    // ============================================
+    function openModal(option = null) {
+      editingId = option ? option.id : null;
+      const label = categoryLabels[currentCategory];
+      document.getElementById('modal-title').textContent = option ? `Edit ${label}` : `Add ${label}`;
+      document.getElementById('save-btn').textContent = option ? 'Update Option' : 'Save Option';
+
+      // Reset to first tab
+      switchModalTab('basic');
+      hwPendingFile = null;
+
+      // Basic Info
+      document.getElementById('opt-value').value = option?.value || '';
+      document.getElementById('opt-label').value = option?.label || '';
+      document.getElementById('opt-image').value = option?.imageUrl || '';
+      document.getElementById('opt-price').value = option?.price || 0;
+      document.getElementById('opt-order').value = option?.sortOrder || (allOptions.length + 1);
+      document.getElementById('opt-description').value = option?.description || '';
+      document.getElementById('opt-active').checked = option?.isActive !== false;
+      document.getElementById('opt-popular').checked = option?.isPopular || false;
+
+      // Details & Pricing
+      document.getElementById('opt-sku').value = option?.sku || '';
+      document.getElementById('opt-cost').value = option?.costPrice || 0;
+      document.getElementById('opt-compare-price').value = option?.comparePrice || 0;
+      document.getElementById('opt-stock').value = option?.stockStatus || 'in-stock';
+      document.getElementById('opt-full-description').value = option?.fullDescription || '';
+      document.getElementById('opt-features').value = option?.features?.join('\n') || '';
+      document.getElementById('opt-specs').value = option?.specifications?.map(s => `${s.label}: ${s.value}`).join('\n') || '';
+
+      // SEO
+      document.getElementById('opt-meta-title').value = option?.seo?.metaTitle || '';
+      document.getElementById('opt-meta-desc').value = option?.seo?.metaDescription || '';
+      document.getElementById('opt-keywords').value = option?.seo?.keywords || '';
+      document.getElementById('opt-alt-text').value = option?.seo?.altText || '';
+
+      // Update labels
+      document.getElementById('opt-status-label').textContent = document.getElementById('opt-active').checked ? 'Active' : 'Inactive';
+      document.getElementById('opt-popular-label').textContent = document.getElementById('opt-popular').checked ? 'Yes' : 'No';
+      document.getElementById('hw-title-count').textContent = document.getElementById('opt-meta-title').value.length;
+      document.getElementById('hw-desc-count').textContent = document.getElementById('opt-meta-desc').value.length;
+
+      // Image preview
+      if (option?.imageUrl) {
+        document.getElementById('hw-upload-placeholder').style.display = 'none';
+        document.getElementById('hw-image-preview').style.display = 'block';
+        document.getElementById('hw-preview-img').src = option.imageUrl;
+      } else {
+        document.getElementById('hw-upload-placeholder').style.display = 'block';
+        document.getElementById('hw-image-preview').style.display = 'none';
+      }
+
+      updateImagePreview();
+      Admin.Modal.show('option-modal');
+    }
+
+    function closeModal() {
+      Admin.Modal.hide('option-modal');
+      editingId = null;
+      hwPendingFile = null;
+    }
+
+    function editOption(id) {
+      const option = allOptions.find(o => o.id === id);
+      if (option) {
+        openModal(option);
+      }
+    }
+
+    async function deleteOption(id, label) {
+      const confirmed = await Admin.Modal.confirm(
+        'Delete Option',
+        `Are you sure you want to delete "${label}"?`
+      );
+
+      if (confirmed) {
+        try {
+          await Admin.HardwareAPI.deleteOption(currentCategory, id);
+          allOptions = allOptions.filter(o => o.id !== id);
+          renderOptions(currentCategory, allOptions);
+          Admin.Toast.success('Option deleted successfully');
+        } catch (error) {
+          Admin.Toast.error('Failed to delete option');
+        }
+      }
+    }
+
+    // Form submission
+    document.getElementById('option-form').addEventListener('submit', async function(e) {
+      e.preventDefault();
+
+      const saveBtn = document.getElementById('save-btn');
+      const originalText = saveBtn.textContent;
+      saveBtn.disabled = true;
+      saveBtn.textContent = 'Saving...';
+
+      try {
+        // Upload image if pending
+        let imageUrl = document.getElementById('opt-image').value.trim();
+        if (hwPendingFile) {
+          const uploadedUrl = await uploadHwImage();
+          if (uploadedUrl) {
+            imageUrl = uploadedUrl;
+          }
+        }
+
+        // Parse features and specs
+        const featuresText = document.getElementById('opt-features').value.trim();
+        const features = featuresText ? featuresText.split('\n').filter(f => f.trim()) : [];
+
+        const specsText = document.getElementById('opt-specs').value.trim();
+        const specifications = specsText ? specsText.split('\n').filter(s => s.trim()).map(s => {
+          const [label, ...valueParts] = s.split(':');
+          return { label: label.trim(), value: valueParts.join(':').trim() };
+        }) : [];
+
+        const formData = {
+          // Basic Info
+          value: document.getElementById('opt-value').value.trim(),
+          label: document.getElementById('opt-label').value.trim(),
+          imageUrl: imageUrl,
+          price: parseFloat(document.getElementById('opt-price').value) || 0,
+          sortOrder: parseInt(document.getElementById('opt-order').value) || 1,
+          description: document.getElementById('opt-description').value.trim(),
+          isActive: document.getElementById('opt-active').checked,
+          isPopular: document.getElementById('opt-popular').checked,
+
+          // Details & Pricing
+          sku: document.getElementById('opt-sku').value.trim(),
+          costPrice: parseFloat(document.getElementById('opt-cost').value) || 0,
+          comparePrice: parseFloat(document.getElementById('opt-compare-price').value) || 0,
+          stockStatus: document.getElementById('opt-stock').value,
+          fullDescription: document.getElementById('opt-full-description').value.trim(),
+          features: features,
+          specifications: specifications,
+
+          // SEO
+          seo: {
+            metaTitle: document.getElementById('opt-meta-title').value.trim(),
+            metaDescription: document.getElementById('opt-meta-desc').value.trim(),
+            keywords: document.getElementById('opt-keywords').value.trim(),
+            altText: document.getElementById('opt-alt-text').value.trim()
+          }
+        };
+
+        if (editingId) {
+          await Admin.HardwareAPI.updateOption(currentCategory, editingId, formData);
+          Admin.Toast.success('Option updated successfully');
+        } else {
+          await Admin.HardwareAPI.createOption(currentCategory, formData);
+          Admin.Toast.success('Option created successfully');
+        }
+        closeModal();
+        loadHardwareOptions(currentCategory);
+      } catch (error) {
+        Admin.Toast.error(error.message || 'Failed to save option');
+      } finally {
+        saveBtn.disabled = false;
+        saveBtn.textContent = originalText;
+      }
+    });
+  </script>
+</body>
+</html>

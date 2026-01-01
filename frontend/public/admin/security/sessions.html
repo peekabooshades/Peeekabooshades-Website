@@ -1,0 +1,405 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Active Sessions - Security | Peekaboo Shades Admin</title>
+    <link rel="stylesheet" href="../css/admin.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .security-container { display: flex; min-height: 100vh; }
+        .security-sidebar { width: 260px; background: #1a1a2e; padding: 20px 0; flex-shrink: 0; }
+        .security-sidebar h3 { color: #fff; padding: 0 20px; margin-bottom: 20px; font-size: 14px; text-transform: uppercase; letter-spacing: 1px; display: flex; align-items: center; gap: 10px; }
+        .security-sidebar h3 i { color: #28a745; }
+        .security-nav { list-style: none; padding: 0; margin: 0; }
+        .security-nav li a { display: flex; align-items: center; gap: 12px; padding: 12px 20px; color: #a0a0a0; text-decoration: none; transition: all 0.2s; font-size: 14px; }
+        .security-nav li a:hover, .security-nav li a.active { background: rgba(255,255,255,0.1); color: #fff; }
+        .security-nav li a.active { border-left: 3px solid #28a745; }
+        .security-content { flex: 1; padding: 30px; background: #f5f5f5; }
+        .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+        .page-header h1 { margin: 0; font-size: 24px; }
+
+        .btn { padding: 10px 20px; border-radius: 6px; border: none; cursor: pointer; font-size: 14px; display: inline-flex; align-items: center; gap: 8px; }
+        .btn-primary { background: #4a90d9; color: #fff; }
+        .btn-danger { background: #dc3545; color: #fff; }
+        .btn-secondary { background: #f0f0f0; color: #333; }
+
+        .current-session {
+            background: linear-gradient(135deg, #28a745, #20c997);
+            color: #fff;
+            padding: 25px;
+            border-radius: 12px;
+            margin-bottom: 30px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .session-icon {
+            width: 60px;
+            height: 60px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+        }
+
+        .session-info { flex: 1; }
+        .session-info h2 { margin: 0 0 5px; font-size: 18px; }
+        .session-info p { margin: 0; opacity: 0.9; font-size: 14px; }
+
+        .sessions-list {
+            background: #fff;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .sessions-header {
+            padding: 20px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .sessions-header h3 { margin: 0; font-size: 16px; }
+
+        .session-card {
+            padding: 20px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .session-card:last-child { border-bottom: none; }
+
+        .session-card.current {
+            background: #f0fff4;
+        }
+
+        .device-icon {
+            width: 50px;
+            height: 50px;
+            background: #f5f5f5;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 22px;
+            color: #666;
+        }
+
+        .device-icon.desktop { color: #4a90d9; }
+        .device-icon.mobile { color: #28a745; }
+        .device-icon.tablet { color: #f57c00; }
+
+        .session-details { flex: 1; }
+        .device-name { font-weight: 600; font-size: 15px; margin-bottom: 4px; }
+        .device-meta { font-size: 13px; color: #888; }
+
+        .session-location {
+            text-align: right;
+        }
+        .location-city { font-weight: 500; margin-bottom: 4px; }
+        .location-ip { font-size: 12px; color: #888; font-family: monospace; }
+
+        .session-status {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 8px;
+        }
+
+        .status-badge {
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 500;
+        }
+
+        .status-active { background: #d4edda; color: #155724; }
+        .status-inactive { background: #f0f0f0; color: #666; }
+
+        .last-active { font-size: 12px; color: #888; }
+
+        .btn-end {
+            padding: 6px 12px;
+            font-size: 12px;
+            background: #fff;
+            border: 1px solid #dc3545;
+            color: #dc3545;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .btn-end:hover {
+            background: #dc3545;
+            color: #fff;
+        }
+
+        .settings-card {
+            background: #fff;
+            border-radius: 12px;
+            margin-top: 30px;
+            overflow: hidden;
+        }
+
+        .settings-header {
+            padding: 20px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .settings-header h3 { margin: 0; font-size: 16px; }
+        .settings-body { padding: 20px; }
+
+        .setting-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 15px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .setting-item:last-child { border-bottom: none; }
+        .setting-info h4 { margin: 0 0 5px; font-size: 14px; }
+        .setting-info p { margin: 0; font-size: 13px; color: #888; }
+
+        .toggle-switch { position: relative; width: 50px; height: 26px; }
+        .toggle-switch input { opacity: 0; width: 0; height: 0; }
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 26px;
+        }
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 20px;
+            width: 20px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        input:checked + .toggle-slider { background-color: #28a745; }
+        input:checked + .toggle-slider:before { transform: translateX(24px); }
+    </style>
+</head>
+<body>
+    <div class="security-container">
+        <aside class="security-sidebar">
+            <h3><i class="fas fa-shield-alt"></i> Security Center</h3>
+            <ul class="security-nav">
+                <li><a href="index.html"><i class="fas fa-tachometer-alt"></i> Overview</a></li>
+                <li><a href="users.html"><i class="fas fa-users-cog"></i> User Management</a></li>
+                <li><a href="two-factor.html"><i class="fas fa-mobile-alt"></i> Two-Factor Auth</a></li>
+                <li><a href="firewall.html"><i class="fas fa-fire"></i> IP Firewall</a></li>
+                <li><a href="sso.html"><i class="fas fa-key"></i> SSO & Auth Providers</a></li>
+                <li><a href="sessions.html" class="active"><i class="fas fa-desktop"></i> Active Sessions</a></li>
+                <li><a href="api-security.html"><i class="fas fa-code"></i> API Security</a></li>
+                <li><a href="audit-logs.html"><i class="fas fa-history"></i> Audit Logs</a></li>
+                <li><a href="permissions.html"><i class="fas fa-lock"></i> Page Permissions</a></li>
+            </ul>
+            <div style="padding: 20px; margin-top: 30px;">
+                <a href="../index.html" style="color: #a0a0a0; text-decoration: none; font-size: 13px;">
+                    <i class="fas fa-arrow-left"></i> Back to Dashboard
+                </a>
+            </div>
+        </aside>
+
+        <main class="security-content">
+            <div class="page-header">
+                <h1><i class="fas fa-desktop" style="color: #4a90d9;"></i> Active Sessions</h1>
+                <button class="btn btn-danger" onclick="endAllSessions()">
+                    <i class="fas fa-sign-out-alt"></i> End All Other Sessions
+                </button>
+            </div>
+
+            <div class="current-session">
+                <div class="session-icon">
+                    <i class="fas fa-desktop"></i>
+                </div>
+                <div class="session-info">
+                    <h2>This Device - Chrome on Windows</h2>
+                    <p>192.168.1.1 - New York, US - Active now</p>
+                </div>
+                <span class="status-badge status-active">Current Session</span>
+            </div>
+
+            <div class="sessions-list">
+                <div class="sessions-header">
+                    <h3>All Active Sessions (5)</h3>
+                </div>
+
+                <div class="session-card current">
+                    <div class="device-icon desktop">
+                        <i class="fas fa-desktop"></i>
+                    </div>
+                    <div class="session-details">
+                        <div class="device-name">Chrome on Windows 11</div>
+                        <div class="device-meta">Windows 11 - Chrome 125.0</div>
+                    </div>
+                    <div class="session-location">
+                        <div class="location-city">New York, US</div>
+                        <div class="location-ip">192.168.1.1</div>
+                    </div>
+                    <div class="session-status">
+                        <span class="status-badge status-active">Current</span>
+                        <span class="last-active">Active now</span>
+                    </div>
+                </div>
+
+                <div class="session-card">
+                    <div class="device-icon mobile">
+                        <i class="fas fa-mobile-alt"></i>
+                    </div>
+                    <div class="session-details">
+                        <div class="device-name">Safari on iPhone 15</div>
+                        <div class="device-meta">iOS 17.5 - Safari 17</div>
+                    </div>
+                    <div class="session-location">
+                        <div class="location-city">New York, US</div>
+                        <div class="location-ip">192.168.1.25</div>
+                    </div>
+                    <div class="session-status">
+                        <span class="status-badge status-active">Active</span>
+                        <span class="last-active">2 hours ago</span>
+                        <button class="btn-end" onclick="endSession('sess-2')">End</button>
+                    </div>
+                </div>
+
+                <div class="session-card">
+                    <div class="device-icon desktop">
+                        <i class="fas fa-laptop"></i>
+                    </div>
+                    <div class="session-details">
+                        <div class="device-name">Firefox on macOS</div>
+                        <div class="device-meta">macOS Sonoma - Firefox 126.0</div>
+                    </div>
+                    <div class="session-location">
+                        <div class="location-city">San Francisco, US</div>
+                        <div class="location-ip">10.0.0.50</div>
+                    </div>
+                    <div class="session-status">
+                        <span class="status-badge status-inactive">Inactive</span>
+                        <span class="last-active">Yesterday</span>
+                        <button class="btn-end" onclick="endSession('sess-3')">End</button>
+                    </div>
+                </div>
+
+                <div class="session-card">
+                    <div class="device-icon tablet">
+                        <i class="fas fa-tablet-alt"></i>
+                    </div>
+                    <div class="session-details">
+                        <div class="device-name">Safari on iPad Pro</div>
+                        <div class="device-meta">iPadOS 17.5 - Safari 17</div>
+                    </div>
+                    <div class="session-location">
+                        <div class="location-city">Los Angeles, US</div>
+                        <div class="location-ip">172.16.0.100</div>
+                    </div>
+                    <div class="session-status">
+                        <span class="status-badge status-inactive">Inactive</span>
+                        <span class="last-active">3 days ago</span>
+                        <button class="btn-end" onclick="endSession('sess-4')">End</button>
+                    </div>
+                </div>
+
+                <div class="session-card" style="background: #fff8f8;">
+                    <div class="device-icon desktop" style="color: #dc3545;">
+                        <i class="fas fa-question"></i>
+                    </div>
+                    <div class="session-details">
+                        <div class="device-name" style="color: #dc3545;">Unknown Device</div>
+                        <div class="device-meta">Linux - Chrome 125.0</div>
+                    </div>
+                    <div class="session-location">
+                        <div class="location-city" style="color: #dc3545;">Moscow, Russia</div>
+                        <div class="location-ip">203.0.113.50</div>
+                    </div>
+                    <div class="session-status">
+                        <span class="status-badge" style="background: #ffebee; color: #c62828;">Suspicious</span>
+                        <span class="last-active">5 hours ago</span>
+                        <button class="btn-end" onclick="endSession('sess-5')">End</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="settings-card">
+                <div class="settings-header">
+                    <h3>Session Settings</h3>
+                </div>
+                <div class="settings-body">
+                    <div class="setting-item">
+                        <div class="setting-info">
+                            <h4>Session Timeout</h4>
+                            <p>Automatically log out after inactivity</p>
+                        </div>
+                        <select style="padding: 8px 15px; border: 1px solid #ddd; border-radius: 6px;">
+                            <option value="30">30 minutes</option>
+                            <option value="60">1 hour</option>
+                            <option value="240" selected>4 hours</option>
+                            <option value="480">8 hours</option>
+                            <option value="1440">24 hours</option>
+                        </select>
+                    </div>
+                    <div class="setting-item">
+                        <div class="setting-info">
+                            <h4>Single Session Only</h4>
+                            <p>Only allow one active session per user</p>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    <div class="setting-item">
+                        <div class="setting-info">
+                            <h4>Alert on New Login</h4>
+                            <p>Send email notification for new device logins</p>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" checked>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    <div class="setting-item">
+                        <div class="setting-info">
+                            <h4>Block Suspicious Locations</h4>
+                            <p>Require verification for logins from unusual locations</p>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" checked>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        function endSession(sessionId) {
+            if (confirm('End this session? The user will be logged out.')) {
+                alert('Session ended successfully');
+                location.reload();
+            }
+        }
+
+        function endAllSessions() {
+            if (confirm('End all other sessions? All users except you will be logged out.')) {
+                alert('All other sessions have been ended');
+                location.reload();
+            }
+        }
+    </script>
+</body>
+</html>

@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Theme & Branding - Peekaboo Shades Admin</title>
+  <link rel="stylesheet" href="../css/admin.css">
+  <link rel="icon" type="image/png" href="/images/favicon.png">
+  <style>
+    .color-picker-wrapper {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .color-picker {
+      width: 50px;
+      height: 40px;
+      border: 1px solid var(--admin-border);
+      border-radius: 8px;
+      cursor: pointer;
+      padding: 2px;
+    }
+    .color-value {
+      font-family: monospace;
+      font-size: 14px;
+      color: var(--admin-text-secondary);
+    }
+    .preview-card {
+      background: var(--admin-body-bg);
+      border-radius: 12px;
+      padding: 24px;
+      margin-top: 20px;
+    }
+    .preview-header {
+      padding: 12px 20px;
+      border-radius: 8px;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .preview-topbar {
+      padding: 8px 20px;
+      border-radius: 8px 8px 0 0;
+      font-size: 12px;
+    }
+  </style>
+</head>
+<body>
+  <div class="admin-layout">
+    <!-- Sidebar -->
+    <aside class="admin-sidebar">
+      <div class="sidebar-header">
+        <a href="/admin/" class="sidebar-logo">
+          <img src="/images/logo.png" alt="Logo" onerror="this.style.display='none'">
+          <span>Peekaboo Shades</span>
+        </a>
+      </div>
+
+      <nav class="sidebar-nav">
+        <div class="nav-section">
+          <a href="/admin/" class="nav-item">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+            </svg>
+            <span>Dashboard</span>
+          </a>
+        </div>
+
+        <div class="nav-section">
+          <div class="nav-section-title">Online Store</div>
+          <a href="/admin/online-store/themes.html" class="nav-item active">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" />
+            </svg>
+            <span>Theme & Branding</span>
+          </a>
+          <a href="/admin/online-store/homepage.html" class="nav-item">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+            </svg>
+            <span>Homepage</span>
+          </a>
+          <a href="/admin/online-store/navigation.html" class="nav-item">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+            <span>Navigation</span>
+          </a>
+          <a href="/admin/online-store/banners.html" class="nav-item">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
+            <span>Hero Banners</span>
+          </a>
+          <a href="/admin/online-store/shop-settings.html" class="nav-item">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+            </svg>
+            <span>Shop Page</span>
+          </a>
+        </div>
+
+        <div class="nav-section">
+          <div class="nav-section-title">Catalog</div>
+          <a href="/admin/products.html" class="nav-item">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+            </svg>
+            <span>Products</span>
+          </a>
+          <a href="/admin/categories.html" class="nav-item">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+            </svg>
+            <span>Categories</span>
+          </a>
+        </div>
+
+        <div class="nav-section">
+          <div class="nav-section-title">Sales</div>
+          <a href="/admin/orders.html" class="nav-item">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+            </svg>
+            <span>Orders</span>
+          </a>
+          <a href="/admin/quotes.html" class="nav-item">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+            <span>Quotes</span>
+          </a>
+        </div>
+
+        <div class="nav-section">
+          <div class="nav-section-title">Content</div>
+          <a href="/admin/faqs.html" class="nav-item">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <span>FAQs</span>
+          </a>
+        </div>
+
+        <div class="nav-section">
+          <div class="nav-section-title">Settings</div>
+          <a href="/admin/settings.html" class="nav-item">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+            <span>Settings</span>
+          </a>
+        </div>
+      </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="admin-main">
+      <!-- Header -->
+      <header class="admin-header">
+        <div class="header-left">
+          <div class="breadcrumb">
+            <a href="/admin/">Dashboard</a>
+            <span class="breadcrumb-separator">/</span>
+            <span>Online Store</span>
+            <span class="breadcrumb-separator">/</span>
+            <span class="breadcrumb-current">Theme & Branding</span>
+          </div>
+        </div>
+        <div class="header-right">
+          <a href="/" class="header-btn" title="View Store" target="_blank">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+            </svg>
+          </a>
+          <div class="dropdown">
+            <div class="header-profile">
+              <div class="profile-avatar">A</div>
+              <span class="profile-name">Admin</span>
+            </div>
+            <div class="dropdown-menu profile-dropdown">
+              <a href="/admin/settings.html" class="dropdown-item">Profile</a>
+              <div class="dropdown-divider"></div>
+              <a href="#" class="dropdown-item danger" onclick="Admin.AuthAPI.logout(); return false;">Logout</a>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <!-- Page Content -->
+      <div class="admin-content">
+        <div class="page-header">
+          <h1 class="page-title">Theme & Branding</h1>
+          <div class="page-actions">
+            <button class="btn btn-primary" onclick="saveTheme()">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+              </svg>
+              Save Changes
+            </button>
+          </div>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
+          <!-- Colors -->
+          <div class="card">
+            <div class="card-header">
+              <h3 class="card-title">Brand Colors</h3>
+            </div>
+            <div class="card-body">
+              <div class="form-group">
+                <label class="form-label">Primary Color</label>
+                <div class="color-picker-wrapper">
+                  <input type="color" class="color-picker" id="primaryColor" value="#8E6545" onchange="updatePreview()">
+                  <span class="color-value" id="primaryColorValue">#8E6545</span>
+                </div>
+                <p class="form-help">Used for buttons, links, and accents</p>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Secondary Color</label>
+                <div class="color-picker-wrapper">
+                  <input type="color" class="color-picker" id="secondaryColor" value="#333333" onchange="updatePreview()">
+                  <span class="color-value" id="secondaryColorValue">#333333</span>
+                </div>
+                <p class="form-help">Used for headings and text</p>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Accent Color</label>
+                <div class="color-picker-wrapper">
+                  <input type="color" class="color-picker" id="accentColor" value="#F8F6F3" onchange="updatePreview()">
+                  <span class="color-value" id="accentColorValue">#F8F6F3</span>
+                </div>
+                <p class="form-help">Used for backgrounds and sections</p>
+              </div>
+
+              <div class="form-group" style="margin-bottom: 0;">
+                <label class="form-label">Background Color</label>
+                <div class="color-picker-wrapper">
+                  <input type="color" class="color-picker" id="backgroundColor" value="#FFFFFF" onchange="updatePreview()">
+                  <span class="color-value" id="backgroundColorValue">#FFFFFF</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Logo & Branding -->
+          <div class="card">
+            <div class="card-header">
+              <h3 class="card-title">Logo & Identity</h3>
+            </div>
+            <div class="card-body">
+              <div class="form-group">
+                <label class="form-label">Logo URL</label>
+                <input type="text" class="form-input" id="logoUrl" placeholder="/images/logo.png">
+                <p class="form-help">Path to your logo image</p>
+              </div>
+
+              <div class="form-group">
+                <label class="form-label">Favicon URL</label>
+                <input type="text" class="form-input" id="faviconUrl" placeholder="/images/favicon.png">
+                <p class="form-help">Browser tab icon (16x16 or 32x32 px)</p>
+              </div>
+
+              <div class="form-group" style="margin-bottom: 0;">
+                <label class="form-label">Font Family</label>
+                <select class="form-select" id="fontFamily">
+                  <option value="Montserrat">Montserrat</option>
+                  <option value="Open Sans">Open Sans</option>
+                  <option value="Roboto">Roboto</option>
+                  <option value="Lato">Lato</option>
+                  <option value="Poppins">Poppins</option>
+                  <option value="Inter">Inter</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Live Preview -->
+        <div class="card" style="margin-top: 24px;">
+          <div class="card-header">
+            <h3 class="card-title">Live Preview</h3>
+          </div>
+          <div class="card-body">
+            <div class="preview-card">
+              <div class="preview-topbar" id="previewTopbar" style="background: #8E6545; color: white;">
+                1-800-SHADES | info@peekabooshades.com
+              </div>
+              <div class="preview-header" id="previewHeader" style="background: white; border: 1px solid #E8E8E8;">
+                <img src="/images/logo.png" alt="Logo" style="height: 32px;" onerror="this.style.display='none'">
+                <span style="font-weight: 700; font-size: 16px;" id="previewLogoText">PEEKABOO SHADES</span>
+              </div>
+              <div style="padding: 20px; text-align: center;">
+                <h2 style="margin-bottom: 12px;" id="previewHeading">Sample Heading Text</h2>
+                <p style="margin-bottom: 20px; color: #666;">This is how your body text will appear on the website.</p>
+                <button class="btn" id="previewButton" style="background: #8E6545; color: white;">Sample Button</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="../js/admin.js"></script>
+  <script>
+    // Require authentication
+    if (!Admin.Auth.requireAuth()) {
+      // Will redirect
+    } else {
+      loadTheme();
+    }
+
+    async function loadTheme() {
+      try {
+        // Use public API endpoint for reading
+        const response = await fetch('/api/site-content');
+        const data = await response.json();
+        if (data.success && data.content && data.content.theme) {
+          const theme = data.content.theme;
+
+          document.getElementById('primaryColor').value = theme.primaryColor || '#8E6545';
+          document.getElementById('secondaryColor').value = theme.secondaryColor || '#333333';
+          document.getElementById('accentColor').value = theme.accentColor || '#F8F6F3';
+          document.getElementById('backgroundColor').value = theme.backgroundColor || '#FFFFFF';
+          document.getElementById('logoUrl').value = theme.logoUrl || '';
+          document.getElementById('faviconUrl').value = theme.faviconUrl || '';
+          document.getElementById('fontFamily').value = theme.fontFamily || 'Montserrat';
+
+          updateColorValues();
+          updatePreview();
+        }
+      } catch (error) {
+        console.error('Failed to load theme:', error);
+      }
+    }
+
+    function updateColorValues() {
+      document.getElementById('primaryColorValue').textContent = document.getElementById('primaryColor').value;
+      document.getElementById('secondaryColorValue').textContent = document.getElementById('secondaryColor').value;
+      document.getElementById('accentColorValue').textContent = document.getElementById('accentColor').value;
+      document.getElementById('backgroundColorValue').textContent = document.getElementById('backgroundColor').value;
+    }
+
+    function updatePreview() {
+      updateColorValues();
+
+      const primary = document.getElementById('primaryColor').value;
+      const secondary = document.getElementById('secondaryColor').value;
+
+      document.getElementById('previewTopbar').style.background = primary;
+      document.getElementById('previewButton').style.background = primary;
+      document.getElementById('previewHeading').style.color = secondary;
+    }
+
+    // Add event listeners for color pickers
+    ['primaryColor', 'secondaryColor', 'accentColor', 'backgroundColor'].forEach(id => {
+      document.getElementById(id).addEventListener('input', updatePreview);
+    });
+
+    async function saveTheme() {
+      try {
+        const themeData = {
+          primaryColor: document.getElementById('primaryColor').value,
+          secondaryColor: document.getElementById('secondaryColor').value,
+          accentColor: document.getElementById('accentColor').value,
+          backgroundColor: document.getElementById('backgroundColor').value,
+          logoUrl: document.getElementById('logoUrl').value,
+          faviconUrl: document.getElementById('faviconUrl').value,
+          fontFamily: document.getElementById('fontFamily').value
+        };
+
+        const token = Admin.Auth.getToken();
+        const response = await fetch('/api/admin/site-content/theme', {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify(themeData)
+        });
+
+        if (response.ok) {
+          Admin.Toast.success('Theme settings saved successfully');
+        } else {
+          throw new Error('Failed to save');
+        }
+      } catch (error) {
+        Admin.Toast.error('Failed to save theme settings');
+      }
+    }
+  </script>
+</body>
+</html>

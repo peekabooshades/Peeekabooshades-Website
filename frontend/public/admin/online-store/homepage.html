@@ -1,0 +1,662 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Homepage Editor - Peekaboo Shades Admin</title>
+  <link rel="stylesheet" href="../css/admin.css">
+  <link rel="icon" type="image/png" href="/images/favicon.png">
+  <style>
+    .section-toggle {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 16px 20px;
+      background: var(--admin-body-bg);
+      border-radius: 8px;
+      margin-bottom: 12px;
+      cursor: pointer;
+    }
+    .section-toggle:hover {
+      background: #E8E8E8;
+    }
+    .section-toggle .section-name {
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .section-toggle .section-name svg {
+      width: 20px;
+      height: 20px;
+      color: var(--admin-text-secondary);
+    }
+    .section-content {
+      display: none;
+      padding: 20px;
+      border: 1px solid var(--admin-border);
+      border-radius: 8px;
+      margin-bottom: 16px;
+    }
+    .section-content.active {
+      display: block;
+    }
+    .testimonial-item {
+      background: var(--admin-body-bg);
+      padding: 16px;
+      border-radius: 8px;
+      margin-bottom: 12px;
+    }
+    .badge-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px;
+      background: var(--admin-body-bg);
+      border-radius: 8px;
+      margin-bottom: 8px;
+    }
+  </style>
+</head>
+<body>
+  <div class="admin-layout">
+    <!-- Sidebar -->
+    <aside class="admin-sidebar">
+      <div class="sidebar-header">
+        <a href="/admin/" class="sidebar-logo">
+          <img src="/images/logo.png" alt="Logo" onerror="this.style.display='none'">
+          <span>Peekaboo Shades</span>
+        </a>
+      </div>
+
+      <nav class="sidebar-nav">
+        <div class="nav-section">
+          <a href="/admin/" class="nav-item">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+            </svg>
+            <span>Dashboard</span>
+          </a>
+        </div>
+
+        <div class="nav-section">
+          <div class="nav-section-title">Online Store</div>
+          <a href="/admin/online-store/themes.html" class="nav-item">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" />
+            </svg>
+            <span>Theme & Branding</span>
+          </a>
+          <a href="/admin/online-store/homepage.html" class="nav-item active">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+            </svg>
+            <span>Homepage</span>
+          </a>
+          <a href="/admin/online-store/navigation.html" class="nav-item">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+            <span>Navigation</span>
+          </a>
+          <a href="/admin/online-store/banners.html" class="nav-item">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
+            <span>Hero Banners</span>
+          </a>
+          <a href="/admin/online-store/shop-settings.html" class="nav-item">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+            </svg>
+            <span>Shop Page</span>
+          </a>
+        </div>
+
+        <div class="nav-section">
+          <div class="nav-section-title">Catalog</div>
+          <a href="/admin/products.html" class="nav-item">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+            </svg>
+            <span>Products</span>
+          </a>
+          <a href="/admin/categories.html" class="nav-item">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+            </svg>
+            <span>Categories</span>
+          </a>
+        </div>
+
+        <div class="nav-section">
+          <div class="nav-section-title">Sales</div>
+          <a href="/admin/orders.html" class="nav-item">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+            </svg>
+            <span>Orders</span>
+          </a>
+          <a href="/admin/quotes.html" class="nav-item">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+            <span>Quotes</span>
+          </a>
+        </div>
+
+        <div class="nav-section">
+          <div class="nav-section-title">Settings</div>
+          <a href="/admin/settings.html" class="nav-item">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+            <span>Settings</span>
+          </a>
+        </div>
+      </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="admin-main">
+      <!-- Header -->
+      <header class="admin-header">
+        <div class="header-left">
+          <div class="breadcrumb">
+            <a href="/admin/">Dashboard</a>
+            <span class="breadcrumb-separator">/</span>
+            <span>Online Store</span>
+            <span class="breadcrumb-separator">/</span>
+            <span class="breadcrumb-current">Homepage</span>
+          </div>
+        </div>
+        <div class="header-right">
+          <a href="/" class="header-btn" title="View Store" target="_blank">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+            </svg>
+          </a>
+          <div class="dropdown">
+            <div class="header-profile">
+              <div class="profile-avatar">A</div>
+              <span class="profile-name">Admin</span>
+            </div>
+            <div class="dropdown-menu profile-dropdown">
+              <a href="/admin/settings.html" class="dropdown-item">Profile</a>
+              <div class="dropdown-divider"></div>
+              <a href="#" class="dropdown-item danger" onclick="Admin.AuthAPI.logout(); return false;">Logout</a>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <!-- Page Content -->
+      <div class="admin-content">
+        <div class="page-header">
+          <h1 class="page-title">Homepage Sections</h1>
+          <div class="page-actions">
+            <button class="btn btn-primary" onclick="saveAll()">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+              </svg>
+              Save All Changes
+            </button>
+          </div>
+        </div>
+
+        <!-- Categories Section -->
+        <div class="card" style="margin-bottom: 16px;">
+          <div class="section-toggle" onclick="toggleSection('categories')">
+            <span class="section-name">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z" />
+              </svg>
+              Categories Section
+            </span>
+            <label class="toggle" onclick="event.stopPropagation()">
+              <input type="checkbox" id="categoriesEnabled" checked>
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+          <div class="section-content" id="categoriesContent">
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">Section Title</label>
+                <input type="text" class="form-input" id="categoriesTitle" value="Designed with Purpose">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Section Subtitle</label>
+                <input type="text" class="form-input" id="categoriesSubtitle" value="OUR CATEGORIES">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Featured Products Section -->
+        <div class="card" style="margin-bottom: 16px;">
+          <div class="section-toggle" onclick="toggleSection('featured')">
+            <span class="section-name">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
+              </svg>
+              Featured Products
+            </span>
+            <label class="toggle" onclick="event.stopPropagation()">
+              <input type="checkbox" id="featuredEnabled" checked>
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+          <div class="section-content" id="featuredContent">
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">Section Title</label>
+                <input type="text" class="form-input" id="featuredTitle" value="Featured Products">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Section Subtitle</label>
+                <input type="text" class="form-input" id="featuredSubtitle" value="BEST SELLERS">
+              </div>
+            </div>
+            <div class="form-group" style="margin-bottom: 0;">
+              <label class="form-label">Number of Products to Show</label>
+              <select class="form-select" id="featuredCount" style="width: 150px;">
+                <option value="3">3 Products</option>
+                <option value="4" selected>4 Products</option>
+                <option value="6">6 Products</option>
+                <option value="8">8 Products</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Imagination Section -->
+        <div class="card" style="margin-bottom: 16px;">
+          <div class="section-toggle" onclick="toggleSection('imagination')">
+            <span class="section-name">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+              </svg>
+              Imagination Section
+            </span>
+            <label class="toggle" onclick="event.stopPropagation()">
+              <input type="checkbox" id="imaginationEnabled" checked>
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+          <div class="section-content" id="imaginationContent">
+            <div class="form-group">
+              <label class="form-label">Title</label>
+              <input type="text" class="form-input" id="imaginationTitle" value="Every space is an opportunity for self expression">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Subtitle</label>
+              <input type="text" class="form-input" id="imaginationSubtitle" value="YOUR IMAGINATION, YOUR WAY">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Description</label>
+              <textarea class="form-textarea" id="imaginationDescription">From bold patterns to subtle textures, our blinds and shades let you express your unique style.</textarea>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">Button Text</label>
+                <input type="text" class="form-input" id="imaginationButtonText" value="Explore Styles">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Button Link</label>
+                <input type="text" class="form-input" id="imaginationButtonLink" value="/shop">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Trust Badges Section -->
+        <div class="card" style="margin-bottom: 16px;">
+          <div class="section-toggle" onclick="toggleSection('trustBadges')">
+            <span class="section-name">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+              </svg>
+              Trust Badges
+            </span>
+            <label class="toggle" onclick="event.stopPropagation()">
+              <input type="checkbox" id="trustBadgesEnabled" checked>
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+          <div class="section-content" id="trustBadgesContent">
+            <div id="trustBadgesList">
+              <!-- Badges will be loaded here -->
+            </div>
+          </div>
+        </div>
+
+        <!-- Testimonials Section -->
+        <div class="card" style="margin-bottom: 16px;">
+          <div class="section-toggle" onclick="toggleSection('testimonials')">
+            <span class="section-name">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+              </svg>
+              Testimonials
+            </span>
+            <label class="toggle" onclick="event.stopPropagation()">
+              <input type="checkbox" id="testimonialsEnabled" checked>
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+          <div class="section-content" id="testimonialsContent">
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">Section Title</label>
+                <input type="text" class="form-input" id="testimonialsTitle" value="What Our Customers Say">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Section Subtitle</label>
+                <input type="text" class="form-input" id="testimonialsSubtitle" value="TESTIMONIALS">
+              </div>
+            </div>
+            <div id="testimonialsList">
+              <!-- Testimonials will be loaded here -->
+            </div>
+            <button class="btn btn-secondary" onclick="addTestimonial()" style="margin-top: 12px;">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+              </svg>
+              Add Testimonial
+            </button>
+          </div>
+        </div>
+
+        <!-- Newsletter Section -->
+        <div class="card">
+          <div class="section-toggle" onclick="toggleSection('newsletter')">
+            <span class="section-name">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+              </svg>
+              Newsletter
+            </span>
+            <label class="toggle" onclick="event.stopPropagation()">
+              <input type="checkbox" id="newsletterEnabled" checked>
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+          <div class="section-content" id="newsletterContent">
+            <div class="form-group">
+              <label class="form-label">Title</label>
+              <input type="text" class="form-input" id="newsletterTitle" value="Stay in the Loop">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Description</label>
+              <input type="text" class="form-input" id="newsletterDescription" value="Subscribe to get exclusive offers, design tips, and new product alerts.">
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label class="form-label">Button Text</label>
+                <input type="text" class="form-input" id="newsletterButtonText" value="Subscribe">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Placeholder Text</label>
+                <input type="text" class="form-input" id="newsletterPlaceholder" value="Enter your email">
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="../js/admin.js"></script>
+  <script>
+    // Require authentication
+    if (!Admin.Auth.requireAuth()) {
+      // Will redirect
+    } else {
+      loadHomepageContent();
+    }
+
+    let homepageData = {};
+
+    async function loadHomepageContent() {
+      try {
+        const response = await fetch('/api/site-content');
+        const data = await response.json();
+        if (data.success && data.content && data.content.homepage) {
+          homepageData = data.content.homepage;
+
+          // Load sections settings
+          const sections = homepageData.sections || {};
+
+          // Categories
+          if (sections.categories) {
+            document.getElementById('categoriesEnabled').checked = sections.categories.enabled !== false;
+            document.getElementById('categoriesTitle').value = sections.categories.title || '';
+            document.getElementById('categoriesSubtitle').value = sections.categories.subtitle || '';
+          }
+
+          // Featured
+          if (sections.featured) {
+            document.getElementById('featuredEnabled').checked = sections.featured.enabled !== false;
+            document.getElementById('featuredTitle').value = sections.featured.title || '';
+            document.getElementById('featuredSubtitle').value = sections.featured.subtitle || '';
+            document.getElementById('featuredCount').value = sections.featured.productCount || 4;
+          }
+
+          // Imagination
+          if (sections.imagination) {
+            document.getElementById('imaginationEnabled').checked = sections.imagination.enabled !== false;
+            document.getElementById('imaginationTitle').value = sections.imagination.title || '';
+            document.getElementById('imaginationSubtitle').value = sections.imagination.subtitle || '';
+            document.getElementById('imaginationDescription').value = sections.imagination.description || '';
+            document.getElementById('imaginationButtonText').value = sections.imagination.buttonText || '';
+            document.getElementById('imaginationButtonLink').value = sections.imagination.buttonLink || '';
+          }
+
+          // Trust Badges
+          if (sections.trustBadges) {
+            document.getElementById('trustBadgesEnabled').checked = sections.trustBadges.enabled !== false;
+          }
+          renderTrustBadges(homepageData.trustBadges || []);
+
+          // Testimonials
+          if (sections.testimonials) {
+            document.getElementById('testimonialsEnabled').checked = sections.testimonials.enabled !== false;
+            document.getElementById('testimonialsTitle').value = sections.testimonials.title || '';
+            document.getElementById('testimonialsSubtitle').value = sections.testimonials.subtitle || '';
+          }
+          renderTestimonials(homepageData.testimonials || []);
+
+          // Newsletter
+          if (sections.newsletter) {
+            document.getElementById('newsletterEnabled').checked = sections.newsletter.enabled !== false;
+            document.getElementById('newsletterTitle').value = sections.newsletter.title || '';
+            document.getElementById('newsletterDescription').value = sections.newsletter.description || '';
+            document.getElementById('newsletterButtonText').value = sections.newsletter.buttonText || '';
+            document.getElementById('newsletterPlaceholder').value = sections.newsletter.placeholder || '';
+          }
+        }
+      } catch (error) {
+        console.error('Failed to load homepage content:', error);
+        Admin.Toast.error('Failed to load homepage content');
+      }
+    }
+
+    function toggleSection(sectionId) {
+      const content = document.getElementById(sectionId + 'Content');
+      content.classList.toggle('active');
+    }
+
+    function renderTrustBadges(badges) {
+      const container = document.getElementById('trustBadgesList');
+      container.innerHTML = badges.map((badge, index) => `
+        <div class="badge-item">
+          <input type="checkbox" ${badge.enabled ? 'checked' : ''} onchange="updateBadgeEnabled(${index}, this.checked)">
+          <select class="form-select" style="width: 120px;" onchange="updateBadgeIcon(${index}, this.value)">
+            <option value="truck" ${badge.icon === 'truck' ? 'selected' : ''}>Truck</option>
+            <option value="shield" ${badge.icon === 'shield' ? 'selected' : ''}>Shield</option>
+            <option value="refresh" ${badge.icon === 'refresh' ? 'selected' : ''}>Refresh</option>
+            <option value="headset" ${badge.icon === 'headset' ? 'selected' : ''}>Headset</option>
+          </select>
+          <input type="text" class="form-input" style="width: 150px;" value="${Admin.Utils.escapeHtml(badge.title)}" onchange="updateBadgeTitle(${index}, this.value)" placeholder="Title">
+          <input type="text" class="form-input" style="flex: 1;" value="${Admin.Utils.escapeHtml(badge.description)}" onchange="updateBadgeDescription(${index}, this.value)" placeholder="Description">
+        </div>
+      `).join('');
+    }
+
+    function updateBadgeEnabled(index, enabled) {
+      if (homepageData.trustBadges && homepageData.trustBadges[index]) {
+        homepageData.trustBadges[index].enabled = enabled;
+      }
+    }
+
+    function updateBadgeIcon(index, icon) {
+      if (homepageData.trustBadges && homepageData.trustBadges[index]) {
+        homepageData.trustBadges[index].icon = icon;
+      }
+    }
+
+    function updateBadgeTitle(index, title) {
+      if (homepageData.trustBadges && homepageData.trustBadges[index]) {
+        homepageData.trustBadges[index].title = title;
+      }
+    }
+
+    function updateBadgeDescription(index, description) {
+      if (homepageData.trustBadges && homepageData.trustBadges[index]) {
+        homepageData.trustBadges[index].description = description;
+      }
+    }
+
+    function renderTestimonials(testimonials) {
+      const container = document.getElementById('testimonialsList');
+      container.innerHTML = testimonials.map((t, index) => `
+        <div class="testimonial-item" data-id="${t.id}">
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Name</label>
+              <input type="text" class="form-input" value="${Admin.Utils.escapeHtml(t.name)}" onchange="updateTestimonial(${index}, 'name', this.value)">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Location</label>
+              <input type="text" class="form-input" value="${Admin.Utils.escapeHtml(t.location || '')}" onchange="updateTestimonial(${index}, 'location', this.value)">
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Review Text</label>
+            <textarea class="form-textarea" style="min-height: 80px;" onchange="updateTestimonial(${index}, 'text', this.value)">${Admin.Utils.escapeHtml(t.text)}</textarea>
+          </div>
+          <div style="display: flex; justify-content: space-between; align-items: center;">
+            <div style="display: flex; gap: 8px; align-items: center;">
+              <span>Rating:</span>
+              <select class="form-select" style="width: 80px;" onchange="updateTestimonial(${index}, 'rating', parseInt(this.value))">
+                ${[1,2,3,4,5].map(r => `<option value="${r}" ${t.rating === r ? 'selected' : ''}>${r}</option>`).join('')}
+              </select>
+            </div>
+            <button class="btn btn-sm btn-secondary" style="color: var(--admin-error);" onclick="removeTestimonial(${index})">Remove</button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function updateTestimonial(index, field, value) {
+      if (homepageData.testimonials && homepageData.testimonials[index]) {
+        homepageData.testimonials[index][field] = value;
+      }
+    }
+
+    function addTestimonial() {
+      if (!homepageData.testimonials) homepageData.testimonials = [];
+      homepageData.testimonials.push({
+        id: 'testimonial-' + Date.now(),
+        name: 'New Customer',
+        location: 'City, State',
+        rating: 5,
+        text: 'Write the customer review here...',
+        enabled: true
+      });
+      renderTestimonials(homepageData.testimonials);
+    }
+
+    function removeTestimonial(index) {
+      if (homepageData.testimonials) {
+        homepageData.testimonials.splice(index, 1);
+        renderTestimonials(homepageData.testimonials);
+      }
+    }
+
+    async function saveAll() {
+      try {
+        // Build sections data
+        const sections = {
+          categories: {
+            enabled: document.getElementById('categoriesEnabled').checked,
+            title: document.getElementById('categoriesTitle').value,
+            subtitle: document.getElementById('categoriesSubtitle').value
+          },
+          featured: {
+            enabled: document.getElementById('featuredEnabled').checked,
+            title: document.getElementById('featuredTitle').value,
+            subtitle: document.getElementById('featuredSubtitle').value,
+            productCount: parseInt(document.getElementById('featuredCount').value)
+          },
+          imagination: {
+            enabled: document.getElementById('imaginationEnabled').checked,
+            title: document.getElementById('imaginationTitle').value,
+            subtitle: document.getElementById('imaginationSubtitle').value,
+            description: document.getElementById('imaginationDescription').value,
+            buttonText: document.getElementById('imaginationButtonText').value,
+            buttonLink: document.getElementById('imaginationButtonLink').value
+          },
+          trustBadges: {
+            enabled: document.getElementById('trustBadgesEnabled').checked
+          },
+          testimonials: {
+            enabled: document.getElementById('testimonialsEnabled').checked,
+            title: document.getElementById('testimonialsTitle').value,
+            subtitle: document.getElementById('testimonialsSubtitle').value
+          },
+          newsletter: {
+            enabled: document.getElementById('newsletterEnabled').checked,
+            title: document.getElementById('newsletterTitle').value,
+            description: document.getElementById('newsletterDescription').value,
+            buttonText: document.getElementById('newsletterButtonText').value,
+            placeholder: document.getElementById('newsletterPlaceholder').value
+          }
+        };
+
+        const token = Admin.Auth.getToken();
+        const headers = {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        };
+
+        // Save sections
+        await fetch('/api/admin/site-content/homepage/sections', {
+          method: 'PUT',
+          headers,
+          body: JSON.stringify(sections)
+        });
+
+        // Save trust badges
+        await fetch('/api/admin/site-content/homepage/trust-badges', {
+          method: 'PUT',
+          headers,
+          body: JSON.stringify({ badges: homepageData.trustBadges || [] })
+        });
+
+        // Save testimonials
+        await fetch('/api/admin/site-content/homepage/testimonials', {
+          method: 'PUT',
+          headers,
+          body: JSON.stringify({ testimonials: homepageData.testimonials || [] })
+        });
+
+        Admin.Toast.success('Homepage settings saved successfully');
+      } catch (error) {
+        Admin.Toast.error('Failed to save homepage settings');
+      }
+    }
+  </script>
+</body>
+</html>

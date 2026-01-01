@@ -1,0 +1,774 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Marketing Dashboard - Peekaboo Shades Admin</title>
+  <link rel="stylesheet" href="../css/admin.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="icon" type="image/png" href="/images/favicon.png">
+  <style>
+    .marketing-header {
+      margin-bottom: 30px;
+    }
+
+    .marketing-header h1 {
+      font-size: 28px;
+      font-weight: 700;
+      margin: 0 0 8px 0;
+    }
+
+    .marketing-header p {
+      color: #666;
+      margin: 0;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+
+    .stat-card {
+      background: white;
+      border-radius: 12px;
+      padding: 24px;
+      border: 1px solid #e0e0e0;
+    }
+
+    .stat-card .stat-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      margin-bottom: 16px;
+    }
+
+    .stat-card .stat-icon.email { background: #e3f2fd; color: #1976d2; }
+    .stat-card .stat-icon.social { background: #fce4ec; color: #c2185b; }
+    .stat-card .stat-icon.subscribers { background: #e8f5e9; color: #388e3c; }
+    .stat-card .stat-icon.revenue { background: #fff3e0; color: #f57c00; }
+
+    .stat-card .stat-value {
+      font-size: 32px;
+      font-weight: 700;
+      color: #333;
+      margin-bottom: 4px;
+    }
+
+    .stat-card .stat-label {
+      font-size: 14px;
+      color: #666;
+    }
+
+    .stat-card .stat-trend {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 12px;
+      margin-top: 8px;
+      padding: 4px 8px;
+      border-radius: 20px;
+    }
+
+    .stat-card .stat-trend.up { background: #e8f5e9; color: #388e3c; }
+    .stat-card .stat-trend.down { background: #ffebee; color: #c62828; }
+
+    .marketing-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 24px;
+    }
+
+    .card {
+      background: white;
+      border-radius: 12px;
+      border: 1px solid #e0e0e0;
+      overflow: hidden;
+    }
+
+    .card-header {
+      padding: 20px;
+      border-bottom: 1px solid #e0e0e0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .card-header h3 {
+      font-size: 16px;
+      font-weight: 600;
+      margin: 0;
+    }
+
+    .card-body {
+      padding: 20px;
+    }
+
+    .quick-actions {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+    }
+
+    .quick-action {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 20px;
+      background: #f8f9fa;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-decoration: none;
+      color: inherit;
+      border: 2px solid transparent;
+    }
+
+    .quick-action:hover {
+      background: #fff;
+      border-color: #8E6545;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+
+    .quick-action .action-icon {
+      width: 56px;
+      height: 56px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+    }
+
+    .quick-action .action-icon.email { background: linear-gradient(135deg, #667eea, #764ba2); color: white; }
+    .quick-action .action-icon.social { background: linear-gradient(135deg, #f093fb, #f5576c); color: white; }
+    .quick-action .action-icon.sms { background: linear-gradient(135deg, #4facfe, #00f2fe); color: white; }
+    .quick-action .action-icon.promo { background: linear-gradient(135deg, #43e97b, #38f9d7); color: white; }
+    .quick-action .action-icon.automation { background: linear-gradient(135deg, #fa709a, #fee140); color: white; }
+    .quick-action .action-icon.analytics { background: linear-gradient(135deg, #a18cd1, #fbc2eb); color: white; }
+
+    .quick-action .action-info h4 {
+      font-size: 15px;
+      font-weight: 600;
+      margin: 0 0 4px 0;
+    }
+
+    .quick-action .action-info p {
+      font-size: 12px;
+      color: #666;
+      margin: 0;
+    }
+
+    .campaign-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    .campaign-item {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 16px 0;
+      border-bottom: 1px solid #f0f0f0;
+    }
+
+    .campaign-item:last-child {
+      border-bottom: none;
+    }
+
+    .campaign-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+    }
+
+    .campaign-icon.email { background: #e3f2fd; color: #1976d2; }
+    .campaign-icon.social { background: #fce4ec; color: #c2185b; }
+    .campaign-icon.sms { background: #e0f7fa; color: #0097a7; }
+
+    .campaign-info {
+      flex: 1;
+    }
+
+    .campaign-info h4 {
+      font-size: 14px;
+      font-weight: 600;
+      margin: 0 0 4px 0;
+    }
+
+    .campaign-info p {
+      font-size: 12px;
+      color: #888;
+      margin: 0;
+    }
+
+    .campaign-status {
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 600;
+    }
+
+    .campaign-status.active { background: #e8f5e9; color: #388e3c; }
+    .campaign-status.scheduled { background: #fff3e0; color: #f57c00; }
+    .campaign-status.draft { background: #f5f5f5; color: #666; }
+    .campaign-status.completed { background: #e3f2fd; color: #1976d2; }
+
+    .social-accounts {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .social-account {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px;
+      background: #f8f9fa;
+      border-radius: 8px;
+    }
+
+    .social-account .social-icon {
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 16px;
+    }
+
+    .social-account .social-icon.facebook { background: #1877f2; }
+    .social-account .social-icon.instagram { background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888); }
+    .social-account .social-icon.twitter { background: #1da1f2; }
+    .social-account .social-icon.pinterest { background: #bd081c; }
+    .social-account .social-icon.tiktok { background: #000; }
+
+    .social-account .social-info {
+      flex: 1;
+    }
+
+    .social-account .social-info h4 {
+      font-size: 13px;
+      font-weight: 600;
+      margin: 0;
+    }
+
+    .social-account .social-info p {
+      font-size: 11px;
+      color: #888;
+      margin: 0;
+    }
+
+    .social-account .connect-btn {
+      padding: 6px 14px;
+      font-size: 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      border: none;
+    }
+
+    .social-account .connect-btn.connected {
+      background: #e8f5e9;
+      color: #388e3c;
+    }
+
+    .social-account .connect-btn.connect {
+      background: #8E6545;
+      color: white;
+    }
+
+    .audience-chart {
+      height: 200px;
+      background: linear-gradient(180deg, rgba(142,101,69,0.1) 0%, rgba(142,101,69,0) 100%);
+      border-radius: 8px;
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-around;
+      padding: 20px;
+    }
+
+    .chart-bar {
+      width: 30px;
+      background: linear-gradient(180deg, #8E6545 0%, #b8956e 100%);
+      border-radius: 4px 4px 0 0;
+      position: relative;
+    }
+
+    .chart-bar::after {
+      content: attr(data-label);
+      position: absolute;
+      bottom: -20px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 10px;
+      color: #888;
+    }
+
+    .btn {
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      border: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .btn-primary {
+      background: #8E6545;
+      color: white;
+    }
+
+    .btn-secondary {
+      background: #f0f0f0;
+      color: #333;
+    }
+
+    .btn-sm {
+      padding: 6px 12px;
+      font-size: 12px;
+    }
+
+    .nav-tabs {
+      display: flex;
+      gap: 8px;
+      padding: 0 20px;
+      background: #f8f9fa;
+      border-bottom: 1px solid #e0e0e0;
+    }
+
+    .nav-tab {
+      padding: 12px 16px;
+      font-size: 13px;
+      color: #666;
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -1px;
+      transition: all 0.2s;
+    }
+
+    .nav-tab:hover {
+      color: #333;
+    }
+
+    .nav-tab.active {
+      color: #8E6545;
+      border-bottom-color: #8E6545;
+      font-weight: 600;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 40px;
+      color: #888;
+    }
+
+    .empty-state i {
+      font-size: 48px;
+      margin-bottom: 16px;
+      color: #ddd;
+    }
+
+    @media (max-width: 1200px) {
+      .stats-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      .marketing-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="admin-layout">
+    <!-- Sidebar -->
+    <aside class="admin-sidebar">
+      <div class="sidebar-header">
+        <a href="/admin/" class="sidebar-logo">
+          <img src="/images/logo.png" alt="Logo" onerror="this.style.display='none'">
+          <span>Peekaboo Shades</span>
+        </a>
+      </div>
+
+      <nav class="sidebar-nav">
+        <div class="nav-section">
+          <a href="/admin/" class="nav-item">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+            </svg>
+            <span>Dashboard</span>
+          </a>
+        </div>
+
+        <div class="nav-section">
+          <div class="nav-section-title">Marketing</div>
+          <a href="/admin/marketing/" class="nav-item active">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 3.055A9.001 9.001 0 1020.945 13H11V3.055z" />
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z" />
+            </svg>
+            <span>Overview</span>
+          </a>
+          <a href="/admin/marketing/campaigns.html" class="nav-item">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+            </svg>
+            <span>Email Campaigns</span>
+          </a>
+          <a href="/admin/marketing/social.html" class="nav-item">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 8h2a2 2 0 012 2v6a2 2 0 01-2 2h-2v4l-4-4H9a1.994 1.994 0 01-1.414-.586m0 0L11 14h4a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2v4l.586-.586z" />
+            </svg>
+            <span>Social Media</span>
+          </a>
+          <a href="/admin/marketing/promotions.html" class="nav-item">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v13m0-13V6a2 2 0 112 2h-2zm0 0V5.5A2.5 2.5 0 109.5 8H12zm-7 4h14M5 12a2 2 0 110-4h14a2 2 0 110 4M5 12v7a2 2 0 002 2h10a2 2 0 002-2v-7" />
+            </svg>
+            <span>Promotions</span>
+          </a>
+          <a href="/admin/marketing/subscribers.html" class="nav-item">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+            </svg>
+            <span>Subscribers</span>
+          </a>
+          <a href="/admin/marketing/automations.html" class="nav-item">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
+            <span>Automations</span>
+          </a>
+        </div>
+
+        <div class="nav-section">
+          <div class="nav-section-title">Content</div>
+          <a href="/admin/pages.html" class="nav-item">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
+            </svg>
+            <span>Pages</span>
+          </a>
+          <a href="/admin/blog/posts.html" class="nav-item">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
+            </svg>
+            <span>Blog Posts</span>
+          </a>
+        </div>
+
+        <div class="nav-section">
+          <div class="nav-section-title">Settings</div>
+          <a href="/admin/settings.html" class="nav-item">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+            <span>Settings</span>
+          </a>
+        </div>
+      </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="admin-main">
+      <header class="admin-header">
+        <div class="header-left">
+          <div class="breadcrumb">
+            <a href="/admin/">Dashboard</a>
+            <span class="breadcrumb-separator">/</span>
+            <span class="breadcrumb-current">Marketing</span>
+          </div>
+        </div>
+        <div class="header-right">
+          <button class="btn btn-primary" onclick="window.location.href='/admin/marketing/campaigns.html?new=true'">
+            <i class="fas fa-plus"></i> Create Campaign
+          </button>
+        </div>
+      </header>
+
+      <div class="admin-content">
+        <div class="marketing-header">
+          <h1>Marketing Dashboard</h1>
+          <p>Manage all your marketing campaigns, email lists, and social media in one place</p>
+        </div>
+
+        <!-- Stats -->
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-icon email"><i class="fas fa-envelope"></i></div>
+            <div class="stat-value" id="emailsSent">0</div>
+            <div class="stat-label">Emails Sent (This Month)</div>
+            <span class="stat-trend up"><i class="fas fa-arrow-up"></i> 12% vs last month</span>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon social"><i class="fas fa-share-alt"></i></div>
+            <div class="stat-value" id="socialReach">0</div>
+            <div class="stat-label">Social Media Reach</div>
+            <span class="stat-trend up"><i class="fas fa-arrow-up"></i> 8% vs last month</span>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon subscribers"><i class="fas fa-users"></i></div>
+            <div class="stat-value" id="totalSubscribers">0</div>
+            <div class="stat-label">Email Subscribers</div>
+            <span class="stat-trend up"><i class="fas fa-arrow-up"></i> 156 new this month</span>
+          </div>
+          <div class="stat-card">
+            <div class="stat-icon revenue"><i class="fas fa-dollar-sign"></i></div>
+            <div class="stat-value" id="marketingRevenue">$0</div>
+            <div class="stat-label">Revenue from Campaigns</div>
+            <span class="stat-trend up"><i class="fas fa-arrow-up"></i> 23% vs last month</span>
+          </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="card" style="margin-bottom: 24px;">
+          <div class="card-header">
+            <h3>Quick Actions</h3>
+          </div>
+          <div class="card-body">
+            <div class="quick-actions">
+              <a href="/admin/marketing/campaigns.html?new=true" class="quick-action">
+                <div class="action-icon email"><i class="fas fa-paper-plane"></i></div>
+                <div class="action-info">
+                  <h4>Send Email Campaign</h4>
+                  <p>Create and send marketing emails to your subscribers</p>
+                </div>
+              </a>
+              <a href="/admin/marketing/social.html?new=true" class="quick-action">
+                <div class="action-icon social"><i class="fas fa-share-square"></i></div>
+                <div class="action-info">
+                  <h4>Post to Social Media</h4>
+                  <p>Schedule posts to all your social channels at once</p>
+                </div>
+              </a>
+              <a href="/admin/marketing/promotions.html?new=true" class="quick-action">
+                <div class="action-icon promo"><i class="fas fa-tags"></i></div>
+                <div class="action-info">
+                  <h4>Create Promotion</h4>
+                  <p>Set up discount codes and special offers</p>
+                </div>
+              </a>
+              <a href="/admin/marketing/automations.html?new=true" class="quick-action">
+                <div class="action-icon automation"><i class="fas fa-robot"></i></div>
+                <div class="action-info">
+                  <h4>Set Up Automation</h4>
+                  <p>Create automated email sequences and flows</p>
+                </div>
+              </a>
+            </div>
+          </div>
+        </div>
+
+        <div class="marketing-grid">
+          <!-- Recent Campaigns -->
+          <div class="card">
+            <div class="card-header">
+              <h3>Recent Campaigns</h3>
+              <a href="/admin/marketing/campaigns.html" class="btn btn-sm btn-secondary">View All</a>
+            </div>
+            <div class="card-body">
+              <ul class="campaign-list" id="recentCampaigns">
+                <!-- Populated by JS -->
+              </ul>
+            </div>
+          </div>
+
+          <!-- Connected Accounts -->
+          <div class="card">
+            <div class="card-header">
+              <h3>Social Accounts</h3>
+            </div>
+            <div class="card-body">
+              <div class="social-accounts" id="socialAccounts">
+                <!-- Populated by JS -->
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="../js/admin.js"></script>
+  <script>
+    // State
+    let stats = {};
+    let campaigns = [];
+    let socialAccounts = [];
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', () => {
+      Admin.Auth.requireAuth();
+      loadMarketingData();
+    });
+
+    async function loadMarketingData() {
+      try {
+        // Load stats
+        const statsResponse = await Admin.API.get('/marketing/stats');
+        if (statsResponse.success) {
+          stats = statsResponse.stats;
+          updateStats();
+        }
+      } catch (e) {
+        // Use default values
+        stats = {
+          emailsSent: 2450,
+          socialReach: 15600,
+          totalSubscribers: 1250,
+          marketingRevenue: 12500
+        };
+        updateStats();
+      }
+
+      try {
+        // Load campaigns
+        const campaignsResponse = await Admin.API.get('/marketing/campaigns');
+        campaigns = campaignsResponse.campaigns || [];
+        renderCampaigns();
+      } catch (e) {
+        // Show sample campaigns
+        campaigns = [
+          { id: '1', name: 'Summer Sale Announcement', type: 'email', status: 'completed', sentAt: '2025-12-28' },
+          { id: '2', name: 'New Year Promo', type: 'email', status: 'scheduled', scheduledFor: '2026-01-01' },
+          { id: '3', name: 'Instagram Product Launch', type: 'social', status: 'active', platform: 'instagram' },
+          { id: '4', name: 'Welcome Email Series', type: 'email', status: 'active' }
+        ];
+        renderCampaigns();
+      }
+
+      // Load social accounts
+      try {
+        const socialResponse = await Admin.API.get('/marketing/social-accounts');
+        socialAccounts = socialResponse.accounts || [];
+        renderSocialAccounts();
+      } catch (e) {
+        // Show default accounts
+        socialAccounts = [
+          { platform: 'facebook', name: 'Peekaboo Shades', connected: true, followers: 5420 },
+          { platform: 'instagram', name: '@peekabooshades', connected: true, followers: 12300 },
+          { platform: 'twitter', name: '@peekabooshades', connected: false },
+          { platform: 'pinterest', name: 'Peekaboo Shades', connected: true, followers: 3200 },
+          { platform: 'tiktok', name: '@peekabooshades', connected: false }
+        ];
+        renderSocialAccounts();
+      }
+    }
+
+    function updateStats() {
+      document.getElementById('emailsSent').textContent = formatNumber(stats.emailsSent || 0);
+      document.getElementById('socialReach').textContent = formatNumber(stats.socialReach || 0);
+      document.getElementById('totalSubscribers').textContent = formatNumber(stats.totalSubscribers || 0);
+      document.getElementById('marketingRevenue').textContent = '$' + formatNumber(stats.marketingRevenue || 0);
+    }
+
+    function renderCampaigns() {
+      const container = document.getElementById('recentCampaigns');
+
+      if (campaigns.length === 0) {
+        container.innerHTML = `
+          <div class="empty-state">
+            <i class="fas fa-bullhorn"></i>
+            <p>No campaigns yet. Create your first campaign!</p>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = campaigns.slice(0, 5).map(campaign => `
+        <li class="campaign-item">
+          <div class="campaign-icon ${campaign.type}">
+            <i class="fas ${campaign.type === 'email' ? 'fa-envelope' : campaign.type === 'social' ? 'fa-share-alt' : 'fa-comment'}"></i>
+          </div>
+          <div class="campaign-info">
+            <h4>${escapeHtml(campaign.name)}</h4>
+            <p>${campaign.type === 'email' ? 'Email Campaign' : 'Social Post'} ${campaign.sentAt ? '• Sent ' + formatDate(campaign.sentAt) : ''}</p>
+          </div>
+          <span class="campaign-status ${campaign.status}">${capitalizeFirst(campaign.status)}</span>
+        </li>
+      `).join('');
+    }
+
+    function renderSocialAccounts() {
+      const container = document.getElementById('socialAccounts');
+
+      container.innerHTML = socialAccounts.map(account => `
+        <div class="social-account">
+          <div class="social-icon ${account.platform}">
+            <i class="fab fa-${account.platform}"></i>
+          </div>
+          <div class="social-info">
+            <h4>${escapeHtml(account.name)}</h4>
+            <p>${account.connected ? formatNumber(account.followers || 0) + ' followers' : 'Not connected'}</p>
+          </div>
+          <button class="connect-btn ${account.connected ? 'connected' : 'connect'}" onclick="toggleSocialAccount('${account.platform}')">
+            ${account.connected ? '<i class="fas fa-check"></i> Connected' : 'Connect'}
+          </button>
+        </div>
+      `).join('');
+    }
+
+    async function toggleSocialAccount(platform) {
+      const account = socialAccounts.find(a => a.platform === platform);
+      if (!account) return;
+
+      if (account.connected) {
+        if (confirm('Disconnect ' + platform + '?')) {
+          account.connected = false;
+          renderSocialAccounts();
+          Admin.Toast.info(capitalizeFirst(platform) + ' disconnected');
+        }
+      } else {
+        // In real app, this would open OAuth flow
+        Admin.Toast.info('Opening ' + capitalizeFirst(platform) + ' authorization...');
+        // Simulate connection
+        setTimeout(() => {
+          account.connected = true;
+          account.followers = Math.floor(Math.random() * 5000) + 1000;
+          renderSocialAccounts();
+          Admin.Toast.success(capitalizeFirst(platform) + ' connected successfully!');
+        }, 1500);
+      }
+    }
+
+    function formatNumber(num) {
+      if (num >= 1000000) return (num / 1000000).toFixed(1) + 'M';
+      if (num >= 1000) return (num / 1000).toFixed(1) + 'K';
+      return num.toString();
+    }
+
+    function formatDate(dateStr) {
+      if (!dateStr) return '';
+      const date = new Date(dateStr);
+      return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    }
+
+    function capitalizeFirst(str) {
+      return str.charAt(0).toUpperCase() + str.slice(1);
+    }
+
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text || '';
+      return div.innerHTML;
+    }
+  </script>
+</body>
+</html>

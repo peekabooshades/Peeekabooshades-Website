@@ -1,0 +1,833 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Tester - Peekaboo Shades Admin</title>
+    <link rel="stylesheet" href="css/admin.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .api-container {
+            display: grid;
+            grid-template-columns: 300px 1fr;
+            gap: 24px;
+            min-height: calc(100vh - 140px);
+        }
+
+        .api-sidebar {
+            background: #fff;
+            border-radius: 12px;
+            padding: 20px;
+            height: fit-content;
+        }
+
+        .api-sidebar h3 {
+            margin: 0 0 15px;
+            font-size: 14px;
+            text-transform: uppercase;
+            color: #666;
+            letter-spacing: 0.5px;
+        }
+
+        .endpoint-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .endpoint-item {
+            padding: 10px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            margin-bottom: 5px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.2s;
+        }
+
+        .endpoint-item:hover {
+            background: #f5f5f5;
+        }
+
+        .endpoint-item.active {
+            background: #e3f2fd;
+        }
+
+        .method-badge {
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 10px;
+            font-weight: 600;
+            text-transform: uppercase;
+        }
+
+        .method-badge.get { background: #e3f2fd; color: #1565c0; }
+        .method-badge.post { background: #e8f5e9; color: #2e7d32; }
+        .method-badge.put { background: #fff3e0; color: #e65100; }
+        .method-badge.delete { background: #ffebee; color: #c62828; }
+
+        .endpoint-path {
+            font-size: 13px;
+            color: #333;
+            font-family: monospace;
+        }
+
+        .api-main {
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+
+        .request-panel, .response-panel {
+            background: #fff;
+            border-radius: 12px;
+            overflow: hidden;
+        }
+
+        .panel-header {
+            padding: 15px 20px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .panel-header h3 {
+            margin: 0;
+            font-size: 16px;
+        }
+
+        .panel-body {
+            padding: 20px;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+
+        .form-group {
+            flex: 1;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 6px;
+            font-size: 13px;
+            font-weight: 500;
+            color: #555;
+        }
+
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 10px 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+            box-sizing: border-box;
+            font-family: inherit;
+        }
+
+        .form-group textarea {
+            font-family: monospace;
+            min-height: 150px;
+            resize: vertical;
+        }
+
+        .btn {
+            padding: 10px 20px;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary { background: #4a90d9; color: #fff; }
+        .btn-success { background: #28a745; color: #fff; }
+        .btn-secondary { background: #f0f0f0; color: #333; }
+
+        .response-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .status-badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .status-badge.success { background: #d4edda; color: #155724; }
+        .status-badge.error { background: #f8d7da; color: #721c24; }
+        .status-badge.pending { background: #fff3cd; color: #856404; }
+
+        .response-time {
+            font-size: 12px;
+            color: #888;
+        }
+
+        .response-body {
+            background: #1e1e1e;
+            border-radius: 8px;
+            padding: 15px;
+            color: #d4d4d4;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 13px;
+            overflow-x: auto;
+            max-height: 400px;
+            overflow-y: auto;
+        }
+
+        .response-body pre {
+            margin: 0;
+            white-space: pre-wrap;
+            word-wrap: break-word;
+        }
+
+        .json-key { color: #9cdcfe; }
+        .json-string { color: #ce9178; }
+        .json-number { color: #b5cea8; }
+        .json-boolean { color: #569cd6; }
+        .json-null { color: #569cd6; }
+
+        .api-key-section {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+        }
+
+        .api-key-display {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .api-key-value {
+            flex: 1;
+            padding: 10px 12px;
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-family: monospace;
+            font-size: 13px;
+        }
+
+        .copy-btn {
+            padding: 10px 15px;
+            background: #f0f0f0;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .copy-btn:hover { background: #e0e0e0; }
+
+        .tabs {
+            display: flex;
+            gap: 5px;
+            background: #f0f0f0;
+            padding: 5px;
+            border-radius: 8px;
+            width: fit-content;
+            margin-bottom: 15px;
+        }
+
+        .tab {
+            padding: 8px 16px;
+            border: none;
+            background: none;
+            cursor: pointer;
+            border-radius: 6px;
+            font-size: 13px;
+        }
+
+        .tab.active {
+            background: #fff;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .webhook-card {
+            background: #f8f9fa;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+        }
+
+        .webhook-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .webhook-name {
+            font-weight: 600;
+        }
+
+        .webhook-url {
+            font-size: 12px;
+            color: #666;
+            font-family: monospace;
+        }
+
+        .event-tags {
+            display: flex;
+            gap: 5px;
+            flex-wrap: wrap;
+            margin-top: 10px;
+        }
+
+        .event-tag {
+            padding: 3px 8px;
+            background: #e3f2fd;
+            color: #1565c0;
+            border-radius: 4px;
+            font-size: 11px;
+        }
+
+        .quick-test {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: #fff;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .quick-test h3 {
+            margin: 0 0 15px;
+            font-size: 16px;
+        }
+
+        .quick-test-btns {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .quick-btn {
+            padding: 8px 15px;
+            background: rgba(255,255,255,0.2);
+            border: 1px solid rgba(255,255,255,0.3);
+            border-radius: 6px;
+            color: #fff;
+            cursor: pointer;
+            font-size: 13px;
+            transition: all 0.2s;
+        }
+
+        .quick-btn:hover {
+            background: rgba(255,255,255,0.3);
+        }
+    </style>
+</head>
+<body>
+    <div class="admin-layout">
+        <!-- Simplified Header -->
+        <header style="background: #fff; padding: 15px 30px; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center;">
+            <div style="display: flex; align-items: center; gap: 20px;">
+                <a href="/admin/" style="text-decoration: none; color: #333; font-weight: 600; font-size: 18px;">
+                    <i class="fas fa-arrow-left" style="margin-right: 10px; color: #888;"></i>
+                    Peekaboo Shades
+                </a>
+                <span style="color: #888;">|</span>
+                <span style="font-weight: 500;">API Tester</span>
+            </div>
+            <div>
+                <a href="/admin/security/api-security.html" class="btn btn-secondary">
+                    <i class="fas fa-key"></i> Manage API Keys
+                </a>
+            </div>
+        </header>
+
+        <main style="padding: 30px; background: #f5f5f5; min-height: calc(100vh - 70px);">
+            <!-- Quick Test Section -->
+            <div class="quick-test">
+                <h3><i class="fas fa-bolt"></i> Quick Test</h3>
+                <div class="quick-test-btns">
+                    <button class="quick-btn" onclick="quickTest('health')">
+                        <i class="fas fa-heartbeat"></i> Health Check
+                    </button>
+                    <button class="quick-btn" onclick="quickTest('info')">
+                        <i class="fas fa-info-circle"></i> API Info
+                    </button>
+                    <button class="quick-btn" onclick="quickTest('products')">
+                        <i class="fas fa-box"></i> Get Products
+                    </button>
+                    <button class="quick-btn" onclick="quickTest('categories')">
+                        <i class="fas fa-tags"></i> Get Categories
+                    </button>
+                    <button class="quick-btn" onclick="quickTest('inventory')">
+                        <i class="fas fa-warehouse"></i> Check Inventory
+                    </button>
+                    <button class="quick-btn" onclick="quickTest('order')">
+                        <i class="fas fa-shopping-cart"></i> Create Test Order
+                    </button>
+                </div>
+            </div>
+
+            <div class="api-container">
+                <!-- Sidebar - Endpoint List -->
+                <div class="api-sidebar">
+                    <h3>Public API Endpoints</h3>
+                    <ul class="endpoint-list">
+                        <li class="endpoint-item" onclick="selectEndpoint('GET', '/api/v1/health', false)">
+                            <span class="method-badge get">GET</span>
+                            <span class="endpoint-path">/health</span>
+                        </li>
+                        <li class="endpoint-item" onclick="selectEndpoint('GET', '/api/v1/info', false)">
+                            <span class="method-badge get">GET</span>
+                            <span class="endpoint-path">/info</span>
+                        </li>
+                        <li class="endpoint-item active" onclick="selectEndpoint('GET', '/api/v1/products', true)">
+                            <span class="method-badge get">GET</span>
+                            <span class="endpoint-path">/products</span>
+                        </li>
+                        <li class="endpoint-item" onclick="selectEndpoint('GET', '/api/v1/products/:id', true)">
+                            <span class="method-badge get">GET</span>
+                            <span class="endpoint-path">/products/:id</span>
+                        </li>
+                        <li class="endpoint-item" onclick="selectEndpoint('GET', '/api/v1/categories', true)">
+                            <span class="method-badge get">GET</span>
+                            <span class="endpoint-path">/categories</span>
+                        </li>
+                        <li class="endpoint-item" onclick="selectEndpoint('GET', '/api/v1/inventory', true)">
+                            <span class="method-badge get">GET</span>
+                            <span class="endpoint-path">/inventory</span>
+                        </li>
+                        <li class="endpoint-item" onclick="selectEndpoint('POST', '/api/v1/orders', true)">
+                            <span class="method-badge post">POST</span>
+                            <span class="endpoint-path">/orders</span>
+                        </li>
+                        <li class="endpoint-item" onclick="selectEndpoint('GET', '/api/v1/orders/:id', true)">
+                            <span class="method-badge get">GET</span>
+                            <span class="endpoint-path">/orders/:id</span>
+                        </li>
+                        <li class="endpoint-item" onclick="selectEndpoint('POST', '/api/v1/promo/validate', true)">
+                            <span class="method-badge post">POST</span>
+                            <span class="endpoint-path">/promo/validate</span>
+                        </li>
+                    </ul>
+
+                    <h3 style="margin-top: 30px;">Webhooks</h3>
+                    <div id="webhooks-list">
+                        <!-- Populated by JS -->
+                    </div>
+                </div>
+
+                <!-- Main Content -->
+                <div class="api-main">
+                    <!-- API Key Section -->
+                    <div class="api-key-section">
+                        <label style="font-weight: 500; margin-bottom: 5px; display: block;">Demo API Key (for testing)</label>
+                        <div class="api-key-display">
+                            <input type="text" class="api-key-value" id="apiKeyInput" value="pk_demo_12345678901234567890" readonly>
+                            <button class="copy-btn" onclick="copyApiKey()">
+                                <i class="fas fa-copy"></i>
+                            </button>
+                        </div>
+                        <p style="font-size: 12px; color: #888; margin-top: 8px;">
+                            This demo key has read/write permissions. Create custom keys in Security > API Security.
+                        </p>
+                    </div>
+
+                    <!-- Request Panel -->
+                    <div class="request-panel">
+                        <div class="panel-header">
+                            <h3>Request</h3>
+                            <button class="btn btn-primary" onclick="sendRequest()">
+                                <i class="fas fa-paper-plane"></i> Send Request
+                            </button>
+                        </div>
+                        <div class="panel-body">
+                            <div class="form-row">
+                                <div class="form-group" style="flex: 0 0 120px;">
+                                    <label>Method</label>
+                                    <select id="requestMethod">
+                                        <option value="GET">GET</option>
+                                        <option value="POST">POST</option>
+                                        <option value="PUT">PUT</option>
+                                        <option value="DELETE">DELETE</option>
+                                    </select>
+                                </div>
+                                <div class="form-group">
+                                    <label>URL</label>
+                                    <input type="text" id="requestUrl" value="/api/v1/products" placeholder="/api/v1/products">
+                                </div>
+                            </div>
+
+                            <div class="tabs">
+                                <button class="tab active" onclick="showTab('headers')">Headers</button>
+                                <button class="tab" onclick="showTab('body')">Body</button>
+                                <button class="tab" onclick="showTab('params')">Query Params</button>
+                            </div>
+
+                            <div id="headers-tab">
+                                <div class="form-group">
+                                    <label>Headers (JSON format)</label>
+                                    <textarea id="requestHeaders">{
+  "X-API-Key": "pk_demo_12345678901234567890",
+  "Content-Type": "application/json"
+}</textarea>
+                                </div>
+                            </div>
+
+                            <div id="body-tab" style="display: none;">
+                                <div class="form-group">
+                                    <label>Request Body (JSON)</label>
+                                    <textarea id="requestBody">{
+  "customer": {
+    "name": "John Doe",
+    "email": "john@example.com"
+  },
+  "items": [
+    {"productId": "prod-1", "quantity": 2, "price": 99.99}
+  ],
+  "total": 199.98
+}</textarea>
+                                </div>
+                            </div>
+
+                            <div id="params-tab" style="display: none;">
+                                <div class="form-group">
+                                    <label>Query Parameters (key=value, one per line)</label>
+                                    <textarea id="requestParams" placeholder="page=1
+limit=10
+category=blinds">page=1
+limit=10</textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Response Panel -->
+                    <div class="response-panel">
+                        <div class="panel-header">
+                            <div class="response-header">
+                                <h3>Response</h3>
+                                <span class="status-badge pending" id="statusBadge">Waiting...</span>
+                                <span class="response-time" id="responseTime"></span>
+                            </div>
+                            <button class="btn btn-secondary" onclick="clearResponse()">
+                                <i class="fas fa-eraser"></i> Clear
+                            </button>
+                        </div>
+                        <div class="panel-body">
+                            <div class="response-body" id="responseBody">
+                                <pre>// Response will appear here after sending a request</pre>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        const BASE_URL = window.location.origin;
+
+        // Select endpoint from sidebar
+        function selectEndpoint(method, url, requiresAuth) {
+            document.querySelectorAll('.endpoint-item').forEach(el => el.classList.remove('active'));
+            event.currentTarget.classList.add('active');
+
+            document.getElementById('requestMethod').value = method;
+            document.getElementById('requestUrl').value = url;
+
+            // Set default headers
+            const headers = requiresAuth ? {
+                "X-API-Key": "pk_demo_12345678901234567890",
+                "Content-Type": "application/json"
+            } : {
+                "Content-Type": "application/json"
+            };
+            document.getElementById('requestHeaders').value = JSON.stringify(headers, null, 2);
+
+            // Set default body for POST requests
+            if (method === 'POST') {
+                if (url.includes('/orders')) {
+                    document.getElementById('requestBody').value = JSON.stringify({
+                        customer: { name: "John Doe", email: "john@example.com" },
+                        items: [{ productId: "prod-1", quantity: 2, price: 99.99 }],
+                        total: 199.98
+                    }, null, 2);
+                } else if (url.includes('/promo')) {
+                    document.getElementById('requestBody').value = JSON.stringify({
+                        code: "SAVE10",
+                        cartTotal: 100
+                    }, null, 2);
+                }
+                showTab('body');
+            } else {
+                showTab('headers');
+            }
+        }
+
+        // Show tab
+        function showTab(tab) {
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            event?.currentTarget?.classList.add('active');
+
+            document.getElementById('headers-tab').style.display = tab === 'headers' ? 'block' : 'none';
+            document.getElementById('body-tab').style.display = tab === 'body' ? 'block' : 'none';
+            document.getElementById('params-tab').style.display = tab === 'params' ? 'block' : 'none';
+        }
+
+        // Send API request
+        async function sendRequest() {
+            const method = document.getElementById('requestMethod').value;
+            let url = document.getElementById('requestUrl').value;
+            const headersText = document.getElementById('requestHeaders').value;
+            const bodyText = document.getElementById('requestBody').value;
+            const paramsText = document.getElementById('requestParams').value;
+
+            // Parse headers
+            let headers = {};
+            try {
+                headers = JSON.parse(headersText);
+            } catch (e) {
+                alert('Invalid headers JSON');
+                return;
+            }
+
+            // Add query params
+            if (paramsText.trim()) {
+                const params = new URLSearchParams();
+                paramsText.split('\n').forEach(line => {
+                    const [key, value] = line.split('=');
+                    if (key && value) params.append(key.trim(), value.trim());
+                });
+                url += '?' + params.toString();
+            }
+
+            // Update status
+            document.getElementById('statusBadge').className = 'status-badge pending';
+            document.getElementById('statusBadge').textContent = 'Loading...';
+            document.getElementById('responseTime').textContent = '';
+
+            const startTime = Date.now();
+
+            try {
+                const options = {
+                    method,
+                    headers
+                };
+
+                if (['POST', 'PUT', 'PATCH'].includes(method) && bodyText.trim()) {
+                    options.body = bodyText;
+                }
+
+                const response = await fetch(BASE_URL + url, options);
+                const endTime = Date.now();
+                const data = await response.json();
+
+                // Update status badge
+                const statusBadge = document.getElementById('statusBadge');
+                if (response.ok) {
+                    statusBadge.className = 'status-badge success';
+                    statusBadge.textContent = `${response.status} ${response.statusText}`;
+                } else {
+                    statusBadge.className = 'status-badge error';
+                    statusBadge.textContent = `${response.status} ${response.statusText}`;
+                }
+
+                // Show response time
+                document.getElementById('responseTime').textContent = `${endTime - startTime}ms`;
+
+                // Format and display response
+                document.getElementById('responseBody').innerHTML = `<pre>${syntaxHighlight(JSON.stringify(data, null, 2))}</pre>`;
+
+            } catch (error) {
+                document.getElementById('statusBadge').className = 'status-badge error';
+                document.getElementById('statusBadge').textContent = 'Error';
+                document.getElementById('responseBody').innerHTML = `<pre style="color: #f44336;">Error: ${error.message}</pre>`;
+            }
+        }
+
+        // Quick test functions
+        async function quickTest(type) {
+            let method = 'GET';
+            let url = '';
+            let body = null;
+            let requiresAuth = true;
+
+            switch(type) {
+                case 'health':
+                    url = '/api/v1/health';
+                    requiresAuth = false;
+                    break;
+                case 'info':
+                    url = '/api/v1/info';
+                    requiresAuth = false;
+                    break;
+                case 'products':
+                    url = '/api/v1/products?limit=5';
+                    break;
+                case 'categories':
+                    url = '/api/v1/categories';
+                    break;
+                case 'inventory':
+                    url = '/api/v1/inventory';
+                    break;
+                case 'order':
+                    method = 'POST';
+                    url = '/api/v1/orders';
+                    body = JSON.stringify({
+                        customer: { name: "Test Customer", email: "test@example.com" },
+                        items: [{ productId: "test-1", quantity: 1, price: 49.99 }],
+                        total: 49.99
+                    });
+                    break;
+            }
+
+            // Update UI
+            document.getElementById('requestMethod').value = method;
+            document.getElementById('requestUrl').value = url;
+
+            const headers = requiresAuth ? {
+                "X-API-Key": "pk_demo_12345678901234567890",
+                "Content-Type": "application/json"
+            } : { "Content-Type": "application/json" };
+
+            document.getElementById('requestHeaders').value = JSON.stringify(headers, null, 2);
+
+            if (body) {
+                document.getElementById('requestBody').value = body;
+            }
+
+            // Send request
+            document.getElementById('statusBadge').className = 'status-badge pending';
+            document.getElementById('statusBadge').textContent = 'Loading...';
+
+            const startTime = Date.now();
+
+            try {
+                const options = {
+                    method,
+                    headers
+                };
+                if (body) options.body = body;
+
+                const response = await fetch(BASE_URL + url, options);
+                const endTime = Date.now();
+                const data = await response.json();
+
+                const statusBadge = document.getElementById('statusBadge');
+                statusBadge.className = response.ok ? 'status-badge success' : 'status-badge error';
+                statusBadge.textContent = `${response.status} ${response.statusText}`;
+                document.getElementById('responseTime').textContent = `${endTime - startTime}ms`;
+                document.getElementById('responseBody').innerHTML = `<pre>${syntaxHighlight(JSON.stringify(data, null, 2))}</pre>`;
+
+            } catch (error) {
+                document.getElementById('statusBadge').className = 'status-badge error';
+                document.getElementById('statusBadge').textContent = 'Error';
+                document.getElementById('responseBody').innerHTML = `<pre style="color: #f44336;">Error: ${error.message}</pre>`;
+            }
+        }
+
+        // Syntax highlighting for JSON
+        function syntaxHighlight(json) {
+            json = json.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+            return json.replace(/("(\\u[a-zA-Z0-9]{4}|\\[^u]|[^\\"])*"(\s*:)?|\b(true|false|null)\b|-?\d+(?:\.\d*)?(?:[eE][+\-]?\d+)?)/g, function (match) {
+                let cls = 'json-number';
+                if (/^"/.test(match)) {
+                    if (/:$/.test(match)) {
+                        cls = 'json-key';
+                    } else {
+                        cls = 'json-string';
+                    }
+                } else if (/true|false/.test(match)) {
+                    cls = 'json-boolean';
+                } else if (/null/.test(match)) {
+                    cls = 'json-null';
+                }
+                return '<span class="' + cls + '">' + match + '</span>';
+            });
+        }
+
+        // Copy API key
+        function copyApiKey() {
+            const input = document.getElementById('apiKeyInput');
+            input.select();
+            document.execCommand('copy');
+            alert('API Key copied to clipboard!');
+        }
+
+        // Clear response
+        function clearResponse() {
+            document.getElementById('statusBadge').className = 'status-badge pending';
+            document.getElementById('statusBadge').textContent = 'Waiting...';
+            document.getElementById('responseTime').textContent = '';
+            document.getElementById('responseBody').innerHTML = '<pre>// Response will appear here after sending a request</pre>';
+        }
+
+        // Load webhooks
+        async function loadWebhooks() {
+            try {
+                const token = localStorage.getItem('adminToken');
+                if (!token) return;
+
+                const response = await fetch('/api/admin/webhooks', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await response.json();
+
+                if (data.success && data.webhooks) {
+                    const container = document.getElementById('webhooks-list');
+                    container.innerHTML = data.webhooks.map(w => `
+                        <div class="webhook-card">
+                            <div class="webhook-header">
+                                <span class="webhook-name">${w.name}</span>
+                                <span class="status-badge ${w.status === 'active' ? 'success' : ''}">${w.status}</span>
+                            </div>
+                            <div class="webhook-url">${w.url}</div>
+                            <div class="event-tags">
+                                ${w.events.map(e => `<span class="event-tag">${e}</span>`).join('')}
+                            </div>
+                            <button class="btn btn-secondary" style="margin-top: 10px; font-size: 12px; padding: 6px 12px;" onclick="testWebhook('${w.id}')">
+                                <i class="fas fa-paper-plane"></i> Test
+                            </button>
+                        </div>
+                    `).join('');
+                }
+            } catch (error) {
+                console.error('Failed to load webhooks:', error);
+            }
+        }
+
+        // Test webhook
+        async function testWebhook(id) {
+            try {
+                const token = localStorage.getItem('adminToken');
+                const response = await fetch(`/api/admin/webhooks/${id}/test`, {
+                    method: 'POST',
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await response.json();
+
+                if (data.success) {
+                    alert('Test webhook sent successfully!\nStatus: ' + data.response?.status);
+                } else {
+                    alert('Failed to send webhook: ' + (data.error || data.details));
+                }
+            } catch (error) {
+                alert('Error: ' + error.message);
+            }
+        }
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function() {
+            loadWebhooks();
+        });
+    </script>
+</body>
+</html>

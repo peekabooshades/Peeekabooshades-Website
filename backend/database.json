@@ -165,7 +165,35 @@
       "created_at": "2025-12-30T13:18:46.833Z"
     }
   ],
-  "orders": [],
+  "orders": [
+    {
+      "id": "ORD-1767291883382",
+      "orderNumber": "PS-150421",
+      "source": "api",
+      "apiKeyId": "key-demo-1",
+      "customer": {
+        "name": "API Test Customer",
+        "email": "api@test.com"
+      },
+      "items": [
+        {
+          "productId": "test-1",
+          "quantity": 1,
+          "price": 99.99
+        }
+      ],
+      "shippingAddress": {},
+      "billingAddress": {},
+      "subtotal": 0,
+      "shipping": 0,
+      "tax": 0,
+      "total": 99.99,
+      "status": "pending",
+      "paymentStatus": "pending",
+      "createdAt": "2026-01-01T18:24:43.382Z",
+      "updatedAt": "2026-01-01T18:24:43.382Z"
+    }
+  ],
   "quotes": [
     {
       "id": "5a69a850-720e-41d9-8440-1df90caed6fc",
@@ -210,5 +238,2484 @@
     "Kids Room",
     "Nursery",
     "Other"
-  ]
+  ],
+  "adminUsers": [
+    {
+      "id": "admin-001",
+      "email": "admin@peekabooshades.com",
+      "password": "$2b$12$0pANlOSeXaLt5G46YTg0fO7ovYBtVlSRgPjfu4opt7kniFpIUtdnO",
+      "name": "Admin",
+      "role": "admin",
+      "createdAt": "2025-01-01T00:00:00.000Z",
+      "lastLogin": "2026-01-01T18:18:18.561Z"
+    }
+  ],
+  "settings": {
+    "storeName": "Peekaboo Shades",
+    "storeEmail": "info@peekabooshades.com",
+    "storePhone": "1-800-123-4567",
+    "logoUrl": "/images/logo.png",
+    "taxRate": 0.08,
+    "shippingRate": 9.99,
+    "freeShippingThreshold": 99,
+    "currency": "USD"
+  },
+  "siteContent": {
+    "theme": {
+      "primaryColor": "#8E6545",
+      "secondaryColor": "#333333",
+      "accentColor": "#F8F6F3",
+      "textColor": "#333333",
+      "textLight": "#666666",
+      "backgroundColor": "#FFFFFF",
+      "logoUrl": "/images/logo.png",
+      "faviconUrl": "/images/favicon.png",
+      "fontFamily": "Montserrat"
+    },
+    "topBar": {
+      "enabled": true,
+      "backgroundColor": "#8E6545",
+      "textColor": "#FFFFFF",
+      "phone": "1-800-SHADES",
+      "email": "info@peekabooshades.com",
+      "links": [
+        {
+          "id": "link-1",
+          "text": "Free Samples",
+          "url": "/samples",
+          "enabled": true
+        },
+        {
+          "id": "link-2",
+          "text": "Trade Program",
+          "url": "/trade",
+          "enabled": true
+        },
+        {
+          "id": "link-3",
+          "text": "Help",
+          "url": "/help",
+          "enabled": true
+        }
+      ]
+    },
+    "header": {
+      "logoText": "PEEKABOO SHADES",
+      "showSearch": true,
+      "showWishlist": true,
+      "showAccount": true,
+      "showCart": true
+    },
+    "navigation": {
+      "mainMenu": [
+        {
+          "id": "nav-1",
+          "text": "Windows Blinds & Shades",
+          "url": "/shop",
+          "hasDropdown": true,
+          "dropdownItems": [
+            {
+              "text": "Roller Shades",
+              "url": "/shop?category=roller-shades"
+            },
+            {
+              "text": "Zebra Shades",
+              "url": "/shop?category=zebra-shades"
+            },
+            {
+              "text": "Roman Shades",
+              "url": "/shop?category=roman-shades"
+            },
+            {
+              "text": "Honeycomb Shades",
+              "url": "/shop?category=honeycomb-shades"
+            }
+          ]
+        },
+        {
+          "id": "nav-2",
+          "text": "Curtains",
+          "url": "/curtains",
+          "hasDropdown": false
+        },
+        {
+          "id": "nav-3",
+          "text": "Look up My Order",
+          "url": "/order-lookup",
+          "hasDropdown": false
+        },
+        {
+          "id": "nav-4",
+          "text": "Bulk Orders/Wholesale",
+          "url": "/wholesale",
+          "hasDropdown": false
+        },
+        {
+          "id": "nav-5",
+          "text": "Contact Us",
+          "url": "/contact",
+          "hasDropdown": false
+        },
+        {
+          "id": "nav-6",
+          "text": "My Account",
+          "url": "/account",
+          "hasDropdown": false
+        }
+      ],
+      "footerColumns": [
+        {
+          "id": "footer-1",
+          "title": "Shop",
+          "links": [
+            {
+              "text": "Roller Shades",
+              "url": "/shop?category=roller-shades"
+            },
+            {
+              "text": "Roman Shades",
+              "url": "/shop?category=roman-shades"
+            },
+            {
+              "text": "Honeycomb Shades",
+              "url": "/shop?category=honeycomb-shades"
+            },
+            {
+              "text": "Drapes",
+              "url": "/shop?category=drapes"
+            }
+          ]
+        },
+        {
+          "id": "footer-2",
+          "title": "Support",
+          "links": [
+            {
+              "text": "Contact Us",
+              "url": "/contact"
+            },
+            {
+              "text": "FAQs",
+              "url": "/faqs"
+            },
+            {
+              "text": "Shipping Info",
+              "url": "/shipping"
+            },
+            {
+              "text": "Returns",
+              "url": "/returns"
+            }
+          ]
+        },
+        {
+          "id": "footer-3",
+          "title": "Company",
+          "links": [
+            {
+              "text": "About Us",
+              "url": "/about"
+            },
+            {
+              "text": "Trade Program",
+              "url": "/trade"
+            },
+            {
+              "text": "Privacy Policy",
+              "url": "/privacy"
+            },
+            {
+              "text": "Terms of Service",
+              "url": "/terms"
+            }
+          ]
+        }
+      ],
+      "socialLinks": [
+        {
+          "id": "social-1",
+          "platform": "facebook",
+          "url": "https://facebook.com/peekabooshades",
+          "enabled": true
+        },
+        {
+          "id": "social-2",
+          "platform": "instagram",
+          "url": "https://instagram.com/peekabooshades",
+          "enabled": true
+        },
+        {
+          "id": "social-3",
+          "platform": "pinterest",
+          "url": "https://pinterest.com/peekabooshades",
+          "enabled": true
+        },
+        {
+          "id": "social-4",
+          "platform": "twitter",
+          "url": "https://twitter.com/peekabooshades",
+          "enabled": false
+        }
+      ]
+    },
+    "heroSlides": [
+      {
+        "id": "slide-1",
+        "image": "/images/hero/hero-1.jpg",
+        "title": "Transform Your Home",
+        "subtitle": "STYLISH WINDOW SOLUTIONS",
+        "buttonText": "Shop All",
+        "buttonLink": "/shop",
+        "buttonStyle": "primary",
+        "secondaryButtonText": "Explore",
+        "secondaryButtonLink": "/shop",
+        "position": 1,
+        "active": true
+      },
+      {
+        "id": "slide-2",
+        "image": "/images/hero/hero-2.jpg",
+        "title": "Custom Made For You",
+        "subtitle": "PERFECT FIT GUARANTEED",
+        "buttonText": "Get Started",
+        "buttonLink": "/shop",
+        "buttonStyle": "primary",
+        "secondaryButtonText": "",
+        "secondaryButtonLink": "",
+        "position": 2,
+        "active": true
+      },
+      {
+        "id": "slide-3",
+        "image": "/images/hero/hero-3.jpg",
+        "title": "Quality & Style",
+        "subtitle": "AFFORDABLE LUXURY",
+        "buttonText": "Browse Collection",
+        "buttonLink": "/shop",
+        "buttonStyle": "primary",
+        "secondaryButtonText": "",
+        "secondaryButtonLink": "",
+        "position": 3,
+        "active": true
+      }
+    ],
+    "homepage": {
+      "sections": {
+        "categories": {
+          "enabled": true,
+          "title": "Designed with Purpose",
+          "subtitle": "OUR CATEGORIES",
+          "showAll": true
+        },
+        "featured": {
+          "enabled": true,
+          "title": "Featured Products",
+          "subtitle": "BEST SELLERS",
+          "productCount": 4
+        },
+        "imagination": {
+          "enabled": true,
+          "title": "Every space is an opportunity for self expression",
+          "subtitle": "YOUR IMAGINATION, YOUR WAY",
+          "description": "From bold patterns to subtle textures, our blinds and shades let you express your unique style. Whether you prefer modern minimalism or classic elegance, we have options that reflect who you are.",
+          "image": "/images/imagination-section.jpg",
+          "buttonText": "Explore Styles",
+          "buttonLink": "/shop"
+        },
+        "testimonials": {
+          "enabled": true,
+          "title": "What Our Customers Say",
+          "subtitle": "TESTIMONIALS"
+        },
+        "trustBadges": {
+          "enabled": true
+        },
+        "newsletter": {
+          "enabled": true,
+          "title": "Stay in the Loop",
+          "description": "Subscribe to get exclusive offers, design tips, and new product alerts.",
+          "buttonText": "Subscribe",
+          "placeholder": "Enter your email"
+        }
+      },
+      "trustBadges": [
+        {
+          "id": "badge-1",
+          "icon": "truck",
+          "title": "Free Shipping",
+          "description": "On orders over $99",
+          "enabled": true
+        },
+        {
+          "id": "badge-2",
+          "icon": "shield",
+          "title": "2-Year Warranty",
+          "description": "Full coverage included",
+          "enabled": true
+        },
+        {
+          "id": "badge-3",
+          "icon": "refresh",
+          "title": "Easy Returns",
+          "description": "30-day money back",
+          "enabled": true
+        },
+        {
+          "id": "badge-4",
+          "icon": "headset",
+          "title": "Expert Support",
+          "description": "Free design consultation",
+          "enabled": true
+        }
+      ],
+      "testimonials": [
+        {
+          "id": "testimonial-1",
+          "name": "Sarah M.",
+          "location": "Los Angeles, CA",
+          "rating": 5,
+          "text": "The quality exceeded my expectations! The blinds fit perfectly and the installation was a breeze.",
+          "image": "/images/testimonials/sarah.jpg",
+          "enabled": true
+        },
+        {
+          "id": "testimonial-2",
+          "name": "Michael R.",
+          "location": "New York, NY",
+          "rating": 5,
+          "text": "Great customer service and beautiful products. Will definitely order again for our other rooms.",
+          "image": "/images/testimonials/michael.jpg",
+          "enabled": true
+        },
+        {
+          "id": "testimonial-3",
+          "name": "Emily K.",
+          "location": "Chicago, IL",
+          "rating": 5,
+          "text": "Love how easy it was to customize. The shades look amazing in our living room!",
+          "image": "/images/testimonials/emily.jpg",
+          "enabled": true
+        }
+      ]
+    },
+    "shopPage": {
+      "heroImage": "/images/shop-hero.jpg",
+      "heroTitle": "SHOP NOW",
+      "heroSubtitle": "CHOOSE THE PERFECT BLINDS AND ROLLER",
+      "productsPerPage": 24,
+      "defaultSort": "popular",
+      "gridColumns": 4,
+      "showCategoryTabs": true,
+      "showFilters": true,
+      "filters": {
+        "color": true,
+        "size": true,
+        "price": true,
+        "room": true
+      }
+    },
+    "footer": {
+      "copyrightText": "2024 Peekaboo Shades. All rights reserved.",
+      "showPaymentIcons": true,
+      "paymentMethods": [
+        "visa",
+        "mastercard",
+        "amex",
+        "paypal"
+      ],
+      "bottomLinks": [
+        {
+          "text": "Privacy Policy",
+          "url": "/privacy"
+        },
+        {
+          "text": "Terms of Service",
+          "url": "/terms"
+        },
+        {
+          "text": "Sitemap",
+          "url": "/sitemap"
+        }
+      ]
+    },
+    "announcements": {
+      "bar": {
+        "enabled": true,
+        "text": "Free shipping on orders over $99!",
+        "backgroundColor": "#8E6545",
+        "textColor": "#FFFFFF",
+        "link": "/shop",
+        "dismissible": true
+      }
+    },
+    "seo": {
+      "homepageTitle": "Peekaboo Shades - Transform Your Home with Custom Window Treatments",
+      "homepageDescription": "Shop premium custom blinds, shades, and drapes. Free shipping on orders over $99. 2-year warranty included.",
+      "shopTitle": "Shop Window Blinds & Shades | Peekaboo Shades",
+      "shopDescription": "Browse our collection of roller shades, roman shades, honeycomb blinds and more. Custom sizes available.",
+      "ogImage": "/images/og-image.jpg"
+    }
+  },
+  "productContent": {
+    "fabrics": [
+      {
+        "id": "fab-1000",
+        "code": "82032A",
+        "name": "82032A Blackout",
+        "imageUrl": "/images/fabrics/swatches/82032A_blackout.jpg",
+        "filterType": "blackout",
+        "sortOrder": 1,
+        "isActive": true,
+        "isFeatured": false
+      },
+      {
+        "id": "fab-1001",
+        "code": "82032B",
+        "name": "82032B Blackout",
+        "imageUrl": "/images/fabrics/swatches/82032B_blackout.jpg",
+        "filterType": "blackout",
+        "sortOrder": 2,
+        "isActive": true,
+        "isFeatured": false
+      },
+      {
+        "id": "fab-1002",
+        "code": "82032D",
+        "name": "82032D Blackout",
+        "imageUrl": "/images/fabrics/swatches/82032D_blackout.jpg",
+        "filterType": "blackout",
+        "sortOrder": 3,
+        "isActive": true,
+        "isFeatured": false
+      },
+      {
+        "id": "fab-1003",
+        "code": "82032E",
+        "name": "82032E Blackout",
+        "imageUrl": "/images/fabrics/swatches/82032E_blackout.jpg",
+        "filterType": "blackout",
+        "sortOrder": 4,
+        "isActive": true,
+        "isFeatured": false
+      },
+      {
+        "id": "fab-1004",
+        "code": "82076A",
+        "name": "82076A Semi-blackout",
+        "imageUrl": "/images/fabrics/swatches/82076A_semi_blackout.jpg",
+        "filterType": "semi-blackout",
+        "sortOrder": 5,
+        "isActive": true,
+        "isFeatured": false
+      },
+      {
+        "id": "fab-1005",
+        "code": "82076B",
+        "name": "82076B Semi-blackout",
+        "imageUrl": "/images/fabrics/swatches/82076B_semi_blackout.jpg",
+        "filterType": "semi-blackout",
+        "sortOrder": 6,
+        "isActive": true,
+        "isFeatured": false
+      },
+      {
+        "id": "fab-1006",
+        "code": "82076C",
+        "name": "82076C Semi-blackout",
+        "imageUrl": "/images/fabrics/swatches/82076C_semi_blackout.jpg",
+        "filterType": "semi-blackout",
+        "sortOrder": 7,
+        "isActive": true,
+        "isFeatured": false
+      },
+      {
+        "id": "fab-1007",
+        "code": "82076D",
+        "name": "82076D Semi-blackout",
+        "imageUrl": "/images/fabrics/swatches/82076D_semi_blackout.jpg",
+        "filterType": "semi-blackout",
+        "sortOrder": 8,
+        "isActive": true,
+        "isFeatured": false
+      },
+      {
+        "id": "fab-1008",
+        "code": "82077A",
+        "name": "82077A Blackout",
+        "imageUrl": "/images/fabrics/swatches/82077A_blackout.jpg",
+        "filterType": "blackout",
+        "sortOrder": 9,
+        "isActive": true,
+        "isFeatured": false
+      },
+      {
+        "id": "fab-1009",
+        "code": "82077B",
+        "name": "82077B Blackout",
+        "imageUrl": "/images/fabrics/swatches/82077B_blackout.jpg",
+        "filterType": "blackout",
+        "sortOrder": 10,
+        "isActive": true,
+        "isFeatured": false
+      },
+      {
+        "id": "fab-1010",
+        "code": "82077C",
+        "name": "82077C Blackout",
+        "imageUrl": "/images/fabrics/swatches/82077C_blackout.jpg",
+        "filterType": "blackout",
+        "sortOrder": 11,
+        "isActive": true,
+        "isFeatured": false
+      },
+      {
+        "id": "fab-1011",
+        "code": "82077D",
+        "name": "82077D Blackout",
+        "imageUrl": "/images/fabrics/swatches/82077D_blackout.jpg",
+        "filterType": "blackout",
+        "sortOrder": 12,
+        "isActive": true,
+        "isFeatured": false
+      },
+      {
+        "id": "fab-1012",
+        "code": "82132A",
+        "name": "82132A Semi-blackout",
+        "imageUrl": "/images/fabrics/swatches/82132A_semi_blackout.jpg",
+        "filterType": "semi-blackout",
+        "sortOrder": 13,
+        "isActive": true,
+        "isFeatured": false
+      },
+      {
+        "id": "fab-1013",
+        "code": "82132B",
+        "name": "82132B Semi-blackout",
+        "imageUrl": "/images/fabrics/swatches/82132B_semi_blackout.jpg",
+        "filterType": "semi-blackout",
+        "sortOrder": 14,
+        "isActive": true,
+        "isFeatured": false
+      },
+      {
+        "id": "fab-1014",
+        "code": "82132C",
+        "name": "82132C Semi-blackout",
+        "imageUrl": "/images/fabrics/swatches/82132C_semi_blackout.jpg",
+        "filterType": "semi-blackout",
+        "sortOrder": 15,
+        "isActive": true,
+        "isFeatured": false
+      },
+      {
+        "id": "fab-1015",
+        "code": "82132D",
+        "name": "82132D Transparent",
+        "imageUrl": "/images/fabrics/swatches/82132D_transparent.jpg",
+        "filterType": "transparent",
+        "sortOrder": 16,
+        "isActive": true,
+        "isFeatured": false
+      },
+      {
+        "id": "fab-1016",
+        "code": "82132E",
+        "name": "82132E Transparent",
+        "imageUrl": "/images/fabrics/swatches/82132E_transparent.jpg",
+        "filterType": "transparent",
+        "sortOrder": 17,
+        "isActive": true,
+        "isFeatured": false
+      },
+      {
+        "id": "fab-1017",
+        "code": "82132F",
+        "name": "82132F Transparent",
+        "imageUrl": "/images/fabrics/swatches/82132F_transparent.jpg",
+        "filterType": "transparent",
+        "sortOrder": 18,
+        "isActive": true,
+        "isFeatured": false
+      },
+      {
+        "id": "fab-1018",
+        "code": "82132G",
+        "name": "82132G Transparent",
+        "imageUrl": "/images/fabrics/swatches/82132G_transparent.jpg",
+        "filterType": "transparent",
+        "sortOrder": 19,
+        "isActive": true,
+        "isFeatured": false
+      },
+      {
+        "id": "fab-1019",
+        "code": "82132H",
+        "name": "82132H Transparent",
+        "imageUrl": "/images/fabrics/swatches/82132H_transparent.jpg",
+        "filterType": "transparent",
+        "sortOrder": 20,
+        "isActive": true,
+        "isFeatured": false
+      },
+      {
+        "id": "fab-1020",
+        "code": "82133A",
+        "name": "82133A Blackout",
+        "imageUrl": "/images/fabrics/swatches/82133A_blackout.jpg",
+        "filterType": "blackout",
+        "sortOrder": 21,
+        "isActive": true,
+        "isFeatured": false
+      },
+      {
+        "id": "fab-1021",
+        "code": "82133B",
+        "name": "82133B Blackout",
+        "imageUrl": "/images/fabrics/swatches/82133B_blackout.jpg",
+        "filterType": "blackout",
+        "sortOrder": 22,
+        "isActive": true,
+        "isFeatured": false
+      },
+      {
+        "id": "fab-1022",
+        "code": "82133C",
+        "name": "82133C Blackout",
+        "imageUrl": "/images/fabrics/swatches/82133C_blackout.jpg",
+        "filterType": "blackout",
+        "sortOrder": 23,
+        "isActive": true,
+        "isFeatured": false
+      },
+      {
+        "id": "fab-1023",
+        "code": "82133D",
+        "name": "82133D Blackout",
+        "imageUrl": "/images/fabrics/swatches/82133D_blackout.jpg",
+        "filterType": "blackout",
+        "sortOrder": 24,
+        "isActive": true,
+        "isFeatured": false
+      },
+      {
+        "id": "fab-1024",
+        "code": "82133E",
+        "name": "82133E Blackout",
+        "imageUrl": "/images/fabrics/swatches/82133E_blackout.jpg",
+        "filterType": "blackout",
+        "sortOrder": 25,
+        "isActive": true,
+        "isFeatured": false
+      },
+      {
+        "id": "fab-1025",
+        "code": "82141A",
+        "name": "82141A Transparent",
+        "imageUrl": "/images/fabrics/swatches/82141A_transparent.jpg",
+        "filterType": "transparent",
+        "sortOrder": 26,
+        "isActive": true,
+        "isFeatured": false
+      },
+      {
+        "id": "fab-1026",
+        "code": "82141B",
+        "name": "82141B Transparent",
+        "imageUrl": "/images/fabrics/swatches/82141B_transparent.jpg",
+        "filterType": "transparent",
+        "sortOrder": 27,
+        "isActive": true,
+        "isFeatured": false
+      },
+      {
+        "id": "fab-1027",
+        "code": "82141C",
+        "name": "82141C Transparent",
+        "imageUrl": "/images/fabrics/swatches/82141C_transparent.jpg",
+        "filterType": "transparent",
+        "sortOrder": 28,
+        "isActive": true,
+        "isFeatured": false
+      },
+      {
+        "id": "fab-1028",
+        "code": "82141D",
+        "name": "82141D Transparent",
+        "imageUrl": "/images/fabrics/swatches/82141D_transparent.jpg",
+        "filterType": "transparent",
+        "sortOrder": 29,
+        "isActive": true,
+        "isFeatured": false
+      },
+      {
+        "id": "fab-1029",
+        "code": "82141E",
+        "name": "82141E Blackout",
+        "imageUrl": "/images/fabrics/swatches/82141E_blackout.jpg",
+        "filterType": "blackout",
+        "sortOrder": 30,
+        "isActive": true,
+        "isFeatured": false
+      },
+      {
+        "id": "fab-1030",
+        "code": "82141F",
+        "name": "82141F Blackout",
+        "imageUrl": "/images/fabrics/swatches/82141F_blackout.jpg",
+        "filterType": "blackout",
+        "sortOrder": 31,
+        "isActive": true,
+        "isFeatured": false
+      },
+      {
+        "id": "fab-1031",
+        "code": "82141G",
+        "name": "82141G Blackout",
+        "imageUrl": "/images/fabrics/swatches/82141G_blackout.jpg",
+        "filterType": "blackout",
+        "sortOrder": 32,
+        "isActive": true,
+        "isFeatured": false
+      },
+      {
+        "id": "fab-1032",
+        "code": "82141H",
+        "name": "82141H Blackout",
+        "imageUrl": "/images/fabrics/swatches/82141H_blackout.jpg",
+        "filterType": "blackout",
+        "sortOrder": 33,
+        "isActive": true,
+        "isFeatured": false
+      },
+      {
+        "id": "fab-1033",
+        "code": "82142A",
+        "name": "82142A Blackout",
+        "imageUrl": "/images/fabrics/swatches/82142A_blackout.jpg",
+        "filterType": "blackout",
+        "sortOrder": 34,
+        "isActive": true,
+        "isFeatured": false
+      },
+      {
+        "id": "fab-1034",
+        "code": "82142B",
+        "name": "82142B Blackout",
+        "imageUrl": "/images/fabrics/swatches/82142B_blackout.jpg",
+        "filterType": "blackout",
+        "sortOrder": 35,
+        "isActive": true,
+        "isFeatured": false
+      },
+      {
+        "id": "fab-1035",
+        "code": "82142C",
+        "name": "82142C Blackout",
+        "imageUrl": "/images/fabrics/swatches/82142C_blackout.jpg",
+        "filterType": "blackout",
+        "sortOrder": 36,
+        "isActive": true,
+        "isFeatured": false
+      },
+      {
+        "id": "fab-1036",
+        "code": "82142D",
+        "name": "82142D Blackout",
+        "imageUrl": "/images/fabrics/swatches/82142D_blackout.jpg",
+        "filterType": "blackout",
+        "sortOrder": 37,
+        "isActive": true,
+        "isFeatured": false
+      },
+      {
+        "id": "fab-1037",
+        "code": "82142E",
+        "name": "82142E Blackout",
+        "imageUrl": "/images/fabrics/swatches/82142E_blackout.jpg",
+        "filterType": "blackout",
+        "sortOrder": 38,
+        "isActive": true,
+        "isFeatured": false
+      },
+      {
+        "id": "fab-1038",
+        "code": "82143A",
+        "name": "82143A Blackout",
+        "imageUrl": "/images/fabrics/swatches/82143A_blackout.jpg",
+        "filterType": "blackout",
+        "sortOrder": 39,
+        "isActive": true,
+        "isFeatured": false
+      },
+      {
+        "id": "fab-1039",
+        "code": "82143B",
+        "name": "82143B Blackout",
+        "imageUrl": "/images/fabrics/swatches/82143B_blackout.jpg",
+        "filterType": "blackout",
+        "sortOrder": 40,
+        "isActive": true,
+        "isFeatured": false
+      },
+      {
+        "id": "fab-1040",
+        "code": "82143C",
+        "name": "82143C Blackout",
+        "imageUrl": "/images/fabrics/swatches/82143C_blackout.jpg",
+        "filterType": "blackout",
+        "sortOrder": 41,
+        "isActive": true,
+        "isFeatured": false
+      },
+      {
+        "id": "fab-1041",
+        "code": "82143D",
+        "name": "82143D Blackout",
+        "imageUrl": "/images/fabrics/swatches/82143D_blackout.jpg",
+        "filterType": "blackout",
+        "sortOrder": 42,
+        "isActive": true,
+        "isFeatured": false
+      },
+      {
+        "id": "fab-1042",
+        "code": "82143E",
+        "name": "82143E Blackout",
+        "imageUrl": "/images/fabrics/swatches/82143E_blackout.jpg",
+        "filterType": "blackout",
+        "sortOrder": 43,
+        "isActive": true,
+        "isFeatured": false
+      },
+      {
+        "id": "fab-1043",
+        "code": "82167A",
+        "name": "82167A Blackout",
+        "imageUrl": "/images/fabrics/swatches/82167A_blackout.jpg",
+        "filterType": "blackout",
+        "sortOrder": 44,
+        "isActive": true,
+        "isFeatured": false
+      },
+      {
+        "id": "fab-1044",
+        "code": "82167B",
+        "name": "82167B Blackout",
+        "imageUrl": "/images/fabrics/swatches/82167B_blackout.jpg",
+        "filterType": "blackout",
+        "sortOrder": 45,
+        "isActive": true,
+        "isFeatured": false
+      },
+      {
+        "id": "fab-1045",
+        "code": "82167C",
+        "name": "82167C Blackout",
+        "imageUrl": "/images/fabrics/swatches/82167C_blackout.jpg",
+        "filterType": "blackout",
+        "sortOrder": 46,
+        "isActive": true,
+        "isFeatured": false
+      },
+      {
+        "id": "fab-1046",
+        "code": "82167D",
+        "name": "82167D Blackout",
+        "imageUrl": "/images/fabrics/swatches/82167D_blackout.jpg",
+        "filterType": "blackout",
+        "sortOrder": 47,
+        "isActive": true,
+        "isFeatured": false
+      },
+      {
+        "id": "fab-1047",
+        "code": "82167E",
+        "name": "82167E Blackout",
+        "imageUrl": "/images/fabrics/swatches/82167E_blackout.jpg",
+        "filterType": "blackout",
+        "sortOrder": 48,
+        "isActive": true,
+        "isFeatured": false
+      },
+      {
+        "id": "fab-1048",
+        "code": "82168A",
+        "name": "82168A Blackout",
+        "imageUrl": "/images/fabrics/swatches/82168A_blackout.jpg",
+        "filterType": "blackout",
+        "sortOrder": 49,
+        "isActive": true,
+        "isFeatured": false
+      },
+      {
+        "id": "fab-1049",
+        "code": "82168B",
+        "name": "82168B Blackout",
+        "imageUrl": "/images/fabrics/swatches/82168B_blackout.jpg",
+        "filterType": "blackout",
+        "sortOrder": 50,
+        "isActive": true,
+        "isFeatured": false
+      },
+      {
+        "id": "fab-1050",
+        "code": "82168C",
+        "name": "82168C Blackout",
+        "imageUrl": "/images/fabrics/swatches/82168C_blackout.jpg",
+        "filterType": "blackout",
+        "sortOrder": 51,
+        "isActive": true,
+        "isFeatured": false
+      },
+      {
+        "id": "fab-1051",
+        "code": "82168D",
+        "name": "82168D Blackout",
+        "imageUrl": "/images/fabrics/swatches/82168D_blackout.jpg",
+        "filterType": "blackout",
+        "sortOrder": 52,
+        "isActive": true,
+        "isFeatured": false
+      },
+      {
+        "id": "fab-1052",
+        "code": "82168E",
+        "name": "82168E Blackout",
+        "imageUrl": "/images/fabrics/swatches/82168E_blackout.jpg",
+        "filterType": "blackout",
+        "sortOrder": 53,
+        "isActive": true,
+        "isFeatured": false
+      },
+      {
+        "id": "fab-1053",
+        "code": "82176A",
+        "name": "82176A Blackout",
+        "imageUrl": "/images/fabrics/swatches/82176A_blackout.jpg",
+        "filterType": "blackout",
+        "sortOrder": 54,
+        "isActive": true,
+        "isFeatured": false
+      },
+      {
+        "id": "fab-1054",
+        "code": "82176B",
+        "name": "82176B Blackout",
+        "imageUrl": "/images/fabrics/swatches/82176B_blackout.jpg",
+        "filterType": "blackout",
+        "sortOrder": 55,
+        "isActive": true,
+        "isFeatured": false
+      },
+      {
+        "id": "fab-1055",
+        "code": "82176C",
+        "name": "82176C Blackout",
+        "imageUrl": "/images/fabrics/swatches/82176C_blackout.jpg",
+        "filterType": "blackout",
+        "sortOrder": 56,
+        "isActive": true,
+        "isFeatured": false
+      },
+      {
+        "id": "fab-1056",
+        "code": "82176D",
+        "name": "82176D Blackout",
+        "imageUrl": "/images/fabrics/swatches/82176D_blackout.jpg",
+        "filterType": "blackout",
+        "sortOrder": 57,
+        "isActive": true,
+        "isFeatured": false
+      },
+      {
+        "id": "fab-1057",
+        "code": "82176E",
+        "name": "82176E Blackout",
+        "imageUrl": "/images/fabrics/swatches/82176E_blackout.jpg",
+        "filterType": "blackout",
+        "sortOrder": 58,
+        "isActive": true,
+        "isFeatured": false
+      },
+      {
+        "id": "fab-1058",
+        "code": "82176F",
+        "name": "82176F Blackout",
+        "imageUrl": "/images/fabrics/swatches/82176F_blackout.jpg",
+        "filterType": "blackout",
+        "sortOrder": 59,
+        "isActive": true,
+        "isFeatured": false
+      },
+      {
+        "id": "fab-1059",
+        "code": "82176G",
+        "name": "82176G Blackout",
+        "imageUrl": "/images/fabrics/swatches/82176G_blackout.jpg",
+        "filterType": "blackout",
+        "sortOrder": 60,
+        "isActive": true,
+        "isFeatured": false
+      },
+      {
+        "id": "fab-1060",
+        "code": "82178A",
+        "name": "82178A Blackout",
+        "imageUrl": "/images/fabrics/swatches/82178A_blackout.jpg",
+        "filterType": "blackout",
+        "sortOrder": 61,
+        "isActive": true,
+        "isFeatured": false
+      },
+      {
+        "id": "fab-1061",
+        "code": "82178B",
+        "name": "82178B Blackout",
+        "imageUrl": "/images/fabrics/swatches/82178B_blackout.jpg",
+        "filterType": "blackout",
+        "sortOrder": 62,
+        "isActive": true,
+        "isFeatured": false
+      },
+      {
+        "id": "fab-1062",
+        "code": "82178C",
+        "name": "82178C Blackout",
+        "imageUrl": "/images/fabrics/swatches/82178C_blackout.jpg",
+        "filterType": "blackout",
+        "sortOrder": 63,
+        "isActive": true,
+        "isFeatured": false
+      },
+      {
+        "id": "fab-1063",
+        "code": "82178D",
+        "name": "82178D Blackout",
+        "imageUrl": "/images/fabrics/swatches/82178D_blackout.jpg",
+        "filterType": "blackout",
+        "sortOrder": 64,
+        "isActive": true,
+        "isFeatured": false
+      },
+      {
+        "id": "fab-1064",
+        "code": "82178E",
+        "name": "82178E Blackout",
+        "imageUrl": "/images/fabrics/swatches/82178E_blackout.jpg",
+        "filterType": "blackout",
+        "sortOrder": 65,
+        "isActive": true,
+        "isFeatured": false
+      },
+      {
+        "id": "fab-1065",
+        "code": "82179A",
+        "name": "82179A Blackout",
+        "imageUrl": "/images/fabrics/swatches/82179A_blackout.jpg",
+        "filterType": "blackout",
+        "sortOrder": 66,
+        "isActive": true,
+        "isFeatured": false
+      },
+      {
+        "id": "fab-1066",
+        "code": "82179B",
+        "name": "82179B Blackout",
+        "imageUrl": "/images/fabrics/swatches/82179B_blackout.jpg",
+        "filterType": "blackout",
+        "sortOrder": 67,
+        "isActive": true,
+        "isFeatured": false
+      },
+      {
+        "id": "fab-1067",
+        "code": "82179C",
+        "name": "82179C Blackout",
+        "imageUrl": "/images/fabrics/swatches/82179C_blackout.jpg",
+        "filterType": "blackout",
+        "sortOrder": 68,
+        "isActive": true,
+        "isFeatured": false
+      },
+      {
+        "id": "fab-1068",
+        "code": "82180A",
+        "name": "82180A Blackout",
+        "imageUrl": "/images/fabrics/swatches/82180A_blackout.jpg",
+        "filterType": "blackout",
+        "sortOrder": 69,
+        "isActive": true,
+        "isFeatured": false
+      },
+      {
+        "id": "fab-1069",
+        "code": "82180B",
+        "name": "82180B Blackout",
+        "imageUrl": "/images/fabrics/swatches/82180B_blackout.jpg",
+        "filterType": "blackout",
+        "sortOrder": 70,
+        "isActive": true,
+        "isFeatured": false
+      },
+      {
+        "id": "fab-1070",
+        "code": "82180C",
+        "name": "82180C Blackout",
+        "imageUrl": "/images/fabrics/swatches/82180C_blackout.jpg",
+        "filterType": "blackout",
+        "sortOrder": 71,
+        "isActive": true,
+        "isFeatured": false
+      },
+      {
+        "id": "fab-1071",
+        "code": "82180D",
+        "name": "82180D Blackout",
+        "imageUrl": "/images/fabrics/swatches/82180D_blackout.jpg",
+        "filterType": "blackout",
+        "sortOrder": 72,
+        "isActive": true,
+        "isFeatured": false
+      },
+      {
+        "id": "fab-1072",
+        "code": "82180E",
+        "name": "82180E Blackout",
+        "imageUrl": "/images/fabrics/swatches/82180E_blackout.jpg",
+        "filterType": "blackout",
+        "sortOrder": 73,
+        "isActive": true,
+        "isFeatured": false
+      },
+      {
+        "id": "fab-1073",
+        "code": "82181A",
+        "name": "82181A Transparent",
+        "imageUrl": "/images/fabrics/swatches/82181A_transparent.jpg",
+        "filterType": "transparent",
+        "sortOrder": 74,
+        "isActive": true,
+        "isFeatured": false
+      },
+      {
+        "id": "fab-1074",
+        "code": "82181B",
+        "name": "82181B Transparent",
+        "imageUrl": "/images/fabrics/swatches/82181B_transparent.jpg",
+        "filterType": "transparent",
+        "sortOrder": 75,
+        "isActive": true,
+        "isFeatured": false
+      },
+      {
+        "id": "fab-1075",
+        "code": "82181C",
+        "name": "82181C Transparent",
+        "imageUrl": "/images/fabrics/swatches/82181C_transparent.jpg",
+        "filterType": "transparent",
+        "sortOrder": 76,
+        "isActive": true,
+        "isFeatured": false
+      },
+      {
+        "id": "fab-1076",
+        "code": "82181D",
+        "name": "82181D Transparent",
+        "imageUrl": "/images/fabrics/swatches/82181D_transparent.jpg",
+        "filterType": "transparent",
+        "sortOrder": 77,
+        "isActive": true,
+        "isFeatured": false
+      },
+      {
+        "id": "fab-1077",
+        "code": "82181E",
+        "name": "82181E Transparent",
+        "imageUrl": "/images/fabrics/swatches/82181E_transparent.jpg",
+        "filterType": "transparent",
+        "sortOrder": 78,
+        "isActive": true,
+        "isFeatured": false
+      },
+      {
+        "id": "fab-1078",
+        "code": "82183A",
+        "name": "82183A Blackout",
+        "imageUrl": "/images/fabrics/swatches/82183A_blackout.jpg",
+        "filterType": "blackout",
+        "sortOrder": 79,
+        "isActive": true,
+        "isFeatured": false
+      },
+      {
+        "id": "fab-1079",
+        "code": "82183B",
+        "name": "82183B Blackout",
+        "imageUrl": "/images/fabrics/swatches/82183B_blackout.jpg",
+        "filterType": "blackout",
+        "sortOrder": 80,
+        "isActive": true,
+        "isFeatured": false
+      },
+      {
+        "id": "fab-1080",
+        "code": "82183C",
+        "name": "82183C Blackout",
+        "imageUrl": "/images/fabrics/swatches/82183C_blackout.jpg",
+        "filterType": "blackout",
+        "sortOrder": 81,
+        "isActive": true,
+        "isFeatured": false
+      },
+      {
+        "id": "fab-1081",
+        "code": "82183D",
+        "name": "82183D Blackout",
+        "imageUrl": "/images/fabrics/swatches/82183D_blackout.jpg",
+        "filterType": "blackout",
+        "sortOrder": 82,
+        "isActive": true,
+        "isFeatured": false
+      },
+      {
+        "id": "fab-1082",
+        "code": "82183E",
+        "name": "82183E Blackout",
+        "imageUrl": "/images/fabrics/swatches/82183E_blackout.jpg",
+        "filterType": "blackout",
+        "sortOrder": 83,
+        "isActive": true,
+        "isFeatured": false
+      }
+    ],
+    "hardwareOptions": {
+      "mountType": [
+        {
+          "id": "mount-001",
+          "value": "inside",
+          "label": "Inside Mount",
+          "price": 0,
+          "imageUrl": "/images/mount-control/inside-mount.svg",
+          "sortOrder": 1,
+          "isActive": true
+        },
+        {
+          "id": "mount-002",
+          "value": "outside",
+          "label": "Outside Mount",
+          "price": 10,
+          "imageUrl": "/images/mount-control/outside-mount.svg",
+          "sortOrder": 2,
+          "isActive": true
+        }
+      ],
+      "controlType": [
+        {
+          "id": "ctrl-001",
+          "value": "manual",
+          "label": "Manual",
+          "price": 0,
+          "imageUrl": "/images/mount-control/manual.svg",
+          "sortOrder": 1,
+          "isActive": true
+        },
+        {
+          "id": "ctrl-002",
+          "value": "cordless",
+          "label": "Cordless",
+          "price": 25,
+          "imageUrl": "/images/mount-control/cordless.svg",
+          "sortOrder": 2,
+          "isActive": true
+        },
+        {
+          "id": "ctrl-003",
+          "value": "motorized",
+          "label": "Motorized",
+          "price": 100,
+          "imageUrl": "/images/mount-control/motorized.svg",
+          "sortOrder": 3,
+          "isActive": true
+        }
+      ],
+      "controlSystem": [
+        {
+          "id": "sys-001",
+          "value": "bead-chain-plastic",
+          "label": "Bead Chain",
+          "price": 0,
+          "imageUrl": "/images/control-system/bead-chain.png",
+          "sortOrder": 1,
+          "isActive": true
+        },
+        {
+          "id": "sys-002",
+          "value": "bead-chain-wand",
+          "label": "Chain + Wand",
+          "price": 8,
+          "imageUrl": "/images/control-system/bead-chain-wand.png",
+          "sortOrder": 2,
+          "isActive": true
+        },
+        {
+          "id": "sys-003",
+          "value": "cordless",
+          "label": "Cordless",
+          "price": 25,
+          "imageUrl": "/images/control-system/cordless.png",
+          "sortOrder": 3,
+          "isActive": true
+        },
+        {
+          "id": "sys-004",
+          "value": "motorized-app",
+          "label": "Motorized",
+          "price": 100,
+          "imageUrl": "/images/control-system/motorized-app.png",
+          "sortOrder": 4,
+          "isActive": true
+        },
+        {
+          "id": "sys-005",
+          "value": "cordless-motorized",
+          "label": "2 in 1",
+          "price": 120,
+          "imageUrl": "/images/control-system/cordless-motorized.png",
+          "sortOrder": 5,
+          "isActive": true
+        }
+      ],
+      "valanceType": [
+        {
+          "id": "val-001",
+          "value": "square-v2",
+          "label": "Square V2",
+          "price": 0,
+          "imageUrl": "/images/hardware/square-v2.png",
+          "sortOrder": 1,
+          "isActive": true
+        },
+        {
+          "id": "val-002",
+          "value": "fabric-wrapped-v3",
+          "label": "Fabric Wrapped V3",
+          "price": 6,
+          "imageUrl": "/images/hardware/fabric-wrapped-v3.png",
+          "sortOrder": 2,
+          "isActive": true
+        },
+        {
+          "id": "val-003",
+          "value": "fabric-inserted-s1",
+          "label": "Fabric Inserted S1",
+          "price": 3.5,
+          "imageUrl": "/images/hardware/fabric-inserted-s1.png",
+          "sortOrder": 3,
+          "isActive": true
+        },
+        {
+          "id": "val-004",
+          "value": "curve-white-s2",
+          "label": "Curve White S2",
+          "price": 5,
+          "imageUrl": "/images/hardware/curve-white-s2.png",
+          "sortOrder": 4,
+          "isActive": true
+        },
+        {
+          "id": "val-005",
+          "value": "fabric-wrapped-s3",
+          "label": "Fabric Wrapped S3",
+          "price": 5.5,
+          "imageUrl": "/images/hardware/fabric-wrapped-s3.png",
+          "sortOrder": 5,
+          "isActive": true
+        },
+        {
+          "id": "val-006",
+          "value": "simple-rolling",
+          "label": "Simple Rolling",
+          "price": 0,
+          "imageUrl": "/images/hardware/simple-rolling.png",
+          "sortOrder": 6,
+          "isActive": true
+        }
+      ],
+      "bottomRail": [
+        {
+          "id": "rail-001",
+          "value": "type-a-waterdrop",
+          "label": "Type A Streamlined Water-drop",
+          "price": 0,
+          "imageUrl": "/images/bottom-rail/type-a-waterdrop.png",
+          "sortOrder": 1,
+          "isActive": true
+        },
+        {
+          "id": "rail-002",
+          "value": "simple-rolling",
+          "label": "Simple Rolling",
+          "price": 0.9,
+          "imageUrl": "/images/bottom-rail/simple-rolling.png",
+          "sortOrder": 2,
+          "isActive": true
+        },
+        {
+          "id": "rail-003",
+          "value": "type-b",
+          "label": "Type B",
+          "price": 1,
+          "imageUrl": "/images/bottom-rail/type-b.png",
+          "sortOrder": 3,
+          "isActive": true
+        },
+        {
+          "id": "rail-004",
+          "value": "type-c-fabric-wrapped",
+          "label": "Type C Fabric Wrapped",
+          "price": 1.5,
+          "imageUrl": "/images/bottom-rail/type-c-fabric-wrapped.png",
+          "sortOrder": 4,
+          "isActive": true
+        },
+        {
+          "id": "rail-005",
+          "value": "type-d",
+          "label": "Type D",
+          "price": 1.5,
+          "imageUrl": "/images/bottom-rail/type-d.png",
+          "sortOrder": 5,
+          "isActive": true
+        }
+      ],
+      "rollerType": [
+        {
+          "id": "roll-001",
+          "value": "forward-roll",
+          "label": "Forward Roll",
+          "description": "Close to window",
+          "price": 0,
+          "imageUrl": "/images/mount-control/forward-roll.svg",
+          "sortOrder": 1,
+          "isActive": true
+        },
+        {
+          "id": "roll-002",
+          "value": "reverse-roll",
+          "label": "Reverse Roll",
+          "description": "Extra clearance",
+          "price": 5,
+          "imageUrl": "/images/mount-control/reverse-roll.svg",
+          "sortOrder": 2,
+          "isActive": true
+        }
+      ],
+      "sideCover": [
+        {
+          "id": "cover-001",
+          "value": "white",
+          "label": "White",
+          "price": 0,
+          "colorHex": "#FFFFFF",
+          "sortOrder": 1,
+          "isActive": true
+        },
+        {
+          "id": "cover-002",
+          "value": "gray",
+          "label": "Gray",
+          "price": 0,
+          "colorHex": "#808080",
+          "sortOrder": 2,
+          "isActive": true
+        },
+        {
+          "id": "cover-003",
+          "value": "black",
+          "label": "Black",
+          "price": 0,
+          "colorHex": "#333333",
+          "sortOrder": 3,
+          "isActive": true
+        }
+      ],
+      "motorType": [
+        {
+          "id": "motor-001",
+          "value": "battery",
+          "label": "Battery",
+          "price": 0,
+          "sortOrder": 1,
+          "isActive": true
+        },
+        {
+          "id": "motor-002",
+          "value": "plugin-wire",
+          "label": "Plugin Wire",
+          "price": 0,
+          "sortOrder": 2,
+          "isActive": true
+        },
+        {
+          "id": "motor-003",
+          "value": "solar-powered",
+          "label": "Solar Powered",
+          "price": 0,
+          "sortOrder": 3,
+          "isActive": true
+        }
+      ],
+      "remoteType": [
+        {
+          "id": "remote-001",
+          "value": "single-channel",
+          "label": "Single Channel",
+          "price": 0,
+          "sortOrder": 1,
+          "isActive": true
+        },
+        {
+          "id": "remote-002",
+          "value": "6-channel",
+          "label": "6 Channel",
+          "price": 0,
+          "sortOrder": 2,
+          "isActive": true
+        },
+        {
+          "id": "remote-003",
+          "value": "15-channel",
+          "label": "15 Channel",
+          "price": 0,
+          "sortOrder": 3,
+          "isActive": true
+        }
+      ],
+      "solarType": [
+        {
+          "id": "solar-001",
+          "value": "yes",
+          "label": "Yes",
+          "price": 0,
+          "sortOrder": 1,
+          "isActive": true
+        },
+        {
+          "id": "solar-002",
+          "value": "no",
+          "label": "No",
+          "price": 0,
+          "sortOrder": 2,
+          "isActive": true
+        }
+      ],
+      "chainLocation": [
+        {
+          "id": "chain-001",
+          "value": "left",
+          "label": "Left",
+          "price": 0,
+          "sortOrder": 1,
+          "isActive": true
+        },
+        {
+          "id": "chain-002",
+          "value": "right",
+          "label": "Right",
+          "price": 0,
+          "sortOrder": 2,
+          "isActive": true
+        }
+      ],
+      "motorLocation": [
+        {
+          "id": "motloc-001",
+          "value": "left",
+          "label": "Left",
+          "price": 0,
+          "sortOrder": 1,
+          "isActive": true
+        },
+        {
+          "id": "motloc-002",
+          "value": "right",
+          "label": "Right",
+          "price": 0,
+          "sortOrder": 2,
+          "isActive": true
+        }
+      ]
+    },
+    "accessories": [
+      {
+        "id": "acc-001",
+        "name": "Smart Hub",
+        "price": 45,
+        "iconClass": "fas fa-wifi",
+        "description": "Connect your motorized blinds to smart home systems",
+        "isActive": true
+      },
+      {
+        "id": "acc-002",
+        "name": "USB Charger",
+        "price": 15,
+        "iconClass": "fas fa-plug",
+        "description": "Convenient USB charging cable for motorized blinds",
+        "isActive": true
+      }
+    ],
+    "productCatalog": {
+      "features": [
+        "Custom-made to your exact measurements",
+        "Premium quality materials",
+        "Easy to install with included hardware",
+        "Child-safe cordless options available",
+        "Energy efficient design"
+      ],
+      "careInstructions": "Dust regularly with a soft cloth. For deeper cleaning, use a damp cloth with mild soap. Avoid harsh chemicals.",
+      "warrantyInfo": "All products come with a standard 1-year warranty. Extended 3-year warranty available at checkout."
+    },
+    "shadeSimulator": {
+      "views": {
+        "front": {
+          "imageUrl": "https://images.unsplash.com/photo-1560448204-603b3fc33ddc?w=800"
+        },
+        "side": {
+          "imageUrl": "https://images.unsplash.com/photo-1560448204-603b3fc33ddc?w=800"
+        },
+        "outside": {
+          "imageUrl": "https://images.unsplash.com/photo-1560448204-603b3fc33ddc?w=800"
+        }
+      }
+    },
+    "galleryImages": {
+      "main": "https://images.unsplash.com/photo-1560448204-603b3fc33ddc?w=800",
+      "thumbnails": [
+        "https://images.unsplash.com/photo-1560448204-603b3fc33ddc?w=200",
+        "https://images.unsplash.com/photo-1560185893-a55cbc8c57e8?w=200",
+        "https://images.unsplash.com/photo-1540518614846-7eded433c457?w=200",
+        "https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=200"
+      ]
+    }
+  },
+  "analytics": [
+    {
+      "id": "event-001",
+      "type": "page_view",
+      "sessionId": "demo-session-1",
+      "productId": "b23180d5-7989-4f9d-bf28-9b210cb31256",
+      "value": 0,
+      "source": "direct",
+      "page": "/product/roller-shades",
+      "createdAt": "2025-12-30T10:00:00.000Z"
+    },
+    {
+      "id": "event-002",
+      "type": "add_to_cart",
+      "sessionId": "demo-session-1",
+      "productId": "b23180d5-7989-4f9d-bf28-9b210cb31256",
+      "value": 75.59,
+      "source": "direct",
+      "createdAt": "2025-12-30T10:05:00.000Z"
+    },
+    {
+      "id": "event-003",
+      "type": "purchase",
+      "sessionId": "demo-session-2",
+      "productId": "cb1032e2-498f-4ea6-bdd7-354db14d16d9",
+      "value": 189.99,
+      "source": "google",
+      "createdAt": "2025-12-29T14:30:00.000Z"
+    },
+    {
+      "id": "event-004",
+      "type": "purchase",
+      "sessionId": "demo-session-3",
+      "productId": "b23180d5-7989-4f9d-bf28-9b210cb31256",
+      "value": 250,
+      "source": "facebook",
+      "createdAt": "2025-12-28T09:15:00.000Z"
+    },
+    {
+      "id": "event-005",
+      "type": "purchase",
+      "sessionId": "demo-session-4",
+      "productId": "07595ff8-fab4-4e0e-b53b-7b7165cbe69c",
+      "value": 175.5,
+      "source": "direct",
+      "createdAt": "2025-12-27T16:45:00.000Z"
+    }
+  ],
+  "notifications": [
+    {
+      "id": "notif-001",
+      "type": "quote",
+      "title": "New Quote Request",
+      "message": "John Doe requested a quote for Roller Blinds",
+      "link": "/admin/quotes.html",
+      "read": false,
+      "createdAt": "2025-12-30T12:55:41.498Z"
+    },
+    {
+      "id": "notif-002",
+      "type": "system",
+      "title": "Welcome to Admin Dashboard",
+      "message": "Your enterprise admin system is now active",
+      "link": "/admin/index.html",
+      "read": true,
+      "createdAt": "2025-12-25T00:00:00.000Z"
+    }
+  ],
+  "customers": [
+    {
+      "id": "cust-001",
+      "email": "john@example.com",
+      "firstName": "John",
+      "lastName": "Doe",
+      "phone": "555-1234",
+      "type": "retail",
+      "companyName": "",
+      "addresses": [
+        {
+          "id": "addr-001",
+          "type": "shipping",
+          "default": true,
+          "firstName": "John",
+          "lastName": "Doe",
+          "address1": "123 Main Street",
+          "address2": "Apt 4B",
+          "city": "Los Angeles",
+          "state": "CA",
+          "zip": "90001",
+          "country": "US",
+          "phone": "555-1234"
+        }
+      ],
+      "tags": [],
+      "notes": "",
+      "totalOrders": 1,
+      "totalSpent": 189.99,
+      "createdAt": "2025-12-29T14:30:00.000Z",
+      "lastOrderAt": "2025-12-29T14:30:00.000Z"
+    },
+    {
+      "id": "cust-002",
+      "email": "sarah@designstudio.com",
+      "firstName": "Sarah",
+      "lastName": "Miller",
+      "phone": "555-5678",
+      "type": "designer",
+      "companyName": "Miller Design Studio",
+      "addresses": [
+        {
+          "id": "addr-002",
+          "type": "billing",
+          "default": true,
+          "firstName": "Sarah",
+          "lastName": "Miller",
+          "address1": "456 Design Ave",
+          "address2": "Suite 100",
+          "city": "New York",
+          "state": "NY",
+          "zip": "10001",
+          "country": "US",
+          "phone": "555-5678"
+        }
+      ],
+      "tags": [
+        "vip",
+        "designer"
+      ],
+      "notes": "Interior designer - offers 10% trade discount",
+      "totalOrders": 5,
+      "totalSpent": 2450,
+      "createdAt": "2025-11-15T09:00:00.000Z",
+      "lastOrderAt": "2025-12-28T09:15:00.000Z"
+    }
+  ],
+  "draftOrders": [
+    {
+      "id": "draft-001",
+      "draftNumber": "D-001",
+      "customerId": "cust-002",
+      "customerEmail": "sarah@designstudio.com",
+      "customerName": "Sarah Miller",
+      "items": [
+        {
+          "id": "item-001",
+          "productId": "b23180d5-7989-4f9d-bf28-9b210cb31256",
+          "productName": "Affordable Custom Roller Blinds",
+          "width": 48,
+          "height": 60,
+          "configuration": {
+            "fabric": "82032A",
+            "mountType": "inside",
+            "controlType": "motorized"
+          },
+          "unitPrice": 185,
+          "quantity": 3,
+          "internalNotes": "Client prefers white fabric"
+        }
+      ],
+      "measurements": {
+        "width": 48,
+        "height": 60,
+        "mountType": "inside",
+        "customNotes": "Bay window installation"
+      },
+      "subtotal": 555,
+      "discount": {
+        "type": "percentage",
+        "value": 10,
+        "code": "DESIGNER10"
+      },
+      "tax": 40,
+      "shipping": 0,
+      "total": 539.5,
+      "status": "open",
+      "paymentStatus": "pending",
+      "internalNotes": "Designer account - usual 10% discount applied",
+      "attachments": [],
+      "timeline": [
+        {
+          "action": "created",
+          "timestamp": "2025-12-30T10:00:00.000Z",
+          "user": "Admin"
+        }
+      ],
+      "createdAt": "2025-12-30T10:00:00.000Z",
+      "updatedAt": "2025-12-30T10:00:00.000Z"
+    }
+  ],
+  "abandonedCheckouts": [
+    {
+      "id": "abandon-001",
+      "sessionId": "sess_abandoned_1",
+      "email": "visitor@example.com",
+      "items": [
+        {
+          "productId": "b23180d5-7989-4f9d-bf28-9b210cb31256",
+          "productName": "Affordable Custom Roller Blinds",
+          "quantity": 2,
+          "unitPrice": 85
+        }
+      ],
+      "subtotal": 170,
+      "recoveryEmailSent": false,
+      "recoveryEmailSentAt": null,
+      "recoveredOrderId": null,
+      "createdAt": "2025-12-29T15:30:00.000Z",
+      "lastActivity": "2025-12-29T15:45:00.000Z"
+    }
+  ],
+  "blogPosts": [
+    {
+      "id": "post-001",
+      "title": "How to Measure Your Windows for Perfect Fit Blinds",
+      "slug": "how-to-measure-windows-blinds",
+      "content": "<h2>Getting the Perfect Measurements</h2><p>Measuring your windows correctly is the most important step when ordering custom blinds. Follow these simple steps to ensure a perfect fit every time.</p><h3>Step 1: Gather Your Tools</h3><p>You'll need a metal measuring tape (cloth tapes can stretch), a pencil, and paper to record your measurements.</p><h3>Step 2: Measure Width</h3><p>For inside mount, measure the width at the top, middle, and bottom of the window opening. Use the smallest measurement.</p><h3>Step 3: Measure Height</h3><p>Measure from the top of the opening to the window sill. Take measurements on both sides and in the center, using the longest measurement.</p>",
+      "excerpt": "Learn the proper techniques for measuring your windows to ensure your custom blinds fit perfectly every time.",
+      "author": "Admin",
+      "featuredImage": "/images/blog/measuring-guide.jpg",
+      "status": "published",
+      "publishedAt": "2025-12-15T10:00:00.000Z",
+      "tags": [
+        "guide",
+        "measuring",
+        "tips"
+      ],
+      "seoTitle": "How to Measure Windows for Blinds | Complete Guide",
+      "seoDescription": "Step-by-step guide to measuring your windows for custom blinds. Get perfect measurements every time with our expert tips.",
+      "createdAt": "2025-12-15T10:00:00.000Z"
+    },
+    {
+      "id": "post-002",
+      "title": "Top 5 Window Treatment Trends for 2025",
+      "slug": "window-treatment-trends-2025",
+      "content": "<h2>What's Trending in Window Treatments</h2><p>As we enter 2025, homeowners are embracing new styles and technologies in window treatments. Here are the top trends to watch.</p><h3>1. Smart Motorized Blinds</h3><p>Voice-controlled and app-enabled blinds continue to grow in popularity, offering convenience and energy savings.</p><h3>2. Natural Materials</h3><p>Bamboo, jute, and other natural woven materials bring organic warmth to any space.</p><h3>3. Bold Colors</h3><p>Moving beyond neutrals, bold jewel tones are making a statement in modern homes.</p>",
+      "excerpt": "Discover the hottest window treatment trends for 2025, from smart motorized blinds to bold color choices.",
+      "author": "Admin",
+      "featuredImage": "/images/blog/trends-2025.jpg",
+      "status": "published",
+      "publishedAt": "2025-12-20T10:00:00.000Z",
+      "tags": [
+        "trends",
+        "design",
+        "2025"
+      ],
+      "seoTitle": "Window Treatment Trends 2025 | Modern Blinds & Shades",
+      "seoDescription": "Explore the top window treatment trends for 2025 including smart blinds, natural materials, and bold colors.",
+      "createdAt": "2025-12-20T10:00:00.000Z"
+    }
+  ],
+  "pages": [
+    {
+      "id": "page-001",
+      "title": "About Us",
+      "slug": "about",
+      "content": "<h1>About Peekaboo Shades</h1><p>We are a family-owned business dedicated to providing high-quality, custom window treatments at affordable prices. Since 2015, we've helped thousands of homeowners transform their spaces with beautiful blinds and shades.</p><h2>Our Mission</h2><p>To make custom window treatments accessible to everyone without compromising on quality or style.</p><h2>Why Choose Us?</h2><ul><li>Factory-direct pricing</li><li>Premium materials</li><li>Expert customer service</li><li>Easy installation</li></ul>",
+      "template": "default",
+      "isVisible": true,
+      "seoTitle": "About Peekaboo Shades | Custom Window Treatments",
+      "seoDescription": "Learn about Peekaboo Shades - your trusted source for high-quality custom blinds and shades since 2015.",
+      "createdAt": "2025-01-01T00:00:00.000Z"
+    },
+    {
+      "id": "page-002",
+      "title": "Warranty Information",
+      "slug": "warranty",
+      "content": "<h1>Warranty Information</h1><h2>Standard Warranty</h2><p>All Peekaboo Shades products come with a comprehensive 1-year warranty covering manufacturing defects and material issues.</p><h2>Extended Warranty</h2><p>Upgrade to our 3-year extended warranty at checkout for complete peace of mind. The extended warranty covers:</p><ul><li>All manufacturing defects</li><li>Motor and mechanism failures</li><li>Fabric fading or discoloration</li><li>Hardware and component issues</li></ul><h2>How to Make a Claim</h2><p>Contact our customer service team with your order number and photos of the issue. We'll process your claim within 48 hours.</p>",
+      "template": "default",
+      "isVisible": true,
+      "seoTitle": "Warranty Information | Peekaboo Shades",
+      "seoDescription": "Learn about our comprehensive warranty coverage for all blinds and shades. 1-year standard, 3-year extended available.",
+      "createdAt": "2025-01-01T00:00:00.000Z"
+    },
+    {
+      "id": "page-003",
+      "title": "Measurement Guide",
+      "slug": "measurement-guide",
+      "content": "<h1>Window Measurement Guide</h1><h2>Inside Mount</h2><p>For a clean, built-in look, measure the inside of your window frame:</p><ol><li>Measure width at top, middle, and bottom</li><li>Use the smallest width measurement</li><li>Measure height on left, center, and right</li><li>Use the longest height measurement</li></ol><h2>Outside Mount</h2><p>For maximum light blockage or to cover window trim:</p><ol><li>Decide how much overlap you want (typically 2-3 inches per side)</li><li>Add the overlap to your window width</li><li>Measure from where you want the top to the sill</li></ol>",
+      "template": "default",
+      "isVisible": true,
+      "seoTitle": "Window Measurement Guide | How to Measure for Blinds",
+      "seoDescription": "Complete guide to measuring your windows for inside and outside mount blinds. Get the perfect fit every time.",
+      "createdAt": "2025-01-01T00:00:00.000Z"
+    }
+  ],
+  "files": [
+    {
+      "id": "file-001",
+      "filename": "measurement-guide.pdf",
+      "originalName": "Measurement_Guide_v2.pdf",
+      "mimeType": "application/pdf",
+      "size": 1024000,
+      "url": "/files/measurement-guide.pdf",
+      "alt": "Window Measurement Guide PDF",
+      "category": "guides",
+      "tags": [
+        "measurement",
+        "instructions",
+        "pdf"
+      ],
+      "createdAt": "2025-01-01T00:00:00.000Z"
+    },
+    {
+      "id": "file-002",
+      "filename": "installation-video.mp4",
+      "originalName": "How_To_Install_Roller_Blinds.mp4",
+      "mimeType": "video/mp4",
+      "size": 52428800,
+      "url": "/files/installation-video.mp4",
+      "alt": "Installation Tutorial Video",
+      "category": "guides",
+      "tags": [
+        "installation",
+        "video",
+        "tutorial"
+      ],
+      "createdAt": "2025-01-15T00:00:00.000Z"
+    },
+    {
+      "id": "file-5dcc1b8e",
+      "filename": "1767258743263-1b1d3a84.png",
+      "originalName": "82032A_roller_shade_finished.png",
+      "mimeType": "image/png",
+      "size": 1804360,
+      "url": "/images/uploads/1767258743263-1b1d3a84.png",
+      "alt": "",
+      "category": "general",
+      "tags": [],
+      "createdAt": "2026-01-01T09:12:23.275Z"
+    }
+  ],
+  "pageTemplates": [
+    {
+      "id": "template-blank",
+      "name": "Blank Page",
+      "description": "Start from scratch with an empty page",
+      "thumbnail": "/images/templates/blank.jpg",
+      "category": "basic",
+      "content": {
+        "sections": []
+      },
+      "createdAt": "2025-01-01T00:00:00.000Z"
+    },
+    {
+      "id": "template-landing",
+      "name": "Landing Page",
+      "description": "Hero section with CTA, features, and testimonials",
+      "thumbnail": "/images/templates/landing.jpg",
+      "category": "marketing",
+      "content": {
+        "sections": [
+          {
+            "type": "hero",
+            "data": {
+              "title": "Your Headline Here",
+              "subtitle": "Compelling subtitle",
+              "buttonText": "Get Started",
+              "buttonLink": "#"
+            }
+          },
+          {
+            "type": "features",
+            "data": {
+              "title": "Why Choose Us",
+              "items": []
+            }
+          },
+          {
+            "type": "testimonials",
+            "data": {
+              "title": "What Our Customers Say",
+              "items": []
+            }
+          },
+          {
+            "type": "cta",
+            "data": {
+              "title": "Ready to Get Started?",
+              "buttonText": "Contact Us",
+              "buttonLink": "/contact"
+            }
+          }
+        ]
+      },
+      "createdAt": "2025-01-01T00:00:00.000Z"
+    },
+    {
+      "id": "template-about",
+      "name": "About Us",
+      "description": "Company information with team section",
+      "thumbnail": "/images/templates/about.jpg",
+      "category": "basic",
+      "content": {
+        "sections": [
+          {
+            "type": "hero",
+            "data": {
+              "title": "About Our Company",
+              "subtitle": "Our story and mission"
+            }
+          },
+          {
+            "type": "text",
+            "data": {
+              "content": "<h2>Our Story</h2><p>Tell your company's story here...</p>"
+            }
+          },
+          {
+            "type": "team",
+            "data": {
+              "title": "Meet Our Team",
+              "members": []
+            }
+          }
+        ]
+      },
+      "createdAt": "2025-01-01T00:00:00.000Z"
+    },
+    {
+      "id": "template-contact",
+      "name": "Contact Page",
+      "description": "Contact form with map and information",
+      "thumbnail": "/images/templates/contact.jpg",
+      "category": "basic",
+      "content": {
+        "sections": [
+          {
+            "type": "hero",
+            "data": {
+              "title": "Get In Touch",
+              "subtitle": "We'd love to hear from you"
+            }
+          },
+          {
+            "type": "contact-form",
+            "data": {
+              "fields": [
+                "name",
+                "email",
+                "message"
+              ]
+            }
+          },
+          {
+            "type": "map",
+            "data": {
+              "address": "123 Main St, City, State 12345"
+            }
+          }
+        ]
+      },
+      "createdAt": "2025-01-01T00:00:00.000Z"
+    },
+    {
+      "id": "template-product",
+      "name": "Product Showcase",
+      "description": "Highlight products with gallery and features",
+      "thumbnail": "/images/templates/product.jpg",
+      "category": "ecommerce",
+      "content": {
+        "sections": [
+          {
+            "type": "hero",
+            "data": {
+              "title": "Our Products",
+              "subtitle": "Quality products for your home"
+            }
+          },
+          {
+            "type": "products",
+            "data": {
+              "title": "Featured Products",
+              "showFeatured": true,
+              "limit": 6
+            }
+          },
+          {
+            "type": "features",
+            "data": {
+              "title": "Why Our Products",
+              "items": []
+            }
+          }
+        ]
+      },
+      "createdAt": "2025-01-01T00:00:00.000Z"
+    },
+    {
+      "id": "template-faq",
+      "name": "FAQ Page",
+      "description": "Frequently asked questions layout",
+      "thumbnail": "/images/templates/faq.jpg",
+      "category": "support",
+      "content": {
+        "sections": [
+          {
+            "type": "hero",
+            "data": {
+              "title": "Frequently Asked Questions",
+              "subtitle": "Find answers to common questions"
+            }
+          },
+          {
+            "type": "faq",
+            "data": {
+              "showAll": true
+            }
+          },
+          {
+            "type": "cta",
+            "data": {
+              "title": "Still have questions?",
+              "buttonText": "Contact Support",
+              "buttonLink": "/contact"
+            }
+          }
+        ]
+      },
+      "createdAt": "2025-01-01T00:00:00.000Z"
+    }
+  ],
+  "pageComponents": [
+    {
+      "id": "comp-trust-badges",
+      "name": "Trust Badges",
+      "category": "trust",
+      "data": {
+        "type": "trust-badges",
+        "badges": [
+          {
+            "icon": "fa-truck",
+            "text": "Free Shipping"
+          },
+          {
+            "icon": "fa-shield-alt",
+            "text": "2-Year Warranty"
+          },
+          {
+            "icon": "fa-undo",
+            "text": "Easy Returns"
+          },
+          {
+            "icon": "fa-headset",
+            "text": "24/7 Support"
+          }
+        ]
+      },
+      "createdAt": "2025-01-01T00:00:00.000Z"
+    },
+    {
+      "id": "comp-newsletter",
+      "name": "Newsletter Signup",
+      "category": "marketing",
+      "data": {
+        "type": "newsletter",
+        "title": "Subscribe to Our Newsletter",
+        "subtitle": "Get the latest updates and exclusive offers",
+        "buttonText": "Subscribe"
+      },
+      "createdAt": "2025-01-01T00:00:00.000Z"
+    },
+    {
+      "id": "comp-social-proof",
+      "name": "Social Proof Bar",
+      "category": "trust",
+      "data": {
+        "type": "social-proof",
+        "items": [
+          {
+            "number": "10,000+",
+            "label": "Happy Customers"
+          },
+          {
+            "number": "4.9/5",
+            "label": "Customer Rating"
+          },
+          {
+            "number": "5,000+",
+            "label": "5-Star Reviews"
+          }
+        ]
+      },
+      "createdAt": "2025-01-01T00:00:00.000Z"
+    }
+  ],
+  "pageBuilderSettings": {
+    "globalStyles": {
+      "primaryColor": "#8E6545",
+      "secondaryColor": "#333333",
+      "accentColor": "#D4A574",
+      "backgroundColor": "#FFFFFF",
+      "textColor": "#333333",
+      "fontFamily": "Montserrat, sans-serif",
+      "headingFont": "Montserrat, sans-serif",
+      "baseFontSize": "16px",
+      "containerWidth": "1200px",
+      "borderRadius": "8px"
+    },
+    "defaultSections": [
+      "header",
+      "footer"
+    ],
+    "enabledFeatures": {
+      "undo": true,
+      "redo": true,
+      "autosave": true,
+      "devicePreview": true,
+      "seoEditor": true,
+      "codeEditor": false
+    }
+  },
+  "productPageElements": {
+    "sections": [
+      {
+        "id": "section-hero",
+        "type": "hero",
+        "title": "Product Gallery",
+        "isVisible": true,
+        "sortOrder": 1,
+        "elements": []
+      },
+      {
+        "id": "section-options",
+        "type": "options",
+        "title": "Customize Your Shade",
+        "isVisible": true,
+        "sortOrder": 2,
+        "elements": [
+          {
+            "id": "btn-add-cart",
+            "type": "button",
+            "content": "Add to Cart",
+            "link": "#add-to-cart",
+            "icon": "fa-shopping-cart",
+            "style": {
+              "background": "#8E6545",
+              "color": "#FFFFFF"
+            },
+            "isVisible": true,
+            "sortOrder": 1
+          },
+          {
+            "id": "btn-get-quote",
+            "type": "button",
+            "content": "Get Quote",
+            "link": "#quote-form",
+            "icon": "fa-file-alt",
+            "style": {
+              "background": "#333333",
+              "color": "#FFFFFF"
+            },
+            "isVisible": true,
+            "sortOrder": 2
+          }
+        ]
+      },
+      {
+        "id": "section-features",
+        "type": "features",
+        "title": "Product Features",
+        "isVisible": true,
+        "sortOrder": 3,
+        "elements": [
+          {
+            "id": "icon-measure",
+            "type": "icon",
+            "content": "Custom Made",
+            "icon": "fa-ruler",
+            "style": {},
+            "isVisible": true,
+            "sortOrder": 1
+          },
+          {
+            "id": "icon-quality",
+            "type": "icon",
+            "content": "Premium Quality",
+            "icon": "fa-star",
+            "style": {},
+            "isVisible": true,
+            "sortOrder": 2
+          },
+          {
+            "id": "icon-safe",
+            "type": "icon",
+            "content": "Child Safe",
+            "icon": "fa-child",
+            "style": {},
+            "isVisible": true,
+            "sortOrder": 3
+          },
+          {
+            "id": "icon-warranty",
+            "type": "icon",
+            "content": "2 Year Warranty",
+            "icon": "fa-shield-alt",
+            "style": {},
+            "isVisible": true,
+            "sortOrder": 4
+          }
+        ]
+      },
+      {
+        "id": "section-simulator",
+        "type": "simulator",
+        "title": "Shade Simulator",
+        "isVisible": true,
+        "sortOrder": 4,
+        "elements": []
+      },
+      {
+        "id": "section-accessories",
+        "type": "accessories",
+        "title": "Add Accessories",
+        "isVisible": true,
+        "sortOrder": 5,
+        "elements": []
+      }
+    ],
+    "globalElements": {
+      "ctaButton": {
+        "text": "Free Consultation",
+        "link": "/contact",
+        "style": {
+          "background": "#8E6545",
+          "color": "#FFFFFF"
+        }
+      },
+      "trustBadges": [
+        {
+          "id": "trust-1",
+          "icon": "fa-truck",
+          "text": "Free Shipping",
+          "isVisible": true
+        },
+        {
+          "id": "trust-2",
+          "icon": "fa-shield-alt",
+          "text": "2-Year Warranty",
+          "isVisible": true
+        },
+        {
+          "id": "trust-3",
+          "icon": "fa-undo",
+          "text": "Easy Returns",
+          "isVisible": true
+        }
+      ],
+      "floatingButtons": []
+    }
+  },
+  "apiConfig": {
+    "keys": [
+      {
+        "id": "key-demo-1",
+        "name": "Demo API Key",
+        "key": "pk_demo_12345678901234567890",
+        "permissions": [
+          "read",
+          "write"
+        ],
+        "rateLimit": 100,
+        "status": "active",
+        "allowedOrigins": [
+          "*"
+        ],
+        "lastUsed": "2026-01-01T18:24:43.382Z",
+        "requestCount": 2,
+        "createdAt": "2026-01-01T18:24:37.236Z"
+      }
+    ],
+    "webhooks": [
+      {
+        "id": "webhook-demo-1",
+        "name": "Demo Webhook",
+        "url": "https://webhook.site/test",
+        "events": [
+          "order.created",
+          "order.updated",
+          "product.updated"
+        ],
+        "status": "active",
+        "secret": "whsec_demo_secret_key",
+        "lastTriggered": "2026-01-01T18:24:43.944Z",
+        "failureCount": 0,
+        "createdAt": "2026-01-01T18:24:37.236Z"
+      }
+    ],
+    "logs": [
+      {
+        "id": "log-1767291883400",
+        "type": "webhook_triggered",
+        "webhookId": "webhook-demo-1",
+        "webhookName": "Demo Webhook",
+        "event": "order.created",
+        "url": "https://webhook.site/test",
+        "timestamp": "2026-01-01T18:24:43.400Z"
+      },
+      {
+        "id": "log-1767291883382",
+        "type": "api_request",
+        "apiKeyId": "key-demo-1",
+        "apiKeyName": "Demo API Key",
+        "endpoint": "/api/v1/orders",
+        "method": "POST",
+        "ip": "::1",
+        "timestamp": "2026-01-01T18:24:43.382Z"
+      },
+      {
+        "id": "log-1767291877237",
+        "type": "api_request",
+        "apiKeyId": "key-demo-1",
+        "apiKeyName": "Demo API Key",
+        "endpoint": "/api/v1/products?limit=2",
+        "method": "GET",
+        "ip": "::1",
+        "timestamp": "2026-01-01T18:24:37.237Z"
+      }
+    ]
+  }
 }

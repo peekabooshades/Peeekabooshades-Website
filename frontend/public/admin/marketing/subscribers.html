@@ -1,0 +1,1270 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Subscribers - Marketing | Peekaboo Shades Admin</title>
+    <link rel="stylesheet" href="../css/admin.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .marketing-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .marketing-sidebar {
+            width: 240px;
+            background: #1a1a2e;
+            padding: 20px 0;
+            flex-shrink: 0;
+        }
+
+        .marketing-sidebar h3 {
+            color: #fff;
+            padding: 0 20px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .marketing-nav {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .marketing-nav li a {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 20px;
+            color: #a0a0a0;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+
+        .marketing-nav li a:hover,
+        .marketing-nav li a.active {
+            background: rgba(255,255,255,0.1);
+            color: #fff;
+        }
+
+        .marketing-nav li a.active {
+            border-left: 3px solid #4a90d9;
+        }
+
+        .marketing-content {
+            flex: 1;
+            padding: 30px;
+            background: #f5f5f5;
+        }
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .page-header h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .btn-primary {
+            background: #4a90d9;
+            color: #fff;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary:hover {
+            background: #3a7bc8;
+        }
+
+        .btn-secondary {
+            background: #fff;
+            color: #333;
+            border: 1px solid #ddd;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-secondary:hover {
+            background: #f5f5f5;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: #fff;
+            border-radius: 8px;
+            padding: 20px;
+        }
+
+        .stat-value {
+            font-size: 28px;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            color: #888;
+            font-size: 13px;
+        }
+
+        .stat-change {
+            font-size: 12px;
+            margin-top: 10px;
+        }
+
+        .stat-change.up { color: #28a745; }
+        .stat-change.down { color: #dc3545; }
+
+        .subscribers-toolbar {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            gap: 15px;
+            flex-wrap: wrap;
+        }
+
+        .search-box {
+            flex: 1;
+            max-width: 400px;
+            position: relative;
+        }
+
+        .search-box input {
+            width: 100%;
+            padding: 10px 15px 10px 40px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        .search-box i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #999;
+        }
+
+        .filter-group {
+            display: flex;
+            gap: 10px;
+        }
+
+        .filter-select {
+            padding: 10px 15px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+            background: #fff;
+        }
+
+        .subscribers-table {
+            background: #fff;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        .subscribers-table table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .subscribers-table th,
+        .subscribers-table td {
+            padding: 15px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+
+        .subscribers-table th {
+            background: #f9f9f9;
+            font-weight: 600;
+            font-size: 13px;
+            color: #666;
+        }
+
+        .subscribers-table th.checkbox-col,
+        .subscribers-table td.checkbox-col {
+            width: 40px;
+        }
+
+        .subscriber-info {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .subscriber-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: #e8f0fc;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #4a90d9;
+            font-weight: 600;
+        }
+
+        .subscriber-name {
+            font-weight: 500;
+        }
+
+        .subscriber-email {
+            font-size: 13px;
+            color: #888;
+        }
+
+        .status-badge {
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .status-subscribed {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-unsubscribed {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .status-bounced {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .status-pending {
+            background: #f0f0f0;
+            color: #666;
+        }
+
+        .engagement-score {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .score-bar {
+            width: 60px;
+            height: 6px;
+            background: #eee;
+            border-radius: 3px;
+            overflow: hidden;
+        }
+
+        .score-fill {
+            height: 100%;
+            border-radius: 3px;
+        }
+
+        .score-fill.high { background: #28a745; }
+        .score-fill.medium { background: #ffc107; }
+        .score-fill.low { background: #dc3545; }
+
+        .tags-cell {
+            display: flex;
+            gap: 5px;
+            flex-wrap: wrap;
+        }
+
+        .tag {
+            padding: 3px 8px;
+            background: #e8f0fc;
+            color: #4a90d9;
+            border-radius: 4px;
+            font-size: 11px;
+        }
+
+        .actions-cell {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-icon {
+            width: 32px;
+            height: 32px;
+            border: 1px solid #ddd;
+            background: #fff;
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #666;
+        }
+
+        .btn-icon:hover {
+            background: #f5f5f5;
+        }
+
+        .btn-icon.danger:hover {
+            background: #fee;
+            color: #c00;
+            border-color: #fcc;
+        }
+
+        .pagination {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+            background: #fff;
+            border-top: 1px solid #eee;
+        }
+
+        .pagination-info {
+            color: #888;
+            font-size: 13px;
+        }
+
+        .pagination-controls {
+            display: flex;
+            gap: 5px;
+        }
+
+        .pagination-controls button {
+            width: 36px;
+            height: 36px;
+            border: 1px solid #ddd;
+            background: #fff;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .pagination-controls button.active {
+            background: #4a90d9;
+            color: #fff;
+            border-color: #4a90d9;
+        }
+
+        .pagination-controls button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        /* Bulk Actions */
+        .bulk-actions {
+            display: none;
+            background: #4a90d9;
+            padding: 12px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .bulk-actions.visible {
+            display: flex;
+        }
+
+        .bulk-actions span {
+            color: #fff;
+            font-size: 14px;
+        }
+
+        .bulk-actions button {
+            padding: 8px 16px;
+            border: 1px solid rgba(255,255,255,0.3);
+            background: transparent;
+            color: #fff;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+        }
+
+        .bulk-actions button:hover {
+            background: rgba(255,255,255,0.1);
+        }
+
+        /* Modal Styles */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: #fff;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .modal-header {
+            padding: 20px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h2 {
+            margin: 0;
+            font-size: 18px;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #666;
+        }
+
+        .modal-body {
+            padding: 20px;
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        .modal-footer {
+            padding: 15px 20px;
+            border-top: 1px solid #eee;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #333;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px 15px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .import-zone {
+            border: 2px dashed #ddd;
+            border-radius: 8px;
+            padding: 40px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .import-zone:hover {
+            border-color: #4a90d9;
+            background: #f9f9f9;
+        }
+
+        .import-zone i {
+            font-size: 40px;
+            color: #ccc;
+            margin-bottom: 15px;
+        }
+
+        .import-zone p {
+            margin: 0;
+            color: #888;
+        }
+
+        .import-zone .formats {
+            font-size: 12px;
+            color: #aaa;
+            margin-top: 10px;
+        }
+
+        .segment-builder {
+            background: #f9f9f9;
+            padding: 15px;
+            border-radius: 8px;
+        }
+
+        .segment-rule {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+            margin-bottom: 10px;
+        }
+
+        .segment-rule select,
+        .segment-rule input {
+            flex: 1;
+        }
+
+        .btn-add-rule {
+            background: none;
+            border: none;
+            color: #4a90d9;
+            cursor: pointer;
+            font-size: 13px;
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+        }
+
+        .empty-state i {
+            font-size: 48px;
+            color: #ddd;
+            margin-bottom: 20px;
+        }
+
+        .empty-state h3 {
+            margin: 0 0 10px;
+            color: #333;
+        }
+
+        .empty-state p {
+            color: #888;
+            margin-bottom: 20px;
+        }
+
+        .segments-sidebar {
+            background: #fff;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .segments-sidebar h3 {
+            margin: 0 0 15px;
+            font-size: 14px;
+            color: #888;
+            text-transform: uppercase;
+        }
+
+        .segment-list {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .segment-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 10px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .segment-item:hover {
+            background: #f5f5f5;
+        }
+
+        .segment-item.active {
+            background: #e8f0fc;
+            color: #4a90d9;
+        }
+
+        .segment-item .count {
+            font-size: 12px;
+            color: #888;
+            background: #f0f0f0;
+            padding: 2px 8px;
+            border-radius: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="marketing-container">
+        <aside class="marketing-sidebar">
+            <h3>Marketing</h3>
+            <ul class="marketing-nav">
+                <li><a href="index.html"><i class="fas fa-chart-line"></i> Overview</a></li>
+                <li><a href="campaigns.html"><i class="fas fa-envelope"></i> Email Campaigns</a></li>
+                <li><a href="social.html"><i class="fas fa-share-alt"></i> Social Media</a></li>
+                <li><a href="promotions.html"><i class="fas fa-tags"></i> Promotions</a></li>
+                <li><a href="subscribers.html" class="active"><i class="fas fa-users"></i> Subscribers</a></li>
+                <li><a href="automations.html"><i class="fas fa-robot"></i> Automations</a></li>
+            </ul>
+            <div style="padding: 20px; margin-top: 30px;">
+                <a href="../index.html" style="color: #a0a0a0; text-decoration: none; font-size: 13px;">
+                    <i class="fas fa-arrow-left"></i> Back to Dashboard
+                </a>
+            </div>
+        </aside>
+
+        <main class="marketing-content">
+            <div class="page-header">
+                <h1>Email Subscribers</h1>
+                <div class="header-actions">
+                    <button class="btn-secondary" onclick="openImportModal()">
+                        <i class="fas fa-upload"></i> Import
+                    </button>
+                    <button class="btn-secondary" onclick="exportSubscribers()">
+                        <i class="fas fa-download"></i> Export
+                    </button>
+                    <button class="btn-primary" onclick="openAddModal()">
+                        <i class="fas fa-plus"></i> Add Subscriber
+                    </button>
+                </div>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-value">4,521</div>
+                    <div class="stat-label">Total Subscribers</div>
+                    <div class="stat-change up"><i class="fas fa-arrow-up"></i> 12% this month</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">4,234</div>
+                    <div class="stat-label">Active Subscribers</div>
+                    <div class="stat-change up"><i class="fas fa-arrow-up"></i> 8% this month</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">287</div>
+                    <div class="stat-label">New This Month</div>
+                    <div class="stat-change up"><i class="fas fa-arrow-up"></i> 23% vs last</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">2.3%</div>
+                    <div class="stat-label">Unsubscribe Rate</div>
+                    <div class="stat-change down"><i class="fas fa-arrow-down"></i> 0.5% vs last</div>
+                </div>
+            </div>
+
+            <div class="segments-sidebar">
+                <h3>Segments</h3>
+                <div class="segment-list" id="segmentList">
+                    <div class="segment-item active" data-segment="all">
+                        <span>All Subscribers</span>
+                        <span class="count">4,521</span>
+                    </div>
+                    <div class="segment-item" data-segment="active">
+                        <span>Active</span>
+                        <span class="count">4,234</span>
+                    </div>
+                    <div class="segment-item" data-segment="new">
+                        <span>New (30 days)</span>
+                        <span class="count">287</span>
+                    </div>
+                    <div class="segment-item" data-segment="engaged">
+                        <span>Highly Engaged</span>
+                        <span class="count">1,245</span>
+                    </div>
+                    <div class="segment-item" data-segment="inactive">
+                        <span>Inactive (90+ days)</span>
+                        <span class="count">456</span>
+                    </div>
+                    <div class="segment-item" data-segment="customers">
+                        <span>Customers</span>
+                        <span class="count">892</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="subscribers-toolbar">
+                <div class="search-box">
+                    <i class="fas fa-search"></i>
+                    <input type="text" placeholder="Search subscribers..." id="searchInput">
+                </div>
+                <div class="filter-group">
+                    <select class="filter-select" id="statusFilter">
+                        <option value="">All Status</option>
+                        <option value="subscribed">Subscribed</option>
+                        <option value="unsubscribed">Unsubscribed</option>
+                        <option value="bounced">Bounced</option>
+                        <option value="pending">Pending</option>
+                    </select>
+                    <select class="filter-select" id="tagFilter">
+                        <option value="">All Tags</option>
+                        <option value="vip">VIP</option>
+                        <option value="customer">Customer</option>
+                        <option value="newsletter">Newsletter</option>
+                        <option value="promo">Promo Interested</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="bulk-actions" id="bulkActions">
+                <span><strong id="selectedCount">0</strong> subscribers selected</span>
+                <button onclick="bulkAction('tag')"><i class="fas fa-tag"></i> Add Tag</button>
+                <button onclick="bulkAction('email')"><i class="fas fa-envelope"></i> Send Email</button>
+                <button onclick="bulkAction('export')"><i class="fas fa-download"></i> Export</button>
+                <button onclick="bulkAction('delete')"><i class="fas fa-trash"></i> Delete</button>
+            </div>
+
+            <div class="subscribers-table" id="subscribersTable">
+                <table>
+                    <thead>
+                        <tr>
+                            <th class="checkbox-col">
+                                <input type="checkbox" id="selectAll" onchange="toggleSelectAll()">
+                            </th>
+                            <th>Subscriber</th>
+                            <th>Status</th>
+                            <th>Engagement</th>
+                            <th>Tags</th>
+                            <th>Subscribed</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="subscribersList">
+                        <!-- Subscribers will be loaded here -->
+                    </tbody>
+                </table>
+                <div class="pagination">
+                    <div class="pagination-info">Showing 1-20 of 4,521 subscribers</div>
+                    <div class="pagination-controls">
+                        <button disabled><i class="fas fa-chevron-left"></i></button>
+                        <button class="active">1</button>
+                        <button>2</button>
+                        <button>3</button>
+                        <button>...</button>
+                        <button>227</button>
+                        <button><i class="fas fa-chevron-right"></i></button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Add Subscriber Modal -->
+    <div class="modal-overlay" id="addModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="addModalTitle">Add Subscriber</h2>
+                <button class="modal-close" onclick="closeAddModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>First Name</label>
+                        <input type="text" id="firstName" placeholder="John">
+                    </div>
+                    <div class="form-group">
+                        <label>Last Name</label>
+                        <input type="text" id="lastName" placeholder="Doe">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Email Address *</label>
+                    <input type="email" id="email" placeholder="john@example.com" required>
+                </div>
+                <div class="form-group">
+                    <label>Phone (Optional)</label>
+                    <input type="tel" id="phone" placeholder="+1 (555) 000-0000">
+                </div>
+                <div class="form-group">
+                    <label>Tags</label>
+                    <select id="tags" multiple>
+                        <option value="vip">VIP</option>
+                        <option value="customer">Customer</option>
+                        <option value="newsletter">Newsletter</option>
+                        <option value="promo">Promo Interested</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Notes</label>
+                    <textarea id="notes" placeholder="Optional notes about this subscriber..."></textarea>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" onclick="closeAddModal()">Cancel</button>
+                <button class="btn-primary" onclick="saveSubscriber()">
+                    <i class="fas fa-check"></i> Save Subscriber
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Import Modal -->
+    <div class="modal-overlay" id="importModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Import Subscribers</h2>
+                <button class="modal-close" onclick="closeImportModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="import-zone" onclick="document.getElementById('importFile').click()">
+                    <i class="fas fa-cloud-upload-alt"></i>
+                    <p>Drag and drop your file here, or click to browse</p>
+                    <p class="formats">Supported formats: CSV, XLSX, XLS</p>
+                    <input type="file" id="importFile" hidden accept=".csv,.xlsx,.xls">
+                </div>
+                <div style="margin-top: 20px;">
+                    <h4 style="margin: 0 0 10px; font-size: 14px;">Column Mapping</h4>
+                    <p style="color: #888; font-size: 13px; margin: 0;">
+                        Your file should include columns for: Email (required), First Name, Last Name, Phone, Tags
+                    </p>
+                    <div style="margin-top: 15px;">
+                        <a href="#" style="color: #4a90d9; font-size: 13px;">
+                            <i class="fas fa-download"></i> Download sample CSV template
+                        </a>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" onclick="closeImportModal()">Cancel</button>
+                <button class="btn-primary" onclick="importSubscribers()">
+                    <i class="fas fa-upload"></i> Import
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let subscribers = [];
+        let selectedSubscribers = new Set();
+        let editingId = null;
+        let currentSegment = 'all';
+
+        const sampleSubscribers = [
+            {
+                id: '1',
+                firstName: 'Sarah',
+                lastName: 'Johnson',
+                email: 'sarah.johnson@email.com',
+                phone: '+1 555-0123',
+                status: 'subscribed',
+                engagement: 85,
+                tags: ['vip', 'customer'],
+                subscribedDate: '2024-01-15',
+                lastActivity: '2024-06-18'
+            },
+            {
+                id: '2',
+                firstName: 'Michael',
+                lastName: 'Chen',
+                email: 'michael.chen@email.com',
+                phone: '',
+                status: 'subscribed',
+                engagement: 72,
+                tags: ['newsletter'],
+                subscribedDate: '2024-02-20',
+                lastActivity: '2024-06-15'
+            },
+            {
+                id: '3',
+                firstName: 'Emily',
+                lastName: 'Rodriguez',
+                email: 'emily.r@email.com',
+                phone: '+1 555-0456',
+                status: 'subscribed',
+                engagement: 45,
+                tags: ['customer', 'promo'],
+                subscribedDate: '2023-11-08',
+                lastActivity: '2024-06-10'
+            },
+            {
+                id: '4',
+                firstName: 'David',
+                lastName: 'Kim',
+                email: 'david.kim@email.com',
+                phone: '',
+                status: 'unsubscribed',
+                engagement: 20,
+                tags: [],
+                subscribedDate: '2023-09-05',
+                lastActivity: '2024-03-22'
+            },
+            {
+                id: '5',
+                firstName: 'Lisa',
+                lastName: 'Thompson',
+                email: 'lisa.t@email.com',
+                phone: '+1 555-0789',
+                status: 'subscribed',
+                engagement: 95,
+                tags: ['vip', 'customer', 'newsletter'],
+                subscribedDate: '2023-06-12',
+                lastActivity: '2024-06-19'
+            },
+            {
+                id: '6',
+                firstName: 'James',
+                lastName: 'Williams',
+                email: 'james.w@email.com',
+                phone: '',
+                status: 'bounced',
+                engagement: 0,
+                tags: ['newsletter'],
+                subscribedDate: '2024-03-01',
+                lastActivity: '2024-03-01'
+            },
+            {
+                id: '7',
+                firstName: 'Amanda',
+                lastName: 'Garcia',
+                email: 'amanda.g@email.com',
+                phone: '+1 555-0111',
+                status: 'subscribed',
+                engagement: 60,
+                tags: ['promo'],
+                subscribedDate: '2024-04-15',
+                lastActivity: '2024-06-12'
+            },
+            {
+                id: '8',
+                firstName: 'Robert',
+                lastName: 'Martinez',
+                email: 'robert.m@email.com',
+                phone: '',
+                status: 'pending',
+                engagement: 0,
+                tags: [],
+                subscribedDate: '2024-06-18',
+                lastActivity: '2024-06-18'
+            }
+        ];
+
+        document.addEventListener('DOMContentLoaded', () => {
+            subscribers = sampleSubscribers;
+            renderSubscribers();
+            initEventListeners();
+        });
+
+        function renderSubscribers(filter = {}) {
+            const tbody = document.getElementById('subscribersList');
+            let filtered = subscribers;
+
+            // Apply segment filter
+            if (currentSegment !== 'all') {
+                switch (currentSegment) {
+                    case 'active':
+                        filtered = filtered.filter(s => s.status === 'subscribed');
+                        break;
+                    case 'new':
+                        const thirtyDaysAgo = new Date();
+                        thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+                        filtered = filtered.filter(s => new Date(s.subscribedDate) >= thirtyDaysAgo);
+                        break;
+                    case 'engaged':
+                        filtered = filtered.filter(s => s.engagement >= 70);
+                        break;
+                    case 'inactive':
+                        filtered = filtered.filter(s => s.engagement < 30);
+                        break;
+                    case 'customers':
+                        filtered = filtered.filter(s => s.tags.includes('customer'));
+                        break;
+                }
+            }
+
+            // Apply status filter
+            const statusFilter = document.getElementById('statusFilter').value;
+            if (statusFilter) {
+                filtered = filtered.filter(s => s.status === statusFilter);
+            }
+
+            // Apply tag filter
+            const tagFilter = document.getElementById('tagFilter').value;
+            if (tagFilter) {
+                filtered = filtered.filter(s => s.tags.includes(tagFilter));
+            }
+
+            // Apply search
+            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+            if (searchTerm) {
+                filtered = filtered.filter(s =>
+                    s.firstName.toLowerCase().includes(searchTerm) ||
+                    s.lastName.toLowerCase().includes(searchTerm) ||
+                    s.email.toLowerCase().includes(searchTerm)
+                );
+            }
+
+            tbody.innerHTML = filtered.map(sub => {
+                const initials = (sub.firstName[0] || '') + (sub.lastName[0] || '');
+                const engagementClass = sub.engagement >= 70 ? 'high' : sub.engagement >= 40 ? 'medium' : 'low';
+
+                return `
+                    <tr>
+                        <td class="checkbox-col">
+                            <input type="checkbox"
+                                   ${selectedSubscribers.has(sub.id) ? 'checked' : ''}
+                                   onchange="toggleSelect('${sub.id}')">
+                        </td>
+                        <td>
+                            <div class="subscriber-info">
+                                <div class="subscriber-avatar">${initials.toUpperCase()}</div>
+                                <div>
+                                    <div class="subscriber-name">${sub.firstName} ${sub.lastName}</div>
+                                    <div class="subscriber-email">${sub.email}</div>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <span class="status-badge status-${sub.status}">${sub.status}</span>
+                        </td>
+                        <td>
+                            <div class="engagement-score">
+                                <div class="score-bar">
+                                    <div class="score-fill ${engagementClass}" style="width: ${sub.engagement}%"></div>
+                                </div>
+                                <span>${sub.engagement}%</span>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="tags-cell">
+                                ${sub.tags.map(tag => `<span class="tag">${tag}</span>`).join('')}
+                            </div>
+                        </td>
+                        <td>${formatDate(sub.subscribedDate)}</td>
+                        <td>
+                            <div class="actions-cell">
+                                <button class="btn-icon" onclick="editSubscriber('${sub.id}')" title="Edit">
+                                    <i class="fas fa-edit"></i>
+                                </button>
+                                <button class="btn-icon" onclick="viewSubscriber('${sub.id}')" title="View Activity">
+                                    <i class="fas fa-chart-line"></i>
+                                </button>
+                                <button class="btn-icon danger" onclick="deleteSubscriber('${sub.id}')" title="Delete">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        function formatDate(dateStr) {
+            return new Date(dateStr).toLocaleDateString('en-US', {
+                month: 'short',
+                day: 'numeric',
+                year: 'numeric'
+            });
+        }
+
+        function initEventListeners() {
+            // Segment selection
+            document.querySelectorAll('.segment-item').forEach(item => {
+                item.addEventListener('click', () => {
+                    document.querySelectorAll('.segment-item').forEach(i => i.classList.remove('active'));
+                    item.classList.add('active');
+                    currentSegment = item.dataset.segment;
+                    renderSubscribers();
+                });
+            });
+
+            // Filters
+            document.getElementById('statusFilter').addEventListener('change', renderSubscribers);
+            document.getElementById('tagFilter').addEventListener('change', renderSubscribers);
+            document.getElementById('searchInput').addEventListener('input', renderSubscribers);
+        }
+
+        function toggleSelect(id) {
+            if (selectedSubscribers.has(id)) {
+                selectedSubscribers.delete(id);
+            } else {
+                selectedSubscribers.add(id);
+            }
+            updateBulkActions();
+        }
+
+        function toggleSelectAll() {
+            const selectAll = document.getElementById('selectAll');
+            if (selectAll.checked) {
+                subscribers.forEach(s => selectedSubscribers.add(s.id));
+            } else {
+                selectedSubscribers.clear();
+            }
+            renderSubscribers();
+            updateBulkActions();
+        }
+
+        function updateBulkActions() {
+            const bulkActions = document.getElementById('bulkActions');
+            const countEl = document.getElementById('selectedCount');
+
+            if (selectedSubscribers.size > 0) {
+                bulkActions.classList.add('visible');
+                countEl.textContent = selectedSubscribers.size;
+            } else {
+                bulkActions.classList.remove('visible');
+            }
+        }
+
+        function bulkAction(action) {
+            const count = selectedSubscribers.size;
+            switch (action) {
+                case 'tag':
+                    const tag = prompt('Enter tag to add:');
+                    if (tag) {
+                        alert(`Tag "${tag}" would be added to ${count} subscribers`);
+                    }
+                    break;
+                case 'email':
+                    alert(`Email composer would open for ${count} subscribers`);
+                    break;
+                case 'export':
+                    alert(`Exporting ${count} subscribers...`);
+                    break;
+                case 'delete':
+                    if (confirm(`Are you sure you want to delete ${count} subscribers?`)) {
+                        selectedSubscribers.forEach(id => {
+                            subscribers = subscribers.filter(s => s.id !== id);
+                        });
+                        selectedSubscribers.clear();
+                        renderSubscribers();
+                        updateBulkActions();
+                    }
+                    break;
+            }
+        }
+
+        function openAddModal() {
+            editingId = null;
+            document.getElementById('addModalTitle').textContent = 'Add Subscriber';
+            document.getElementById('firstName').value = '';
+            document.getElementById('lastName').value = '';
+            document.getElementById('email').value = '';
+            document.getElementById('phone').value = '';
+            document.getElementById('notes').value = '';
+            document.getElementById('addModal').classList.add('active');
+        }
+
+        function closeAddModal() {
+            document.getElementById('addModal').classList.remove('active');
+        }
+
+        function editSubscriber(id) {
+            const sub = subscribers.find(s => s.id === id);
+            if (!sub) return;
+
+            editingId = id;
+            document.getElementById('addModalTitle').textContent = 'Edit Subscriber';
+            document.getElementById('firstName').value = sub.firstName;
+            document.getElementById('lastName').value = sub.lastName;
+            document.getElementById('email').value = sub.email;
+            document.getElementById('phone').value = sub.phone || '';
+            document.getElementById('addModal').classList.add('active');
+        }
+
+        function viewSubscriber(id) {
+            alert('Subscriber activity view would open here');
+        }
+
+        function deleteSubscriber(id) {
+            if (!confirm('Are you sure you want to delete this subscriber?')) return;
+
+            subscribers = subscribers.filter(s => s.id !== id);
+            selectedSubscribers.delete(id);
+            renderSubscribers();
+            updateBulkActions();
+        }
+
+        function saveSubscriber() {
+            const email = document.getElementById('email').value;
+            if (!email) {
+                alert('Email is required');
+                return;
+            }
+
+            const sub = {
+                id: editingId || Date.now().toString(),
+                firstName: document.getElementById('firstName').value || 'Unknown',
+                lastName: document.getElementById('lastName').value || '',
+                email: email,
+                phone: document.getElementById('phone').value,
+                status: 'subscribed',
+                engagement: 0,
+                tags: Array.from(document.getElementById('tags').selectedOptions).map(o => o.value),
+                subscribedDate: editingId ? (subscribers.find(s => s.id === editingId)?.subscribedDate || new Date().toISOString().split('T')[0]) : new Date().toISOString().split('T')[0],
+                lastActivity: new Date().toISOString().split('T')[0]
+            };
+
+            if (editingId) {
+                const index = subscribers.findIndex(s => s.id === editingId);
+                if (index > -1) {
+                    sub.engagement = subscribers[index].engagement;
+                    subscribers[index] = sub;
+                }
+            } else {
+                subscribers.unshift(sub);
+            }
+
+            renderSubscribers();
+            closeAddModal();
+            alert('Subscriber saved successfully!');
+        }
+
+        function openImportModal() {
+            document.getElementById('importModal').classList.add('active');
+        }
+
+        function closeImportModal() {
+            document.getElementById('importModal').classList.remove('active');
+        }
+
+        function importSubscribers() {
+            const fileInput = document.getElementById('importFile');
+            if (!fileInput.files.length) {
+                alert('Please select a file to import');
+                return;
+            }
+            alert('Import would process the file and add subscribers');
+            closeImportModal();
+        }
+
+        function exportSubscribers() {
+            alert('Subscribers would be exported as CSV');
+        }
+    </script>
+</body>
+</html>

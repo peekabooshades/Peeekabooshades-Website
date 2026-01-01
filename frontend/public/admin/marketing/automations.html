@@ -1,0 +1,1229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Automations - Marketing | Peekaboo Shades Admin</title>
+    <link rel="stylesheet" href="../css/admin.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .marketing-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .marketing-sidebar {
+            width: 240px;
+            background: #1a1a2e;
+            padding: 20px 0;
+            flex-shrink: 0;
+        }
+
+        .marketing-sidebar h3 {
+            color: #fff;
+            padding: 0 20px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .marketing-nav {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .marketing-nav li a {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 20px;
+            color: #a0a0a0;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+
+        .marketing-nav li a:hover,
+        .marketing-nav li a.active {
+            background: rgba(255,255,255,0.1);
+            color: #fff;
+        }
+
+        .marketing-nav li a.active {
+            border-left: 3px solid #4a90d9;
+        }
+
+        .marketing-content {
+            flex: 1;
+            padding: 30px;
+            background: #f5f5f5;
+        }
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .page-header h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+
+        .btn-primary {
+            background: #4a90d9;
+            color: #fff;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary:hover {
+            background: #3a7bc8;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .stat-card {
+            background: #fff;
+            border-radius: 8px;
+            padding: 20px;
+        }
+
+        .stat-value {
+            font-size: 28px;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .stat-label {
+            color: #888;
+            font-size: 13px;
+        }
+
+        .stat-change {
+            font-size: 12px;
+            margin-top: 10px;
+        }
+
+        .stat-change.up { color: #28a745; }
+        .stat-change.down { color: #dc3545; }
+
+        .templates-section {
+            margin-bottom: 40px;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .section-header h2 {
+            margin: 0;
+            font-size: 18px;
+        }
+
+        .templates-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+        }
+
+        .template-card {
+            background: #fff;
+            border-radius: 12px;
+            padding: 24px;
+            cursor: pointer;
+            transition: all 0.2s;
+            border: 2px solid transparent;
+        }
+
+        .template-card:hover {
+            border-color: #4a90d9;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .template-icon {
+            width: 50px;
+            height: 50px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            margin-bottom: 15px;
+        }
+
+        .template-icon.welcome { background: #e8f5e9; color: #28a745; }
+        .template-icon.abandoned { background: #fff3e0; color: #ff9800; }
+        .template-icon.birthday { background: #fce4ec; color: #e91e63; }
+        .template-icon.review { background: #e3f2fd; color: #2196f3; }
+        .template-icon.winback { background: #f3e5f5; color: #9c27b0; }
+        .template-icon.custom { background: #f5f5f5; color: #666; }
+
+        .template-name {
+            font-weight: 600;
+            font-size: 16px;
+            margin-bottom: 8px;
+        }
+
+        .template-desc {
+            color: #888;
+            font-size: 13px;
+            line-height: 1.5;
+        }
+
+        .automations-list {
+            background: #fff;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .automation-item {
+            display: flex;
+            align-items: center;
+            padding: 20px;
+            border-bottom: 1px solid #eee;
+            gap: 20px;
+        }
+
+        .automation-item:last-child {
+            border-bottom: none;
+        }
+
+        .automation-icon {
+            width: 45px;
+            height: 45px;
+            border-radius: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+        }
+
+        .automation-info {
+            flex: 1;
+        }
+
+        .automation-name {
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .automation-trigger {
+            font-size: 13px;
+            color: #888;
+        }
+
+        .automation-stats {
+            display: flex;
+            gap: 30px;
+            text-align: center;
+        }
+
+        .automation-stat-value {
+            font-weight: 600;
+            font-size: 16px;
+        }
+
+        .automation-stat-label {
+            font-size: 11px;
+            color: #888;
+        }
+
+        .automation-toggle {
+            position: relative;
+            width: 50px;
+            height: 26px;
+        }
+
+        .automation-toggle input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 26px;
+        }
+
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 20px;
+            width: 20px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+
+        input:checked + .toggle-slider {
+            background-color: #28a745;
+        }
+
+        input:checked + .toggle-slider:before {
+            transform: translateX(24px);
+        }
+
+        .automation-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-icon {
+            width: 36px;
+            height: 36px;
+            border: 1px solid #ddd;
+            background: #fff;
+            border-radius: 6px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #666;
+        }
+
+        .btn-icon:hover {
+            background: #f5f5f5;
+        }
+
+        .btn-icon.danger:hover {
+            background: #fee;
+            color: #c00;
+            border-color: #fcc;
+        }
+
+        /* Modal */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: #fff;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 800px;
+            max-height: 90vh;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .modal-header {
+            padding: 20px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h2 {
+            margin: 0;
+            font-size: 18px;
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: #666;
+        }
+
+        .modal-body {
+            padding: 20px;
+            overflow-y: auto;
+            flex: 1;
+        }
+
+        .modal-footer {
+            padding: 15px 20px;
+            border-top: 1px solid #eee;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: #333;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 10px 15px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+
+        .btn-secondary {
+            background: #f0f0f0;
+            color: #333;
+            border: 1px solid #ddd;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        /* Workflow Builder */
+        .workflow-builder {
+            background: #f9f9f9;
+            border-radius: 8px;
+            padding: 20px;
+            min-height: 400px;
+        }
+
+        .workflow-step {
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            position: relative;
+        }
+
+        .workflow-step::after {
+            content: '';
+            position: absolute;
+            left: 50%;
+            bottom: -15px;
+            width: 2px;
+            height: 15px;
+            background: #ddd;
+        }
+
+        .workflow-step:last-child::after {
+            display: none;
+        }
+
+        .step-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 10px;
+        }
+
+        .step-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+        }
+
+        .step-icon.trigger { background: #e8f5e9; color: #28a745; }
+        .step-icon.wait { background: #fff3e0; color: #ff9800; }
+        .step-icon.email { background: #e3f2fd; color: #2196f3; }
+        .step-icon.condition { background: #f3e5f5; color: #9c27b0; }
+
+        .step-title {
+            flex: 1;
+            font-weight: 500;
+        }
+
+        .step-remove {
+            background: none;
+            border: none;
+            color: #999;
+            cursor: pointer;
+            padding: 5px;
+        }
+
+        .step-remove:hover {
+            color: #c00;
+        }
+
+        .step-content {
+            padding-left: 48px;
+        }
+
+        .step-content select,
+        .step-content input {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 13px;
+        }
+
+        .add-step-btn {
+            width: 100%;
+            padding: 15px;
+            border: 2px dashed #ddd;
+            border-radius: 8px;
+            background: #fff;
+            cursor: pointer;
+            color: #888;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            transition: all 0.2s;
+        }
+
+        .add-step-btn:hover {
+            border-color: #4a90d9;
+            color: #4a90d9;
+        }
+
+        .step-options {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 10px;
+            z-index: 10;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .step-options.visible {
+            display: block;
+        }
+
+        .step-option {
+            padding: 10px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            cursor: pointer;
+            border-radius: 6px;
+        }
+
+        .step-option:hover {
+            background: #f5f5f5;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+        }
+
+        .empty-state i {
+            font-size: 48px;
+            color: #ddd;
+            margin-bottom: 20px;
+        }
+
+        .empty-state h3 {
+            margin: 0 0 10px;
+            color: #333;
+        }
+
+        .empty-state p {
+            color: #888;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="marketing-container">
+        <aside class="marketing-sidebar">
+            <h3>Marketing</h3>
+            <ul class="marketing-nav">
+                <li><a href="index.html"><i class="fas fa-chart-line"></i> Overview</a></li>
+                <li><a href="campaigns.html"><i class="fas fa-envelope"></i> Email Campaigns</a></li>
+                <li><a href="social.html"><i class="fas fa-share-alt"></i> Social Media</a></li>
+                <li><a href="promotions.html"><i class="fas fa-tags"></i> Promotions</a></li>
+                <li><a href="subscribers.html"><i class="fas fa-users"></i> Subscribers</a></li>
+                <li><a href="automations.html" class="active"><i class="fas fa-robot"></i> Automations</a></li>
+            </ul>
+            <div style="padding: 20px; margin-top: 30px;">
+                <a href="../index.html" style="color: #a0a0a0; text-decoration: none; font-size: 13px;">
+                    <i class="fas fa-arrow-left"></i> Back to Dashboard
+                </a>
+            </div>
+        </aside>
+
+        <main class="marketing-content">
+            <div class="page-header">
+                <h1>Email Automations</h1>
+                <button class="btn-primary" onclick="openAutomationModal()">
+                    <i class="fas fa-plus"></i> Create Automation
+                </button>
+            </div>
+
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-value">8</div>
+                    <div class="stat-label">Active Automations</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">12,456</div>
+                    <div class="stat-label">Emails Sent (30 days)</div>
+                    <div class="stat-change up"><i class="fas fa-arrow-up"></i> 18% vs last month</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">$8,920</div>
+                    <div class="stat-label">Revenue Generated</div>
+                    <div class="stat-change up"><i class="fas fa-arrow-up"></i> 24% vs last month</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value">42%</div>
+                    <div class="stat-label">Avg. Open Rate</div>
+                    <div class="stat-change up"><i class="fas fa-arrow-up"></i> 5% vs last month</div>
+                </div>
+            </div>
+
+            <div class="templates-section">
+                <div class="section-header">
+                    <h2>Quick Start Templates</h2>
+                </div>
+                <div class="templates-grid">
+                    <div class="template-card" onclick="createFromTemplate('welcome')">
+                        <div class="template-icon welcome">
+                            <i class="fas fa-hand-wave"></i>
+                        </div>
+                        <div class="template-name">Welcome Series</div>
+                        <div class="template-desc">Greet new subscribers with a series of onboarding emails</div>
+                    </div>
+                    <div class="template-card" onclick="createFromTemplate('abandoned')">
+                        <div class="template-icon abandoned">
+                            <i class="fas fa-shopping-cart"></i>
+                        </div>
+                        <div class="template-name">Abandoned Cart</div>
+                        <div class="template-desc">Recover lost sales by reminding customers about their cart</div>
+                    </div>
+                    <div class="template-card" onclick="createFromTemplate('birthday')">
+                        <div class="template-icon birthday">
+                            <i class="fas fa-birthday-cake"></i>
+                        </div>
+                        <div class="template-name">Birthday Email</div>
+                        <div class="template-desc">Send special offers on customer birthdays</div>
+                    </div>
+                    <div class="template-card" onclick="createFromTemplate('review')">
+                        <div class="template-icon review">
+                            <i class="fas fa-star"></i>
+                        </div>
+                        <div class="template-name">Post-Purchase Review</div>
+                        <div class="template-desc">Request reviews after customers receive their orders</div>
+                    </div>
+                    <div class="template-card" onclick="createFromTemplate('winback')">
+                        <div class="template-icon winback">
+                            <i class="fas fa-heart"></i>
+                        </div>
+                        <div class="template-name">Win-Back Campaign</div>
+                        <div class="template-desc">Re-engage customers who haven't purchased recently</div>
+                    </div>
+                    <div class="template-card" onclick="openAutomationModal()">
+                        <div class="template-icon custom">
+                            <i class="fas fa-plus"></i>
+                        </div>
+                        <div class="template-name">Custom Automation</div>
+                        <div class="template-desc">Build your own automation from scratch</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="section-header">
+                <h2>Your Automations</h2>
+            </div>
+
+            <div class="automations-list" id="automationsList">
+                <!-- Automations will be loaded here -->
+            </div>
+
+            <div class="empty-state" id="emptyState" style="display: none;">
+                <i class="fas fa-robot"></i>
+                <h3>No automations yet</h3>
+                <p>Create your first automation to start engaging customers automatically.</p>
+                <button class="btn-primary" onclick="openAutomationModal()">
+                    <i class="fas fa-plus"></i> Create Automation
+                </button>
+            </div>
+        </main>
+    </div>
+
+    <!-- Automation Modal -->
+    <div class="modal-overlay" id="automationModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="modalTitle">Create Automation</h2>
+                <button class="modal-close" onclick="closeAutomationModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Automation Name</label>
+                    <input type="text" id="automationName" placeholder="e.g., Welcome Series">
+                </div>
+
+                <div class="form-group">
+                    <label>Trigger</label>
+                    <select id="automationTrigger">
+                        <option value="">Select a trigger...</option>
+                        <option value="signup">When someone subscribes</option>
+                        <option value="purchase">When someone makes a purchase</option>
+                        <option value="abandoned_cart">When someone abandons their cart</option>
+                        <option value="birthday">On customer's birthday</option>
+                        <option value="tag_added">When a tag is added</option>
+                        <option value="date">On a specific date</option>
+                        <option value="inactive">When customer becomes inactive</option>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label>Workflow</label>
+                    <div class="workflow-builder" id="workflowBuilder">
+                        <div class="workflow-step" id="triggerStep">
+                            <div class="step-header">
+                                <div class="step-icon trigger">
+                                    <i class="fas fa-play"></i>
+                                </div>
+                                <span class="step-title">Trigger: When someone subscribes</span>
+                            </div>
+                        </div>
+
+                        <div id="workflowSteps">
+                            <!-- Dynamic steps will be added here -->
+                        </div>
+
+                        <div style="position: relative;">
+                            <button class="add-step-btn" onclick="toggleStepOptions()">
+                                <i class="fas fa-plus"></i> Add Step
+                            </button>
+                            <div class="step-options" id="stepOptions">
+                                <div class="step-option" onclick="addStep('wait')">
+                                    <div class="step-icon wait" style="width:30px;height:30px;font-size:14px;">
+                                        <i class="fas fa-clock"></i>
+                                    </div>
+                                    <div>
+                                        <div style="font-weight:500;">Wait</div>
+                                        <div style="font-size:12px;color:#888;">Add a delay before the next step</div>
+                                    </div>
+                                </div>
+                                <div class="step-option" onclick="addStep('email')">
+                                    <div class="step-icon email" style="width:30px;height:30px;font-size:14px;">
+                                        <i class="fas fa-envelope"></i>
+                                    </div>
+                                    <div>
+                                        <div style="font-weight:500;">Send Email</div>
+                                        <div style="font-size:12px;color:#888;">Send an email to the subscriber</div>
+                                    </div>
+                                </div>
+                                <div class="step-option" onclick="addStep('condition')">
+                                    <div class="step-icon condition" style="width:30px;height:30px;font-size:14px;">
+                                        <i class="fas fa-code-branch"></i>
+                                    </div>
+                                    <div>
+                                        <div style="font-weight:500;">Condition</div>
+                                        <div style="font-size:12px;color:#888;">Branch based on conditions</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn-secondary" onclick="closeAutomationModal()">Cancel</button>
+                <button class="btn-primary" onclick="saveAutomation()">
+                    <i class="fas fa-check"></i> Save Automation
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let automations = [];
+        let editingId = null;
+        let workflowSteps = [];
+        let stepCounter = 0;
+
+        const sampleAutomations = [
+            {
+                id: '1',
+                name: 'Welcome Series',
+                trigger: 'signup',
+                triggerText: 'When someone subscribes',
+                active: true,
+                type: 'welcome',
+                stats: { sent: 1245, opened: 523, clicked: 187, revenue: 2340 },
+                steps: [
+                    { type: 'email', subject: 'Welcome to Peekaboo Shades!' },
+                    { type: 'wait', duration: 2, unit: 'days' },
+                    { type: 'email', subject: 'Here are some tips to get started' },
+                    { type: 'wait', duration: 5, unit: 'days' },
+                    { type: 'email', subject: 'Special offer just for you!' }
+                ]
+            },
+            {
+                id: '2',
+                name: 'Abandoned Cart Recovery',
+                trigger: 'abandoned_cart',
+                triggerText: 'When someone abandons their cart',
+                active: true,
+                type: 'abandoned',
+                stats: { sent: 856, opened: 412, clicked: 156, revenue: 4520 },
+                steps: [
+                    { type: 'wait', duration: 1, unit: 'hours' },
+                    { type: 'email', subject: 'You left something behind!' },
+                    { type: 'wait', duration: 24, unit: 'hours' },
+                    { type: 'email', subject: 'Your cart is waiting...' }
+                ]
+            },
+            {
+                id: '3',
+                name: 'Post-Purchase Review Request',
+                trigger: 'purchase',
+                triggerText: 'When someone makes a purchase',
+                active: true,
+                type: 'review',
+                stats: { sent: 432, opened: 234, clicked: 89, revenue: 0 },
+                steps: [
+                    { type: 'wait', duration: 14, unit: 'days' },
+                    { type: 'email', subject: 'How are you enjoying your purchase?' }
+                ]
+            },
+            {
+                id: '4',
+                name: 'Birthday Special',
+                trigger: 'birthday',
+                triggerText: "On customer's birthday",
+                active: false,
+                type: 'birthday',
+                stats: { sent: 156, opened: 89, clicked: 45, revenue: 1230 },
+                steps: [
+                    { type: 'email', subject: 'Happy Birthday! Here\'s a special gift' }
+                ]
+            },
+            {
+                id: '5',
+                name: 'Win-Back Campaign',
+                trigger: 'inactive',
+                triggerText: 'When customer becomes inactive',
+                active: true,
+                type: 'winback',
+                stats: { sent: 234, opened: 67, clicked: 23, revenue: 890 },
+                steps: [
+                    { type: 'wait', duration: 90, unit: 'days' },
+                    { type: 'email', subject: 'We miss you!' },
+                    { type: 'wait', duration: 7, unit: 'days' },
+                    { type: 'email', subject: 'Come back for 20% off' }
+                ]
+            }
+        ];
+
+        document.addEventListener('DOMContentLoaded', () => {
+            automations = sampleAutomations;
+            renderAutomations();
+            initEventListeners();
+        });
+
+        function renderAutomations() {
+            const container = document.getElementById('automationsList');
+            const empty = document.getElementById('emptyState');
+
+            if (automations.length === 0) {
+                container.style.display = 'none';
+                empty.style.display = 'block';
+                return;
+            }
+
+            container.style.display = 'block';
+            empty.style.display = 'none';
+
+            container.innerHTML = automations.map(auto => `
+                <div class="automation-item">
+                    <div class="automation-icon ${auto.type}">
+                        <i class="fas ${getTypeIcon(auto.type)}"></i>
+                    </div>
+                    <div class="automation-info">
+                        <div class="automation-name">${auto.name}</div>
+                        <div class="automation-trigger">${auto.triggerText}</div>
+                    </div>
+                    <div class="automation-stats">
+                        <div>
+                            <div class="automation-stat-value">${auto.stats.sent.toLocaleString()}</div>
+                            <div class="automation-stat-label">Sent</div>
+                        </div>
+                        <div>
+                            <div class="automation-stat-value">${Math.round((auto.stats.opened / auto.stats.sent) * 100) || 0}%</div>
+                            <div class="automation-stat-label">Opened</div>
+                        </div>
+                        <div>
+                            <div class="automation-stat-value">${Math.round((auto.stats.clicked / auto.stats.sent) * 100) || 0}%</div>
+                            <div class="automation-stat-label">Clicked</div>
+                        </div>
+                        <div>
+                            <div class="automation-stat-value">$${auto.stats.revenue.toLocaleString()}</div>
+                            <div class="automation-stat-label">Revenue</div>
+                        </div>
+                    </div>
+                    <label class="automation-toggle">
+                        <input type="checkbox" ${auto.active ? 'checked' : ''} onchange="toggleAutomation('${auto.id}')">
+                        <span class="toggle-slider"></span>
+                    </label>
+                    <div class="automation-actions">
+                        <button class="btn-icon" onclick="editAutomation('${auto.id}')" title="Edit">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button class="btn-icon" onclick="duplicateAutomation('${auto.id}')" title="Duplicate">
+                            <i class="fas fa-copy"></i>
+                        </button>
+                        <button class="btn-icon danger" onclick="deleteAutomation('${auto.id}')" title="Delete">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function getTypeIcon(type) {
+            const icons = {
+                welcome: 'fa-hand-wave',
+                abandoned: 'fa-shopping-cart',
+                birthday: 'fa-birthday-cake',
+                review: 'fa-star',
+                winback: 'fa-heart',
+                custom: 'fa-cog'
+            };
+            return icons[type] || 'fa-robot';
+        }
+
+        function initEventListeners() {
+            document.getElementById('automationTrigger').addEventListener('change', (e) => {
+                const triggerStep = document.getElementById('triggerStep');
+                const triggerTitle = triggerStep.querySelector('.step-title');
+                const option = e.target.options[e.target.selectedIndex];
+                triggerTitle.textContent = 'Trigger: ' + (option.text || 'Select a trigger');
+            });
+
+            // Close step options when clicking outside
+            document.addEventListener('click', (e) => {
+                if (!e.target.closest('.add-step-btn') && !e.target.closest('.step-options')) {
+                    document.getElementById('stepOptions').classList.remove('visible');
+                }
+            });
+        }
+
+        function toggleAutomation(id) {
+            const auto = automations.find(a => a.id === id);
+            if (auto) {
+                auto.active = !auto.active;
+                // Save to API here
+            }
+        }
+
+        function openAutomationModal() {
+            editingId = null;
+            document.getElementById('modalTitle').textContent = 'Create Automation';
+            document.getElementById('automationName').value = '';
+            document.getElementById('automationTrigger').value = '';
+            workflowSteps = [];
+            stepCounter = 0;
+            renderWorkflowSteps();
+            document.getElementById('automationModal').classList.add('active');
+        }
+
+        function closeAutomationModal() {
+            document.getElementById('automationModal').classList.remove('active');
+        }
+
+        function createFromTemplate(type) {
+            const templates = {
+                welcome: {
+                    name: 'Welcome Series',
+                    trigger: 'signup',
+                    steps: [
+                        { type: 'email', subject: 'Welcome to Peekaboo Shades!' },
+                        { type: 'wait', duration: 2, unit: 'days' },
+                        { type: 'email', subject: 'Here are some tips' },
+                        { type: 'wait', duration: 5, unit: 'days' },
+                        { type: 'email', subject: 'Special offer for you!' }
+                    ]
+                },
+                abandoned: {
+                    name: 'Abandoned Cart Recovery',
+                    trigger: 'abandoned_cart',
+                    steps: [
+                        { type: 'wait', duration: 1, unit: 'hours' },
+                        { type: 'email', subject: 'You left something behind!' },
+                        { type: 'wait', duration: 24, unit: 'hours' },
+                        { type: 'email', subject: 'Your cart is still waiting' }
+                    ]
+                },
+                birthday: {
+                    name: 'Birthday Special',
+                    trigger: 'birthday',
+                    steps: [
+                        { type: 'email', subject: 'Happy Birthday! 20% off just for you' }
+                    ]
+                },
+                review: {
+                    name: 'Post-Purchase Review',
+                    trigger: 'purchase',
+                    steps: [
+                        { type: 'wait', duration: 14, unit: 'days' },
+                        { type: 'email', subject: 'How are you enjoying your purchase?' }
+                    ]
+                },
+                winback: {
+                    name: 'Win-Back Campaign',
+                    trigger: 'inactive',
+                    steps: [
+                        { type: 'email', subject: 'We miss you!' },
+                        { type: 'wait', duration: 7, unit: 'days' },
+                        { type: 'email', subject: 'Come back for 20% off' }
+                    ]
+                }
+            };
+
+            const template = templates[type];
+            if (!template) return;
+
+            editingId = null;
+            document.getElementById('modalTitle').textContent = 'Create Automation';
+            document.getElementById('automationName').value = template.name;
+            document.getElementById('automationTrigger').value = template.trigger;
+
+            // Update trigger display
+            const triggerStep = document.getElementById('triggerStep');
+            const option = document.getElementById('automationTrigger').querySelector(`option[value="${template.trigger}"]`);
+            triggerStep.querySelector('.step-title').textContent = 'Trigger: ' + option.text;
+
+            // Load template steps
+            workflowSteps = template.steps.map((step, i) => ({ ...step, id: ++stepCounter }));
+            renderWorkflowSteps();
+
+            document.getElementById('automationModal').classList.add('active');
+        }
+
+        function toggleStepOptions() {
+            document.getElementById('stepOptions').classList.toggle('visible');
+        }
+
+        function addStep(type) {
+            const step = { id: ++stepCounter, type };
+
+            if (type === 'wait') {
+                step.duration = 1;
+                step.unit = 'days';
+            } else if (type === 'email') {
+                step.subject = '';
+            } else if (type === 'condition') {
+                step.field = 'opened';
+                step.operator = 'is';
+                step.value = 'true';
+            }
+
+            workflowSteps.push(step);
+            renderWorkflowSteps();
+            document.getElementById('stepOptions').classList.remove('visible');
+        }
+
+        function removeStep(id) {
+            workflowSteps = workflowSteps.filter(s => s.id !== id);
+            renderWorkflowSteps();
+        }
+
+        function renderWorkflowSteps() {
+            const container = document.getElementById('workflowSteps');
+            container.innerHTML = workflowSteps.map(step => {
+                let content = '';
+
+                if (step.type === 'wait') {
+                    content = `
+                        <div class="step-content">
+                            <input type="number" value="${step.duration}" min="1" style="width: 60px;"
+                                   onchange="updateStep(${step.id}, 'duration', this.value)">
+                            <select onchange="updateStep(${step.id}, 'unit', this.value)">
+                                <option value="minutes" ${step.unit === 'minutes' ? 'selected' : ''}>Minutes</option>
+                                <option value="hours" ${step.unit === 'hours' ? 'selected' : ''}>Hours</option>
+                                <option value="days" ${step.unit === 'days' ? 'selected' : ''}>Days</option>
+                                <option value="weeks" ${step.unit === 'weeks' ? 'selected' : ''}>Weeks</option>
+                            </select>
+                        </div>
+                    `;
+                } else if (step.type === 'email') {
+                    content = `
+                        <div class="step-content">
+                            <input type="text" placeholder="Email subject line" value="${step.subject || ''}"
+                                   onchange="updateStep(${step.id}, 'subject', this.value)" style="width: 100%;">
+                        </div>
+                    `;
+                } else if (step.type === 'condition') {
+                    content = `
+                        <div class="step-content">
+                            <select onchange="updateStep(${step.id}, 'field', this.value)">
+                                <option value="opened" ${step.field === 'opened' ? 'selected' : ''}>Email opened</option>
+                                <option value="clicked" ${step.field === 'clicked' ? 'selected' : ''}>Link clicked</option>
+                                <option value="purchased" ${step.field === 'purchased' ? 'selected' : ''}>Made purchase</option>
+                            </select>
+                        </div>
+                    `;
+                }
+
+                return `
+                    <div class="workflow-step">
+                        <div class="step-header">
+                            <div class="step-icon ${step.type}">
+                                <i class="fas ${step.type === 'wait' ? 'fa-clock' : step.type === 'email' ? 'fa-envelope' : 'fa-code-branch'}"></i>
+                            </div>
+                            <span class="step-title">${getStepTitle(step)}</span>
+                            <button class="step-remove" onclick="removeStep(${step.id})">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
+                        ${content}
+                    </div>
+                `;
+            }).join('');
+        }
+
+        function getStepTitle(step) {
+            if (step.type === 'wait') {
+                return `Wait ${step.duration} ${step.unit}`;
+            } else if (step.type === 'email') {
+                return 'Send Email';
+            } else if (step.type === 'condition') {
+                return 'If/Then Condition';
+            }
+            return step.type;
+        }
+
+        function updateStep(id, field, value) {
+            const step = workflowSteps.find(s => s.id === id);
+            if (step) {
+                step[field] = value;
+                renderWorkflowSteps();
+            }
+        }
+
+        function editAutomation(id) {
+            const auto = automations.find(a => a.id === id);
+            if (!auto) return;
+
+            editingId = id;
+            document.getElementById('modalTitle').textContent = 'Edit Automation';
+            document.getElementById('automationName').value = auto.name;
+            document.getElementById('automationTrigger').value = auto.trigger;
+
+            // Update trigger display
+            const triggerStep = document.getElementById('triggerStep');
+            triggerStep.querySelector('.step-title').textContent = 'Trigger: ' + auto.triggerText;
+
+            // Load steps
+            workflowSteps = auto.steps.map((step, i) => ({ ...step, id: ++stepCounter }));
+            renderWorkflowSteps();
+
+            document.getElementById('automationModal').classList.add('active');
+        }
+
+        function duplicateAutomation(id) {
+            const auto = automations.find(a => a.id === id);
+            if (!auto) return;
+
+            const newAuto = {
+                ...auto,
+                id: Date.now().toString(),
+                name: auto.name + ' (Copy)',
+                active: false,
+                stats: { sent: 0, opened: 0, clicked: 0, revenue: 0 }
+            };
+
+            automations.unshift(newAuto);
+            renderAutomations();
+        }
+
+        function deleteAutomation(id) {
+            if (!confirm('Are you sure you want to delete this automation?')) return;
+
+            automations = automations.filter(a => a.id !== id);
+            renderAutomations();
+        }
+
+        function saveAutomation() {
+            const name = document.getElementById('automationName').value;
+            const trigger = document.getElementById('automationTrigger').value;
+
+            if (!name || !trigger) {
+                alert('Please enter a name and select a trigger');
+                return;
+            }
+
+            const triggerOption = document.getElementById('automationTrigger').querySelector(`option[value="${trigger}"]`);
+
+            const auto = {
+                id: editingId || Date.now().toString(),
+                name: name,
+                trigger: trigger,
+                triggerText: triggerOption.text,
+                active: false,
+                type: 'custom',
+                stats: editingId ? (automations.find(a => a.id === editingId)?.stats || { sent: 0, opened: 0, clicked: 0, revenue: 0 }) : { sent: 0, opened: 0, clicked: 0, revenue: 0 },
+                steps: workflowSteps.map(s => {
+                    const { id, ...step } = s;
+                    return step;
+                })
+            };
+
+            if (editingId) {
+                const index = automations.findIndex(a => a.id === editingId);
+                if (index > -1) {
+                    auto.active = automations[index].active;
+                    auto.type = automations[index].type;
+                    automations[index] = auto;
+                }
+            } else {
+                automations.unshift(auto);
+            }
+
+            renderAutomations();
+            closeAutomationModal();
+            alert('Automation saved successfully!');
+        }
+    </script>
+</body>
+</html>

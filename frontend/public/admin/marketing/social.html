@@ -1,0 +1,1116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Social Media - Marketing | Peekaboo Shades Admin</title>
+    <link rel="stylesheet" href="../css/admin.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .marketing-container {
+            display: flex;
+            min-height: 100vh;
+        }
+
+        .marketing-sidebar {
+            width: 240px;
+            background: #1a1a2e;
+            padding: 20px 0;
+            flex-shrink: 0;
+        }
+
+        .marketing-sidebar h3 {
+            color: #fff;
+            padding: 0 20px;
+            margin-bottom: 20px;
+            font-size: 14px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .marketing-nav {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+
+        .marketing-nav li a {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 12px 20px;
+            color: #a0a0a0;
+            text-decoration: none;
+            transition: all 0.2s;
+        }
+
+        .marketing-nav li a:hover,
+        .marketing-nav li a.active {
+            background: rgba(255,255,255,0.1);
+            color: #fff;
+        }
+
+        .marketing-nav li a.active {
+            border-left: 3px solid #4a90d9;
+        }
+
+        .marketing-content {
+            flex: 1;
+            padding: 30px;
+            background: #f5f5f5;
+        }
+
+        .page-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .page-header h1 {
+            margin: 0;
+            font-size: 24px;
+        }
+
+        .btn-primary {
+            background: #4a90d9;
+            color: #fff;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-primary:hover {
+            background: #3a7bc8;
+        }
+
+        .social-grid {
+            display: grid;
+            grid-template-columns: 1fr 350px;
+            gap: 30px;
+        }
+
+        .connected-accounts {
+            background: #fff;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .connected-accounts h3 {
+            margin: 0 0 20px;
+            font-size: 16px;
+        }
+
+        .account-list {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .account-item {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            padding: 15px;
+            border: 1px solid #eee;
+            border-radius: 8px;
+        }
+
+        .account-icon {
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            color: #fff;
+        }
+
+        .account-icon.facebook { background: #1877f2; }
+        .account-icon.instagram { background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888); }
+        .account-icon.twitter { background: #1da1f2; }
+        .account-icon.pinterest { background: #bd081c; }
+        .account-icon.tiktok { background: #000; }
+
+        .account-info {
+            flex: 1;
+        }
+
+        .account-name {
+            font-weight: 500;
+        }
+
+        .account-handle {
+            font-size: 13px;
+            color: #888;
+        }
+
+        .account-status {
+            font-size: 12px;
+            padding: 4px 10px;
+            border-radius: 20px;
+        }
+
+        .account-status.connected {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .account-status.disconnected {
+            background: #f0f0f0;
+            color: #666;
+        }
+
+        .btn-connect {
+            padding: 8px 16px;
+            border: 1px solid #ddd;
+            background: #fff;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 13px;
+        }
+
+        .btn-connect:hover {
+            background: #f5f5f5;
+        }
+
+        .composer-card {
+            background: #fff;
+            border-radius: 8px;
+            padding: 20px;
+        }
+
+        .composer-card h3 {
+            margin: 0 0 20px;
+            font-size: 16px;
+        }
+
+        .platform-selector {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .platform-toggle {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 10px 15px;
+            border: 2px solid #eee;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .platform-toggle:hover {
+            border-color: #ccc;
+        }
+
+        .platform-toggle.selected {
+            border-color: #4a90d9;
+            background: #f0f7ff;
+        }
+
+        .platform-toggle.disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .platform-toggle i {
+            font-size: 18px;
+        }
+
+        .platform-toggle .fa-facebook { color: #1877f2; }
+        .platform-toggle .fa-instagram { color: #e4405f; }
+        .platform-toggle .fa-twitter { color: #1da1f2; }
+        .platform-toggle .fa-pinterest { color: #bd081c; }
+        .platform-toggle .fa-tiktok { color: #000; }
+
+        .compose-area {
+            margin-bottom: 20px;
+        }
+
+        .compose-area textarea {
+            width: 100%;
+            min-height: 120px;
+            padding: 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            resize: vertical;
+            font-size: 14px;
+            font-family: inherit;
+        }
+
+        .compose-area textarea:focus {
+            outline: none;
+            border-color: #4a90d9;
+        }
+
+        .char-count {
+            text-align: right;
+            font-size: 12px;
+            color: #888;
+            margin-top: 5px;
+        }
+
+        .char-count.warning { color: #f0ad4e; }
+        .char-count.error { color: #d9534f; }
+
+        .media-upload {
+            border: 2px dashed #ddd;
+            border-radius: 8px;
+            padding: 30px;
+            text-align: center;
+            margin-bottom: 20px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .media-upload:hover {
+            border-color: #4a90d9;
+            background: #f9f9f9;
+        }
+
+        .media-upload i {
+            font-size: 32px;
+            color: #ccc;
+            margin-bottom: 10px;
+        }
+
+        .media-upload p {
+            margin: 0;
+            color: #888;
+        }
+
+        .media-preview {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .media-item {
+            position: relative;
+            aspect-ratio: 1;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .media-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .media-item .remove-media {
+            position: absolute;
+            top: 5px;
+            right: 5px;
+            width: 24px;
+            height: 24px;
+            background: rgba(0,0,0,0.6);
+            border: none;
+            border-radius: 50%;
+            color: #fff;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .schedule-options {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .schedule-option {
+            flex: 1;
+            padding: 15px;
+            border: 2px solid #eee;
+            border-radius: 8px;
+            cursor: pointer;
+            text-align: center;
+        }
+
+        .schedule-option:hover {
+            border-color: #ccc;
+        }
+
+        .schedule-option.selected {
+            border-color: #4a90d9;
+            background: #f0f7ff;
+        }
+
+        .schedule-option i {
+            font-size: 24px;
+            margin-bottom: 8px;
+            color: #4a90d9;
+        }
+
+        .schedule-option .label {
+            font-weight: 500;
+        }
+
+        .schedule-option .desc {
+            font-size: 12px;
+            color: #888;
+            margin-top: 4px;
+        }
+
+        .datetime-picker {
+            display: none;
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .datetime-picker.visible {
+            display: flex;
+        }
+
+        .datetime-picker input {
+            flex: 1;
+            padding: 10px 15px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+        }
+
+        .post-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .post-actions button {
+            flex: 1;
+        }
+
+        .btn-secondary {
+            background: #f0f0f0;
+            color: #333;
+            border: 1px solid #ddd;
+            padding: 12px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .btn-secondary:hover {
+            background: #e5e5e5;
+        }
+
+        /* Posts Feed */
+        .posts-feed {
+            background: #fff;
+            border-radius: 8px;
+            padding: 20px;
+        }
+
+        .posts-feed h3 {
+            margin: 0 0 20px;
+            font-size: 16px;
+        }
+
+        .feed-tabs {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .feed-tab {
+            padding: 8px 16px;
+            border: none;
+            background: none;
+            cursor: pointer;
+            font-size: 14px;
+            color: #888;
+            border-bottom: 2px solid transparent;
+        }
+
+        .feed-tab.active {
+            color: #4a90d9;
+            border-color: #4a90d9;
+        }
+
+        .post-item {
+            padding: 20px 0;
+            border-bottom: 1px solid #eee;
+        }
+
+        .post-item:last-child {
+            border-bottom: none;
+        }
+
+        .post-header {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 12px;
+        }
+
+        .post-platforms {
+            display: flex;
+            gap: 5px;
+        }
+
+        .post-platforms i {
+            font-size: 16px;
+        }
+
+        .post-date {
+            margin-left: auto;
+            font-size: 12px;
+            color: #888;
+        }
+
+        .post-content {
+            margin-bottom: 12px;
+            line-height: 1.5;
+        }
+
+        .post-media {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 12px;
+        }
+
+        .post-media img {
+            width: 80px;
+            height: 80px;
+            object-fit: cover;
+            border-radius: 6px;
+        }
+
+        .post-stats {
+            display: flex;
+            gap: 20px;
+            font-size: 13px;
+            color: #666;
+        }
+
+        .post-stats span {
+            display: flex;
+            align-items: center;
+            gap: 5px;
+        }
+
+        .post-status {
+            font-size: 12px;
+            padding: 4px 10px;
+            border-radius: 20px;
+        }
+
+        .post-status.published {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .post-status.scheduled {
+            background: #fff3cd;
+            color: #856404;
+        }
+
+        .post-status.draft {
+            background: #f0f0f0;
+            color: #666;
+        }
+
+        /* Calendar View */
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .calendar-nav {
+            display: flex;
+            gap: 10px;
+        }
+
+        .calendar-nav button {
+            width: 36px;
+            height: 36px;
+            border: 1px solid #ddd;
+            background: #fff;
+            border-radius: 6px;
+            cursor: pointer;
+        }
+
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 5px;
+        }
+
+        .calendar-day-header {
+            text-align: center;
+            padding: 10px;
+            font-weight: 600;
+            font-size: 12px;
+            color: #888;
+        }
+
+        .calendar-day {
+            min-height: 80px;
+            border: 1px solid #eee;
+            border-radius: 6px;
+            padding: 8px;
+        }
+
+        .calendar-day.other-month {
+            background: #f9f9f9;
+            color: #ccc;
+        }
+
+        .calendar-day.today {
+            border-color: #4a90d9;
+            background: #f0f7ff;
+        }
+
+        .calendar-day-num {
+            font-weight: 500;
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+
+        .calendar-post {
+            font-size: 11px;
+            padding: 3px 6px;
+            background: #e8f0fc;
+            border-radius: 4px;
+            margin-top: 4px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .analytics-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .analytics-card {
+            background: #fff;
+            border-radius: 8px;
+            padding: 20px;
+            text-align: center;
+        }
+
+        .analytics-value {
+            font-size: 28px;
+            font-weight: 600;
+            color: #333;
+        }
+
+        .analytics-label {
+            font-size: 13px;
+            color: #888;
+            margin-top: 5px;
+        }
+
+        .analytics-change {
+            font-size: 12px;
+            margin-top: 8px;
+        }
+
+        .analytics-change.up { color: #28a745; }
+        .analytics-change.down { color: #dc3545; }
+    </style>
+</head>
+<body>
+    <div class="marketing-container">
+        <aside class="marketing-sidebar">
+            <h3>Marketing</h3>
+            <ul class="marketing-nav">
+                <li><a href="index.html"><i class="fas fa-chart-line"></i> Overview</a></li>
+                <li><a href="campaigns.html"><i class="fas fa-envelope"></i> Email Campaigns</a></li>
+                <li><a href="social.html" class="active"><i class="fas fa-share-alt"></i> Social Media</a></li>
+                <li><a href="promotions.html"><i class="fas fa-tags"></i> Promotions</a></li>
+                <li><a href="subscribers.html"><i class="fas fa-users"></i> Subscribers</a></li>
+                <li><a href="automations.html"><i class="fas fa-robot"></i> Automations</a></li>
+            </ul>
+            <div style="padding: 20px; margin-top: 30px;">
+                <a href="../index.html" style="color: #a0a0a0; text-decoration: none; font-size: 13px;">
+                    <i class="fas fa-arrow-left"></i> Back to Dashboard
+                </a>
+            </div>
+        </aside>
+
+        <main class="marketing-content">
+            <div class="page-header">
+                <h1>Social Media</h1>
+                <button class="btn-primary" onclick="openComposer()">
+                    <i class="fas fa-plus"></i> Create Post
+                </button>
+            </div>
+
+            <div class="analytics-grid">
+                <div class="analytics-card">
+                    <div class="analytics-value">12.5K</div>
+                    <div class="analytics-label">Total Followers</div>
+                    <div class="analytics-change up"><i class="fas fa-arrow-up"></i> 8.2% this month</div>
+                </div>
+                <div class="analytics-card">
+                    <div class="analytics-value">847</div>
+                    <div class="analytics-label">Engagements</div>
+                    <div class="analytics-change up"><i class="fas fa-arrow-up"></i> 12.4% this week</div>
+                </div>
+                <div class="analytics-card">
+                    <div class="analytics-value">23</div>
+                    <div class="analytics-label">Posts This Month</div>
+                    <div class="analytics-change down"><i class="fas fa-arrow-down"></i> 3 less than last</div>
+                </div>
+                <div class="analytics-card">
+                    <div class="analytics-value">4.2K</div>
+                    <div class="analytics-label">Link Clicks</div>
+                    <div class="analytics-change up"><i class="fas fa-arrow-up"></i> 15.7% this month</div>
+                </div>
+            </div>
+
+            <div class="social-grid">
+                <div class="main-column">
+                    <div class="connected-accounts">
+                        <h3>Connected Accounts</h3>
+                        <div class="account-list" id="accountsList">
+                            <!-- Accounts will be loaded here -->
+                        </div>
+                    </div>
+
+                    <div class="posts-feed">
+                        <h3>Recent Posts</h3>
+                        <div class="feed-tabs">
+                            <button class="feed-tab active" data-tab="all">All</button>
+                            <button class="feed-tab" data-tab="published">Published</button>
+                            <button class="feed-tab" data-tab="scheduled">Scheduled</button>
+                            <button class="feed-tab" data-tab="draft">Drafts</button>
+                        </div>
+                        <div id="postsFeed">
+                            <!-- Posts will be loaded here -->
+                        </div>
+                    </div>
+                </div>
+
+                <div class="side-column">
+                    <div class="composer-card" id="composer">
+                        <h3>Quick Post</h3>
+                        <div class="platform-selector" id="platformSelector">
+                            <!-- Platform toggles will be added here -->
+                        </div>
+                        <div class="compose-area">
+                            <textarea id="postContent" placeholder="What would you like to share?"></textarea>
+                            <div class="char-count"><span id="charCount">0</span> / 280</div>
+                        </div>
+                        <div class="media-upload" onclick="document.getElementById('mediaInput').click()">
+                            <i class="fas fa-image"></i>
+                            <p>Add photos or videos</p>
+                            <input type="file" id="mediaInput" hidden multiple accept="image/*,video/*">
+                        </div>
+                        <div class="media-preview" id="mediaPreview"></div>
+                        <div class="schedule-options">
+                            <div class="schedule-option selected" data-option="now">
+                                <i class="fas fa-paper-plane"></i>
+                                <div class="label">Post Now</div>
+                            </div>
+                            <div class="schedule-option" data-option="schedule">
+                                <i class="fas fa-clock"></i>
+                                <div class="label">Schedule</div>
+                            </div>
+                        </div>
+                        <div class="datetime-picker" id="datetimePicker">
+                            <input type="date" id="scheduleDate">
+                            <input type="time" id="scheduleTime">
+                        </div>
+                        <div class="post-actions">
+                            <button class="btn-secondary" onclick="saveDraft()">Save Draft</button>
+                            <button class="btn-primary" onclick="publishPost()">
+                                <i class="fas fa-paper-plane"></i> Post
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <script>
+        let accounts = [];
+        let posts = [];
+        let selectedPlatforms = ['facebook', 'instagram'];
+        let mediaFiles = [];
+
+        const platformData = [
+            { id: 'facebook', name: 'Facebook', icon: 'fab fa-facebook', handle: '@peekabooshades', connected: true },
+            { id: 'instagram', name: 'Instagram', icon: 'fab fa-instagram', handle: '@peekabooshades', connected: true },
+            { id: 'twitter', name: 'Twitter/X', icon: 'fab fa-twitter', handle: '@peekabooshades', connected: true },
+            { id: 'pinterest', name: 'Pinterest', icon: 'fab fa-pinterest', handle: '@peekabooshades', connected: false },
+            { id: 'tiktok', name: 'TikTok', icon: 'fab fa-tiktok', handle: '@peekabooshades', connected: false }
+        ];
+
+        const samplePosts = [
+            {
+                id: '1',
+                content: 'Summer is here! Check out our new collection of sheer curtains perfect for letting in that beautiful natural light. ☀️ #homedecor #curtains',
+                platforms: ['facebook', 'instagram', 'twitter'],
+                media: ['https://via.placeholder.com/200x200'],
+                status: 'published',
+                date: '2024-06-15T10:30:00',
+                stats: { likes: 145, comments: 23, shares: 12 }
+            },
+            {
+                id: '2',
+                content: 'New arrivals dropping next week! Stay tuned for something special. 🎉',
+                platforms: ['instagram', 'twitter'],
+                media: [],
+                status: 'scheduled',
+                date: '2024-06-20T14:00:00',
+                stats: {}
+            },
+            {
+                id: '3',
+                content: 'Behind the scenes at our workshop...',
+                platforms: ['instagram'],
+                media: ['https://via.placeholder.com/200x200', 'https://via.placeholder.com/200x200'],
+                status: 'draft',
+                date: '2024-06-18T09:00:00',
+                stats: {}
+            }
+        ];
+
+        document.addEventListener('DOMContentLoaded', () => {
+            accounts = platformData;
+            posts = samplePosts;
+            renderAccounts();
+            renderPlatformSelector();
+            renderPosts();
+            initEventListeners();
+        });
+
+        function renderAccounts() {
+            const container = document.getElementById('accountsList');
+            container.innerHTML = accounts.map(account => `
+                <div class="account-item">
+                    <div class="account-icon ${account.id}">
+                        <i class="${account.icon}"></i>
+                    </div>
+                    <div class="account-info">
+                        <div class="account-name">${account.name}</div>
+                        <div class="account-handle">${account.handle}</div>
+                    </div>
+                    ${account.connected ? `
+                        <span class="account-status connected">Connected</span>
+                        <button class="btn-connect" onclick="disconnectAccount('${account.id}')">Disconnect</button>
+                    ` : `
+                        <span class="account-status disconnected">Not connected</span>
+                        <button class="btn-connect" onclick="connectAccount('${account.id}')">Connect</button>
+                    `}
+                </div>
+            `).join('');
+        }
+
+        function renderPlatformSelector() {
+            const container = document.getElementById('platformSelector');
+            container.innerHTML = accounts.map(account => `
+                <div class="platform-toggle ${selectedPlatforms.includes(account.id) ? 'selected' : ''} ${!account.connected ? 'disabled' : ''}"
+                     data-platform="${account.id}"
+                     onclick="togglePlatform('${account.id}')">
+                    <i class="${account.icon}"></i>
+                    <span>${account.name}</span>
+                </div>
+            `).join('');
+        }
+
+        function togglePlatform(platformId) {
+            const account = accounts.find(a => a.id === platformId);
+            if (!account.connected) return;
+
+            if (selectedPlatforms.includes(platformId)) {
+                selectedPlatforms = selectedPlatforms.filter(p => p !== platformId);
+            } else {
+                selectedPlatforms.push(platformId);
+            }
+            renderPlatformSelector();
+            updateCharCount();
+        }
+
+        function renderPosts(filter = 'all') {
+            const container = document.getElementById('postsFeed');
+            let filtered = posts;
+            if (filter !== 'all') {
+                filtered = posts.filter(p => p.status === filter);
+            }
+
+            if (filtered.length === 0) {
+                container.innerHTML = `
+                    <div style="text-align: center; padding: 40px; color: #888;">
+                        <i class="fas fa-inbox" style="font-size: 32px; margin-bottom: 10px;"></i>
+                        <p>No posts found</p>
+                    </div>
+                `;
+                return;
+            }
+
+            container.innerHTML = filtered.map(post => `
+                <div class="post-item">
+                    <div class="post-header">
+                        <div class="post-platforms">
+                            ${post.platforms.map(p => {
+                                const platform = accounts.find(a => a.id === p);
+                                return `<i class="${platform.icon}" style="color: ${getPlatformColor(p)};"></i>`;
+                            }).join('')}
+                        </div>
+                        <span class="post-status ${post.status}">${post.status}</span>
+                        <span class="post-date">${formatDate(post.date)}</span>
+                    </div>
+                    <div class="post-content">${post.content}</div>
+                    ${post.media.length > 0 ? `
+                        <div class="post-media">
+                            ${post.media.map(m => `<img src="${m}" alt="Post media">`).join('')}
+                        </div>
+                    ` : ''}
+                    ${post.status === 'published' ? `
+                        <div class="post-stats">
+                            <span><i class="fas fa-heart"></i> ${post.stats.likes || 0}</span>
+                            <span><i class="fas fa-comment"></i> ${post.stats.comments || 0}</span>
+                            <span><i class="fas fa-share"></i> ${post.stats.shares || 0}</span>
+                        </div>
+                    ` : ''}
+                </div>
+            `).join('');
+        }
+
+        function getPlatformColor(platformId) {
+            const colors = {
+                facebook: '#1877f2',
+                instagram: '#e4405f',
+                twitter: '#1da1f2',
+                pinterest: '#bd081c',
+                tiktok: '#000'
+            };
+            return colors[platformId] || '#666';
+        }
+
+        function formatDate(dateStr) {
+            const date = new Date(dateStr);
+            return date.toLocaleDateString('en-US', {
+                month: 'short',
+                day: 'numeric',
+                hour: 'numeric',
+                minute: '2-digit'
+            });
+        }
+
+        function initEventListeners() {
+            // Tab switching
+            document.querySelectorAll('.feed-tab').forEach(tab => {
+                tab.addEventListener('click', () => {
+                    document.querySelectorAll('.feed-tab').forEach(t => t.classList.remove('active'));
+                    tab.classList.add('active');
+                    renderPosts(tab.dataset.tab);
+                });
+            });
+
+            // Schedule options
+            document.querySelectorAll('.schedule-option').forEach(opt => {
+                opt.addEventListener('click', () => {
+                    document.querySelectorAll('.schedule-option').forEach(o => o.classList.remove('selected'));
+                    opt.classList.add('selected');
+                    document.getElementById('datetimePicker').classList.toggle('visible', opt.dataset.option === 'schedule');
+                });
+            });
+
+            // Character count
+            document.getElementById('postContent').addEventListener('input', updateCharCount);
+
+            // Media upload
+            document.getElementById('mediaInput').addEventListener('change', handleMediaUpload);
+        }
+
+        function updateCharCount() {
+            const content = document.getElementById('postContent').value;
+            const count = content.length;
+            const countEl = document.getElementById('charCount');
+            const countContainer = document.querySelector('.char-count');
+
+            countEl.textContent = count;
+
+            // Twitter has 280 limit, others are more flexible
+            const hasTwitter = selectedPlatforms.includes('twitter');
+            const limit = hasTwitter ? 280 : 2200;
+
+            countContainer.classList.remove('warning', 'error');
+            if (count > limit) {
+                countContainer.classList.add('error');
+            } else if (count > limit * 0.9) {
+                countContainer.classList.add('warning');
+            }
+        }
+
+        function handleMediaUpload(e) {
+            const files = Array.from(e.target.files);
+            const preview = document.getElementById('mediaPreview');
+
+            files.forEach(file => {
+                if (mediaFiles.length >= 4) return;
+
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    mediaFiles.push({
+                        file: file,
+                        preview: e.target.result
+                    });
+                    renderMediaPreview();
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+
+        function renderMediaPreview() {
+            const preview = document.getElementById('mediaPreview');
+            preview.innerHTML = mediaFiles.map((m, i) => `
+                <div class="media-item">
+                    <img src="${m.preview}" alt="Upload preview">
+                    <button class="remove-media" onclick="removeMedia(${i})">
+                        <i class="fas fa-times"></i>
+                    </button>
+                </div>
+            `).join('');
+        }
+
+        function removeMedia(index) {
+            mediaFiles.splice(index, 1);
+            renderMediaPreview();
+        }
+
+        function connectAccount(platformId) {
+            // Simulate OAuth connection
+            const platform = accounts.find(a => a.id === platformId);
+            alert(`This would open ${platform.name} OAuth flow.\n\nFor demo purposes, the account will be marked as connected.`);
+
+            const account = accounts.find(a => a.id === platformId);
+            account.connected = true;
+            renderAccounts();
+            renderPlatformSelector();
+        }
+
+        function disconnectAccount(platformId) {
+            if (!confirm('Are you sure you want to disconnect this account?')) return;
+
+            const account = accounts.find(a => a.id === platformId);
+            account.connected = false;
+            selectedPlatforms = selectedPlatforms.filter(p => p !== platformId);
+            renderAccounts();
+            renderPlatformSelector();
+        }
+
+        function openComposer() {
+            document.getElementById('postContent').focus();
+            window.scrollTo({
+                top: document.getElementById('composer').offsetTop - 100,
+                behavior: 'smooth'
+            });
+        }
+
+        function saveDraft() {
+            const content = document.getElementById('postContent').value;
+            if (!content.trim()) {
+                alert('Please enter some content');
+                return;
+            }
+
+            const post = {
+                id: Date.now().toString(),
+                content: content,
+                platforms: selectedPlatforms,
+                media: mediaFiles.map(m => m.preview),
+                status: 'draft',
+                date: new Date().toISOString(),
+                stats: {}
+            };
+
+            posts.unshift(post);
+            renderPosts();
+            clearComposer();
+            alert('Draft saved!');
+        }
+
+        function publishPost() {
+            const content = document.getElementById('postContent').value;
+            if (!content.trim()) {
+                alert('Please enter some content');
+                return;
+            }
+
+            if (selectedPlatforms.length === 0) {
+                alert('Please select at least one platform');
+                return;
+            }
+
+            const isScheduled = document.querySelector('.schedule-option.selected').dataset.option === 'schedule';
+
+            let postDate = new Date().toISOString();
+            if (isScheduled) {
+                const date = document.getElementById('scheduleDate').value;
+                const time = document.getElementById('scheduleTime').value;
+                if (!date || !time) {
+                    alert('Please select a date and time for scheduling');
+                    return;
+                }
+                postDate = `${date}T${time}:00`;
+            }
+
+            const post = {
+                id: Date.now().toString(),
+                content: content,
+                platforms: selectedPlatforms,
+                media: mediaFiles.map(m => m.preview),
+                status: isScheduled ? 'scheduled' : 'published',
+                date: postDate,
+                stats: isScheduled ? {} : { likes: 0, comments: 0, shares: 0 }
+            };
+
+            // Save to API
+            const token = localStorage.getItem('adminToken');
+            fetch('/api/admin/marketing/social-posts', {
+                method: 'POST',
+                headers: {
+                    'Authorization': `Bearer ${token}`,
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(post)
+            })
+            .then(res => res.json())
+            .then(data => {
+                posts.unshift(post);
+                renderPosts();
+                clearComposer();
+                alert(isScheduled ? 'Post scheduled successfully!' : 'Post published to all selected platforms!');
+            })
+            .catch(err => {
+                console.error('Error:', err);
+                posts.unshift(post);
+                renderPosts();
+                clearComposer();
+                alert(isScheduled ? 'Post scheduled successfully!' : 'Post published to all selected platforms!');
+            });
+        }
+
+        function clearComposer() {
+            document.getElementById('postContent').value = '';
+            document.getElementById('charCount').textContent = '0';
+            mediaFiles = [];
+            renderMediaPreview();
+            document.getElementById('scheduleDate').value = '';
+            document.getElementById('scheduleTime').value = '';
+        }
+    </script>
+</body>
+</html>

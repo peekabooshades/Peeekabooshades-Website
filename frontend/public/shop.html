@@ -598,6 +598,183 @@
     function addToWishlist(productId) {
       showToast('Added to wishlist!', 'success');
     }
+
+    // ============================================
+    // API-DRIVEN CONTENT MANAGEMENT
+    // ============================================
+    let shopSettings = {};
+
+    async function loadSiteContent() {
+      try {
+        const response = await fetch('/api/site-content');
+        if (!response.ok) return;
+        const content = await response.json();
+
+        // Apply theme colors
+        if (content.theme) {
+          applyTheme(content.theme);
+        }
+
+        // Apply shop page settings
+        if (content.shopPage) {
+          shopSettings = content.shopPage;
+          applyShopSettings(content.shopPage);
+        }
+
+        // Apply navigation to footer
+        if (content.navigation) {
+          applyNavigation(content.navigation);
+        }
+
+        // Apply footer
+        if (content.footer) {
+          applyFooter(content.footer);
+        }
+
+        // Apply announcement bar
+        if (content.announcements && content.announcements.bar && content.announcements.bar.enabled) {
+          showAnnouncementBar(content.announcements.bar);
+        }
+
+      } catch (error) {
+        console.log('Using default content (API not available)');
+      }
+    }
+
+    function applyTheme(theme) {
+      const root = document.documentElement;
+      if (theme.primaryColor) {
+        // Update CSS variables if defined in the page
+        document.querySelectorAll('.tab-btn.active, .load-more-btn, .filter-pill:hover').forEach(el => {
+          el.style.setProperty('--primary-color', theme.primaryColor);
+        });
+      }
+    }
+
+    function applyShopSettings(settings) {
+      // Apply hero section
+      if (settings.heroTitle) {
+        const heroTitle = document.querySelector('.hero-title');
+        if (heroTitle) heroTitle.textContent = settings.heroTitle;
+      }
+      if (settings.heroSubtitle) {
+        const heroSubtitle = document.querySelector('.hero-subtitle');
+        if (heroSubtitle) heroSubtitle.textContent = settings.heroSubtitle;
+      }
+      if (settings.heroImage) {
+        const heroSection = document.querySelector('.hero-section');
+        if (heroSection) {
+          heroSection.style.backgroundImage = `linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.3)), url('${settings.heroImage}')`;
+        }
+      }
+
+      // Apply products per page
+      if (settings.productsPerPage) {
+        productsPerPage = settings.productsPerPage;
+      }
+
+      // Apply grid columns (if customizing via CSS)
+      if (settings.gridColumns) {
+        const grid = document.getElementById('productsGrid');
+        if (grid) {
+          grid.style.gridTemplateColumns = `repeat(${settings.gridColumns}, 1fr)`;
+        }
+      }
+
+      // Apply sort options
+      if (settings.defaultSort) {
+        const sortSelect = document.getElementById('sortFilter');
+        if (sortSelect) {
+          sortSelect.value = settings.defaultSort;
+        }
+      }
+
+      // Show/hide filters based on settings
+      if (settings.showCategoryFilter === false) {
+        const categoryTabs = document.querySelector('.category-tabs');
+        if (categoryTabs) categoryTabs.style.display = 'none';
+      }
+      if (settings.showPriceFilter === false) {
+        const priceFilter = document.querySelector('[onclick="togglePriceFilter()"]');
+        if (priceFilter) priceFilter.style.display = 'none';
+      }
+      if (settings.showSearchBox === false) {
+        const searchBar = document.querySelector('.search-bar');
+        if (searchBar) searchBar.style.display = 'none';
+      }
+
+      // Update page title
+      const seo = settings.seo || {};
+      if (seo.shopPageTitle) {
+        document.title = seo.shopPageTitle;
+      }
+    }
+
+    function applyNavigation(navigation) {
+      // Apply social links to footer
+      if (navigation.socialLinks && navigation.socialLinks.length > 0) {
+        const socialContainer = document.querySelector('.footer-social');
+        if (socialContainer) {
+          socialContainer.innerHTML = navigation.socialLinks.map(link => {
+            const iconMap = {
+              facebook: 'fab fa-facebook-f',
+              instagram: 'fab fa-instagram',
+              twitter: 'fab fa-twitter',
+              pinterest: 'fab fa-pinterest-p',
+              youtube: 'fab fa-youtube',
+              linkedin: 'fab fa-linkedin-in',
+              tiktok: 'fab fa-tiktok'
+            };
+            return `<a href="${link.url}" class="social-icon" target="_blank"><i class="${iconMap[link.platform] || 'fas fa-link'}"></i></a>`;
+          }).join('');
+        }
+      }
+
+      // Apply footer columns
+      if (navigation.footerColumns && navigation.footerColumns.length > 0) {
+        const footerGrid = document.querySelector('.footer-grid');
+        if (footerGrid) {
+          const brandSection = footerGrid.querySelector('.footer-brand');
+          const columnsHtml = navigation.footerColumns.map(col => `
+            <div class="footer-column">
+              <h4>${col.title}</h4>
+              <ul>
+                ${(col.links || []).map(link => `<li><a href="${link.url}">${link.label}</a></li>`).join('')}
+              </ul>
+            </div>
+          `).join('');
+          footerGrid.innerHTML = brandSection ? brandSection.outerHTML + columnsHtml : columnsHtml;
+        }
+      }
+    }
+
+    function applyFooter(footer) {
+      if (footer.copyrightText) {
+        const copyright = document.querySelector('.footer-copyright');
+        if (copyright) copyright.textContent = footer.copyrightText;
+      }
+    }
+
+    function showAnnouncementBar(announcement) {
+      let announcementBar = document.querySelector('.announcement-bar');
+      if (!announcementBar) {
+        announcementBar = document.createElement('div');
+        announcementBar.className = 'announcement-bar';
+        announcementBar.style.cssText = 'background: #333; color: white; text-align: center; padding: 10px; font-size: 14px;';
+        document.body.insertBefore(announcementBar, document.body.firstChild);
+      }
+
+      if (announcement.link) {
+        announcementBar.innerHTML = `<a href="${announcement.link}" style="color: white; text-decoration: underline;">${announcement.text}</a>`;
+      } else {
+        announcementBar.textContent = announcement.text;
+      }
+    }
+
+    // Load site content on page load
+    document.addEventListener('DOMContentLoaded', function() {
+      loadSiteContent();
+    });
   </script>
 </body>
 </html>

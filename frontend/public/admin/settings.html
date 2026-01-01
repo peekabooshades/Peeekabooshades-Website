@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Settings - Peekaboo Shades Admin</title>
+  <link rel="stylesheet" href="css/admin.css">
+  <link rel="icon" type="image/png" href="/images/favicon.png">
+</head>
+<body>
+  <div class="admin-layout">
+    <!-- Sidebar -->
+    <aside class="admin-sidebar">
+      <div class="sidebar-header">
+        <a href="/admin/" class="sidebar-logo">
+          <img src="/images/logo.png" alt="Logo" onerror="this.style.display='none'">
+          <span>Peekaboo Shades</span>
+        </a>
+      </div>
+
+      <nav class="sidebar-nav">
+        <div class="nav-section">
+          <a href="/admin/" class="nav-item">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+            </svg>
+            <span>Dashboard</span>
+          </a>
+        </div>
+
+        <div class="nav-section">
+          <div class="nav-section-title">Catalog</div>
+          <a href="/admin/products.html" class="nav-item">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+            </svg>
+            <span>Products</span>
+          </a>
+          <a href="/admin/categories.html" class="nav-item">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+            </svg>
+            <span>Categories</span>
+          </a>
+        </div>
+
+        <div class="nav-section">
+          <div class="nav-section-title">Sales</div>
+          <a href="/admin/orders.html" class="nav-item">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+            </svg>
+            <span>Orders</span>
+          </a>
+          <a href="/admin/quotes.html" class="nav-item">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+            <span>Quotes</span>
+          </a>
+        </div>
+
+        <div class="nav-section">
+          <div class="nav-section-title">Content</div>
+          <a href="/admin/faqs.html" class="nav-item">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <span>FAQs</span>
+          </a>
+        </div>
+
+        <div class="nav-section">
+          <div class="nav-section-title">Settings</div>
+          <a href="/admin/settings.html" class="nav-item active">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+            <span>Settings</span>
+          </a>
+          <a href="/admin/security/" class="nav-item">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+            </svg>
+            <span>Security</span>
+          </a>
+        </div>
+      </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="admin-main">
+      <!-- Header -->
+      <header class="admin-header">
+        <div class="header-left">
+          <div class="breadcrumb">
+            <a href="/admin/">Dashboard</a>
+            <span class="breadcrumb-separator">/</span>
+            <span class="breadcrumb-current">Settings</span>
+          </div>
+        </div>
+        <div class="header-right">
+          <div class="dropdown">
+            <div class="header-profile">
+              <div class="profile-avatar">A</div>
+              <span class="profile-name">Admin</span>
+            </div>
+            <div class="dropdown-menu profile-dropdown">
+              <a href="/admin/settings.html" class="dropdown-item">Profile</a>
+              <div class="dropdown-divider"></div>
+              <a href="#" class="dropdown-item danger" onclick="Admin.AuthAPI.logout(); return false;">Logout</a>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <!-- Page Content -->
+      <div class="admin-content">
+        <div class="page-header">
+          <h1 class="page-title">Settings</h1>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 24px;">
+          <!-- Main Settings -->
+          <div>
+            <!-- Store Settings -->
+            <div class="card" style="margin-bottom: 24px;">
+              <div class="card-header">
+                <h3 class="card-title">Store Information</h3>
+              </div>
+              <form id="store-form">
+                <div class="card-body">
+                  <div class="form-group">
+                    <label class="form-label" for="store-name">Store Name</label>
+                    <input type="text" class="form-input" id="store-name" placeholder="Your store name">
+                  </div>
+
+                  <div class="form-row">
+                    <div class="form-group">
+                      <label class="form-label" for="store-email">Contact Email</label>
+                      <input type="email" class="form-input" id="store-email" placeholder="contact@example.com">
+                    </div>
+                    <div class="form-group">
+                      <label class="form-label" for="store-phone">Contact Phone</label>
+                      <input type="tel" class="form-input" id="store-phone" placeholder="1-800-123-4567">
+                    </div>
+                  </div>
+
+                  <div class="form-group" style="margin-bottom: 0;">
+                    <label class="form-label" for="logo-url">Logo URL</label>
+                    <input type="text" class="form-input" id="logo-url" placeholder="/images/logo.png">
+                  </div>
+                </div>
+                <div style="padding: 16px 20px; border-top: 1px solid var(--admin-border); display: flex; justify-content: flex-end;">
+                  <button type="submit" class="btn btn-primary">Save Store Settings</button>
+                </div>
+              </form>
+            </div>
+
+            <!-- Pricing Settings -->
+            <div class="card" style="margin-bottom: 24px;">
+              <div class="card-header">
+                <h3 class="card-title">Pricing & Shipping</h3>
+              </div>
+              <form id="pricing-form">
+                <div class="card-body">
+                  <div class="form-row">
+                    <div class="form-group">
+                      <label class="form-label" for="tax-rate">Tax Rate (%)</label>
+                      <input type="number" class="form-input" id="tax-rate" min="0" max="100" step="0.01" placeholder="8.00">
+                      <p class="form-help">Percentage applied to order subtotal</p>
+                    </div>
+                    <div class="form-group">
+                      <label class="form-label" for="currency">Currency</label>
+                      <select class="form-select" id="currency">
+                        <option value="USD">USD - US Dollar</option>
+                        <option value="EUR">EUR - Euro</option>
+                        <option value="GBP">GBP - British Pound</option>
+                        <option value="CAD">CAD - Canadian Dollar</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div class="form-row">
+                    <div class="form-group">
+                      <label class="form-label" for="shipping-rate">Shipping Rate ($)</label>
+                      <input type="number" class="form-input" id="shipping-rate" min="0" step="0.01" placeholder="9.99">
+                    </div>
+                    <div class="form-group">
+                      <label class="form-label" for="free-shipping">Free Shipping Threshold ($)</label>
+                      <input type="number" class="form-input" id="free-shipping" min="0" step="0.01" placeholder="99.00">
+                      <p class="form-help">Orders above this amount get free shipping</p>
+                    </div>
+                  </div>
+                </div>
+                <div style="padding: 16px 20px; border-top: 1px solid var(--admin-border); display: flex; justify-content: flex-end;">
+                  <button type="submit" class="btn btn-primary">Save Pricing Settings</button>
+                </div>
+              </form>
+            </div>
+          </div>
+
+          <!-- Sidebar -->
+          <div>
+            <!-- Change Password -->
+            <div class="card" style="margin-bottom: 24px;">
+              <div class="card-header">
+                <h3 class="card-title">Change Password</h3>
+              </div>
+              <form id="password-form">
+                <div class="card-body">
+                  <div class="form-group">
+                    <label class="form-label" for="current-password">Current Password</label>
+                    <input type="password" class="form-input" id="current-password" required autocomplete="current-password">
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label" for="new-password">New Password</label>
+                    <input type="password" class="form-input" id="new-password" required minlength="6" autocomplete="new-password">
+                    <p class="form-help">Minimum 6 characters</p>
+                  </div>
+                  <div class="form-group" style="margin-bottom: 0;">
+                    <label class="form-label" for="confirm-password">Confirm New Password</label>
+                    <input type="password" class="form-input" id="confirm-password" required autocomplete="new-password">
+                  </div>
+                </div>
+                <div style="padding: 16px 20px; border-top: 1px solid var(--admin-border);">
+                  <button type="submit" class="btn btn-primary" style="width: 100%;">Update Password</button>
+                </div>
+              </form>
+            </div>
+
+            <!-- Admin Info -->
+            <div class="card" style="margin-bottom: 24px;">
+              <div class="card-header">
+                <h3 class="card-title">Admin Account</h3>
+              </div>
+              <div class="card-body">
+                <div style="display: flex; align-items: center; gap: 16px; margin-bottom: 16px;">
+                  <div class="profile-avatar" style="width: 48px; height: 48px; font-size: 20px;" id="admin-avatar">A</div>
+                  <div>
+                    <p style="font-weight: 600; margin-bottom: 2px;" id="admin-name">Admin</p>
+                    <p style="font-size: 13px; color: var(--admin-text-secondary);" id="admin-email">admin@example.com</p>
+                  </div>
+                </div>
+                <p style="font-size: 13px; color: var(--admin-text-secondary);">
+                  <strong>Role:</strong> <span id="admin-role">Administrator</span>
+                </p>
+              </div>
+            </div>
+
+            <!-- Security Center -->
+            <div class="card" style="background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%); color: #fff;">
+              <div class="card-body">
+                <div style="display: flex; align-items: center; gap: 12px; margin-bottom: 16px;">
+                  <div style="width: 40px; height: 40px; background: rgba(40, 167, 69, 0.2); border-radius: 10px; display: flex; align-items: center; justify-content: center;">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="#28a745">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+                    </svg>
+                  </div>
+                  <h3 style="margin: 0; font-size: 16px;">Security Center</h3>
+                </div>
+                <p style="font-size: 13px; opacity: 0.8; margin-bottom: 16px;">
+                  Manage users, 2FA, firewall, SSO, sessions, API keys, and audit logs.
+                </p>
+                <a href="/admin/security/" class="btn btn-primary" style="width: 100%; justify-content: center; background: #28a745; border-color: #28a745;">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="margin-right: 8px;">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                  </svg>
+                  Open Security Center
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="js/admin.js"></script>
+  <script>
+    // Require authentication
+    if (!Admin.Auth.requireAuth()) {
+      // Will redirect
+    } else {
+      loadSettings();
+      loadAdminInfo();
+    }
+
+    async function loadSettings() {
+      try {
+        const data = await Admin.SettingsAPI.get();
+        if (data.success) {
+          const settings = data.settings;
+          document.getElementById('store-name').value = settings.storeName || '';
+          document.getElementById('store-email').value = settings.storeEmail || '';
+          document.getElementById('store-phone').value = settings.storePhone || '';
+          document.getElementById('logo-url').value = settings.logoUrl || '';
+          document.getElementById('tax-rate').value = (settings.taxRate * 100) || 0;
+          document.getElementById('currency').value = settings.currency || 'USD';
+          document.getElementById('shipping-rate').value = settings.shippingRate || 0;
+          document.getElementById('free-shipping').value = settings.freeShippingThreshold || 0;
+        }
+      } catch (error) {
+        Admin.Toast.error('Failed to load settings');
+      }
+    }
+
+    function loadAdminInfo() {
+      const user = Admin.Auth.getUser();
+      if (user) {
+        document.getElementById('admin-name').textContent = user.name || 'Admin';
+        document.getElementById('admin-email').textContent = user.email || '';
+        document.getElementById('admin-avatar').textContent = (user.name || 'A').charAt(0).toUpperCase();
+        document.getElementById('admin-role').textContent = user.role === 'admin' ? 'Administrator' : user.role;
+      }
+    }
+
+    // Store settings form
+    document.getElementById('store-form').addEventListener('submit', async function(e) {
+      e.preventDefault();
+
+      const settings = {
+        storeName: document.getElementById('store-name').value.trim(),
+        storeEmail: document.getElementById('store-email').value.trim(),
+        storePhone: document.getElementById('store-phone').value.trim(),
+        logoUrl: document.getElementById('logo-url').value.trim()
+      };
+
+      try {
+        await Admin.SettingsAPI.update(settings);
+        Admin.Toast.success('Store settings saved successfully');
+      } catch (error) {
+        Admin.Toast.error('Failed to save settings');
+      }
+    });
+
+    // Pricing settings form
+    document.getElementById('pricing-form').addEventListener('submit', async function(e) {
+      e.preventDefault();
+
+      const settings = {
+        taxRate: parseFloat(document.getElementById('tax-rate').value) / 100 || 0,
+        currency: document.getElementById('currency').value,
+        shippingRate: parseFloat(document.getElementById('shipping-rate').value) || 0,
+        freeShippingThreshold: parseFloat(document.getElementById('free-shipping').value) || 0
+      };
+
+      try {
+        await Admin.SettingsAPI.update(settings);
+        Admin.Toast.success('Pricing settings saved successfully');
+      } catch (error) {
+        Admin.Toast.error('Failed to save settings');
+      }
+    });
+
+    // Password form
+    document.getElementById('password-form').addEventListener('submit', async function(e) {
+      e.preventDefault();
+
+      const currentPassword = document.getElementById('current-password').value;
+      const newPassword = document.getElementById('new-password').value;
+      const confirmPassword = document.getElementById('confirm-password').value;
+
+      if (newPassword !== confirmPassword) {
+        Admin.Toast.error('Passwords do not match');
+        return;
+      }
+
+      if (newPassword.length < 6) {
+        Admin.Toast.error('Password must be at least 6 characters');
+        return;
+      }
+
+      try {
+        await Admin.SettingsAPI.changePassword(currentPassword, newPassword);
+        Admin.Toast.success('Password updated successfully');
+        document.getElementById('password-form').reset();
+      } catch (error) {
+        Admin.Toast.error(error.message || 'Failed to update password');
+      }
+    });
+  </script>
+</body>
+</html>

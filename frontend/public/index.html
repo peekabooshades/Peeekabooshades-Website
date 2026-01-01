@@ -1817,6 +1817,286 @@
       showToast('Thank you for subscribing!', 'success');
       e.target.reset();
     }
+
+    // ============================================
+    // API-DRIVEN CONTENT MANAGEMENT
+    // ============================================
+    async function loadSiteContent() {
+      try {
+        const response = await fetch('/api/site-content');
+        if (!response.ok) return;
+        const content = await response.json();
+
+        // Apply theme colors
+        if (content.theme) {
+          applyTheme(content.theme);
+        }
+
+        // Apply header/navigation
+        if (content.navigation) {
+          applyNavigation(content.navigation);
+        }
+
+        // Apply hero slides
+        if (content.heroSlides && content.heroSlides.length > 0) {
+          applyHeroSlides(content.heroSlides);
+        }
+
+        // Apply homepage sections
+        if (content.homepage) {
+          applyHomepageSections(content.homepage);
+        }
+
+        // Apply footer
+        if (content.footer) {
+          applyFooter(content.footer);
+        }
+
+        // Apply announcement bar
+        if (content.announcements && content.announcements.bar && content.announcements.bar.enabled) {
+          showAnnouncementBar(content.announcements.bar);
+        }
+
+      } catch (error) {
+        console.log('Using default content (API not available)');
+      }
+    }
+
+    function applyTheme(theme) {
+      const root = document.documentElement;
+      if (theme.primaryColor) {
+        root.style.setProperty('--golden-brown', theme.primaryColor);
+        root.style.setProperty('--golden-brown-light', theme.primaryColor);
+        root.style.setProperty('--dark-brown', theme.primaryColor);
+        root.style.setProperty('--text-brown', theme.primaryColor);
+      }
+      if (theme.secondaryColor) {
+        root.style.setProperty('--text-dark', theme.secondaryColor);
+      }
+      if (theme.backgroundColor) {
+        root.style.setProperty('--bg-cream', theme.backgroundColor);
+      }
+      if (theme.fontFamily) {
+        document.body.style.fontFamily = theme.fontFamily;
+      }
+    }
+
+    function applyNavigation(navigation) {
+      // Apply main menu items
+      if (navigation.mainMenu && navigation.mainMenu.length > 0) {
+        const navUl = document.querySelector('.main-nav ul');
+        if (navUl) {
+          // Keep first dropdown item (Windows Blinds & Shades) and replace rest
+          const firstItem = navUl.querySelector('li:first-child');
+          const menuHtml = navigation.mainMenu.map(item =>
+            `<li><a href="${item.url}">${item.label}</a></li>`
+          ).join('');
+          navUl.innerHTML = firstItem ? firstItem.outerHTML + menuHtml : menuHtml;
+        }
+      }
+
+      // Apply social links to footer
+      if (navigation.socialLinks && navigation.socialLinks.length > 0) {
+        const socialContainer = document.querySelector('.footer-social');
+        if (socialContainer) {
+          socialContainer.innerHTML = navigation.socialLinks.map(link => {
+            const iconMap = {
+              facebook: 'fab fa-facebook-f',
+              instagram: 'fab fa-instagram',
+              twitter: 'fab fa-twitter',
+              pinterest: 'fab fa-pinterest-p',
+              youtube: 'fab fa-youtube',
+              linkedin: 'fab fa-linkedin-in',
+              tiktok: 'fab fa-tiktok'
+            };
+            return `<a href="${link.url}" class="social-icon" target="_blank"><i class="${iconMap[link.platform] || 'fas fa-link'}"></i></a>`;
+          }).join('');
+        }
+      }
+
+      // Apply footer columns
+      if (navigation.footerColumns && navigation.footerColumns.length > 0) {
+        const footerGrid = document.querySelector('.footer-grid');
+        if (footerGrid) {
+          const brandSection = footerGrid.querySelector('.footer-brand');
+          const columnsHtml = navigation.footerColumns.map(col => `
+            <div class="footer-column">
+              <h4>${col.title}</h4>
+              <ul>
+                ${(col.links || []).map(link => `<li><a href="${link.url}">${link.label}</a></li>`).join('')}
+              </ul>
+            </div>
+          `).join('');
+          footerGrid.innerHTML = brandSection ? brandSection.outerHTML + columnsHtml : columnsHtml;
+        }
+      }
+    }
+
+    function applyHeroSlides(heroSlides) {
+      const activeSlides = heroSlides.filter(s => s.active !== false);
+      if (activeSlides.length === 0) return;
+
+      const sliderContainer = document.querySelector('.slider-container');
+      if (!sliderContainer) return;
+
+      // Keep arrows and hero content template
+      const heroContent = sliderContainer.querySelector('.hero-content');
+      const prevArrow = sliderContainer.querySelector('.slider-arrow.prev');
+      const nextArrow = sliderContainer.querySelector('.slider-arrow.next');
+
+      // Build slides HTML
+      const slidesHtml = activeSlides.map((slide, index) => `
+        <div class="slide ${index === 0 ? 'active' : ''}">
+          <img src="${slide.image}" alt="${slide.title || 'Hero Slide'}" class="slide-image">
+          <div class="slide-overlay" style="background: linear-gradient(to right, ${slide.overlayColor || 'rgba(0,0,0,0.4)'} 0%, transparent 100%);"></div>
+        </div>
+      `).join('');
+
+      // Get first slide content for hero
+      const firstSlide = activeSlides[0];
+      const heroHtml = `
+        <div class="hero-content">
+          <div class="hero-content-inner">
+            <p class="hero-subtitle" style="color: ${firstSlide.textColor || 'white'}">${firstSlide.subtitle || 'TRANSFORM YOUR HOME WITH'}</p>
+            <h1 class="hero-title" style="color: ${firstSlide.textColor || 'white'}">${firstSlide.title || 'PEEKABOO<br>SHADES'}</h1>
+            <div class="hero-buttons">
+              ${firstSlide.buttonText ? `<a href="${firstSlide.buttonLink || '/shop'}" class="btn-shop-all">${firstSlide.buttonText} <i class="fas fa-arrow-up-right-from-square"></i></a>` : ''}
+            </div>
+          </div>
+        </div>
+      `;
+
+      sliderContainer.innerHTML = slidesHtml + heroHtml + (prevArrow ? prevArrow.outerHTML : '') + (nextArrow ? nextArrow.outerHTML : '');
+
+      // Reinitialize slider with new slides
+      window.slides = document.querySelectorAll('.slide');
+      window.totalSlides = window.slides.length;
+      currentSlide = 0;
+    }
+
+    function applyHomepageSections(homepage) {
+      // Apply categories section
+      if (homepage.sections && homepage.sections.categories) {
+        const catSection = homepage.sections.categories;
+        const sectionHeader = document.querySelector('.purpose-section .section-header');
+        if (sectionHeader && catSection.enabled !== false) {
+          const subtitle = sectionHeader.querySelector('.section-subtitle');
+          const title = sectionHeader.querySelector('.section-title');
+          if (subtitle && catSection.subtitle) subtitle.textContent = catSection.subtitle;
+          if (title && catSection.title) title.textContent = catSection.title;
+        }
+        if (catSection.enabled === false) {
+          const section = document.querySelector('.purpose-section');
+          if (section) section.style.display = 'none';
+        }
+      }
+
+      // Apply featured products section
+      if (homepage.sections && homepage.sections.featuredProducts) {
+        const featSection = homepage.sections.featuredProducts;
+        const arrivalsHeader = document.querySelector('.arrivals-header');
+        if (arrivalsHeader && featSection.enabled !== false) {
+          const subtitle = arrivalsHeader.querySelector('h3');
+          const title = arrivalsHeader.querySelector('h2');
+          if (subtitle && featSection.subtitle) subtitle.textContent = featSection.subtitle;
+          if (title && featSection.title) title.textContent = featSection.title;
+        }
+        if (featSection.enabled === false) {
+          const section = document.querySelector('.arrivals-section');
+          if (section) section.style.display = 'none';
+        }
+      }
+
+      // Apply imagination section
+      if (homepage.sections && homepage.sections.imagination) {
+        const imgSection = homepage.sections.imagination;
+        const imaginationText = document.querySelector('.imagination-text');
+        if (imaginationText && imgSection.enabled !== false) {
+          const subtitle = imaginationText.querySelector('h3');
+          const title = imaginationText.querySelector('h2');
+          const desc = imaginationText.querySelector('p');
+          if (subtitle && imgSection.subtitle) subtitle.textContent = imgSection.subtitle;
+          if (title && imgSection.title) title.textContent = imgSection.title;
+          if (desc && imgSection.description) desc.textContent = imgSection.description;
+        }
+        if (imgSection.enabled === false) {
+          const section = document.querySelector('.imagination-section');
+          if (section) section.style.display = 'none';
+        }
+      }
+
+      // Apply testimonials
+      if (homepage.testimonials && homepage.testimonials.length > 0) {
+        const testimonialsSection = document.querySelector('.testimonials-section');
+        if (testimonialsSection && homepage.sections?.testimonials?.enabled !== false) {
+          const firstTestimonial = homepage.testimonials[0];
+          const textEl = testimonialsSection.querySelector('.testimonial-text');
+          const nameEl = testimonialsSection.querySelector('.author-info h4');
+          const locEl = testimonialsSection.querySelector('.author-info p');
+          if (textEl) textEl.textContent = `"${firstTestimonial.text}"`;
+          if (nameEl) nameEl.textContent = firstTestimonial.name;
+          if (locEl) locEl.textContent = firstTestimonial.location;
+        }
+        if (homepage.sections?.testimonials?.enabled === false) {
+          const section = document.querySelector('.testimonials-section');
+          if (section) section.style.display = 'none';
+        }
+      }
+
+      // Apply newsletter section
+      if (homepage.sections && homepage.sections.newsletter) {
+        const nlSection = homepage.sections.newsletter;
+        const newsletterContent = document.querySelector('.newsletter-content');
+        if (newsletterContent && nlSection.enabled !== false) {
+          const title = newsletterContent.querySelector('h2');
+          const desc = newsletterContent.querySelector('p');
+          const btn = newsletterContent.querySelector('button');
+          const input = newsletterContent.querySelector('input');
+          if (title && nlSection.title) title.textContent = nlSection.title;
+          if (desc && nlSection.description) desc.textContent = nlSection.description;
+          if (btn && nlSection.buttonText) btn.innerHTML = `${nlSection.buttonText} <i class="fas fa-arrow-right"></i>`;
+          if (input && nlSection.placeholder) input.placeholder = nlSection.placeholder;
+        }
+        if (nlSection.enabled === false) {
+          const section = document.querySelector('.newsletter-section');
+          if (section) section.style.display = 'none';
+        }
+      }
+
+      // Apply trust badges section
+      if (homepage.sections && homepage.sections.trustBadges && homepage.sections.trustBadges.enabled === false) {
+        // Hide trust badges section if exists
+      }
+    }
+
+    function applyFooter(footer) {
+      if (footer.copyrightText) {
+        const copyright = document.querySelector('.footer-copyright');
+        if (copyright) copyright.textContent = footer.copyrightText;
+      }
+    }
+
+    function showAnnouncementBar(announcement) {
+      // Create announcement bar if it doesn't exist
+      let announcementBar = document.querySelector('.announcement-bar');
+      if (!announcementBar) {
+        announcementBar = document.createElement('div');
+        announcementBar.className = 'announcement-bar';
+        announcementBar.style.cssText = 'background: #333; color: white; text-align: center; padding: 10px; font-size: 14px;';
+        document.body.insertBefore(announcementBar, document.body.firstChild);
+      }
+
+      if (announcement.link) {
+        announcementBar.innerHTML = `<a href="${announcement.link}" style="color: white; text-decoration: underline;">${announcement.text}</a>`;
+      } else {
+        announcementBar.textContent = announcement.text;
+      }
+    }
+
+    // Load site content on page load
+    document.addEventListener('DOMContentLoaded', function() {
+      loadSiteContent();
+    });
   </script>
 </body>
 </html>

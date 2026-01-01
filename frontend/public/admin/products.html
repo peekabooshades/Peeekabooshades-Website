@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Products - Peekaboo Shades Admin</title>
+  <link rel="stylesheet" href="css/admin.css">
+  <link rel="icon" type="image/png" href="/images/favicon.png">
+</head>
+<body>
+  <div class="admin-layout">
+    <!-- Sidebar -->
+    <aside class="admin-sidebar">
+      <div class="sidebar-header">
+        <a href="/admin/" class="sidebar-logo">
+          <img src="/images/logo.png" alt="Logo" onerror="this.style.display='none'">
+          <span>Peekaboo Shades</span>
+        </a>
+      </div>
+
+      <nav class="sidebar-nav">
+        <div class="nav-section">
+          <a href="/admin/" class="nav-item">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+            </svg>
+            <span>Dashboard</span>
+          </a>
+        </div>
+
+        <div class="nav-section">
+          <div class="nav-section-title">Catalog</div>
+          <a href="/admin/products.html" class="nav-item active">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+            </svg>
+            <span>Products</span>
+          </a>
+          <a href="/admin/categories.html" class="nav-item">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+            </svg>
+            <span>Categories</span>
+          </a>
+        </div>
+
+        <div class="nav-section">
+          <div class="nav-section-title">Sales</div>
+          <a href="/admin/orders.html" class="nav-item">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+            </svg>
+            <span>Orders</span>
+          </a>
+          <a href="/admin/quotes.html" class="nav-item">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+            <span>Quotes</span>
+          </a>
+        </div>
+
+        <div class="nav-section">
+          <div class="nav-section-title">Content</div>
+          <a href="/admin/faqs.html" class="nav-item">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <span>FAQs</span>
+          </a>
+        </div>
+
+        <div class="nav-section">
+          <div class="nav-section-title">Settings</div>
+          <a href="/admin/settings.html" class="nav-item">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+            <span>Settings</span>
+          </a>
+        </div>
+      </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="admin-main">
+      <!-- Header -->
+      <header class="admin-header">
+        <div class="header-left">
+          <div class="breadcrumb">
+            <a href="/admin/">Dashboard</a>
+            <span class="breadcrumb-separator">/</span>
+            <span class="breadcrumb-current">Products</span>
+          </div>
+        </div>
+        <div class="header-right">
+          <a href="/" class="header-btn" title="View Store" target="_blank">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+            </svg>
+          </a>
+          <div class="dropdown">
+            <div class="header-profile">
+              <div class="profile-avatar">A</div>
+              <span class="profile-name">Admin</span>
+            </div>
+            <div class="dropdown-menu profile-dropdown">
+              <a href="/admin/settings.html" class="dropdown-item">Profile</a>
+              <div class="dropdown-divider"></div>
+              <a href="#" class="dropdown-item danger" onclick="Admin.AuthAPI.logout(); return false;">Logout</a>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <!-- Page Content -->
+      <div class="admin-content">
+        <div class="page-header">
+          <h1 class="page-title">Products</h1>
+          <div class="page-actions">
+            <a href="/admin/product-edit.html" class="btn btn-primary">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+              </svg>
+              Add Product
+            </a>
+          </div>
+        </div>
+
+        <!-- Filters -->
+        <div class="card" style="margin-bottom: 20px;">
+          <div class="card-body" style="padding: 16px;">
+            <div class="search-bar" style="margin-bottom: 0;">
+              <div class="search-input">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+                <input type="text" id="search-input" placeholder="Search products..." class="form-input">
+              </div>
+              <div class="filter-group">
+                <select id="category-filter" class="filter-select">
+                  <option value="">All Categories</option>
+                </select>
+                <select id="status-filter" class="filter-select">
+                  <option value="">All Status</option>
+                  <option value="active">Active</option>
+                  <option value="inactive">Inactive</option>
+                </select>
+                <select id="featured-filter" class="filter-select">
+                  <option value="">All</option>
+                  <option value="true">Featured</option>
+                  <option value="false">Not Featured</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Products Table -->
+        <div class="card">
+          <div class="table-container">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th style="width: 40px;">
+                    <input type="checkbox" id="select-all">
+                  </th>
+                  <th>Product</th>
+                  <th>Category</th>
+                  <th>Price</th>
+                  <th>Status</th>
+                  <th>Featured</th>
+                  <th style="width: 120px;">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="products-table">
+                <tr>
+                  <td colspan="7" style="text-align: center; padding: 60px;">
+                    <div class="spinner"></div>
+                    <p style="margin-top: 16px; color: var(--admin-text-secondary);">Loading products...</p>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="js/admin.js"></script>
+  <script>
+    // Require authentication
+    if (!Admin.Auth.requireAuth()) {
+      // Will redirect
+    } else {
+      loadProducts();
+      loadCategories();
+      initFilters();
+    }
+
+    let allProducts = [];
+    let categories = [];
+
+    async function loadProducts() {
+      try {
+        const data = await Admin.ProductsAPI.getAll();
+        if (data.success) {
+          allProducts = data.products;
+          renderProducts(allProducts);
+        }
+      } catch (error) {
+        Admin.Toast.error('Failed to load products');
+        document.getElementById('products-table').innerHTML = `
+          <tr>
+            <td colspan="7" style="text-align: center; padding: 60px; color: var(--admin-text-secondary);">
+              Failed to load products. <a href="#" onclick="loadProducts(); return false;">Try again</a>
+            </td>
+          </tr>
+        `;
+      }
+    }
+
+    async function loadCategories() {
+      try {
+        const data = await Admin.CategoriesAPI.getAll();
+        if (data.success) {
+          categories = data.categories;
+          const select = document.getElementById('category-filter');
+          categories.forEach(cat => {
+            select.innerHTML += `<option value="${cat.id}">${Admin.Utils.escapeHtml(cat.name)}</option>`;
+          });
+        }
+      } catch (error) {
+        console.error('Failed to load categories:', error);
+      }
+    }
+
+    function renderProducts(products) {
+      const tbody = document.getElementById('products-table');
+
+      if (!products || products.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="7" class="empty-state">
+              <svg xmlns="http://www.w3.org/2000/svg" class="empty-state-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+              </svg>
+              <h3 class="empty-state-title">No products found</h3>
+              <p class="empty-state-text">Get started by adding your first product</p>
+              <a href="/admin/product-edit.html" class="btn btn-primary">Add Product</a>
+            </td>
+          </tr>
+        `;
+        return;
+      }
+
+      tbody.innerHTML = products.map(product => `
+        <tr data-id="${product.id}">
+          <td>
+            <input type="checkbox" class="product-checkbox" value="${product.id}">
+          </td>
+          <td>
+            <div class="product-cell">
+              <img src="/images/products/${product.slug}.jpg" class="product-thumb" alt="" onerror="this.src='/images/placeholder.jpg'">
+              <div class="product-info">
+                <div class="product-name">${Admin.Utils.escapeHtml(product.name)}</div>
+                <div class="product-sku">${product.slug}</div>
+              </div>
+            </div>
+          </td>
+          <td>${Admin.Utils.escapeHtml(product.category_name || 'Uncategorized')}</td>
+          <td>
+            ${product.sale_price ? `
+              <span style="text-decoration: line-through; color: var(--admin-text-light);">${Admin.Utils.formatCurrency(product.base_price)}</span>
+              <span style="color: var(--admin-error);">${Admin.Utils.formatCurrency(product.sale_price)}</span>
+            ` : Admin.Utils.formatCurrency(product.base_price)}
+          </td>
+          <td>
+            <label class="toggle">
+              <input type="checkbox" ${product.is_active ? 'checked' : ''} onchange="toggleActive('${product.id}', this.checked)">
+              <span class="toggle-slider"></span>
+            </label>
+          </td>
+          <td>
+            <label class="toggle">
+              <input type="checkbox" ${product.is_featured ? 'checked' : ''} onchange="toggleFeatured('${product.id}', this.checked)">
+              <span class="toggle-slider"></span>
+            </label>
+          </td>
+          <td>
+            <div class="action-buttons">
+              <a href="/admin/product-edit.html?id=${product.id}" class="action-btn" title="Edit">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                </svg>
+              </a>
+              <button class="action-btn danger" title="Delete" onclick="deleteProduct('${product.id}', '${Admin.Utils.escapeHtml(product.name)}')">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                </svg>
+              </button>
+            </div>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    function initFilters() {
+      const searchInput = document.getElementById('search-input');
+      const categoryFilter = document.getElementById('category-filter');
+      const statusFilter = document.getElementById('status-filter');
+      const featuredFilter = document.getElementById('featured-filter');
+
+      const applyFilters = Admin.Utils.debounce(() => {
+        const search = searchInput.value.toLowerCase();
+        const category = categoryFilter.value;
+        const status = statusFilter.value;
+        const featured = featuredFilter.value;
+
+        const filtered = allProducts.filter(p => {
+          const matchesSearch = !search ||
+            p.name.toLowerCase().includes(search) ||
+            p.slug.toLowerCase().includes(search);
+          const matchesCategory = !category || p.category_id === category;
+          const matchesStatus = !status ||
+            (status === 'active' && p.is_active) ||
+            (status === 'inactive' && !p.is_active);
+          const matchesFeatured = !featured ||
+            (featured === 'true' && p.is_featured) ||
+            (featured === 'false' && !p.is_featured);
+
+          return matchesSearch && matchesCategory && matchesStatus && matchesFeatured;
+        });
+
+        renderProducts(filtered);
+      }, 300);
+
+      searchInput.addEventListener('input', applyFilters);
+      categoryFilter.addEventListener('change', applyFilters);
+      statusFilter.addEventListener('change', applyFilters);
+      featuredFilter.addEventListener('change', applyFilters);
+    }
+
+    async function toggleActive(id, checked) {
+      try {
+        await Admin.ProductsAPI.toggleActive(id);
+        const product = allProducts.find(p => p.id === id);
+        if (product) product.is_active = checked;
+        Admin.Toast.success(checked ? 'Product activated' : 'Product deactivated');
+      } catch (error) {
+        Admin.Toast.error('Failed to update product');
+        loadProducts();
+      }
+    }
+
+    async function toggleFeatured(id, checked) {
+      try {
+        await Admin.ProductsAPI.toggleFeatured(id);
+        const product = allProducts.find(p => p.id === id);
+        if (product) product.is_featured = checked;
+        Admin.Toast.success(checked ? 'Product featured' : 'Product unfeatured');
+      } catch (error) {
+        Admin.Toast.error('Failed to update product');
+        loadProducts();
+      }
+    }
+
+    async function deleteProduct(id, name) {
+      const confirmed = await Admin.Modal.confirm(
+        'Delete Product',
+        `Are you sure you want to delete "${name}"? This action cannot be undone.`
+      );
+
+      if (confirmed) {
+        try {
+          await Admin.ProductsAPI.delete(id);
+          allProducts = allProducts.filter(p => p.id !== id);
+          renderProducts(allProducts);
+          Admin.Toast.success('Product deleted successfully');
+        } catch (error) {
+          Admin.Toast.error('Failed to delete product');
+        }
+      }
+    }
+
+    // Select all checkbox
+    document.getElementById('select-all').addEventListener('change', function() {
+      const checkboxes = document.querySelectorAll('.product-checkbox');
+      checkboxes.forEach(cb => cb.checked = this.checked);
+    });
+  </script>
+</body>
+</html>

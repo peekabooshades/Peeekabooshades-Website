@@ -2107,515 +2107,615 @@
           </button>
           <div class="accordion-body">
             <span class="swatch-label" style="font-size: 15px; color: #333333; font-weight: 500;">Light Filtering</span>
-            <div class="light-filter-buttons" id="lightFilteringSwatches" style="display: flex; gap: 12px; margin-bottom: 24px;">
-              <button type="button" class="filter-toggle-btn" data-value="transparent" onclick="selectFilterBtn(this)" style="padding: 12px 24px; border: 2px solid #D4D4D4; border-radius: 8px; background: transparent; color: #333333; font-size: 14px; font-weight: 500; cursor: pointer; transition: all 0.3s ease;">Transparent</button>
-              <button type="button" class="filter-toggle-btn selected" data-value="blackout" onclick="selectFilterBtn(this)" style="padding: 12px 24px; border: 2px solid #8E6545; border-radius: 8px; background: #8E6545; color: #FFFFFF; font-size: 14px; font-weight: 500; cursor: pointer; transition: all 0.3s ease;">Black Out</button>
-              <button type="button" class="filter-toggle-btn" data-value="semi-blackout" onclick="selectFilterBtn(this)" style="padding: 12px 24px; border: 2px solid #D4D4D4; border-radius: 8px; background: transparent; color: #333333; font-size: 14px; font-weight: 500; cursor: pointer; transition: all 0.3s ease;">Semi-Black Out</button>
+            <div class="light-filter-buttons" id="lightFilteringSwatches" style="display: flex; gap: 12px; margin-bottom: 24px; flex-wrap: wrap;">
+              <button type="button" class="filter-toggle-btn" data-value="transparent" onclick="selectFilterBtn(this)" style="padding: 12px 24px; border: 2px solid #D4D4D4; border-radius: 8px; background: transparent; color: #333333; font-size: 14px; font-weight: 500; cursor: pointer; transition: all 0.3s ease;">Light Filtering</button>
+              <button type="button" class="filter-toggle-btn selected" data-value="blackout" onclick="selectFilterBtn(this)" style="padding: 12px 24px; border: 2px solid #8E6545; border-radius: 8px; background: #8E6545; color: #FFFFFF; font-size: 14px; font-weight: 500; cursor: pointer; transition: all 0.3s ease;">Blackout</button>
+              <button type="button" class="filter-toggle-btn" data-value="semi-blackout" onclick="selectFilterBtn(this)" style="padding: 12px 24px; border: 2px solid #D4D4D4; border-radius: 8px; background: transparent; color: #333333; font-size: 14px; font-weight: 500; cursor: pointer; transition: all 0.3s ease;">Semi-Blackout</button>
+              <button type="button" class="filter-toggle-btn" data-value="super-blackout" onclick="selectFilterBtn(this)" style="padding: 12px 24px; border: 2px solid #D4D4D4; border-radius: 8px; background: transparent; color: #333333; font-size: 14px; font-weight: 500; cursor: pointer; transition: all 0.3s ease;">Super Blackout</button>
             </div>
 
             <span class="swatch-label" style="font-size: 15px; color: #333333; font-weight: 500;">Fabric Color</span>
 
             <!-- Blackout Fabrics - shown by default -->
             <div class="swatch-row fabric-group" id="blackoutFabrics" style="display: flex; flex-wrap: wrap; gap: 10px; max-height: 450px; overflow-y: auto; padding: 10px; border: 1px solid #E8E4E0; border-radius: 8px; scrollbar-width: thin; scrollbar-color: #8E6545 #F5F0EB;">
-              <div class="fabric-swatch selected" data-color="82032A" data-code="82032A" onclick="selectFabricSwatch(this)" style="width: 140px; height: 140px; border-radius: 8px; overflow: hidden; cursor: pointer; border: 3px solid #8E6545; box-shadow: 0 2px 6px rgba(0,0,0,0.1); position: relative;">
-                <img src="/images/fabrics/swatches/82032A.jpg" alt="82032A" style="width: 100%; height: 100%; object-fit: cover;">
-                <span style="position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.75); color: white; font-size: 14px; padding: 4px; text-align: center; font-weight: 500;">82032A</span>
+              <div class="fabric-swatch" data-code="82032A" onclick="selectFabricSwatch(this, event)" style="width: 90px; text-align: center; cursor: pointer; position: relative;">
+                <div class="swatch-img-container">
+                  <img src="/images/RollerBlinds_Zstar_Fabric_Samples/Blackout/82032A_blackout.png" alt="82032A" style="width: 75px; height: 75px; border-radius: 8px; object-fit: cover; border: 2px solid transparent;">
+                  <button type="button" class="zoom-btn" onclick="openFabricZoom('82032A', '/images/RollerBlinds_Zstar_Fabric_Samples/Blackout/82032A_blackout.png', event)" title="Zoom">🔍</button>
+                </div>
+                <span style="font-size: 10px; color: #5C4A3A; display: block; margin-top: 4px;">82032A</span>
               </div>
-              <div class="fabric-swatch" data-color="82032B" data-code="82032B" onclick="selectFabricSwatch(this)" style="width: 140px; height: 140px; border-radius: 8px; overflow: hidden; cursor: pointer; border: 2px solid #E5E5E5; box-shadow: 0 2px 6px rgba(0,0,0,0.1); position: relative;">
-                <img src="/images/fabrics/swatches/82032B.jpg" alt="82032B" style="width: 100%; height: 100%; object-fit: cover;">
-                <span style="position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.75); color: white; font-size: 14px; padding: 4px; text-align: center; font-weight: 500;">82032B</span>
+              <div class="fabric-swatch" data-code="82032B" onclick="selectFabricSwatch(this, event)" style="width: 90px; text-align: center; cursor: pointer; position: relative;">
+                <div class="swatch-img-container">
+                  <img src="/images/RollerBlinds_Zstar_Fabric_Samples/Blackout/82032B_blackout.png" alt="82032B" style="width: 75px; height: 75px; border-radius: 8px; object-fit: cover; border: 2px solid transparent;">
+                  <button type="button" class="zoom-btn" onclick="openFabricZoom('82032B', '/images/RollerBlinds_Zstar_Fabric_Samples/Blackout/82032B_blackout.png', event)" title="Zoom">🔍</button>
+                </div>
+                <span style="font-size: 10px; color: #5C4A3A; display: block; margin-top: 4px;">82032B</span>
               </div>
-              <div class="fabric-swatch" data-color="82032D" data-code="82032D" onclick="selectFabricSwatch(this)" style="width: 140px; height: 140px; border-radius: 8px; overflow: hidden; cursor: pointer; border: 2px solid #E5E5E5; box-shadow: 0 2px 6px rgba(0,0,0,0.1); position: relative;">
-                <img src="/images/fabrics/swatches/82032D.jpg" alt="82032D" style="width: 100%; height: 100%; object-fit: cover;">
-                <span style="position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.75); color: white; font-size: 14px; padding: 4px; text-align: center; font-weight: 500;">82032D</span>
+              <div class="fabric-swatch" data-code="82032D" onclick="selectFabricSwatch(this, event)" style="width: 90px; text-align: center; cursor: pointer; position: relative;">
+                <div class="swatch-img-container">
+                  <img src="/images/RollerBlinds_Zstar_Fabric_Samples/Blackout/82032D_blackout.png" alt="82032D" style="width: 75px; height: 75px; border-radius: 8px; object-fit: cover; border: 2px solid transparent;">
+                  <button type="button" class="zoom-btn" onclick="openFabricZoom('82032D', '/images/RollerBlinds_Zstar_Fabric_Samples/Blackout/82032D_blackout.png', event)" title="Zoom">🔍</button>
+                </div>
+                <span style="font-size: 10px; color: #5C4A3A; display: block; margin-top: 4px;">82032D</span>
               </div>
-              <div class="fabric-swatch" data-color="82032E" data-code="82032E" onclick="selectFabricSwatch(this)" style="width: 140px; height: 140px; border-radius: 8px; overflow: hidden; cursor: pointer; border: 2px solid #E5E5E5; box-shadow: 0 2px 6px rgba(0,0,0,0.1); position: relative;">
-                <img src="/images/fabrics/swatches/82032E.jpg" alt="82032E" style="width: 100%; height: 100%; object-fit: cover;">
-                <span style="position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.75); color: white; font-size: 14px; padding: 4px; text-align: center; font-weight: 500;">82032E</span>
+              <div class="fabric-swatch" data-code="82032E" onclick="selectFabricSwatch(this, event)" style="width: 90px; text-align: center; cursor: pointer; position: relative;">
+                <div class="swatch-img-container">
+                  <img src="/images/RollerBlinds_Zstar_Fabric_Samples/Blackout/82032E_blackout.png" alt="82032E" style="width: 75px; height: 75px; border-radius: 8px; object-fit: cover; border: 2px solid transparent;">
+                  <button type="button" class="zoom-btn" onclick="openFabricZoom('82032E', '/images/RollerBlinds_Zstar_Fabric_Samples/Blackout/82032E_blackout.png', event)" title="Zoom">🔍</button>
+                </div>
+                <span style="font-size: 10px; color: #5C4A3A; display: block; margin-top: 4px;">82032E</span>
               </div>
-              <div class="fabric-swatch" data-color="82077A" data-code="82077A" onclick="selectFabricSwatch(this)" style="width: 140px; height: 140px; border-radius: 8px; overflow: hidden; cursor: pointer; border: 2px solid #E5E5E5; box-shadow: 0 2px 6px rgba(0,0,0,0.1); position: relative;">
-                <img src="/images/fabrics/swatches/82077A.jpg" alt="82077A" style="width: 100%; height: 100%; object-fit: cover;">
-                <span style="position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.75); color: white; font-size: 14px; padding: 4px; text-align: center; font-weight: 500;">82077A</span>
+              <div class="fabric-swatch" data-code="82077A" onclick="selectFabricSwatch(this, event)" style="width: 90px; text-align: center; cursor: pointer; position: relative;">
+                <div class="swatch-img-container">
+                  <img src="/images/RollerBlinds_Zstar_Fabric_Samples/Blackout/82077A_blackout.png" alt="82077A" style="width: 75px; height: 75px; border-radius: 8px; object-fit: cover; border: 2px solid transparent;">
+                  <button type="button" class="zoom-btn" onclick="openFabricZoom('82077A', '/images/RollerBlinds_Zstar_Fabric_Samples/Blackout/82077A_blackout.png', event)" title="Zoom">🔍</button>
+                </div>
+                <span style="font-size: 10px; color: #5C4A3A; display: block; margin-top: 4px;">82077A</span>
               </div>
-              <div class="fabric-swatch" data-color="82077B" data-code="82077B" onclick="selectFabricSwatch(this)" style="width: 140px; height: 140px; border-radius: 8px; overflow: hidden; cursor: pointer; border: 2px solid #E5E5E5; box-shadow: 0 2px 6px rgba(0,0,0,0.1); position: relative;">
-                <img src="/images/fabrics/swatches/82077B.jpg" alt="82077B" style="width: 100%; height: 100%; object-fit: cover;">
-                <span style="position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.75); color: white; font-size: 14px; padding: 4px; text-align: center; font-weight: 500;">82077B</span>
+              <div class="fabric-swatch" data-code="82077B" onclick="selectFabricSwatch(this, event)" style="width: 90px; text-align: center; cursor: pointer; position: relative;">
+                <div class="swatch-img-container">
+                  <img src="/images/RollerBlinds_Zstar_Fabric_Samples/Blackout/82077B_blackout.png" alt="82077B" style="width: 75px; height: 75px; border-radius: 8px; object-fit: cover; border: 2px solid transparent;">
+                  <button type="button" class="zoom-btn" onclick="openFabricZoom('82077B', '/images/RollerBlinds_Zstar_Fabric_Samples/Blackout/82077B_blackout.png', event)" title="Zoom">🔍</button>
+                </div>
+                <span style="font-size: 10px; color: #5C4A3A; display: block; margin-top: 4px;">82077B</span>
               </div>
-              <div class="fabric-swatch" data-color="82077C" data-code="82077C" onclick="selectFabricSwatch(this)" style="width: 140px; height: 140px; border-radius: 8px; overflow: hidden; cursor: pointer; border: 2px solid #E5E5E5; box-shadow: 0 2px 6px rgba(0,0,0,0.1); position: relative;">
-                <img src="/images/fabrics/swatches/82077C.jpg" alt="82077C" style="width: 100%; height: 100%; object-fit: cover;">
-                <span style="position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.75); color: white; font-size: 14px; padding: 4px; text-align: center; font-weight: 500;">82077C</span>
+              <div class="fabric-swatch" data-code="82077C" onclick="selectFabricSwatch(this, event)" style="width: 90px; text-align: center; cursor: pointer; position: relative;">
+                <div class="swatch-img-container">
+                  <img src="/images/RollerBlinds_Zstar_Fabric_Samples/Blackout/82077C_blackout.png" alt="82077C" style="width: 75px; height: 75px; border-radius: 8px; object-fit: cover; border: 2px solid transparent;">
+                  <button type="button" class="zoom-btn" onclick="openFabricZoom('82077C', '/images/RollerBlinds_Zstar_Fabric_Samples/Blackout/82077C_blackout.png', event)" title="Zoom">🔍</button>
+                </div>
+                <span style="font-size: 10px; color: #5C4A3A; display: block; margin-top: 4px;">82077C</span>
               </div>
-              <div class="fabric-swatch" data-color="82077D" data-code="82077D" onclick="selectFabricSwatch(this)" style="width: 140px; height: 140px; border-radius: 8px; overflow: hidden; cursor: pointer; border: 2px solid #E5E5E5; box-shadow: 0 2px 6px rgba(0,0,0,0.1); position: relative;">
-                <img src="/images/fabrics/swatches/82077D.jpg" alt="82077D" style="width: 100%; height: 100%; object-fit: cover;">
-                <span style="position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.75); color: white; font-size: 14px; padding: 4px; text-align: center; font-weight: 500;">82077D</span>
+              <div class="fabric-swatch" data-code="82077D" onclick="selectFabricSwatch(this, event)" style="width: 90px; text-align: center; cursor: pointer; position: relative;">
+                <div class="swatch-img-container">
+                  <img src="/images/RollerBlinds_Zstar_Fabric_Samples/Blackout/82077D_blackout.png" alt="82077D" style="width: 75px; height: 75px; border-radius: 8px; object-fit: cover; border: 2px solid transparent;">
+                  <button type="button" class="zoom-btn" onclick="openFabricZoom('82077D', '/images/RollerBlinds_Zstar_Fabric_Samples/Blackout/82077D_blackout.png', event)" title="Zoom">🔍</button>
+                </div>
+                <span style="font-size: 10px; color: #5C4A3A; display: block; margin-top: 4px;">82077D</span>
               </div>
-              <div class="fabric-swatch" data-color="82133A" data-code="82133A" onclick="selectFabricSwatch(this)" style="width: 140px; height: 140px; border-radius: 8px; overflow: hidden; cursor: pointer; border: 2px solid #E5E5E5; box-shadow: 0 2px 6px rgba(0,0,0,0.1); position: relative;">
-                <img src="/images/fabrics/swatches/82133A.jpg" alt="82133A" style="width: 100%; height: 100%; object-fit: cover;">
-                <span style="position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.75); color: white; font-size: 14px; padding: 4px; text-align: center; font-weight: 500;">82133A</span>
+              <div class="fabric-swatch" data-code="82141E" onclick="selectFabricSwatch(this, event)" style="width: 90px; text-align: center; cursor: pointer; position: relative;">
+                <div class="swatch-img-container">
+                  <img src="/images/RollerBlinds_Zstar_Fabric_Samples/Blackout/82141E_blackout.png" alt="82141E" style="width: 75px; height: 75px; border-radius: 8px; object-fit: cover; border: 2px solid transparent;">
+                  <button type="button" class="zoom-btn" onclick="openFabricZoom('82141E', '/images/RollerBlinds_Zstar_Fabric_Samples/Blackout/82141E_blackout.png', event)" title="Zoom">🔍</button>
+                </div>
+                <span style="font-size: 10px; color: #5C4A3A; display: block; margin-top: 4px;">82141E</span>
               </div>
-              <div class="fabric-swatch" data-color="82133B" data-code="82133B" onclick="selectFabricSwatch(this)" style="width: 140px; height: 140px; border-radius: 8px; overflow: hidden; cursor: pointer; border: 2px solid #E5E5E5; box-shadow: 0 2px 6px rgba(0,0,0,0.1); position: relative;">
-                <img src="/images/fabrics/swatches/82133B.jpg" alt="82133B" style="width: 100%; height: 100%; object-fit: cover;">
-                <span style="position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.75); color: white; font-size: 14px; padding: 4px; text-align: center; font-weight: 500;">82133B</span>
+              <div class="fabric-swatch" data-code="82141F" onclick="selectFabricSwatch(this, event)" style="width: 90px; text-align: center; cursor: pointer; position: relative;">
+                <div class="swatch-img-container">
+                  <img src="/images/RollerBlinds_Zstar_Fabric_Samples/Blackout/82141F_blackout.png" alt="82141F" style="width: 75px; height: 75px; border-radius: 8px; object-fit: cover; border: 2px solid transparent;">
+                  <button type="button" class="zoom-btn" onclick="openFabricZoom('82141F', '/images/RollerBlinds_Zstar_Fabric_Samples/Blackout/82141F_blackout.png', event)" title="Zoom">🔍</button>
+                </div>
+                <span style="font-size: 10px; color: #5C4A3A; display: block; margin-top: 4px;">82141F</span>
               </div>
-              <div class="fabric-swatch" data-color="82133C" data-code="82133C" onclick="selectFabricSwatch(this)" style="width: 140px; height: 140px; border-radius: 8px; overflow: hidden; cursor: pointer; border: 2px solid #E5E5E5; box-shadow: 0 2px 6px rgba(0,0,0,0.1); position: relative;">
-                <img src="/images/fabrics/swatches/82133C.jpg" alt="82133C" style="width: 100%; height: 100%; object-fit: cover;">
-                <span style="position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.75); color: white; font-size: 14px; padding: 4px; text-align: center; font-weight: 500;">82133C</span>
+              <div class="fabric-swatch" data-code="82141G" onclick="selectFabricSwatch(this, event)" style="width: 90px; text-align: center; cursor: pointer; position: relative;">
+                <div class="swatch-img-container">
+                  <img src="/images/RollerBlinds_Zstar_Fabric_Samples/Blackout/82141G_blackout.png" alt="82141G" style="width: 75px; height: 75px; border-radius: 8px; object-fit: cover; border: 2px solid transparent;">
+                  <button type="button" class="zoom-btn" onclick="openFabricZoom('82141G', '/images/RollerBlinds_Zstar_Fabric_Samples/Blackout/82141G_blackout.png', event)" title="Zoom">🔍</button>
+                </div>
+                <span style="font-size: 10px; color: #5C4A3A; display: block; margin-top: 4px;">82141G</span>
               </div>
-              <div class="fabric-swatch" data-color="82133D" data-code="82133D" onclick="selectFabricSwatch(this)" style="width: 140px; height: 140px; border-radius: 8px; overflow: hidden; cursor: pointer; border: 2px solid #E5E5E5; box-shadow: 0 2px 6px rgba(0,0,0,0.1); position: relative;">
-                <img src="/images/fabrics/swatches/82133D.jpg" alt="82133D" style="width: 100%; height: 100%; object-fit: cover;">
-                <span style="position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.75); color: white; font-size: 14px; padding: 4px; text-align: center; font-weight: 500;">82133D</span>
+              <div class="fabric-swatch" data-code="82141H" onclick="selectFabricSwatch(this, event)" style="width: 90px; text-align: center; cursor: pointer; position: relative;">
+                <div class="swatch-img-container">
+                  <img src="/images/RollerBlinds_Zstar_Fabric_Samples/Blackout/82141H_blackout.png" alt="82141H" style="width: 75px; height: 75px; border-radius: 8px; object-fit: cover; border: 2px solid transparent;">
+                  <button type="button" class="zoom-btn" onclick="openFabricZoom('82141H', '/images/RollerBlinds_Zstar_Fabric_Samples/Blackout/82141H_blackout.png', event)" title="Zoom">🔍</button>
+                </div>
+                <span style="font-size: 10px; color: #5C4A3A; display: block; margin-top: 4px;">82141H</span>
               </div>
-              <div class="fabric-swatch" data-color="82133E" data-code="82133E" onclick="selectFabricSwatch(this)" style="width: 140px; height: 140px; border-radius: 8px; overflow: hidden; cursor: pointer; border: 2px solid #E5E5E5; box-shadow: 0 2px 6px rgba(0,0,0,0.1); position: relative;">
-                <img src="/images/fabrics/swatches/82133E.jpg" alt="82133E" style="width: 100%; height: 100%; object-fit: cover;">
-                <span style="position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.75); color: white; font-size: 14px; padding: 4px; text-align: center; font-weight: 500;">82133E</span>
+              <div class="fabric-swatch" data-code="82142A" onclick="selectFabricSwatch(this, event)" style="width: 90px; text-align: center; cursor: pointer; position: relative;">
+                <div class="swatch-img-container">
+                  <img src="/images/RollerBlinds_Zstar_Fabric_Samples/Blackout/82142A_blackout.png" alt="82142A" style="width: 75px; height: 75px; border-radius: 8px; object-fit: cover; border: 2px solid transparent;">
+                  <button type="button" class="zoom-btn" onclick="openFabricZoom('82142A', '/images/RollerBlinds_Zstar_Fabric_Samples/Blackout/82142A_blackout.png', event)" title="Zoom">🔍</button>
+                </div>
+                <span style="font-size: 10px; color: #5C4A3A; display: block; margin-top: 4px;">82142A</span>
               </div>
-              <div class="fabric-swatch" data-color="82141E" data-code="82141E" onclick="selectFabricSwatch(this)" style="width: 140px; height: 140px; border-radius: 8px; overflow: hidden; cursor: pointer; border: 2px solid #E5E5E5; box-shadow: 0 2px 6px rgba(0,0,0,0.1); position: relative;">
-                <img src="/images/fabrics/swatches/82141E.jpg" alt="82141E" style="width: 100%; height: 100%; object-fit: cover;">
-                <span style="position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.75); color: white; font-size: 14px; padding: 4px; text-align: center; font-weight: 500;">82141E</span>
+              <div class="fabric-swatch" data-code="82142B" onclick="selectFabricSwatch(this, event)" style="width: 90px; text-align: center; cursor: pointer; position: relative;">
+                <div class="swatch-img-container">
+                  <img src="/images/RollerBlinds_Zstar_Fabric_Samples/Blackout/82142B_blackout.png" alt="82142B" style="width: 75px; height: 75px; border-radius: 8px; object-fit: cover; border: 2px solid transparent;">
+                  <button type="button" class="zoom-btn" onclick="openFabricZoom('82142B', '/images/RollerBlinds_Zstar_Fabric_Samples/Blackout/82142B_blackout.png', event)" title="Zoom">🔍</button>
+                </div>
+                <span style="font-size: 10px; color: #5C4A3A; display: block; margin-top: 4px;">82142B</span>
               </div>
-              <div class="fabric-swatch" data-color="82141F" data-code="82141F" onclick="selectFabricSwatch(this)" style="width: 140px; height: 140px; border-radius: 8px; overflow: hidden; cursor: pointer; border: 2px solid #E5E5E5; box-shadow: 0 2px 6px rgba(0,0,0,0.1); position: relative;">
-                <img src="/images/fabrics/swatches/82141F.jpg" alt="82141F" style="width: 100%; height: 100%; object-fit: cover;">
-                <span style="position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.75); color: white; font-size: 14px; padding: 4px; text-align: center; font-weight: 500;">82141F</span>
+              <div class="fabric-swatch" data-code="82142C" onclick="selectFabricSwatch(this, event)" style="width: 90px; text-align: center; cursor: pointer; position: relative;">
+                <div class="swatch-img-container">
+                  <img src="/images/RollerBlinds_Zstar_Fabric_Samples/Blackout/82142C_blackout.png" alt="82142C" style="width: 75px; height: 75px; border-radius: 8px; object-fit: cover; border: 2px solid transparent;">
+                  <button type="button" class="zoom-btn" onclick="openFabricZoom('82142C', '/images/RollerBlinds_Zstar_Fabric_Samples/Blackout/82142C_blackout.png', event)" title="Zoom">🔍</button>
+                </div>
+                <span style="font-size: 10px; color: #5C4A3A; display: block; margin-top: 4px;">82142C</span>
               </div>
-              <div class="fabric-swatch" data-color="82141G" data-code="82141G" onclick="selectFabricSwatch(this)" style="width: 140px; height: 140px; border-radius: 8px; overflow: hidden; cursor: pointer; border: 2px solid #E5E5E5; box-shadow: 0 2px 6px rgba(0,0,0,0.1); position: relative;">
-                <img src="/images/fabrics/swatches/82141G.jpg" alt="82141G" style="width: 100%; height: 100%; object-fit: cover;">
-                <span style="position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.75); color: white; font-size: 14px; padding: 4px; text-align: center; font-weight: 500;">82141G</span>
+              <div class="fabric-swatch" data-code="82142D" onclick="selectFabricSwatch(this, event)" style="width: 90px; text-align: center; cursor: pointer; position: relative;">
+                <div class="swatch-img-container">
+                  <img src="/images/RollerBlinds_Zstar_Fabric_Samples/Blackout/82142D_blackout.png" alt="82142D" style="width: 75px; height: 75px; border-radius: 8px; object-fit: cover; border: 2px solid transparent;">
+                  <button type="button" class="zoom-btn" onclick="openFabricZoom('82142D', '/images/RollerBlinds_Zstar_Fabric_Samples/Blackout/82142D_blackout.png', event)" title="Zoom">🔍</button>
+                </div>
+                <span style="font-size: 10px; color: #5C4A3A; display: block; margin-top: 4px;">82142D</span>
               </div>
-              <div class="fabric-swatch" data-color="82141H" data-code="82141H" onclick="selectFabricSwatch(this)" style="width: 140px; height: 140px; border-radius: 8px; overflow: hidden; cursor: pointer; border: 2px solid #E5E5E5; box-shadow: 0 2px 6px rgba(0,0,0,0.1); position: relative;">
-                <img src="/images/fabrics/swatches/82141H.jpg" alt="82141H" style="width: 100%; height: 100%; object-fit: cover;">
-                <span style="position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.75); color: white; font-size: 14px; padding: 4px; text-align: center; font-weight: 500;">82141H</span>
+              <div class="fabric-swatch" data-code="82142E" onclick="selectFabricSwatch(this, event)" style="width: 90px; text-align: center; cursor: pointer; position: relative;">
+                <div class="swatch-img-container">
+                  <img src="/images/RollerBlinds_Zstar_Fabric_Samples/Blackout/82142E_blackout.png" alt="82142E" style="width: 75px; height: 75px; border-radius: 8px; object-fit: cover; border: 2px solid transparent;">
+                  <button type="button" class="zoom-btn" onclick="openFabricZoom('82142E', '/images/RollerBlinds_Zstar_Fabric_Samples/Blackout/82142E_blackout.png', event)" title="Zoom">🔍</button>
+                </div>
+                <span style="font-size: 10px; color: #5C4A3A; display: block; margin-top: 4px;">82142E</span>
               </div>
-              <div class="fabric-swatch" data-color="82142A" data-code="82142A" onclick="selectFabricSwatch(this)" style="width: 140px; height: 140px; border-radius: 8px; overflow: hidden; cursor: pointer; border: 2px solid #E5E5E5; box-shadow: 0 2px 6px rgba(0,0,0,0.1); position: relative;">
-                <img src="/images/fabrics/swatches/82142A.jpg" alt="82142A" style="width: 100%; height: 100%; object-fit: cover;">
-                <span style="position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.75); color: white; font-size: 14px; padding: 4px; text-align: center; font-weight: 500;">82142A</span>
+              <div class="fabric-swatch" data-code="82143A" onclick="selectFabricSwatch(this, event)" style="width: 90px; text-align: center; cursor: pointer; position: relative;">
+                <div class="swatch-img-container">
+                  <img src="/images/RollerBlinds_Zstar_Fabric_Samples/Blackout/82143A_blackout.png" alt="82143A" style="width: 75px; height: 75px; border-radius: 8px; object-fit: cover; border: 2px solid transparent;">
+                  <button type="button" class="zoom-btn" onclick="openFabricZoom('82143A', '/images/RollerBlinds_Zstar_Fabric_Samples/Blackout/82143A_blackout.png', event)" title="Zoom">🔍</button>
+                </div>
+                <span style="font-size: 10px; color: #5C4A3A; display: block; margin-top: 4px;">82143A</span>
               </div>
-              <div class="fabric-swatch" data-color="82142B" data-code="82142B" onclick="selectFabricSwatch(this)" style="width: 140px; height: 140px; border-radius: 8px; overflow: hidden; cursor: pointer; border: 2px solid #E5E5E5; box-shadow: 0 2px 6px rgba(0,0,0,0.1); position: relative;">
-                <img src="/images/fabrics/swatches/82142B.jpg" alt="82142B" style="width: 100%; height: 100%; object-fit: cover;">
-                <span style="position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.75); color: white; font-size: 14px; padding: 4px; text-align: center; font-weight: 500;">82142B</span>
+              <div class="fabric-swatch" data-code="82143B" onclick="selectFabricSwatch(this, event)" style="width: 90px; text-align: center; cursor: pointer; position: relative;">
+                <div class="swatch-img-container">
+                  <img src="/images/RollerBlinds_Zstar_Fabric_Samples/Blackout/82143B_blackout.png" alt="82143B" style="width: 75px; height: 75px; border-radius: 8px; object-fit: cover; border: 2px solid transparent;">
+                  <button type="button" class="zoom-btn" onclick="openFabricZoom('82143B', '/images/RollerBlinds_Zstar_Fabric_Samples/Blackout/82143B_blackout.png', event)" title="Zoom">🔍</button>
+                </div>
+                <span style="font-size: 10px; color: #5C4A3A; display: block; margin-top: 4px;">82143B</span>
               </div>
-              <div class="fabric-swatch" data-color="82142C" data-code="82142C" onclick="selectFabricSwatch(this)" style="width: 140px; height: 140px; border-radius: 8px; overflow: hidden; cursor: pointer; border: 2px solid #E5E5E5; box-shadow: 0 2px 6px rgba(0,0,0,0.1); position: relative;">
-                <img src="/images/fabrics/swatches/82142C.jpg" alt="82142C" style="width: 100%; height: 100%; object-fit: cover;">
-                <span style="position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.75); color: white; font-size: 14px; padding: 4px; text-align: center; font-weight: 500;">82142C</span>
+              <div class="fabric-swatch" data-code="82143C" onclick="selectFabricSwatch(this, event)" style="width: 90px; text-align: center; cursor: pointer; position: relative;">
+                <div class="swatch-img-container">
+                  <img src="/images/RollerBlinds_Zstar_Fabric_Samples/Blackout/82143C_blackout.png" alt="82143C" style="width: 75px; height: 75px; border-radius: 8px; object-fit: cover; border: 2px solid transparent;">
+                  <button type="button" class="zoom-btn" onclick="openFabricZoom('82143C', '/images/RollerBlinds_Zstar_Fabric_Samples/Blackout/82143C_blackout.png', event)" title="Zoom">🔍</button>
+                </div>
+                <span style="font-size: 10px; color: #5C4A3A; display: block; margin-top: 4px;">82143C</span>
               </div>
-              <div class="fabric-swatch" data-color="82142D" data-code="82142D" onclick="selectFabricSwatch(this)" style="width: 140px; height: 140px; border-radius: 8px; overflow: hidden; cursor: pointer; border: 2px solid #E5E5E5; box-shadow: 0 2px 6px rgba(0,0,0,0.1); position: relative;">
-                <img src="/images/fabrics/swatches/82142D.jpg" alt="82142D" style="width: 100%; height: 100%; object-fit: cover;">
-                <span style="position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.75); color: white; font-size: 14px; padding: 4px; text-align: center; font-weight: 500;">82142D</span>
+              <div class="fabric-swatch" data-code="82143D" onclick="selectFabricSwatch(this, event)" style="width: 90px; text-align: center; cursor: pointer; position: relative;">
+                <div class="swatch-img-container">
+                  <img src="/images/RollerBlinds_Zstar_Fabric_Samples/Blackout/82143D_blackout.png" alt="82143D" style="width: 75px; height: 75px; border-radius: 8px; object-fit: cover; border: 2px solid transparent;">
+                  <button type="button" class="zoom-btn" onclick="openFabricZoom('82143D', '/images/RollerBlinds_Zstar_Fabric_Samples/Blackout/82143D_blackout.png', event)" title="Zoom">🔍</button>
+                </div>
+                <span style="font-size: 10px; color: #5C4A3A; display: block; margin-top: 4px;">82143D</span>
               </div>
-              <div class="fabric-swatch" data-color="82142E" data-code="82142E" onclick="selectFabricSwatch(this)" style="width: 140px; height: 140px; border-radius: 8px; overflow: hidden; cursor: pointer; border: 2px solid #E5E5E5; box-shadow: 0 2px 6px rgba(0,0,0,0.1); position: relative;">
-                <img src="/images/fabrics/swatches/82142E.jpg" alt="82142E" style="width: 100%; height: 100%; object-fit: cover;">
-                <span style="position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.75); color: white; font-size: 14px; padding: 4px; text-align: center; font-weight: 500;">82142E</span>
+              <div class="fabric-swatch" data-code="82143E" onclick="selectFabricSwatch(this, event)" style="width: 90px; text-align: center; cursor: pointer; position: relative;">
+                <div class="swatch-img-container">
+                  <img src="/images/RollerBlinds_Zstar_Fabric_Samples/Blackout/82143E_blackout.png" alt="82143E" style="width: 75px; height: 75px; border-radius: 8px; object-fit: cover; border: 2px solid transparent;">
+                  <button type="button" class="zoom-btn" onclick="openFabricZoom('82143E', '/images/RollerBlinds_Zstar_Fabric_Samples/Blackout/82143E_blackout.png', event)" title="Zoom">🔍</button>
+                </div>
+                <span style="font-size: 10px; color: #5C4A3A; display: block; margin-top: 4px;">82143E</span>
               </div>
-              <div class="fabric-swatch" data-color="82143A" data-code="82143A" onclick="selectFabricSwatch(this)" style="width: 140px; height: 140px; border-radius: 8px; overflow: hidden; cursor: pointer; border: 2px solid #E5E5E5; box-shadow: 0 2px 6px rgba(0,0,0,0.1); position: relative;">
-                <img src="/images/fabrics/swatches/82143A.jpg" alt="82143A" style="width: 100%; height: 100%; object-fit: cover;">
-                <span style="position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.75); color: white; font-size: 14px; padding: 4px; text-align: center; font-weight: 500;">82143A</span>
+              <div class="fabric-swatch" data-code="82168A" onclick="selectFabricSwatch(this, event)" style="width: 90px; text-align: center; cursor: pointer; position: relative;">
+                <div class="swatch-img-container">
+                  <img src="/images/RollerBlinds_Zstar_Fabric_Samples/Blackout/82168A_blackout.png" alt="82168A" style="width: 75px; height: 75px; border-radius: 8px; object-fit: cover; border: 2px solid transparent;">
+                  <button type="button" class="zoom-btn" onclick="openFabricZoom('82168A', '/images/RollerBlinds_Zstar_Fabric_Samples/Blackout/82168A_blackout.png', event)" title="Zoom">🔍</button>
+                </div>
+                <span style="font-size: 10px; color: #5C4A3A; display: block; margin-top: 4px;">82168A</span>
               </div>
-              <div class="fabric-swatch" data-color="82143B" data-code="82143B" onclick="selectFabricSwatch(this)" style="width: 140px; height: 140px; border-radius: 8px; overflow: hidden; cursor: pointer; border: 2px solid #E5E5E5; box-shadow: 0 2px 6px rgba(0,0,0,0.1); position: relative;">
-                <img src="/images/fabrics/swatches/82143B.jpg" alt="82143B" style="width: 100%; height: 100%; object-fit: cover;">
-                <span style="position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.75); color: white; font-size: 14px; padding: 4px; text-align: center; font-weight: 500;">82143B</span>
+              <div class="fabric-swatch" data-code="82168B" onclick="selectFabricSwatch(this, event)" style="width: 90px; text-align: center; cursor: pointer; position: relative;">
+                <div class="swatch-img-container">
+                  <img src="/images/RollerBlinds_Zstar_Fabric_Samples/Blackout/82168B_blackout.png" alt="82168B" style="width: 75px; height: 75px; border-radius: 8px; object-fit: cover; border: 2px solid transparent;">
+                  <button type="button" class="zoom-btn" onclick="openFabricZoom('82168B', '/images/RollerBlinds_Zstar_Fabric_Samples/Blackout/82168B_blackout.png', event)" title="Zoom">🔍</button>
+                </div>
+                <span style="font-size: 10px; color: #5C4A3A; display: block; margin-top: 4px;">82168B</span>
               </div>
-              <div class="fabric-swatch" data-color="82143C" data-code="82143C" onclick="selectFabricSwatch(this)" style="width: 140px; height: 140px; border-radius: 8px; overflow: hidden; cursor: pointer; border: 2px solid #E5E5E5; box-shadow: 0 2px 6px rgba(0,0,0,0.1); position: relative;">
-                <img src="/images/fabrics/swatches/82143C.jpg" alt="82143C" style="width: 100%; height: 100%; object-fit: cover;">
-                <span style="position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.75); color: white; font-size: 14px; padding: 4px; text-align: center; font-weight: 500;">82143C</span>
+              <div class="fabric-swatch" data-code="82168C" onclick="selectFabricSwatch(this, event)" style="width: 90px; text-align: center; cursor: pointer; position: relative;">
+                <div class="swatch-img-container">
+                  <img src="/images/RollerBlinds_Zstar_Fabric_Samples/Blackout/82168C_blackout.png" alt="82168C" style="width: 75px; height: 75px; border-radius: 8px; object-fit: cover; border: 2px solid transparent;">
+                  <button type="button" class="zoom-btn" onclick="openFabricZoom('82168C', '/images/RollerBlinds_Zstar_Fabric_Samples/Blackout/82168C_blackout.png', event)" title="Zoom">🔍</button>
+                </div>
+                <span style="font-size: 10px; color: #5C4A3A; display: block; margin-top: 4px;">82168C</span>
               </div>
-              <div class="fabric-swatch" data-color="82143D" data-code="82143D" onclick="selectFabricSwatch(this)" style="width: 140px; height: 140px; border-radius: 8px; overflow: hidden; cursor: pointer; border: 2px solid #E5E5E5; box-shadow: 0 2px 6px rgba(0,0,0,0.1); position: relative;">
-                <img src="/images/fabrics/swatches/82143D.jpg" alt="82143D" style="width: 100%; height: 100%; object-fit: cover;">
-                <span style="position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.75); color: white; font-size: 14px; padding: 4px; text-align: center; font-weight: 500;">82143D</span>
+              <div class="fabric-swatch" data-code="82168D" onclick="selectFabricSwatch(this, event)" style="width: 90px; text-align: center; cursor: pointer; position: relative;">
+                <div class="swatch-img-container">
+                  <img src="/images/RollerBlinds_Zstar_Fabric_Samples/Blackout/82168D_blackout.png" alt="82168D" style="width: 75px; height: 75px; border-radius: 8px; object-fit: cover; border: 2px solid transparent;">
+                  <button type="button" class="zoom-btn" onclick="openFabricZoom('82168D', '/images/RollerBlinds_Zstar_Fabric_Samples/Blackout/82168D_blackout.png', event)" title="Zoom">🔍</button>
+                </div>
+                <span style="font-size: 10px; color: #5C4A3A; display: block; margin-top: 4px;">82168D</span>
               </div>
-              <div class="fabric-swatch" data-color="82143E" data-code="82143E" onclick="selectFabricSwatch(this)" style="width: 140px; height: 140px; border-radius: 8px; overflow: hidden; cursor: pointer; border: 2px solid #E5E5E5; box-shadow: 0 2px 6px rgba(0,0,0,0.1); position: relative;">
-                <img src="/images/fabrics/swatches/82143E.jpg" alt="82143E" style="width: 100%; height: 100%; object-fit: cover;">
-                <span style="position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.75); color: white; font-size: 14px; padding: 4px; text-align: center; font-weight: 500;">82143E</span>
+              <div class="fabric-swatch" data-code="82168E" onclick="selectFabricSwatch(this, event)" style="width: 90px; text-align: center; cursor: pointer; position: relative;">
+                <div class="swatch-img-container">
+                  <img src="/images/RollerBlinds_Zstar_Fabric_Samples/Blackout/82168E_blackout.png" alt="82168E" style="width: 75px; height: 75px; border-radius: 8px; object-fit: cover; border: 2px solid transparent;">
+                  <button type="button" class="zoom-btn" onclick="openFabricZoom('82168E', '/images/RollerBlinds_Zstar_Fabric_Samples/Blackout/82168E_blackout.png', event)" title="Zoom">🔍</button>
+                </div>
+                <span style="font-size: 10px; color: #5C4A3A; display: block; margin-top: 4px;">82168E</span>
               </div>
-              <div class="fabric-swatch" data-color="82167A" data-code="82167A" onclick="selectFabricSwatch(this)" style="width: 140px; height: 140px; border-radius: 8px; overflow: hidden; cursor: pointer; border: 2px solid #E5E5E5; box-shadow: 0 2px 6px rgba(0,0,0,0.1); position: relative;">
-                <img src="/images/fabrics/swatches/82167A.jpg" alt="82167A" style="width: 100%; height: 100%; object-fit: cover;">
-                <span style="position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.75); color: white; font-size: 14px; padding: 4px; text-align: center; font-weight: 500;">82167A</span>
+              <div class="fabric-swatch" data-code="82176A" onclick="selectFabricSwatch(this, event)" style="width: 90px; text-align: center; cursor: pointer; position: relative;">
+                <div class="swatch-img-container">
+                  <img src="/images/RollerBlinds_Zstar_Fabric_Samples/Blackout/82176A_blackout.png" alt="82176A" style="width: 75px; height: 75px; border-radius: 8px; object-fit: cover; border: 2px solid transparent;">
+                  <button type="button" class="zoom-btn" onclick="openFabricZoom('82176A', '/images/RollerBlinds_Zstar_Fabric_Samples/Blackout/82176A_blackout.png', event)" title="Zoom">🔍</button>
+                </div>
+                <span style="font-size: 10px; color: #5C4A3A; display: block; margin-top: 4px;">82176A</span>
               </div>
-              <div class="fabric-swatch" data-color="82167B" data-code="82167B" onclick="selectFabricSwatch(this)" style="width: 140px; height: 140px; border-radius: 8px; overflow: hidden; cursor: pointer; border: 2px solid #E5E5E5; box-shadow: 0 2px 6px rgba(0,0,0,0.1); position: relative;">
-                <img src="/images/fabrics/swatches/82167B.jpg" alt="82167B" style="width: 100%; height: 100%; object-fit: cover;">
-                <span style="position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.75); color: white; font-size: 14px; padding: 4px; text-align: center; font-weight: 500;">82167B</span>
+              <div class="fabric-swatch" data-code="82176B" onclick="selectFabricSwatch(this, event)" style="width: 90px; text-align: center; cursor: pointer; position: relative;">
+                <div class="swatch-img-container">
+                  <img src="/images/RollerBlinds_Zstar_Fabric_Samples/Blackout/82176B_blackout.png" alt="82176B" style="width: 75px; height: 75px; border-radius: 8px; object-fit: cover; border: 2px solid transparent;">
+                  <button type="button" class="zoom-btn" onclick="openFabricZoom('82176B', '/images/RollerBlinds_Zstar_Fabric_Samples/Blackout/82176B_blackout.png', event)" title="Zoom">🔍</button>
+                </div>
+                <span style="font-size: 10px; color: #5C4A3A; display: block; margin-top: 4px;">82176B</span>
               </div>
-              <div class="fabric-swatch" data-color="82167C" data-code="82167C" onclick="selectFabricSwatch(this)" style="width: 140px; height: 140px; border-radius: 8px; overflow: hidden; cursor: pointer; border: 2px solid #E5E5E5; box-shadow: 0 2px 6px rgba(0,0,0,0.1); position: relative;">
-                <img src="/images/fabrics/swatches/82167C.jpg" alt="82167C" style="width: 100%; height: 100%; object-fit: cover;">
-                <span style="position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.75); color: white; font-size: 14px; padding: 4px; text-align: center; font-weight: 500;">82167C</span>
+              <div class="fabric-swatch" data-code="82176C" onclick="selectFabricSwatch(this, event)" style="width: 90px; text-align: center; cursor: pointer; position: relative;">
+                <div class="swatch-img-container">
+                  <img src="/images/RollerBlinds_Zstar_Fabric_Samples/Blackout/82176C_blackout.png" alt="82176C" style="width: 75px; height: 75px; border-radius: 8px; object-fit: cover; border: 2px solid transparent;">
+                  <button type="button" class="zoom-btn" onclick="openFabricZoom('82176C', '/images/RollerBlinds_Zstar_Fabric_Samples/Blackout/82176C_blackout.png', event)" title="Zoom">🔍</button>
+                </div>
+                <span style="font-size: 10px; color: #5C4A3A; display: block; margin-top: 4px;">82176C</span>
               </div>
-              <div class="fabric-swatch" data-color="82167D" data-code="82167D" onclick="selectFabricSwatch(this)" style="width: 140px; height: 140px; border-radius: 8px; overflow: hidden; cursor: pointer; border: 2px solid #E5E5E5; box-shadow: 0 2px 6px rgba(0,0,0,0.1); position: relative;">
-                <img src="/images/fabrics/swatches/82167D.jpg" alt="82167D" style="width: 100%; height: 100%; object-fit: cover;">
-                <span style="position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.75); color: white; font-size: 14px; padding: 4px; text-align: center; font-weight: 500;">82167D</span>
+              <div class="fabric-swatch" data-code="82176D" onclick="selectFabricSwatch(this, event)" style="width: 90px; text-align: center; cursor: pointer; position: relative;">
+                <div class="swatch-img-container">
+                  <img src="/images/RollerBlinds_Zstar_Fabric_Samples/Blackout/82176D_blackout.png" alt="82176D" style="width: 75px; height: 75px; border-radius: 8px; object-fit: cover; border: 2px solid transparent;">
+                  <button type="button" class="zoom-btn" onclick="openFabricZoom('82176D', '/images/RollerBlinds_Zstar_Fabric_Samples/Blackout/82176D_blackout.png', event)" title="Zoom">🔍</button>
+                </div>
+                <span style="font-size: 10px; color: #5C4A3A; display: block; margin-top: 4px;">82176D</span>
               </div>
-              <div class="fabric-swatch" data-color="82167E" data-code="82167E" onclick="selectFabricSwatch(this)" style="width: 140px; height: 140px; border-radius: 8px; overflow: hidden; cursor: pointer; border: 2px solid #E5E5E5; box-shadow: 0 2px 6px rgba(0,0,0,0.1); position: relative;">
-                <img src="/images/fabrics/swatches/82167E.jpg" alt="82167E" style="width: 100%; height: 100%; object-fit: cover;">
-                <span style="position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.75); color: white; font-size: 14px; padding: 4px; text-align: center; font-weight: 500;">82167E</span>
+              <div class="fabric-swatch" data-code="82176E" onclick="selectFabricSwatch(this, event)" style="width: 90px; text-align: center; cursor: pointer; position: relative;">
+                <div class="swatch-img-container">
+                  <img src="/images/RollerBlinds_Zstar_Fabric_Samples/Blackout/82176E_blackout.png" alt="82176E" style="width: 75px; height: 75px; border-radius: 8px; object-fit: cover; border: 2px solid transparent;">
+                  <button type="button" class="zoom-btn" onclick="openFabricZoom('82176E', '/images/RollerBlinds_Zstar_Fabric_Samples/Blackout/82176E_blackout.png', event)" title="Zoom">🔍</button>
+                </div>
+                <span style="font-size: 10px; color: #5C4A3A; display: block; margin-top: 4px;">82176E</span>
               </div>
-              <div class="fabric-swatch" data-color="82168A" data-code="82168A" onclick="selectFabricSwatch(this)" style="width: 140px; height: 140px; border-radius: 8px; overflow: hidden; cursor: pointer; border: 2px solid #E5E5E5; box-shadow: 0 2px 6px rgba(0,0,0,0.1); position: relative;">
-                <img src="/images/fabrics/swatches/82168A.jpg" alt="82168A" style="width: 100%; height: 100%; object-fit: cover;">
-                <span style="position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.75); color: white; font-size: 14px; padding: 4px; text-align: center; font-weight: 500;">82168A</span>
+              <div class="fabric-swatch" data-code="82176F" onclick="selectFabricSwatch(this, event)" style="width: 90px; text-align: center; cursor: pointer; position: relative;">
+                <div class="swatch-img-container">
+                  <img src="/images/RollerBlinds_Zstar_Fabric_Samples/Blackout/82176F_blackout.png" alt="82176F" style="width: 75px; height: 75px; border-radius: 8px; object-fit: cover; border: 2px solid transparent;">
+                  <button type="button" class="zoom-btn" onclick="openFabricZoom('82176F', '/images/RollerBlinds_Zstar_Fabric_Samples/Blackout/82176F_blackout.png', event)" title="Zoom">🔍</button>
+                </div>
+                <span style="font-size: 10px; color: #5C4A3A; display: block; margin-top: 4px;">82176F</span>
               </div>
-              <div class="fabric-swatch" data-color="82168B" data-code="82168B" onclick="selectFabricSwatch(this)" style="width: 140px; height: 140px; border-radius: 8px; overflow: hidden; cursor: pointer; border: 2px solid #E5E5E5; box-shadow: 0 2px 6px rgba(0,0,0,0.1); position: relative;">
-                <img src="/images/fabrics/swatches/82168B.jpg" alt="82168B" style="width: 100%; height: 100%; object-fit: cover;">
-                <span style="position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.75); color: white; font-size: 14px; padding: 4px; text-align: center; font-weight: 500;">82168B</span>
+              <div class="fabric-swatch" data-code="82176G" onclick="selectFabricSwatch(this, event)" style="width: 90px; text-align: center; cursor: pointer; position: relative;">
+                <div class="swatch-img-container">
+                  <img src="/images/RollerBlinds_Zstar_Fabric_Samples/Blackout/82176G_blackout.png" alt="82176G" style="width: 75px; height: 75px; border-radius: 8px; object-fit: cover; border: 2px solid transparent;">
+                  <button type="button" class="zoom-btn" onclick="openFabricZoom('82176G', '/images/RollerBlinds_Zstar_Fabric_Samples/Blackout/82176G_blackout.png', event)" title="Zoom">🔍</button>
+                </div>
+                <span style="font-size: 10px; color: #5C4A3A; display: block; margin-top: 4px;">82176G</span>
               </div>
-              <div class="fabric-swatch" data-color="82168C" data-code="82168C" onclick="selectFabricSwatch(this)" style="width: 140px; height: 140px; border-radius: 8px; overflow: hidden; cursor: pointer; border: 2px solid #E5E5E5; box-shadow: 0 2px 6px rgba(0,0,0,0.1); position: relative;">
-                <img src="/images/fabrics/swatches/82168C.jpg" alt="82168C" style="width: 100%; height: 100%; object-fit: cover;">
-                <span style="position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.75); color: white; font-size: 14px; padding: 4px; text-align: center; font-weight: 500;">82168C</span>
+              <div class="fabric-swatch" data-code="82178A" onclick="selectFabricSwatch(this, event)" style="width: 90px; text-align: center; cursor: pointer; position: relative;">
+                <div class="swatch-img-container">
+                  <img src="/images/RollerBlinds_Zstar_Fabric_Samples/Blackout/82178A_blackout.png" alt="82178A" style="width: 75px; height: 75px; border-radius: 8px; object-fit: cover; border: 2px solid transparent;">
+                  <button type="button" class="zoom-btn" onclick="openFabricZoom('82178A', '/images/RollerBlinds_Zstar_Fabric_Samples/Blackout/82178A_blackout.png', event)" title="Zoom">🔍</button>
+                </div>
+                <span style="font-size: 10px; color: #5C4A3A; display: block; margin-top: 4px;">82178A</span>
               </div>
-              <div class="fabric-swatch" data-color="82168D" data-code="82168D" onclick="selectFabricSwatch(this)" style="width: 140px; height: 140px; border-radius: 8px; overflow: hidden; cursor: pointer; border: 2px solid #E5E5E5; box-shadow: 0 2px 6px rgba(0,0,0,0.1); position: relative;">
-                <img src="/images/fabrics/swatches/82168D.jpg" alt="82168D" style="width: 100%; height: 100%; object-fit: cover;">
-                <span style="position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.75); color: white; font-size: 14px; padding: 4px; text-align: center; font-weight: 500;">82168D</span>
+              <div class="fabric-swatch" data-code="82178B" onclick="selectFabricSwatch(this, event)" style="width: 90px; text-align: center; cursor: pointer; position: relative;">
+                <div class="swatch-img-container">
+                  <img src="/images/RollerBlinds_Zstar_Fabric_Samples/Blackout/82178B_blackout.png" alt="82178B" style="width: 75px; height: 75px; border-radius: 8px; object-fit: cover; border: 2px solid transparent;">
+                  <button type="button" class="zoom-btn" onclick="openFabricZoom('82178B', '/images/RollerBlinds_Zstar_Fabric_Samples/Blackout/82178B_blackout.png', event)" title="Zoom">🔍</button>
+                </div>
+                <span style="font-size: 10px; color: #5C4A3A; display: block; margin-top: 4px;">82178B</span>
               </div>
-              <div class="fabric-swatch" data-color="82168E" data-code="82168E" onclick="selectFabricSwatch(this)" style="width: 140px; height: 140px; border-radius: 8px; overflow: hidden; cursor: pointer; border: 2px solid #E5E5E5; box-shadow: 0 2px 6px rgba(0,0,0,0.1); position: relative;">
-                <img src="/images/fabrics/swatches/82168E.jpg" alt="82168E" style="width: 100%; height: 100%; object-fit: cover;">
-                <span style="position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.75); color: white; font-size: 14px; padding: 4px; text-align: center; font-weight: 500;">82168E</span>
+              <div class="fabric-swatch" data-code="82178C" onclick="selectFabricSwatch(this, event)" style="width: 90px; text-align: center; cursor: pointer; position: relative;">
+                <div class="swatch-img-container">
+                  <img src="/images/RollerBlinds_Zstar_Fabric_Samples/Blackout/82178C_blackout.png" alt="82178C" style="width: 75px; height: 75px; border-radius: 8px; object-fit: cover; border: 2px solid transparent;">
+                  <button type="button" class="zoom-btn" onclick="openFabricZoom('82178C', '/images/RollerBlinds_Zstar_Fabric_Samples/Blackout/82178C_blackout.png', event)" title="Zoom">🔍</button>
+                </div>
+                <span style="font-size: 10px; color: #5C4A3A; display: block; margin-top: 4px;">82178C</span>
               </div>
-              <div class="fabric-swatch" data-color="82176A" data-code="82176A" onclick="selectFabricSwatch(this)" style="width: 140px; height: 140px; border-radius: 8px; overflow: hidden; cursor: pointer; border: 2px solid #E5E5E5; box-shadow: 0 2px 6px rgba(0,0,0,0.1); position: relative;">
-                <img src="/images/fabrics/swatches/82176A.jpg" alt="82176A" style="width: 100%; height: 100%; object-fit: cover;">
-                <span style="position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.75); color: white; font-size: 14px; padding: 4px; text-align: center; font-weight: 500;">82176A</span>
+              <div class="fabric-swatch" data-code="82178D" onclick="selectFabricSwatch(this, event)" style="width: 90px; text-align: center; cursor: pointer; position: relative;">
+                <div class="swatch-img-container">
+                  <img src="/images/RollerBlinds_Zstar_Fabric_Samples/Blackout/82178D_blackout.png" alt="82178D" style="width: 75px; height: 75px; border-radius: 8px; object-fit: cover; border: 2px solid transparent;">
+                  <button type="button" class="zoom-btn" onclick="openFabricZoom('82178D', '/images/RollerBlinds_Zstar_Fabric_Samples/Blackout/82178D_blackout.png', event)" title="Zoom">🔍</button>
+                </div>
+                <span style="font-size: 10px; color: #5C4A3A; display: block; margin-top: 4px;">82178D</span>
               </div>
-              <div class="fabric-swatch" data-color="82176B" data-code="82176B" onclick="selectFabricSwatch(this)" style="width: 140px; height: 140px; border-radius: 8px; overflow: hidden; cursor: pointer; border: 2px solid #E5E5E5; box-shadow: 0 2px 6px rgba(0,0,0,0.1); position: relative;">
-                <img src="/images/fabrics/swatches/82176B.jpg" alt="82176B" style="width: 100%; height: 100%; object-fit: cover;">
-                <span style="position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.75); color: white; font-size: 14px; padding: 4px; text-align: center; font-weight: 500;">82176B</span>
-              </div>
-              <div class="fabric-swatch" data-color="82176C" data-code="82176C" onclick="selectFabricSwatch(this)" style="width: 140px; height: 140px; border-radius: 8px; overflow: hidden; cursor: pointer; border: 2px solid #E5E5E5; box-shadow: 0 2px 6px rgba(0,0,0,0.1); position: relative;">
-                <img src="/images/fabrics/swatches/82176C.jpg" alt="82176C" style="width: 100%; height: 100%; object-fit: cover;">
-                <span style="position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.75); color: white; font-size: 14px; padding: 4px; text-align: center; font-weight: 500;">82176C</span>
-              </div>
-              <div class="fabric-swatch" data-color="82176D" data-code="82176D" onclick="selectFabricSwatch(this)" style="width: 140px; height: 140px; border-radius: 8px; overflow: hidden; cursor: pointer; border: 2px solid #E5E5E5; box-shadow: 0 2px 6px rgba(0,0,0,0.1); position: relative;">
-                <img src="/images/fabrics/swatches/82176D.jpg" alt="82176D" style="width: 100%; height: 100%; object-fit: cover;">
-                <span style="position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.75); color: white; font-size: 14px; padding: 4px; text-align: center; font-weight: 500;">82176D</span>
-              </div>
-              <div class="fabric-swatch" data-color="82176E" data-code="82176E" onclick="selectFabricSwatch(this)" style="width: 140px; height: 140px; border-radius: 8px; overflow: hidden; cursor: pointer; border: 2px solid #E5E5E5; box-shadow: 0 2px 6px rgba(0,0,0,0.1); position: relative;">
-                <img src="/images/fabrics/swatches/82176E.jpg" alt="82176E" style="width: 100%; height: 100%; object-fit: cover;">
-                <span style="position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.75); color: white; font-size: 14px; padding: 4px; text-align: center; font-weight: 500;">82176E</span>
-              </div>
-              <div class="fabric-swatch" data-color="82176F" data-code="82176F" onclick="selectFabricSwatch(this)" style="width: 140px; height: 140px; border-radius: 8px; overflow: hidden; cursor: pointer; border: 2px solid #E5E5E5; box-shadow: 0 2px 6px rgba(0,0,0,0.1); position: relative;">
-                <img src="/images/fabrics/swatches/82176F.jpg" alt="82176F" style="width: 100%; height: 100%; object-fit: cover;">
-                <span style="position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.75); color: white; font-size: 14px; padding: 4px; text-align: center; font-weight: 500;">82176F</span>
-              </div>
-              <div class="fabric-swatch" data-color="82176G" data-code="82176G" onclick="selectFabricSwatch(this)" style="width: 140px; height: 140px; border-radius: 8px; overflow: hidden; cursor: pointer; border: 2px solid #E5E5E5; box-shadow: 0 2px 6px rgba(0,0,0,0.1); position: relative;">
-                <img src="/images/fabrics/swatches/82176G.jpg" alt="82176G" style="width: 100%; height: 100%; object-fit: cover;">
-                <span style="position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.75); color: white; font-size: 14px; padding: 4px; text-align: center; font-weight: 500;">82176G</span>
-              </div>
-              <div class="fabric-swatch" data-color="82178A" data-code="82178A" onclick="selectFabricSwatch(this)" style="width: 140px; height: 140px; border-radius: 8px; overflow: hidden; cursor: pointer; border: 2px solid #E5E5E5; box-shadow: 0 2px 6px rgba(0,0,0,0.1); position: relative;">
-                <img src="/images/fabrics/swatches/82178A.jpg" alt="82178A" style="width: 100%; height: 100%; object-fit: cover;">
-                <span style="position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.75); color: white; font-size: 14px; padding: 4px; text-align: center; font-weight: 500;">82178A</span>
-              </div>
-              <div class="fabric-swatch" data-color="82178B" data-code="82178B" onclick="selectFabricSwatch(this)" style="width: 140px; height: 140px; border-radius: 8px; overflow: hidden; cursor: pointer; border: 2px solid #E5E5E5; box-shadow: 0 2px 6px rgba(0,0,0,0.1); position: relative;">
-                <img src="/images/fabrics/swatches/82178B.jpg" alt="82178B" style="width: 100%; height: 100%; object-fit: cover;">
-                <span style="position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.75); color: white; font-size: 14px; padding: 4px; text-align: center; font-weight: 500;">82178B</span>
-              </div>
-              <div class="fabric-swatch" data-color="82178C" data-code="82178C" onclick="selectFabricSwatch(this)" style="width: 140px; height: 140px; border-radius: 8px; overflow: hidden; cursor: pointer; border: 2px solid #E5E5E5; box-shadow: 0 2px 6px rgba(0,0,0,0.1); position: relative;">
-                <img src="/images/fabrics/swatches/82178C.jpg" alt="82178C" style="width: 100%; height: 100%; object-fit: cover;">
-                <span style="position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.75); color: white; font-size: 14px; padding: 4px; text-align: center; font-weight: 500;">82178C</span>
-              </div>
-              <div class="fabric-swatch" data-color="82178D" data-code="82178D" onclick="selectFabricSwatch(this)" style="width: 140px; height: 140px; border-radius: 8px; overflow: hidden; cursor: pointer; border: 2px solid #E5E5E5; box-shadow: 0 2px 6px rgba(0,0,0,0.1); position: relative;">
-                <img src="/images/fabrics/swatches/82178D.jpg" alt="82178D" style="width: 100%; height: 100%; object-fit: cover;">
-                <span style="position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.75); color: white; font-size: 14px; padding: 4px; text-align: center; font-weight: 500;">82178D</span>
-              </div>
-              <div class="fabric-swatch" data-color="82178E" data-code="82178E" onclick="selectFabricSwatch(this)" style="width: 140px; height: 140px; border-radius: 8px; overflow: hidden; cursor: pointer; border: 2px solid #E5E5E5; box-shadow: 0 2px 6px rgba(0,0,0,0.1); position: relative;">
-                <img src="/images/fabrics/swatches/82178E.jpg" alt="82178E" style="width: 100%; height: 100%; object-fit: cover;">
-                <span style="position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.75); color: white; font-size: 14px; padding: 4px; text-align: center; font-weight: 500;">82178E</span>
-              </div>
-              <div class="fabric-swatch" data-color="82179A" data-code="82179A" onclick="selectFabricSwatch(this)" style="width: 140px; height: 140px; border-radius: 8px; overflow: hidden; cursor: pointer; border: 2px solid #E5E5E5; box-shadow: 0 2px 6px rgba(0,0,0,0.1); position: relative;">
-                <img src="/images/fabrics/swatches/82179A.jpg" alt="82179A" style="width: 100%; height: 100%; object-fit: cover;">
-                <span style="position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.75); color: white; font-size: 14px; padding: 4px; text-align: center; font-weight: 500;">82179A</span>
-              </div>
-              <div class="fabric-swatch" data-color="82179B" data-code="82179B" onclick="selectFabricSwatch(this)" style="width: 140px; height: 140px; border-radius: 8px; overflow: hidden; cursor: pointer; border: 2px solid #E5E5E5; box-shadow: 0 2px 6px rgba(0,0,0,0.1); position: relative;">
-                <img src="/images/fabrics/swatches/82179B.jpg" alt="82179B" style="width: 100%; height: 100%; object-fit: cover;">
-                <span style="position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.75); color: white; font-size: 14px; padding: 4px; text-align: center; font-weight: 500;">82179B</span>
-              </div>
-              <div class="fabric-swatch" data-color="82179C" data-code="82179C" onclick="selectFabricSwatch(this)" style="width: 140px; height: 140px; border-radius: 8px; overflow: hidden; cursor: pointer; border: 2px solid #E5E5E5; box-shadow: 0 2px 6px rgba(0,0,0,0.1); position: relative;">
-                <img src="/images/fabrics/swatches/82179C.jpg" alt="82179C" style="width: 100%; height: 100%; object-fit: cover;">
-                <span style="position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.75); color: white; font-size: 14px; padding: 4px; text-align: center; font-weight: 500;">82179C</span>
-              </div>
-              <div class="fabric-swatch" data-color="82180A" data-code="82180A" onclick="selectFabricSwatch(this)" style="width: 140px; height: 140px; border-radius: 8px; overflow: hidden; cursor: pointer; border: 2px solid #E5E5E5; box-shadow: 0 2px 6px rgba(0,0,0,0.1); position: relative;">
-                <img src="/images/fabrics/swatches/82180A.jpg" alt="82180A" style="width: 100%; height: 100%; object-fit: cover;">
-                <span style="position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.75); color: white; font-size: 14px; padding: 4px; text-align: center; font-weight: 500;">82180A</span>
-              </div>
-              <div class="fabric-swatch" data-color="82180B" data-code="82180B" onclick="selectFabricSwatch(this)" style="width: 140px; height: 140px; border-radius: 8px; overflow: hidden; cursor: pointer; border: 2px solid #E5E5E5; box-shadow: 0 2px 6px rgba(0,0,0,0.1); position: relative;">
-                <img src="/images/fabrics/swatches/82180B.jpg" alt="82180B" style="width: 100%; height: 100%; object-fit: cover;">
-                <span style="position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.75); color: white; font-size: 14px; padding: 4px; text-align: center; font-weight: 500;">82180B</span>
-              </div>
-              <div class="fabric-swatch" data-color="82180C" data-code="82180C" onclick="selectFabricSwatch(this)" style="width: 140px; height: 140px; border-radius: 8px; overflow: hidden; cursor: pointer; border: 2px solid #E5E5E5; box-shadow: 0 2px 6px rgba(0,0,0,0.1); position: relative;">
-                <img src="/images/fabrics/swatches/82180C.jpg" alt="82180C" style="width: 100%; height: 100%; object-fit: cover;">
-                <span style="position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.75); color: white; font-size: 14px; padding: 4px; text-align: center; font-weight: 500;">82180C</span>
-              </div>
-              <div class="fabric-swatch" data-color="82180D" data-code="82180D" onclick="selectFabricSwatch(this)" style="width: 140px; height: 140px; border-radius: 8px; overflow: hidden; cursor: pointer; border: 2px solid #E5E5E5; box-shadow: 0 2px 6px rgba(0,0,0,0.1); position: relative;">
-                <img src="/images/fabrics/swatches/82180D.jpg" alt="82180D" style="width: 100%; height: 100%; object-fit: cover;">
-                <span style="position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.75); color: white; font-size: 14px; padding: 4px; text-align: center; font-weight: 500;">82180D</span>
-              </div>
-              <div class="fabric-swatch" data-color="82180E" data-code="82180E" onclick="selectFabricSwatch(this)" style="width: 140px; height: 140px; border-radius: 8px; overflow: hidden; cursor: pointer; border: 2px solid #E5E5E5; box-shadow: 0 2px 6px rgba(0,0,0,0.1); position: relative;">
-                <img src="/images/fabrics/swatches/82180E.jpg" alt="82180E" style="width: 100%; height: 100%; object-fit: cover;">
-                <span style="position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.75); color: white; font-size: 14px; padding: 4px; text-align: center; font-weight: 500;">82180E</span>
-              </div>
-              <div class="fabric-swatch" data-color="82183A" data-code="82183A" onclick="selectFabricSwatch(this)" style="width: 140px; height: 140px; border-radius: 8px; overflow: hidden; cursor: pointer; border: 2px solid #E5E5E5; box-shadow: 0 2px 6px rgba(0,0,0,0.1); position: relative;">
-                <img src="/images/fabrics/swatches/82183A.jpg" alt="82183A" style="width: 100%; height: 100%; object-fit: cover;">
-                <span style="position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.75); color: white; font-size: 14px; padding: 4px; text-align: center; font-weight: 500;">82183A</span>
-              </div>
-              <div class="fabric-swatch" data-color="82183B" data-code="82183B" onclick="selectFabricSwatch(this)" style="width: 140px; height: 140px; border-radius: 8px; overflow: hidden; cursor: pointer; border: 2px solid #E5E5E5; box-shadow: 0 2px 6px rgba(0,0,0,0.1); position: relative;">
-                <img src="/images/fabrics/swatches/82183B.jpg" alt="82183B" style="width: 100%; height: 100%; object-fit: cover;">
-                <span style="position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.75); color: white; font-size: 14px; padding: 4px; text-align: center; font-weight: 500;">82183B</span>
-              </div>
-              <div class="fabric-swatch" data-color="82183C" data-code="82183C" onclick="selectFabricSwatch(this)" style="width: 140px; height: 140px; border-radius: 8px; overflow: hidden; cursor: pointer; border: 2px solid #E5E5E5; box-shadow: 0 2px 6px rgba(0,0,0,0.1); position: relative;">
-                <img src="/images/fabrics/swatches/82183C.jpg" alt="82183C" style="width: 100%; height: 100%; object-fit: cover;">
-                <span style="position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.75); color: white; font-size: 14px; padding: 4px; text-align: center; font-weight: 500;">82183C</span>
-              </div>
-              <div class="fabric-swatch" data-color="82183D" data-code="82183D" onclick="selectFabricSwatch(this)" style="width: 140px; height: 140px; border-radius: 8px; overflow: hidden; cursor: pointer; border: 2px solid #E5E5E5; box-shadow: 0 2px 6px rgba(0,0,0,0.1); position: relative;">
-                <img src="/images/fabrics/swatches/82183D.jpg" alt="82183D" style="width: 100%; height: 100%; object-fit: cover;">
-                <span style="position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.75); color: white; font-size: 14px; padding: 4px; text-align: center; font-weight: 500;">82183D</span>
-              </div>
-              <div class="fabric-swatch" data-color="82183E" data-code="82183E" onclick="selectFabricSwatch(this)" style="width: 140px; height: 140px; border-radius: 8px; overflow: hidden; cursor: pointer; border: 2px solid #E5E5E5; box-shadow: 0 2px 6px rgba(0,0,0,0.1); position: relative;">
-                <img src="/images/fabrics/swatches/82183E.jpg" alt="82183E" style="width: 100%; height: 100%; object-fit: cover;">
-                <span style="position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.75); color: white; font-size: 14px; padding: 4px; text-align: center; font-weight: 500;">82183E</span>
+              <div class="fabric-swatch" data-code="82178E" onclick="selectFabricSwatch(this, event)" style="width: 90px; text-align: center; cursor: pointer; position: relative;">
+                <div class="swatch-img-container">
+                  <img src="/images/RollerBlinds_Zstar_Fabric_Samples/Blackout/82178E_blackout.png" alt="82178E" style="width: 75px; height: 75px; border-radius: 8px; object-fit: cover; border: 2px solid transparent;">
+                  <button type="button" class="zoom-btn" onclick="openFabricZoom('82178E', '/images/RollerBlinds_Zstar_Fabric_Samples/Blackout/82178E_blackout.png', event)" title="Zoom">🔍</button>
+                </div>
+                <span style="font-size: 10px; color: #5C4A3A; display: block; margin-top: 4px;">82178E</span>
               </div>
             </div>
 
-            <!-- Semi-Blackout Fabrics - hidden by default -->
+            <!-- Semi-Blackout Fabrics -->
             <div class="swatch-row fabric-group" id="semiBlackoutFabrics" style="display: none; flex-wrap: wrap; gap: 10px; max-height: 450px; overflow-y: auto; padding: 10px; border: 1px solid #E8E4E0; border-radius: 8px; scrollbar-width: thin; scrollbar-color: #8E6545 #F5F0EB;">
-              <div class="fabric-swatch" data-color="82076A" data-code="82076A" onclick="selectFabricSwatch(this)" style="width: 140px; height: 140px; border-radius: 8px; overflow: hidden; cursor: pointer; border: 2px solid #E5E5E5; box-shadow: 0 2px 6px rgba(0,0,0,0.1); position: relative;">
-                <img src="/images/fabrics/swatches/82076A.jpg" alt="82076A" style="width: 100%; height: 100%; object-fit: cover;">
-                <span style="position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.75); color: white; font-size: 14px; padding: 4px; text-align: center; font-weight: 500;">82076A</span>
+              <div class="fabric-swatch" data-code="82076A" onclick="selectFabricSwatch(this, event)" style="width: 90px; text-align: center; cursor: pointer; position: relative;">
+                <div class="swatch-img-container">
+                  <img src="/images/RollerBlinds_Zstar_Fabric_Samples/Semi_Blackout/82076A_semi-blackout.png" alt="82076A" style="width: 75px; height: 75px; border-radius: 8px; object-fit: cover; border: 2px solid transparent;">
+                  <button type="button" class="zoom-btn" onclick="openFabricZoom('82076A', '/images/RollerBlinds_Zstar_Fabric_Samples/Semi_Blackout/82076A_semi-blackout.png', event)" title="Zoom">🔍</button>
+                </div>
+                <span style="font-size: 10px; color: #5C4A3A; display: block; margin-top: 4px;">82076A</span>
               </div>
-              <div class="fabric-swatch" data-color="82076B" data-code="82076B" onclick="selectFabricSwatch(this)" style="width: 140px; height: 140px; border-radius: 8px; overflow: hidden; cursor: pointer; border: 2px solid #E5E5E5; box-shadow: 0 2px 6px rgba(0,0,0,0.1); position: relative;">
-                <img src="/images/fabrics/swatches/82076B.jpg" alt="82076B" style="width: 100%; height: 100%; object-fit: cover;">
-                <span style="position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.75); color: white; font-size: 14px; padding: 4px; text-align: center; font-weight: 500;">82076B</span>
+              <div class="fabric-swatch" data-code="82076B" onclick="selectFabricSwatch(this, event)" style="width: 90px; text-align: center; cursor: pointer; position: relative;">
+                <div class="swatch-img-container">
+                  <img src="/images/RollerBlinds_Zstar_Fabric_Samples/Semi_Blackout/82076B_semi-blackout.png" alt="82076B" style="width: 75px; height: 75px; border-radius: 8px; object-fit: cover; border: 2px solid transparent;">
+                  <button type="button" class="zoom-btn" onclick="openFabricZoom('82076B', '/images/RollerBlinds_Zstar_Fabric_Samples/Semi_Blackout/82076B_semi-blackout.png', event)" title="Zoom">🔍</button>
+                </div>
+                <span style="font-size: 10px; color: #5C4A3A; display: block; margin-top: 4px;">82076B</span>
               </div>
-              <div class="fabric-swatch" data-color="82076C" data-code="82076C" onclick="selectFabricSwatch(this)" style="width: 140px; height: 140px; border-radius: 8px; overflow: hidden; cursor: pointer; border: 2px solid #E5E5E5; box-shadow: 0 2px 6px rgba(0,0,0,0.1); position: relative;">
-                <img src="/images/fabrics/swatches/82076C.jpg" alt="82076C" style="width: 100%; height: 100%; object-fit: cover;">
-                <span style="position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.75); color: white; font-size: 14px; padding: 4px; text-align: center; font-weight: 500;">82076C</span>
+              <div class="fabric-swatch" data-code="82076C" onclick="selectFabricSwatch(this, event)" style="width: 90px; text-align: center; cursor: pointer; position: relative;">
+                <div class="swatch-img-container">
+                  <img src="/images/RollerBlinds_Zstar_Fabric_Samples/Semi_Blackout/82076C_semi-blackout.png" alt="82076C" style="width: 75px; height: 75px; border-radius: 8px; object-fit: cover; border: 2px solid transparent;">
+                  <button type="button" class="zoom-btn" onclick="openFabricZoom('82076C', '/images/RollerBlinds_Zstar_Fabric_Samples/Semi_Blackout/82076C_semi-blackout.png', event)" title="Zoom">🔍</button>
+                </div>
+                <span style="font-size: 10px; color: #5C4A3A; display: block; margin-top: 4px;">82076C</span>
               </div>
-              <div class="fabric-swatch" data-color="82076D" data-code="82076D" onclick="selectFabricSwatch(this)" style="width: 140px; height: 140px; border-radius: 8px; overflow: hidden; cursor: pointer; border: 2px solid #E5E5E5; box-shadow: 0 2px 6px rgba(0,0,0,0.1); position: relative;">
-                <img src="/images/fabrics/swatches/82076D.jpg" alt="82076D" style="width: 100%; height: 100%; object-fit: cover;">
-                <span style="position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.75); color: white; font-size: 14px; padding: 4px; text-align: center; font-weight: 500;">82076D</span>
+              <div class="fabric-swatch" data-code="82076D" onclick="selectFabricSwatch(this, event)" style="width: 90px; text-align: center; cursor: pointer; position: relative;">
+                <div class="swatch-img-container">
+                  <img src="/images/RollerBlinds_Zstar_Fabric_Samples/Semi_Blackout/82076D_semi-blackout.png" alt="82076D" style="width: 75px; height: 75px; border-radius: 8px; object-fit: cover; border: 2px solid transparent;">
+                  <button type="button" class="zoom-btn" onclick="openFabricZoom('82076D', '/images/RollerBlinds_Zstar_Fabric_Samples/Semi_Blackout/82076D_semi-blackout.png', event)" title="Zoom">🔍</button>
+                </div>
+                <span style="font-size: 10px; color: #5C4A3A; display: block; margin-top: 4px;">82076D</span>
               </div>
-              <div class="fabric-swatch" data-color="82132A" data-code="82132A" onclick="selectFabricSwatch(this)" style="width: 140px; height: 140px; border-radius: 8px; overflow: hidden; cursor: pointer; border: 2px solid #E5E5E5; box-shadow: 0 2px 6px rgba(0,0,0,0.1); position: relative;">
-                <img src="/images/fabrics/swatches/82132A.jpg" alt="82132A" style="width: 100%; height: 100%; object-fit: cover;">
-                <span style="position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.75); color: white; font-size: 14px; padding: 4px; text-align: center; font-weight: 500;">82132A</span>
+              <div class="fabric-swatch" data-code="82132A" onclick="selectFabricSwatch(this, event)" style="width: 90px; text-align: center; cursor: pointer; position: relative;">
+                <div class="swatch-img-container">
+                  <img src="/images/RollerBlinds_Zstar_Fabric_Samples/Semi_Blackout/82132A_semi-blackout.png" alt="82132A" style="width: 75px; height: 75px; border-radius: 8px; object-fit: cover; border: 2px solid transparent;">
+                  <button type="button" class="zoom-btn" onclick="openFabricZoom('82132A', '/images/RollerBlinds_Zstar_Fabric_Samples/Semi_Blackout/82132A_semi-blackout.png', event)" title="Zoom">🔍</button>
+                </div>
+                <span style="font-size: 10px; color: #5C4A3A; display: block; margin-top: 4px;">82132A</span>
               </div>
-              <div class="fabric-swatch" data-color="82132B" data-code="82132B" onclick="selectFabricSwatch(this)" style="width: 140px; height: 140px; border-radius: 8px; overflow: hidden; cursor: pointer; border: 2px solid #E5E5E5; box-shadow: 0 2px 6px rgba(0,0,0,0.1); position: relative;">
-                <img src="/images/fabrics/swatches/82132B.jpg" alt="82132B" style="width: 100%; height: 100%; object-fit: cover;">
-                <span style="position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.75); color: white; font-size: 14px; padding: 4px; text-align: center; font-weight: 500;">82132B</span>
+              <div class="fabric-swatch" data-code="82132B" onclick="selectFabricSwatch(this, event)" style="width: 90px; text-align: center; cursor: pointer; position: relative;">
+                <div class="swatch-img-container">
+                  <img src="/images/RollerBlinds_Zstar_Fabric_Samples/Semi_Blackout/82132B_semi-blackout.png" alt="82132B" style="width: 75px; height: 75px; border-radius: 8px; object-fit: cover; border: 2px solid transparent;">
+                  <button type="button" class="zoom-btn" onclick="openFabricZoom('82132B', '/images/RollerBlinds_Zstar_Fabric_Samples/Semi_Blackout/82132B_semi-blackout.png', event)" title="Zoom">🔍</button>
+                </div>
+                <span style="font-size: 10px; color: #5C4A3A; display: block; margin-top: 4px;">82132B</span>
               </div>
-              <div class="fabric-swatch" data-color="82132C" data-code="82132C" onclick="selectFabricSwatch(this)" style="width: 140px; height: 140px; border-radius: 8px; overflow: hidden; cursor: pointer; border: 2px solid #E5E5E5; box-shadow: 0 2px 6px rgba(0,0,0,0.1); position: relative;">
-                <img src="/images/fabrics/swatches/82132C.jpg" alt="82132C" style="width: 100%; height: 100%; object-fit: cover;">
-                <span style="position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.75); color: white; font-size: 14px; padding: 4px; text-align: center; font-weight: 500;">82132C</span>
+              <div class="fabric-swatch" data-code="82132C" onclick="selectFabricSwatch(this, event)" style="width: 90px; text-align: center; cursor: pointer; position: relative;">
+                <div class="swatch-img-container">
+                  <img src="/images/RollerBlinds_Zstar_Fabric_Samples/Semi_Blackout/82132C_semi-blackout.png" alt="82132C" style="width: 75px; height: 75px; border-radius: 8px; object-fit: cover; border: 2px solid transparent;">
+                  <button type="button" class="zoom-btn" onclick="openFabricZoom('82132C', '/images/RollerBlinds_Zstar_Fabric_Samples/Semi_Blackout/82132C_semi-blackout.png', event)" title="Zoom">🔍</button>
+                </div>
+                <span style="font-size: 10px; color: #5C4A3A; display: block; margin-top: 4px;">82132C</span>
+              </div>
+              <div class="fabric-swatch" data-code="82167A" onclick="selectFabricSwatch(this, event)" style="width: 90px; text-align: center; cursor: pointer; position: relative;">
+                <div class="swatch-img-container">
+                  <img src="/images/RollerBlinds_Zstar_Fabric_Samples/Semi_Blackout/82167A_semi-blackout.png" alt="82167A" style="width: 75px; height: 75px; border-radius: 8px; object-fit: cover; border: 2px solid transparent;">
+                  <button type="button" class="zoom-btn" onclick="openFabricZoom('82167A', '/images/RollerBlinds_Zstar_Fabric_Samples/Semi_Blackout/82167A_semi-blackout.png', event)" title="Zoom">🔍</button>
+                </div>
+                <span style="font-size: 10px; color: #5C4A3A; display: block; margin-top: 4px;">82167A</span>
+              </div>
+              <div class="fabric-swatch" data-code="82167B" onclick="selectFabricSwatch(this, event)" style="width: 90px; text-align: center; cursor: pointer; position: relative;">
+                <div class="swatch-img-container">
+                  <img src="/images/RollerBlinds_Zstar_Fabric_Samples/Semi_Blackout/82167B_semi-blackout.png" alt="82167B" style="width: 75px; height: 75px; border-radius: 8px; object-fit: cover; border: 2px solid transparent;">
+                  <button type="button" class="zoom-btn" onclick="openFabricZoom('82167B', '/images/RollerBlinds_Zstar_Fabric_Samples/Semi_Blackout/82167B_semi-blackout.png', event)" title="Zoom">🔍</button>
+                </div>
+                <span style="font-size: 10px; color: #5C4A3A; display: block; margin-top: 4px;">82167B</span>
+              </div>
+              <div class="fabric-swatch" data-code="82167C" onclick="selectFabricSwatch(this, event)" style="width: 90px; text-align: center; cursor: pointer; position: relative;">
+                <div class="swatch-img-container">
+                  <img src="/images/RollerBlinds_Zstar_Fabric_Samples/Semi_Blackout/82167C_semi-blackout.png" alt="82167C" style="width: 75px; height: 75px; border-radius: 8px; object-fit: cover; border: 2px solid transparent;">
+                  <button type="button" class="zoom-btn" onclick="openFabricZoom('82167C', '/images/RollerBlinds_Zstar_Fabric_Samples/Semi_Blackout/82167C_semi-blackout.png', event)" title="Zoom">🔍</button>
+                </div>
+                <span style="font-size: 10px; color: #5C4A3A; display: block; margin-top: 4px;">82167C</span>
+              </div>
+              <div class="fabric-swatch" data-code="82167D" onclick="selectFabricSwatch(this, event)" style="width: 90px; text-align: center; cursor: pointer; position: relative;">
+                <div class="swatch-img-container">
+                  <img src="/images/RollerBlinds_Zstar_Fabric_Samples/Semi_Blackout/82167D_semi-blackout.png" alt="82167D" style="width: 75px; height: 75px; border-radius: 8px; object-fit: cover; border: 2px solid transparent;">
+                  <button type="button" class="zoom-btn" onclick="openFabricZoom('82167D', '/images/RollerBlinds_Zstar_Fabric_Samples/Semi_Blackout/82167D_semi-blackout.png', event)" title="Zoom">🔍</button>
+                </div>
+                <span style="font-size: 10px; color: #5C4A3A; display: block; margin-top: 4px;">82167D</span>
+              </div>
+              <div class="fabric-swatch" data-code="82167E" onclick="selectFabricSwatch(this, event)" style="width: 90px; text-align: center; cursor: pointer; position: relative;">
+                <div class="swatch-img-container">
+                  <img src="/images/RollerBlinds_Zstar_Fabric_Samples/Semi_Blackout/82167E_semi-blackout.png" alt="82167E" style="width: 75px; height: 75px; border-radius: 8px; object-fit: cover; border: 2px solid transparent;">
+                  <button type="button" class="zoom-btn" onclick="openFabricZoom('82167E', '/images/RollerBlinds_Zstar_Fabric_Samples/Semi_Blackout/82167E_semi-blackout.png', event)" title="Zoom">🔍</button>
+                </div>
+                <span style="font-size: 10px; color: #5C4A3A; display: block; margin-top: 4px;">82167E</span>
               </div>
             </div>
 
-            <!-- Transparent Fabrics - hidden by default -->
+            <!-- Transparent/Light Filtering Fabrics -->
             <div class="swatch-row fabric-group" id="transparentFabrics" style="display: none; flex-wrap: wrap; gap: 10px; max-height: 450px; overflow-y: auto; padding: 10px; border: 1px solid #E8E4E0; border-radius: 8px; scrollbar-width: thin; scrollbar-color: #8E6545 #F5F0EB;">
-              <div class="fabric-swatch" data-color="82132D" data-code="82132D" onclick="selectFabricSwatch(this)" style="width: 140px; height: 140px; border-radius: 8px; overflow: hidden; cursor: pointer; border: 2px solid #E5E5E5; box-shadow: 0 2px 6px rgba(0,0,0,0.1); position: relative;">
-                <img src="/images/fabrics/swatches/82132D.jpg" alt="82132D" style="width: 100%; height: 100%; object-fit: cover;">
-                <span style="position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.75); color: white; font-size: 14px; padding: 4px; text-align: center; font-weight: 500;">82132D</span>
+              <div class="fabric-swatch" data-code="82132D" onclick="selectFabricSwatch(this, event)" style="width: 90px; text-align: center; cursor: pointer; position: relative;">
+                <div class="swatch-img-container">
+                  <img src="/images/RollerBlinds_Zstar_Fabric_Samples/Transparent/82132D_transparent.png" alt="82132D" style="width: 75px; height: 75px; border-radius: 8px; object-fit: cover; border: 2px solid transparent;">
+                  <button type="button" class="zoom-btn" onclick="openFabricZoom('82132D', '/images/RollerBlinds_Zstar_Fabric_Samples/Transparent/82132D_transparent.png', event)" title="Zoom">🔍</button>
+                </div>
+                <span style="font-size: 10px; color: #5C4A3A; display: block; margin-top: 4px;">82132D</span>
               </div>
-              <div class="fabric-swatch" data-color="82132E" data-code="82132E" onclick="selectFabricSwatch(this)" style="width: 140px; height: 140px; border-radius: 8px; overflow: hidden; cursor: pointer; border: 2px solid #E5E5E5; box-shadow: 0 2px 6px rgba(0,0,0,0.1); position: relative;">
-                <img src="/images/fabrics/swatches/82132E.jpg" alt="82132E" style="width: 100%; height: 100%; object-fit: cover;">
-                <span style="position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.75); color: white; font-size: 14px; padding: 4px; text-align: center; font-weight: 500;">82132E</span>
+              <div class="fabric-swatch" data-code="82132E" onclick="selectFabricSwatch(this, event)" style="width: 90px; text-align: center; cursor: pointer; position: relative;">
+                <div class="swatch-img-container">
+                  <img src="/images/RollerBlinds_Zstar_Fabric_Samples/Transparent/82132E_transparent.png" alt="82132E" style="width: 75px; height: 75px; border-radius: 8px; object-fit: cover; border: 2px solid transparent;">
+                  <button type="button" class="zoom-btn" onclick="openFabricZoom('82132E', '/images/RollerBlinds_Zstar_Fabric_Samples/Transparent/82132E_transparent.png', event)" title="Zoom">🔍</button>
+                </div>
+                <span style="font-size: 10px; color: #5C4A3A; display: block; margin-top: 4px;">82132E</span>
               </div>
-              <div class="fabric-swatch" data-color="82132F" data-code="82132F" onclick="selectFabricSwatch(this)" style="width: 140px; height: 140px; border-radius: 8px; overflow: hidden; cursor: pointer; border: 2px solid #E5E5E5; box-shadow: 0 2px 6px rgba(0,0,0,0.1); position: relative;">
-                <img src="/images/fabrics/swatches/82132F.jpg" alt="82132F" style="width: 100%; height: 100%; object-fit: cover;">
-                <span style="position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.75); color: white; font-size: 14px; padding: 4px; text-align: center; font-weight: 500;">82132F</span>
+              <div class="fabric-swatch" data-code="82132F" onclick="selectFabricSwatch(this, event)" style="width: 90px; text-align: center; cursor: pointer; position: relative;">
+                <div class="swatch-img-container">
+                  <img src="/images/RollerBlinds_Zstar_Fabric_Samples/Transparent/82132F_transparent.png" alt="82132F" style="width: 75px; height: 75px; border-radius: 8px; object-fit: cover; border: 2px solid transparent;">
+                  <button type="button" class="zoom-btn" onclick="openFabricZoom('82132F', '/images/RollerBlinds_Zstar_Fabric_Samples/Transparent/82132F_transparent.png', event)" title="Zoom">🔍</button>
+                </div>
+                <span style="font-size: 10px; color: #5C4A3A; display: block; margin-top: 4px;">82132F</span>
               </div>
-              <div class="fabric-swatch" data-color="82132G" data-code="82132G" onclick="selectFabricSwatch(this)" style="width: 140px; height: 140px; border-radius: 8px; overflow: hidden; cursor: pointer; border: 2px solid #E5E5E5; box-shadow: 0 2px 6px rgba(0,0,0,0.1); position: relative;">
-                <img src="/images/fabrics/swatches/82132G.jpg" alt="82132G" style="width: 100%; height: 100%; object-fit: cover;">
-                <span style="position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.75); color: white; font-size: 14px; padding: 4px; text-align: center; font-weight: 500;">82132G</span>
+              <div class="fabric-swatch" data-code="82132G" onclick="selectFabricSwatch(this, event)" style="width: 90px; text-align: center; cursor: pointer; position: relative;">
+                <div class="swatch-img-container">
+                  <img src="/images/RollerBlinds_Zstar_Fabric_Samples/Transparent/82132G_transparent.png" alt="82132G" style="width: 75px; height: 75px; border-radius: 8px; object-fit: cover; border: 2px solid transparent;">
+                  <button type="button" class="zoom-btn" onclick="openFabricZoom('82132G', '/images/RollerBlinds_Zstar_Fabric_Samples/Transparent/82132G_transparent.png', event)" title="Zoom">🔍</button>
+                </div>
+                <span style="font-size: 10px; color: #5C4A3A; display: block; margin-top: 4px;">82132G</span>
               </div>
-              <div class="fabric-swatch" data-color="82132H" data-code="82132H" onclick="selectFabricSwatch(this)" style="width: 140px; height: 140px; border-radius: 8px; overflow: hidden; cursor: pointer; border: 2px solid #E5E5E5; box-shadow: 0 2px 6px rgba(0,0,0,0.1); position: relative;">
-                <img src="/images/fabrics/swatches/82132H.jpg" alt="82132H" style="width: 100%; height: 100%; object-fit: cover;">
-                <span style="position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.75); color: white; font-size: 14px; padding: 4px; text-align: center; font-weight: 500;">82132H</span>
+              <div class="fabric-swatch" data-code="82132H" onclick="selectFabricSwatch(this, event)" style="width: 90px; text-align: center; cursor: pointer; position: relative;">
+                <div class="swatch-img-container">
+                  <img src="/images/RollerBlinds_Zstar_Fabric_Samples/Transparent/82132H_transparent.png" alt="82132H" style="width: 75px; height: 75px; border-radius: 8px; object-fit: cover; border: 2px solid transparent;">
+                  <button type="button" class="zoom-btn" onclick="openFabricZoom('82132H', '/images/RollerBlinds_Zstar_Fabric_Samples/Transparent/82132H_transparent.png', event)" title="Zoom">🔍</button>
+                </div>
+                <span style="font-size: 10px; color: #5C4A3A; display: block; margin-top: 4px;">82132H</span>
               </div>
-              <div class="fabric-swatch" data-color="82141A" data-code="82141A" onclick="selectFabricSwatch(this)" style="width: 140px; height: 140px; border-radius: 8px; overflow: hidden; cursor: pointer; border: 2px solid #E5E5E5; box-shadow: 0 2px 6px rgba(0,0,0,0.1); position: relative;">
-                <img src="/images/fabrics/swatches/82141A.jpg" alt="82141A" style="width: 100%; height: 100%; object-fit: cover;">
-                <span style="position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.75); color: white; font-size: 14px; padding: 4px; text-align: center; font-weight: 500;">82141A</span>
+              <div class="fabric-swatch" data-code="82141A" onclick="selectFabricSwatch(this, event)" style="width: 90px; text-align: center; cursor: pointer; position: relative;">
+                <div class="swatch-img-container">
+                  <img src="/images/RollerBlinds_Zstar_Fabric_Samples/Transparent/82141A_transparent.png" alt="82141A" style="width: 75px; height: 75px; border-radius: 8px; object-fit: cover; border: 2px solid transparent;">
+                  <button type="button" class="zoom-btn" onclick="openFabricZoom('82141A', '/images/RollerBlinds_Zstar_Fabric_Samples/Transparent/82141A_transparent.png', event)" title="Zoom">🔍</button>
+                </div>
+                <span style="font-size: 10px; color: #5C4A3A; display: block; margin-top: 4px;">82141A</span>
               </div>
-              <div class="fabric-swatch" data-color="82141B" data-code="82141B" onclick="selectFabricSwatch(this)" style="width: 140px; height: 140px; border-radius: 8px; overflow: hidden; cursor: pointer; border: 2px solid #E5E5E5; box-shadow: 0 2px 6px rgba(0,0,0,0.1); position: relative;">
-                <img src="/images/fabrics/swatches/82141B.jpg" alt="82141B" style="width: 100%; height: 100%; object-fit: cover;">
-                <span style="position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.75); color: white; font-size: 14px; padding: 4px; text-align: center; font-weight: 500;">82141B</span>
+              <div class="fabric-swatch" data-code="82141B" onclick="selectFabricSwatch(this, event)" style="width: 90px; text-align: center; cursor: pointer; position: relative;">
+                <div class="swatch-img-container">
+                  <img src="/images/RollerBlinds_Zstar_Fabric_Samples/Transparent/82141B_transparent.png" alt="82141B" style="width: 75px; height: 75px; border-radius: 8px; object-fit: cover; border: 2px solid transparent;">
+                  <button type="button" class="zoom-btn" onclick="openFabricZoom('82141B', '/images/RollerBlinds_Zstar_Fabric_Samples/Transparent/82141B_transparent.png', event)" title="Zoom">🔍</button>
+                </div>
+                <span style="font-size: 10px; color: #5C4A3A; display: block; margin-top: 4px;">82141B</span>
               </div>
-              <div class="fabric-swatch" data-color="82141C" data-code="82141C" onclick="selectFabricSwatch(this)" style="width: 140px; height: 140px; border-radius: 8px; overflow: hidden; cursor: pointer; border: 2px solid #E5E5E5; box-shadow: 0 2px 6px rgba(0,0,0,0.1); position: relative;">
-                <img src="/images/fabrics/swatches/82141C.jpg" alt="82141C" style="width: 100%; height: 100%; object-fit: cover;">
-                <span style="position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.75); color: white; font-size: 14px; padding: 4px; text-align: center; font-weight: 500;">82141C</span>
+              <div class="fabric-swatch" data-code="82141C" onclick="selectFabricSwatch(this, event)" style="width: 90px; text-align: center; cursor: pointer; position: relative;">
+                <div class="swatch-img-container">
+                  <img src="/images/RollerBlinds_Zstar_Fabric_Samples/Transparent/82141C_transparent.png" alt="82141C" style="width: 75px; height: 75px; border-radius: 8px; object-fit: cover; border: 2px solid transparent;">
+                  <button type="button" class="zoom-btn" onclick="openFabricZoom('82141C', '/images/RollerBlinds_Zstar_Fabric_Samples/Transparent/82141C_transparent.png', event)" title="Zoom">🔍</button>
+                </div>
+                <span style="font-size: 10px; color: #5C4A3A; display: block; margin-top: 4px;">82141C</span>
               </div>
-              <div class="fabric-swatch" data-color="82141D" data-code="82141D" onclick="selectFabricSwatch(this)" style="width: 140px; height: 140px; border-radius: 8px; overflow: hidden; cursor: pointer; border: 2px solid #E5E5E5; box-shadow: 0 2px 6px rgba(0,0,0,0.1); position: relative;">
-                <img src="/images/fabrics/swatches/82141D.jpg" alt="82141D" style="width: 100%; height: 100%; object-fit: cover;">
-                <span style="position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.75); color: white; font-size: 14px; padding: 4px; text-align: center; font-weight: 500;">82141D</span>
+              <div class="fabric-swatch" data-code="82141D" onclick="selectFabricSwatch(this, event)" style="width: 90px; text-align: center; cursor: pointer; position: relative;">
+                <div class="swatch-img-container">
+                  <img src="/images/RollerBlinds_Zstar_Fabric_Samples/Transparent/82141D_transparent.png" alt="82141D" style="width: 75px; height: 75px; border-radius: 8px; object-fit: cover; border: 2px solid transparent;">
+                  <button type="button" class="zoom-btn" onclick="openFabricZoom('82141D', '/images/RollerBlinds_Zstar_Fabric_Samples/Transparent/82141D_transparent.png', event)" title="Zoom">🔍</button>
+                </div>
+                <span style="font-size: 10px; color: #5C4A3A; display: block; margin-top: 4px;">82141D</span>
               </div>
-              <div class="fabric-swatch" data-color="82181A" data-code="82181A" onclick="selectFabricSwatch(this)" style="width: 140px; height: 140px; border-radius: 8px; overflow: hidden; cursor: pointer; border: 2px solid #E5E5E5; box-shadow: 0 2px 6px rgba(0,0,0,0.1); position: relative;">
-                <img src="/images/fabrics/swatches/82181A.jpg" alt="82181A" style="width: 100%; height: 100%; object-fit: cover;">
-                <span style="position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.75); color: white; font-size: 14px; padding: 4px; text-align: center; font-weight: 500;">82181A</span>
+              <div class="fabric-swatch" data-code="82181A" onclick="selectFabricSwatch(this, event)" style="width: 90px; text-align: center; cursor: pointer; position: relative;">
+                <div class="swatch-img-container">
+                  <img src="/images/RollerBlinds_Zstar_Fabric_Samples/Transparent/82181A_transparent.png" alt="82181A" style="width: 75px; height: 75px; border-radius: 8px; object-fit: cover; border: 2px solid transparent;">
+                  <button type="button" class="zoom-btn" onclick="openFabricZoom('82181A', '/images/RollerBlinds_Zstar_Fabric_Samples/Transparent/82181A_transparent.png', event)" title="Zoom">🔍</button>
+                </div>
+                <span style="font-size: 10px; color: #5C4A3A; display: block; margin-top: 4px;">82181A</span>
               </div>
-              <div class="fabric-swatch" data-color="82181B" data-code="82181B" onclick="selectFabricSwatch(this)" style="width: 140px; height: 140px; border-radius: 8px; overflow: hidden; cursor: pointer; border: 2px solid #E5E5E5; box-shadow: 0 2px 6px rgba(0,0,0,0.1); position: relative;">
-                <img src="/images/fabrics/swatches/82181B.jpg" alt="82181B" style="width: 100%; height: 100%; object-fit: cover;">
-                <span style="position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.75); color: white; font-size: 14px; padding: 4px; text-align: center; font-weight: 500;">82181B</span>
+              <div class="fabric-swatch" data-code="82181B" onclick="selectFabricSwatch(this, event)" style="width: 90px; text-align: center; cursor: pointer; position: relative;">
+                <div class="swatch-img-container">
+                  <img src="/images/RollerBlinds_Zstar_Fabric_Samples/Transparent/82181B_transparent.png" alt="82181B" style="width: 75px; height: 75px; border-radius: 8px; object-fit: cover; border: 2px solid transparent;">
+                  <button type="button" class="zoom-btn" onclick="openFabricZoom('82181B', '/images/RollerBlinds_Zstar_Fabric_Samples/Transparent/82181B_transparent.png', event)" title="Zoom">🔍</button>
+                </div>
+                <span style="font-size: 10px; color: #5C4A3A; display: block; margin-top: 4px;">82181B</span>
               </div>
-              <div class="fabric-swatch" data-color="82181C" data-code="82181C" onclick="selectFabricSwatch(this)" style="width: 140px; height: 140px; border-radius: 8px; overflow: hidden; cursor: pointer; border: 2px solid #E5E5E5; box-shadow: 0 2px 6px rgba(0,0,0,0.1); position: relative;">
-                <img src="/images/fabrics/swatches/82181C.jpg" alt="82181C" style="width: 100%; height: 100%; object-fit: cover;">
-                <span style="position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.75); color: white; font-size: 14px; padding: 4px; text-align: center; font-weight: 500;">82181C</span>
+              <div class="fabric-swatch" data-code="82181C" onclick="selectFabricSwatch(this, event)" style="width: 90px; text-align: center; cursor: pointer; position: relative;">
+                <div class="swatch-img-container">
+                  <img src="/images/RollerBlinds_Zstar_Fabric_Samples/Transparent/82181C_transparent.png" alt="82181C" style="width: 75px; height: 75px; border-radius: 8px; object-fit: cover; border: 2px solid transparent;">
+                  <button type="button" class="zoom-btn" onclick="openFabricZoom('82181C', '/images/RollerBlinds_Zstar_Fabric_Samples/Transparent/82181C_transparent.png', event)" title="Zoom">🔍</button>
+                </div>
+                <span style="font-size: 10px; color: #5C4A3A; display: block; margin-top: 4px;">82181C</span>
               </div>
-              <div class="fabric-swatch" data-color="82181D" data-code="82181D" onclick="selectFabricSwatch(this)" style="width: 140px; height: 140px; border-radius: 8px; overflow: hidden; cursor: pointer; border: 2px solid #E5E5E5; box-shadow: 0 2px 6px rgba(0,0,0,0.1); position: relative;">
-                <img src="/images/fabrics/swatches/82181D.jpg" alt="82181D" style="width: 100%; height: 100%; object-fit: cover;">
-                <span style="position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.75); color: white; font-size: 14px; padding: 4px; text-align: center; font-weight: 500;">82181D</span>
+              <div class="fabric-swatch" data-code="82181D" onclick="selectFabricSwatch(this, event)" style="width: 90px; text-align: center; cursor: pointer; position: relative;">
+                <div class="swatch-img-container">
+                  <img src="/images/RollerBlinds_Zstar_Fabric_Samples/Transparent/82181D_transparent.png" alt="82181D" style="width: 75px; height: 75px; border-radius: 8px; object-fit: cover; border: 2px solid transparent;">
+                  <button type="button" class="zoom-btn" onclick="openFabricZoom('82181D', '/images/RollerBlinds_Zstar_Fabric_Samples/Transparent/82181D_transparent.png', event)" title="Zoom">🔍</button>
+                </div>
+                <span style="font-size: 10px; color: #5C4A3A; display: block; margin-top: 4px;">82181D</span>
               </div>
-              <div class="fabric-swatch" data-color="82181E" data-code="82181E" onclick="selectFabricSwatch(this)" style="width: 140px; height: 140px; border-radius: 8px; overflow: hidden; cursor: pointer; border: 2px solid #E5E5E5; box-shadow: 0 2px 6px rgba(0,0,0,0.1); position: relative;">
-                <img src="/images/fabrics/swatches/82181E.jpg" alt="82181E" style="width: 100%; height: 100%; object-fit: cover;">
-                <span style="position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.75); color: white; font-size: 14px; padding: 4px; text-align: center; font-weight: 500;">82181E</span>
+              <div class="fabric-swatch" data-code="82181E" onclick="selectFabricSwatch(this, event)" style="width: 90px; text-align: center; cursor: pointer; position: relative;">
+                <div class="swatch-img-container">
+                  <img src="/images/RollerBlinds_Zstar_Fabric_Samples/Transparent/82181E_transparent.png" alt="82181E" style="width: 75px; height: 75px; border-radius: 8px; object-fit: cover; border: 2px solid transparent;">
+                  <button type="button" class="zoom-btn" onclick="openFabricZoom('82181E', '/images/RollerBlinds_Zstar_Fabric_Samples/Transparent/82181E_transparent.png', event)" title="Zoom">🔍</button>
+                </div>
+                <span style="font-size: 10px; color: #5C4A3A; display: block; margin-top: 4px;">82181E</span>
               </div>
-            
+            </div>
+
+            <!-- Super Blackout Fabrics -->
+            <div class="swatch-row fabric-group" id="superBlackoutFabrics" style="display: none; flex-wrap: wrap; gap: 10px; max-height: 450px; overflow-y: auto; padding: 10px; border: 1px solid #E8E4E0; border-radius: 8px; scrollbar-width: thin; scrollbar-color: #8E6545 #F5F0EB;">
+              <div class="fabric-swatch" data-code="82133A" onclick="selectFabricSwatch(this, event)" style="width: 90px; text-align: center; cursor: pointer; position: relative;">
+                <div class="swatch-img-container">
+                  <img src="/images/RollerBlinds_Zstar_Fabric_Samples/Super_Blackout/82133A_super-blackout.png" alt="82133A" style="width: 75px; height: 75px; border-radius: 8px; object-fit: cover; border: 2px solid transparent;">
+                  <button type="button" class="zoom-btn" onclick="openFabricZoom('82133A', '/images/RollerBlinds_Zstar_Fabric_Samples/Super_Blackout/82133A_super-blackout.png', event)" title="Zoom">🔍</button>
+                </div>
+                <span style="font-size: 10px; color: #5C4A3A; display: block; margin-top: 4px;">82133A</span>
+              </div>
+              <div class="fabric-swatch" data-code="82133B" onclick="selectFabricSwatch(this, event)" style="width: 90px; text-align: center; cursor: pointer; position: relative;">
+                <div class="swatch-img-container">
+                  <img src="/images/RollerBlinds_Zstar_Fabric_Samples/Super_Blackout/82133B_super-blackout.png" alt="82133B" style="width: 75px; height: 75px; border-radius: 8px; object-fit: cover; border: 2px solid transparent;">
+                  <button type="button" class="zoom-btn" onclick="openFabricZoom('82133B', '/images/RollerBlinds_Zstar_Fabric_Samples/Super_Blackout/82133B_super-blackout.png', event)" title="Zoom">🔍</button>
+                </div>
+                <span style="font-size: 10px; color: #5C4A3A; display: block; margin-top: 4px;">82133B</span>
+              </div>
+              <div class="fabric-swatch" data-code="82133C" onclick="selectFabricSwatch(this, event)" style="width: 90px; text-align: center; cursor: pointer; position: relative;">
+                <div class="swatch-img-container">
+                  <img src="/images/RollerBlinds_Zstar_Fabric_Samples/Super_Blackout/82133C_super-blackout.png" alt="82133C" style="width: 75px; height: 75px; border-radius: 8px; object-fit: cover; border: 2px solid transparent;">
+                  <button type="button" class="zoom-btn" onclick="openFabricZoom('82133C', '/images/RollerBlinds_Zstar_Fabric_Samples/Super_Blackout/82133C_super-blackout.png', event)" title="Zoom">🔍</button>
+                </div>
+                <span style="font-size: 10px; color: #5C4A3A; display: block; margin-top: 4px;">82133C</span>
+              </div>
+              <div class="fabric-swatch" data-code="82133D" onclick="selectFabricSwatch(this, event)" style="width: 90px; text-align: center; cursor: pointer; position: relative;">
+                <div class="swatch-img-container">
+                  <img src="/images/RollerBlinds_Zstar_Fabric_Samples/Super_Blackout/82133D_super-blackout.png" alt="82133D" style="width: 75px; height: 75px; border-radius: 8px; object-fit: cover; border: 2px solid transparent;">
+                  <button type="button" class="zoom-btn" onclick="openFabricZoom('82133D', '/images/RollerBlinds_Zstar_Fabric_Samples/Super_Blackout/82133D_super-blackout.png', event)" title="Zoom">🔍</button>
+                </div>
+                <span style="font-size: 10px; color: #5C4A3A; display: block; margin-top: 4px;">82133D</span>
+              </div>
+              <div class="fabric-swatch" data-code="82133E" onclick="selectFabricSwatch(this, event)" style="width: 90px; text-align: center; cursor: pointer; position: relative;">
+                <div class="swatch-img-container">
+                  <img src="/images/RollerBlinds_Zstar_Fabric_Samples/Super_Blackout/82133E_super-blackout.png" alt="82133E" style="width: 75px; height: 75px; border-radius: 8px; object-fit: cover; border: 2px solid transparent;">
+                  <button type="button" class="zoom-btn" onclick="openFabricZoom('82133E', '/images/RollerBlinds_Zstar_Fabric_Samples/Super_Blackout/82133E_super-blackout.png', event)" title="Zoom">🔍</button>
+                </div>
+                <span style="font-size: 10px; color: #5C4A3A; display: block; margin-top: 4px;">82133E</span>
+              </div>
+              <div class="fabric-swatch" data-code="82179A" onclick="selectFabricSwatch(this, event)" style="width: 90px; text-align: center; cursor: pointer; position: relative;">
+                <div class="swatch-img-container">
+                  <img src="/images/RollerBlinds_Zstar_Fabric_Samples/Super_Blackout/82179A_super-blackout.png" alt="82179A" style="width: 75px; height: 75px; border-radius: 8px; object-fit: cover; border: 2px solid transparent;">
+                  <button type="button" class="zoom-btn" onclick="openFabricZoom('82179A', '/images/RollerBlinds_Zstar_Fabric_Samples/Super_Blackout/82179A_super-blackout.png', event)" title="Zoom">🔍</button>
+                </div>
+                <span style="font-size: 10px; color: #5C4A3A; display: block; margin-top: 4px;">82179A</span>
+              </div>
+              <div class="fabric-swatch" data-code="82179B" onclick="selectFabricSwatch(this, event)" style="width: 90px; text-align: center; cursor: pointer; position: relative;">
+                <div class="swatch-img-container">
+                  <img src="/images/RollerBlinds_Zstar_Fabric_Samples/Super_Blackout/82179B_super-blackout.png" alt="82179B" style="width: 75px; height: 75px; border-radius: 8px; object-fit: cover; border: 2px solid transparent;">
+                  <button type="button" class="zoom-btn" onclick="openFabricZoom('82179B', '/images/RollerBlinds_Zstar_Fabric_Samples/Super_Blackout/82179B_super-blackout.png', event)" title="Zoom">🔍</button>
+                </div>
+                <span style="font-size: 10px; color: #5C4A3A; display: block; margin-top: 4px;">82179B</span>
+              </div>
+              <div class="fabric-swatch" data-code="82179C" onclick="selectFabricSwatch(this, event)" style="width: 90px; text-align: center; cursor: pointer; position: relative;">
+                <div class="swatch-img-container">
+                  <img src="/images/RollerBlinds_Zstar_Fabric_Samples/Super_Blackout/82179C_super-blackout.png" alt="82179C" style="width: 75px; height: 75px; border-radius: 8px; object-fit: cover; border: 2px solid transparent;">
+                  <button type="button" class="zoom-btn" onclick="openFabricZoom('82179C', '/images/RollerBlinds_Zstar_Fabric_Samples/Super_Blackout/82179C_super-blackout.png', event)" title="Zoom">🔍</button>
+                </div>
+                <span style="font-size: 10px; color: #5C4A3A; display: block; margin-top: 4px;">82179C</span>
+              </div>
+              <div class="fabric-swatch" data-code="82180A" onclick="selectFabricSwatch(this, event)" style="width: 90px; text-align: center; cursor: pointer; position: relative;">
+                <div class="swatch-img-container">
+                  <img src="/images/RollerBlinds_Zstar_Fabric_Samples/Super_Blackout/82180A_super-blackout.png" alt="82180A" style="width: 75px; height: 75px; border-radius: 8px; object-fit: cover; border: 2px solid transparent;">
+                  <button type="button" class="zoom-btn" onclick="openFabricZoom('82180A', '/images/RollerBlinds_Zstar_Fabric_Samples/Super_Blackout/82180A_super-blackout.png', event)" title="Zoom">🔍</button>
+                </div>
+                <span style="font-size: 10px; color: #5C4A3A; display: block; margin-top: 4px;">82180A</span>
+              </div>
+              <div class="fabric-swatch" data-code="82180B" onclick="selectFabricSwatch(this, event)" style="width: 90px; text-align: center; cursor: pointer; position: relative;">
+                <div class="swatch-img-container">
+                  <img src="/images/RollerBlinds_Zstar_Fabric_Samples/Super_Blackout/82180B_super-blackout.png" alt="82180B" style="width: 75px; height: 75px; border-radius: 8px; object-fit: cover; border: 2px solid transparent;">
+                  <button type="button" class="zoom-btn" onclick="openFabricZoom('82180B', '/images/RollerBlinds_Zstar_Fabric_Samples/Super_Blackout/82180B_super-blackout.png', event)" title="Zoom">🔍</button>
+                </div>
+                <span style="font-size: 10px; color: #5C4A3A; display: block; margin-top: 4px;">82180B</span>
+              </div>
+              <div class="fabric-swatch" data-code="82180C" onclick="selectFabricSwatch(this, event)" style="width: 90px; text-align: center; cursor: pointer; position: relative;">
+                <div class="swatch-img-container">
+                  <img src="/images/RollerBlinds_Zstar_Fabric_Samples/Super_Blackout/82180C_super-blackout.png" alt="82180C" style="width: 75px; height: 75px; border-radius: 8px; object-fit: cover; border: 2px solid transparent;">
+                  <button type="button" class="zoom-btn" onclick="openFabricZoom('82180C', '/images/RollerBlinds_Zstar_Fabric_Samples/Super_Blackout/82180C_super-blackout.png', event)" title="Zoom">🔍</button>
+                </div>
+                <span style="font-size: 10px; color: #5C4A3A; display: block; margin-top: 4px;">82180C</span>
+              </div>
+              <div class="fabric-swatch" data-code="82180D" onclick="selectFabricSwatch(this, event)" style="width: 90px; text-align: center; cursor: pointer; position: relative;">
+                <div class="swatch-img-container">
+                  <img src="/images/RollerBlinds_Zstar_Fabric_Samples/Super_Blackout/82180D_super-blackout.png" alt="82180D" style="width: 75px; height: 75px; border-radius: 8px; object-fit: cover; border: 2px solid transparent;">
+                  <button type="button" class="zoom-btn" onclick="openFabricZoom('82180D', '/images/RollerBlinds_Zstar_Fabric_Samples/Super_Blackout/82180D_super-blackout.png', event)" title="Zoom">🔍</button>
+                </div>
+                <span style="font-size: 10px; color: #5C4A3A; display: block; margin-top: 4px;">82180D</span>
+              </div>
+              <div class="fabric-swatch" data-code="82180E" onclick="selectFabricSwatch(this, event)" style="width: 90px; text-align: center; cursor: pointer; position: relative;">
+                <div class="swatch-img-container">
+                  <img src="/images/RollerBlinds_Zstar_Fabric_Samples/Super_Blackout/82180E_super-blackout.png" alt="82180E" style="width: 75px; height: 75px; border-radius: 8px; object-fit: cover; border: 2px solid transparent;">
+                  <button type="button" class="zoom-btn" onclick="openFabricZoom('82180E', '/images/RollerBlinds_Zstar_Fabric_Samples/Super_Blackout/82180E_super-blackout.png', event)" title="Zoom">🔍</button>
+                </div>
+                <span style="font-size: 10px; color: #5C4A3A; display: block; margin-top: 4px;">82180E</span>
+              </div>
+              <div class="fabric-swatch" data-code="82183A" onclick="selectFabricSwatch(this, event)" style="width: 90px; text-align: center; cursor: pointer; position: relative;">
+                <div class="swatch-img-container">
+                  <img src="/images/RollerBlinds_Zstar_Fabric_Samples/Super_Blackout/82183A_super-blackout.png" alt="82183A" style="width: 75px; height: 75px; border-radius: 8px; object-fit: cover; border: 2px solid transparent;">
+                  <button type="button" class="zoom-btn" onclick="openFabricZoom('82183A', '/images/RollerBlinds_Zstar_Fabric_Samples/Super_Blackout/82183A_super-blackout.png', event)" title="Zoom">🔍</button>
+                </div>
+                <span style="font-size: 10px; color: #5C4A3A; display: block; margin-top: 4px;">82183A</span>
+              </div>
+              <div class="fabric-swatch" data-code="82183B" onclick="selectFabricSwatch(this, event)" style="width: 90px; text-align: center; cursor: pointer; position: relative;">
+                <div class="swatch-img-container">
+                  <img src="/images/RollerBlinds_Zstar_Fabric_Samples/Super_Blackout/82183B_super-blackout.png" alt="82183B" style="width: 75px; height: 75px; border-radius: 8px; object-fit: cover; border: 2px solid transparent;">
+                  <button type="button" class="zoom-btn" onclick="openFabricZoom('82183B', '/images/RollerBlinds_Zstar_Fabric_Samples/Super_Blackout/82183B_super-blackout.png', event)" title="Zoom">🔍</button>
+                </div>
+                <span style="font-size: 10px; color: #5C4A3A; display: block; margin-top: 4px;">82183B</span>
+              </div>
+              <div class="fabric-swatch" data-code="82183C" onclick="selectFabricSwatch(this, event)" style="width: 90px; text-align: center; cursor: pointer; position: relative;">
+                <div class="swatch-img-container">
+                  <img src="/images/RollerBlinds_Zstar_Fabric_Samples/Super_Blackout/82183C_super-blackout.png" alt="82183C" style="width: 75px; height: 75px; border-radius: 8px; object-fit: cover; border: 2px solid transparent;">
+                  <button type="button" class="zoom-btn" onclick="openFabricZoom('82183C', '/images/RollerBlinds_Zstar_Fabric_Samples/Super_Blackout/82183C_super-blackout.png', event)" title="Zoom">🔍</button>
+                </div>
+                <span style="font-size: 10px; color: #5C4A3A; display: block; margin-top: 4px;">82183C</span>
+              </div>
+              <div class="fabric-swatch" data-code="82183D" onclick="selectFabricSwatch(this, event)" style="width: 90px; text-align: center; cursor: pointer; position: relative;">
+                <div class="swatch-img-container">
+                  <img src="/images/RollerBlinds_Zstar_Fabric_Samples/Super_Blackout/82183D_super-blackout.png" alt="82183D" style="width: 75px; height: 75px; border-radius: 8px; object-fit: cover; border: 2px solid transparent;">
+                  <button type="button" class="zoom-btn" onclick="openFabricZoom('82183D', '/images/RollerBlinds_Zstar_Fabric_Samples/Super_Blackout/82183D_super-blackout.png', event)" title="Zoom">🔍</button>
+                </div>
+                <span style="font-size: 10px; color: #5C4A3A; display: block; margin-top: 4px;">82183D</span>
+              </div>
+              <div class="fabric-swatch" data-code="82183E" onclick="selectFabricSwatch(this, event)" style="width: 90px; text-align: center; cursor: pointer; position: relative;">
+                <div class="swatch-img-container">
+                  <img src="/images/RollerBlinds_Zstar_Fabric_Samples/Super_Blackout/82183E_super-blackout.png" alt="82183E" style="width: 75px; height: 75px; border-radius: 8px; object-fit: cover; border: 2px solid transparent;">
+                  <button type="button" class="zoom-btn" onclick="openFabricZoom('82183E', '/images/RollerBlinds_Zstar_Fabric_Samples/Super_Blackout/82183E_super-blackout.png', event)" title="Zoom">🔍</button>
+                </div>
+                <span style="font-size: 10px; color: #5C4A3A; display: block; margin-top: 4px;">82183E</span>
+              </div>
             </div>
           </div>
         </div>
 
-        <!-- Hardware Type - Below Shade Style -->
-        <div class="accordion-section" data-name="hardwareType">
-          <button class="accordion-header" onclick="toggleAccordion(this.parentElement)">
-            <div class="accordion-header-left">
-              <span>Hardware Type</span>
-              <span class="accordion-selected" id="hardwareTypeValue"></span>
-            </div>
-            <span class="accordion-icon"></span>
-          </button>
-          <div class="accordion-body">
-            <!-- Technical Catalog Reference -->
-            <div class="hardware-group" style="margin-bottom: 24px; padding: 15px; background: #F6F1EB; border-radius: 8px;">
-              <span style="font-size: 13px; color: #8E6545; font-weight: 600;">Technical Specifications from Zstarr Catalog</span>
-              <p style="font-size: 12px; color: #666; margin-top: 5px;">View for <a href="/images/hardware/page-4.jpg" target="_blank" style="color: #8E6545; text-decoration: underline;">Valance Options</a> | <a href="/images/hardware/page-5.jpg" target="_blank" style="color: #8E6545; text-decoration: underline;">Bottom Rails</a> | <a href="/images/hardware/page-7.jpg" target="_blank" style="color: #8E6545; text-decoration: underline;">Control Systems</a></p>
-            </div>
-
-            <!-- Valance Type -->
-            <div class="hardware-group" style="margin-bottom: 24px;">
-              <span class="hardware-label" style="font-size: 15px; color: #333333; font-weight: 500; display: block; margin-bottom: 12px;">Valance Type</span>
-              <div class="hardware-swatches" id="cassetteSwatches" style="display: flex; gap: 20px; flex-wrap: wrap;">
-                <div class="hardware-option selected" data-value="square-v2" data-price="0" onclick="selectHardwareOption(this, 'cassette')" style="text-align: center; cursor: pointer;">
-                  <div style="width: 150px; height: 120px; border-radius: 8px; overflow: visible; border: 3px solid #8E6545; background: #f5f5f5; margin-bottom: 8px; display: flex; align-items: center; justify-content: center;">
-                    <img src="/images/hardware/square-v2.png" alt="Square V2" style="max-width: 100%; max-height: 100%; object-fit: contain;">
-                  </div>
-                  <span style="font-size: 12px; color: #666;">Square V2</span>
-                </div>
-                <div class="hardware-option" data-value="fabric-wrapped-v3" data-price="6.00" onclick="selectHardwareOption(this, 'cassette')" style="text-align: center; cursor: pointer;">
-                  <div style="width: 150px; height: 120px; border-radius: 8px; overflow: visible; border: 2px solid #E5E5E5; background: #f5f5f5; margin-bottom: 8px; display: flex; align-items: center; justify-content: center;">
-                    <img src="/images/hardware/fabric-wrapped-v3.png" alt="Fabric Wrapped V3" style="max-width: 100%; max-height: 100%; object-fit: contain;">
-                  </div>
-                  <span style="font-size: 12px; color: #666;">Fabric Wrapped V3<br>(+$6.00)</span>
-                </div>
-                <div class="hardware-option" data-value="fabric-inserted-s1" data-price="3.50" onclick="selectHardwareOption(this, 'cassette')" style="text-align: center; cursor: pointer;">
-                  <div style="width: 150px; height: 120px; border-radius: 8px; overflow: visible; border: 2px solid #E5E5E5; background: #f5f5f5; margin-bottom: 8px; display: flex; align-items: center; justify-content: center;">
-                    <img src="/images/hardware/fabric-inserted-s1.png" alt="Fabric Inserted S1" style="max-width: 100%; max-height: 100%; object-fit: contain;">
-                  </div>
-                  <span style="font-size: 12px; color: #666;">Fabric Inserted S1<br>(+$3.50)</span>
-                </div>
-                <div class="hardware-option" data-value="curve-white-s2" data-price="5.00" onclick="selectHardwareOption(this, 'cassette')" style="text-align: center; cursor: pointer;">
-                  <div style="width: 150px; height: 120px; border-radius: 8px; overflow: visible; border: 2px solid #E5E5E5; background: #f5f5f5; margin-bottom: 8px; display: flex; align-items: center; justify-content: center;">
-                    <img src="/images/hardware/curve-white-s2.png" alt="Curve White S2" style="max-width: 100%; max-height: 100%; object-fit: contain;">
-                  </div>
-                  <span style="font-size: 12px; color: #666;">Curve White S2<br>(+$5.00)</span>
-                </div>
-                <div class="hardware-option" data-value="fabric-wrapped-s3" data-price="5.50" onclick="selectHardwareOption(this, 'cassette')" style="text-align: center; cursor: pointer;">
-                  <div style="width: 150px; height: 120px; border-radius: 8px; overflow: visible; border: 2px solid #E5E5E5; background: #f5f5f5; margin-bottom: 8px; display: flex; align-items: center; justify-content: center;">
-                    <img src="/images/hardware/fabric-wrapped-s3.png" alt="Fabric Wrapped S3" style="max-width: 100%; max-height: 100%; object-fit: contain;">
-                  </div>
-                  <span style="font-size: 12px; color: #666;">Fabric Wrapped S3<br>(+$5.50)</span>
-                </div>
-                <div class="hardware-option" data-value="simple-rolling" data-price="0" onclick="selectHardwareOption(this, 'cassette')" style="text-align: center; cursor: pointer;">
-                  <div style="width: 150px; height: 120px; border-radius: 8px; overflow: visible; border: 2px solid #E5E5E5; background: #f5f5f5; margin-bottom: 8px; display: flex; align-items: center; justify-content: center;">
-                    <img src="/images/hardware/simple-rolling.png" alt="Simple Rolling" style="max-width: 100%; max-height: 100%; object-fit: contain;">
-                  </div>
-                  <span style="font-size: 12px; color: #666;">Simple Rolling</span>
-                </div>
-              </div>
-            </div>
-
-            <!-- Bottom Rail (from PDF page 5) -->
-            <div class="hardware-group" style="margin-bottom: 24px;">
-              <span class="hardware-label" style="font-size: 15px; color: #333333; font-weight: 500; display: block; margin-bottom: 12px;">Bottom Rail</span>
-              <div class="hardware-swatches" id="bottomBarSwatches" style="display: flex; gap: 16px; flex-wrap: wrap;">
-                <div class="hardware-option selected" data-value="type-a-waterdrop" data-price="0" onclick="selectHardwareOption(this, 'bottomBar')" style="text-align: center; cursor: pointer;">
-                  <div style="width: 120px; height: 80px; border-radius: 8px; overflow: hidden; border: 3px solid #8E6545; background: #f5f5f5; margin-bottom: 8px;">
-                    <img src="/images/bottom-rail/type-a-waterdrop.png" alt="Type A Streamlined Water-drop" style="width: 100%; height: 100%; object-fit: contain;">
-                  </div>
-                  <span style="font-size: 11px; color: #666;">Type A<br>Streamlined Water-drop</span>
-                </div>
-                <div class="hardware-option" data-value="simple-rolling" data-price="0.90" onclick="selectHardwareOption(this, 'bottomBar')" style="text-align: center; cursor: pointer;">
-                  <div style="width: 120px; height: 80px; border-radius: 8px; overflow: hidden; border: 2px solid #E5E5E5; background: #f5f5f5; margin-bottom: 8px;">
-                    <img src="/images/bottom-rail/simple-rolling.png" alt="Simple Rolling" style="width: 100%; height: 100%; object-fit: contain;">
-                  </div>
-                  <span style="font-size: 11px; color: #666;">Simple Rolling<br>(+$0.90)</span>
-                </div>
-                <div class="hardware-option" data-value="type-b" data-price="1.00" onclick="selectHardwareOption(this, 'bottomBar')" style="text-align: center; cursor: pointer;">
-                  <div style="width: 120px; height: 80px; border-radius: 8px; overflow: hidden; border: 2px solid #E5E5E5; background: #f5f5f5; margin-bottom: 8px;">
-                    <img src="/images/bottom-rail/type-b.png" alt="Type B" style="width: 100%; height: 100%; object-fit: contain;">
-                  </div>
-                  <span style="font-size: 11px; color: #666;">Type B<br>(+$1.00)</span>
-                </div>
-                <div class="hardware-option" data-value="type-c-fabric-wrapped" data-price="1.50" onclick="selectHardwareOption(this, 'bottomBar')" style="text-align: center; cursor: pointer;">
-                  <div style="width: 120px; height: 80px; border-radius: 8px; overflow: hidden; border: 2px solid #E5E5E5; background: #f5f5f5; margin-bottom: 8px;">
-                    <img src="/images/bottom-rail/type-c-fabric-wrapped.png" alt="Type C Fabric Wrapped" style="width: 100%; height: 100%; object-fit: contain;">
-                  </div>
-                  <span style="font-size: 11px; color: #666;">Type C Fabric Wrapped<br>(+$1.50)</span>
-                </div>
-                <div class="hardware-option" data-value="type-d" data-price="1.50" onclick="selectHardwareOption(this, 'bottomBar')" style="text-align: center; cursor: pointer;">
-                  <div style="width: 120px; height: 80px; border-radius: 8px; overflow: hidden; border: 2px solid #E5E5E5; background: #f5f5f5; margin-bottom: 8px;">
-                    <img src="/images/bottom-rail/type-d.png" alt="Type D" style="width: 100%; height: 100%; object-fit: contain;">
-                  </div>
-                  <span style="font-size: 11px; color: #666;">Type D<br>(+$1.50)</span>
-                </div>
-              </div>
-            </div>
-
-            <!-- Chain Side -->
-            <div class="hardware-group" style="margin-bottom: 24px;">
-              <span class="hardware-label" style="font-size: 15px; color: #333333; font-weight: 500; display: block; margin-bottom: 12px;">Chain Side</span>
-              <div class="chain-side-buttons" id="chainSideSwatches" style="display: flex; gap: 12px;">
-                <button type="button" class="chain-side-btn selected" data-value="left" onclick="selectChainSide(this)" style="padding: 12px 32px; border: 2px solid #8E6545; border-radius: 8px; background: #8E6545; color: #FFFFFF; font-size: 14px; font-weight: 500; cursor: pointer; transition: all 0.3s ease;">Left</button>
-                <button type="button" class="chain-side-btn" data-value="right" onclick="selectChainSide(this)" style="padding: 12px 32px; border: 2px solid #D4D4D4; border-radius: 8px; background: transparent; color: #333333; font-size: 14px; font-weight: 500; cursor: pointer; transition: all 0.3s ease;">Right</button>
-              </div>
-            </div>
-
-            <!-- Roller Type -->
-            <div class="hardware-group" style="margin-bottom: 24px;">
-              <span class="hardware-label" style="font-size: 15px; color: #333333; font-weight: 500; display: block; margin-bottom: 12px;">Roller Type</span>
-              <div class="hardware-swatches" id="rollerTypeSwatches" style="display: flex; gap: 16px; flex-wrap: wrap;">
-                <div class="hardware-option selected" data-value="forward-roll" data-price="0" onclick="selectHardwareOption(this, 'rollerType')" style="text-align: center; cursor: pointer; position: relative;">
-                  <div style="width: 110px; height: 90px; border-radius: 8px; overflow: hidden; border: 3px solid #8E6545; background: #ffffff; margin-bottom: 6px; display: flex; align-items: center; justify-content: center; padding: 6px; position: relative;">
-                    <img src="/images/mount-control/forward-roll.svg" alt="Forward Roll" style="width: 100%; height: 100%; object-fit: contain;">
-                    <button onclick="event.stopPropagation(); openZoomModal('/images/mount-control/forward-roll.svg', 'Forward Roll - Fabric hangs close to the window')" style="position: absolute; bottom: 4px; right: 4px; width: 22px; height: 22px; border-radius: 50%; background: rgba(142,101,69,0.9); border: none; cursor: pointer; display: flex; align-items: center; justify-content: center;">
-                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.35-4.35"/><path d="M11 8v6M8 11h6"/></svg>
-                    </button>
-                  </div>
-                  <span style="font-size: 11px; color: #333; font-weight: 600;">Forward Roll</span><br>
-                  <span style="font-size: 9px; color: #888;">Close to window</span>
-                </div>
-                <div class="hardware-option" data-value="reverse-roll" data-price="5.00" onclick="selectHardwareOption(this, 'rollerType')" style="text-align: center; cursor: pointer; position: relative;">
-                  <div style="width: 110px; height: 90px; border-radius: 8px; overflow: hidden; border: 2px solid #E5E5E5; background: #ffffff; margin-bottom: 6px; display: flex; align-items: center; justify-content: center; padding: 6px; position: relative;">
-                    <img src="/images/mount-control/reverse-roll.svg" alt="Reverse Roll" style="width: 100%; height: 100%; object-fit: contain;">
-                    <button onclick="event.stopPropagation(); openZoomModal('/images/mount-control/reverse-roll.svg', 'Reverse Roll - Extra clearance from window')" style="position: absolute; bottom: 4px; right: 4px; width: 22px; height: 22px; border-radius: 50%; background: rgba(142,101,69,0.9); border: none; cursor: pointer; display: flex; align-items: center; justify-content: center;">
-                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.35-4.35"/><path d="M11 8v6M8 11h6"/></svg>
-                    </button>
-                  </div>
-                  <span style="font-size: 11px; color: #333; font-weight: 600;">Reverse Roll</span><br>
-                  <span style="font-size: 9px; color: #888;">Extra clearance (+$5)</span>
-                </div>
-              </div>
-            </div>
-
-            <!-- Side Cover Color -->
-            <div class="hardware-group" style="margin-bottom: 24px;">
-              <span class="hardware-label" style="font-size: 15px; color: #333333; font-weight: 500; display: block; margin-bottom: 12px;">Side Cover Color</span>
-              <div class="hardware-swatches" id="sideCoverSwatches" style="display: flex; gap: 16px; flex-wrap: wrap;">
-                <div class="hardware-option selected" data-value="white" data-price="0" onclick="selectHardwareOption(this, 'sideCover')" style="text-align: center; cursor: pointer;">
-                  <div style="width: 60px; height: 45px; border-radius: 8px; overflow: hidden; border: 3px solid #8E6545; background: #FFFFFF; margin-bottom: 8px;"></div>
-                  <span style="font-size: 11px; color: #666;">White</span>
-                </div>
-                <div class="hardware-option" data-value="gray" data-price="0" onclick="selectHardwareOption(this, 'sideCover')" style="text-align: center; cursor: pointer;">
-                  <div style="width: 60px; height: 45px; border-radius: 8px; overflow: hidden; border: 2px solid #E5E5E5; background: #808080; margin-bottom: 8px;"></div>
-                  <span style="font-size: 11px; color: #666;">Gray</span>
-                </div>
-                <div class="hardware-option" data-value="black" data-price="0" onclick="selectHardwareOption(this, 'sideCover')" style="text-align: center; cursor: pointer;">
-                  <div style="width: 60px; height: 45px; border-radius: 8px; overflow: hidden; border: 2px solid #E5E5E5; background: #333333; margin-bottom: 8px;"></div>
-                  <span style="font-size: 11px; color: #666;">Black</span>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <!-- Mount, Control and Solar Type -->
+        <!-- Mount, Control and Solar Type - Above Hardware Type -->
         <div class="accordion-section" data-name="mountType">
           <button class="accordion-header" onclick="toggleAccordion(this.parentElement)">
             <div class="accordion-header-left">
@@ -2629,15 +2729,15 @@
             <div class="hardware-group" style="margin-bottom: 24px;">
               <span class="hardware-label" style="font-size: 15px; color: #333333; font-weight: 500; display: block; margin-bottom: 12px;">Mount Type</span>
               <div class="hardware-swatches" id="mountTypeSwatches" style="display: flex; gap: 12px; flex-wrap: wrap;">
-                <div class="hardware-option selected" data-value="inside" data-price="0" onclick="selectHardwareOption(this, 'mountType')" style="text-align: center; cursor: pointer;">
-                  <div class="zoomable-image" style="width: 100px; height: 80px; border-radius: 8px; overflow: hidden; border: 3px solid #8E6545; background: #ffffff; margin-bottom: 6px; display: flex; align-items: center; justify-content: center; padding: 4px; position: relative;" onclick="event.stopPropagation(); openZoomModal('/images/mount-control/inside-mount.svg', 'Inside Mount - Blind fits inside the window frame')">
-                    <img src="/images/mount-control/inside-mount.svg" alt="Inside Mount" style="width: 100%; height: 100%; object-fit: contain;">
+                <div class="hardware-option selected" data-value="inside" data-price="0" onclick="selectHardwareOption(this, 'mountType', event)" style="text-align: center; cursor: pointer;">
+                  <div style="width: 100px; height: 80px; border-radius: 8px; overflow: hidden; border: 3px solid #8E6545; background: #ffffff; margin-bottom: 6px; display: flex; align-items: center; justify-content: center; padding: 4px;">
+                    <img src="/images/mount-control/inside-mount.svg" alt="Inside Mount" style="width: 100%; height: 100%; object-fit: contain; pointer-events: none;">
                   </div>
                   <span style="font-size: 11px; color: #333; font-weight: 500;">Inside Mount</span>
                 </div>
-                <div class="hardware-option" data-value="outside" data-price="10.00" onclick="selectHardwareOption(this, 'mountType')" style="text-align: center; cursor: pointer;">
-                  <div class="zoomable-image" style="width: 100px; height: 80px; border-radius: 8px; overflow: hidden; border: 2px solid #E5E5E5; background: #ffffff; margin-bottom: 6px; display: flex; align-items: center; justify-content: center; padding: 4px; position: relative;" onclick="event.stopPropagation(); openZoomModal('/images/mount-control/outside-mount.svg', 'Outside Mount - Blind mounts above the window frame')">
-                    <img src="/images/mount-control/outside-mount.svg" alt="Outside Mount" style="width: 100%; height: 100%; object-fit: contain;">
+                <div class="hardware-option" data-value="outside" data-price="10.00" onclick="selectHardwareOption(this, 'mountType', event)" style="text-align: center; cursor: pointer;">
+                  <div style="width: 100px; height: 80px; border-radius: 8px; overflow: hidden; border: 2px solid #E5E5E5; background: #ffffff; margin-bottom: 6px; display: flex; align-items: center; justify-content: center; padding: 4px;">
+                    <img src="/images/mount-control/outside-mount.svg" alt="Outside Mount" style="width: 100%; height: 100%; object-fit: contain; pointer-events: none;">
                   </div>
                   <span style="font-size: 11px; color: #333; font-weight: 500;">Outside Mount (+$10)</span>
                 </div>
@@ -2648,25 +2748,49 @@
             <div class="hardware-group" style="margin-bottom: 24px;">
               <span class="hardware-label" style="font-size: 15px; color: #333333; font-weight: 500; display: block; margin-bottom: 12px;">Control Type</span>
               <div class="hardware-swatches" id="controlTypeSwatches" style="display: flex; gap: 12px; flex-wrap: wrap;">
-                <div class="hardware-option selected" data-value="manual" data-price="0" onclick="selectControlType(this)" style="text-align: center; cursor: pointer;">
-                  <div class="zoomable-image" style="width: 100px; height: 80px; border-radius: 8px; overflow: hidden; border: 3px solid #8E6545; background: #ffffff; margin-bottom: 6px; display: flex; align-items: center; justify-content: center; padding: 4px; position: relative;" onclick="event.stopPropagation(); openZoomModal('/images/mount-control/manual.svg', 'Manual - Bead chain control for easy operation')">
-                    <img src="/images/mount-control/manual.svg" alt="Manual" style="width: 100%; height: 100%; object-fit: contain;">
+                <div class="hardware-option selected" data-value="manual" data-price="0" onclick="selectControlType(this, event)" style="text-align: center; cursor: pointer;">
+                  <div style="width: 100px; height: 80px; border-radius: 8px; overflow: hidden; border: 3px solid #8E6545; background: #ffffff; margin-bottom: 6px; display: flex; align-items: center; justify-content: center; padding: 4px;">
+                    <img src="/images/mount-control/manual.svg" alt="Manual" style="width: 100%; height: 100%; object-fit: contain; pointer-events: none;">
                   </div>
                   <span style="font-size: 11px; color: #333; font-weight: 500;">Manual</span>
                 </div>
-                <div class="hardware-option" data-value="cordless" data-price="25.00" onclick="selectControlType(this)" style="text-align: center; cursor: pointer;">
-                  <div class="zoomable-image" style="width: 100px; height: 80px; border-radius: 8px; overflow: hidden; border: 2px solid #E5E5E5; background: #ffffff; margin-bottom: 6px; display: flex; align-items: center; justify-content: center; padding: 4px; position: relative;" onclick="event.stopPropagation(); openZoomModal('/images/mount-control/cordless.svg', 'Cordless - Spring-lift mechanism for child safety')">
-                    <img src="/images/mount-control/cordless.svg" alt="Cordless" style="width: 100%; height: 100%; object-fit: contain;">
+                <div class="hardware-option" data-value="cordless" data-price="25.00" onclick="selectControlType(this, event)" style="text-align: center; cursor: pointer;">
+                  <div style="width: 100px; height: 80px; border-radius: 8px; overflow: hidden; border: 2px solid #E5E5E5; background: #ffffff; margin-bottom: 6px; display: flex; align-items: center; justify-content: center; padding: 4px;">
+                    <img src="/images/mount-control/cordless.svg" alt="Cordless" style="width: 100%; height: 100%; object-fit: contain; pointer-events: none;">
                   </div>
                   <span style="font-size: 11px; color: #333; font-weight: 500;">Cordless (+$25)</span>
                 </div>
-                <div class="hardware-option" data-value="motorized" data-price="100.00" onclick="selectControlType(this)" style="text-align: center; cursor: pointer;">
-                  <div class="zoomable-image" style="width: 100px; height: 80px; border-radius: 8px; overflow: hidden; border: 2px solid #E5E5E5; background: #ffffff; margin-bottom: 6px; display: flex; align-items: center; justify-content: center; padding: 4px; position: relative;" onclick="event.stopPropagation(); openZoomModal('/images/mount-control/motorized.svg', 'Motorized - Remote control operation')">
-                    <img src="/images/mount-control/motorized.svg" alt="Motorized" style="width: 100%; height: 100%; object-fit: contain;">
+                <div class="hardware-option" data-value="motorized" data-price="100.00" onclick="selectControlType(this, event)" style="text-align: center; cursor: pointer;">
+                  <div style="width: 100px; height: 80px; border-radius: 8px; overflow: hidden; border: 2px solid #E5E5E5; background: #ffffff; margin-bottom: 6px; display: flex; align-items: center; justify-content: center; padding: 4px;">
+                    <img src="/images/mount-control/motorized.svg" alt="Motorized" style="width: 100%; height: 100%; object-fit: contain; pointer-events: none;">
                   </div>
                   <span style="font-size: 11px; color: #333; font-weight: 500;">Motorized (+$100)</span>
                 </div>
               </div>
+            </div>
+
+            <!-- Chain Location (shows only when Manual is selected) -->
+            <div class="hardware-group" id="chainLocationGroup" style="margin-bottom: 24px; display: block; padding: 15px; background: #f9f7f4; border-radius: 10px; border-left: 4px solid #8E6545;">
+              <span class="hardware-label" style="font-size: 14px; color: #333333; font-weight: 500; display: block; margin-bottom: 12px;">
+                <i class="fas fa-link" style="color: #8E6545; margin-right: 8px;"></i>Chain Location
+              </span>
+              <div class="chain-location-buttons" id="chainLocationSwatches" style="display: flex; gap: 15px;">
+                <button type="button" class="chain-location-btn selected" data-value="left" onclick="selectChainLocation(this)" style="padding: 14px 35px; border: 2px solid #8E6545; border-radius: 8px; background: #8E6545; color: #FFFFFF; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; gap: 8px;">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M15 18l-6-6 6-6"/>
+                  </svg>
+                  Left
+                </button>
+                <button type="button" class="chain-location-btn" data-value="right" onclick="selectChainLocation(this)" style="padding: 14px 35px; border: 2px solid #D4D4D4; border-radius: 8px; background: transparent; color: #333; font-size: 14px; font-weight: 600; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; gap: 8px;">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M9 18l6-6-6-6"/>
+                  </svg>
+                  Right
+                </button>
+              </div>
+              <p style="font-size: 11px; color: #888; margin-top: 10px; margin-bottom: 0;">
+                <i class="fas fa-info-circle" style="margin-right: 5px;"></i>Select which side the chain will be located
+              </p>
             </div>
 
             <!-- Motorized Location (shows only when Motorized is selected) -->
@@ -2697,33 +2821,33 @@
             <div class="hardware-group" style="margin-bottom: 24px;">
               <span class="hardware-label" style="font-size: 15px; color: #333333; font-weight: 500; display: block; margin-bottom: 12px;">Control System</span>
               <div class="hardware-swatches" id="chainTypeSwatches" style="display: flex; gap: 12px; flex-wrap: wrap;">
-                <div class="hardware-option selected" data-value="bead-chain-plastic" data-price="0" onclick="selectHardwareOption(this, 'chainType')" style="text-align: center; cursor: pointer;">
-                  <div class="zoomable-image" style="width: 100px; height: 80px; border-radius: 8px; overflow: hidden; border: 3px solid #8E6545; background: #ffffff; margin-bottom: 6px; display: flex; align-items: center; justify-content: center; padding: 4px; position: relative;" onclick="event.stopPropagation(); openZoomModal('/images/control-system/bead-chain.png', 'Bead Chain - Standard plastic bead chain control')">
-                    <img src="/images/control-system/bead-chain.png" alt="Bead Chain" style="max-width: 100%; max-height: 100%; object-fit: contain;">
+                <div class="hardware-option selected" data-value="bead-chain-plastic" data-price="0" onclick="selectHardwareOption(this, 'chainType', event)" style="text-align: center; cursor: pointer;">
+                  <div style="width: 100px; height: 80px; border-radius: 8px; overflow: hidden; border: 3px solid #8E6545; background: #ffffff; margin-bottom: 6px; display: flex; align-items: center; justify-content: center; padding: 4px;">
+                    <img src="/images/control-system/bead-chain.png" alt="Bead Chain" style="max-width: 100%; max-height: 100%; object-fit: contain; pointer-events: none;">
                   </div>
                   <span style="font-size: 11px; color: #333; font-weight: 500;">Bead Chain</span>
                 </div>
-                <div class="hardware-option" data-value="bead-chain-wand" data-price="8.00" onclick="selectHardwareOption(this, 'chainType')" style="text-align: center; cursor: pointer;">
-                  <div class="zoomable-image" style="width: 100px; height: 80px; border-radius: 8px; overflow: hidden; border: 2px solid #E5E5E5; background: #ffffff; margin-bottom: 6px; display: flex; align-items: center; justify-content: center; padding: 4px; position: relative;" onclick="event.stopPropagation(); openZoomModal('/images/control-system/bead-chain-wand.png', 'Bead Chain + Wand - Chain with wand for easier reach')">
-                    <img src="/images/control-system/bead-chain-wand.png" alt="Bead Chain + Wand" style="max-width: 100%; max-height: 100%; object-fit: contain;">
+                <div class="hardware-option" data-value="bead-chain-wand" data-price="8.00" onclick="selectHardwareOption(this, 'chainType', event)" style="text-align: center; cursor: pointer;">
+                  <div style="width: 100px; height: 80px; border-radius: 8px; overflow: hidden; border: 2px solid #E5E5E5; background: #ffffff; margin-bottom: 6px; display: flex; align-items: center; justify-content: center; padding: 4px;">
+                    <img src="/images/control-system/bead-chain-wand.png" alt="Bead Chain + Wand" style="max-width: 100%; max-height: 100%; object-fit: contain; pointer-events: none;">
                   </div>
                   <span style="font-size: 11px; color: #333; font-weight: 500;">Chain + Wand (+$8)</span>
                 </div>
-                <div class="hardware-option" data-value="cordless" data-price="25.00" onclick="selectHardwareOption(this, 'chainType')" style="text-align: center; cursor: pointer;">
-                  <div class="zoomable-image" style="width: 100px; height: 80px; border-radius: 8px; overflow: hidden; border: 2px solid #E5E5E5; background: #ffffff; margin-bottom: 6px; display: flex; align-items: center; justify-content: center; padding: 4px; position: relative;" onclick="event.stopPropagation(); openZoomModal('/images/control-system/cordless.png', 'Cordless - No cords, safe for children and pets')">
-                    <img src="/images/control-system/cordless.png" alt="Cordless" style="max-width: 100%; max-height: 100%; object-fit: contain;">
+                <div class="hardware-option" data-value="cordless" data-price="25.00" onclick="selectHardwareOption(this, 'chainType', event)" style="text-align: center; cursor: pointer;">
+                  <div style="width: 100px; height: 80px; border-radius: 8px; overflow: hidden; border: 2px solid #E5E5E5; background: #ffffff; margin-bottom: 6px; display: flex; align-items: center; justify-content: center; padding: 4px;">
+                    <img src="/images/control-system/cordless.png" alt="Cordless" style="max-width: 100%; max-height: 100%; object-fit: contain; pointer-events: none;">
                   </div>
                   <span style="font-size: 11px; color: #333; font-weight: 500;">Cordless (+$25)</span>
                 </div>
-                <div class="hardware-option" data-value="motorized-app" data-price="100.00" onclick="selectHardwareOption(this, 'chainType')" style="text-align: center; cursor: pointer;">
-                  <div class="zoomable-image" style="width: 100px; height: 80px; border-radius: 8px; overflow: hidden; border: 2px solid #E5E5E5; background: #ffffff; margin-bottom: 6px; display: flex; align-items: center; justify-content: center; padding: 4px; position: relative;" onclick="event.stopPropagation(); openZoomModal('/images/control-system/motorized-app.png', 'Motorized APP - Control via smartphone app')">
-                    <img src="/images/control-system/motorized-app.png" alt="Motorized APP" style="max-width: 100%; max-height: 100%; object-fit: contain;">
+                <div class="hardware-option" data-value="motorized-app" data-price="100.00" onclick="selectHardwareOption(this, 'chainType', event)" style="text-align: center; cursor: pointer;">
+                  <div style="width: 100px; height: 80px; border-radius: 8px; overflow: hidden; border: 2px solid #E5E5E5; background: #ffffff; margin-bottom: 6px; display: flex; align-items: center; justify-content: center; padding: 4px;">
+                    <img src="/images/control-system/motorized-app.png" alt="Motorized APP" style="max-width: 100%; max-height: 100%; object-fit: contain; pointer-events: none;">
                   </div>
                   <span style="font-size: 11px; color: #333; font-weight: 500;">Motorized (+$100)</span>
                 </div>
-                <div class="hardware-option" data-value="cordless-motorized" data-price="120.00" onclick="selectHardwareOption(this, 'chainType')" style="text-align: center; cursor: pointer;">
-                  <div class="zoomable-image" style="width: 100px; height: 80px; border-radius: 8px; overflow: hidden; border: 2px solid #E5E5E5; background: #ffffff; margin-bottom: 6px; display: flex; align-items: center; justify-content: center; padding: 4px; position: relative;" onclick="event.stopPropagation(); openZoomModal('/images/control-system/cordless-motorized.png', '2 in 1 - Cordless + Motorized combined')">
-                    <img src="/images/control-system/cordless-motorized.png" alt="Cordless-Motorized" style="max-width: 100%; max-height: 100%; object-fit: contain;">
+                <div class="hardware-option" data-value="cordless-motorized" data-price="120.00" onclick="selectHardwareOption(this, 'chainType', event)" style="text-align: center; cursor: pointer;">
+                  <div style="width: 100px; height: 80px; border-radius: 8px; overflow: hidden; border: 2px solid #E5E5E5; background: #ffffff; margin-bottom: 6px; display: flex; align-items: center; justify-content: center; padding: 4px;">
+                    <img src="/images/control-system/cordless-motorized.png" alt="Cordless-Motorized" style="max-width: 100%; max-height: 100%; object-fit: contain; pointer-events: none;">
                   </div>
                   <span style="font-size: 11px; color: #333; font-weight: 500;">2 in 1 (+$120)</span>
                 </div>
@@ -2756,6 +2880,150 @@
               <div class="solar-type-buttons" id="solarTypeSwatches" style="display: flex; gap: 12px;">
                 <button type="button" class="solar-btn selected" data-value="yes" onclick="selectSolarType(this)" style="padding: 12px 32px; border: 2px solid #8E6545; border-radius: 8px; background: #8E6545; color: #FFFFFF; font-size: 14px; font-weight: 500; cursor: pointer; transition: all 0.3s ease;">Yes</button>
                 <button type="button" class="solar-btn" data-value="no" onclick="selectSolarType(this)" style="padding: 12px 32px; border: 2px solid #D4D4D4; border-radius: 8px; background: transparent; color: #333333; font-size: 14px; font-weight: 500; cursor: pointer; transition: all 0.3s ease;">No</button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Hardware Type -->
+        <div class="accordion-section" data-name="hardwareType">
+          <button class="accordion-header" onclick="toggleAccordion(this.parentElement)">
+            <div class="accordion-header-left">
+              <span>Hardware Type</span>
+              <span class="accordion-selected" id="hardwareTypeValue"></span>
+            </div>
+            <span class="accordion-icon"></span>
+          </button>
+          <div class="accordion-body">
+            <!-- Technical Catalog Reference -->
+            <div class="hardware-group" style="margin-bottom: 24px; padding: 15px; background: #F6F1EB; border-radius: 8px;">
+              <span style="font-size: 13px; color: #8E6545; font-weight: 600;">For full view of Valance Type</span>
+              <p style="font-size: 12px; color: #666; margin-top: 5px;"><a href="/images/hardware/page-4.jpg" target="_blank" style="color: #8E6545; text-decoration: underline;">Valance Options</a> | <a href="/images/hardware/page-5.jpg" target="_blank" style="color: #8E6545; text-decoration: underline;">Bottom Rails</a> | <a href="/images/hardware/page-7.jpg" target="_blank" style="color: #8E6545; text-decoration: underline;">Control Systems</a></p>
+            </div>
+
+            <!-- Valance Type -->
+            <div class="hardware-group" style="margin-bottom: 24px;">
+              <span class="hardware-label" style="font-size: 15px; color: #333333; font-weight: 500; display: block; margin-bottom: 12px;">Valance Type</span>
+              <div class="hardware-swatches" id="cassetteSwatches" style="display: flex; gap: 20px; flex-wrap: wrap;">
+                <div class="hardware-option selected" data-value="square-v2" data-price="0" onclick="selectHardwareOption(this, 'cassette', event)" style="text-align: center; cursor: pointer;">
+                  <div style="width: 150px; height: 120px; border-radius: 8px; overflow: visible; border: 3px solid #8E6545; background: #f5f5f5; margin-bottom: 8px; display: flex; align-items: center; justify-content: center;">
+                    <img src="/images/hardware/square-v2.png" alt="Square V2" style="max-width: 100%; max-height: 100%; object-fit: contain;">
+                  </div>
+                  <span style="font-size: 12px; color: #666;">Square V2</span>
+                </div>
+                <div class="hardware-option" data-value="fabric-wrapped-v3" data-price="6.00" onclick="selectHardwareOption(this, 'cassette', event)" style="text-align: center; cursor: pointer;">
+                  <div style="width: 150px; height: 120px; border-radius: 8px; overflow: visible; border: 2px solid #E5E5E5; background: #f5f5f5; margin-bottom: 8px; display: flex; align-items: center; justify-content: center;">
+                    <img src="/images/hardware/fabric-wrapped-v3.png" alt="Fabric Wrapped V3" style="max-width: 100%; max-height: 100%; object-fit: contain;">
+                  </div>
+                  <span style="font-size: 12px; color: #666;">Fabric Wrapped V3<br>(+$6.00)</span>
+                </div>
+                <div class="hardware-option" data-value="fabric-inserted-s1" data-price="3.50" onclick="selectHardwareOption(this, 'cassette', event)" style="text-align: center; cursor: pointer;">
+                  <div style="width: 150px; height: 120px; border-radius: 8px; overflow: visible; border: 2px solid #E5E5E5; background: #f5f5f5; margin-bottom: 8px; display: flex; align-items: center; justify-content: center;">
+                    <img src="/images/hardware/fabric-inserted-s1.png" alt="Fabric Inserted S1" style="max-width: 100%; max-height: 100%; object-fit: contain;">
+                  </div>
+                  <span style="font-size: 12px; color: #666;">Fabric Inserted S1<br>(+$3.50)</span>
+                </div>
+                <div class="hardware-option" data-value="curve-white-s2" data-price="5.00" onclick="selectHardwareOption(this, 'cassette', event)" style="text-align: center; cursor: pointer;">
+                  <div style="width: 150px; height: 120px; border-radius: 8px; overflow: visible; border: 2px solid #E5E5E5; background: #f5f5f5; margin-bottom: 8px; display: flex; align-items: center; justify-content: center;">
+                    <img src="/images/hardware/curve-white-s2.png" alt="Curve White S2" style="max-width: 100%; max-height: 100%; object-fit: contain;">
+                  </div>
+                  <span style="font-size: 12px; color: #666;">Curve White S2<br>(+$5.00)</span>
+                </div>
+                <div class="hardware-option" data-value="fabric-wrapped-s3" data-price="5.50" onclick="selectHardwareOption(this, 'cassette', event)" style="text-align: center; cursor: pointer;">
+                  <div style="width: 150px; height: 120px; border-radius: 8px; overflow: visible; border: 2px solid #E5E5E5; background: #f5f5f5; margin-bottom: 8px; display: flex; align-items: center; justify-content: center;">
+                    <img src="/images/hardware/fabric-wrapped-s3.png" alt="Fabric Wrapped S3" style="max-width: 100%; max-height: 100%; object-fit: contain;">
+                  </div>
+                  <span style="font-size: 12px; color: #666;">Fabric Wrapped S3<br>(+$5.50)</span>
+                </div>
+                <div class="hardware-option" data-value="simple-rolling" data-price="0" onclick="selectHardwareOption(this, 'cassette', event)" style="text-align: center; cursor: pointer;">
+                  <div style="width: 150px; height: 120px; border-radius: 8px; overflow: visible; border: 2px solid #E5E5E5; background: #f5f5f5; margin-bottom: 8px; display: flex; align-items: center; justify-content: center;">
+                    <img src="/images/hardware/simple-rolling.png" alt="Simple Rolling" style="max-width: 100%; max-height: 100%; object-fit: contain;">
+                  </div>
+                  <span style="font-size: 12px; color: #666;">Simple Rolling</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Bottom Rail (from PDF page 5) -->
+            <div class="hardware-group" style="margin-bottom: 24px;">
+              <span class="hardware-label" style="font-size: 15px; color: #333333; font-weight: 500; display: block; margin-bottom: 12px;">Bottom Rail</span>
+              <div class="hardware-swatches" id="bottomBarSwatches" style="display: flex; gap: 16px; flex-wrap: wrap;">
+                <div class="hardware-option selected" data-value="type-a-waterdrop" data-price="0" onclick="selectHardwareOption(this, 'bottomBar', event)" style="text-align: center; cursor: pointer;">
+                  <div style="width: 120px; height: 80px; border-radius: 8px; overflow: hidden; border: 3px solid #8E6545; background: #f5f5f5; margin-bottom: 8px;">
+                    <img src="/images/bottom-rail/type-a-waterdrop.png" alt="Type A Streamlined Water-drop" style="width: 100%; height: 100%; object-fit: contain;">
+                  </div>
+                  <span style="font-size: 11px; color: #666;">Type A<br>Streamlined Water-drop</span>
+                </div>
+                <div class="hardware-option" data-value="simple-rolling" data-price="0.90" onclick="selectHardwareOption(this, 'bottomBar', event)" style="text-align: center; cursor: pointer;">
+                  <div style="width: 120px; height: 80px; border-radius: 8px; overflow: hidden; border: 2px solid #E5E5E5; background: #f5f5f5; margin-bottom: 8px;">
+                    <img src="/images/bottom-rail/simple-rolling.png" alt="Simple Rolling" style="width: 100%; height: 100%; object-fit: contain;">
+                  </div>
+                  <span style="font-size: 11px; color: #666;">Simple Rolling<br>(+$0.90)</span>
+                </div>
+                <div class="hardware-option" data-value="type-b" data-price="1.00" onclick="selectHardwareOption(this, 'bottomBar', event)" style="text-align: center; cursor: pointer;">
+                  <div style="width: 120px; height: 80px; border-radius: 8px; overflow: hidden; border: 2px solid #E5E5E5; background: #f5f5f5; margin-bottom: 8px;">
+                    <img src="/images/bottom-rail/type-b.png" alt="Type B" style="width: 100%; height: 100%; object-fit: contain;">
+                  </div>
+                  <span style="font-size: 11px; color: #666;">Type B<br>(+$1.00)</span>
+                </div>
+                <div class="hardware-option" data-value="type-c-fabric-wrapped" data-price="1.50" onclick="selectHardwareOption(this, 'bottomBar', event)" style="text-align: center; cursor: pointer;">
+                  <div style="width: 120px; height: 80px; border-radius: 8px; overflow: hidden; border: 2px solid #E5E5E5; background: #f5f5f5; margin-bottom: 8px;">
+                    <img src="/images/bottom-rail/type-c-fabric-wrapped.png" alt="Type C Fabric Wrapped" style="width: 100%; height: 100%; object-fit: contain;">
+                  </div>
+                  <span style="font-size: 11px; color: #666;">Type C Fabric Wrapped<br>(+$1.50)</span>
+                </div>
+                <div class="hardware-option" data-value="type-d" data-price="1.50" onclick="selectHardwareOption(this, 'bottomBar', event)" style="text-align: center; cursor: pointer;">
+                  <div style="width: 120px; height: 80px; border-radius: 8px; overflow: hidden; border: 2px solid #E5E5E5; background: #f5f5f5; margin-bottom: 8px;">
+                    <img src="/images/bottom-rail/type-d.png" alt="Type D" style="width: 100%; height: 100%; object-fit: contain;">
+                  </div>
+                  <span style="font-size: 11px; color: #666;">Type D<br>(+$1.50)</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Roller Type -->
+            <div class="hardware-group" style="margin-bottom: 24px;">
+              <span class="hardware-label" style="font-size: 15px; color: #333333; font-weight: 500; display: block; margin-bottom: 12px;">Roller Type</span>
+              <div class="hardware-swatches" id="rollerTypeSwatches" style="display: flex; gap: 16px; flex-wrap: wrap;">
+                <div class="hardware-option selected" data-value="forward-roll" data-price="0" onclick="selectHardwareOption(this, 'rollerType', event)" style="text-align: center; cursor: pointer; position: relative;">
+                  <div style="width: 110px; height: 90px; border-radius: 8px; overflow: hidden; border: 3px solid #8E6545; background: #ffffff; margin-bottom: 6px; display: flex; align-items: center; justify-content: center; padding: 6px; position: relative;">
+                    <img src="/images/mount-control/forward-roll.svg" alt="Forward Roll" style="width: 100%; height: 100%; object-fit: contain;">
+                    <button onclick="event.stopPropagation(); openZoomModal('/images/mount-control/forward-roll.svg', 'Forward Roll - Fabric hangs close to the window')" style="position: absolute; bottom: 4px; right: 4px; width: 22px; height: 22px; border-radius: 50%; background: rgba(142,101,69,0.9); border: none; cursor: pointer; display: flex; align-items: center; justify-content: center;">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.35-4.35"/><path d="M11 8v6M8 11h6"/></svg>
+                    </button>
+                  </div>
+                  <span style="font-size: 11px; color: #333; font-weight: 600;">Forward Roll</span><br>
+                  <span style="font-size: 9px; color: #888;">Close to window</span>
+                </div>
+                <div class="hardware-option" data-value="reverse-roll" data-price="5.00" onclick="selectHardwareOption(this, 'rollerType', event)" style="text-align: center; cursor: pointer; position: relative;">
+                  <div style="width: 110px; height: 90px; border-radius: 8px; overflow: hidden; border: 2px solid #E5E5E5; background: #ffffff; margin-bottom: 6px; display: flex; align-items: center; justify-content: center; padding: 6px; position: relative;">
+                    <img src="/images/mount-control/reverse-roll.svg" alt="Reverse Roll" style="width: 100%; height: 100%; object-fit: contain;">
+                    <button onclick="event.stopPropagation(); openZoomModal('/images/mount-control/reverse-roll.svg', 'Reverse Roll - Extra clearance from window')" style="position: absolute; bottom: 4px; right: 4px; width: 22px; height: 22px; border-radius: 50%; background: rgba(142,101,69,0.9); border: none; cursor: pointer; display: flex; align-items: center; justify-content: center;">
+                      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.35-4.35"/><path d="M11 8v6M8 11h6"/></svg>
+                    </button>
+                  </div>
+                  <span style="font-size: 11px; color: #333; font-weight: 600;">Reverse Roll</span><br>
+                  <span style="font-size: 9px; color: #888;">Extra clearance (+$5)</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Side Cover Color -->
+            <div class="hardware-group" style="margin-bottom: 24px;">
+              <span class="hardware-label" style="font-size: 15px; color: #333333; font-weight: 500; display: block; margin-bottom: 12px;">Side Cover Color</span>
+              <div class="hardware-swatches" id="sideCoverSwatches" style="display: flex; gap: 16px; flex-wrap: wrap;">
+                <div class="hardware-option selected" data-value="white" data-price="0" onclick="selectHardwareOption(this, 'sideCover', event)" style="text-align: center; cursor: pointer;">
+                  <div style="width: 60px; height: 45px; border-radius: 8px; overflow: hidden; border: 3px solid #8E6545; background: #FFFFFF; margin-bottom: 8px;"></div>
+                  <span style="font-size: 11px; color: #666;">White</span>
+                </div>
+                <div class="hardware-option" data-value="gray" data-price="0" onclick="selectHardwareOption(this, 'sideCover', event)" style="text-align: center; cursor: pointer;">
+                  <div style="width: 60px; height: 45px; border-radius: 8px; overflow: hidden; border: 2px solid #E5E5E5; background: #808080; margin-bottom: 8px;"></div>
+                  <span style="font-size: 11px; color: #666;">Gray</span>
+                </div>
+                <div class="hardware-option" data-value="black" data-price="0" onclick="selectHardwareOption(this, 'sideCover', event)" style="text-align: center; cursor: pointer;">
+                  <div style="width: 60px; height: 45px; border-radius: 8px; overflow: hidden; border: 2px solid #E5E5E5; background: #333333; margin-bottom: 8px;"></div>
+                  <span style="font-size: 11px; color: #666;">Black</span>
+                </div>
               </div>
             </div>
           </div>
@@ -3435,6 +3703,13 @@
       loadTrendingProducts();
       updateCartCount();
       updateDimensionsValue();
+
+      // Add click handlers for all fabric swatches
+      document.querySelectorAll('.fabric-swatch').forEach(swatch => {
+        swatch.addEventListener('click', function(event) {
+          selectFabricSwatch(this, event);
+        });
+      });
     });
 
     // Load product
@@ -3462,6 +3737,41 @@
       document.getElementById('productDescription').textContent = product.description || '';
       document.getElementById('basePrice').textContent = product.base_price.toFixed(2);
       basePrice = product.base_price;
+
+      // Update product images if available
+      if (product.image_url || (product.gallery_images && product.gallery_images.length > 0)) {
+        updateProductGallery(product);
+      }
+    }
+
+    // Update product gallery with images from database
+    function updateProductGallery(product) {
+      const mainImageEl = document.getElementById('mainProductImage');
+      const thumbnailColumn = document.querySelector('.thumbnail-column');
+
+      // Collect all available images
+      const images = [];
+      if (product.image_url) {
+        images.push(product.image_url);
+      }
+      if (product.gallery_images && Array.isArray(product.gallery_images)) {
+        images.push(...product.gallery_images);
+      }
+
+      if (images.length === 0) return;
+
+      // Update main image
+      mainImageEl.src = images[0];
+      mainImageEl.alt = product.name;
+
+      // Update thumbnails
+      if (thumbnailColumn && images.length > 0) {
+        thumbnailColumn.innerHTML = images.slice(0, 4).map((img, i) => `
+          <div class="thumb-item ${i === 0 ? 'active' : ''}" onclick="changeImage(this, '${img}')">
+            <img src="${img}" alt="Thumbnail ${i + 1}">
+          </div>
+        `).join('');
+      }
     }
 
     // Change main image
@@ -3598,6 +3908,8 @@
       document.getElementById('blackoutFabrics').style.display = 'none';
       document.getElementById('semiBlackoutFabrics').style.display = 'none';
       document.getElementById('transparentFabrics').style.display = 'none';
+      const superBlackoutEl = document.getElementById('superBlackoutFabrics');
+      if (superBlackoutEl) superBlackoutEl.style.display = 'none';
 
       if (filterValue === 'blackout') {
         document.getElementById('blackoutFabrics').style.display = 'flex';
@@ -3614,21 +3926,31 @@
         // Select first swatch in transparent
         const firstSwatch = document.querySelector('#transparentFabrics .fabric-swatch');
         if (firstSwatch) selectFabricSwatch(firstSwatch);
+      } else if (filterValue === 'super-blackout') {
+        if (superBlackoutEl) superBlackoutEl.style.display = 'flex';
+        // Select first swatch in super-blackout
+        const firstSwatch = document.querySelector('#superBlackoutFabrics .fabric-swatch');
+        if (firstSwatch) selectFabricSwatch(firstSwatch);
       }
 
       calculatePrice();
     }
 
     // Select fabric swatch
-    function selectFabricSwatch(swatch) {
+    function selectFabricSwatch(swatch, event) {
+      if (event) event.preventDefault();
+      const scrollPos = window.scrollY;
       // Remove selection from all fabric swatches across all groups
       document.querySelectorAll('.fabric-group .fabric-swatch').forEach(s => {
-        s.style.border = '2px solid #E5E5E5';
         s.classList.remove('selected');
+        const img = s.querySelector('img');
+        if (img) img.style.border = '2px solid transparent';
       });
-      swatch.style.border = '3px solid #8E6545';
       swatch.classList.add('selected');
+      const img = swatch.querySelector('img');
+      if (img) img.style.border = '3px solid #8E6545';
       calculatePrice();
+      window.scrollTo(0, scrollPos);
     }
 
     // Select hardware swatch
@@ -3639,7 +3961,9 @@
     }
 
     // Select hardware option (new design with images)
-    function selectHardwareOption(option, type) {
+    function selectHardwareOption(option, type, event) {
+      if (event) event.preventDefault();
+      const scrollPos = window.scrollY;
       const container = option.parentElement;
       container.querySelectorAll('.hardware-option').forEach(opt => {
         opt.classList.remove('selected');
@@ -3648,6 +3972,7 @@
       option.classList.add('selected');
       option.querySelector('div').style.border = '3px solid #8E6545';
       calculatePrice();
+      window.scrollTo(0, scrollPos);
     }
 
     // Select chain side button
@@ -3666,7 +3991,9 @@
     }
 
     // Select control type (Manual/Cordless/Motorized)
-    function selectControlType(option) {
+    function selectControlType(option, event) {
+      if (event) event.preventDefault();
+      const scrollPos = window.scrollY;
       const container = option.parentElement;
       container.querySelectorAll('.hardware-option').forEach(opt => {
         opt.classList.remove('selected');
@@ -3675,18 +4002,42 @@
       option.classList.add('selected');
       option.querySelector('div').style.border = '3px solid #8E6545';
 
-      // Show/hide motorized location option based on selection
+      // Show/hide location options based on selection
       const motorizedLocationGroup = document.getElementById('motorizedLocationGroup');
+      const chainLocationGroup = document.getElementById('chainLocationGroup');
       const selectedValue = option.getAttribute('data-value');
+
       if (selectedValue === 'motorized') {
         motorizedLocationGroup.style.display = 'block';
-        // Add slide-down animation
         motorizedLocationGroup.style.animation = 'slideDown 0.3s ease';
-      } else {
+        chainLocationGroup.style.display = 'none';
+      } else if (selectedValue === 'manual') {
+        chainLocationGroup.style.display = 'block';
+        chainLocationGroup.style.animation = 'slideDown 0.3s ease';
         motorizedLocationGroup.style.display = 'none';
+      } else {
+        // Cordless - hide both
+        motorizedLocationGroup.style.display = 'none';
+        chainLocationGroup.style.display = 'none';
       }
 
       calculatePrice();
+      window.scrollTo(0, scrollPos);
+    }
+
+    // Select chain location (Left/Right)
+    function selectChainLocation(btn) {
+      const container = btn.parentElement;
+      container.querySelectorAll('.chain-location-btn').forEach(b => {
+        b.style.background = 'transparent';
+        b.style.color = '#333';
+        b.style.border = '2px solid #D4D4D4';
+        b.classList.remove('selected');
+      });
+      btn.style.background = '#8E6545';
+      btn.style.color = '#FFFFFF';
+      btn.style.border = '2px solid #8E6545';
+      btn.classList.add('selected');
     }
 
     // Select motor location (Right/Left)
@@ -4380,6 +4731,302 @@
     editButton.style.cssText = 'position: fixed; bottom: 20px; right: 20px; padding: 12px 20px; background: #8E6545; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; z-index: 9999; font-family: Montserrat, sans-serif; box-shadow: 0 4px 15px rgba(0,0,0,0.2);';
     editButton.onclick = toggleImageEditor;
     document.body.appendChild(editButton);
+  </script>
+
+  <!-- Fabric Zoom Modal -->
+  <div id="fabricZoomModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 10001; align-items: center; justify-content: center;">
+    <div style="position: relative; max-width: 90vw; max-height: 90vh; background: white; border-radius: 16px; padding: 20px; box-shadow: 0 20px 60px rgba(0,0,0,0.3);">
+      <button onclick="closeFabricZoom()" style="position: absolute; top: 10px; right: 10px; width: 36px; height: 36px; border-radius: 50%; background: #f0f0f0; border: none; font-size: 20px; cursor: pointer; display: flex; align-items: center; justify-content: center; z-index: 10002;">&times;</button>
+      <div id="zoomFabricCode" style="text-align: center; font-size: 18px; font-weight: 600; color: #333; margin-bottom: 15px;"></div>
+      <img id="zoomFabricImage" src="" alt="Fabric Preview" style="max-width: 80vw; max-height: 70vh; border-radius: 12px; display: block; margin: 0 auto;">
+      <div id="zoomFabricSpecs" style="text-align: center; margin-top: 15px; font-size: 14px; color: #666;"></div>
+    </div>
+  </div>
+
+  <script>
+    // Fabric Zoom Functions
+    const fabricSpecsData = {
+      // Will be populated from technical_specifications.json
+    };
+
+    function openFabricZoom(code, imageSrc, event) {
+      event.stopPropagation();
+      const modal = document.getElementById('fabricZoomModal');
+      const img = document.getElementById('zoomFabricImage');
+      const codeEl = document.getElementById('zoomFabricCode');
+      const specsEl = document.getElementById('zoomFabricSpecs');
+
+      img.src = imageSrc;
+      codeEl.textContent = 'Fabric Code: ' + code;
+
+      // Show modal
+      modal.style.display = 'flex';
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeFabricZoom() {
+      const modal = document.getElementById('fabricZoomModal');
+      modal.style.display = 'none';
+      document.body.style.overflow = '';
+    }
+
+    // Close on background click
+    document.getElementById('fabricZoomModal').addEventListener('click', function(e) {
+      if (e.target === this) {
+        closeFabricZoom();
+      }
+    });
+
+    // Close on Escape key
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') {
+        closeFabricZoom();
+      }
+    });
+
+    // Add hover effect to show zoom buttons
+    document.querySelectorAll('.fabric-swatch').forEach(swatch => {
+      swatch.addEventListener('mouseenter', function() {
+        const zoomBtn = this.querySelector('.zoom-btn');
+        if (zoomBtn) zoomBtn.style.opacity = '1';
+      });
+      swatch.addEventListener('mouseleave', function() {
+        const zoomBtn = this.querySelector('.zoom-btn');
+        if (zoomBtn) zoomBtn.style.opacity = '0';
+      });
+    });
+  </script>
+
+  <style>
+    /* Fabric Zoom Button Styles */
+    .fabric-swatch .zoom-btn {
+      position: absolute;
+      top: 4px;
+      right: 4px;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.95);
+      border: 1px solid #ddd;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      opacity: 0;
+      transition: opacity 0.2s, transform 0.2s;
+      z-index: 10;
+    }
+    .fabric-swatch:hover .zoom-btn {
+      opacity: 1;
+    }
+    .fabric-swatch .zoom-btn:hover {
+      transform: scale(1.1);
+      background: #fff;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    }
+    .swatch-img-container {
+      position: relative;
+      display: inline-block;
+    }
+  </style>
+
+  <!-- Dynamic Content Loading from Admin Panel -->
+  <script>
+    // Load product content from API
+    async function loadProductContent() {
+      try {
+        // Use fast combined endpoint - single request for all data
+        const response = await fetch('/api/product-page-data');
+        if (response.ok) {
+          const data = await response.json();
+          if (data.success) {
+            // Render fabrics
+            if (data.fabrics && data.fabrics.length > 0) {
+              renderFabricsFromAPI(data.fabrics);
+            }
+            // Cache data for later use
+            window.productPageData = data;
+          }
+        }
+      } catch (error) {
+        console.log('Using default content, API not available:', error.message);
+      }
+    }
+
+    // Render fabrics from API data
+    function renderFabricsFromAPI(fabrics) {
+      const blackoutContainer = document.getElementById('blackoutFabrics');
+      const semiBlackoutContainer = document.getElementById('semiBlackoutFabrics');
+      const transparentContainer = document.getElementById('transparentFabrics');
+
+      // Filter active fabrics by type
+      const activeFabrics = fabrics.filter(f => f.isActive);
+      const blackoutFabrics = activeFabrics.filter(f => f.filterType === 'blackout');
+      const semiBlackoutFabrics = activeFabrics.filter(f => f.filterType === 'semi-blackout');
+      const transparentFabrics = activeFabrics.filter(f => f.filterType === 'transparent');
+
+      // Sort by sortOrder
+      const sortByOrder = (a, b) => (a.sortOrder || 999) - (b.sortOrder || 999);
+
+      // Render each category
+      if (blackoutContainer && blackoutFabrics.length > 0) {
+        blackoutContainer.innerHTML = blackoutFabrics.sort(sortByOrder).map(f => createFabricSwatchHTML(f)).join('');
+        attachZoomHoverEvents(blackoutContainer);
+      }
+
+      if (semiBlackoutContainer && semiBlackoutFabrics.length > 0) {
+        semiBlackoutContainer.innerHTML = semiBlackoutFabrics.sort(sortByOrder).map(f => createFabricSwatchHTML(f)).join('');
+        attachZoomHoverEvents(semiBlackoutContainer);
+      }
+
+      if (transparentContainer && transparentFabrics.length > 0) {
+        transparentContainer.innerHTML = transparentFabrics.sort(sortByOrder).map(f => createFabricSwatchHTML(f)).join('');
+        attachZoomHoverEvents(transparentContainer);
+      }
+    }
+
+    // Create HTML for a single fabric swatch
+    function createFabricSwatchHTML(fabric) {
+      const code = escapeHtml(fabric.code);
+      const imageUrl = fabric.imageUrl;
+
+      return `
+        <div class="fabric-swatch" data-code="${code}" onclick="selectFabricSwatch(this, event)" style="width: 90px; text-align: center; cursor: pointer; position: relative;">
+          <div class="swatch-img-container">
+            <img src="${imageUrl}" alt="${code}" loading="lazy" decoding="async" style="width: 75px; height: 75px; border-radius: 8px; object-fit: cover; border: 2px solid transparent;" onerror="this.src='/images/placeholder.png'">
+            <button type="button" class="zoom-btn" onclick="openFabricZoom('${code}', '${imageUrl}', event)" title="Zoom">🔍</button>
+          </div>
+          <span style="font-size: 10px; color: #5C4A3A; display: block; margin-top: 4px;">${code}</span>
+        </div>
+      `;
+    }
+
+    // Attach zoom hover events to fabric swatches
+    function attachZoomHoverEvents(container) {
+      container.querySelectorAll('.fabric-swatch').forEach(swatch => {
+        swatch.addEventListener('mouseenter', function() {
+          const zoomBtn = this.querySelector('.zoom-btn');
+          if (zoomBtn) zoomBtn.style.opacity = '1';
+        });
+        swatch.addEventListener('mouseleave', function() {
+          const zoomBtn = this.querySelector('.zoom-btn');
+          if (zoomBtn) zoomBtn.style.opacity = '0';
+        });
+      });
+    }
+
+    // Render room labels dynamically
+    function renderRoomLabels(labels) {
+      const roomSelect = document.getElementById('roomName');
+      if (roomSelect && labels.length > 0) {
+        roomSelect.innerHTML = labels.map(label =>
+          `<option value="${escapeHtml(label)}">${escapeHtml(label)}</option>`
+        ).join('');
+      }
+    }
+
+    // Escape HTML to prevent XSS
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    // Load content when DOM is ready
+    document.addEventListener('DOMContentLoaded', function() {
+      loadProductContent();
+      loadPageSections();
+    });
+
+    // Load page sections from the page builder
+    async function loadPageSections() {
+      try {
+        const slug = window.location.pathname.split('/').pop();
+        const response = await fetch(`/api/product-page-sections/${slug}`);
+        if (response.ok) {
+          const data = await response.json();
+          if (data.success && data.sections) {
+            applyPageSections(data.sections);
+          }
+        }
+      } catch (error) {
+        console.log('Page sections not available:', error.message);
+      }
+    }
+
+    // Apply page sections to the product page
+    function applyPageSections(sections) {
+      sections.forEach(section => {
+        if (!section.isVisible) return;
+
+        switch (section.type) {
+          case 'product-title':
+            if (section.data?.title) {
+              const titleEl = document.getElementById('productTitle');
+              if (titleEl) titleEl.textContent = section.data.title;
+            }
+            if (section.data?.description) {
+              const descEl = document.getElementById('productDescription');
+              if (descEl) descEl.textContent = section.data.description;
+            }
+            break;
+
+          case 'image-gallery':
+            if (section.data?.mainImage || section.data?.images?.length > 0) {
+              updateProductGalleryFromSections(section.data);
+            }
+            break;
+
+          case 'features':
+            // Features can be rendered dynamically if there's a container for them
+            break;
+
+          case 'trust-badges':
+            // Trust badges can be rendered dynamically if needed
+            break;
+        }
+      });
+    }
+
+    // Update gallery from section data
+    function updateProductGalleryFromSections(data) {
+      const mainImageEl = document.getElementById('mainProductImage');
+      const thumbnailColumn = document.querySelector('.thumbnail-column');
+
+      const images = [];
+      if (data.mainImage) images.push(data.mainImage);
+      if (data.images && Array.isArray(data.images)) {
+        images.push(...data.images.filter(Boolean));
+      }
+
+      if (images.length === 0) return;
+
+      // Update main image
+      if (mainImageEl) {
+        mainImageEl.src = images[0];
+      }
+
+      // Update thumbnails
+      if (thumbnailColumn && images.length > 0) {
+        thumbnailColumn.innerHTML = images.slice(0, 4).map((img, i) => `
+          <div class="thumb-item ${i === 0 ? 'active' : ''}" onclick="changeImage(this, '${img}')">
+            <img src="${img}" alt="Thumbnail ${i + 1}">
+          </div>
+        `).join('');
+      }
+    }
+
+    // Listen for messages from the page editor (for live preview)
+    window.addEventListener('message', function(event) {
+      if (event.data.type === 'UPDATE_PAGE_SECTIONS') {
+        applyPageSections(event.data.sections);
+      }
+      if (event.data.type === 'HIGHLIGHT_SECTION') {
+        // Could add visual highlighting of sections here
+        console.log('Highlight section:', event.data.sectionId);
+      }
+    });
   </script>
 </body>
 </html>

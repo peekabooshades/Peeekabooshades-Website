@@ -1,0 +1,1738 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Product Page Editor - Peekaboo Shades Admin</title>
+  <link rel="stylesheet" href="css/admin.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="icon" type="image/png" href="/images/favicon.png">
+  <style>
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+      background: #f6f6f7;
+      overflow: hidden;
+    }
+
+    /* Top Header Bar */
+    .editor-header {
+      height: 56px;
+      background: #1a1a1a;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 16px;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 1000;
+    }
+
+    .editor-header-left {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .back-btn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: #fff;
+      text-decoration: none;
+      font-size: 14px;
+      padding: 8px 12px;
+      border-radius: 6px;
+      transition: background 0.2s;
+    }
+
+    .back-btn:hover {
+      background: rgba(255,255,255,0.1);
+    }
+
+    .editor-title {
+      color: #fff;
+      font-size: 14px;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .editor-title .page-name {
+      color: #b5b5b5;
+    }
+
+    .editor-header-center {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      background: #2a2a2a;
+      border-radius: 8px;
+      padding: 4px;
+    }
+
+    .view-btn {
+      padding: 8px 16px;
+      border: none;
+      background: transparent;
+      color: #888;
+      font-size: 13px;
+      cursor: pointer;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s;
+    }
+
+    .view-btn.active {
+      background: #404040;
+      color: #fff;
+    }
+
+    .view-btn:hover:not(.active) {
+      color: #fff;
+    }
+
+    .editor-header-right {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .preview-link {
+      color: #888;
+      font-size: 13px;
+      text-decoration: none;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 12px;
+      border-radius: 6px;
+      transition: all 0.2s;
+    }
+
+    .preview-link:hover {
+      color: #fff;
+      background: rgba(255,255,255,0.1);
+    }
+
+    .save-status {
+      color: #888;
+      font-size: 12px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .save-status.saving { color: #f5a623; }
+    .save-status.saved { color: #50c878; }
+
+    .save-btn {
+      padding: 8px 20px;
+      background: #008060;
+      color: #fff;
+      border: none;
+      border-radius: 6px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .save-btn:hover {
+      background: #006e52;
+    }
+
+    .save-btn:disabled {
+      background: #404040;
+      cursor: not-allowed;
+    }
+
+    /* Main Layout */
+    .editor-layout {
+      display: flex;
+      height: calc(100vh - 56px);
+      margin-top: 56px;
+    }
+
+    /* Left Sidebar - Sections */
+    .sections-sidebar {
+      width: 280px;
+      background: #fff;
+      border-right: 1px solid #e1e3e5;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .sidebar-header {
+      padding: 16px;
+      border-bottom: 1px solid #e1e3e5;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .sidebar-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: #1a1a1a;
+    }
+
+    .add-section-btn {
+      width: 32px;
+      height: 32px;
+      border: none;
+      background: #f6f6f7;
+      border-radius: 6px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #637381;
+      transition: all 0.2s;
+    }
+
+    .add-section-btn:hover {
+      background: #e1e3e5;
+      color: #1a1a1a;
+    }
+
+    .sections-list {
+      flex: 1;
+      overflow-y: auto;
+      padding: 8px;
+    }
+
+    .section-group {
+      margin-bottom: 8px;
+    }
+
+    .section-group-header {
+      font-size: 11px;
+      font-weight: 600;
+      color: #637381;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      padding: 8px 12px;
+    }
+
+    .section-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px;
+      background: #f9fafb;
+      border: 1px solid transparent;
+      border-radius: 8px;
+      margin-bottom: 4px;
+      cursor: grab;
+      transition: all 0.2s;
+      user-select: none;
+    }
+
+    .section-item:hover {
+      background: #f1f2f4;
+      border-color: #c9cccf;
+    }
+
+    .section-item.active {
+      background: #f4f0ff;
+      border-color: #8b5cf6;
+    }
+
+    .section-item.dragging {
+      opacity: 0.5;
+      transform: rotate(2deg);
+    }
+
+    .section-item.drag-over {
+      border-color: #008060;
+      border-style: dashed;
+    }
+
+    .section-icon {
+      width: 36px;
+      height: 36px;
+      background: #fff;
+      border: 1px solid #e1e3e5;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #637381;
+      flex-shrink: 0;
+    }
+
+    .section-item.active .section-icon {
+      background: #8b5cf6;
+      border-color: #8b5cf6;
+      color: #fff;
+    }
+
+    .section-details {
+      flex: 1;
+      min-width: 0;
+    }
+
+    .section-name {
+      font-size: 13px;
+      font-weight: 500;
+      color: #1a1a1a;
+      margin-bottom: 2px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .section-type {
+      font-size: 11px;
+      color: #637381;
+    }
+
+    .section-actions {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+
+    .section-item:hover .section-actions {
+      opacity: 1;
+    }
+
+    .section-action-btn {
+      width: 28px;
+      height: 28px;
+      border: none;
+      background: transparent;
+      border-radius: 4px;
+      cursor: pointer;
+      color: #637381;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .section-action-btn:hover {
+      background: #e1e3e5;
+      color: #1a1a1a;
+    }
+
+    .section-action-btn.visibility {
+      opacity: 1 !important;
+    }
+
+    .section-action-btn.visibility.hidden {
+      color: #c9cccf;
+    }
+
+    /* Center - Preview */
+    .preview-container {
+      flex: 1;
+      background: #e1e3e5;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 24px;
+      overflow: auto;
+    }
+
+    .preview-frame-wrapper {
+      background: #fff;
+      border-radius: 8px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      overflow: hidden;
+      transition: width 0.3s ease;
+      position: relative;
+    }
+
+    .preview-frame-wrapper.desktop {
+      width: 100%;
+      max-width: 1200px;
+    }
+
+    .preview-frame-wrapper.tablet {
+      width: 768px;
+    }
+
+    .preview-frame-wrapper.mobile {
+      width: 375px;
+    }
+
+    .preview-iframe {
+      width: 100%;
+      height: calc(100vh - 160px);
+      border: none;
+      display: block;
+    }
+
+    .preview-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      pointer-events: none;
+    }
+
+    .section-highlight {
+      position: absolute;
+      border: 2px solid #8b5cf6;
+      background: rgba(139, 92, 246, 0.1);
+      pointer-events: none;
+      transition: all 0.2s;
+      border-radius: 4px;
+    }
+
+    /* Right Sidebar - Properties */
+    .properties-sidebar {
+      width: 320px;
+      background: #fff;
+      border-left: 1px solid #e1e3e5;
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .properties-header {
+      padding: 16px;
+      border-bottom: 1px solid #e1e3e5;
+    }
+
+    .properties-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: #1a1a1a;
+      margin-bottom: 4px;
+    }
+
+    .properties-subtitle {
+      font-size: 12px;
+      color: #637381;
+    }
+
+    .properties-content {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px;
+    }
+
+    .property-section {
+      margin-bottom: 24px;
+    }
+
+    .property-section-title {
+      font-size: 12px;
+      font-weight: 600;
+      color: #637381;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 12px;
+    }
+
+    .property-field {
+      margin-bottom: 16px;
+    }
+
+    .property-label {
+      display: block;
+      font-size: 13px;
+      font-weight: 500;
+      color: #1a1a1a;
+      margin-bottom: 6px;
+    }
+
+    .property-input {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid #c9cccf;
+      border-radius: 6px;
+      font-size: 13px;
+      transition: border-color 0.2s;
+    }
+
+    .property-input:focus {
+      outline: none;
+      border-color: #8b5cf6;
+      box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.1);
+    }
+
+    .property-textarea {
+      min-height: 100px;
+      resize: vertical;
+    }
+
+    .property-toggle {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px;
+      background: #f9fafb;
+      border-radius: 6px;
+    }
+
+    .toggle-label {
+      font-size: 13px;
+      color: #1a1a1a;
+    }
+
+    .toggle-switch {
+      position: relative;
+      width: 44px;
+      height: 24px;
+    }
+
+    .toggle-switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .toggle-slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: #c9cccf;
+      border-radius: 24px;
+      transition: 0.3s;
+    }
+
+    .toggle-slider:before {
+      position: absolute;
+      content: "";
+      height: 18px;
+      width: 18px;
+      left: 3px;
+      bottom: 3px;
+      background: white;
+      border-radius: 50%;
+      transition: 0.3s;
+    }
+
+    .toggle-switch input:checked + .toggle-slider {
+      background: #008060;
+    }
+
+    .toggle-switch input:checked + .toggle-slider:before {
+      transform: translateX(20px);
+    }
+
+    /* Image Upload */
+    .image-upload-area {
+      border: 2px dashed #c9cccf;
+      border-radius: 8px;
+      padding: 24px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s;
+      background: #f9fafb;
+    }
+
+    .image-upload-area:hover {
+      border-color: #8b5cf6;
+      background: #f4f0ff;
+    }
+
+    .image-upload-area.has-image {
+      padding: 8px;
+      border-style: solid;
+    }
+
+    .image-upload-area img {
+      max-width: 100%;
+      border-radius: 4px;
+    }
+
+    .upload-icon {
+      width: 48px;
+      height: 48px;
+      background: #e1e3e5;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 12px;
+      color: #637381;
+    }
+
+    .upload-text {
+      font-size: 13px;
+      color: #637381;
+      margin-bottom: 4px;
+    }
+
+    .upload-hint {
+      font-size: 11px;
+      color: #8c9196;
+    }
+
+    /* Empty State */
+    .empty-state {
+      text-align: center;
+      padding: 40px 20px;
+      color: #637381;
+    }
+
+    .empty-state-icon {
+      width: 64px;
+      height: 64px;
+      background: #f6f6f7;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 16px;
+      font-size: 24px;
+    }
+
+    .empty-state-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: #1a1a1a;
+      margin-bottom: 8px;
+    }
+
+    .empty-state-text {
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    /* Color Picker */
+    .color-picker-wrapper {
+      display: flex;
+      gap: 8px;
+    }
+
+    .color-picker-wrapper input[type="color"] {
+      width: 48px;
+      height: 40px;
+      padding: 2px;
+      border: 1px solid #c9cccf;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+
+    .color-picker-wrapper input[type="text"] {
+      flex: 1;
+    }
+
+    /* Add Section Modal */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.5);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 2000;
+    }
+
+    .modal-overlay.active {
+      display: flex;
+    }
+
+    .modal {
+      background: #fff;
+      border-radius: 12px;
+      width: 100%;
+      max-width: 600px;
+      max-height: 80vh;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .modal-header {
+      padding: 20px 24px;
+      border-bottom: 1px solid #e1e3e5;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .modal-title {
+      font-size: 16px;
+      font-weight: 600;
+    }
+
+    .modal-close {
+      width: 32px;
+      height: 32px;
+      border: none;
+      background: transparent;
+      cursor: pointer;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #637381;
+    }
+
+    .modal-close:hover {
+      background: #f6f6f7;
+    }
+
+    .modal-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 24px;
+    }
+
+    .section-templates-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+    }
+
+    .section-template {
+      border: 1px solid #e1e3e5;
+      border-radius: 8px;
+      padding: 16px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .section-template:hover {
+      border-color: #8b5cf6;
+      background: #f4f0ff;
+    }
+
+    .template-icon {
+      width: 48px;
+      height: 48px;
+      background: #f6f6f7;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 12px;
+      color: #637381;
+      font-size: 20px;
+    }
+
+    .template-name {
+      font-size: 14px;
+      font-weight: 500;
+      color: #1a1a1a;
+      margin-bottom: 4px;
+    }
+
+    .template-desc {
+      font-size: 12px;
+      color: #637381;
+    }
+
+    /* Toast */
+    .toast-container {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      z-index: 3000;
+    }
+
+    .toast {
+      background: #1a1a1a;
+      color: #fff;
+      padding: 12px 20px;
+      border-radius: 8px;
+      font-size: 13px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      animation: slideIn 0.3s ease;
+    }
+
+    .toast.success { background: #008060; }
+    .toast.error { background: #d72c0d; }
+
+    @keyframes slideIn {
+      from { transform: translateX(100%); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+
+    /* Responsive */
+    @media (max-width: 1200px) {
+      .properties-sidebar {
+        width: 280px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <header class="editor-header">
+    <div class="editor-header-left">
+      <a href="/admin/" class="back-btn">
+        <i class="fas fa-arrow-left"></i>
+        <span>Exit</span>
+      </a>
+      <div class="editor-title">
+        <i class="fas fa-file-alt"></i>
+        <span class="page-name">Product Page</span>
+      </div>
+    </div>
+
+    <div class="editor-header-center">
+      <button class="view-btn active" data-view="desktop" onclick="setPreviewDevice('desktop')">
+        <i class="fas fa-desktop"></i>
+        Desktop
+      </button>
+      <button class="view-btn" data-view="tablet" onclick="setPreviewDevice('tablet')">
+        <i class="fas fa-tablet-alt"></i>
+        Tablet
+      </button>
+      <button class="view-btn" data-view="mobile" onclick="setPreviewDevice('mobile')">
+        <i class="fas fa-mobile-alt"></i>
+        Mobile
+      </button>
+    </div>
+
+    <div class="editor-header-right">
+      <span class="save-status" id="saveStatus">
+        <i class="fas fa-check-circle"></i>
+        Saved
+      </span>
+      <a href="/product/affordable-custom-roller-blinds" target="_blank" class="preview-link">
+        <i class="fas fa-external-link-alt"></i>
+        View Page
+      </a>
+      <button class="save-btn" id="saveBtn" onclick="saveAllChanges()">
+        Save
+      </button>
+    </div>
+  </header>
+
+  <!-- Main Layout -->
+  <div class="editor-layout">
+    <!-- Left Sidebar - Sections -->
+    <aside class="sections-sidebar">
+      <div class="sidebar-header">
+        <span class="sidebar-title">Sections</span>
+        <button class="add-section-btn" onclick="openAddSectionModal()" title="Add section">
+          <i class="fas fa-plus"></i>
+        </button>
+      </div>
+      <div class="sections-list" id="sectionsList">
+        <!-- Sections rendered by JS -->
+      </div>
+    </aside>
+
+    <!-- Center - Preview -->
+    <main class="preview-container">
+      <div class="preview-frame-wrapper desktop" id="previewFrame">
+        <iframe
+          src="/product/affordable-custom-roller-blinds?preview=true"
+          class="preview-iframe"
+          id="previewIframe"
+          onload="onPreviewLoad()">
+        </iframe>
+      </div>
+    </main>
+
+    <!-- Right Sidebar - Properties -->
+    <aside class="properties-sidebar">
+      <div class="properties-header">
+        <div class="properties-title" id="propertiesTitle">Page Settings</div>
+        <div class="properties-subtitle" id="propertiesSubtitle">Edit your product page</div>
+      </div>
+      <div class="properties-content" id="propertiesContent">
+        <!-- Properties rendered by JS -->
+      </div>
+    </aside>
+  </div>
+
+  <!-- Add Section Modal -->
+  <div class="modal-overlay" id="addSectionModal">
+    <div class="modal">
+      <div class="modal-header">
+        <span class="modal-title">Add Section</span>
+        <button class="modal-close" onclick="closeAddSectionModal()">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="section-templates-grid" id="sectionTemplates">
+          <!-- Templates rendered by JS -->
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Container -->
+  <div class="toast-container" id="toastContainer"></div>
+
+  <script src="js/admin.js"></script>
+  <script>
+    // Page State
+    let pageData = {
+      slug: 'affordable-custom-roller-blinds',
+      sections: []
+    };
+    let selectedSectionId = null;
+    let hasUnsavedChanges = false;
+    let draggedSection = null;
+
+    // Section Templates
+    const sectionTemplates = [
+      {
+        type: 'hero',
+        name: 'Hero Banner',
+        description: 'Large banner with image and text',
+        icon: 'fa-image',
+        defaultData: {
+          title: 'Hero Section',
+          subtitle: 'Add your headline here',
+          backgroundImage: '',
+          buttonText: 'Shop Now',
+          buttonLink: '#'
+        }
+      },
+      {
+        type: 'product-title',
+        name: 'Product Title',
+        description: 'Product name and description',
+        icon: 'fa-heading',
+        defaultData: {
+          title: 'Product Name',
+          description: 'Product description goes here'
+        }
+      },
+      {
+        type: 'image-gallery',
+        name: 'Image Gallery',
+        description: 'Product image gallery',
+        icon: 'fa-images',
+        defaultData: {
+          images: []
+        }
+      },
+      {
+        type: 'features',
+        name: 'Features',
+        description: 'List of product features',
+        icon: 'fa-list-check',
+        defaultData: {
+          title: 'Features',
+          items: [
+            { icon: 'fa-check', text: 'Feature 1' },
+            { icon: 'fa-check', text: 'Feature 2' },
+            { icon: 'fa-check', text: 'Feature 3' }
+          ]
+        }
+      },
+      {
+        type: 'trust-badges',
+        name: 'Trust Badges',
+        description: 'Trust and guarantee badges',
+        icon: 'fa-shield-halved',
+        defaultData: {
+          items: [
+            { icon: 'fa-truck', text: 'Free Shipping' },
+            { icon: 'fa-shield-alt', text: '5 Year Warranty' },
+            { icon: 'fa-undo', text: 'Easy Returns' }
+          ]
+        }
+      },
+      {
+        type: 'text-block',
+        name: 'Text Block',
+        description: 'Rich text content area',
+        icon: 'fa-align-left',
+        defaultData: {
+          content: 'Add your content here...'
+        }
+      },
+      {
+        type: 'cta-banner',
+        name: 'CTA Banner',
+        description: 'Call-to-action banner',
+        icon: 'fa-bullhorn',
+        defaultData: {
+          title: 'Ready to Order?',
+          subtitle: 'Get your custom blinds today',
+          buttonText: 'Get Started',
+          buttonLink: '#',
+          backgroundColor: '#8E6545'
+        }
+      },
+      {
+        type: 'faq',
+        name: 'FAQ Section',
+        description: 'Frequently asked questions',
+        icon: 'fa-circle-question',
+        defaultData: {
+          title: 'Frequently Asked Questions',
+          items: [
+            { question: 'Question 1?', answer: 'Answer 1' },
+            { question: 'Question 2?', answer: 'Answer 2' }
+          ]
+        }
+      }
+    ];
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', () => {
+      Admin.Auth.requireAuth();
+      loadPageData();
+      renderSectionTemplates();
+      setupKeyboardShortcuts();
+    });
+
+    // Load page data
+    async function loadPageData() {
+      try {
+        const response = await Admin.API.get('/product-page-sections/affordable-custom-roller-blinds');
+        if (response.success && response.sections) {
+          pageData.sections = response.sections;
+        } else {
+          // Load default sections if none exist
+          pageData.sections = getDefaultSections();
+        }
+        renderSectionsList();
+        renderDefaultProperties();
+      } catch (error) {
+        console.error('Failed to load page data:', error);
+        pageData.sections = getDefaultSections();
+        renderSectionsList();
+        renderDefaultProperties();
+      }
+    }
+
+    // Get default sections for a new page
+    function getDefaultSections() {
+      return [
+        {
+          id: 'section-' + Date.now() + '-1',
+          type: 'product-title',
+          name: 'Product Title',
+          isVisible: true,
+          data: {
+            title: 'Affordable Custom Roller Blinds & shades',
+            description: 'Discover our selection! Roller blinds offer a clean and sleek line that complements any home style.'
+          }
+        },
+        {
+          id: 'section-' + Date.now() + '-2',
+          type: 'image-gallery',
+          name: 'Product Gallery',
+          isVisible: true,
+          data: {
+            images: []
+          }
+        },
+        {
+          id: 'section-' + Date.now() + '-3',
+          type: 'features',
+          name: 'Product Features',
+          isVisible: true,
+          data: {
+            title: 'Features',
+            items: [
+              { icon: 'fa-check', text: 'Energy Efficient' },
+              { icon: 'fa-check', text: 'Custom Sizes' },
+              { icon: 'fa-check', text: 'Easy Installation' }
+            ]
+          }
+        },
+        {
+          id: 'section-' + Date.now() + '-4',
+          type: 'trust-badges',
+          name: 'Trust Badges',
+          isVisible: true,
+          data: {
+            items: [
+              { icon: 'fa-truck', text: 'Free Shipping' },
+              { icon: 'fa-shield-alt', text: '5 Year Warranty' },
+              { icon: 'fa-undo', text: 'Easy Returns' }
+            ]
+          }
+        }
+      ];
+    }
+
+    // Render sections list
+    function renderSectionsList() {
+      const container = document.getElementById('sectionsList');
+
+      if (pageData.sections.length === 0) {
+        container.innerHTML = `
+          <div class="empty-state">
+            <div class="empty-state-icon"><i class="fas fa-layer-group"></i></div>
+            <div class="empty-state-title">No sections yet</div>
+            <div class="empty-state-text">Click the + button to add your first section</div>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = pageData.sections.map(section => {
+        const template = sectionTemplates.find(t => t.type === section.type) || {};
+        return `
+          <div class="section-item ${selectedSectionId === section.id ? 'active' : ''} ${!section.isVisible ? 'hidden-section' : ''}"
+               data-id="${section.id}"
+               draggable="true"
+               onclick="selectSection('${section.id}')"
+               ondragstart="handleDragStart(event, '${section.id}')"
+               ondragover="handleDragOver(event)"
+               ondrop="handleDrop(event, '${section.id}')"
+               ondragend="handleDragEnd(event)">
+            <div class="section-icon">
+              <i class="fas ${template.icon || 'fa-square'}"></i>
+            </div>
+            <div class="section-details">
+              <div class="section-name">${escapeHtml(section.name)}</div>
+              <div class="section-type">${template.name || section.type}</div>
+            </div>
+            <div class="section-actions">
+              <button class="section-action-btn visibility ${!section.isVisible ? 'hidden' : ''}"
+                      onclick="event.stopPropagation(); toggleSectionVisibility('${section.id}')"
+                      title="${section.isVisible ? 'Hide' : 'Show'}">
+                <i class="fas ${section.isVisible ? 'fa-eye' : 'fa-eye-slash'}"></i>
+              </button>
+              <button class="section-action-btn"
+                      onclick="event.stopPropagation(); duplicateSection('${section.id}')"
+                      title="Duplicate">
+                <i class="fas fa-copy"></i>
+              </button>
+              <button class="section-action-btn"
+                      onclick="event.stopPropagation(); deleteSection('${section.id}')"
+                      title="Delete">
+                <i class="fas fa-trash"></i>
+              </button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // Section selection
+    function selectSection(sectionId) {
+      selectedSectionId = sectionId;
+      renderSectionsList();
+      renderSectionProperties(sectionId);
+      highlightSectionInPreview(sectionId);
+    }
+
+    // Render section properties
+    function renderSectionProperties(sectionId) {
+      const section = pageData.sections.find(s => s.id === sectionId);
+      if (!section) return;
+
+      const template = sectionTemplates.find(t => t.type === section.type);
+
+      document.getElementById('propertiesTitle').textContent = section.name;
+      document.getElementById('propertiesSubtitle').textContent = template?.name || section.type;
+
+      const container = document.getElementById('propertiesContent');
+      let html = '';
+
+      // Section name
+      html += `
+        <div class="property-section">
+          <div class="property-section-title">Section Settings</div>
+          <div class="property-field">
+            <label class="property-label">Section Name</label>
+            <input type="text" class="property-input" value="${escapeHtml(section.name)}"
+                   onchange="updateSectionName('${section.id}', this.value)">
+          </div>
+          <div class="property-toggle">
+            <span class="toggle-label">Visible on page</span>
+            <label class="toggle-switch">
+              <input type="checkbox" ${section.isVisible ? 'checked' : ''}
+                     onchange="toggleSectionVisibility('${section.id}')">
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+        </div>
+      `;
+
+      // Type-specific properties
+      html += '<div class="property-section">';
+      html += '<div class="property-section-title">Content</div>';
+
+      switch (section.type) {
+        case 'product-title':
+          html += `
+            <div class="property-field">
+              <label class="property-label">Title</label>
+              <input type="text" class="property-input" value="${escapeHtml(section.data?.title || '')}"
+                     onchange="updateSectionData('${section.id}', 'title', this.value)">
+            </div>
+            <div class="property-field">
+              <label class="property-label">Description</label>
+              <textarea class="property-input property-textarea"
+                        onchange="updateSectionData('${section.id}', 'description', this.value)">${escapeHtml(section.data?.description || '')}</textarea>
+            </div>
+          `;
+          break;
+
+        case 'image-gallery':
+          html += `
+            <div class="property-field">
+              <label class="property-label">Main Image</label>
+              <div class="image-upload-area ${section.data?.mainImage ? 'has-image' : ''}"
+                   onclick="uploadImage('${section.id}', 'mainImage')">
+                ${section.data?.mainImage
+                  ? `<img src="${section.data.mainImage}" alt="Main image">`
+                  : `<div class="upload-icon"><i class="fas fa-cloud-upload-alt"></i></div>
+                     <div class="upload-text">Click to upload</div>
+                     <div class="upload-hint">JPG, PNG up to 5MB</div>`
+                }
+              </div>
+            </div>
+            <div class="property-field">
+              <label class="property-label">Gallery Images</label>
+              <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px;">
+                ${[0,1,2,3].map(i => `
+                  <div class="image-upload-area ${section.data?.images?.[i] ? 'has-image' : ''}"
+                       style="padding: 12px; min-height: 80px;"
+                       onclick="uploadGalleryImage('${section.id}', ${i})">
+                    ${section.data?.images?.[i]
+                      ? `<img src="${section.data.images[i]}" alt="Gallery ${i+1}">`
+                      : `<i class="fas fa-plus" style="color: #ccc;"></i>`
+                    }
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+          `;
+          break;
+
+        case 'features':
+          html += `
+            <div class="property-field">
+              <label class="property-label">Section Title</label>
+              <input type="text" class="property-input" value="${escapeHtml(section.data?.title || '')}"
+                     onchange="updateSectionData('${section.id}', 'title', this.value)">
+            </div>
+            <div class="property-field">
+              <label class="property-label">Feature Items</label>
+              <div id="featureItems-${section.id}">
+                ${(section.data?.items || []).map((item, i) => `
+                  <div style="display: flex; gap: 8px; margin-bottom: 8px;">
+                    <input type="text" class="property-input" style="flex: 1;"
+                           value="${escapeHtml(item.text)}"
+                           placeholder="Feature text"
+                           onchange="updateFeatureItem('${section.id}', ${i}, this.value)">
+                    <button class="section-action-btn" onclick="removeFeatureItem('${section.id}', ${i})">
+                      <i class="fas fa-times"></i>
+                    </button>
+                  </div>
+                `).join('')}
+              </div>
+              <button class="add-section-btn" style="width: 100%; margin-top: 8px;"
+                      onclick="addFeatureItem('${section.id}')">
+                <i class="fas fa-plus"></i> Add Feature
+              </button>
+            </div>
+          `;
+          break;
+
+        case 'trust-badges':
+          html += `
+            <div class="property-field">
+              <label class="property-label">Trust Badges</label>
+              <div id="trustBadges-${section.id}">
+                ${(section.data?.items || []).map((item, i) => `
+                  <div style="display: flex; gap: 8px; margin-bottom: 8px; align-items: center;">
+                    <select class="property-input" style="width: 100px;"
+                            onchange="updateTrustBadge('${section.id}', ${i}, 'icon', this.value)">
+                      <option value="fa-truck" ${item.icon === 'fa-truck' ? 'selected' : ''}>Truck</option>
+                      <option value="fa-shield-alt" ${item.icon === 'fa-shield-alt' ? 'selected' : ''}>Shield</option>
+                      <option value="fa-undo" ${item.icon === 'fa-undo' ? 'selected' : ''}>Return</option>
+                      <option value="fa-check" ${item.icon === 'fa-check' ? 'selected' : ''}>Check</option>
+                      <option value="fa-star" ${item.icon === 'fa-star' ? 'selected' : ''}>Star</option>
+                      <option value="fa-heart" ${item.icon === 'fa-heart' ? 'selected' : ''}>Heart</option>
+                    </select>
+                    <input type="text" class="property-input" style="flex: 1;"
+                           value="${escapeHtml(item.text)}"
+                           onchange="updateTrustBadge('${section.id}', ${i}, 'text', this.value)">
+                    <button class="section-action-btn" onclick="removeTrustBadge('${section.id}', ${i})">
+                      <i class="fas fa-times"></i>
+                    </button>
+                  </div>
+                `).join('')}
+              </div>
+              <button class="add-section-btn" style="width: 100%; margin-top: 8px;"
+                      onclick="addTrustBadge('${section.id}')">
+                <i class="fas fa-plus"></i> Add Badge
+              </button>
+            </div>
+          `;
+          break;
+
+        case 'text-block':
+          html += `
+            <div class="property-field">
+              <label class="property-label">Content</label>
+              <textarea class="property-input property-textarea" style="min-height: 200px;"
+                        onchange="updateSectionData('${section.id}', 'content', this.value)">${escapeHtml(section.data?.content || '')}</textarea>
+            </div>
+          `;
+          break;
+
+        case 'cta-banner':
+          html += `
+            <div class="property-field">
+              <label class="property-label">Title</label>
+              <input type="text" class="property-input" value="${escapeHtml(section.data?.title || '')}"
+                     onchange="updateSectionData('${section.id}', 'title', this.value)">
+            </div>
+            <div class="property-field">
+              <label class="property-label">Subtitle</label>
+              <input type="text" class="property-input" value="${escapeHtml(section.data?.subtitle || '')}"
+                     onchange="updateSectionData('${section.id}', 'subtitle', this.value)">
+            </div>
+            <div class="property-field">
+              <label class="property-label">Button Text</label>
+              <input type="text" class="property-input" value="${escapeHtml(section.data?.buttonText || '')}"
+                     onchange="updateSectionData('${section.id}', 'buttonText', this.value)">
+            </div>
+            <div class="property-field">
+              <label class="property-label">Button Link</label>
+              <input type="text" class="property-input" value="${escapeHtml(section.data?.buttonLink || '')}"
+                     onchange="updateSectionData('${section.id}', 'buttonLink', this.value)">
+            </div>
+            <div class="property-field">
+              <label class="property-label">Background Color</label>
+              <div class="color-picker-wrapper">
+                <input type="color" value="${section.data?.backgroundColor || '#8E6545'}"
+                       onchange="updateSectionData('${section.id}', 'backgroundColor', this.value)">
+                <input type="text" class="property-input" value="${section.data?.backgroundColor || '#8E6545'}"
+                       onchange="updateSectionData('${section.id}', 'backgroundColor', this.value)">
+              </div>
+            </div>
+          `;
+          break;
+
+        default:
+          html += '<p style="color: #637381; font-size: 13px;">No editable properties for this section type.</p>';
+      }
+
+      html += '</div>';
+      container.innerHTML = html;
+    }
+
+    // Render default properties (no section selected)
+    function renderDefaultProperties() {
+      document.getElementById('propertiesTitle').textContent = 'Page Settings';
+      document.getElementById('propertiesSubtitle').textContent = 'Select a section to edit';
+
+      const container = document.getElementById('propertiesContent');
+      container.innerHTML = `
+        <div class="empty-state">
+          <div class="empty-state-icon"><i class="fas fa-mouse-pointer"></i></div>
+          <div class="empty-state-title">No section selected</div>
+          <div class="empty-state-text">Click on a section in the left panel to edit its properties</div>
+        </div>
+      `;
+    }
+
+    // Update section data
+    function updateSectionName(sectionId, value) {
+      const section = pageData.sections.find(s => s.id === sectionId);
+      if (section) {
+        section.name = value;
+        markUnsaved();
+        renderSectionsList();
+      }
+    }
+
+    function updateSectionData(sectionId, key, value) {
+      const section = pageData.sections.find(s => s.id === sectionId);
+      if (section) {
+        if (!section.data) section.data = {};
+        section.data[key] = value;
+        markUnsaved();
+        updatePreview();
+      }
+    }
+
+    function toggleSectionVisibility(sectionId) {
+      const section = pageData.sections.find(s => s.id === sectionId);
+      if (section) {
+        section.isVisible = !section.isVisible;
+        markUnsaved();
+        renderSectionsList();
+        if (selectedSectionId === sectionId) {
+          renderSectionProperties(sectionId);
+        }
+        updatePreview();
+      }
+    }
+
+    // Feature items
+    function updateFeatureItem(sectionId, index, value) {
+      const section = pageData.sections.find(s => s.id === sectionId);
+      if (section && section.data?.items?.[index]) {
+        section.data.items[index].text = value;
+        markUnsaved();
+        updatePreview();
+      }
+    }
+
+    function addFeatureItem(sectionId) {
+      const section = pageData.sections.find(s => s.id === sectionId);
+      if (section) {
+        if (!section.data.items) section.data.items = [];
+        section.data.items.push({ icon: 'fa-check', text: 'New Feature' });
+        markUnsaved();
+        renderSectionProperties(sectionId);
+        updatePreview();
+      }
+    }
+
+    function removeFeatureItem(sectionId, index) {
+      const section = pageData.sections.find(s => s.id === sectionId);
+      if (section && section.data?.items) {
+        section.data.items.splice(index, 1);
+        markUnsaved();
+        renderSectionProperties(sectionId);
+        updatePreview();
+      }
+    }
+
+    // Trust badges
+    function updateTrustBadge(sectionId, index, key, value) {
+      const section = pageData.sections.find(s => s.id === sectionId);
+      if (section && section.data?.items?.[index]) {
+        section.data.items[index][key] = value;
+        markUnsaved();
+        updatePreview();
+      }
+    }
+
+    function addTrustBadge(sectionId) {
+      const section = pageData.sections.find(s => s.id === sectionId);
+      if (section) {
+        if (!section.data.items) section.data.items = [];
+        section.data.items.push({ icon: 'fa-check', text: 'New Badge' });
+        markUnsaved();
+        renderSectionProperties(sectionId);
+        updatePreview();
+      }
+    }
+
+    function removeTrustBadge(sectionId, index) {
+      const section = pageData.sections.find(s => s.id === sectionId);
+      if (section && section.data?.items) {
+        section.data.items.splice(index, 1);
+        markUnsaved();
+        renderSectionProperties(sectionId);
+        updatePreview();
+      }
+    }
+
+    // Image upload
+    async function uploadImage(sectionId, field) {
+      const input = document.createElement('input');
+      input.type = 'file';
+      input.accept = 'image/*';
+      input.onchange = async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        const formData = new FormData();
+        formData.append('image', file);
+
+        try {
+          const response = await fetch('/api/admin/upload', {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${Admin.Auth.getToken()}` },
+            body: formData
+          });
+          const result = await response.json();
+          if (result.success) {
+            updateSectionData(sectionId, field, result.url);
+            renderSectionProperties(sectionId);
+            showToast('Image uploaded successfully', 'success');
+          }
+        } catch (error) {
+          showToast('Failed to upload image', 'error');
+        }
+      };
+      input.click();
+    }
+
+    async function uploadGalleryImage(sectionId, index) {
+      const input = document.createElement('input');
+      input.type = 'file';
+      input.accept = 'image/*';
+      input.onchange = async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        const formData = new FormData();
+        formData.append('image', file);
+
+        try {
+          const response = await fetch('/api/admin/upload', {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${Admin.Auth.getToken()}` },
+            body: formData
+          });
+          const result = await response.json();
+          if (result.success) {
+            const section = pageData.sections.find(s => s.id === sectionId);
+            if (section) {
+              if (!section.data.images) section.data.images = [];
+              section.data.images[index] = result.url;
+              markUnsaved();
+              renderSectionProperties(sectionId);
+              updatePreview();
+              showToast('Image uploaded successfully', 'success');
+            }
+          }
+        } catch (error) {
+          showToast('Failed to upload image', 'error');
+        }
+      };
+      input.click();
+    }
+
+    // Drag and drop
+    function handleDragStart(e, sectionId) {
+      draggedSection = sectionId;
+      e.target.classList.add('dragging');
+      e.dataTransfer.effectAllowed = 'move';
+    }
+
+    function handleDragOver(e) {
+      e.preventDefault();
+      e.dataTransfer.dropEffect = 'move';
+      e.target.closest('.section-item')?.classList.add('drag-over');
+    }
+
+    function handleDrop(e, targetSectionId) {
+      e.preventDefault();
+      e.target.closest('.section-item')?.classList.remove('drag-over');
+
+      if (draggedSection && draggedSection !== targetSectionId) {
+        const fromIndex = pageData.sections.findIndex(s => s.id === draggedSection);
+        const toIndex = pageData.sections.findIndex(s => s.id === targetSectionId);
+
+        if (fromIndex > -1 && toIndex > -1) {
+          const [moved] = pageData.sections.splice(fromIndex, 1);
+          pageData.sections.splice(toIndex, 0, moved);
+          markUnsaved();
+          renderSectionsList();
+          updatePreview();
+        }
+      }
+    }
+
+    function handleDragEnd(e) {
+      e.target.classList.remove('dragging');
+      document.querySelectorAll('.section-item').forEach(el => el.classList.remove('drag-over'));
+      draggedSection = null;
+    }
+
+    // Section actions
+    function duplicateSection(sectionId) {
+      const section = pageData.sections.find(s => s.id === sectionId);
+      if (section) {
+        const newSection = JSON.parse(JSON.stringify(section));
+        newSection.id = 'section-' + Date.now();
+        newSection.name = section.name + ' (Copy)';
+        const index = pageData.sections.findIndex(s => s.id === sectionId);
+        pageData.sections.splice(index + 1, 0, newSection);
+        markUnsaved();
+        renderSectionsList();
+        updatePreview();
+        showToast('Section duplicated', 'success');
+      }
+    }
+
+    function deleteSection(sectionId) {
+      if (!confirm('Are you sure you want to delete this section?')) return;
+
+      const index = pageData.sections.findIndex(s => s.id === sectionId);
+      if (index > -1) {
+        pageData.sections.splice(index, 1);
+        if (selectedSectionId === sectionId) {
+          selectedSectionId = null;
+          renderDefaultProperties();
+        }
+        markUnsaved();
+        renderSectionsList();
+        updatePreview();
+        showToast('Section deleted', 'success');
+      }
+    }
+
+    // Add section modal
+    function openAddSectionModal() {
+      document.getElementById('addSectionModal').classList.add('active');
+    }
+
+    function closeAddSectionModal() {
+      document.getElementById('addSectionModal').classList.remove('active');
+    }
+
+    function renderSectionTemplates() {
+      const container = document.getElementById('sectionTemplates');
+      container.innerHTML = sectionTemplates.map(template => `
+        <div class="section-template" onclick="addSection('${template.type}')">
+          <div class="template-icon"><i class="fas ${template.icon}"></i></div>
+          <div class="template-name">${template.name}</div>
+          <div class="template-desc">${template.description}</div>
+        </div>
+      `).join('');
+    }
+
+    function addSection(type) {
+      const template = sectionTemplates.find(t => t.type === type);
+      if (!template) return;
+
+      const newSection = {
+        id: 'section-' + Date.now(),
+        type: type,
+        name: template.name,
+        isVisible: true,
+        data: JSON.parse(JSON.stringify(template.defaultData))
+      };
+
+      pageData.sections.push(newSection);
+      markUnsaved();
+      renderSectionsList();
+      closeAddSectionModal();
+      selectSection(newSection.id);
+      updatePreview();
+      showToast('Section added', 'success');
+    }
+
+    // Preview
+    function setPreviewDevice(device) {
+      document.querySelectorAll('.view-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.view === device);
+      });
+      document.getElementById('previewFrame').className = 'preview-frame-wrapper ' + device;
+    }
+
+    function onPreviewLoad() {
+      updatePreview();
+    }
+
+    function updatePreview() {
+      const iframe = document.getElementById('previewIframe');
+      try {
+        // Send section data to the preview iframe
+        iframe.contentWindow.postMessage({
+          type: 'UPDATE_PAGE_SECTIONS',
+          sections: pageData.sections
+        }, '*');
+      } catch (e) {
+        console.log('Could not update preview:', e);
+      }
+    }
+
+    function highlightSectionInPreview(sectionId) {
+      const iframe = document.getElementById('previewIframe');
+      try {
+        iframe.contentWindow.postMessage({
+          type: 'HIGHLIGHT_SECTION',
+          sectionId: sectionId
+        }, '*');
+      } catch (e) {
+        console.log('Could not highlight section:', e);
+      }
+    }
+
+    // Save
+    function markUnsaved() {
+      hasUnsavedChanges = true;
+      const status = document.getElementById('saveStatus');
+      status.innerHTML = '<i class="fas fa-circle" style="font-size: 8px;"></i> Unsaved changes';
+      status.className = 'save-status';
+    }
+
+    async function saveAllChanges() {
+      const btn = document.getElementById('saveBtn');
+      const status = document.getElementById('saveStatus');
+
+      btn.disabled = true;
+      btn.textContent = 'Saving...';
+      status.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Saving...';
+      status.className = 'save-status saving';
+
+      try {
+        const response = await Admin.API.put('/product-page-sections/affordable-custom-roller-blinds', {
+          sections: pageData.sections
+        });
+
+        if (response.success) {
+          hasUnsavedChanges = false;
+          status.innerHTML = '<i class="fas fa-check-circle"></i> Saved';
+          status.className = 'save-status saved';
+          showToast('Changes saved successfully', 'success');
+
+          // Reload the preview to show saved changes
+          document.getElementById('previewIframe').src = document.getElementById('previewIframe').src;
+        } else {
+          throw new Error(response.error || 'Save failed');
+        }
+      } catch (error) {
+        status.innerHTML = '<i class="fas fa-exclamation-circle"></i> Save failed';
+        status.className = 'save-status';
+        showToast('Failed to save changes', 'error');
+      } finally {
+        btn.disabled = false;
+        btn.textContent = 'Save';
+      }
+    }
+
+    // Keyboard shortcuts
+    function setupKeyboardShortcuts() {
+      document.addEventListener('keydown', (e) => {
+        if ((e.ctrlKey || e.metaKey) && e.key === 's') {
+          e.preventDefault();
+          saveAllChanges();
+        }
+      });
+    }
+
+    // Toast
+    function showToast(message, type = 'info') {
+      const container = document.getElementById('toastContainer');
+      const toast = document.createElement('div');
+      toast.className = `toast ${type}`;
+      toast.innerHTML = `
+        <i class="fas ${type === 'success' ? 'fa-check-circle' : type === 'error' ? 'fa-exclamation-circle' : 'fa-info-circle'}"></i>
+        <span>${message}</span>
+      `;
+      container.appendChild(toast);
+      setTimeout(() => toast.remove(), 3000);
+    }
+
+    // Utility
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text || '';
+      return div.innerHTML;
+    }
+
+    // Warn before leaving with unsaved changes
+    window.addEventListener('beforeunload', (e) => {
+      if (hasUnsavedChanges) {
+        e.preventDefault();
+        e.returnValue = '';
+      }
+    });
+  </script>
+</body>
+</html>

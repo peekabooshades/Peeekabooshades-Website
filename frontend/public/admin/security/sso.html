@@ -1,0 +1,522 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SSO & Auth Providers - Security | Peekaboo Shades Admin</title>
+    <link rel="stylesheet" href="../css/admin.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .security-container { display: flex; min-height: 100vh; }
+        .security-sidebar { width: 260px; background: #1a1a2e; padding: 20px 0; flex-shrink: 0; }
+        .security-sidebar h3 { color: #fff; padding: 0 20px; margin-bottom: 20px; font-size: 14px; text-transform: uppercase; letter-spacing: 1px; display: flex; align-items: center; gap: 10px; }
+        .security-sidebar h3 i { color: #28a745; }
+        .security-nav { list-style: none; padding: 0; margin: 0; }
+        .security-nav li a { display: flex; align-items: center; gap: 12px; padding: 12px 20px; color: #a0a0a0; text-decoration: none; transition: all 0.2s; font-size: 14px; }
+        .security-nav li a:hover, .security-nav li a.active { background: rgba(255,255,255,0.1); color: #fff; }
+        .security-nav li a.active { border-left: 3px solid #28a745; }
+        .security-content { flex: 1; padding: 30px; background: #f5f5f5; }
+        .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
+        .page-header h1 { margin: 0; font-size: 24px; }
+
+        .btn { padding: 10px 20px; border-radius: 6px; border: none; cursor: pointer; font-size: 14px; display: inline-flex; align-items: center; gap: 8px; }
+        .btn-primary { background: #4a90d9; color: #fff; }
+        .btn-secondary { background: #f0f0f0; color: #333; }
+        .btn-success { background: #28a745; color: #fff; }
+        .btn-danger { background: #dc3545; color: #fff; }
+
+        .providers-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .provider-card {
+            background: #fff;
+            border-radius: 12px;
+            padding: 25px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            position: relative;
+            border: 2px solid transparent;
+        }
+
+        .provider-card.connected {
+            border-color: #28a745;
+        }
+
+        .provider-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 28px;
+        }
+
+        .provider-icon.google { background: #fff4f4; color: #ea4335; }
+        .provider-icon.microsoft { background: #f4f9ff; color: #00a4ef; }
+        .provider-icon.okta { background: #f4f4ff; color: #007dc1; }
+        .provider-icon.saml { background: #f9f4ff; color: #7b1fa2; }
+        .provider-icon.ldap { background: #f4fff9; color: #28a745; }
+        .provider-icon.github { background: #f4f4f4; color: #333; }
+
+        .provider-info { flex: 1; }
+        .provider-name { font-size: 18px; font-weight: 600; margin-bottom: 5px; }
+        .provider-desc { font-size: 13px; color: #888; }
+
+        .provider-status {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: 500;
+        }
+
+        .provider-status.connected { background: #d4edda; color: #155724; }
+        .provider-status.available { background: #f0f0f0; color: #666; }
+
+        .settings-card {
+            background: #fff;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            overflow: hidden;
+        }
+
+        .settings-header {
+            padding: 20px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .settings-header h3 { margin: 0; font-size: 16px; }
+        .settings-body { padding: 20px; }
+
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; margin-bottom: 8px; font-weight: 500; }
+        .form-group input, .form-group select, .form-group textarea {
+            width: 100%;
+            padding: 10px 15px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 14px;
+        }
+        .form-help { font-size: 12px; color: #888; margin-top: 6px; }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        .toggle-switch { position: relative; width: 50px; height: 26px; }
+        .toggle-switch input { opacity: 0; width: 0; height: 0; }
+        .toggle-slider {
+            position: absolute;
+            cursor: pointer;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: #ccc;
+            transition: .4s;
+            border-radius: 26px;
+        }
+        .toggle-slider:before {
+            position: absolute;
+            content: "";
+            height: 20px;
+            width: 20px;
+            left: 3px;
+            bottom: 3px;
+            background-color: white;
+            transition: .4s;
+            border-radius: 50%;
+        }
+        input:checked + .toggle-slider { background-color: #28a745; }
+        input:checked + .toggle-slider:before { transform: translateX(24px); }
+
+        .setting-item {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 15px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        .setting-item:last-child { border-bottom: none; }
+        .setting-info h4 { margin: 0 0 5px; font-size: 14px; }
+        .setting-info p { margin: 0; font-size: 13px; color: #888; }
+
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-overlay.active { display: flex; }
+        .modal-content {
+            background: #fff;
+            border-radius: 12px;
+            width: 90%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow: hidden;
+        }
+        .modal-header {
+            padding: 20px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .modal-header h2 { margin: 0; font-size: 18px; }
+        .modal-close { background: none; border: none; font-size: 24px; cursor: pointer; color: #666; }
+        .modal-body { padding: 20px; overflow-y: auto; max-height: 60vh; }
+        .modal-footer { padding: 15px 20px; border-top: 1px solid #eee; display: flex; justify-content: flex-end; gap: 10px; }
+
+        .code-block {
+            background: #1a1a2e;
+            color: #a0e9a0;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: monospace;
+            font-size: 13px;
+            overflow-x: auto;
+            margin: 15px 0;
+        }
+
+        .ssh-keys-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .ssh-keys-table th, .ssh-keys-table td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #eee;
+        }
+        .ssh-keys-table th {
+            background: #f9f9f9;
+            font-weight: 600;
+            font-size: 13px;
+            color: #666;
+        }
+
+        .key-fingerprint {
+            font-family: monospace;
+            font-size: 12px;
+            background: #f5f5f5;
+            padding: 4px 8px;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body>
+    <div class="security-container">
+        <aside class="security-sidebar">
+            <h3><i class="fas fa-shield-alt"></i> Security Center</h3>
+            <ul class="security-nav">
+                <li><a href="index.html"><i class="fas fa-tachometer-alt"></i> Overview</a></li>
+                <li><a href="users.html"><i class="fas fa-users-cog"></i> User Management</a></li>
+                <li><a href="two-factor.html"><i class="fas fa-mobile-alt"></i> Two-Factor Auth</a></li>
+                <li><a href="firewall.html"><i class="fas fa-fire"></i> IP Firewall</a></li>
+                <li><a href="sso.html" class="active"><i class="fas fa-key"></i> SSO & Auth Providers</a></li>
+                <li><a href="sessions.html"><i class="fas fa-desktop"></i> Active Sessions</a></li>
+                <li><a href="api-security.html"><i class="fas fa-code"></i> API Security</a></li>
+                <li><a href="audit-logs.html"><i class="fas fa-history"></i> Audit Logs</a></li>
+                <li><a href="permissions.html"><i class="fas fa-lock"></i> Page Permissions</a></li>
+            </ul>
+            <div style="padding: 20px; margin-top: 30px;">
+                <a href="../index.html" style="color: #a0a0a0; text-decoration: none; font-size: 13px;">
+                    <i class="fas fa-arrow-left"></i> Back to Dashboard
+                </a>
+            </div>
+        </aside>
+
+        <main class="security-content">
+            <div class="page-header">
+                <h1><i class="fas fa-key" style="color: #7b1fa2;"></i> SSO & Authentication Providers</h1>
+            </div>
+
+            <div class="providers-grid">
+                <div class="provider-card connected" onclick="configureProvider('google')">
+                    <div class="provider-icon google"><i class="fab fa-google"></i></div>
+                    <div class="provider-info">
+                        <div class="provider-name">Google Workspace</div>
+                        <div class="provider-desc">Sign in with Google accounts</div>
+                    </div>
+                    <span class="provider-status connected">Connected</span>
+                </div>
+
+                <div class="provider-card connected" onclick="configureProvider('microsoft')">
+                    <div class="provider-icon microsoft"><i class="fab fa-microsoft"></i></div>
+                    <div class="provider-info">
+                        <div class="provider-name">Microsoft Azure AD</div>
+                        <div class="provider-desc">Sign in with Microsoft accounts</div>
+                    </div>
+                    <span class="provider-status connected">Connected</span>
+                </div>
+
+                <div class="provider-card" onclick="configureProvider('okta')">
+                    <div class="provider-icon okta"><i class="fas fa-shield-alt"></i></div>
+                    <div class="provider-info">
+                        <div class="provider-name">Okta</div>
+                        <div class="provider-desc">Enterprise identity management</div>
+                    </div>
+                    <span class="provider-status available">Available</span>
+                </div>
+
+                <div class="provider-card" onclick="configureProvider('saml')">
+                    <div class="provider-icon saml"><i class="fas fa-lock"></i></div>
+                    <div class="provider-info">
+                        <div class="provider-name">SAML 2.0</div>
+                        <div class="provider-desc">Custom SAML provider</div>
+                    </div>
+                    <span class="provider-status available">Available</span>
+                </div>
+
+                <div class="provider-card" onclick="configureProvider('ldap')">
+                    <div class="provider-icon ldap"><i class="fas fa-server"></i></div>
+                    <div class="provider-info">
+                        <div class="provider-name">LDAP / Active Directory</div>
+                        <div class="provider-desc">Connect to directory service</div>
+                    </div>
+                    <span class="provider-status available">Available</span>
+                </div>
+
+                <div class="provider-card" onclick="configureProvider('github')">
+                    <div class="provider-icon github"><i class="fab fa-github"></i></div>
+                    <div class="provider-info">
+                        <div class="provider-name">GitHub</div>
+                        <div class="provider-desc">Sign in with GitHub</div>
+                    </div>
+                    <span class="provider-status available">Available</span>
+                </div>
+            </div>
+
+            <div class="settings-card">
+                <div class="settings-header">
+                    <h3>SSO Settings</h3>
+                </div>
+                <div class="settings-body">
+                    <div class="setting-item">
+                        <div class="setting-info">
+                            <h4>Allow SSO Login</h4>
+                            <p>Enable single sign-on for admin users</p>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" checked>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    <div class="setting-item">
+                        <div class="setting-info">
+                            <h4>Require SSO for All Users</h4>
+                            <p>Disable password login, force SSO only</p>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    <div class="setting-item">
+                        <div class="setting-info">
+                            <h4>Auto-provision Users</h4>
+                            <p>Automatically create accounts for new SSO users</p>
+                        </div>
+                        <label class="toggle-switch">
+                            <input type="checkbox" checked>
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    <div class="setting-item">
+                        <div class="setting-info">
+                            <h4>Default Role for SSO Users</h4>
+                            <p>Role assigned to new SSO users</p>
+                        </div>
+                        <select style="width: 150px; padding: 8px;">
+                            <option value="viewer">Viewer</option>
+                            <option value="editor" selected>Editor</option>
+                            <option value="manager">Manager</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div class="settings-card">
+                <div class="settings-header">
+                    <h3>SSH Keys</h3>
+                    <button class="btn btn-primary" onclick="openSSHModal()">
+                        <i class="fas fa-plus"></i> Add SSH Key
+                    </button>
+                </div>
+                <table class="ssh-keys-table">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Fingerprint</th>
+                            <th>Added</th>
+                            <th>Last Used</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="sshKeysTable">
+                        <tr>
+                            <td>Deploy Key (Production)</td>
+                            <td><span class="key-fingerprint">SHA256:abc123...xyz</span></td>
+                            <td>Jan 15, 2024</td>
+                            <td>Jun 19, 2024</td>
+                            <td><button class="btn btn-danger" style="padding: 6px 12px; font-size: 12px;">Revoke</button></td>
+                        </tr>
+                        <tr>
+                            <td>Admin Backup Key</td>
+                            <td><span class="key-fingerprint">SHA256:def456...uvw</span></td>
+                            <td>Mar 10, 2024</td>
+                            <td>Never</td>
+                            <td><button class="btn btn-danger" style="padding: 6px 12px; font-size: 12px;">Revoke</button></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="settings-card">
+                <div class="settings-header">
+                    <h3>OAuth Configuration</h3>
+                </div>
+                <div class="settings-body">
+                    <p style="color: #888; margin-bottom: 20px;">Your OAuth callback URLs for SSO providers:</p>
+                    <div class="code-block">
+Callback URL: https://admin.peekabooshades.com/auth/callback
+Logout URL: https://admin.peekabooshades.com/auth/logout
+Metadata URL: https://admin.peekabooshades.com/.well-known/openid-configuration
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Configure Provider Modal -->
+    <div class="modal-overlay" id="providerModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2 id="providerModalTitle">Configure Provider</h2>
+                <button class="modal-close" onclick="closeProviderModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Client ID</label>
+                    <input type="text" id="clientId" placeholder="Enter client ID">
+                </div>
+                <div class="form-group">
+                    <label>Client Secret</label>
+                    <input type="password" id="clientSecret" placeholder="Enter client secret">
+                </div>
+                <div class="form-group">
+                    <label>Tenant ID (Optional)</label>
+                    <input type="text" id="tenantId" placeholder="For Azure AD / Okta">
+                </div>
+                <div class="form-group">
+                    <label>Allowed Domains</label>
+                    <input type="text" id="allowedDomains" placeholder="peekabooshades.com, company.com">
+                    <p class="form-help">Comma-separated list of allowed email domains</p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeProviderModal()">Cancel</button>
+                <button class="btn btn-success" onclick="saveProvider()">
+                    <i class="fas fa-check"></i> Save Configuration
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- SSH Key Modal -->
+    <div class="modal-overlay" id="sshModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>Add SSH Key</h2>
+                <button class="modal-close" onclick="closeSSHModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label>Key Name</label>
+                    <input type="text" id="keyName" placeholder="e.g., Deploy Key, Backup Server">
+                </div>
+                <div class="form-group">
+                    <label>Public Key</label>
+                    <textarea id="publicKey" rows="6" placeholder="ssh-rsa AAAAB3NzaC1yc2E..." style="font-family: monospace;"></textarea>
+                    <p class="form-help">Paste your public SSH key (starts with ssh-rsa, ssh-ed25519, etc.)</p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeSSHModal()">Cancel</button>
+                <button class="btn btn-primary" onclick="addSSHKey()">
+                    <i class="fas fa-plus"></i> Add Key
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentProvider = '';
+
+        function configureProvider(provider) {
+            currentProvider = provider;
+            const names = {
+                google: 'Google Workspace',
+                microsoft: 'Microsoft Azure AD',
+                okta: 'Okta',
+                saml: 'SAML 2.0',
+                ldap: 'LDAP / Active Directory',
+                github: 'GitHub'
+            };
+            document.getElementById('providerModalTitle').textContent = `Configure ${names[provider]}`;
+            document.getElementById('providerModal').classList.add('active');
+        }
+
+        function closeProviderModal() {
+            document.getElementById('providerModal').classList.remove('active');
+        }
+
+        function saveProvider() {
+            const clientId = document.getElementById('clientId').value;
+            const clientSecret = document.getElementById('clientSecret').value;
+
+            if (!clientId || !clientSecret) {
+                alert('Please enter Client ID and Secret');
+                return;
+            }
+
+            alert(`${currentProvider} configuration saved!`);
+            closeProviderModal();
+        }
+
+        function openSSHModal() {
+            document.getElementById('sshModal').classList.add('active');
+        }
+
+        function closeSSHModal() {
+            document.getElementById('sshModal').classList.remove('active');
+        }
+
+        function addSSHKey() {
+            const name = document.getElementById('keyName').value;
+            const key = document.getElementById('publicKey').value;
+
+            if (!name || !key) {
+                alert('Please enter key name and public key');
+                return;
+            }
+
+            alert('SSH key added successfully!');
+            closeSSHModal();
+        }
+    </script>
+</body>
+</html>

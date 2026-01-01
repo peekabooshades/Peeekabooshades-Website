@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Orders - Peekaboo Shades Admin</title>
+  <link rel="stylesheet" href="css/admin.css">
+  <link rel="icon" type="image/png" href="/images/favicon.png">
+</head>
+<body>
+  <div class="admin-layout">
+    <!-- Sidebar -->
+    <aside class="admin-sidebar">
+      <div class="sidebar-header">
+        <a href="/admin/" class="sidebar-logo">
+          <img src="/images/logo.png" alt="Logo" onerror="this.style.display='none'">
+          <span>Peekaboo Shades</span>
+        </a>
+      </div>
+
+      <nav class="sidebar-nav">
+        <div class="nav-section">
+          <a href="/admin/" class="nav-item">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+            </svg>
+            <span>Dashboard</span>
+          </a>
+        </div>
+
+        <div class="nav-section">
+          <div class="nav-section-title">Catalog</div>
+          <a href="/admin/products.html" class="nav-item">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+            </svg>
+            <span>Products</span>
+          </a>
+          <a href="/admin/categories.html" class="nav-item">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+            </svg>
+            <span>Categories</span>
+          </a>
+        </div>
+
+        <div class="nav-section">
+          <div class="nav-section-title">Sales</div>
+          <a href="/admin/orders.html" class="nav-item active">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+            </svg>
+            <span>Orders</span>
+          </a>
+          <a href="/admin/quotes.html" class="nav-item">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+            <span>Quotes</span>
+          </a>
+        </div>
+
+        <div class="nav-section">
+          <div class="nav-section-title">Content</div>
+          <a href="/admin/faqs.html" class="nav-item">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <span>FAQs</span>
+          </a>
+        </div>
+
+        <div class="nav-section">
+          <div class="nav-section-title">Settings</div>
+          <a href="/admin/settings.html" class="nav-item">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+            <span>Settings</span>
+          </a>
+        </div>
+      </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="admin-main">
+      <!-- Header -->
+      <header class="admin-header">
+        <div class="header-left">
+          <div class="breadcrumb">
+            <a href="/admin/">Dashboard</a>
+            <span class="breadcrumb-separator">/</span>
+            <span class="breadcrumb-current">Orders</span>
+          </div>
+        </div>
+        <div class="header-right">
+          <div class="dropdown">
+            <div class="header-profile">
+              <div class="profile-avatar">A</div>
+              <span class="profile-name">Admin</span>
+            </div>
+            <div class="dropdown-menu profile-dropdown">
+              <a href="/admin/settings.html" class="dropdown-item">Profile</a>
+              <div class="dropdown-divider"></div>
+              <a href="#" class="dropdown-item danger" onclick="Admin.AuthAPI.logout(); return false;">Logout</a>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <!-- Page Content -->
+      <div class="admin-content">
+        <div class="page-header">
+          <h1 class="page-title">Orders</h1>
+        </div>
+
+        <!-- Filters -->
+        <div class="card" style="margin-bottom: 20px;">
+          <div class="card-body" style="padding: 16px;">
+            <div class="search-bar" style="margin-bottom: 0;">
+              <div class="search-input">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+                <input type="text" id="search-input" placeholder="Search by order # or customer..." class="form-input">
+              </div>
+              <div class="filter-group">
+                <select id="status-filter" class="filter-select">
+                  <option value="">All Status</option>
+                  <option value="pending">Pending</option>
+                  <option value="processing">Processing</option>
+                  <option value="shipped">Shipped</option>
+                  <option value="delivered">Delivered</option>
+                  <option value="cancelled">Cancelled</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Orders Table -->
+        <div class="card">
+          <div class="table-container">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>Order</th>
+                  <th>Date</th>
+                  <th>Customer</th>
+                  <th>Items</th>
+                  <th>Total</th>
+                  <th>Status</th>
+                  <th style="width: 120px;">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="orders-table">
+                <tr>
+                  <td colspan="7" style="text-align: center; padding: 60px;">
+                    <div class="spinner"></div>
+                    <p style="margin-top: 16px; color: var(--admin-text-secondary);">Loading orders...</p>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Order Detail Modal -->
+  <div class="modal-overlay" id="order-modal">
+    <div class="modal" style="max-width: 600px;">
+      <div class="modal-header">
+        <h3 class="modal-title">Order Details</h3>
+        <button class="modal-close" onclick="Admin.Modal.hide('order-modal')">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+      <div class="modal-body" id="order-detail-content">
+        <!-- Content will be loaded dynamically -->
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="Admin.Modal.hide('order-modal')">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/admin.js"></script>
+  <script>
+    // Require authentication
+    if (!Admin.Auth.requireAuth()) {
+      // Will redirect
+    } else {
+      loadOrders();
+      initFilters();
+    }
+
+    let allOrders = [];
+
+    async function loadOrders() {
+      try {
+        const data = await Admin.OrdersAPI.getAll();
+        if (data.success) {
+          allOrders = data.orders || [];
+          renderOrders(allOrders);
+        }
+      } catch (error) {
+        Admin.Toast.error('Failed to load orders');
+        document.getElementById('orders-table').innerHTML = `
+          <tr>
+            <td colspan="7" style="text-align: center; padding: 60px; color: var(--admin-text-secondary);">
+              Failed to load orders. <a href="#" onclick="loadOrders(); return false;">Try again</a>
+            </td>
+          </tr>
+        `;
+      }
+    }
+
+    function renderOrders(orders) {
+      const tbody = document.getElementById('orders-table');
+
+      if (!orders || orders.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="7" class="empty-state">
+              <svg xmlns="http://www.w3.org/2000/svg" class="empty-state-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+              </svg>
+              <h3 class="empty-state-title">No orders yet</h3>
+              <p class="empty-state-text">Orders will appear here when customers make purchases</p>
+            </td>
+          </tr>
+        `;
+        return;
+      }
+
+      tbody.innerHTML = orders.map(order => `
+        <tr data-id="${order.id}">
+          <td>
+            <a href="#" onclick="viewOrder('${order.id}'); return false;" style="color: var(--admin-primary); text-decoration: none; font-weight: 500;">
+              #${order.order_number || order.id.slice(0, 8).toUpperCase()}
+            </a>
+          </td>
+          <td>${Admin.Utils.formatDate(order.created_at)}</td>
+          <td>
+            <div>${Admin.Utils.escapeHtml(order.customer_name || 'Guest')}</div>
+            <div style="font-size: 12px; color: var(--admin-text-secondary);">${Admin.Utils.escapeHtml(order.customer_email || '')}</div>
+          </td>
+          <td>${order.items ? order.items.length : 0} items</td>
+          <td style="font-weight: 500;">${Admin.Utils.formatCurrency(order.total || 0)}</td>
+          <td>
+            <select class="filter-select" style="min-width: 120px;" onchange="updateStatus('${order.id}', this.value)">
+              <option value="pending" ${order.status === 'pending' ? 'selected' : ''}>Pending</option>
+              <option value="processing" ${order.status === 'processing' ? 'selected' : ''}>Processing</option>
+              <option value="shipped" ${order.status === 'shipped' ? 'selected' : ''}>Shipped</option>
+              <option value="delivered" ${order.status === 'delivered' ? 'selected' : ''}>Delivered</option>
+              <option value="cancelled" ${order.status === 'cancelled' ? 'selected' : ''}>Cancelled</option>
+            </select>
+          </td>
+          <td>
+            <div class="action-buttons">
+              <button class="action-btn" title="View Details" onclick="viewOrder('${order.id}')">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                </svg>
+              </button>
+              <button class="action-btn danger" title="Delete" onclick="deleteOrder('${order.id}')">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                </svg>
+              </button>
+            </div>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    function initFilters() {
+      const searchInput = document.getElementById('search-input');
+      const statusFilter = document.getElementById('status-filter');
+
+      const applyFilters = Admin.Utils.debounce(() => {
+        const search = searchInput.value.toLowerCase();
+        const status = statusFilter.value;
+
+        const filtered = allOrders.filter(o => {
+          const matchesSearch = !search ||
+            (o.order_number && o.order_number.toLowerCase().includes(search)) ||
+            (o.customer_name && o.customer_name.toLowerCase().includes(search)) ||
+            (o.customer_email && o.customer_email.toLowerCase().includes(search));
+          const matchesStatus = !status || o.status === status;
+
+          return matchesSearch && matchesStatus;
+        });
+
+        renderOrders(filtered);
+      }, 300);
+
+      searchInput.addEventListener('input', applyFilters);
+      statusFilter.addEventListener('change', applyFilters);
+    }
+
+    async function updateStatus(id, status) {
+      try {
+        await Admin.OrdersAPI.updateStatus(id, status);
+        const order = allOrders.find(o => o.id === id);
+        if (order) order.status = status;
+        Admin.Toast.success('Order status updated');
+      } catch (error) {
+        Admin.Toast.error('Failed to update status');
+        loadOrders();
+      }
+    }
+
+    async function viewOrder(id) {
+      try {
+        const data = await Admin.OrdersAPI.getById(id);
+        if (data.success) {
+          const order = data.order;
+          document.getElementById('order-detail-content').innerHTML = `
+            <div style="margin-bottom: 20px;">
+              <h4 style="margin-bottom: 8px; color: var(--admin-text-primary);">Order #${order.order_number || order.id.slice(0, 8).toUpperCase()}</h4>
+              <p style="color: var(--admin-text-secondary); font-size: 14px;">Placed on ${Admin.Utils.formatDateTime(order.created_at)}</p>
+            </div>
+
+            <div style="background: var(--admin-body-bg); padding: 16px; border-radius: 8px; margin-bottom: 20px;">
+              <h5 style="margin-bottom: 12px; font-size: 14px; text-transform: uppercase; color: var(--admin-text-secondary);">Customer</h5>
+              <p style="margin-bottom: 4px;"><strong>${Admin.Utils.escapeHtml(order.customer_name || 'Guest')}</strong></p>
+              <p style="margin-bottom: 4px; color: var(--admin-text-secondary);">${Admin.Utils.escapeHtml(order.customer_email || 'No email')}</p>
+              <p style="color: var(--admin-text-secondary);">${Admin.Utils.escapeHtml(order.customer_phone || 'No phone')}</p>
+            </div>
+
+            ${order.shipping_address ? `
+              <div style="background: var(--admin-body-bg); padding: 16px; border-radius: 8px; margin-bottom: 20px;">
+                <h5 style="margin-bottom: 12px; font-size: 14px; text-transform: uppercase; color: var(--admin-text-secondary);">Shipping Address</h5>
+                <p style="white-space: pre-line; color: var(--admin-text-primary);">${Admin.Utils.escapeHtml(order.shipping_address)}</p>
+              </div>
+            ` : ''}
+
+            <div style="margin-bottom: 20px;">
+              <h5 style="margin-bottom: 12px; font-size: 14px; text-transform: uppercase; color: var(--admin-text-secondary);">Items</h5>
+              ${order.items && order.items.length > 0 ? order.items.map(item => `
+                <div style="display: flex; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid var(--admin-border);">
+                  <div>
+                    <p style="font-weight: 500;">${Admin.Utils.escapeHtml(item.product_name || 'Product')}</p>
+                    <p style="font-size: 13px; color: var(--admin-text-secondary);">
+                      ${item.width}" x ${item.height}" | Qty: ${item.quantity}
+                      ${item.room_label ? ` | ${Admin.Utils.escapeHtml(item.room_label)}` : ''}
+                    </p>
+                  </div>
+                  <p style="font-weight: 500;">${Admin.Utils.formatCurrency(item.unit_price * item.quantity)}</p>
+                </div>
+              `).join('') : '<p style="color: var(--admin-text-secondary);">No items</p>'}
+            </div>
+
+            <div style="background: var(--admin-body-bg); padding: 16px; border-radius: 8px;">
+              <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                <span>Subtotal</span>
+                <span>${Admin.Utils.formatCurrency(order.subtotal || 0)}</span>
+              </div>
+              <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                <span>Tax</span>
+                <span>${Admin.Utils.formatCurrency(order.tax || 0)}</span>
+              </div>
+              <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                <span>Shipping</span>
+                <span>${Admin.Utils.formatCurrency(order.shipping || 0)}</span>
+              </div>
+              <div style="display: flex; justify-content: space-between; font-weight: 600; font-size: 18px; padding-top: 12px; border-top: 1px solid var(--admin-border);">
+                <span>Total</span>
+                <span>${Admin.Utils.formatCurrency(order.total || 0)}</span>
+              </div>
+            </div>
+          `;
+          Admin.Modal.show('order-modal');
+        }
+      } catch (error) {
+        Admin.Toast.error('Failed to load order details');
+      }
+    }
+
+    async function deleteOrder(id) {
+      const confirmed = await Admin.Modal.confirm(
+        'Delete Order',
+        'Are you sure you want to delete this order? This action cannot be undone.'
+      );
+
+      if (confirmed) {
+        try {
+          await Admin.OrdersAPI.delete(id);
+          allOrders = allOrders.filter(o => o.id !== id);
+          renderOrders(allOrders);
+          Admin.Toast.success('Order deleted successfully');
+        } catch (error) {
+          Admin.Toast.error('Failed to delete order');
+        }
+      }
+    }
+  </script>
+</body>
+</html>

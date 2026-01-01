@@ -1,0 +1,747 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Draft Orders - Peekaboo Shades Admin</title>
+  <link rel="stylesheet" href="css/admin.css">
+  <link rel="icon" type="image/png" href="/images/favicon.png">
+  <style>
+    .draft-filters {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 20px;
+    }
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 4px 10px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 500;
+    }
+    .status-badge.open { background: #FFF5EA; color: #B98900; }
+    .status-badge.invoice_sent { background: #E8F4FD; color: #2C6ECB; }
+    .status-badge.completed { background: #E3F1DF; color: #008060; }
+    .status-badge.cancelled { background: #FEE9E9; color: #D72C0D; }
+    .draft-items {
+      font-size: 13px;
+      color: #6D7175;
+    }
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+    }
+    .empty-state svg {
+      width: 64px;
+      height: 64px;
+      color: #8C9196;
+      margin-bottom: 16px;
+    }
+    .empty-state h3 {
+      font-size: 18px;
+      margin-bottom: 8px;
+      color: #202223;
+    }
+    .empty-state p {
+      color: #6D7175;
+      margin-bottom: 20px;
+    }
+    .pagination {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 20px;
+      padding: 16px 0;
+      border-top: 1px solid #E5E5E5;
+    }
+  </style>
+</head>
+<body>
+  <div class="admin-layout">
+    <!-- Sidebar -->
+    <aside class="admin-sidebar">
+      <div class="sidebar-header">
+        <a href="/admin/" class="sidebar-logo">
+          <img src="/images/logo.png" alt="Logo" onerror="this.style.display='none'">
+          <span>Peekaboo Shades</span>
+        </a>
+      </div>
+
+      <nav class="sidebar-nav">
+        <div class="nav-section">
+          <a href="/admin/" class="nav-item">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+            </svg>
+            <span>Dashboard</span>
+          </a>
+        </div>
+
+        <div class="nav-section">
+          <div class="nav-section-title">Sales</div>
+          <a href="/admin/orders.html" class="nav-item">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+            </svg>
+            <span>Orders</span>
+          </a>
+          <a href="/admin/draft-orders.html" class="nav-item active">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+            </svg>
+            <span>Draft Orders</span>
+          </a>
+          <a href="/admin/abandoned-checkouts.html" class="nav-item">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+            </svg>
+            <span>Abandoned Carts</span>
+          </a>
+          <a href="/admin/quotes.html" class="nav-item">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+            <span>Quotes</span>
+          </a>
+        </div>
+
+        <div class="nav-section">
+          <div class="nav-section-title">Catalog</div>
+          <a href="/admin/products.html" class="nav-item">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+            </svg>
+            <span>Products</span>
+          </a>
+          <a href="/admin/categories.html" class="nav-item">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+            </svg>
+            <span>Categories</span>
+          </a>
+          <a href="/admin/fabrics.html" class="nav-item">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
+            <span>Fabrics</span>
+          </a>
+          <a href="/admin/hardware-options.html" class="nav-item">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+            <span>Hardware Options</span>
+          </a>
+          <a href="/admin/accessories.html" class="nav-item">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 14v6m-3-3h6M6 10h2a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v2a2 2 0 002 2zm10 0h2a2 2 0 002-2V6a2 2 0 00-2-2h-2a2 2 0 00-2 2v2a2 2 0 002 2zM6 20h2a2 2 0 002-2v-2a2 2 0 00-2-2H6a2 2 0 00-2 2v2a2 2 0 002 2z" />
+            </svg>
+            <span>Accessories</span>
+          </a>
+        </div>
+
+        <div class="nav-section">
+          <div class="nav-section-title">Customers</div>
+          <a href="/admin/customers.html" class="nav-item">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+            <span>All Customers</span>
+          </a>
+        </div>
+
+        <div class="nav-section">
+          <div class="nav-section-title">Content</div>
+          <a href="/admin/product-content.html" class="nav-item">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
+            <span>Product Content</span>
+          </a>
+          <a href="/admin/product-page-editor.html" class="nav-item">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+            </svg>
+            <span>Page Editor</span>
+          </a>
+          <a href="/admin/pages.html" class="nav-item">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
+            </svg>
+            <span>Pages</span>
+          </a>
+          <a href="/admin/blog/posts.html" class="nav-item">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
+            </svg>
+            <span>Blog Posts</span>
+          </a>
+          <a href="/admin/files.html" class="nav-item">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
+            <span>Files</span>
+          </a>
+          <a href="/admin/faqs.html" class="nav-item">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <span>FAQs</span>
+          </a>
+        </div>
+
+        <div class="nav-section">
+          <div class="nav-section-title">Analytics</div>
+          <a href="/admin/analytics.html" class="nav-item">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+            </svg>
+            <span>Reports</span>
+          </a>
+        </div>
+
+        <div class="nav-section">
+          <div class="nav-section-title">Settings</div>
+          <a href="/admin/settings.html" class="nav-item">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+            <span>Settings</span>
+          </a>
+        </div>
+      </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="admin-main">
+      <!-- Header -->
+      <header class="admin-header">
+        <div class="header-left">
+          <button class="header-btn mobile-menu-btn" style="display: none;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+            </svg>
+          </button>
+          <div class="breadcrumb">
+            <a href="/admin/" class="breadcrumb-link">Dashboard</a>
+            <span class="breadcrumb-separator">/</span>
+            <span class="breadcrumb-current">Draft Orders</span>
+          </div>
+        </div>
+        <div class="header-right">
+          <a href="/" class="header-btn" title="View Store" target="_blank">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" />
+            </svg>
+          </a>
+          <div class="dropdown">
+            <div class="header-profile">
+              <div class="profile-avatar">A</div>
+              <span class="profile-name">Admin</span>
+            </div>
+            <div class="dropdown-menu profile-dropdown">
+              <a href="/admin/settings.html" class="dropdown-item">Profile</a>
+              <div class="dropdown-divider"></div>
+              <a href="#" class="dropdown-item danger" onclick="Admin.AuthAPI.logout(); return false;">Logout</a>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <!-- Page Content -->
+      <div class="admin-content">
+        <div class="page-header">
+          <h1 class="page-title">Draft Orders</h1>
+          <button class="btn btn-primary" onclick="createDraftOrder()">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+            </svg>
+            Create Draft Order
+          </button>
+        </div>
+
+        <!-- Filters -->
+        <div class="draft-filters">
+          <div class="search-box" style="flex: 1; max-width: 400px;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+            <input type="text" id="searchInput" placeholder="Search draft orders...">
+          </div>
+          <select id="statusFilter" class="form-select">
+            <option value="">All Status</option>
+            <option value="open">Open</option>
+            <option value="invoice_sent">Invoice Sent</option>
+            <option value="completed">Completed</option>
+            <option value="cancelled">Cancelled</option>
+          </select>
+        </div>
+
+        <!-- Draft Orders Table -->
+        <div class="card">
+          <div class="table-container">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>Draft</th>
+                  <th>Customer</th>
+                  <th>Status</th>
+                  <th>Items</th>
+                  <th style="text-align: right;">Total</th>
+                  <th>Date</th>
+                  <th style="width: 80px;"></th>
+                </tr>
+              </thead>
+              <tbody id="draftsTable">
+                <tr>
+                  <td colspan="7" style="text-align: center; padding: 40px;">
+                    Loading draft orders...
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="pagination">
+            <div class="pagination-info" id="paginationInfo">Showing 0 draft orders</div>
+            <div class="pagination-btns">
+              <button class="btn btn-secondary btn-sm" id="prevBtn" onclick="prevPage()" disabled>Previous</button>
+              <button class="btn btn-secondary btn-sm" id="nextBtn" onclick="nextPage()" disabled>Next</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Create/Edit Draft Modal -->
+  <div class="modal" id="draftModal">
+    <div class="modal-overlay" onclick="closeModal()"></div>
+    <div class="modal-content" style="max-width: 800px;">
+      <div class="modal-header">
+        <h2 id="modalTitle">Create Draft Order</h2>
+        <button class="modal-close" onclick="closeModal()">&times;</button>
+      </div>
+      <form id="draftForm" onsubmit="saveDraft(event)">
+        <div class="modal-body">
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Customer</label>
+              <select class="form-select" id="customerId">
+                <option value="">Select customer...</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Status</label>
+              <select class="form-select" id="draftStatus">
+                <option value="open">Open</option>
+                <option value="invoice_sent">Invoice Sent</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Line Items</label>
+            <div id="lineItems">
+              <div class="line-item" style="display: flex; gap: 12px; margin-bottom: 12px;">
+                <input type="text" class="form-input" placeholder="Item description" style="flex: 2;">
+                <input type="number" class="form-input" placeholder="Qty" style="width: 80px;" value="1">
+                <input type="number" class="form-input" placeholder="Price" style="width: 100px;" step="0.01">
+                <button type="button" class="btn btn-secondary btn-sm" onclick="this.parentElement.remove()">Remove</button>
+              </div>
+            </div>
+            <button type="button" class="btn btn-secondary btn-sm" onclick="addLineItem()">+ Add Item</button>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Discount Type</label>
+              <select class="form-select" id="discountType">
+                <option value="">No Discount</option>
+                <option value="percentage">Percentage</option>
+                <option value="fixed">Fixed Amount</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Discount Value</label>
+              <input type="number" class="form-input" id="discountValue" step="0.01" placeholder="0">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Internal Notes</label>
+            <textarea class="form-input" id="internalNotes" rows="3" placeholder="Notes visible only to staff..."></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save Draft</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="js/admin.js"></script>
+  <script>
+    let draftOrders = [];
+    let customers = [];
+    let currentPage = 1;
+    const perPage = 20;
+    let editingDraftId = null;
+
+    // Require authentication
+    if (!Admin.Auth.requireAuth()) {
+      // Will redirect to login
+    } else {
+      loadDraftOrders();
+      loadCustomers();
+
+      const urlParams = new URLSearchParams(window.location.search);
+      if (urlParams.get('action') === 'new') {
+        createDraftOrder();
+      }
+    }
+
+    // Event listeners
+    document.getElementById('searchInput').addEventListener('input', debounce(loadDraftOrders, 300));
+    document.getElementById('statusFilter').addEventListener('change', loadDraftOrders);
+
+    async function loadDraftOrders() {
+      const search = document.getElementById('searchInput').value;
+      const status = document.getElementById('statusFilter').value;
+
+      try {
+        const params = new URLSearchParams({ page: currentPage, limit: perPage });
+        if (search) params.append('search', search);
+        if (status) params.append('status', status);
+
+        const response = await Admin.API.get(`/draft-orders?${params}`);
+
+        if (response.success) {
+          draftOrders = response.draftOrders || [];
+          renderDraftOrders();
+          updatePagination(response.total || draftOrders.length);
+        }
+      } catch (error) {
+        console.error('Failed to load draft orders:', error);
+        renderEmptyState();
+      }
+    }
+
+    async function loadCustomers() {
+      try {
+        const response = await Admin.API.get('/customers?limit=100');
+        if (response.success) {
+          customers = response.customers || [];
+          populateCustomerSelect();
+        }
+      } catch (error) {
+        console.error('Failed to load customers:', error);
+      }
+    }
+
+    function populateCustomerSelect() {
+      const select = document.getElementById('customerId');
+      select.innerHTML = '<option value="">Select customer...</option>' +
+        customers.map(c => `<option value="${c.id}">${Admin.Utils.escapeHtml(c.firstName)} ${Admin.Utils.escapeHtml(c.lastName)} (${Admin.Utils.escapeHtml(c.email)})</option>`).join('');
+    }
+
+    function renderDraftOrders() {
+      const tbody = document.getElementById('draftsTable');
+
+      if (!draftOrders || draftOrders.length === 0) {
+        renderEmptyState();
+        return;
+      }
+
+      tbody.innerHTML = draftOrders.map(draft => {
+        const customer = customers.find(c => c.id === draft.customerId);
+        const customerName = customer ? `${customer.firstName} ${customer.lastName}` : 'No customer';
+
+        return `
+          <tr>
+            <td>
+              <a href="#" onclick="viewDraft('${draft.id}'); return false;" style="color: var(--admin-primary); font-weight: 500;">
+                #${draft.draftNumber || draft.id.slice(0, 8)}
+              </a>
+            </td>
+            <td>${Admin.Utils.escapeHtml(customerName)}</td>
+            <td>
+              <span class="status-badge ${draft.status}">
+                ${formatStatus(draft.status)}
+              </span>
+            </td>
+            <td class="draft-items">
+              ${(draft.items || []).length} item(s)
+            </td>
+            <td style="text-align: right; font-weight: 600;">
+              ${Admin.Utils.formatCurrency(draft.total || 0)}
+            </td>
+            <td>${Admin.Utils.formatDate(draft.createdAt)}</td>
+            <td>
+              <div class="dropdown">
+                <button class="btn btn-icon">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 5v.01M12 12v.01M12 19v.01M12 6a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2zm0 7a1 1 0 110-2 1 1 0 010 2z" />
+                  </svg>
+                </button>
+                <div class="dropdown-menu">
+                  <a href="#" class="dropdown-item" onclick="editDraft('${draft.id}'); return false;">Edit</a>
+                  <a href="#" class="dropdown-item" onclick="sendInvoice('${draft.id}'); return false;">Send Invoice</a>
+                  ${draft.status === 'open' || draft.status === 'invoice_sent' ? `
+                    <a href="#" class="dropdown-item" onclick="convertToOrder('${draft.id}'); return false;">Convert to Order</a>
+                  ` : ''}
+                  <div class="dropdown-divider"></div>
+                  <a href="#" class="dropdown-item danger" onclick="deleteDraft('${draft.id}'); return false;">Delete</a>
+                </div>
+              </div>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function renderEmptyState() {
+      document.getElementById('draftsTable').innerHTML = `
+        <tr>
+          <td colspan="7">
+            <div class="empty-state">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+              </svg>
+              <h3>No draft orders</h3>
+              <p>Create a draft order to start</p>
+              <button class="btn btn-primary" onclick="createDraftOrder()">Create Draft Order</button>
+            </div>
+          </td>
+        </tr>
+      `;
+    }
+
+    function formatStatus(status) {
+      const labels = {
+        'open': 'Open',
+        'invoice_sent': 'Invoice Sent',
+        'completed': 'Completed',
+        'cancelled': 'Cancelled'
+      };
+      return labels[status] || status;
+    }
+
+    function updatePagination(total) {
+      const start = (currentPage - 1) * perPage + 1;
+      const end = Math.min(currentPage * perPage, total);
+      const totalPages = Math.ceil(total / perPage);
+
+      document.getElementById('paginationInfo').textContent = total > 0
+        ? `Showing ${start}-${end} of ${total} draft orders`
+        : 'Showing 0 draft orders';
+
+      document.getElementById('prevBtn').disabled = currentPage === 1;
+      document.getElementById('nextBtn').disabled = currentPage >= totalPages;
+    }
+
+    function prevPage() {
+      if (currentPage > 1) {
+        currentPage--;
+        loadDraftOrders();
+      }
+    }
+
+    function nextPage() {
+      currentPage++;
+      loadDraftOrders();
+    }
+
+    function createDraftOrder() {
+      editingDraftId = null;
+      document.getElementById('modalTitle').textContent = 'Create Draft Order';
+      document.getElementById('draftForm').reset();
+      document.getElementById('lineItems').innerHTML = `
+        <div class="line-item" style="display: flex; gap: 12px; margin-bottom: 12px;">
+          <input type="text" class="form-input" placeholder="Item description" style="flex: 2;">
+          <input type="number" class="form-input" placeholder="Qty" style="width: 80px;" value="1">
+          <input type="number" class="form-input" placeholder="Price" style="width: 100px;" step="0.01">
+          <button type="button" class="btn btn-secondary btn-sm" onclick="this.parentElement.remove()">Remove</button>
+        </div>
+      `;
+      document.getElementById('draftModal').classList.add('active');
+    }
+
+    function addLineItem() {
+      const container = document.getElementById('lineItems');
+      const item = document.createElement('div');
+      item.className = 'line-item';
+      item.style.cssText = 'display: flex; gap: 12px; margin-bottom: 12px;';
+      item.innerHTML = `
+        <input type="text" class="form-input" placeholder="Item description" style="flex: 2;">
+        <input type="number" class="form-input" placeholder="Qty" style="width: 80px;" value="1">
+        <input type="number" class="form-input" placeholder="Price" style="width: 100px;" step="0.01">
+        <button type="button" class="btn btn-secondary btn-sm" onclick="this.parentElement.remove()">Remove</button>
+      `;
+      container.appendChild(item);
+    }
+
+    function closeModal() {
+      document.getElementById('draftModal').classList.remove('active');
+      editingDraftId = null;
+    }
+
+    async function saveDraft(e) {
+      e.preventDefault();
+
+      const lineItemElements = document.querySelectorAll('.line-item');
+      const items = [];
+      let subtotal = 0;
+
+      lineItemElements.forEach(el => {
+        const inputs = el.querySelectorAll('input');
+        const description = inputs[0].value.trim();
+        const qty = parseInt(inputs[1].value) || 1;
+        const price = parseFloat(inputs[2].value) || 0;
+
+        if (description && price > 0) {
+          items.push({ description, quantity: qty, price, total: qty * price });
+          subtotal += qty * price;
+        }
+      });
+
+      const discountType = document.getElementById('discountType').value;
+      const discountValue = parseFloat(document.getElementById('discountValue').value) || 0;
+
+      let discount = 0;
+      if (discountType === 'percentage') {
+        discount = subtotal * (discountValue / 100);
+      } else if (discountType === 'fixed') {
+        discount = discountValue;
+      }
+
+      const draftData = {
+        customerId: document.getElementById('customerId').value || null,
+        status: document.getElementById('draftStatus').value,
+        items,
+        subtotal,
+        discount: { type: discountType, value: discountValue },
+        total: subtotal - discount,
+        internalNotes: document.getElementById('internalNotes').value
+      };
+
+      try {
+        let response;
+        if (editingDraftId) {
+          response = await Admin.API.put(`/draft-orders/${editingDraftId}`, draftData);
+        } else {
+          response = await Admin.API.post('/draft-orders', draftData);
+        }
+
+        if (response.success) {
+          Admin.Toast.success(editingDraftId ? 'Draft order updated' : 'Draft order created');
+          closeModal();
+          loadDraftOrders();
+        } else {
+          Admin.Toast.error(response.error || 'Failed to save draft order');
+        }
+      } catch (error) {
+        console.error('Failed to save draft:', error);
+        Admin.Toast.error('Failed to save draft order');
+      }
+    }
+
+    function viewDraft(id) {
+      editDraft(id);
+    }
+
+    async function editDraft(id) {
+      const draft = draftOrders.find(d => d.id === id);
+      if (!draft) return;
+
+      editingDraftId = id;
+      document.getElementById('modalTitle').textContent = 'Edit Draft Order';
+      document.getElementById('customerId').value = draft.customerId || '';
+      document.getElementById('draftStatus').value = draft.status || 'open';
+      document.getElementById('discountType').value = draft.discount?.type || '';
+      document.getElementById('discountValue').value = draft.discount?.value || '';
+      document.getElementById('internalNotes').value = draft.internalNotes || '';
+
+      // Populate line items
+      const container = document.getElementById('lineItems');
+      container.innerHTML = (draft.items || []).map(item => `
+        <div class="line-item" style="display: flex; gap: 12px; margin-bottom: 12px;">
+          <input type="text" class="form-input" placeholder="Item description" style="flex: 2;" value="${Admin.Utils.escapeHtml(item.description || '')}">
+          <input type="number" class="form-input" placeholder="Qty" style="width: 80px;" value="${item.quantity || 1}">
+          <input type="number" class="form-input" placeholder="Price" style="width: 100px;" step="0.01" value="${item.price || 0}">
+          <button type="button" class="btn btn-secondary btn-sm" onclick="this.parentElement.remove()">Remove</button>
+        </div>
+      `).join('') || `
+        <div class="line-item" style="display: flex; gap: 12px; margin-bottom: 12px;">
+          <input type="text" class="form-input" placeholder="Item description" style="flex: 2;">
+          <input type="number" class="form-input" placeholder="Qty" style="width: 80px;" value="1">
+          <input type="number" class="form-input" placeholder="Price" style="width: 100px;" step="0.01">
+          <button type="button" class="btn btn-secondary btn-sm" onclick="this.parentElement.remove()">Remove</button>
+        </div>
+      `;
+
+      document.getElementById('draftModal').classList.add('active');
+    }
+
+    async function sendInvoice(id) {
+      if (!confirm('Send invoice email to customer?')) return;
+
+      try {
+        const response = await Admin.API.put(`/draft-orders/${id}`, { status: 'invoice_sent' });
+        if (response.success) {
+          Admin.Toast.success('Invoice sent');
+          loadDraftOrders();
+        }
+      } catch (error) {
+        Admin.Toast.error('Failed to send invoice');
+      }
+    }
+
+    async function convertToOrder(id) {
+      if (!confirm('Convert this draft to an order?')) return;
+
+      try {
+        const response = await Admin.API.post(`/draft-orders/${id}/complete`, {});
+        if (response.success) {
+          Admin.Toast.success('Converted to order');
+          loadDraftOrders();
+        } else {
+          Admin.Toast.error(response.error || 'Failed to convert to order');
+        }
+      } catch (error) {
+        Admin.Toast.error('Failed to convert to order');
+      }
+    }
+
+    async function deleteDraft(id) {
+      if (!confirm('Are you sure you want to delete this draft order?')) return;
+
+      try {
+        const response = await Admin.API.delete(`/draft-orders/${id}`);
+        if (response.success) {
+          Admin.Toast.success('Draft order deleted');
+          loadDraftOrders();
+        }
+      } catch (error) {
+        Admin.Toast.error('Failed to delete draft order');
+      }
+    }
+
+    function debounce(func, wait) {
+      let timeout;
+      return function executedFunction(...args) {
+        const later = () => {
+          clearTimeout(timeout);
+          func(...args);
+        };
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+      };
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,695 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Pages - Peekaboo Shades Admin</title>
+  <link rel="stylesheet" href="css/admin.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="icon" type="image/png" href="/images/favicon.png">
+  <style>
+    .pages-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+      gap: 20px;
+    }
+
+    .page-card {
+      background: white;
+      border-radius: 12px;
+      border: 1px solid #e0e0e0;
+      overflow: hidden;
+      transition: all 0.2s;
+    }
+
+    .page-card:hover {
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      transform: translateY(-2px);
+    }
+
+    .page-thumbnail {
+      height: 140px;
+      background: linear-gradient(135deg, #f8f6f3, #e8e4df);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #8E6545;
+      font-size: 48px;
+      position: relative;
+    }
+
+    .page-status {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 600;
+    }
+
+    .page-status.published {
+      background: #d4edda;
+      color: #155724;
+    }
+
+    .page-status.draft {
+      background: #fff3cd;
+      color: #856404;
+    }
+
+    .page-info {
+      padding: 16px;
+    }
+
+    .page-title {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 4px;
+      color: #333;
+    }
+
+    .page-slug {
+      font-size: 12px;
+      color: #888;
+      margin-bottom: 12px;
+    }
+
+    .page-meta {
+      display: flex;
+      gap: 16px;
+      font-size: 11px;
+      color: #888;
+      margin-bottom: 12px;
+    }
+
+    .page-actions {
+      display: flex;
+      gap: 8px;
+      padding-top: 12px;
+      border-top: 1px solid #f0f0f0;
+    }
+
+    .page-action-btn {
+      flex: 1;
+      padding: 8px;
+      border: 1px solid #e0e0e0;
+      border-radius: 6px;
+      background: white;
+      font-size: 12px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      color: #666;
+      transition: all 0.2s;
+    }
+
+    .page-action-btn:hover {
+      background: #f8f8f8;
+      color: #333;
+    }
+
+    .page-action-btn.primary {
+      background: #8E6545;
+      color: white;
+      border-color: #8E6545;
+    }
+
+    .page-action-btn.primary:hover {
+      background: #7a5639;
+    }
+
+    .page-action-btn.danger:hover {
+      background: #dc3545;
+      color: white;
+      border-color: #dc3545;
+    }
+
+    .new-page-card {
+      border: 2px dashed #ddd;
+      background: transparent;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      min-height: 280px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .new-page-card:hover {
+      border-color: #8E6545;
+      background: rgba(142,101,69,0.05);
+    }
+
+    .new-page-icon {
+      width: 60px;
+      height: 60px;
+      background: rgba(142,101,69,0.1);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      color: #8E6545;
+      margin-bottom: 12px;
+    }
+
+    .new-page-text {
+      font-size: 14px;
+      font-weight: 600;
+      color: #666;
+    }
+
+    .template-modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0,0,0,0.5);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .template-modal.active {
+      display: flex;
+    }
+
+    .template-modal-content {
+      background: white;
+      border-radius: 12px;
+      width: 90%;
+      max-width: 800px;
+      max-height: 80vh;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .template-modal-header {
+      padding: 20px;
+      border-bottom: 1px solid #e0e0e0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .template-modal-header h2 {
+      font-size: 18px;
+      font-weight: 600;
+      margin: 0;
+    }
+
+    .template-modal-close {
+      width: 32px;
+      height: 32px;
+      border: none;
+      background: #f0f0f0;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .template-modal-body {
+      padding: 20px;
+      overflow-y: auto;
+      flex: 1;
+    }
+
+    .template-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 16px;
+    }
+
+    .template-card {
+      border: 2px solid #e0e0e0;
+      border-radius: 8px;
+      padding: 16px;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-align: center;
+    }
+
+    .template-card:hover {
+      border-color: #8E6545;
+      background: rgba(142,101,69,0.05);
+    }
+
+    .template-card.selected {
+      border-color: #8E6545;
+      background: rgba(142,101,69,0.1);
+    }
+
+    .template-icon {
+      width: 48px;
+      height: 48px;
+      background: rgba(142,101,69,0.1);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      color: #8E6545;
+      margin: 0 auto 12px;
+    }
+
+    .template-name {
+      font-weight: 600;
+      font-size: 14px;
+      margin-bottom: 4px;
+    }
+
+    .template-desc {
+      font-size: 12px;
+      color: #888;
+    }
+
+    .template-modal-footer {
+      padding: 16px 20px;
+      border-top: 1px solid #e0e0e0;
+      display: flex;
+      justify-content: flex-end;
+      gap: 12px;
+    }
+
+    .modal-btn {
+      padding: 10px 20px;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+    }
+
+    .modal-btn.cancel {
+      background: #f0f0f0;
+      border: none;
+      color: #666;
+    }
+
+    .modal-btn.primary {
+      background: #8E6545;
+      border: none;
+      color: white;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: #888;
+    }
+
+    .empty-state i {
+      font-size: 48px;
+      margin-bottom: 16px;
+      color: #ddd;
+    }
+
+    .filter-bar {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+
+    .filter-btn {
+      padding: 8px 16px;
+      border: 1px solid #e0e0e0;
+      border-radius: 20px;
+      font-size: 13px;
+      cursor: pointer;
+      background: white;
+    }
+
+    .filter-btn.active {
+      background: #8E6545;
+      color: white;
+      border-color: #8E6545;
+    }
+
+    .search-box {
+      flex: 1;
+      max-width: 300px;
+      position: relative;
+    }
+
+    .search-box input {
+      width: 100%;
+      padding: 10px 12px 10px 36px;
+      border: 1px solid #e0e0e0;
+      border-radius: 6px;
+      font-size: 13px;
+    }
+
+    .search-box i {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #888;
+    }
+  </style>
+</head>
+<body>
+  <div class="admin-layout">
+    <!-- Sidebar -->
+    <aside class="admin-sidebar">
+      <div class="sidebar-header">
+        <a href="/admin/" class="sidebar-logo">
+          <img src="/images/logo.png" alt="Logo" onerror="this.style.display='none'">
+          <span>Peekaboo Shades</span>
+        </a>
+      </div>
+
+      <nav class="sidebar-nav">
+        <div class="nav-section">
+          <a href="/admin/" class="nav-item">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+            </svg>
+            <span>Dashboard</span>
+          </a>
+        </div>
+
+        <div class="nav-section">
+          <div class="nav-section-title">Content</div>
+          <a href="/admin/pages.html" class="nav-item active">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
+            </svg>
+            <span>All Pages</span>
+          </a>
+          <a href="/admin/page-builder.html" class="nav-item">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z" />
+            </svg>
+            <span>Page Builder</span>
+          </a>
+          <a href="/admin/faqs.html" class="nav-item">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <span>FAQs</span>
+          </a>
+        </div>
+
+        <div class="nav-section">
+          <div class="nav-section-title">Settings</div>
+          <a href="/admin/settings.html" class="nav-item">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+            <span>Settings</span>
+          </a>
+        </div>
+      </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="admin-main">
+      <!-- Header -->
+      <header class="admin-header">
+        <div class="header-left">
+          <div class="breadcrumb">
+            <a href="/admin/">Dashboard</a>
+            <span class="breadcrumb-separator">/</span>
+            <span class="breadcrumb-current">Pages</span>
+          </div>
+        </div>
+        <div class="header-right">
+          <a href="/admin/page-builder.html" class="btn btn-primary">
+            <i class="fas fa-plus"></i> New Page
+          </a>
+        </div>
+      </header>
+
+      <!-- Content -->
+      <div class="admin-content">
+        <div class="content-header" style="margin-bottom: 24px;">
+          <h1 style="font-size: 24px; font-weight: 700; margin: 0;">Pages</h1>
+          <p style="color: #888; margin-top: 4px;">Manage all your website pages</p>
+        </div>
+
+        <!-- Filter Bar -->
+        <div class="filter-bar">
+          <button class="filter-btn active" data-filter="all">All</button>
+          <button class="filter-btn" data-filter="published">Published</button>
+          <button class="filter-btn" data-filter="draft">Draft</button>
+          <div class="search-box">
+            <i class="fas fa-search"></i>
+            <input type="text" placeholder="Search pages..." id="searchInput" oninput="filterPages()">
+          </div>
+        </div>
+
+        <!-- Pages Grid -->
+        <div class="pages-grid" id="pagesGrid">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Template Selection Modal -->
+  <div class="template-modal" id="templateModal">
+    <div class="template-modal-content">
+      <div class="template-modal-header">
+        <h2>Choose a Template</h2>
+        <button class="template-modal-close" onclick="closeTemplateModal()">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div class="template-modal-body">
+        <div class="template-grid" id="templateGrid">
+          <!-- Populated by JS -->
+        </div>
+      </div>
+      <div class="template-modal-footer">
+        <button class="modal-btn cancel" onclick="closeTemplateModal()">Cancel</button>
+        <button class="modal-btn primary" onclick="createFromTemplate()">Create Page</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/admin.js"></script>
+  <script>
+    // State
+    let pages = [];
+    let templates = [];
+    let selectedTemplate = null;
+    let currentFilter = 'all';
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', () => {
+      Admin.Auth.requireAuth();
+      loadPages();
+      loadTemplates();
+      setupFilters();
+    });
+
+    async function loadPages() {
+      try {
+        const response = await Admin.API.get('/pages');
+        pages = response.pages || [];
+        renderPages();
+      } catch (e) {
+        console.error('Failed to load pages:', e);
+        Admin.Toast.error('Failed to load pages');
+      }
+    }
+
+    async function loadTemplates() {
+      try {
+        const response = await Admin.API.get('/page-templates');
+        templates = response.templates || [];
+        renderTemplates();
+      } catch (e) {
+        console.error('Failed to load templates:', e);
+      }
+    }
+
+    function renderPages() {
+      const container = document.getElementById('pagesGrid');
+      const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+
+      let filteredPages = pages.filter(p => {
+        const matchesFilter = currentFilter === 'all' ||
+          (currentFilter === 'published' && (p.isPublished || p.isVisible)) ||
+          (currentFilter === 'draft' && !p.isPublished && !p.isVisible);
+        const matchesSearch = p.title.toLowerCase().includes(searchTerm) ||
+          (p.slug || '').toLowerCase().includes(searchTerm);
+        return matchesFilter && matchesSearch;
+      });
+
+      const newPageCard = `
+        <div class="page-card new-page-card" onclick="openTemplateModal()">
+          <div class="new-page-icon">
+            <i class="fas fa-plus"></i>
+          </div>
+          <div class="new-page-text">Create New Page</div>
+        </div>
+      `;
+
+      if (filteredPages.length === 0 && searchTerm === '' && currentFilter === 'all') {
+        container.innerHTML = newPageCard + `
+          <div class="empty-state" style="grid-column: 1/-1;">
+            <i class="fas fa-file-alt"></i>
+            <h3>No pages yet</h3>
+            <p>Create your first page to get started</p>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = newPageCard + filteredPages.map(page => `
+        <div class="page-card">
+          <div class="page-thumbnail">
+            <i class="fas fa-file-alt"></i>
+            <span class="page-status ${page.isPublished || page.isVisible ? 'published' : 'draft'}">
+              ${page.isPublished || page.isVisible ? 'Published' : 'Draft'}
+            </span>
+          </div>
+          <div class="page-info">
+            <div class="page-title">${escapeHtml(page.title)}</div>
+            <div class="page-slug">/${page.slug || ''}</div>
+            <div class="page-meta">
+              <span><i class="fas fa-calendar"></i> ${formatDate(page.createdAt)}</span>
+            </div>
+            <div class="page-actions">
+              <button class="page-action-btn primary" onclick="editPage('${page.id}')">
+                <i class="fas fa-edit"></i> Edit
+              </button>
+              <a class="page-action-btn" href="/page.html?slug=${page.slug}" target="_blank">
+                <i class="fas fa-eye"></i> View
+              </a>
+              <button class="page-action-btn" onclick="duplicatePage('${page.id}')">
+                <i class="fas fa-copy"></i>
+              </button>
+              <button class="page-action-btn danger" onclick="deletePage('${page.id}')">
+                <i class="fas fa-trash"></i>
+              </button>
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function renderTemplates() {
+      const container = document.getElementById('templateGrid');
+
+      const icons = {
+        'blank': 'fa-file',
+        'basic': 'fa-file-alt',
+        'marketing': 'fa-bullhorn',
+        'ecommerce': 'fa-shopping-cart',
+        'support': 'fa-question-circle'
+      };
+
+      container.innerHTML = templates.map(t => `
+        <div class="template-card ${selectedTemplate?.id === t.id ? 'selected' : ''}"
+             onclick="selectTemplate('${t.id}')">
+          <div class="template-icon">
+            <i class="fas ${icons[t.category] || 'fa-file'}"></i>
+          </div>
+          <div class="template-name">${escapeHtml(t.name)}</div>
+          <div class="template-desc">${escapeHtml(t.description)}</div>
+        </div>
+      `).join('');
+    }
+
+    function setupFilters() {
+      document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          currentFilter = btn.dataset.filter;
+          renderPages();
+        });
+      });
+    }
+
+    function filterPages() {
+      renderPages();
+    }
+
+    function openTemplateModal() {
+      selectedTemplate = templates[0] || null;
+      renderTemplates();
+      document.getElementById('templateModal').classList.add('active');
+    }
+
+    function closeTemplateModal() {
+      document.getElementById('templateModal').classList.remove('active');
+    }
+
+    function selectTemplate(templateId) {
+      selectedTemplate = templates.find(t => t.id === templateId);
+      renderTemplates();
+    }
+
+    async function createFromTemplate() {
+      if (!selectedTemplate) {
+        Admin.Toast.error('Please select a template');
+        return;
+      }
+
+      // Redirect to page builder with template
+      window.location.href = `/admin/page-builder.html?template=${selectedTemplate.id}`;
+    }
+
+    function editPage(pageId) {
+      window.location.href = `/admin/page-builder.html?id=${pageId}`;
+    }
+
+    async function duplicatePage(pageId) {
+      if (!confirm('Duplicate this page?')) return;
+
+      try {
+        const response = await Admin.API.post(`/pages/${pageId}/duplicate`);
+        if (response.success) {
+          Admin.Toast.success('Page duplicated');
+          loadPages();
+        } else {
+          Admin.Toast.error(response.error || 'Failed to duplicate');
+        }
+      } catch (e) {
+        Admin.Toast.error('Failed to duplicate page');
+      }
+    }
+
+    async function deletePage(pageId) {
+      if (!confirm('Are you sure you want to delete this page? This cannot be undone.')) return;
+
+      try {
+        const response = await Admin.API.delete(`/pages/${pageId}`);
+        if (response.success) {
+          Admin.Toast.success('Page deleted');
+          loadPages();
+        } else {
+          Admin.Toast.error(response.error || 'Failed to delete');
+        }
+      } catch (e) {
+        Admin.Toast.error('Failed to delete page');
+      }
+    }
+
+    function formatDate(dateStr) {
+      if (!dateStr) return '';
+      const date = new Date(dateStr);
+      return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    }
+
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text || '';
+      return div.innerHTML;
+    }
+  </script>
+</body>
+</html>
