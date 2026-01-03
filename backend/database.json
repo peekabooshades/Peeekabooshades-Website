@@ -2343,7 +2343,7 @@
           "id": "mount-002",
           "value": "outside",
           "label": "Outside Mount",
-          "price": 10,
+          "price": 0,
           "imageUrl": "/images/mount-control/outside-mount.svg",
           "sortOrder": 2,
           "isActive": true
@@ -2382,10 +2382,20 @@
         {
           "id": "sys-001",
           "value": "bead-chain-plastic",
-          "label": "Bead Chain",
+          "label": "Plastic Bead Chain",
           "price": 0,
           "imageUrl": "/images/control-system/bead-chain.png",
           "sortOrder": 1,
+          "isActive": true
+        },
+        {
+          "id": "sys-001b",
+          "value": "bead-chain-metal",
+          "label": "Metal Bead Chain",
+          "price": 2.20,
+          "priceType": "sqm",
+          "imageUrl": "/images/control-system/bead-chain-metal.png",
+          "sortOrder": 2,
           "isActive": true
         },
         {
@@ -2394,7 +2404,7 @@
           "label": "Chain + Wand",
           "price": 8,
           "imageUrl": "/images/control-system/bead-chain-wand.png",
-          "sortOrder": 2,
+          "sortOrder": 3,
           "isActive": true
         },
         {
@@ -2618,7 +2628,7 @@
           "id": "remote-001",
           "value": "single-channel",
           "label": "Single Channel",
-          "price": 0,
+          "price": 6,
           "sortOrder": 1,
           "isActive": true
         },
@@ -2626,7 +2636,7 @@
           "id": "remote-002",
           "value": "6-channel",
           "label": "6 Channel",
-          "price": 0,
+          "price": 6.60,
           "sortOrder": 2,
           "isActive": true
         },
@@ -2634,17 +2644,17 @@
           "id": "remote-003",
           "value": "15-channel",
           "label": "15 Channel",
-          "price": 0,
+          "price": 11.35,
           "sortOrder": 3,
           "isActive": true
         }
       ],
-      "solarType": [
+      "solarPanel": [
         {
           "id": "solar-001",
           "value": "yes",
           "label": "Yes",
-          "price": 0,
+          "price": 20.50,
           "sortOrder": 1,
           "isActive": true
         },
@@ -10471,6 +10481,32 @@
         }
       },
       "metadata": {}
+    },
+    {
+      "id": "ac00a12c-c62b-4239-bee0-9335c5da887f",
+      "timestamp": "2026-01-03T19:20:22.837Z",
+      "action": "invoice.create",
+      "severity": "info",
+      "actor": {
+        "userId": "admin-001",
+        "email": "admin@peekabooshades.com",
+        "ipAddress": null,
+        "userAgent": null
+      },
+      "resource": {
+        "type": "invoice",
+        "id": "639edd2d-c858-4f76-b1f9-4d7e92a88c2e",
+        "name": "MFR-INV-MJYOTQNOO6BM"
+      },
+      "changes": {
+        "type": "create",
+        "data": {
+          "invoiceNumber": "MFR-INV-MJYOTQNOO6BM",
+          "total": 272,
+          "type": "manufacturer"
+        }
+      },
+      "metadata": {}
     }
   ],
   "cmsContent": {
@@ -11765,7 +11801,7 @@
           {
             "value": "outside",
             "name": "Outside Mount",
-            "price": 10,
+            "price": 0,
             "image": "/images/mount-control/outside-mount.svg"
           }
         ]
@@ -11841,10 +11877,17 @@
         "options": [
           {
             "value": "bead-chain-plastic",
-            "name": "Bead Chain",
+            "name": "Plastic Bead Chain",
             "price": 0,
             "image": "/images/control-system/bead-chain.png",
             "isDefault": true
+          },
+          {
+            "value": "bead-chain-metal",
+            "name": "Metal Bead Chain",
+            "price": 2.20,
+            "priceType": "sqm",
+            "image": "/images/control-system/bead-chain-metal.png"
           },
           {
             "value": "bead-chain-wand",
@@ -11856,12 +11899,14 @@
             "value": "cordless",
             "name": "Cordless",
             "price": 0,
+            "priceNote": "Price based on fabric selection",
             "image": "/images/control-system/cordless.png"
           },
           {
             "value": "motorized-app",
             "name": "Motorized",
             "price": 0,
+            "priceNote": "Motor brand determines price",
             "image": "/images/control-system/motorized-app.png"
           },
           {
@@ -11897,35 +11942,46 @@
         "label": "Remote Type",
         "section": "mountControlSolar",
         "type": "buttons",
+        "showWhen": {
+          "controlType": "motorized"
+        },
         "options": [
           {
             "value": "single-channel",
             "name": "Single Channel",
+            "price": 6,
             "isDefault": true
           },
           {
             "value": "6-channel",
-            "name": "6 Channel"
+            "name": "6 Channel",
+            "price": 6.60
           },
           {
             "value": "15-channel",
-            "name": "15 Channel"
+            "name": "15 Channel",
+            "price": 11.35
           }
         ]
       },
-      "solarType": {
-        "label": "Solar Type",
+      "solarPanel": {
+        "label": "Solar Panel",
         "section": "mountControlSolar",
         "type": "buttons",
+        "showWhen": {
+          "motorType": "solar-powered"
+        },
         "options": [
           {
-            "value": "yes",
-            "name": "Yes",
+            "value": "no",
+            "name": "No",
+            "price": 0,
             "isDefault": true
           },
           {
-            "value": "no",
-            "name": "No"
+            "value": "yes",
+            "name": "Yes",
+            "price": 20.50
           }
         ]
       },
@@ -18414,6 +18470,50 @@
       "updatedAt": "2026-01-03T19:12:02.724Z",
       "notes": "",
       "internalNotes": ""
+    },
+    {
+      "id": "639edd2d-c858-4f76-b1f9-4d7e92a88c2e",
+      "invoiceNumber": "MFR-INV-MJYOTQNOO6BM",
+      "type": "manufacturer",
+      "status": "draft",
+      "orderId": "1df1e46d-3016-425c-b42b-74136a60dbb6",
+      "orderNumber": "ORD-MJYOAF5K",
+      "manufacturer": {
+        "id": "mfr-default",
+        "name": "Default Manufacturer",
+        "email": ""
+      },
+      "items": [
+        {
+          "id": "297a8fae-0d04-4ac1-8ce0-31c604f4912a",
+          "description": "Affordable Custom Roller Blinds & shades",
+          "details": "36\" W x 48\" H - Fabric: N/A",
+          "quantity": 2,
+          "unitPrice": 96,
+          "lineTotal": 192
+        },
+        {
+          "id": "82099e5e-49bf-4e62-9d76-452a02a50221",
+          "description": "Affordable Custom Roller Blinds & shades",
+          "details": "48\" W x 60\" H - Fabric: N/A",
+          "quantity": 1,
+          "unitPrice": 80,
+          "lineTotal": 80
+        }
+      ],
+      "subtotal": 272,
+      "tax": 0,
+      "shipping": 0,
+      "total": 272,
+      "currency": "USD",
+      "amountPaid": 0,
+      "amountDue": 272,
+      "issueDate": "2026-01-03T19:20:22.835Z",
+      "dueDate": "2026-02-02T19:20:22.835Z",
+      "createdAt": "2026-01-03T19:20:22.835Z",
+      "updatedAt": "2026-01-03T19:20:22.835Z",
+      "notes": "",
+      "internalNotes": ""
     }
   ],
   "payments": [],
@@ -19062,7 +19162,7 @@
       "password": "$2b$10$ImrOrEwYkbn9A6Wjt3yKVeYVFTJ85Hz0JXWkeN9nNWmzaV8l8uR36",
       "role": "manager",
       "status": "active",
-      "lastLogin": "2026-01-03T19:09:18.351Z",
+      "lastLogin": "2026-01-03T19:24:43.369Z",
       "createdAt": "2026-01-03T06:14:30.191Z",
       "updatedAt": "2026-01-03T06:14:30.191Z"
     }
