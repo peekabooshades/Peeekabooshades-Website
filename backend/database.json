@@ -909,6 +909,138 @@
       "created_at": "2026-01-03T18:16:00.753Z",
       "updated_at": "2026-01-03T18:16:00.757Z",
       "placed_at": "2026-01-03T18:16:00.753Z"
+    },
+    {
+      "id": "1df1e46d-3016-425c-b42b-74136a60dbb6",
+      "order_number": "ORD-MJYOAF5K",
+      "status": "order_received",
+      "customer": {
+        "name": "Real Test Customer",
+        "email": "realtest@example.com",
+        "phone": "555-1234",
+        "address": "123 Real Street, Test City, CA 90000"
+      },
+      "items": [
+        {
+          "id": "297a8fae-0d04-4ac1-8ce0-31c604f4912a",
+          "session_id": "test-real-order-001",
+          "product_id": "b23180d5-7989-4f9d-bf28-9b210cb31256",
+          "product_name": "Affordable Custom Roller Blinds & shades",
+          "quantity": 2,
+          "width": 36,
+          "height": 48,
+          "room_label": "Master Bedroom",
+          "configuration": "{\"lightFiltering\":\"blackout\",\"fabricCode\":\"82143A\",\"fabricColor\":\"82143A\",\"standardCassette\":\"square-v2\",\"standardBottomBar\":\"type-a-waterdrop\",\"chainType\":\"bead-chain-plastic\",\"chainSide\":\"left\",\"rollerType\":\"forward-roll\",\"mountType\":\"inside\",\"controlType\":\"manual\",\"motorType\":\"\",\"remoteType\":\"\",\"solarType\":\"\"}",
+          "unit_price": 80,
+          "line_total": 160,
+          "extended_warranty": 0,
+          "price_breakdown": {
+            "productId": "b23180d5-7989-4f9d-bf28-9b210cb31256",
+            "productName": "Affordable Custom Roller Blinds & shades",
+            "basePrice": 40,
+            "dimensionAdjustedPrice": 80,
+            "width": 36,
+            "height": 48,
+            "quantity": 2,
+            "optionPrice": 0,
+            "warrantyPrice": 0,
+            "unitPrice": 80,
+            "lineTotal": 160
+          },
+          "created_at": "2026-01-03T19:04:28.199Z",
+          "calculated_price": 160,
+          "order_id": "1df1e46d-3016-425c-b42b-74136a60dbb6",
+          "snapshot_at": "2026-01-03T19:05:21.464Z",
+          "price_snapshots": {
+            "manufacturer_price": {
+              "cost": 96,
+              "fabricCode": null,
+              "source": "calculated",
+              "captured_at": "2026-01-03T19:05:21.464Z"
+            },
+            "margin": {
+              "amount": 64,
+              "percent": 40,
+              "captured_at": "2026-01-03T19:05:21.464Z"
+            },
+            "customer_price": {
+              "unit_price": 80,
+              "line_total": 320,
+              "captured_at": "2026-01-03T19:05:21.464Z"
+            }
+          }
+        },
+        {
+          "id": "82099e5e-49bf-4e62-9d76-452a02a50221",
+          "session_id": "test-real-order-001",
+          "product_id": "b23180d5-7989-4f9d-bf28-9b210cb31256",
+          "product_name": "Affordable Custom Roller Blinds & shades",
+          "quantity": 1,
+          "width": 48,
+          "height": 60,
+          "room_label": "Living Room",
+          "configuration": "{\"lightFiltering\":\"transparent\",\"fabricCode\":\"82176C\",\"fabricColor\":\"82176C\",\"standardCassette\":\"fabric-wrapped-v3\",\"standardBottomBar\":\"type-c-fabric-wrapped\",\"chainType\":\"\",\"chainSide\":\"right\",\"rollerType\":\"reverse-roll\",\"mountType\":\"outside\",\"controlType\":\"motorized\",\"motorType\":\"dooya\",\"remoteType\":\"15-channel\",\"solarType\":\"yes\"}",
+          "unit_price": 133.33,
+          "line_total": 133.33,
+          "extended_warranty": 0,
+          "price_breakdown": {
+            "productId": "b23180d5-7989-4f9d-bf28-9b210cb31256",
+            "productName": "Affordable Custom Roller Blinds & shades",
+            "basePrice": 40,
+            "dimensionAdjustedPrice": 133.33,
+            "width": 48,
+            "height": 60,
+            "quantity": 1,
+            "optionPrice": 0,
+            "warrantyPrice": 0,
+            "unitPrice": 133.33,
+            "lineTotal": 133.33
+          },
+          "created_at": "2026-01-03T19:04:42.129Z",
+          "calculated_price": 133.33,
+          "order_id": "1df1e46d-3016-425c-b42b-74136a60dbb6",
+          "snapshot_at": "2026-01-03T19:05:21.464Z",
+          "price_snapshots": {
+            "manufacturer_price": {
+              "cost": 80,
+              "fabricCode": null,
+              "source": "calculated",
+              "captured_at": "2026-01-03T19:05:21.464Z"
+            },
+            "margin": {
+              "amount": 53.33,
+              "percent": 40,
+              "captured_at": "2026-01-03T19:05:21.464Z"
+            },
+            "customer_price": {
+              "unit_price": 133.33,
+              "line_total": 133.33,
+              "captured_at": "2026-01-03T19:05:21.464Z"
+            }
+          }
+        }
+      ],
+      "pricing": {
+        "subtotal": 453.33000000000004,
+        "tax": 32.87,
+        "tax_rate": 0.0725,
+        "shipping": 14.99,
+        "total": 501.19,
+        "currency": "USD",
+        "manufacturer_cost_total": 272,
+        "margin_total": 181.33,
+        "margin_percent": 40
+      },
+      "payment": {
+        "method": "fake_checkout",
+        "status": "completed",
+        "masked_card": null,
+        "transaction_id": null,
+        "paid_at": "2026-01-03T19:05:21.471Z"
+      },
+      "created_at": "2026-01-03T19:05:21.464Z",
+      "updated_at": "2026-01-03T19:05:21.471Z",
+      "placed_at": "2026-01-03T19:05:21.464Z"
     }
   ],
   "quotes": [
@@ -2290,7 +2422,7 @@
           "price": 0,
           "imageUrl": "/images/control-system/cordless-motorized.png",
           "sortOrder": 5,
-          "isActive": true
+          "isActive": false
         }
       ],
       "valanceType": [
@@ -2307,7 +2439,7 @@
           "id": "val-002",
           "value": "fabric-wrapped-v3",
           "label": "Fabric Wrapped V3",
-          "price": 2.20,
+          "price": 2.2,
           "priceType": "sqm",
           "imageUrl": "/images/hardware/fabric-wrapped-v3.png",
           "sortOrder": 2,
@@ -2317,7 +2449,7 @@
           "id": "val-003",
           "value": "fabric-inserted-s1",
           "label": "Fabric Inserted S1",
-          "price": 2.20,
+          "price": 2.2,
           "priceType": "sqm",
           "imageUrl": "/images/hardware/fabric-inserted-s1.png",
           "sortOrder": 3,
@@ -2327,7 +2459,7 @@
           "id": "val-004",
           "value": "curve-white-s2",
           "label": "Curve White S2",
-          "price": 2.20,
+          "price": 2.2,
           "priceType": "sqm",
           "imageUrl": "/images/hardware/curve-white-s2.png",
           "sortOrder": 4,
@@ -2337,7 +2469,7 @@
           "id": "val-005",
           "value": "fabric-wrapped-s3",
           "label": "Fabric Wrapped S3",
-          "price": 2.20,
+          "price": 2.2,
           "priceType": "sqm",
           "imageUrl": "/images/hardware/fabric-wrapped-s3.png",
           "sortOrder": 5,
@@ -2367,7 +2499,7 @@
           "id": "rail-002",
           "value": "simple-rolling",
           "label": "Simple Rolling",
-          "price": 2.20,
+          "price": 2.2,
           "priceType": "sqm",
           "imageUrl": "/images/bottom-rail/simple-rolling.png",
           "sortOrder": 2,
@@ -2377,7 +2509,7 @@
           "id": "rail-003",
           "value": "type-b",
           "label": "Type B",
-          "price": 2.20,
+          "price": 2.2,
           "priceType": "sqm",
           "imageUrl": "/images/bottom-rail/type-b.png",
           "sortOrder": 3,
@@ -2387,7 +2519,7 @@
           "id": "rail-004",
           "value": "type-c-fabric-wrapped",
           "label": "Type C Fabric Wrapped",
-          "price": 2.20,
+          "price": 2.2,
           "priceType": "sqm",
           "imageUrl": "/images/bottom-rail/type-c-fabric-wrapped.png",
           "sortOrder": 4,
@@ -2397,7 +2529,7 @@
           "id": "rail-005",
           "value": "type-d",
           "label": "Type D",
-          "price": 2.20,
+          "price": 2.2,
           "priceType": "sqm",
           "imageUrl": "/images/bottom-rail/type-d.png",
           "sortOrder": 5,
@@ -10263,6 +10395,56 @@
       "metadata": {
         "reason": "Payment received - fake checkout"
       }
+    },
+    {
+      "id": "680f0efa-aa97-4b05-9251-c20026b27d1c",
+      "timestamp": "2026-01-03T19:05:21.465Z",
+      "action": "order.create",
+      "severity": "info",
+      "actor": {
+        "userId": "customer",
+        "ipAddress": null,
+        "userAgent": null
+      },
+      "resource": {
+        "type": "order",
+        "id": "1df1e46d-3016-425c-b42b-74136a60dbb6",
+        "name": "ORD-MJYOAF5K"
+      },
+      "changes": {
+        "type": "create",
+        "data": {
+          "orderNumber": "ORD-MJYOAF5K",
+          "total": 501.19,
+          "itemCount": 2
+        }
+      },
+      "metadata": {}
+    },
+    {
+      "id": "35b0cb8e-71e8-4de0-828f-6bc51d3ffd2a",
+      "timestamp": "2026-01-03T19:05:21.472Z",
+      "action": "order.status_change",
+      "severity": "info",
+      "actor": {
+        "userId": "system",
+        "ipAddress": null,
+        "userAgent": null
+      },
+      "resource": {
+        "type": "order",
+        "id": "1df1e46d-3016-425c-b42b-74136a60dbb6",
+        "name": "ORD-MJYOAF5K"
+      },
+      "changes": {
+        "status": {
+          "from": "order_placed",
+          "to": "order_received"
+        }
+      },
+      "metadata": {
+        "reason": "Payment received - fake checkout"
+      }
     }
   ],
   "cmsContent": {
@@ -17745,6 +17927,27 @@
       "changedBy": "system",
       "changedAt": "2026-01-03T18:16:00.757Z",
       "reason": "Payment received - fake checkout"
+    },
+    {
+      "id": "0c86919c-e11d-4795-9cac-133c62dde370",
+      "orderId": "1df1e46d-3016-425c-b42b-74136a60dbb6",
+      "orderNumber": "ORD-MJYOAF5K",
+      "fromStatus": null,
+      "toStatus": "order_placed",
+      "changedBy": "customer",
+      "changedAt": "2026-01-03T19:05:21.464Z",
+      "reason": "Order created via checkout",
+      "diff": null
+    },
+    {
+      "id": "605fd1f2-39d5-4c8e-b949-3bb8edb8a6cd",
+      "orderId": "1df1e46d-3016-425c-b42b-74136a60dbb6",
+      "orderNumber": "ORD-MJYOAF5K",
+      "fromStatus": "order_placed",
+      "toStatus": "order_received",
+      "changedBy": "system",
+      "changedAt": "2026-01-03T19:05:21.471Z",
+      "reason": "Payment received - fake checkout"
     }
   ],
   "shipments": [],
@@ -18300,6 +18503,29 @@
         "itemCount": 2
       },
       "createdAt": "2026-01-03T18:16:00.770Z"
+    },
+    {
+      "id": "evt-0a492bdf",
+      "type": "checkout_completed",
+      "sessionId": "test-real-order-001",
+      "userId": null,
+      "productId": null,
+      "productName": null,
+      "fabricCode": null,
+      "orderId": "1df1e46d-3016-425c-b42b-74136a60dbb6",
+      "orderNumber": "ORD-MJYOAF5K",
+      "value": 501.19,
+      "quantity": 2,
+      "source": "direct",
+      "page": "",
+      "referrer": null,
+      "metadata": {
+        "subtotal": 453.33000000000004,
+        "tax": 32.87,
+        "shipping": 14.99,
+        "itemCount": 2
+      },
+      "createdAt": "2026-01-03T19:05:21.488Z"
     }
   ],
   "priceImportLogs": [],
@@ -18698,6 +18924,46 @@
       "description": "Manufacturer cost for order ORD-MJYMIYNL",
       "metadata": {},
       "createdAt": "2026-01-03T18:16:00.767Z"
+    },
+    {
+      "id": "d7840f2a-da7f-471e-9ba2-118bd2923e2f",
+      "type": "customer_payment_received",
+      "orderId": "1df1e46d-3016-425c-b42b-74136a60dbb6",
+      "amount": 501.19,
+      "description": "Payment for order ORD-MJYOAF5K",
+      "metadata": {
+        "orderNumber": "ORD-MJYOAF5K"
+      },
+      "createdAt": "2026-01-03T19:05:21.475Z"
+    },
+    {
+      "id": "4857ec0b-fa6d-4dc5-80ae-d73ed40cccc8",
+      "type": "sales_tax_collected",
+      "orderId": "1df1e46d-3016-425c-b42b-74136a60dbb6",
+      "amount": 32.87,
+      "description": "Sales tax for order ORD-MJYOAF5K",
+      "metadata": {
+        "taxRate": 0.0725
+      },
+      "createdAt": "2026-01-03T19:05:21.478Z"
+    },
+    {
+      "id": "55fee824-287d-4778-858d-c1f784472366",
+      "type": "shipping_charged",
+      "orderId": "1df1e46d-3016-425c-b42b-74136a60dbb6",
+      "amount": 14.99,
+      "description": "Shipping for order ORD-MJYOAF5K",
+      "metadata": {},
+      "createdAt": "2026-01-03T19:05:21.482Z"
+    },
+    {
+      "id": "0e809432-2750-424d-a36f-322109327eb6",
+      "type": "manufacturer_payable",
+      "orderId": "1df1e46d-3016-425c-b42b-74136a60dbb6",
+      "amount": -176,
+      "description": "Manufacturer cost for order ORD-MJYOAF5K",
+      "metadata": {},
+      "createdAt": "2026-01-03T19:05:21.485Z"
     }
   ],
   "manufacturerUsers": [
