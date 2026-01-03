@@ -1096,7 +1096,7 @@
       "name": "Admin",
       "role": "admin",
       "createdAt": "2025-01-01T00:00:00.000Z",
-      "lastLogin": "2026-01-03T07:32:12.761Z"
+      "lastLogin": "2026-01-03T19:11:50.348Z"
     }
   ],
   "settings": {
@@ -10445,6 +10445,32 @@
       "metadata": {
         "reason": "Payment received - fake checkout"
       }
+    },
+    {
+      "id": "c25d16c0-7ad9-483f-a72e-1f04e483224d",
+      "timestamp": "2026-01-03T19:12:02.726Z",
+      "action": "invoice.create",
+      "severity": "info",
+      "actor": {
+        "userId": "admin-001",
+        "email": "admin@peekabooshades.com",
+        "ipAddress": null,
+        "userAgent": null
+      },
+      "resource": {
+        "type": "invoice",
+        "id": "df9dd011-fa79-4c18-b90c-68337834b43d",
+        "name": "INV-MJYOJ0ROW0KF"
+      },
+      "changes": {
+        "type": "create",
+        "data": {
+          "invoiceNumber": "INV-MJYOJ0ROW0KF",
+          "total": 501.19,
+          "type": "customer"
+        }
+      },
+      "metadata": {}
     }
   ],
   "cmsContent": {
@@ -11759,13 +11785,13 @@
           {
             "value": "cordless",
             "name": "Cordless",
-            "price": 25,
+            "price": 0,
             "image": "/images/mount-control/cordless.svg"
           },
           {
             "value": "motorized",
             "name": "Motorized",
-            "price": 100,
+            "price": 0,
             "image": "/images/mount-control/motorized.svg"
           }
         ]
@@ -11829,19 +11855,20 @@
           {
             "value": "cordless",
             "name": "Cordless",
-            "price": 25,
+            "price": 0,
             "image": "/images/control-system/cordless.png"
           },
           {
             "value": "motorized-app",
             "name": "Motorized",
-            "price": 100,
+            "price": 0,
             "image": "/images/control-system/motorized-app.png"
           },
           {
             "value": "cordless-motorized",
             "name": "2 in 1",
-            "price": 120,
+            "price": 0,
+            "isActive": false,
             "image": "/images/control-system/cordless-motorized.png"
           }
         ]
@@ -11917,25 +11944,29 @@
           {
             "value": "fabric-wrapped-v3",
             "name": "Fabric Wrapped V3",
-            "price": 6,
+            "price": 2.2,
+            "priceType": "sqm",
             "image": "/images/hardware/fabric-wrapped-v3.png"
           },
           {
             "value": "fabric-inserted-s1",
             "name": "Fabric Inserted S1",
-            "price": 3.5,
+            "price": 2.2,
+            "priceType": "sqm",
             "image": "/images/hardware/fabric-inserted-s1.png"
           },
           {
             "value": "curve-white-s2",
             "name": "Curve White S2",
-            "price": 5,
+            "price": 2.2,
+            "priceType": "sqm",
             "image": "/images/hardware/curve-white-s2.png"
           },
           {
             "value": "fabric-wrapped-s3",
             "name": "Fabric Wrapped S3",
-            "price": 5.5,
+            "price": 2.2,
+            "priceType": "sqm",
             "image": "/images/hardware/fabric-wrapped-s3.png"
           },
           {
@@ -11961,25 +11992,29 @@
           {
             "value": "simple-rolling",
             "name": "Simple Rolling",
-            "price": 0.9,
+            "price": 2.2,
+            "priceType": "sqm",
             "image": "/images/bottom-rail/simple-rolling.png"
           },
           {
             "value": "type-b",
             "name": "Type B",
-            "price": 1,
+            "price": 2.2,
+            "priceType": "sqm",
             "image": "/images/bottom-rail/type-b.png"
           },
           {
             "value": "type-c-fabric-wrapped",
             "name": "Type C Fabric Wrapped",
-            "price": 1.5,
+            "price": 2.2,
+            "priceType": "sqm",
             "image": "/images/bottom-rail/type-c-fabric-wrapped.png"
           },
           {
             "value": "type-d",
             "name": "Type D",
-            "price": 1.5,
+            "price": 2.2,
+            "priceType": "sqm",
             "image": "/images/bottom-rail/type-d.png"
           }
         ]
@@ -12000,7 +12035,7 @@
           {
             "value": "reverse-roll",
             "name": "Reverse Roll",
-            "price": 5,
+            "price": 0,
             "image": "/images/mount-control/reverse-roll.svg",
             "description": "Extra clearance"
           }
@@ -12040,13 +12075,13 @@
           {
             "value": "smartHub",
             "name": "Smart Hub",
-            "price": 25,
+            "price": 23.5,
             "isDefault": true
           },
           {
             "value": "usbCharger",
             "name": "USB Charger",
-            "price": 15,
+            "price": 5,
             "isDefault": false
           }
         ]
@@ -18328,6 +18363,57 @@
       "updatedAt": "2026-01-03T17:21:14.734Z",
       "notes": "",
       "internalNotes": ""
+    },
+    {
+      "id": "df9dd011-fa79-4c18-b90c-68337834b43d",
+      "invoiceNumber": "INV-MJYOJ0ROW0KF",
+      "type": "customer",
+      "status": "paid",
+      "orderId": "1df1e46d-3016-425c-b42b-74136a60dbb6",
+      "orderNumber": "ORD-MJYOAF5K",
+      "customer": {
+        "name": "Real Test Customer",
+        "email": "realtest@example.com",
+        "phone": "555-1234",
+        "address": "123 Real Street, Test City, CA 90000"
+      },
+      "billingAddress": "123 Real Street, Test City, CA 90000",
+      "shippingAddress": "123 Real Street, Test City, CA 90000",
+      "items": [
+        {
+          "id": "297a8fae-0d04-4ac1-8ce0-31c604f4912a",
+          "description": "Affordable Custom Roller Blinds & shades",
+          "details": "36\" W x 48\" H",
+          "quantity": 2,
+          "unitPrice": 80,
+          "lineTotal": 160
+        },
+        {
+          "id": "82099e5e-49bf-4e62-9d76-452a02a50221",
+          "description": "Affordable Custom Roller Blinds & shades",
+          "details": "48\" W x 60\" H",
+          "quantity": 1,
+          "unitPrice": 133.33,
+          "lineTotal": 133.33
+        }
+      ],
+      "subtotal": 453.33000000000004,
+      "tax": 32.87,
+      "taxRate": 0.0725,
+      "shipping": 14.99,
+      "discount": 0,
+      "total": 501.19,
+      "currency": "USD",
+      "amountPaid": 501.19,
+      "amountDue": 0,
+      "paymentMethod": "fake_checkout",
+      "paidAt": "2026-01-03T19:05:21.471Z",
+      "issueDate": "2026-01-03T19:12:02.724Z",
+      "dueDate": "2026-02-02T19:12:02.724Z",
+      "createdAt": "2026-01-03T19:12:02.724Z",
+      "updatedAt": "2026-01-03T19:12:02.724Z",
+      "notes": "",
+      "internalNotes": ""
     }
   ],
   "payments": [],
@@ -18976,7 +19062,7 @@
       "password": "$2b$10$ImrOrEwYkbn9A6Wjt3yKVeYVFTJ85Hz0JXWkeN9nNWmzaV8l8uR36",
       "role": "manager",
       "status": "active",
-      "lastLogin": "2026-01-03T18:16:19.800Z",
+      "lastLogin": "2026-01-03T19:09:18.351Z",
       "createdAt": "2026-01-03T06:14:30.191Z",
       "updatedAt": "2026-01-03T06:14:30.191Z"
     }
