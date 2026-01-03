@@ -790,43 +790,50 @@
         <div class="order-detail-section">
           <h3>Items to Manufacture (${order.items.length} items, ${order.items.reduce((sum, i) => sum + i.quantity, 0)} total units)</h3>
           <div style="overflow-x: auto;">
-            <table style="width: 100%; border-collapse: collapse; background: white; border: 2px solid #1a1a2e; min-width: 1200px;">
+            <table style="width: 100%; border-collapse: collapse; background: white; border: 2px solid #1a1a2e; min-width: 1400px;">
               <thead>
                 <tr style="background: #1a1a2e; color: white;">
-                  <th style="padding: 10px 6px; text-align: center; font-size: 10px; font-weight: 600; border: 1px solid #374151;">#</th>
-                  <th style="padding: 10px 6px; text-align: left; font-size: 10px; font-weight: 600; border: 1px solid #374151;">ROOM/LABEL</th>
-                  <th style="padding: 10px 6px; text-align: center; font-size: 10px; font-weight: 600; border: 1px solid #374151;">QTY</th>
-                  <th style="padding: 10px 6px; text-align: center; font-size: 10px; font-weight: 600; border: 1px solid #374151;">W x H</th>
-                  <th style="padding: 10px 6px; text-align: left; font-size: 10px; font-weight: 600; border: 1px solid #374151;">FABRIC CODE</th>
-                  <th style="padding: 10px 6px; text-align: left; font-size: 10px; font-weight: 600; border: 1px solid #374151;">FABRIC NAME</th>
-                  <th style="padding: 10px 6px; text-align: left; font-size: 10px; font-weight: 600; border: 1px solid #374151;">COLOR</th>
-                  <th style="padding: 10px 6px; text-align: left; font-size: 10px; font-weight: 600; border: 1px solid #374151;">CONTROL TYPE</th>
-                  <th style="padding: 10px 6px; text-align: left; font-size: 10px; font-weight: 600; border: 1px solid #374151;">MOTOR/CHAIN</th>
-                  <th style="padding: 10px 6px; text-align: left; font-size: 10px; font-weight: 600; border: 1px solid #374151;">MOUNT</th>
-                  <th style="padding: 10px 6px; text-align: left; font-size: 10px; font-weight: 600; border: 1px solid #374151;">VALANCE</th>
-                  <th style="padding: 10px 6px; text-align: left; font-size: 10px; font-weight: 600; border: 1px solid #374151;">BOTTOM RAIL</th>
-                  <th style="padding: 10px 6px; text-align: left; font-size: 10px; font-weight: 600; border: 1px solid #374151;">ROLL DIR</th>
+                  <th style="padding: 8px 4px; text-align: center; font-size: 9px; font-weight: 600; border: 1px solid #374151;">#</th>
+                  <th style="padding: 8px 4px; text-align: left; font-size: 9px; font-weight: 600; border: 1px solid #374151;">ROOM</th>
+                  <th style="padding: 8px 4px; text-align: center; font-size: 9px; font-weight: 600; border: 1px solid #374151;">QTY</th>
+                  <th style="padding: 8px 4px; text-align: center; font-size: 9px; font-weight: 600; border: 1px solid #374151;">W x H</th>
+                  <th style="padding: 8px 4px; text-align: left; font-size: 9px; font-weight: 600; border: 1px solid #374151;">LIGHT FILTER</th>
+                  <th style="padding: 8px 4px; text-align: left; font-size: 9px; font-weight: 600; border: 1px solid #374151;">FABRIC CODE</th>
+                  <th style="padding: 8px 4px; text-align: left; font-size: 9px; font-weight: 600; border: 1px solid #374151;">FABRIC COLOR</th>
+                  <th style="padding: 8px 4px; text-align: left; font-size: 9px; font-weight: 600; border: 1px solid #374151;">CASSETTE</th>
+                  <th style="padding: 8px 4px; text-align: left; font-size: 9px; font-weight: 600; border: 1px solid #374151;">BOTTOM BAR</th>
+                  <th style="padding: 8px 4px; text-align: left; font-size: 9px; font-weight: 600; border: 1px solid #374151;">ROLLER TYPE</th>
+                  <th style="padding: 8px 4px; text-align: left; font-size: 9px; font-weight: 600; border: 1px solid #374151;">MOUNT</th>
+                  <th style="padding: 8px 4px; text-align: left; font-size: 9px; font-weight: 600; border: 1px solid #374151;">CONTROL</th>
+                  <th style="padding: 8px 4px; text-align: left; font-size: 9px; font-weight: 600; border: 1px solid #374151;">MOTOR TYPE</th>
+                  <th style="padding: 8px 4px; text-align: left; font-size: 9px; font-weight: 600; border: 1px solid #374151;">CHAIN TYPE</th>
+                  <th style="padding: 8px 4px; text-align: left; font-size: 9px; font-weight: 600; border: 1px solid #374151;">CHAIN SIDE</th>
+                  <th style="padding: 8px 4px; text-align: left; font-size: 9px; font-weight: 600; border: 1px solid #374151;">REMOTE</th>
+                  <th style="padding: 8px 4px; text-align: left; font-size: 9px; font-weight: 600; border: 1px solid #374151;">SOLAR</th>
                 </tr>
               </thead>
               <tbody>
                 ${order.items.map((item, idx) => {
                   const cfg = parseConfig(item.configuration);
-                  const motorChainInfo = getMotorChainInfo(cfg);
                   return `
                 <tr style="${idx % 2 === 0 ? 'background: #ffffff;' : 'background: #f9fafb;'}">
-                  <td style="padding: 8px 6px; text-align: center; font-size: 12px; font-weight: 700; border: 1px solid #d1d5db; color: #1a1a2e;">${idx + 1}</td>
-                  <td style="padding: 8px 6px; text-align: left; font-size: 11px; font-weight: 600; border: 1px solid #d1d5db; color: #3b82f6;">${escapeHtml(item.room_label || item.roomLabel || 'Item ' + (idx + 1))}</td>
-                  <td style="padding: 8px 6px; text-align: center; font-size: 13px; font-weight: 700; border: 1px solid #d1d5db; color: #1a1a2e; background: #fef3c7;">${item.quantity}</td>
-                  <td style="padding: 8px 6px; text-align: center; font-size: 11px; font-weight: 600; border: 1px solid #d1d5db; color: #1a1a2e;">${item.width}" x ${item.height}"</td>
-                  <td style="padding: 8px 6px; text-align: left; font-size: 10px; font-weight: 600; border: 1px solid #d1d5db; color: #1a1a2e;">${cfg.fabricCode || '-'}</td>
-                  <td style="padding: 8px 6px; text-align: left; font-size: 10px; font-weight: 500; border: 1px solid #d1d5db; color: #1a1a2e;">${cfg.fabricName || '-'}</td>
-                  <td style="padding: 8px 6px; text-align: left; font-size: 10px; font-weight: 500; border: 1px solid #d1d5db; color: #1a1a2e;">${cfg.fabricColor || '-'}</td>
-                  <td style="padding: 8px 6px; text-align: left; font-size: 10px; font-weight: 500; border: 1px solid #d1d5db; color: #1a1a2e;">${cfg.motorType || cfg.controlType || '-'}</td>
-                  <td style="padding: 8px 6px; text-align: left; font-size: 10px; font-weight: 500; border: 1px solid #d1d5db; color: #1a1a2e;">${motorChainInfo}</td>
-                  <td style="padding: 8px 6px; text-align: left; font-size: 10px; font-weight: 500; border: 1px solid #d1d5db; color: #1a1a2e;">${cfg.mountType || '-'}</td>
-                  <td style="padding: 8px 6px; text-align: left; font-size: 10px; font-weight: 500; border: 1px solid #d1d5db; color: #1a1a2e;">${cfg.valanceType || '-'}</td>
-                  <td style="padding: 8px 6px; text-align: left; font-size: 10px; font-weight: 500; border: 1px solid #d1d5db; color: #1a1a2e;">${cfg.bottomRail || '-'}</td>
-                  <td style="padding: 8px 6px; text-align: left; font-size: 10px; font-weight: 500; border: 1px solid #d1d5db; color: #1a1a2e;">${cfg.rollDirection || '-'}</td>
+                  <td style="padding: 6px 4px; text-align: center; font-size: 11px; font-weight: 700; border: 1px solid #d1d5db;">${idx + 1}</td>
+                  <td style="padding: 6px 4px; text-align: left; font-size: 10px; font-weight: 600; border: 1px solid #d1d5db; color: #3b82f6;">${escapeHtml(item.room_label || item.roomLabel || '-')}</td>
+                  <td style="padding: 6px 4px; text-align: center; font-size: 12px; font-weight: 700; border: 1px solid #d1d5db; background: #fef3c7;">${item.quantity}</td>
+                  <td style="padding: 6px 4px; text-align: center; font-size: 10px; font-weight: 600; border: 1px solid #d1d5db;">${item.width}" x ${item.height}"</td>
+                  <td style="padding: 6px 4px; text-align: left; font-size: 9px; font-weight: 500; border: 1px solid #d1d5db;">${cfg.lightFiltering || '-'}</td>
+                  <td style="padding: 6px 4px; text-align: left; font-size: 9px; font-weight: 600; border: 1px solid #d1d5db;">${cfg.fabricCode || '-'}</td>
+                  <td style="padding: 6px 4px; text-align: left; font-size: 9px; font-weight: 500; border: 1px solid #d1d5db;">${cfg.fabricColor || '-'}</td>
+                  <td style="padding: 6px 4px; text-align: left; font-size: 9px; font-weight: 500; border: 1px solid #d1d5db;">${cfg.standardCassette || '-'}</td>
+                  <td style="padding: 6px 4px; text-align: left; font-size: 9px; font-weight: 500; border: 1px solid #d1d5db;">${cfg.standardBottomBar || '-'}</td>
+                  <td style="padding: 6px 4px; text-align: left; font-size: 9px; font-weight: 500; border: 1px solid #d1d5db;">${cfg.rollerType || '-'}</td>
+                  <td style="padding: 6px 4px; text-align: left; font-size: 9px; font-weight: 500; border: 1px solid #d1d5db;">${cfg.mountType || '-'}</td>
+                  <td style="padding: 6px 4px; text-align: left; font-size: 9px; font-weight: 500; border: 1px solid #d1d5db;">${cfg.controlType || '-'}</td>
+                  <td style="padding: 6px 4px; text-align: left; font-size: 9px; font-weight: 500; border: 1px solid #d1d5db;">${cfg.motorType || '-'}</td>
+                  <td style="padding: 6px 4px; text-align: left; font-size: 9px; font-weight: 500; border: 1px solid #d1d5db;">${cfg.chainType || '-'}</td>
+                  <td style="padding: 6px 4px; text-align: left; font-size: 9px; font-weight: 500; border: 1px solid #d1d5db;">${cfg.chainSide || '-'}</td>
+                  <td style="padding: 6px 4px; text-align: left; font-size: 9px; font-weight: 500; border: 1px solid #d1d5db;">${cfg.remoteType || '-'}</td>
+                  <td style="padding: 6px 4px; text-align: left; font-size: 9px; font-weight: 500; border: 1px solid #d1d5db;">${cfg.solarType || '-'}</td>
                 </tr>
                 `;}).join('')}
               </tbody>
