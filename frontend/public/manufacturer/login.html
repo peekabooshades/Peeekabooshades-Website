@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Manufacturer Portal - Login</title>
+  <link rel="icon" type="image/png" href="/images/favicon.png">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Montserrat', sans-serif;
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .login-container {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+      width: 100%;
+      max-width: 420px;
+      padding: 48px 40px;
+    }
+    .login-header {
+      text-align: center;
+      margin-bottom: 32px;
+    }
+    .login-header img {
+      height: 50px;
+      margin-bottom: 16px;
+    }
+    .login-header h1 {
+      font-size: 24px;
+      color: #1a1a2e;
+      margin-bottom: 8px;
+    }
+    .login-header p {
+      color: #6c757d;
+      font-size: 14px;
+    }
+    .form-group {
+      margin-bottom: 20px;
+    }
+    .form-group label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      color: #1a1a2e;
+      margin-bottom: 8px;
+    }
+    .form-group input {
+      width: 100%;
+      padding: 14px 16px;
+      border: 1px solid #e0e0e0;
+      border-radius: 8px;
+      font-size: 15px;
+      font-family: inherit;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .form-group input:focus {
+      outline: none;
+      border-color: #1a1a2e;
+      box-shadow: 0 0 0 3px rgba(26,26,46,0.1);
+    }
+    .btn-login {
+      width: 100%;
+      padding: 14px;
+      background: #1a1a2e;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 15px;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .btn-login:hover {
+      background: #16213e;
+    }
+    .btn-login:disabled {
+      background: #6c757d;
+      cursor: not-allowed;
+    }
+    .error-message {
+      background: #fee2e2;
+      color: #dc2626;
+      padding: 12px 16px;
+      border-radius: 8px;
+      font-size: 14px;
+      margin-bottom: 20px;
+      display: none;
+    }
+    .error-message.show {
+      display: block;
+    }
+    .login-footer {
+      text-align: center;
+      margin-top: 24px;
+      padding-top: 24px;
+      border-top: 1px solid #e0e0e0;
+    }
+    .login-footer a {
+      color: #6c757d;
+      font-size: 13px;
+      text-decoration: none;
+    }
+    .login-footer a:hover {
+      color: #1a1a2e;
+    }
+    .portal-badge {
+      display: inline-block;
+      background: #1a1a2e;
+      color: white;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 12px;
+    }
+  </style>
+</head>
+<body>
+  <div class="login-container">
+    <div class="login-header">
+      <img src="/images/logo.png" alt="Peekaboo Shades" onerror="this.style.display='none'">
+      <div class="portal-badge">Manufacturer Portal</div>
+      <h1>Welcome Back</h1>
+      <p>Sign in to manage your orders</p>
+    </div>
+
+    <div id="error-message" class="error-message"></div>
+
+    <form id="login-form">
+      <div class="form-group">
+        <label for="email">Email Address</label>
+        <input type="email" id="email" name="email" required placeholder="factory@company.com">
+      </div>
+
+      <div class="form-group">
+        <label for="password">Password</label>
+        <input type="password" id="password" name="password" required placeholder="Enter your password">
+      </div>
+
+      <button type="submit" class="btn-login" id="btn-submit">
+        Sign In
+      </button>
+    </form>
+
+    <div class="login-footer">
+      <a href="/">Back to Store</a>
+    </div>
+  </div>
+
+  <script>
+    // Check if already logged in
+    const token = localStorage.getItem('mfrToken');
+    if (token) {
+      window.location.href = '/manufacturer/';
+    }
+
+    document.getElementById('login-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const email = document.getElementById('email').value;
+      const password = document.getElementById('password').value;
+      const btn = document.getElementById('btn-submit');
+      const errorDiv = document.getElementById('error-message');
+
+      btn.disabled = true;
+      btn.textContent = 'Signing in...';
+      errorDiv.classList.remove('show');
+
+      try {
+        const response = await fetch('/api/manufacturer/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password })
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+          localStorage.setItem('mfrToken', result.token);
+          localStorage.setItem('mfrUser', JSON.stringify(result.user));
+          window.location.href = '/manufacturer/';
+        } else {
+          errorDiv.textContent = result.error || 'Invalid credentials';
+          errorDiv.classList.add('show');
+        }
+      } catch (error) {
+        errorDiv.textContent = 'Connection error. Please try again.';
+        errorDiv.classList.add('show');
+      }
+
+      btn.disabled = false;
+      btn.textContent = 'Sign In';
+    });
+  </script>
+</body>
+</html>

@@ -253,11 +253,16 @@
           <td>${order.items ? order.items.length : 0} items</td>
           <td style="font-weight: 500;">${Admin.Utils.formatCurrency(order.total || 0)}</td>
           <td>
-            <select class="filter-select" style="min-width: 120px;" onchange="updateStatus('${order.id}', this.value)">
-              <option value="pending" ${order.status === 'pending' ? 'selected' : ''}>Pending</option>
-              <option value="processing" ${order.status === 'processing' ? 'selected' : ''}>Processing</option>
+            <select class="filter-select" style="min-width: 140px;" onchange="updateStatus('${order.id}', this.value)">
+              <option value="order_placed" ${order.status === 'order_placed' ? 'selected' : ''}>Order Placed</option>
+              <option value="order_received" ${order.status === 'order_received' ? 'selected' : ''}>Order Received</option>
+              <option value="manufacturing" ${order.status === 'manufacturing' ? 'selected' : ''}>Manufacturing</option>
+              <option value="qa" ${order.status === 'qa' ? 'selected' : ''}>QA</option>
               <option value="shipped" ${order.status === 'shipped' ? 'selected' : ''}>Shipped</option>
               <option value="delivered" ${order.status === 'delivered' ? 'selected' : ''}>Delivered</option>
+              <option value="issue_reported" ${order.status === 'issue_reported' ? 'selected' : ''}>Issue Reported</option>
+              <option value="refund_requested" ${order.status === 'refund_requested' ? 'selected' : ''}>Refund Requested</option>
+              <option value="refunded" ${order.status === 'refunded' ? 'selected' : ''}>Refunded</option>
               <option value="cancelled" ${order.status === 'cancelled' ? 'selected' : ''}>Cancelled</option>
             </select>
           </td>

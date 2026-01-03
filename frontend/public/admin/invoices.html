@@ -1,0 +1,891 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Invoices - Peekaboo Shades Admin</title>
+  <link rel="stylesheet" href="css/admin.css">
+  <link rel="icon" type="image/png" href="/images/favicon.png">
+  <style>
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+    .stat-card {
+      background: white;
+      border-radius: 8px;
+      padding: 20px;
+      border: 1px solid var(--admin-border);
+    }
+    .stat-card h4 {
+      font-size: 13px;
+      color: var(--admin-text-secondary);
+      margin-bottom: 8px;
+      text-transform: uppercase;
+    }
+    .stat-card .value {
+      font-size: 28px;
+      font-weight: 600;
+      color: var(--admin-text-primary);
+    }
+    .stat-card .subtext {
+      font-size: 12px;
+      color: var(--admin-text-secondary);
+      margin-top: 4px;
+    }
+    .badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 500;
+    }
+    .badge-draft { background: #f3f4f6; color: #6b7280; }
+    .badge-sent { background: #dbeafe; color: #1d4ed8; }
+    .badge-paid { background: #d1fae5; color: #059669; }
+    .badge-partially_paid { background: #fef3c7; color: #d97706; }
+    .badge-overdue { background: #fee2e2; color: #dc2626; }
+    .badge-cancelled { background: #f3f4f6; color: #6b7280; }
+    .badge-refunded { background: #e0e7ff; color: #4f46e5; }
+    .badge-customer { background: #dbeafe; color: #1d4ed8; }
+    .badge-manufacturer { background: #f3e8ff; color: #7c3aed; }
+    .invoice-number {
+      font-family: monospace;
+      font-weight: 500;
+      color: var(--admin-primary);
+    }
+    .payment-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 0;
+      border-bottom: 1px solid var(--admin-border);
+    }
+    .payment-row:last-child { border-bottom: none; }
+    .tab-buttons {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+    .tab-btn {
+      padding: 8px 16px;
+      border: 1px solid var(--admin-border);
+      background: white;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 500;
+      transition: all 0.2s;
+    }
+    .tab-btn.active {
+      background: var(--admin-primary);
+      color: white;
+      border-color: var(--admin-primary);
+    }
+  </style>
+</head>
+<body>
+  <div class="admin-layout">
+    <!-- Sidebar -->
+    <aside class="admin-sidebar">
+      <div class="sidebar-header">
+        <a href="/admin/" class="sidebar-logo">
+          <img src="/images/logo.png" alt="Logo" onerror="this.style.display='none'">
+          <span>Peekaboo Shades</span>
+        </a>
+      </div>
+
+      <nav class="sidebar-nav">
+        <div class="nav-section">
+          <a href="/admin/" class="nav-item">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+            </svg>
+            <span>Dashboard</span>
+          </a>
+        </div>
+
+        <div class="nav-section">
+          <div class="nav-section-title">Catalog</div>
+          <a href="/admin/products.html" class="nav-item">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+            </svg>
+            <span>Products</span>
+          </a>
+          <a href="/admin/categories.html" class="nav-item">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+            </svg>
+            <span>Categories</span>
+          </a>
+        </div>
+
+        <div class="nav-section">
+          <div class="nav-section-title">Sales</div>
+          <a href="/admin/orders.html" class="nav-item">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+            </svg>
+            <span>Orders</span>
+          </a>
+          <a href="/admin/invoices.html" class="nav-item active">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+            <span>Invoices</span>
+          </a>
+          <a href="/admin/quotes.html" class="nav-item">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+            <span>Quotes</span>
+          </a>
+        </div>
+
+        <div class="nav-section">
+          <div class="nav-section-title">Content</div>
+          <a href="/admin/faqs.html" class="nav-item">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <span>FAQs</span>
+          </a>
+        </div>
+
+        <div class="nav-section">
+          <div class="nav-section-title">Settings</div>
+          <a href="/admin/settings.html" class="nav-item">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+            <span>Settings</span>
+          </a>
+        </div>
+      </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="admin-main">
+      <!-- Header -->
+      <header class="admin-header">
+        <div class="header-left">
+          <div class="breadcrumb">
+            <a href="/admin/">Dashboard</a>
+            <span class="breadcrumb-separator">/</span>
+            <span class="breadcrumb-current">Invoices</span>
+          </div>
+        </div>
+        <div class="header-right">
+          <button class="btn btn-primary" onclick="generateMissingInvoices()">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="margin-right: 6px;">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+            </svg>
+            Generate Missing
+          </button>
+          <div class="dropdown" style="margin-left: 16px;">
+            <div class="header-profile">
+              <div class="profile-avatar">A</div>
+              <span class="profile-name">Admin</span>
+            </div>
+            <div class="dropdown-menu profile-dropdown">
+              <a href="/admin/settings.html" class="dropdown-item">Profile</a>
+              <div class="dropdown-divider"></div>
+              <a href="#" class="dropdown-item danger" onclick="Admin.AuthAPI.logout(); return false;">Logout</a>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <!-- Page Content -->
+      <div class="admin-content">
+        <div class="page-header">
+          <h1 class="page-title">Invoices</h1>
+        </div>
+
+        <!-- Stats -->
+        <div class="stats-grid" id="stats-grid">
+          <div class="stat-card">
+            <h4>Total Invoices</h4>
+            <div class="value" id="stat-total">-</div>
+          </div>
+          <div class="stat-card">
+            <h4>Total Amount</h4>
+            <div class="value" id="stat-amount">-</div>
+          </div>
+          <div class="stat-card">
+            <h4>Amount Paid</h4>
+            <div class="value" id="stat-paid">-</div>
+            <div class="subtext" style="color: #059669;">Collected</div>
+          </div>
+          <div class="stat-card">
+            <h4>Amount Due</h4>
+            <div class="value" id="stat-due">-</div>
+            <div class="subtext" style="color: #dc2626;">Outstanding</div>
+          </div>
+        </div>
+
+        <!-- Tabs & Filters -->
+        <div class="card" style="margin-bottom: 20px;">
+          <div class="card-body" style="padding: 16px;">
+            <div class="tab-buttons">
+              <button class="tab-btn active" data-type="">All Invoices</button>
+              <button class="tab-btn" data-type="customer">Customer</button>
+              <button class="tab-btn" data-type="manufacturer">Manufacturer</button>
+            </div>
+            <div class="search-bar" style="margin-bottom: 0;">
+              <div class="search-input">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+                <input type="text" id="search-input" placeholder="Search by invoice # or order #..." class="form-input">
+              </div>
+              <div class="filter-group">
+                <select id="status-filter" class="filter-select">
+                  <option value="">All Status</option>
+                  <option value="draft">Draft</option>
+                  <option value="sent">Sent</option>
+                  <option value="paid">Paid</option>
+                  <option value="partially_paid">Partially Paid</option>
+                  <option value="overdue">Overdue</option>
+                  <option value="cancelled">Cancelled</option>
+                  <option value="refunded">Refunded</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Invoices Table -->
+        <div class="card">
+          <div class="table-container">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>Invoice #</th>
+                  <th>Type</th>
+                  <th>Order</th>
+                  <th>Customer/Vendor</th>
+                  <th>Amount</th>
+                  <th>Due</th>
+                  <th>Status</th>
+                  <th>Due Date</th>
+                  <th style="width: 150px;">Actions</th>
+                </tr>
+              </thead>
+              <tbody id="invoices-table">
+                <tr>
+                  <td colspan="9" style="text-align: center; padding: 60px;">
+                    <div class="spinner"></div>
+                    <p style="margin-top: 16px; color: var(--admin-text-secondary);">Loading invoices...</p>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Invoice Detail Modal -->
+  <div class="modal-overlay" id="invoice-modal">
+    <div class="modal" style="max-width: 700px;">
+      <div class="modal-header">
+        <h3 class="modal-title">Invoice Details</h3>
+        <button class="modal-close" onclick="Admin.Modal.hide('invoice-modal')">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+      <div class="modal-body" id="invoice-detail-content">
+        <!-- Content will be loaded dynamically -->
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="Admin.Modal.hide('invoice-modal')">Close</button>
+        <button class="btn btn-primary" id="btn-print-invoice" onclick="printInvoice()">Print</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Record Payment Modal -->
+  <div class="modal-overlay" id="payment-modal">
+    <div class="modal" style="max-width: 450px;">
+      <div class="modal-header">
+        <h3 class="modal-title">Record Payment</h3>
+        <button class="modal-close" onclick="Admin.Modal.hide('payment-modal')">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form id="payment-form">
+          <input type="hidden" id="payment-invoice-id">
+          <div class="form-group">
+            <label class="form-label">Invoice</label>
+            <p id="payment-invoice-info" style="font-weight: 500;"></p>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Amount Due</label>
+            <p id="payment-amount-due" style="font-weight: 500; color: #dc2626;"></p>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="payment-amount">Payment Amount *</label>
+            <input type="number" id="payment-amount" class="form-input" step="0.01" min="0.01" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="payment-method">Payment Method</label>
+            <select id="payment-method" class="form-input">
+              <option value="card">Credit Card</option>
+              <option value="bank_transfer">Bank Transfer</option>
+              <option value="check">Check</option>
+              <option value="cash">Cash</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="payment-reference">Reference/Check #</label>
+            <input type="text" id="payment-reference" class="form-input" placeholder="Optional">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="payment-notes">Notes</label>
+            <textarea id="payment-notes" class="form-input" rows="2" placeholder="Optional"></textarea>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="Admin.Modal.hide('payment-modal')">Cancel</button>
+        <button class="btn btn-primary" onclick="submitPayment()">Record Payment</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Create Invoice Modal -->
+  <div class="modal-overlay" id="create-modal">
+    <div class="modal" style="max-width: 450px;">
+      <div class="modal-header">
+        <h3 class="modal-title">Create Invoice from Order</h3>
+        <button class="modal-close" onclick="Admin.Modal.hide('create-modal')">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form id="create-form">
+          <div class="form-group">
+            <label class="form-label" for="create-order-id">Order ID or Number *</label>
+            <input type="text" id="create-order-id" class="form-input" placeholder="e.g., ORD-ABC123" required>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="create-type">Invoice Type *</label>
+            <select id="create-type" class="form-input">
+              <option value="customer">Customer Invoice (Receivable)</option>
+              <option value="manufacturer">Manufacturer Invoice (Payable)</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="create-due-days">Due in Days</label>
+            <input type="number" id="create-due-days" class="form-input" value="30" min="1">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="create-notes">Notes</label>
+            <textarea id="create-notes" class="form-input" rows="2" placeholder="Optional notes"></textarea>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="Admin.Modal.hide('create-modal')">Cancel</button>
+        <button class="btn btn-primary" onclick="submitCreateInvoice()">Create Invoice</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/admin.js"></script>
+  <script>
+    // Require authentication
+    if (!Admin.Auth.requireAuth()) {
+      // Will redirect
+    } else {
+      loadInvoices();
+      loadSummary();
+      initFilters();
+    }
+
+    let allInvoices = [];
+    let currentTypeFilter = '';
+    let currentInvoice = null;
+
+    async function loadSummary() {
+      try {
+        const response = await fetch('/api/admin/invoices/summary', {
+          headers: { 'Authorization': `Bearer ${Admin.Auth.getToken()}` }
+        });
+        const data = await response.json();
+        if (data.success) {
+          document.getElementById('stat-total').textContent = data.summary.total;
+          document.getElementById('stat-amount').textContent = Admin.Utils.formatCurrency(data.summary.totalAmount);
+          document.getElementById('stat-paid').textContent = Admin.Utils.formatCurrency(data.summary.totalPaid);
+          document.getElementById('stat-due').textContent = Admin.Utils.formatCurrency(data.summary.totalDue);
+        }
+      } catch (error) {
+        console.error('Failed to load summary:', error);
+      }
+    }
+
+    async function loadInvoices() {
+      try {
+        const params = new URLSearchParams();
+        if (currentTypeFilter) params.append('type', currentTypeFilter);
+
+        const response = await fetch(`/api/admin/invoices?${params}`, {
+          headers: { 'Authorization': `Bearer ${Admin.Auth.getToken()}` }
+        });
+        const data = await response.json();
+        if (data.success) {
+          allInvoices = data.invoices || [];
+          renderInvoices(allInvoices);
+        }
+      } catch (error) {
+        Admin.Toast.error('Failed to load invoices');
+        document.getElementById('invoices-table').innerHTML = `
+          <tr>
+            <td colspan="9" style="text-align: center; padding: 60px; color: var(--admin-text-secondary);">
+              Failed to load invoices. <a href="#" onclick="loadInvoices(); return false;">Try again</a>
+            </td>
+          </tr>
+        `;
+      }
+    }
+
+    function renderInvoices(invoices) {
+      const tbody = document.getElementById('invoices-table');
+
+      if (!invoices || invoices.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="9" class="empty-state">
+              <svg xmlns="http://www.w3.org/2000/svg" class="empty-state-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+              <h3 class="empty-state-title">No invoices yet</h3>
+              <p class="empty-state-text">Invoices will appear here when orders are created</p>
+              <button class="btn btn-primary" style="margin-top: 16px;" onclick="showCreateModal()">Create Invoice</button>
+            </td>
+          </tr>
+        `;
+        return;
+      }
+
+      tbody.innerHTML = invoices.map(inv => `
+        <tr data-id="${inv.id}">
+          <td>
+            <a href="#" onclick="viewInvoice('${inv.id}'); return false;" class="invoice-number">
+              ${Admin.Utils.escapeHtml(inv.invoiceNumber)}
+            </a>
+          </td>
+          <td>
+            <span class="badge badge-${inv.type}">${inv.type === 'customer' ? 'Customer' : 'Manufacturer'}</span>
+          </td>
+          <td>
+            <a href="/admin/orders.html" style="color: var(--admin-primary); text-decoration: none;">
+              ${Admin.Utils.escapeHtml(inv.orderNumber || '-')}
+            </a>
+          </td>
+          <td>
+            ${inv.type === 'customer'
+              ? Admin.Utils.escapeHtml(inv.customer?.name || '-')
+              : Admin.Utils.escapeHtml(inv.manufacturer?.name || '-')}
+          </td>
+          <td style="font-weight: 500;">${Admin.Utils.formatCurrency(inv.total)}</td>
+          <td style="font-weight: 500; color: ${inv.amountDue > 0 ? '#dc2626' : '#059669'};">
+            ${Admin.Utils.formatCurrency(inv.amountDue || 0)}
+          </td>
+          <td>
+            <span class="badge badge-${inv.status}">${formatStatus(inv.status)}</span>
+          </td>
+          <td>${Admin.Utils.formatDate(inv.dueDate)}</td>
+          <td>
+            <div class="action-buttons">
+              <button class="action-btn" title="View" onclick="viewInvoice('${inv.id}')">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                </svg>
+              </button>
+              ${inv.amountDue > 0 ? `
+              <button class="action-btn" title="Record Payment" onclick="showPaymentModal('${inv.id}')">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </button>
+              ` : ''}
+              ${inv.status === 'draft' ? `
+              <button class="action-btn" title="Mark as Sent" onclick="markAsSent('${inv.id}')">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                </svg>
+              </button>
+              ` : ''}
+              <button class="action-btn" title="Print" onclick="printInvoiceDirect('${inv.id}')">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+                </svg>
+              </button>
+            </div>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    function formatStatus(status) {
+      const map = {
+        'draft': 'Draft',
+        'sent': 'Sent',
+        'paid': 'Paid',
+        'partially_paid': 'Partial',
+        'overdue': 'Overdue',
+        'cancelled': 'Cancelled',
+        'refunded': 'Refunded'
+      };
+      return map[status] || status;
+    }
+
+    function initFilters() {
+      const searchInput = document.getElementById('search-input');
+      const statusFilter = document.getElementById('status-filter');
+      const tabButtons = document.querySelectorAll('.tab-btn');
+
+      const applyFilters = Admin.Utils.debounce(() => {
+        const search = searchInput.value.toLowerCase();
+        const status = statusFilter.value;
+
+        const filtered = allInvoices.filter(i => {
+          const matchesSearch = !search ||
+            i.invoiceNumber.toLowerCase().includes(search) ||
+            (i.orderNumber && i.orderNumber.toLowerCase().includes(search)) ||
+            (i.customer?.name && i.customer.name.toLowerCase().includes(search));
+          const matchesStatus = !status || i.status === status;
+
+          return matchesSearch && matchesStatus;
+        });
+
+        renderInvoices(filtered);
+      }, 300);
+
+      searchInput.addEventListener('input', applyFilters);
+      statusFilter.addEventListener('change', applyFilters);
+
+      tabButtons.forEach(btn => {
+        btn.addEventListener('click', () => {
+          tabButtons.forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          currentTypeFilter = btn.dataset.type;
+          loadInvoices();
+        });
+      });
+    }
+
+    async function viewInvoice(id) {
+      try {
+        const response = await fetch(`/api/admin/invoices/${id}`, {
+          headers: { 'Authorization': `Bearer ${Admin.Auth.getToken()}` }
+        });
+        const data = await response.json();
+        if (data.success) {
+          currentInvoice = data.invoice;
+          const inv = data.invoice;
+
+          document.getElementById('invoice-detail-content').innerHTML = `
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 24px;">
+              <div>
+                <h2 style="margin-bottom: 8px; font-size: 20px;">${Admin.Utils.escapeHtml(inv.invoiceNumber)}</h2>
+                <p style="color: var(--admin-text-secondary);">Order: ${Admin.Utils.escapeHtml(inv.orderNumber || '-')}</p>
+              </div>
+              <span class="badge badge-${inv.status}" style="font-size: 14px;">${formatStatus(inv.status)}</span>
+            </div>
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 24px;">
+              <div style="background: var(--admin-body-bg); padding: 16px; border-radius: 8px;">
+                <h5 style="margin-bottom: 12px; font-size: 13px; text-transform: uppercase; color: var(--admin-text-secondary);">
+                  ${inv.type === 'customer' ? 'Bill To' : 'Pay To'}
+                </h5>
+                ${inv.type === 'customer' ? `
+                  <p style="font-weight: 500;">${Admin.Utils.escapeHtml(inv.customer?.name || '-')}</p>
+                  <p style="color: var(--admin-text-secondary); font-size: 14px;">${Admin.Utils.escapeHtml(inv.customer?.email || '')}</p>
+                  <p style="color: var(--admin-text-secondary); font-size: 14px;">${Admin.Utils.escapeHtml(inv.customer?.phone || '')}</p>
+                ` : `
+                  <p style="font-weight: 500;">${Admin.Utils.escapeHtml(inv.manufacturer?.name || '-')}</p>
+                  <p style="color: var(--admin-text-secondary); font-size: 14px;">${Admin.Utils.escapeHtml(inv.manufacturer?.email || '')}</p>
+                `}
+              </div>
+              <div style="background: var(--admin-body-bg); padding: 16px; border-radius: 8px;">
+                <h5 style="margin-bottom: 12px; font-size: 13px; text-transform: uppercase; color: var(--admin-text-secondary);">Invoice Details</h5>
+                <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                  <span style="color: var(--admin-text-secondary);">Issue Date</span>
+                  <span>${Admin.Utils.formatDate(inv.issueDate)}</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
+                  <span style="color: var(--admin-text-secondary);">Due Date</span>
+                  <span>${Admin.Utils.formatDate(inv.dueDate)}</span>
+                </div>
+                <div style="display: flex; justify-content: space-between;">
+                  <span style="color: var(--admin-text-secondary);">Type</span>
+                  <span class="badge badge-${inv.type}">${inv.type === 'customer' ? 'Customer' : 'Manufacturer'}</span>
+                </div>
+              </div>
+            </div>
+
+            <div style="margin-bottom: 24px;">
+              <h5 style="margin-bottom: 12px; font-size: 13px; text-transform: uppercase; color: var(--admin-text-secondary);">Line Items</h5>
+              <table style="width: 100%; border-collapse: collapse;">
+                <thead>
+                  <tr style="border-bottom: 1px solid var(--admin-border);">
+                    <th style="text-align: left; padding: 12px 0; font-size: 13px; color: var(--admin-text-secondary);">Description</th>
+                    <th style="text-align: center; padding: 12px 0; font-size: 13px; color: var(--admin-text-secondary);">Qty</th>
+                    <th style="text-align: right; padding: 12px 0; font-size: 13px; color: var(--admin-text-secondary);">Unit Price</th>
+                    <th style="text-align: right; padding: 12px 0; font-size: 13px; color: var(--admin-text-secondary);">Total</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${(inv.items || []).map(item => `
+                    <tr style="border-bottom: 1px solid var(--admin-border);">
+                      <td style="padding: 12px 0;">
+                        <p style="font-weight: 500;">${Admin.Utils.escapeHtml(item.description)}</p>
+                        <p style="font-size: 13px; color: var(--admin-text-secondary);">${Admin.Utils.escapeHtml(item.details || '')}</p>
+                      </td>
+                      <td style="text-align: center; padding: 12px 0;">${item.quantity}</td>
+                      <td style="text-align: right; padding: 12px 0;">${Admin.Utils.formatCurrency(item.unitPrice)}</td>
+                      <td style="text-align: right; padding: 12px 0; font-weight: 500;">${Admin.Utils.formatCurrency(item.lineTotal)}</td>
+                    </tr>
+                  `).join('')}
+                </tbody>
+              </table>
+            </div>
+
+            <div style="display: flex; justify-content: flex-end; margin-bottom: 24px;">
+              <div style="width: 280px;">
+                <div style="display: flex; justify-content: space-between; padding: 8px 0;">
+                  <span>Subtotal</span>
+                  <span>${Admin.Utils.formatCurrency(inv.subtotal)}</span>
+                </div>
+                ${inv.tax > 0 ? `
+                <div style="display: flex; justify-content: space-between; padding: 8px 0;">
+                  <span>Tax (${(inv.taxRate * 100).toFixed(2)}%)</span>
+                  <span>${Admin.Utils.formatCurrency(inv.tax)}</span>
+                </div>
+                ` : ''}
+                ${inv.shipping > 0 ? `
+                <div style="display: flex; justify-content: space-between; padding: 8px 0;">
+                  <span>Shipping</span>
+                  <span>${Admin.Utils.formatCurrency(inv.shipping)}</span>
+                </div>
+                ` : ''}
+                ${inv.discount > 0 ? `
+                <div style="display: flex; justify-content: space-between; padding: 8px 0; color: #059669;">
+                  <span>Discount</span>
+                  <span>-${Admin.Utils.formatCurrency(inv.discount)}</span>
+                </div>
+                ` : ''}
+                <div style="display: flex; justify-content: space-between; padding: 12px 0; border-top: 2px solid var(--admin-border); font-weight: 600; font-size: 18px;">
+                  <span>Total</span>
+                  <span>${Admin.Utils.formatCurrency(inv.total)}</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; padding: 8px 0;">
+                  <span>Amount Paid</span>
+                  <span style="color: #059669;">${Admin.Utils.formatCurrency(inv.amountPaid || 0)}</span>
+                </div>
+                <div style="display: flex; justify-content: space-between; padding: 8px 0; font-weight: 600; color: ${inv.amountDue > 0 ? '#dc2626' : '#059669'};">
+                  <span>Balance Due</span>
+                  <span>${Admin.Utils.formatCurrency(inv.amountDue || 0)}</span>
+                </div>
+              </div>
+            </div>
+
+            ${inv.payments && inv.payments.length > 0 ? `
+            <div style="margin-bottom: 24px;">
+              <h5 style="margin-bottom: 12px; font-size: 13px; text-transform: uppercase; color: var(--admin-text-secondary);">Payment History</h5>
+              <div style="background: var(--admin-body-bg); padding: 16px; border-radius: 8px;">
+                ${inv.payments.map(p => `
+                  <div class="payment-row">
+                    <div>
+                      <p style="font-weight: 500;">${Admin.Utils.formatCurrency(p.amount)}</p>
+                      <p style="font-size: 13px; color: var(--admin-text-secondary);">${p.method} ${p.reference ? '- ' + Admin.Utils.escapeHtml(p.reference) : ''}</p>
+                    </div>
+                    <span style="color: var(--admin-text-secondary); font-size: 13px;">${Admin.Utils.formatDateTime(p.recordedAt)}</span>
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+            ` : ''}
+
+            ${inv.notes ? `
+            <div style="background: var(--admin-body-bg); padding: 16px; border-radius: 8px;">
+              <h5 style="margin-bottom: 8px; font-size: 13px; text-transform: uppercase; color: var(--admin-text-secondary);">Notes</h5>
+              <p>${Admin.Utils.escapeHtml(inv.notes)}</p>
+            </div>
+            ` : ''}
+          `;
+          Admin.Modal.show('invoice-modal');
+        }
+      } catch (error) {
+        Admin.Toast.error('Failed to load invoice details');
+      }
+    }
+
+    function showPaymentModal(id) {
+      const inv = allInvoices.find(i => i.id === id);
+      if (!inv) return;
+
+      document.getElementById('payment-invoice-id').value = id;
+      document.getElementById('payment-invoice-info').textContent = inv.invoiceNumber;
+      document.getElementById('payment-amount-due').textContent = Admin.Utils.formatCurrency(inv.amountDue);
+      document.getElementById('payment-amount').value = inv.amountDue;
+      document.getElementById('payment-amount').max = inv.amountDue;
+      document.getElementById('payment-method').value = 'card';
+      document.getElementById('payment-reference').value = '';
+      document.getElementById('payment-notes').value = '';
+
+      Admin.Modal.show('payment-modal');
+    }
+
+    async function submitPayment() {
+      const id = document.getElementById('payment-invoice-id').value;
+      const amount = parseFloat(document.getElementById('payment-amount').value);
+      const method = document.getElementById('payment-method').value;
+      const reference = document.getElementById('payment-reference').value;
+      const notes = document.getElementById('payment-notes').value;
+
+      if (!amount || amount <= 0) {
+        Admin.Toast.error('Please enter a valid amount');
+        return;
+      }
+
+      try {
+        const response = await fetch(`/api/admin/invoices/${id}/payment`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${Admin.Auth.getToken()}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ amount, method, reference, notes })
+        });
+
+        const data = await response.json();
+        if (data.success) {
+          Admin.Toast.success('Payment recorded successfully');
+          Admin.Modal.hide('payment-modal');
+          loadInvoices();
+          loadSummary();
+        } else {
+          Admin.Toast.error(data.error || 'Failed to record payment');
+        }
+      } catch (error) {
+        Admin.Toast.error('Failed to record payment');
+      }
+    }
+
+    async function markAsSent(id) {
+      try {
+        const response = await fetch(`/api/admin/invoices/${id}/send`, {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${Admin.Auth.getToken()}` }
+        });
+
+        const data = await response.json();
+        if (data.success) {
+          Admin.Toast.success('Invoice marked as sent');
+          loadInvoices();
+        } else {
+          Admin.Toast.error(data.error || 'Failed to update invoice');
+        }
+      } catch (error) {
+        Admin.Toast.error('Failed to update invoice');
+      }
+    }
+
+    function showCreateModal() {
+      document.getElementById('create-order-id').value = '';
+      document.getElementById('create-type').value = 'customer';
+      document.getElementById('create-due-days').value = '30';
+      document.getElementById('create-notes').value = '';
+      Admin.Modal.show('create-modal');
+    }
+
+    async function submitCreateInvoice() {
+      const orderId = document.getElementById('create-order-id').value.trim();
+      const type = document.getElementById('create-type').value;
+      const dueDays = parseInt(document.getElementById('create-due-days').value) || 30;
+      const notes = document.getElementById('create-notes').value;
+
+      if (!orderId) {
+        Admin.Toast.error('Please enter an order ID');
+        return;
+      }
+
+      try {
+        const response = await fetch('/api/admin/invoices', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${Admin.Auth.getToken()}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ orderId, type, dueDays, notes })
+        });
+
+        const data = await response.json();
+        if (data.success) {
+          Admin.Toast.success('Invoice created successfully');
+          Admin.Modal.hide('create-modal');
+          loadInvoices();
+          loadSummary();
+        } else {
+          Admin.Toast.error(data.error || 'Failed to create invoice');
+        }
+      } catch (error) {
+        Admin.Toast.error('Failed to create invoice');
+      }
+    }
+
+    async function generateMissingInvoices() {
+      const confirmed = await Admin.Modal.confirm(
+        'Generate Invoices',
+        'This will create customer invoices for all orders that don\'t have one. Continue?'
+      );
+
+      if (!confirmed) return;
+
+      try {
+        const response = await fetch('/api/admin/invoices/generate-missing', {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${Admin.Auth.getToken()}` }
+        });
+
+        const data = await response.json();
+        if (data.success) {
+          Admin.Toast.success(`Generated ${data.created} new invoices`);
+          loadInvoices();
+          loadSummary();
+        } else {
+          Admin.Toast.error(data.error || 'Failed to generate invoices');
+        }
+      } catch (error) {
+        Admin.Toast.error('Failed to generate invoices');
+      }
+    }
+
+    function printInvoice() {
+      if (currentInvoice) {
+        printInvoiceDirect(currentInvoice.id);
+      }
+    }
+
+    function printInvoiceDirect(id) {
+      window.open(`/api/invoices/${id}/print`, '_blank');
+    }
+  </script>
+</body>
+</html>

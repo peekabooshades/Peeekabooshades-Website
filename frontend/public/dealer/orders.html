@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Orders - Dealer Portal - Peekaboo Shades</title>
+  <link rel="icon" type="image/png" href="/images/favicon.png">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Montserrat', sans-serif; background: #f5f7fa; min-height: 100vh; }
+    .dealer-header { background: linear-gradient(135deg, #8E6545 0%, #6B4D35 100%); color: white; padding: 0 24px; height: 64px; display: flex; align-items: center; justify-content: space-between; position: fixed; top: 0; left: 0; right: 0; z-index: 100; }
+    .dealer-header-left { display: flex; align-items: center; gap: 16px; }
+    .dealer-header h1 { font-size: 18px; font-weight: 600; }
+    .dealer-header-right { display: flex; align-items: center; gap: 16px; }
+    .dealer-user { display: flex; align-items: center; gap: 8px; font-size: 14px; }
+    .dealer-user-avatar { width: 32px; height: 32px; background: rgba(255,255,255,0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 600; }
+    .btn-logout { background: transparent; border: 1px solid rgba(255,255,255,0.3); color: white; padding: 8px 16px; border-radius: 6px; font-size: 13px; cursor: pointer; }
+    .dealer-nav { background: white; border-bottom: 1px solid #e5e7eb; padding: 0 24px; margin-top: 64px; position: sticky; top: 64px; z-index: 50; }
+    .nav-links { display: flex; gap: 8px; }
+    .nav-link { padding: 16px 20px; text-decoration: none; color: #6b7280; font-size: 14px; font-weight: 500; border-bottom: 2px solid transparent; }
+    .nav-link:hover { color: #8E6545; }
+    .nav-link.active { color: #8E6545; border-bottom-color: #8E6545; }
+    .dealer-main { padding: 24px; max-width: 1400px; margin: 0 auto; }
+    .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 16px; }
+    .page-title { font-size: 24px; font-weight: 700; color: #1a1a2e; }
+    .btn-primary { background: linear-gradient(135deg, #8E6545 0%, #6B4D35 100%); color: white; padding: 12px 24px; border-radius: 8px; font-size: 14px; font-weight: 600; text-decoration: none; border: none; cursor: pointer; }
+    .filters { display: flex; gap: 12px; margin-bottom: 24px; flex-wrap: wrap; }
+    .filter-input, .filter-select { padding: 10px 14px; border: 1px solid #e5e7eb; border-radius: 8px; font-size: 14px; font-family: inherit; }
+    .filter-input { width: 200px; }
+    .card { background: white; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); overflow: hidden; }
+    .orders-table { width: 100%; border-collapse: collapse; }
+    .orders-table th, .orders-table td { padding: 14px 16px; text-align: left; border-bottom: 1px solid #f0f0f0; }
+    .orders-table th { font-size: 12px; font-weight: 600; color: #6b7280; text-transform: uppercase; background: #f9fafb; }
+    .orders-table td { font-size: 14px; color: #374151; }
+    .order-number { color: #8E6545; font-weight: 600; text-decoration: none; }
+    .order-number:hover { text-decoration: underline; }
+    .status-badge { display: inline-block; padding: 4px 10px; border-radius: 12px; font-size: 12px; font-weight: 500; }
+    .status-draft { background: #f3f4f6; color: #6b7280; }
+    .status-pending { background: #fef3c7; color: #92400e; }
+    .status-confirmed { background: #dbeafe; color: #1e40af; }
+    .status-processing { background: #e0e7ff; color: #4338ca; }
+    .status-shipped { background: #d1fae5; color: #065f46; }
+    .status-delivered { background: #dcfce7; color: #166534; }
+    .status-cancelled { background: #fee2e2; color: #dc2626; }
+    .btn-view { padding: 6px 12px; background: #f3f4f6; border: none; border-radius: 6px; font-size: 12px; color: #374151; cursor: pointer; }
+    .btn-view:hover { background: #e5e7eb; }
+    .empty-state { text-align: center; padding: 60px 24px; color: #6b7280; }
+    .empty-state svg { width: 64px; height: 64px; color: #d1d5db; margin-bottom: 16px; }
+    .pagination { display: flex; justify-content: center; gap: 8px; padding: 20px; }
+    .pagination button { padding: 8px 14px; border: 1px solid #e5e7eb; background: white; border-radius: 6px; cursor: pointer; font-size: 13px; }
+    .pagination button.active { background: #8E6545; color: white; border-color: #8E6545; }
+    .pagination button:disabled { opacity: 0.5; cursor: not-allowed; }
+
+    /* Order Detail Modal */
+    .modal { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; }
+    .modal.show { display: flex; }
+    .modal-content { background: white; border-radius: 12px; width: 90%; max-width: 800px; max-height: 90vh; overflow-y: auto; }
+    .modal-header { padding: 20px 24px; border-bottom: 1px solid #e5e7eb; display: flex; justify-content: space-between; align-items: center; }
+    .modal-title { font-size: 18px; font-weight: 600; }
+    .modal-close { background: none; border: none; font-size: 24px; cursor: pointer; color: #6b7280; }
+    .modal-body { padding: 24px; }
+    .detail-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; margin-bottom: 24px; }
+    .detail-item { }
+    .detail-label { font-size: 12px; color: #6b7280; margin-bottom: 4px; }
+    .detail-value { font-size: 14px; font-weight: 500; color: #1a1a2e; }
+    .items-table { width: 100%; border-collapse: collapse; margin-top: 16px; }
+    .items-table th, .items-table td { padding: 10px 12px; text-align: left; border-bottom: 1px solid #f0f0f0; font-size: 13px; }
+    .items-table th { background: #f9fafb; font-weight: 600; color: #6b7280; }
+  </style>
+</head>
+<body>
+  <header class="dealer-header">
+    <div class="dealer-header-left">
+      <img src="/images/logo.png" alt="Peekaboo Shades" style="height: 32px;" onerror="this.style.display='none'">
+      <h1>Dealer Portal</h1>
+    </div>
+    <div class="dealer-header-right">
+      <div class="dealer-user">
+        <div class="dealer-user-avatar" id="user-avatar">D</div>
+        <span id="user-name">Dealer</span>
+      </div>
+      <button class="btn-logout" onclick="logout()">Logout</button>
+    </div>
+  </header>
+
+  <nav class="dealer-nav">
+    <div class="nav-links">
+      <a href="/dealer/" class="nav-link">Dashboard</a>
+      <a href="/dealer/orders.html" class="nav-link active">Orders</a>
+      <a href="/dealer/new-order.html" class="nav-link">New Order</a>
+      <a href="/dealer/customers.html" class="nav-link">Customers</a>
+      <a href="/dealer/commissions.html" class="nav-link">Commissions</a>
+    </div>
+  </nav>
+
+  <main class="dealer-main">
+    <div class="page-header">
+      <h1 class="page-title">Orders</h1>
+      <a href="/dealer/new-order.html" class="btn-primary">+ New Order</a>
+    </div>
+
+    <div class="filters">
+      <input type="text" class="filter-input" id="filter-search" placeholder="Search by order #...">
+      <select class="filter-select" id="filter-status">
+        <option value="">All Statuses</option>
+        <option value="draft">Draft</option>
+        <option value="pending">Pending</option>
+        <option value="confirmed">Confirmed</option>
+        <option value="processing">Processing</option>
+        <option value="shipped">Shipped</option>
+        <option value="delivered">Delivered</option>
+        <option value="cancelled">Cancelled</option>
+      </select>
+      <input type="date" class="filter-input" id="filter-start" placeholder="Start Date">
+      <input type="date" class="filter-input" id="filter-end" placeholder="End Date">
+    </div>
+
+    <div class="card">
+      <table class="orders-table">
+        <thead>
+          <tr>
+            <th>Order #</th>
+            <th>Customer</th>
+            <th>Items</th>
+            <th>Total</th>
+            <th>Commission</th>
+            <th>Status</th>
+            <th>Date</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody id="orders-tbody">
+          <tr>
+            <td colspan="8">
+              <div class="empty-state">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
+                </svg>
+                <p>No orders found</p>
+                <a href="/dealer/new-order.html" class="btn-primary" style="margin-top: 16px; display: inline-block;">Create Your First Order</a>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </main>
+
+  <!-- Order Detail Modal -->
+  <div class="modal" id="order-modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 class="modal-title">Order Details</h3>
+        <button class="modal-close" onclick="closeModal()">&times;</button>
+      </div>
+      <div class="modal-body" id="modal-body">
+        <!-- Populated by JS -->
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const token = localStorage.getItem('dealerToken');
+    const user = JSON.parse(localStorage.getItem('dealerUser') || '{}');
+    if (!token) window.location.href = '/dealer/login.html';
+
+    // Update user info
+    if (user.name) {
+      document.getElementById('user-name').textContent = user.name;
+      document.getElementById('user-avatar').textContent = user.name.charAt(0).toUpperCase();
+    }
+
+    async function api(endpoint, options = {}) {
+      const response = await fetch(endpoint, {
+        ...options,
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}`, ...options.headers }
+      });
+      return response.json();
+    }
+
+    let allOrders = [];
+
+    async function loadOrders() {
+      try {
+        const params = new URLSearchParams();
+        const status = document.getElementById('filter-status').value;
+        const search = document.getElementById('filter-search').value;
+        const startDate = document.getElementById('filter-start').value;
+        const endDate = document.getElementById('filter-end').value;
+
+        if (status) params.append('status', status);
+        if (search) params.append('orderNumber', search);
+        if (startDate) params.append('startDate', startDate);
+        if (endDate) params.append('endDate', endDate);
+
+        const response = await api(`/api/dealer/orders?${params.toString()}`);
+        if (response.success) {
+          allOrders = response.data;
+          renderOrders(allOrders);
+        }
+      } catch (error) {
+        console.error('Failed to load orders:', error);
+      }
+    }
+
+    function renderOrders(orders) {
+      const tbody = document.getElementById('orders-tbody');
+      if (orders.length === 0) {
+        tbody.innerHTML = `
+          <tr><td colspan="8">
+            <div class="empty-state">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
+              </svg>
+              <p>No orders found</p>
+            </div>
+          </td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = orders.map(order => `
+        <tr>
+          <td><a href="#" class="order-number" onclick="viewOrder('${order.id}')">${order.orderNumber}</a></td>
+          <td>${escapeHtml(order.customerName || 'N/A')}</td>
+          <td>${order.items?.length || 0}</td>
+          <td>${formatCurrency(order.total)}</td>
+          <td>${formatCurrency(order.commission)}</td>
+          <td><span class="status-badge status-${order.status}">${capitalizeFirst(order.status)}</span></td>
+          <td>${formatDate(order.createdAt)}</td>
+          <td><button class="btn-view" onclick="viewOrder('${order.id}')">View</button></td>
+        </tr>
+      `).join('');
+    }
+
+    async function viewOrder(orderId) {
+      try {
+        const response = await api(`/api/dealer/orders/${orderId}`);
+        if (response.success) {
+          const order = response.data;
+          document.getElementById('modal-body').innerHTML = `
+            <div class="detail-grid">
+              <div class="detail-item">
+                <div class="detail-label">Order Number</div>
+                <div class="detail-value">${order.orderNumber}</div>
+              </div>
+              <div class="detail-item">
+                <div class="detail-label">Status</div>
+                <div class="detail-value"><span class="status-badge status-${order.status}">${capitalizeFirst(order.status)}</span></div>
+              </div>
+              <div class="detail-item">
+                <div class="detail-label">Customer</div>
+                <div class="detail-value">${escapeHtml(order.customerName || 'N/A')}</div>
+              </div>
+              <div class="detail-item">
+                <div class="detail-label">Customer Email</div>
+                <div class="detail-value">${escapeHtml(order.customerEmail || 'N/A')}</div>
+              </div>
+              <div class="detail-item">
+                <div class="detail-label">Subtotal</div>
+                <div class="detail-value">${formatCurrency(order.subtotal)}</div>
+              </div>
+              <div class="detail-item">
+                <div class="detail-label">Discount (${order.discountPercent}%)</div>
+                <div class="detail-value">-${formatCurrency(order.discountAmount)}</div>
+              </div>
+              <div class="detail-item">
+                <div class="detail-label">Total</div>
+                <div class="detail-value" style="font-size: 18px; color: #8E6545;">${formatCurrency(order.total)}</div>
+              </div>
+              <div class="detail-item">
+                <div class="detail-label">Commission</div>
+                <div class="detail-value" style="color: #10b981;">${formatCurrency(order.commission)}</div>
+              </div>
+            </div>
+            <h4 style="margin-bottom: 12px;">Order Items</h4>
+            <table class="items-table">
+              <thead>
+                <tr>
+                  <th>Product</th>
+                  <th>Dimensions</th>
+                  <th>Qty</th>
+                  <th>Retail Price</th>
+                  <th>Dealer Price</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${(order.items || []).map(item => `
+                  <tr>
+                    <td>${escapeHtml(item.productName)}</td>
+                    <td>${item.width}" x ${item.height}"</td>
+                    <td>${item.quantity}</td>
+                    <td>${formatCurrency(item.retailPrice)}</td>
+                    <td>${formatCurrency(item.dealerPrice)}</td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          `;
+          document.getElementById('order-modal').classList.add('show');
+        }
+      } catch (error) {
+        console.error('Failed to load order:', error);
+      }
+    }
+
+    function closeModal() {
+      document.getElementById('order-modal').classList.remove('show');
+    }
+
+    // Filters
+    document.getElementById('filter-status').addEventListener('change', loadOrders);
+    document.getElementById('filter-search').addEventListener('input', debounce(loadOrders, 300));
+    document.getElementById('filter-start').addEventListener('change', loadOrders);
+    document.getElementById('filter-end').addEventListener('change', loadOrders);
+
+    function debounce(fn, delay) {
+      let timeout;
+      return function(...args) {
+        clearTimeout(timeout);
+        timeout = setTimeout(() => fn.apply(this, args), delay);
+      };
+    }
+
+    function formatCurrency(amount) { return '$' + (amount || 0).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ','); }
+    function formatDate(dateStr) { if (!dateStr) return 'N/A'; return new Date(dateStr).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }); }
+    function capitalizeFirst(str) { return str ? str.charAt(0).toUpperCase() + str.slice(1) : ''; }
+    function escapeHtml(str) { if (!str) return ''; const div = document.createElement('div'); div.textContent = str; return div.innerHTML; }
+    function logout() { localStorage.removeItem('dealerToken'); localStorage.removeItem('dealerUser'); window.location.href = '/dealer/login.html'; }
+
+    // Close modal on click outside
+    document.getElementById('order-modal').addEventListener('click', (e) => {
+      if (e.target.classList.contains('modal')) closeModal();
+    });
+
+    loadOrders();
+  </script>
+</body>
+</html>

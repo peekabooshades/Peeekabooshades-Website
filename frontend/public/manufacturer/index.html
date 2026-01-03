@@ -1,0 +1,1195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Manufacturer Portal - Peekaboo Shades</title>
+  <link rel="icon" type="image/png" href="/images/favicon.png">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Montserrat', sans-serif;
+      background: #f5f7fa;
+      min-height: 100vh;
+    }
+
+    /* Header */
+    .mfr-header {
+      background: #1a1a2e;
+      color: white;
+      padding: 0 24px;
+      height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+    }
+    .mfr-header-left {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .mfr-header img {
+      height: 32px;
+    }
+    .mfr-header h1 {
+      font-size: 18px;
+      font-weight: 600;
+    }
+    .mfr-header-right {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .mfr-user {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 14px;
+    }
+    .mfr-user-avatar {
+      width: 32px;
+      height: 32px;
+      background: #16213e;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+    }
+    .btn-logout {
+      background: transparent;
+      border: 1px solid rgba(255,255,255,0.3);
+      color: white;
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-size: 13px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-logout:hover {
+      background: rgba(255,255,255,0.1);
+    }
+
+    /* Main Content */
+    .mfr-main {
+      margin-top: 64px;
+      padding: 24px;
+      max-width: 1400px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    /* Stats Grid */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+    @media (max-width: 1200px) {
+      .stats-grid { grid-template-columns: repeat(3, 1fr); }
+    }
+    @media (max-width: 768px) {
+      .stats-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+    .stat-card {
+      background: white;
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    }
+    .stat-card.pending { border-left: 4px solid #f59e0b; }
+    .stat-card.production { border-left: 4px solid #3b82f6; }
+    .stat-card.qa { border-left: 4px solid #8b5cf6; }
+    .stat-card.shipped { border-left: 4px solid #10b981; }
+    .stat-card.total { border-left: 4px solid #1a1a2e; }
+    .stat-label {
+      font-size: 12px;
+      color: #6b7280;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 8px;
+    }
+    .stat-value {
+      font-size: 32px;
+      font-weight: 700;
+      color: #1a1a2e;
+    }
+
+    /* Tabs */
+    .tabs {
+      display: flex;
+      gap: 4px;
+      margin-bottom: 20px;
+      border-bottom: 1px solid #e5e7eb;
+    }
+    .tab-btn {
+      padding: 12px 24px;
+      background: none;
+      border: none;
+      font-size: 14px;
+      font-weight: 500;
+      color: #6b7280;
+      cursor: pointer;
+      border-bottom: 2px solid transparent;
+      margin-bottom: -1px;
+      transition: all 0.2s;
+    }
+    .tab-btn:hover { color: #1a1a2e; }
+    .tab-btn.active {
+      color: #1a1a2e;
+      border-bottom-color: #1a1a2e;
+    }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+
+    /* Orders Section */
+    .orders-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+    .orders-title {
+      font-size: 18px;
+      font-weight: 600;
+      color: #1a1a2e;
+    }
+    .orders-filters {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+    .filter-select, .filter-input {
+      padding: 8px 12px;
+      border: 1px solid #e5e7eb;
+      border-radius: 6px;
+      font-size: 14px;
+      font-family: inherit;
+    }
+    .btn-refresh {
+      padding: 8px 16px;
+      background: #1a1a2e;
+      color: white;
+      border: none;
+      border-radius: 6px;
+      font-size: 13px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    /* Orders Table */
+    .orders-table-container {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+      overflow: hidden;
+    }
+    .orders-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    .orders-table th {
+      text-align: left;
+      padding: 14px 16px;
+      font-size: 12px;
+      font-weight: 600;
+      color: #6b7280;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      background: #f9fafb;
+      border-bottom: 1px solid #e5e7eb;
+    }
+    .orders-table td {
+      padding: 16px;
+      font-size: 14px;
+      color: #1a1a2e;
+      border-bottom: 1px solid #f3f4f6;
+    }
+    .orders-table tr:hover {
+      background: #f9fafb;
+    }
+    .orders-table tr:last-child td {
+      border-bottom: none;
+    }
+    .order-number {
+      font-weight: 600;
+      color: #3b82f6;
+      cursor: pointer;
+    }
+    .order-number:hover {
+      text-decoration: underline;
+    }
+    .status-badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 500;
+    }
+    .status-badge.order_received { background: #fef3c7; color: #92400e; }
+    .status-badge.manufacturing { background: #dbeafe; color: #1e40af; }
+    .status-badge.qa { background: #ede9fe; color: #5b21b6; }
+    .status-badge.shipped { background: #d1fae5; color: #065f46; }
+    .btn-action {
+      padding: 6px 12px;
+      border: 1px solid #e5e7eb;
+      background: white;
+      border-radius: 6px;
+      font-size: 12px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-action:hover {
+      background: #f3f4f6;
+    }
+    .btn-action.primary {
+      background: #1a1a2e;
+      color: white;
+      border-color: #1a1a2e;
+    }
+    .btn-action.primary:hover {
+      background: #16213e;
+    }
+
+    /* Modal */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.5);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+    .modal-overlay.show {
+      display: flex;
+    }
+    .modal {
+      background: white;
+      border-radius: 12px;
+      width: 100%;
+      max-width: 800px;
+      max-height: 90vh;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+    .modal-header {
+      padding: 20px 24px;
+      border-bottom: 1px solid #e5e7eb;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .modal-title {
+      font-size: 18px;
+      font-weight: 600;
+    }
+    .modal-close {
+      background: none;
+      border: none;
+      font-size: 24px;
+      cursor: pointer;
+      color: #6b7280;
+    }
+    .modal-body {
+      padding: 24px;
+      overflow-y: auto;
+      flex: 1;
+    }
+    .modal-footer {
+      padding: 16px 24px;
+      border-top: 1px solid #e5e7eb;
+      display: flex;
+      justify-content: flex-end;
+      gap: 12px;
+    }
+
+    /* Order Detail */
+    .order-detail-section {
+      margin-bottom: 24px;
+    }
+    .order-detail-section h3 {
+      font-size: 14px;
+      font-weight: 600;
+      color: #6b7280;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 12px;
+    }
+    .order-info-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+    }
+    .order-info-item {
+      background: #f9fafb;
+      padding: 12px;
+      border-radius: 8px;
+    }
+    .order-info-label {
+      font-size: 11px;
+      color: #6b7280;
+      margin-bottom: 4px;
+    }
+    .order-info-value {
+      font-size: 14px;
+      font-weight: 500;
+      color: #1a1a2e;
+    }
+    .items-table {
+      width: 100%;
+      border-collapse: collapse;
+      background: #f9fafb;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .items-table th {
+      text-align: left;
+      padding: 12px;
+      font-size: 11px;
+      font-weight: 600;
+      color: #6b7280;
+      text-transform: uppercase;
+      background: #f3f4f6;
+    }
+    .items-table td {
+      padding: 12px;
+      font-size: 13px;
+      border-top: 1px solid #e5e7eb;
+    }
+    .status-timeline {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .timeline-item {
+      display: flex;
+      gap: 12px;
+      align-items: flex-start;
+    }
+    .timeline-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: #e5e7eb;
+      margin-top: 4px;
+    }
+    .timeline-dot.completed { background: #10b981; }
+    .timeline-dot.current { background: #3b82f6; }
+    .timeline-content {
+      flex: 1;
+    }
+    .timeline-status {
+      font-weight: 500;
+      font-size: 14px;
+    }
+    .timeline-date {
+      font-size: 12px;
+      color: #6b7280;
+    }
+
+    /* Status Actions */
+    .status-actions {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+    }
+    .btn-status {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .btn-status.start-production {
+      background: #3b82f6;
+      color: white;
+    }
+    .btn-status.start-qa {
+      background: #8b5cf6;
+      color: white;
+    }
+    .btn-status.mark-shipped {
+      background: #10b981;
+      color: white;
+    }
+    .btn-status:disabled {
+      background: #e5e7eb;
+      color: #9ca3af;
+      cursor: not-allowed;
+    }
+
+    /* Tracking Form */
+    .tracking-form {
+      background: #f9fafb;
+      padding: 16px;
+      border-radius: 8px;
+      margin-top: 16px;
+    }
+    .tracking-form h4 {
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 12px;
+    }
+    .tracking-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+    }
+    .tracking-grid .form-group {
+      margin-bottom: 0;
+    }
+    .form-group label {
+      display: block;
+      font-size: 12px;
+      font-weight: 500;
+      color: #6b7280;
+      margin-bottom: 6px;
+    }
+    .form-group input, .form-group select {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid #e5e7eb;
+      border-radius: 6px;
+      font-size: 14px;
+      font-family: inherit;
+    }
+
+    /* Toast */
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      background: #1a1a2e;
+      color: white;
+      padding: 14px 20px;
+      border-radius: 8px;
+      font-size: 14px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      transform: translateY(100px);
+      opacity: 0;
+      transition: all 0.3s;
+      z-index: 2000;
+    }
+    .toast.show {
+      transform: translateY(0);
+      opacity: 1;
+    }
+    .toast.success { background: #10b981; }
+    .toast.error { background: #ef4444; }
+
+    /* Empty State */
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: #6b7280;
+    }
+    .empty-state svg {
+      width: 64px;
+      height: 64px;
+      margin-bottom: 16px;
+      opacity: 0.5;
+    }
+
+    /* Loading */
+    .loading {
+      display: flex;
+      justify-content: center;
+      padding: 40px;
+    }
+    .spinner {
+      width: 32px;
+      height: 32px;
+      border: 3px solid #e5e7eb;
+      border-top-color: #1a1a2e;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <header class="mfr-header">
+    <div class="mfr-header-left">
+      <img src="/images/logo.png" alt="Logo" onerror="this.style.display='none'">
+      <h1>Manufacturer Portal</h1>
+    </div>
+    <div class="mfr-header-right">
+      <div class="mfr-user">
+        <div class="mfr-user-avatar" id="user-avatar">F</div>
+        <span id="user-name">Factory Manager</span>
+      </div>
+      <button class="btn-logout" onclick="logout()">Logout</button>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="mfr-main">
+    <!-- Stats -->
+    <div class="stats-grid" id="stats-grid">
+      <div class="stat-card pending">
+        <div class="stat-label">Pending</div>
+        <div class="stat-value" id="stat-pending">-</div>
+      </div>
+      <div class="stat-card production">
+        <div class="stat-label">In Production</div>
+        <div class="stat-value" id="stat-production">-</div>
+      </div>
+      <div class="stat-card qa">
+        <div class="stat-label">In QA</div>
+        <div class="stat-value" id="stat-qa">-</div>
+      </div>
+      <div class="stat-card shipped">
+        <div class="stat-label">Shipped</div>
+        <div class="stat-value" id="stat-shipped">-</div>
+      </div>
+      <div class="stat-card total">
+        <div class="stat-label">Active Orders</div>
+        <div class="stat-value" id="stat-total">-</div>
+      </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="tabs">
+      <button class="tab-btn active" data-tab="all">All Orders</button>
+      <button class="tab-btn" data-tab="order_received">Pending</button>
+      <button class="tab-btn" data-tab="manufacturing">In Production</button>
+      <button class="tab-btn" data-tab="qa">Quality Check</button>
+      <button class="tab-btn" data-tab="shipped">Shipped</button>
+    </div>
+
+    <!-- Orders Section -->
+    <div class="tab-content active" id="tab-all">
+      <div class="orders-header">
+        <h2 class="orders-title">Orders</h2>
+        <div class="orders-filters">
+          <input type="text" class="filter-input" id="filter-search" placeholder="Search order #...">
+          <button class="btn-refresh" onclick="loadOrders()">
+            <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+            </svg>
+            Refresh
+          </button>
+        </div>
+      </div>
+
+      <div class="orders-table-container">
+        <table class="orders-table">
+          <thead>
+            <tr>
+              <th>Order #</th>
+              <th>Customer</th>
+              <th>Items</th>
+              <th>Status</th>
+              <th>Date</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="orders-tbody">
+            <tr><td colspan="6"><div class="loading"><div class="spinner"></div></div></td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </main>
+
+  <!-- Order Detail Modal -->
+  <div class="modal-overlay" id="order-modal">
+    <div class="modal">
+      <div class="modal-header">
+        <h2 class="modal-title">Order <span id="modal-order-number"></span></h2>
+        <button class="modal-close" onclick="closeModal()">&times;</button>
+      </div>
+      <div class="modal-body" id="modal-body">
+        <div class="loading"><div class="spinner"></div></div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-action" onclick="closeModal()">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div class="toast" id="toast"></div>
+
+  <script>
+    // Auth check
+    const token = localStorage.getItem('mfrToken');
+    const user = JSON.parse(localStorage.getItem('mfrUser') || '{}');
+
+    if (!token) {
+      window.location.href = '/manufacturer/login.html';
+    }
+
+    // Set user info
+    document.getElementById('user-name').textContent = user.name || 'User';
+    document.getElementById('user-avatar').textContent = (user.name || 'U')[0].toUpperCase();
+
+    // Current filter
+    let currentStatus = null;
+    let orders = [];
+
+    // API helper
+    async function api(endpoint, options = {}) {
+      const response = await fetch(endpoint, {
+        ...options,
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`,
+          ...options.headers
+        }
+      });
+      return response.json();
+    }
+
+    // Load stats
+    async function loadStats() {
+      const result = await api('/api/manufacturer/stats');
+      if (result.success) {
+        const data = result.data;
+        document.getElementById('stat-pending').textContent = data.pending;
+        document.getElementById('stat-production').textContent = data.inProduction;
+        document.getElementById('stat-qa').textContent = data.inQA;
+        document.getElementById('stat-shipped').textContent = data.shipped;
+        document.getElementById('stat-total').textContent = data.totalActive;
+      }
+    }
+
+    // Load orders
+    async function loadOrders() {
+      const tbody = document.getElementById('orders-tbody');
+      tbody.innerHTML = '<tr><td colspan="6"><div class="loading"><div class="spinner"></div></div></td></tr>';
+
+      let url = '/api/manufacturer/orders';
+      if (currentStatus) {
+        url += `?status=${currentStatus}`;
+      }
+
+      const result = await api(url);
+      if (result.success) {
+        orders = result.data;
+        renderOrders();
+      }
+    }
+
+    // Render orders
+    function renderOrders() {
+      const tbody = document.getElementById('orders-tbody');
+      const search = document.getElementById('filter-search').value.toLowerCase();
+
+      let filtered = orders;
+      if (search) {
+        filtered = orders.filter(o => o.orderNumber.toLowerCase().includes(search));
+      }
+
+      if (filtered.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="6">
+              <div class="empty-state">
+                <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"/>
+                </svg>
+                <p>No orders found</p>
+              </div>
+            </td>
+          </tr>
+        `;
+        return;
+      }
+
+      tbody.innerHTML = filtered.map(order => `
+        <tr>
+          <td>
+            <span class="order-number" onclick="openOrderDetail('${order.id}')">${order.orderNumber}</span>
+          </td>
+          <td>${escapeHtml(order.customer || 'N/A')}</td>
+          <td>${order.itemCount} item${order.itemCount !== 1 ? 's' : ''}</td>
+          <td><span class="status-badge ${order.status}">${formatStatus(order.status)}</span></td>
+          <td>${formatDate(order.createdAt)}</td>
+          <td>
+            <button class="btn-action primary" onclick="openOrderDetail('${order.id}')">View</button>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    // Open order detail modal
+    async function openOrderDetail(orderId) {
+      document.getElementById('order-modal').classList.add('show');
+      document.getElementById('modal-body').innerHTML = '<div class="loading"><div class="spinner"></div></div>';
+
+      const result = await api(`/api/manufacturer/orders/${orderId}`);
+      if (result.success) {
+        const order = result.data;
+        document.getElementById('modal-order-number').textContent = order.orderNumber;
+        renderOrderDetail(order);
+      }
+    }
+
+    // Render order detail
+    function renderOrderDetail(order) {
+      const body = document.getElementById('modal-body');
+
+      const statusActions = getStatusActions(order.status);
+
+      body.innerHTML = `
+        <div class="order-detail-section">
+          <h3>Order Information</h3>
+          <div class="order-info-grid">
+            <div class="order-info-item">
+              <div class="order-info-label">Order Number</div>
+              <div class="order-info-value">${order.orderNumber}</div>
+            </div>
+            <div class="order-info-item">
+              <div class="order-info-label">Status</div>
+              <div class="order-info-value"><span class="status-badge ${order.status}">${formatStatus(order.status)}</span></div>
+            </div>
+            <div class="order-info-item">
+              <div class="order-info-label">Order Date</div>
+              <div class="order-info-value">${formatDate(order.createdAt)}</div>
+            </div>
+            <div class="order-info-item">
+              <div class="order-info-label">Customer</div>
+              <div class="order-info-value">${escapeHtml(order.customer?.name || 'N/A')}</div>
+            </div>
+            <div class="order-info-item">
+              <div class="order-info-label">Shipping Address</div>
+              <div class="order-info-value">${escapeHtml(order.customer?.address || 'N/A')}</div>
+            </div>
+            ${order.manufacturerInvoice ? `
+            <div class="order-info-item" style="background: #fef3c7;">
+              <div class="order-info-label">Manufacturer Invoice</div>
+              <div class="order-info-value" style="color: #92400e; font-weight: 600;">${order.manufacturerInvoice.invoiceNumber}</div>
+              <div style="font-size: 11px; color: #92400e;">Status: ${order.manufacturerInvoice.status || 'pending'}</div>
+            </div>
+            ` : ''}
+          </div>
+        </div>
+
+        <div class="order-detail-section">
+          <h3>Items to Manufacture (${order.items.length} items, ${order.items.reduce((sum, i) => sum + i.quantity, 0)} total units)</h3>
+          <div style="overflow-x: auto;">
+            <table style="width: 100%; border-collapse: collapse; background: white; border: 2px solid #1a1a2e; min-width: 1200px;">
+              <thead>
+                <tr style="background: #1a1a2e; color: white;">
+                  <th style="padding: 10px 6px; text-align: center; font-size: 10px; font-weight: 600; border: 1px solid #374151;">#</th>
+                  <th style="padding: 10px 6px; text-align: left; font-size: 10px; font-weight: 600; border: 1px solid #374151;">ROOM/LABEL</th>
+                  <th style="padding: 10px 6px; text-align: center; font-size: 10px; font-weight: 600; border: 1px solid #374151;">QTY</th>
+                  <th style="padding: 10px 6px; text-align: center; font-size: 10px; font-weight: 600; border: 1px solid #374151;">W x H</th>
+                  <th style="padding: 10px 6px; text-align: left; font-size: 10px; font-weight: 600; border: 1px solid #374151;">FABRIC CODE</th>
+                  <th style="padding: 10px 6px; text-align: left; font-size: 10px; font-weight: 600; border: 1px solid #374151;">FABRIC NAME</th>
+                  <th style="padding: 10px 6px; text-align: left; font-size: 10px; font-weight: 600; border: 1px solid #374151;">COLOR</th>
+                  <th style="padding: 10px 6px; text-align: left; font-size: 10px; font-weight: 600; border: 1px solid #374151;">CONTROL TYPE</th>
+                  <th style="padding: 10px 6px; text-align: left; font-size: 10px; font-weight: 600; border: 1px solid #374151;">MOTOR/CHAIN</th>
+                  <th style="padding: 10px 6px; text-align: left; font-size: 10px; font-weight: 600; border: 1px solid #374151;">MOUNT</th>
+                  <th style="padding: 10px 6px; text-align: left; font-size: 10px; font-weight: 600; border: 1px solid #374151;">VALANCE</th>
+                  <th style="padding: 10px 6px; text-align: left; font-size: 10px; font-weight: 600; border: 1px solid #374151;">BOTTOM RAIL</th>
+                  <th style="padding: 10px 6px; text-align: left; font-size: 10px; font-weight: 600; border: 1px solid #374151;">ROLL DIR</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${order.items.map((item, idx) => {
+                  const cfg = parseConfig(item.configuration);
+                  const motorChainInfo = getMotorChainInfo(cfg);
+                  return `
+                <tr style="${idx % 2 === 0 ? 'background: #ffffff;' : 'background: #f9fafb;'}">
+                  <td style="padding: 8px 6px; text-align: center; font-size: 12px; font-weight: 700; border: 1px solid #d1d5db; color: #1a1a2e;">${idx + 1}</td>
+                  <td style="padding: 8px 6px; text-align: left; font-size: 11px; font-weight: 600; border: 1px solid #d1d5db; color: #3b82f6;">${escapeHtml(item.room_label || item.roomLabel || 'Item ' + (idx + 1))}</td>
+                  <td style="padding: 8px 6px; text-align: center; font-size: 13px; font-weight: 700; border: 1px solid #d1d5db; color: #1a1a2e; background: #fef3c7;">${item.quantity}</td>
+                  <td style="padding: 8px 6px; text-align: center; font-size: 11px; font-weight: 600; border: 1px solid #d1d5db; color: #1a1a2e;">${item.width}" x ${item.height}"</td>
+                  <td style="padding: 8px 6px; text-align: left; font-size: 10px; font-weight: 600; border: 1px solid #d1d5db; color: #1a1a2e;">${cfg.fabricCode || '-'}</td>
+                  <td style="padding: 8px 6px; text-align: left; font-size: 10px; font-weight: 500; border: 1px solid #d1d5db; color: #1a1a2e;">${cfg.fabricName || '-'}</td>
+                  <td style="padding: 8px 6px; text-align: left; font-size: 10px; font-weight: 500; border: 1px solid #d1d5db; color: #1a1a2e;">${cfg.fabricColor || '-'}</td>
+                  <td style="padding: 8px 6px; text-align: left; font-size: 10px; font-weight: 500; border: 1px solid #d1d5db; color: #1a1a2e;">${cfg.motorType || cfg.controlType || '-'}</td>
+                  <td style="padding: 8px 6px; text-align: left; font-size: 10px; font-weight: 500; border: 1px solid #d1d5db; color: #1a1a2e;">${motorChainInfo}</td>
+                  <td style="padding: 8px 6px; text-align: left; font-size: 10px; font-weight: 500; border: 1px solid #d1d5db; color: #1a1a2e;">${cfg.mountType || '-'}</td>
+                  <td style="padding: 8px 6px; text-align: left; font-size: 10px; font-weight: 500; border: 1px solid #d1d5db; color: #1a1a2e;">${cfg.valanceType || '-'}</td>
+                  <td style="padding: 8px 6px; text-align: left; font-size: 10px; font-weight: 500; border: 1px solid #d1d5db; color: #1a1a2e;">${cfg.bottomRail || '-'}</td>
+                  <td style="padding: 8px 6px; text-align: left; font-size: 10px; font-weight: 500; border: 1px solid #d1d5db; color: #1a1a2e;">${cfg.rollDirection || '-'}</td>
+                </tr>
+                `;}).join('')}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="order-detail-section">
+          <h3>Status Actions</h3>
+          <div class="status-actions">
+            ${statusActions}
+          </div>
+
+          ${order.status === 'qa' ? `
+            <div class="tracking-form" id="tracking-form">
+              <h4>Shipping Information</h4>
+              <div class="tracking-grid">
+                <div class="form-group">
+                  <label>Carrier</label>
+                  <select id="tracking-carrier">
+                    <option value="UPS">UPS</option>
+                    <option value="FedEx">FedEx</option>
+                    <option value="USPS">USPS</option>
+                    <option value="DHL">DHL</option>
+                    <option value="COSCO">COSCO (Freight)</option>
+                    <option value="Other">Other</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label>Tracking Number</label>
+                  <input type="text" id="tracking-number" placeholder="Enter tracking number">
+                </div>
+                <div class="form-group">
+                  <label>Estimated Delivery</label>
+                  <input type="date" id="tracking-eta">
+                </div>
+              </div>
+            </div>
+          ` : ''}
+        </div>
+
+        <div class="order-detail-section">
+          <h3>Status History</h3>
+          <div class="status-timeline">
+            ${(order.statusHistory || []).map((h, i) => `
+              <div class="timeline-item">
+                <div class="timeline-dot ${i === order.statusHistory.length - 1 ? 'current' : 'completed'}"></div>
+                <div class="timeline-content">
+                  <div class="timeline-status">${formatStatus(h.toStatus)}</div>
+                  <div class="timeline-date">${formatDateTime(h.changedAt)} - ${h.reason || ''}</div>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+      `;
+    }
+
+    // Get status action buttons
+    function getStatusActions(status) {
+      switch (status) {
+        case 'order_received':
+          return `<button class="btn-status start-production" onclick="updateStatus('manufacturing')">Start Production</button>`;
+        case 'manufacturing':
+          return `<button class="btn-status start-qa" onclick="updateStatus('qa')">Move to QA</button>`;
+        case 'qa':
+          return `
+            <button class="btn-status start-production" onclick="updateStatus('manufacturing')">Back to Production</button>
+            <button class="btn-status mark-shipped" onclick="shipOrder()">Mark as Shipped</button>
+          `;
+        case 'shipped':
+          return `<span style="color: #10b981; font-weight: 500;">Order has been shipped</span>`;
+        default:
+          return '';
+      }
+    }
+
+    // Update order status
+    async function updateStatus(newStatus, notes = '') {
+      const orderNumber = document.getElementById('modal-order-number').textContent;
+      const order = orders.find(o => o.orderNumber === orderNumber);
+
+      if (!order) return;
+
+      const result = await api(`/api/manufacturer/orders/${order.id}/status`, {
+        method: 'POST',
+        body: JSON.stringify({ status: newStatus, notes })
+      });
+
+      if (result.success) {
+        showToast('Status updated successfully', 'success');
+        loadStats();
+        loadOrders();
+        openOrderDetail(order.id);
+      } else {
+        showToast(result.error || 'Failed to update status', 'error');
+      }
+    }
+
+    // Ship order with tracking
+    async function shipOrder() {
+      const carrier = document.getElementById('tracking-carrier').value;
+      const trackingNumber = document.getElementById('tracking-number').value;
+      const eta = document.getElementById('tracking-eta').value;
+
+      if (!trackingNumber) {
+        showToast('Please enter a tracking number', 'error');
+        return;
+      }
+
+      const orderNumber = document.getElementById('modal-order-number').textContent;
+      const order = orders.find(o => o.orderNumber === orderNumber);
+
+      if (!order) return;
+
+      // Add tracking info first
+      const trackResult = await api(`/api/manufacturer/orders/${order.id}/tracking`, {
+        method: 'POST',
+        body: JSON.stringify({
+          carrier,
+          trackingNumber,
+          estimatedDelivery: eta
+        })
+      });
+
+      if (trackResult.success) {
+        // Then update status to shipped
+        await updateStatus('shipped', 'Shipped with tracking: ' + trackingNumber);
+      } else {
+        showToast(trackResult.error || 'Failed to add tracking', 'error');
+      }
+    }
+
+    // Close modal
+    function closeModal() {
+      document.getElementById('order-modal').classList.remove('show');
+    }
+
+    // Tab switching
+    document.querySelectorAll('.tab-btn').forEach(btn => {
+      btn.addEventListener('click', function() {
+        document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+        this.classList.add('active');
+
+        const tab = this.dataset.tab;
+        currentStatus = tab === 'all' ? null : tab;
+        loadOrders();
+      });
+    });
+
+    // Search filter
+    document.getElementById('filter-search').addEventListener('input', renderOrders);
+
+    // Logout
+    function logout() {
+      localStorage.removeItem('mfrToken');
+      localStorage.removeItem('mfrUser');
+      window.location.href = '/manufacturer/login.html';
+    }
+
+    // Toast notification
+    function showToast(message, type = '') {
+      const toast = document.getElementById('toast');
+      toast.textContent = message;
+      toast.className = 'toast show ' + type;
+      setTimeout(() => toast.classList.remove('show'), 3000);
+    }
+
+    // Helpers
+    function formatStatus(status) {
+      const map = {
+        'order_received': 'Pending',
+        'manufacturing': 'In Production',
+        'qa': 'Quality Check',
+        'shipped': 'Shipped'
+      };
+      return map[status] || status;
+    }
+
+    function formatDate(dateStr) {
+      if (!dateStr) return 'N/A';
+      return new Date(dateStr).toLocaleDateString('en-US', {
+        month: 'short', day: 'numeric', year: 'numeric'
+      });
+    }
+
+    function formatDateTime(dateStr) {
+      if (!dateStr) return 'N/A';
+      return new Date(dateStr).toLocaleString('en-US', {
+        month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit'
+      });
+    }
+
+    // Parse configuration JSON string to object
+    function parseConfig(configStr) {
+      if (!configStr) return {};
+      if (typeof configStr === 'object') return configStr;
+      try {
+        return JSON.parse(configStr);
+      } catch (e) {
+        return {};
+      }
+    }
+
+    // Get motor brand + location OR chain side info based on control type
+    function getMotorChainInfo(cfg) {
+      const motorType = (cfg.motorType || '').toLowerCase();
+
+      // For motorized blinds - show brand and chain side (motor position)
+      if (motorType.includes('motor')) {
+        let info = cfg.motorBrand || '';
+        if (cfg.chainSide) {
+          info += info ? ' / ' + cfg.chainSide : cfg.chainSide;
+        }
+        return info || '-';
+      }
+
+      // For manual/chain blinds - show chain side
+      if (motorType.includes('manual') || motorType.includes('chain')) {
+        return cfg.chainSide ? 'Chain: ' + cfg.chainSide : '-';
+      }
+
+      // For cordless
+      if (motorType.includes('cordless') || cfg.cordless) {
+        return 'Cordless';
+      }
+
+      // Default - show chain side if available
+      return cfg.chainSide || cfg.motorBrand || '-';
+    }
+
+    // Get configuration value from item (checks multiple sources)
+    function getConfigValue(item, key) {
+      // Check direct property
+      if (item[key]) return item[key];
+
+      // Check configuration object
+      try {
+        const config = typeof item.configuration === 'string'
+          ? JSON.parse(item.configuration || '{}')
+          : (item.configuration || {});
+        if (config[key]) return config[key];
+      } catch (e) {}
+
+      // Check price_breakdown
+      if (item.price_breakdown && item.price_breakdown[key]) {
+        return item.price_breakdown[key];
+      }
+
+      // Check price_snapshots
+      if (item.price_snapshots && item.price_snapshots.manufacturer_price) {
+        if (key === 'fabricCode' && item.price_snapshots.manufacturer_price.fabricCode) {
+          return item.price_snapshots.manufacturer_price.fabricCode;
+        }
+      }
+
+      return null;
+    }
+
+    // Format all configuration options as a table (collapsible for additional details)
+    function formatAllOptionsTable(item) {
+      let allOpts = {};
+
+      // Gather from configuration
+      try {
+        const config = typeof item.configuration === 'string'
+          ? JSON.parse(item.configuration || '{}')
+          : (item.configuration || {});
+        allOpts = { ...allOpts, ...config };
+      } catch (e) {}
+
+      // Add from price_breakdown
+      if (item.price_breakdown) {
+        const pb = item.price_breakdown;
+        if (pb.fabricCode) allOpts.fabricCode = pb.fabricCode;
+        if (pb.options) allOpts = { ...allOpts, ...pb.options };
+      }
+
+      // Filter out already-displayed values and empty values
+      const displayedKeys = ['width', 'height', 'fabricCode', 'fabric', 'fabricName', 'motorType', 'controlType', 'motorBrand', 'mountType', 'valanceType', 'bottomRail', 'rollDirection', 'chainSide', 'cordless'];
+      const entries = Object.entries(allOpts).filter(([k, v]) => v && v !== '{}' && !displayedKeys.includes(k));
+
+      if (entries.length === 0) return '';
+
+      return `
+        <details style="margin-top: 12px;">
+          <summary style="cursor: pointer; font-size: 13px; color: #3b82f6; padding: 8px 0; font-weight: 500;">
+            + View ${entries.length} Additional Configuration Details
+          </summary>
+          <table style="width: 100%; border-collapse: collapse; background: white; border-radius: 6px; overflow: hidden; margin-top: 8px;">
+            <thead>
+              <tr style="background: #6b7280; color: white;">
+                <th style="padding: 8px 12px; text-align: left; font-size: 11px; font-weight: 600;">Additional Option</th>
+                <th style="padding: 8px 12px; text-align: left; font-size: 11px; font-weight: 600;">Value</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${entries.map(([k, v], i) => `
+                <tr style="border-bottom: 1px solid #e5e7eb; ${i % 2 === 0 ? '' : 'background: #f9fafb;'}">
+                  <td style="padding: 8px 12px; font-size: 12px; color: #6b7280; font-weight: 500;">${formatConfigKey(k)}</td>
+                  <td style="padding: 8px 12px; font-size: 12px; font-weight: 500;">${typeof v === 'object' ? JSON.stringify(v) : v}</td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </details>
+      `;
+    }
+
+    // Keep the old function for compatibility
+    function formatAllOptions(item) {
+      return formatAllOptionsTable(item);
+    }
+
+    // Format configuration key to readable label
+    function formatConfigKey(key) {
+      const labels = {
+        fabricCode: 'Fabric Code',
+        fabricName: 'Fabric Name',
+        fabricColor: 'Fabric Color',
+        motorType: 'Motor Type',
+        motorBrand: 'Motor Brand',
+        controlType: 'Control Type',
+        mountType: 'Mount Type',
+        valanceType: 'Valance Style',
+        bottomRail: 'Bottom Rail',
+        rollDirection: 'Roll Direction',
+        chainSide: 'Chain Side',
+        cordless: 'Cordless',
+        roomLabel: 'Room Label',
+        width: 'Width',
+        height: 'Height',
+        quantity: 'Quantity'
+      };
+      return labels[key] || key.replace(/([A-Z])/g, ' $1').replace(/^./, s => s.toUpperCase());
+    }
+
+    function formatOptions(config) {
+      if (!config || config === '{}') return 'Standard';
+      try {
+        const opts = typeof config === 'string' ? JSON.parse(config) : config;
+        return Object.entries(opts).map(([k, v]) => `${k}: ${v}`).join(', ') || 'Standard';
+      } catch {
+        return 'Standard';
+      }
+    }
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      return str.replace(/[&<>"']/g, c => ({
+        '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+      })[c]);
+    }
+
+    // Init
+    loadStats();
+    loadOrders();
+
+    // Auto-refresh every 30 seconds
+    setInterval(() => {
+      loadStats();
+      loadOrders();
+    }, 30000);
+  </script>
+</body>
+</html>

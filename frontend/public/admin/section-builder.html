@@ -1,0 +1,934 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Section Builder - Peekaboo Shades Admin</title>
+  <link rel="stylesheet" href="css/admin.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="icon" type="image/png" href="/images/favicon.png">
+  <style>
+    .builder-layout {
+      display: grid;
+      grid-template-columns: 280px 1fr 320px;
+      gap: 0;
+      height: calc(100vh - 70px);
+      overflow: hidden;
+    }
+
+    /* Left Panel - Sections Library */
+    .sections-panel {
+      background: #1a1a1a;
+      padding: 20px;
+      overflow-y: auto;
+      border-right: 1px solid #333;
+    }
+
+    .panel-title {
+      color: #888;
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 16px;
+    }
+
+    .section-library {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .library-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 14px;
+      background: #2a2a2a;
+      border: 1px solid #333;
+      border-radius: 8px;
+      color: #ccc;
+      cursor: grab;
+      transition: all 0.2s;
+    }
+
+    .library-item:hover {
+      background: #333;
+      border-color: #8E6545;
+    }
+
+    .library-item:active {
+      cursor: grabbing;
+    }
+
+    .library-item i {
+      width: 24px;
+      height: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(142, 101, 69, 0.2);
+      color: #8E6545;
+      border-radius: 6px;
+      font-size: 12px;
+    }
+
+    .library-item-info {
+      flex: 1;
+    }
+
+    .library-item-name {
+      font-size: 13px;
+      font-weight: 500;
+      color: white;
+    }
+
+    .library-item-desc {
+      font-size: 11px;
+      color: #888;
+      margin-top: 2px;
+    }
+
+    /* Center - Preview */
+    .preview-panel {
+      background: #f0f0f0;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .preview-toolbar {
+      background: white;
+      padding: 12px 20px;
+      border-bottom: 1px solid #e5e7eb;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .device-toggle {
+      display: flex;
+      gap: 4px;
+      background: #f3f4f6;
+      padding: 4px;
+      border-radius: 8px;
+    }
+
+    .device-toggle button {
+      padding: 8px 16px;
+      border: none;
+      background: transparent;
+      color: #666;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 13px;
+    }
+
+    .device-toggle button.active {
+      background: white;
+      color: #1a1a1a;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+
+    .preview-actions {
+      display: flex;
+      gap: 12px;
+    }
+
+    .preview-container {
+      flex: 1;
+      padding: 20px;
+      display: flex;
+      justify-content: center;
+      overflow: auto;
+    }
+
+    .preview-frame {
+      background: white;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+      transition: width 0.3s;
+      overflow: hidden;
+    }
+
+    .preview-frame.desktop { width: 100%; max-width: 1200px; }
+    .preview-frame.tablet { width: 768px; }
+    .preview-frame.mobile { width: 375px; }
+
+    .preview-frame iframe {
+      width: 100%;
+      height: 100%;
+      min-height: 800px;
+      border: none;
+    }
+
+    /* Sortable Sections */
+    .sections-canvas {
+      flex: 1;
+      padding: 20px;
+      overflow-y: auto;
+    }
+
+    .section-block {
+      background: white;
+      border: 2px solid #e5e7eb;
+      border-radius: 12px;
+      margin-bottom: 16px;
+      overflow: hidden;
+      transition: all 0.2s;
+    }
+
+    .section-block:hover {
+      border-color: #8E6545;
+    }
+
+    .section-block.dragging {
+      opacity: 0.5;
+      border-style: dashed;
+    }
+
+    .section-block-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 16px;
+      background: #f9fafb;
+      border-bottom: 1px solid #e5e7eb;
+      cursor: move;
+    }
+
+    .section-block-header .drag-handle {
+      color: #9ca3af;
+    }
+
+    .section-block-header h3 {
+      flex: 1;
+      font-size: 14px;
+      font-weight: 600;
+    }
+
+    .section-block-header .toggle-btn {
+      width: 32px;
+      height: 32px;
+      border: none;
+      background: transparent;
+      color: #666;
+      cursor: pointer;
+      border-radius: 6px;
+    }
+
+    .section-block-header .toggle-btn:hover {
+      background: #e5e7eb;
+    }
+
+    .section-block-body {
+      padding: 16px;
+      display: none;
+    }
+
+    .section-block.open .section-block-body {
+      display: block;
+    }
+
+    .section-preview {
+      background: #f3f4f6;
+      border-radius: 8px;
+      padding: 20px;
+      min-height: 100px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #9ca3af;
+    }
+
+    /* Right Panel - Properties */
+    .properties-panel {
+      background: white;
+      border-left: 1px solid #e5e7eb;
+      overflow-y: auto;
+    }
+
+    .properties-header {
+      padding: 20px;
+      border-bottom: 1px solid #e5e7eb;
+    }
+
+    .properties-title {
+      font-size: 16px;
+      font-weight: 600;
+    }
+
+    .properties-subtitle {
+      font-size: 12px;
+      color: #888;
+      margin-top: 4px;
+    }
+
+    .properties-body {
+      padding: 20px;
+    }
+
+    .property-group {
+      margin-bottom: 24px;
+    }
+
+    .property-group-title {
+      font-size: 11px;
+      text-transform: uppercase;
+      color: #888;
+      letter-spacing: 0.5px;
+      margin-bottom: 12px;
+    }
+
+    .property-item {
+      margin-bottom: 16px;
+    }
+
+    .property-label {
+      font-size: 13px;
+      font-weight: 500;
+      color: #374151;
+      margin-bottom: 6px;
+      display: block;
+    }
+
+    .property-input {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid #d1d5db;
+      border-radius: 8px;
+      font-size: 14px;
+    }
+
+    .property-input:focus {
+      outline: none;
+      border-color: #8E6545;
+    }
+
+    .property-toggle {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px;
+      background: #f9fafb;
+      border-radius: 8px;
+    }
+
+    /* Toggle Switch */
+    .toggle-switch {
+      position: relative;
+      width: 44px;
+      height: 24px;
+    }
+
+    .toggle-switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .toggle-slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: #ccc;
+      transition: .3s;
+      border-radius: 24px;
+    }
+
+    .toggle-slider:before {
+      position: absolute;
+      content: "";
+      height: 18px;
+      width: 18px;
+      left: 3px;
+      bottom: 3px;
+      background-color: white;
+      transition: .3s;
+      border-radius: 50%;
+    }
+
+    input:checked + .toggle-slider {
+      background-color: #8E6545;
+    }
+
+    input:checked + .toggle-slider:before {
+      transform: translateX(20px);
+    }
+
+    /* Buttons */
+    .btn {
+      padding: 10px 18px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.2s;
+    }
+
+    .btn-primary {
+      background: #8E6545;
+      color: white;
+      border: none;
+    }
+
+    .btn-primary:hover {
+      background: #7a5539;
+    }
+
+    .btn-secondary {
+      background: white;
+      color: #374151;
+      border: 1px solid #d1d5db;
+    }
+
+    .btn-ghost {
+      background: transparent;
+      color: #666;
+      border: none;
+    }
+
+    /* Drop Zone */
+    .drop-zone {
+      border: 2px dashed #d1d5db;
+      border-radius: 12px;
+      padding: 40px;
+      text-align: center;
+      margin-bottom: 16px;
+      transition: all 0.2s;
+    }
+
+    .drop-zone.active {
+      border-color: #8E6545;
+      background: rgba(142, 101, 69, 0.05);
+    }
+
+    .drop-zone i {
+      font-size: 32px;
+      color: #9ca3af;
+      margin-bottom: 12px;
+    }
+
+    .drop-zone p {
+      color: #666;
+      font-size: 14px;
+    }
+
+    /* Toast */
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      padding: 16px 24px;
+      background: #1a1a1a;
+      color: white;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      z-index: 1000;
+      transform: translateY(100px);
+      opacity: 0;
+      transition: all 0.3s;
+    }
+
+    .toast.show {
+      transform: translateY(0);
+      opacity: 1;
+    }
+
+    .toast.success { background: #28a745; }
+    .toast.error { background: #dc3545; }
+
+    /* Compact Admin Header */
+    .builder-header {
+      height: 56px;
+      background: white;
+      border-bottom: 1px solid #e5e7eb;
+      display: flex;
+      align-items: center;
+      padding: 0 20px;
+    }
+
+    .builder-header .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      color: #8E6545;
+      font-weight: 600;
+      text-decoration: none;
+    }
+
+    .builder-header .back-btn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: #666;
+      text-decoration: none;
+      margin-left: 24px;
+      padding: 8px 12px;
+      border-radius: 6px;
+    }
+
+    .builder-header .back-btn:hover {
+      background: #f3f4f6;
+    }
+
+    .builder-header .save-btn {
+      margin-left: auto;
+    }
+  </style>
+</head>
+<body style="overflow: hidden;">
+  <!-- Compact Header -->
+  <div class="builder-header">
+    <a href="/admin/" class="logo">
+      <i class="fas fa-layer-group"></i>
+      Section Builder
+    </a>
+    <a href="/admin/theme-settings.html" class="back-btn">
+      <i class="fas fa-arrow-left"></i>
+      Back to Theme Settings
+    </a>
+    <button class="btn btn-primary save-btn" onclick="saveAllSections()">
+      <i class="fas fa-save"></i> Save Changes
+    </button>
+  </div>
+
+  <div class="builder-layout">
+    <!-- Left Panel - Section Library -->
+    <div class="sections-panel">
+      <div class="panel-title">Available Sections</div>
+      <div class="section-library">
+        <div class="library-item" draggable="true" data-type="hero">
+          <i class="fas fa-image"></i>
+          <div class="library-item-info">
+            <div class="library-item-name">Hero Banner</div>
+            <div class="library-item-desc">Full-width hero with image</div>
+          </div>
+        </div>
+        <div class="library-item" draggable="true" data-type="title">
+          <i class="fas fa-heading"></i>
+          <div class="library-item-info">
+            <div class="library-item-name">Title Block</div>
+            <div class="library-item-desc">Product title and price</div>
+          </div>
+        </div>
+        <div class="library-item" draggable="true" data-type="gallery">
+          <i class="fas fa-images"></i>
+          <div class="library-item-info">
+            <div class="library-item-name">Image Gallery</div>
+            <div class="library-item-desc">Product image carousel</div>
+          </div>
+        </div>
+        <div class="library-item" draggable="true" data-type="description">
+          <i class="fas fa-align-left"></i>
+          <div class="library-item-info">
+            <div class="library-item-name">Description</div>
+            <div class="library-item-desc">Rich text content block</div>
+          </div>
+        </div>
+        <div class="library-item" draggable="true" data-type="features">
+          <i class="fas fa-list-check"></i>
+          <div class="library-item-info">
+            <div class="library-item-name">Features Grid</div>
+            <div class="library-item-desc">Feature icons with text</div>
+          </div>
+        </div>
+        <div class="library-item" draggable="true" data-type="configurator">
+          <i class="fas fa-sliders-h"></i>
+          <div class="library-item-info">
+            <div class="library-item-name">Configurator</div>
+            <div class="library-item-desc">Product options selector</div>
+          </div>
+        </div>
+        <div class="library-item" draggable="true" data-type="trust">
+          <i class="fas fa-shield-alt"></i>
+          <div class="library-item-info">
+            <div class="library-item-name">Trust Badges</div>
+            <div class="library-item-desc">Warranty & shipping icons</div>
+          </div>
+        </div>
+        <div class="library-item" draggable="true" data-type="cta">
+          <i class="fas fa-bullhorn"></i>
+          <div class="library-item-info">
+            <div class="library-item-name">CTA Banner</div>
+            <div class="library-item-desc">Call to action section</div>
+          </div>
+        </div>
+        <div class="library-item" draggable="true" data-type="faq">
+          <i class="fas fa-question-circle"></i>
+          <div class="library-item-info">
+            <div class="library-item-name">FAQ Accordion</div>
+            <div class="library-item-desc">Questions & answers</div>
+          </div>
+        </div>
+        <div class="library-item" draggable="true" data-type="reviews">
+          <i class="fas fa-star"></i>
+          <div class="library-item-info">
+            <div class="library-item-name">Reviews</div>
+            <div class="library-item-desc">Customer testimonials</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Center - Canvas -->
+    <div class="preview-panel">
+      <div class="preview-toolbar">
+        <div class="device-toggle">
+          <button class="active" onclick="setDevice('desktop')">
+            <i class="fas fa-desktop"></i> Desktop
+          </button>
+          <button onclick="setDevice('tablet')">
+            <i class="fas fa-tablet-alt"></i> Tablet
+          </button>
+          <button onclick="setDevice('mobile')">
+            <i class="fas fa-mobile-alt"></i> Mobile
+          </button>
+        </div>
+        <div class="preview-actions">
+          <button class="btn btn-secondary" onclick="refreshPreview()">
+            <i class="fas fa-sync-alt"></i> Refresh
+          </button>
+          <a href="/product/affordable-custom-roller-blinds" target="_blank" class="btn btn-secondary">
+            <i class="fas fa-external-link-alt"></i> View Live
+          </a>
+        </div>
+      </div>
+
+      <div class="sections-canvas" id="sectionsCanvas">
+        <div class="drop-zone" id="dropZone">
+          <i class="fas fa-plus-circle"></i>
+          <p>Drag sections here to build your page</p>
+        </div>
+
+        <!-- Sections will be added here -->
+        <div id="sectionsList"></div>
+      </div>
+    </div>
+
+    <!-- Right Panel - Properties -->
+    <div class="properties-panel">
+      <div class="properties-header">
+        <h2 class="properties-title">Section Properties</h2>
+        <p class="properties-subtitle">Select a section to edit</p>
+      </div>
+      <div class="properties-body" id="propertiesBody">
+        <div style="text-align: center; padding: 40px 20px; color: #9ca3af;">
+          <i class="fas fa-mouse-pointer" style="font-size: 32px; margin-bottom: 12px;"></i>
+          <p>Click on a section to view and edit its properties</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast">
+    <i class="fas fa-check-circle"></i>
+    <span id="toastMessage">Saved!</span>
+  </div>
+
+  <script>
+    const token = localStorage.getItem('adminToken');
+    if (!token) window.location.href = '/admin/login.html';
+
+    let sections = [];
+    let selectedSection = null;
+    let currentDevice = 'desktop';
+
+    // Section templates
+    const sectionTemplates = {
+      hero: { title: 'Hero Banner', icon: 'fa-image', hasImage: true, hasText: true },
+      title: { title: 'Title Block', icon: 'fa-heading', hasTitle: true, hasSubtitle: true },
+      gallery: { title: 'Image Gallery', icon: 'fa-images', hasImages: true },
+      description: { title: 'Description', icon: 'fa-align-left', hasText: true },
+      features: { title: 'Features Grid', icon: 'fa-list-check', hasItems: true },
+      configurator: { title: 'Product Configurator', icon: 'fa-sliders-h' },
+      trust: { title: 'Trust Badges', icon: 'fa-shield-alt', hasItems: true },
+      cta: { title: 'CTA Banner', icon: 'fa-bullhorn', hasText: true, hasButton: true },
+      faq: { title: 'FAQ Accordion', icon: 'fa-question-circle', hasItems: true },
+      reviews: { title: 'Reviews', icon: 'fa-star', hasItems: true }
+    };
+
+    // Toast
+    function showToast(message, type = 'success') {
+      const toast = document.getElementById('toast');
+      document.getElementById('toastMessage').textContent = message;
+      toast.className = `toast ${type} show`;
+      setTimeout(() => toast.classList.remove('show'), 3000);
+    }
+
+    // API helper
+    async function api(endpoint, method = 'GET', body = null) {
+      const options = {
+        method,
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      };
+      if (body) options.body = JSON.stringify(body);
+      return fetch(endpoint, options).then(r => r.json());
+    }
+
+    // Load sections
+    async function loadSections() {
+      try {
+        const result = await api('/api/admin/page-sections');
+        if (result.success && result.data.product) {
+          // Convert to array format
+          sections = Object.entries(result.data.product).map(([id, data]) => ({
+            id,
+            type: id,
+            ...data,
+            order: data.order || 0
+          }));
+          sections.sort((a, b) => a.order - b.order);
+          renderSections();
+        }
+      } catch (error) {
+        console.error('Error loading sections:', error);
+      }
+    }
+
+    // Render sections
+    function renderSections() {
+      const list = document.getElementById('sectionsList');
+      if (sections.length === 0) {
+        list.innerHTML = '';
+        return;
+      }
+
+      list.innerHTML = sections.map((section, index) => {
+        const template = sectionTemplates[section.type] || { title: section.id, icon: 'fa-cube' };
+        return `
+          <div class="section-block ${selectedSection === section.id ? 'open' : ''}"
+               data-id="${section.id}"
+               draggable="true"
+               onclick="selectSection('${section.id}')">
+            <div class="section-block-header">
+              <i class="fas fa-grip-vertical drag-handle"></i>
+              <i class="fas ${template.icon}" style="color: #8E6545;"></i>
+              <h3>${template.title}</h3>
+              <label class="toggle-switch" onclick="event.stopPropagation()">
+                <input type="checkbox" ${section.enabled !== false ? 'checked' : ''}
+                       onchange="toggleSection('${section.id}', this.checked)">
+                <span class="toggle-slider"></span>
+              </label>
+              <button class="toggle-btn" onclick="event.stopPropagation(); deleteSection('${section.id}')">
+                <i class="fas fa-trash" style="color: #dc3545;"></i>
+              </button>
+            </div>
+            <div class="section-block-body">
+              <div class="section-preview">
+                Preview of ${template.title}
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // Select section
+    function selectSection(id) {
+      selectedSection = id;
+      const section = sections.find(s => s.id === id);
+      if (section) {
+        renderProperties(section);
+      }
+      renderSections();
+    }
+
+    // Render properties
+    function renderProperties(section) {
+      const template = sectionTemplates[section.type] || {};
+      const body = document.getElementById('propertiesBody');
+
+      body.innerHTML = `
+        <div class="property-group">
+          <div class="property-group-title">Visibility</div>
+          <div class="property-toggle">
+            <span>Show Section</span>
+            <label class="toggle-switch">
+              <input type="checkbox" ${section.enabled !== false ? 'checked' : ''}
+                     onchange="updateProperty('${section.id}', 'enabled', this.checked)">
+              <span class="toggle-slider"></span>
+            </label>
+          </div>
+        </div>
+
+        ${template.hasTitle ? `
+          <div class="property-group">
+            <div class="property-group-title">Content</div>
+            <div class="property-item">
+              <label class="property-label">Title</label>
+              <input type="text" class="property-input" value="${section.title || ''}"
+                     onchange="updateProperty('${section.id}', 'title', this.value)">
+            </div>
+          </div>
+        ` : ''}
+
+        ${template.hasText ? `
+          <div class="property-group">
+            <div class="property-group-title">Text Content</div>
+            <div class="property-item">
+              <label class="property-label">Text</label>
+              <textarea class="property-input" rows="4"
+                        onchange="updateProperty('${section.id}', 'text', this.value)">${section.text || ''}</textarea>
+            </div>
+          </div>
+        ` : ''}
+
+        ${template.hasButton ? `
+          <div class="property-group">
+            <div class="property-group-title">Button</div>
+            <div class="property-item">
+              <label class="property-label">Button Text</label>
+              <input type="text" class="property-input" value="${section.buttonText || 'Learn More'}"
+                     onchange="updateProperty('${section.id}', 'buttonText', this.value)">
+            </div>
+            <div class="property-item">
+              <label class="property-label">Button Link</label>
+              <input type="text" class="property-input" value="${section.buttonLink || '#'}"
+                     onchange="updateProperty('${section.id}', 'buttonLink', this.value)">
+            </div>
+          </div>
+        ` : ''}
+
+        <div class="property-group">
+          <div class="property-group-title">Styling</div>
+          <div class="property-item">
+            <label class="property-label">Background Color</label>
+            <input type="color" class="property-input" value="${section.bgColor || '#ffffff'}"
+                   onchange="updateProperty('${section.id}', 'bgColor', this.value)" style="height: 40px;">
+          </div>
+          <div class="property-item">
+            <label class="property-label">Padding</label>
+            <select class="property-input" onchange="updateProperty('${section.id}', 'padding', this.value)">
+              <option value="small" ${section.padding === 'small' ? 'selected' : ''}>Small</option>
+              <option value="medium" ${section.padding === 'medium' || !section.padding ? 'selected' : ''}>Medium</option>
+              <option value="large" ${section.padding === 'large' ? 'selected' : ''}>Large</option>
+            </select>
+          </div>
+        </div>
+
+        <div style="padding-top: 16px; border-top: 1px solid #e5e7eb;">
+          <button class="btn btn-danger" onclick="deleteSection('${section.id}')" style="width: 100%;">
+            <i class="fas fa-trash"></i> Remove Section
+          </button>
+        </div>
+      `;
+    }
+
+    // Update property
+    function updateProperty(id, property, value) {
+      const section = sections.find(s => s.id === id);
+      if (section) {
+        section[property] = value;
+      }
+    }
+
+    // Toggle section visibility
+    async function toggleSection(id, enabled) {
+      const section = sections.find(s => s.id === id);
+      if (section) {
+        section.enabled = enabled;
+      }
+    }
+
+    // Delete section
+    function deleteSection(id) {
+      if (!confirm('Remove this section?')) return;
+      sections = sections.filter(s => s.id !== id);
+      selectedSection = null;
+      renderSections();
+      document.getElementById('propertiesBody').innerHTML = `
+        <div style="text-align: center; padding: 40px 20px; color: #9ca3af;">
+          <i class="fas fa-mouse-pointer" style="font-size: 32px; margin-bottom: 12px;"></i>
+          <p>Click on a section to view and edit its properties</p>
+        </div>
+      `;
+    }
+
+    // Set device
+    function setDevice(device) {
+      currentDevice = device;
+      document.querySelectorAll('.device-toggle button').forEach(b => b.classList.remove('active'));
+      event.target.classList.add('active');
+    }
+
+    // Save all sections
+    async function saveAllSections() {
+      const data = {};
+      sections.forEach((section, index) => {
+        section.order = index;
+        data[section.id] = section;
+      });
+
+      try {
+        await api('/api/admin/page-sections', 'PUT', { product: data });
+        showToast('Sections saved successfully!');
+      } catch (error) {
+        showToast('Error saving sections', 'error');
+      }
+    }
+
+    // Drag and drop from library
+    document.querySelectorAll('.library-item').forEach(item => {
+      item.addEventListener('dragstart', (e) => {
+        e.dataTransfer.setData('type', item.dataset.type);
+        e.dataTransfer.setData('source', 'library');
+      });
+    });
+
+    // Drop zone
+    const dropZone = document.getElementById('dropZone');
+    const canvas = document.getElementById('sectionsCanvas');
+
+    canvas.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      dropZone.classList.add('active');
+    });
+
+    canvas.addEventListener('dragleave', () => {
+      dropZone.classList.remove('active');
+    });
+
+    canvas.addEventListener('drop', (e) => {
+      e.preventDefault();
+      dropZone.classList.remove('active');
+
+      const source = e.dataTransfer.getData('source');
+      if (source === 'library') {
+        const type = e.dataTransfer.getData('type');
+        addSection(type);
+      }
+    });
+
+    // Add new section
+    function addSection(type) {
+      const template = sectionTemplates[type];
+      if (!template) return;
+
+      const newSection = {
+        id: `${type}-${Date.now()}`,
+        type,
+        enabled: true,
+        title: template.title,
+        order: sections.length
+      };
+
+      sections.push(newSection);
+      renderSections();
+      selectSection(newSection.id);
+      showToast(`${template.title} added!`);
+    }
+
+    // Initialize
+    loadSections();
+  </script>
+</body>
+</html>

@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Accounts & Profit - Peekaboo Shades Admin</title>
+  <link rel="stylesheet" href="css/admin.css">
+  <link rel="icon" type="image/png" href="/images/favicon.png">
+  <style>
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+    .stat-card {
+      background: white;
+      border-radius: 8px;
+      padding: 20px;
+      border: 1px solid var(--admin-border);
+    }
+    .stat-card h4 {
+      font-size: 13px;
+      color: var(--admin-text-secondary);
+      margin-bottom: 8px;
+      text-transform: uppercase;
+    }
+    .stat-card .value {
+      font-size: 28px;
+      font-weight: 600;
+      color: var(--admin-text-primary);
+    }
+    .stat-card .value.positive { color: #059669; }
+    .stat-card .value.negative { color: #dc2626; }
+    .stat-card .subtext {
+      font-size: 12px;
+      color: var(--admin-text-secondary);
+      margin-top: 4px;
+    }
+    .badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 500;
+    }
+    .badge-customer_payment_received { background: #d1fae5; color: #059669; }
+    .badge-sales_tax_collected { background: #dbeafe; color: #1d4ed8; }
+    .badge-manufacturer_payable { background: #fee2e2; color: #dc2626; }
+    .badge-manufacturer_payment { background: #fef3c7; color: #d97706; }
+    .badge-refund { background: #f3e8ff; color: #7c3aed; }
+    .badge-adjustment { background: #f3f4f6; color: #6b7280; }
+    .tab-buttons {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+    .tab-btn {
+      padding: 8px 16px;
+      border: 1px solid var(--admin-border);
+      background: white;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 500;
+      transition: all 0.2s;
+    }
+    .tab-btn.active {
+      background: var(--admin-primary);
+      color: white;
+      border-color: var(--admin-primary);
+    }
+    .margin-rule {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 12px 16px;
+      background: var(--admin-body-bg);
+      border-radius: 8px;
+      margin-bottom: 8px;
+    }
+    .margin-rule .rule-info {
+      flex: 1;
+    }
+    .margin-rule .rule-name {
+      font-weight: 500;
+      margin-bottom: 4px;
+    }
+    .margin-rule .rule-description {
+      font-size: 13px;
+      color: var(--admin-text-secondary);
+    }
+    .margin-rule .rule-value {
+      font-size: 20px;
+      font-weight: 600;
+      color: var(--admin-primary);
+    }
+    .profit-summary {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      padding: 20px;
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+      border-radius: 12px;
+      margin-bottom: 24px;
+      color: white;
+    }
+    .profit-summary .item {
+      text-align: center;
+    }
+    .profit-summary .item h4 {
+      font-size: 12px;
+      opacity: 0.8;
+      margin-bottom: 8px;
+      text-transform: uppercase;
+    }
+    .profit-summary .item .value {
+      font-size: 24px;
+      font-weight: 600;
+    }
+    .ledger-amount {
+      font-family: monospace;
+      font-weight: 500;
+    }
+    .ledger-amount.credit { color: #059669; }
+    .ledger-amount.debit { color: #dc2626; }
+  </style>
+</head>
+<body>
+  <div class="admin-layout">
+    <!-- Sidebar -->
+    <aside class="admin-sidebar">
+      <div class="sidebar-header">
+        <a href="/admin/" class="sidebar-logo">
+          <img src="/images/logo.png" alt="Logo" onerror="this.style.display='none'">
+          <span>Peekaboo Shades</span>
+        </a>
+      </div>
+
+      <nav class="sidebar-nav">
+        <div class="nav-section">
+          <a href="/admin/" class="nav-item">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+            </svg>
+            <span>Dashboard</span>
+          </a>
+        </div>
+
+        <div class="nav-section">
+          <div class="nav-section-title">Sales</div>
+          <a href="/admin/orders.html" class="nav-item">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+            </svg>
+            <span>Orders</span>
+          </a>
+          <a href="/admin/invoices.html" class="nav-item">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+            <span>Invoices</span>
+          </a>
+          <a href="/admin/quotes.html" class="nav-item">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+            <span>Quotes</span>
+          </a>
+        </div>
+
+        <div class="nav-section">
+          <div class="nav-section-title">Finance</div>
+          <a href="/admin/accounts.html" class="nav-item active">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <span>Accounts & Profit</span>
+          </a>
+          <a href="/manufacturer/" class="nav-item" target="_blank">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+            </svg>
+            <span>Manufacturer Portal</span>
+          </a>
+        </div>
+
+        <div class="nav-section">
+          <div class="nav-section-title">Catalog</div>
+          <a href="/admin/products.html" class="nav-item">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+            </svg>
+            <span>Products</span>
+          </a>
+        </div>
+
+        <div class="nav-section">
+          <div class="nav-section-title">Settings</div>
+          <a href="/admin/settings.html" class="nav-item">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+            <span>Settings</span>
+          </a>
+        </div>
+      </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="admin-main">
+      <!-- Header -->
+      <header class="admin-header">
+        <div class="header-left">
+          <div class="breadcrumb">
+            <a href="/admin/">Dashboard</a>
+            <span class="breadcrumb-separator">/</span>
+            <span class="breadcrumb-current">Accounts & Profit</span>
+          </div>
+        </div>
+        <div class="header-right">
+          <div class="dropdown">
+            <div class="header-profile">
+              <div class="profile-avatar">A</div>
+              <span class="profile-name">Admin</span>
+            </div>
+            <div class="dropdown-menu profile-dropdown">
+              <a href="/admin/settings.html" class="dropdown-item">Profile</a>
+              <div class="dropdown-divider"></div>
+              <a href="#" class="dropdown-item danger" onclick="Admin.AuthAPI.logout(); return false;">Logout</a>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <!-- Page Content -->
+      <div class="admin-content">
+        <div class="page-header">
+          <h1 class="page-title">Accounts & Profit Tracking</h1>
+        </div>
+
+        <!-- Profit Summary -->
+        <div class="profit-summary">
+          <div class="item">
+            <h4>Total Revenue</h4>
+            <div class="value" id="total-revenue">$0.00</div>
+          </div>
+          <div class="item">
+            <h4>Total Costs</h4>
+            <div class="value" id="total-costs">$0.00</div>
+          </div>
+          <div class="item">
+            <h4>Gross Profit</h4>
+            <div class="value" id="gross-profit">$0.00</div>
+          </div>
+        </div>
+
+        <!-- Stats -->
+        <div class="stats-grid">
+          <div class="stat-card">
+            <h4>Payments Received</h4>
+            <div class="value positive" id="stat-payments">$0.00</div>
+            <div class="subtext">From customers</div>
+          </div>
+          <div class="stat-card">
+            <h4>Tax Collected</h4>
+            <div class="value" id="stat-tax">$0.00</div>
+            <div class="subtext">Sales tax</div>
+          </div>
+          <div class="stat-card">
+            <h4>Manufacturer Payable</h4>
+            <div class="value negative" id="stat-payable">$0.00</div>
+            <div class="subtext">Outstanding to manufacturers</div>
+          </div>
+          <div class="stat-card">
+            <h4>Net Balance</h4>
+            <div class="value" id="stat-balance">$0.00</div>
+            <div class="subtext">Current ledger balance</div>
+          </div>
+        </div>
+
+        <!-- Tabs -->
+        <div class="tab-buttons">
+          <button class="tab-btn active" data-tab="ledger">Ledger Entries</button>
+          <button class="tab-btn" data-tab="margins">Margin Rules</button>
+          <button class="tab-btn" data-tab="orders">Order Profits</button>
+        </div>
+
+        <!-- Ledger Tab -->
+        <div id="ledger-tab" class="tab-content">
+          <div class="card">
+            <div class="card-header">
+              <h3 class="card-title">Ledger Entries</h3>
+              <div class="filter-group">
+                <select id="ledger-type-filter" class="filter-select">
+                  <option value="">All Types</option>
+                  <option value="customer_payment_received">Customer Payments</option>
+                  <option value="sales_tax_collected">Tax Collected</option>
+                  <option value="manufacturer_payable">Manufacturer Payable</option>
+                  <option value="manufacturer_payment">Manufacturer Payments</option>
+                  <option value="refund">Refunds</option>
+                </select>
+              </div>
+            </div>
+            <div class="table-container">
+              <table class="admin-table">
+                <thead>
+                  <tr>
+                    <th>Date</th>
+                    <th>Type</th>
+                    <th>Order</th>
+                    <th>Description</th>
+                    <th>Debit</th>
+                    <th>Credit</th>
+                    <th>Balance</th>
+                  </tr>
+                </thead>
+                <tbody id="ledger-table">
+                  <tr>
+                    <td colspan="7" style="text-align: center; padding: 60px;">
+                      <div class="spinner"></div>
+                      <p style="margin-top: 16px; color: var(--admin-text-secondary);">Loading ledger...</p>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+
+        <!-- Margins Tab -->
+        <div id="margins-tab" class="tab-content" style="display: none;">
+          <div class="card">
+            <div class="card-header">
+              <h3 class="card-title">Margin Rules</h3>
+              <button class="btn btn-primary" onclick="showAddMarginModal()">Add Rule</button>
+            </div>
+            <div class="card-body" id="margin-rules">
+              <div style="text-align: center; padding: 40px; color: var(--admin-text-secondary);">
+                Loading margin rules...
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Order Profits Tab -->
+        <div id="orders-tab" class="tab-content" style="display: none;">
+          <div class="card">
+            <div class="card-header">
+              <h3 class="card-title">Order Profit Analysis</h3>
+            </div>
+            <div class="table-container">
+              <table class="admin-table">
+                <thead>
+                  <tr>
+                    <th>Order #</th>
+                    <th>Date</th>
+                    <th>Customer</th>
+                    <th>Revenue</th>
+                    <th>Mfr Cost</th>
+                    <th>Margin</th>
+                    <th>Profit</th>
+                  </tr>
+                </thead>
+                <tbody id="orders-profit-table">
+                  <tr>
+                    <td colspan="7" style="text-align: center; padding: 60px;">
+                      <div class="spinner"></div>
+                      <p style="margin-top: 16px; color: var(--admin-text-secondary);">Loading orders...</p>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Add Margin Rule Modal -->
+  <div class="modal-overlay" id="margin-modal">
+    <div class="modal" style="max-width: 450px;">
+      <div class="modal-header">
+        <h3 class="modal-title">Add Margin Rule</h3>
+        <button class="modal-close" onclick="Admin.Modal.hide('margin-modal')">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form id="margin-form">
+          <div class="form-group">
+            <label class="form-label" for="margin-type">Rule Type *</label>
+            <select id="margin-type" class="form-input" required>
+              <option value="category">By Category</option>
+              <option value="product">By Product</option>
+              <option value="global">Global Default</option>
+            </select>
+          </div>
+          <div class="form-group" id="margin-target-group">
+            <label class="form-label" for="margin-target">Category/Product ID</label>
+            <input type="text" id="margin-target" class="form-input" placeholder="e.g., roller-blinds">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="margin-percentage">Margin Percentage *</label>
+            <input type="number" id="margin-percentage" class="form-input" step="0.01" min="0" max="100" required placeholder="e.g., 40">
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="margin-description">Description</label>
+            <input type="text" id="margin-description" class="form-input" placeholder="e.g., Standard markup for roller blinds">
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="Admin.Modal.hide('margin-modal')">Cancel</button>
+        <button class="btn btn-primary" onclick="saveMarginRule()">Save Rule</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/admin.js"></script>
+  <script>
+    // Require authentication
+    if (!Admin.Auth.requireAuth()) {
+      // Will redirect
+    } else {
+      loadLedger();
+      loadMargins();
+      loadOrderProfits();
+      initTabs();
+    }
+
+    let allLedgerEntries = [];
+    let allMarginRules = [];
+
+    function initTabs() {
+      document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+          document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+          document.querySelectorAll('.tab-content').forEach(t => t.style.display = 'none');
+          btn.classList.add('active');
+          document.getElementById(btn.dataset.tab + '-tab').style.display = 'block';
+        });
+      });
+
+      document.getElementById('ledger-type-filter').addEventListener('change', filterLedger);
+      document.getElementById('margin-type').addEventListener('change', function() {
+        document.getElementById('margin-target-group').style.display =
+          this.value === 'global' ? 'none' : 'block';
+      });
+    }
+
+    async function loadLedger() {
+      try {
+        const response = await fetch('/api/admin/ledger', {
+          headers: { 'Authorization': `Bearer ${Admin.Auth.getToken()}` }
+        });
+        const data = await response.json();
+
+        if (data.success) {
+          allLedgerEntries = data.entries || [];
+          renderLedger(allLedgerEntries);
+          updateStats(data);
+        }
+      } catch (error) {
+        console.error('Failed to load ledger:', error);
+        document.getElementById('ledger-table').innerHTML = `
+          <tr><td colspan="7" style="text-align: center; padding: 40px; color: var(--admin-text-secondary);">
+            Failed to load ledger entries
+          </td></tr>
+        `;
+      }
+    }
+
+    function updateStats(data) {
+      // Calculate stats from ledger entries
+      let payments = 0, tax = 0, payable = 0, balance = 0;
+
+      allLedgerEntries.forEach(e => {
+        if (e.type === 'customer_payment_received') payments += e.credit || 0;
+        if (e.type === 'sales_tax_collected') tax += e.credit || 0;
+        if (e.type === 'manufacturer_payable') payable += e.debit || 0;
+        balance += (e.credit || 0) - (e.debit || 0);
+      });
+
+      document.getElementById('stat-payments').textContent = Admin.Utils.formatCurrency(payments);
+      document.getElementById('stat-tax').textContent = Admin.Utils.formatCurrency(tax);
+      document.getElementById('stat-payable').textContent = Admin.Utils.formatCurrency(payable);
+      document.getElementById('stat-balance').textContent = Admin.Utils.formatCurrency(balance);
+      document.getElementById('stat-balance').className = 'value ' + (balance >= 0 ? 'positive' : 'negative');
+
+      // Update profit summary
+      const revenue = payments - tax;
+      const costs = payable;
+      const profit = revenue - costs;
+
+      document.getElementById('total-revenue').textContent = Admin.Utils.formatCurrency(revenue);
+      document.getElementById('total-costs').textContent = Admin.Utils.formatCurrency(costs);
+      document.getElementById('gross-profit').textContent = Admin.Utils.formatCurrency(profit);
+    }
+
+    function renderLedger(entries) {
+      const tbody = document.getElementById('ledger-table');
+
+      if (!entries || entries.length === 0) {
+        tbody.innerHTML = `
+          <tr><td colspan="7" class="empty-state">
+            <h3 class="empty-state-title">No ledger entries</h3>
+            <p class="empty-state-text">Entries will appear when orders are processed</p>
+          </td></tr>
+        `;
+        return;
+      }
+
+      let runningBalance = 0;
+      tbody.innerHTML = entries.map(e => {
+        runningBalance += (e.credit || 0) - (e.debit || 0);
+        return `
+          <tr>
+            <td>${Admin.Utils.formatDate(e.createdAt)}</td>
+            <td><span class="badge badge-${e.type}">${formatEntryType(e.type)}</span></td>
+            <td>${e.orderId ? `<a href="/admin/orders.html?id=${e.orderId}" style="color: var(--admin-primary);">${e.orderNumber || e.orderId.slice(0,8)}</a>` : '-'}</td>
+            <td>${Admin.Utils.escapeHtml(e.description || '-')}</td>
+            <td class="ledger-amount debit">${e.debit ? '-' + Admin.Utils.formatCurrency(e.debit) : ''}</td>
+            <td class="ledger-amount credit">${e.credit ? '+' + Admin.Utils.formatCurrency(e.credit) : ''}</td>
+            <td class="ledger-amount ${runningBalance >= 0 ? 'credit' : 'debit'}">${Admin.Utils.formatCurrency(runningBalance)}</td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function formatEntryType(type) {
+      const types = {
+        'customer_payment_received': 'Payment',
+        'sales_tax_collected': 'Tax',
+        'manufacturer_payable': 'Mfr Payable',
+        'manufacturer_payment': 'Mfr Payment',
+        'refund': 'Refund',
+        'adjustment': 'Adjustment'
+      };
+      return types[type] || type;
+    }
+
+    function filterLedger() {
+      const type = document.getElementById('ledger-type-filter').value;
+      const filtered = type ? allLedgerEntries.filter(e => e.type === type) : allLedgerEntries;
+      renderLedger(filtered);
+    }
+
+    async function loadMargins() {
+      try {
+        const response = await fetch('/api/admin/margins', {
+          headers: { 'Authorization': `Bearer ${Admin.Auth.getToken()}` }
+        });
+        const data = await response.json();
+
+        if (data.success) {
+          allMarginRules = data.rules || [];
+          renderMargins(allMarginRules);
+        }
+      } catch (error) {
+        console.error('Failed to load margins:', error);
+      }
+    }
+
+    function renderMargins(rules) {
+      const container = document.getElementById('margin-rules');
+
+      if (!rules || rules.length === 0) {
+        container.innerHTML = `
+          <div style="text-align: center; padding: 40px; color: var(--admin-text-secondary);">
+            No margin rules configured. Add a rule to set profit margins.
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = rules.map(r => `
+        <div class="margin-rule">
+          <div class="rule-info">
+            <div class="rule-name">${Admin.Utils.escapeHtml(r.name || r.type + ': ' + (r.target || 'All'))}</div>
+            <div class="rule-description">${Admin.Utils.escapeHtml(r.description || 'No description')}</div>
+          </div>
+          <div class="rule-value">${r.percentage}%</div>
+        </div>
+      `).join('');
+    }
+
+    function showAddMarginModal() {
+      document.getElementById('margin-form').reset();
+      document.getElementById('margin-target-group').style.display = 'block';
+      Admin.Modal.show('margin-modal');
+    }
+
+    async function saveMarginRule() {
+      const type = document.getElementById('margin-type').value;
+      const target = document.getElementById('margin-target').value;
+      const percentage = parseFloat(document.getElementById('margin-percentage').value);
+      const description = document.getElementById('margin-description').value;
+
+      if (isNaN(percentage) || percentage < 0 || percentage > 100) {
+        Admin.Toast.error('Please enter a valid margin percentage (0-100)');
+        return;
+      }
+
+      try {
+        const response = await fetch('/api/admin/margins', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${Admin.Auth.getToken()}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ type, target, percentage, description })
+        });
+
+        const data = await response.json();
+        if (data.success) {
+          Admin.Toast.success('Margin rule saved');
+          Admin.Modal.hide('margin-modal');
+          loadMargins();
+        } else {
+          Admin.Toast.error(data.error || 'Failed to save margin rule');
+        }
+      } catch (error) {
+        Admin.Toast.error('Failed to save margin rule');
+      }
+    }
+
+    async function loadOrderProfits() {
+      try {
+        const response = await fetch('/api/admin/orders', {
+          headers: { 'Authorization': `Bearer ${Admin.Auth.getToken()}` }
+        });
+        const data = await response.json();
+
+        if (data.success) {
+          renderOrderProfits(data.orders || []);
+        }
+      } catch (error) {
+        console.error('Failed to load orders:', error);
+      }
+    }
+
+    function renderOrderProfits(orders) {
+      const tbody = document.getElementById('orders-profit-table');
+
+      if (!orders || orders.length === 0) {
+        tbody.innerHTML = `
+          <tr><td colspan="7" class="empty-state">
+            <h3 class="empty-state-title">No orders yet</h3>
+            <p class="empty-state-text">Order profits will appear here</p>
+          </td></tr>
+        `;
+        return;
+      }
+
+      tbody.innerHTML = orders.map(o => {
+        const revenue = o.pricing?.total || o.total || 0;
+        const mfrCost = o.pricing?.manufacturer_cost_total || (revenue * 0.6);
+        const margin = revenue > 0 ? ((revenue - mfrCost) / revenue * 100).toFixed(1) : 0;
+        const profit = revenue - mfrCost;
+
+        return `
+          <tr>
+            <td><a href="/admin/orders.html?id=${o.id}" style="color: var(--admin-primary);">${o.order_number || o.orderNumber || o.id.slice(0,8)}</a></td>
+            <td>${Admin.Utils.formatDate(o.created_at || o.createdAt)}</td>
+            <td>${Admin.Utils.escapeHtml(o.customer_name || o.customer?.name || 'Guest')}</td>
+            <td>${Admin.Utils.formatCurrency(revenue)}</td>
+            <td>${Admin.Utils.formatCurrency(mfrCost)}</td>
+            <td>${margin}%</td>
+            <td class="ledger-amount ${profit >= 0 ? 'credit' : 'debit'}">${Admin.Utils.formatCurrency(profit)}</td>
+          </tr>
+        `;
+      }).join('');
+    }
+  </script>
+</body>
+</html>

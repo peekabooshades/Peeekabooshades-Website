@@ -223,10 +223,11 @@
 
     .image-preview {
       width: 100%;
-      height: 100px;
+      height: 120px;
       background: #f3f4f6;
       border-radius: 6px;
       display: flex;
+      flex-direction: column;
       align-items: center;
       justify-content: center;
       margin-bottom: 8px;
@@ -241,8 +242,8 @@
     }
 
     .image-preview .upload-icon {
-      font-size: 24px;
-      color: #9ca3af;
+      font-size: 32px;
+      color: #8E6545;
     }
 
     .image-label {
@@ -694,7 +695,57 @@
                   Upload images that will display in the product gallery. The first image will be the main product image.
                 </p>
                 <div class="image-upload-grid" id="galleryGrid">
-                  <!-- Images will be rendered here -->
+                  <!-- Default upload cards - will be replaced by JS -->
+                  <div class="image-upload-card" onclick="triggerImageUpload(0)">
+                    <div class="image-preview">
+                      <i class="fas fa-cloud-upload-alt upload-icon"></i>
+                      <span style="display: block; font-size: 11px; color: #6b7280; margin-top: 8px;">Click to Upload</span>
+                    </div>
+                    <span class="image-label">Main Image</span>
+                    <button type="button" class="btn btn-sm" style="margin-top: 8px; padding: 6px 12px; font-size: 11px; background: #8E6545; color: white; border: none; border-radius: 6px; cursor: pointer;">
+                      <i class="fas fa-upload"></i> Upload
+                    </button>
+                  </div>
+                  <div class="image-upload-card" onclick="triggerImageUpload(1)">
+                    <div class="image-preview">
+                      <i class="fas fa-cloud-upload-alt upload-icon"></i>
+                      <span style="display: block; font-size: 11px; color: #6b7280; margin-top: 8px;">Click to Upload</span>
+                    </div>
+                    <span class="image-label">Gallery 2</span>
+                    <button type="button" class="btn btn-sm" style="margin-top: 8px; padding: 6px 12px; font-size: 11px; background: #8E6545; color: white; border: none; border-radius: 6px; cursor: pointer;">
+                      <i class="fas fa-upload"></i> Upload
+                    </button>
+                  </div>
+                  <div class="image-upload-card" onclick="triggerImageUpload(2)">
+                    <div class="image-preview">
+                      <i class="fas fa-cloud-upload-alt upload-icon"></i>
+                      <span style="display: block; font-size: 11px; color: #6b7280; margin-top: 8px;">Click to Upload</span>
+                    </div>
+                    <span class="image-label">Gallery 3</span>
+                    <button type="button" class="btn btn-sm" style="margin-top: 8px; padding: 6px 12px; font-size: 11px; background: #8E6545; color: white; border: none; border-radius: 6px; cursor: pointer;">
+                      <i class="fas fa-upload"></i> Upload
+                    </button>
+                  </div>
+                  <div class="image-upload-card" onclick="triggerImageUpload(3)">
+                    <div class="image-preview">
+                      <i class="fas fa-cloud-upload-alt upload-icon"></i>
+                      <span style="display: block; font-size: 11px; color: #6b7280; margin-top: 8px;">Click to Upload</span>
+                    </div>
+                    <span class="image-label">Gallery 4</span>
+                    <button type="button" class="btn btn-sm" style="margin-top: 8px; padding: 6px 12px; font-size: 11px; background: #8E6545; color: white; border: none; border-radius: 6px; cursor: pointer;">
+                      <i class="fas fa-upload"></i> Upload
+                    </button>
+                  </div>
+                  <div class="image-upload-card" onclick="triggerImageUpload(4)">
+                    <div class="image-preview">
+                      <i class="fas fa-cloud-upload-alt upload-icon"></i>
+                      <span style="display: block; font-size: 11px; color: #6b7280; margin-top: 8px;">Click to Upload</span>
+                    </div>
+                    <span class="image-label">Gallery 5</span>
+                    <button type="button" class="btn btn-sm" style="margin-top: 8px; padding: 6px 12px; font-size: 11px; background: #8E6545; color: white; border: none; border-radius: 6px; cursor: pointer;">
+                      <i class="fas fa-upload"></i> Upload
+                    </button>
+                  </div>
                 </div>
                 <div class="section-actions">
                   <button class="btn btn-primary" onclick="saveGallery()">
@@ -945,7 +996,7 @@
 
         // Load room labels
         try {
-          const roomRes = await Admin.API.get('/product-content/room-labels');
+          const roomRes = await Admin.API.get('/room-labels');
           productData.roomLabels = roomRes.labels || ['Living Room', 'Bedroom', 'Kitchen', 'Bathroom', 'Office'];
         } catch {
           productData.roomLabels = ['Living Room', 'Bedroom', 'Kitchen', 'Bathroom', 'Office'];
@@ -982,9 +1033,13 @@
               </button>
             ` : `
               <i class="fas fa-cloud-upload-alt upload-icon"></i>
+              <span style="display: block; font-size: 11px; color: #6b7280; margin-top: 8px;">Click to Upload</span>
             `}
           </div>
           <span class="image-label">${labels[i]}</span>
+          ${!img ? `<button type="button" class="btn btn-sm" style="margin-top: 8px; padding: 6px 12px; font-size: 11px; background: #8E6545; color: white; border: none; border-radius: 6px; cursor: pointer;">
+            <i class="fas fa-upload"></i> Upload
+          </button>` : ''}
         </div>
       `).join('');
     }
@@ -998,24 +1053,39 @@
     async function handleImageUpload(input) {
       if (!input.files || !input.files[0]) return;
 
+      // Check if product is loaded
+      if (!currentProduct || !currentProduct.id) {
+        Admin.Toast.error('Please wait for product to load');
+        input.value = '';
+        return;
+      }
+
       const file = input.files[0];
       const formData = new FormData();
       formData.append('image', file);
 
       try {
+        Admin.Toast.info('Uploading image...');
         const response = await fetch('/api/admin/upload', {
           method: 'POST',
           headers: { 'Authorization': `Bearer ${Admin.Auth.getToken()}` },
           body: formData
         });
         const result = await response.json();
+        console.log('Upload response:', result);
+
         if (result.success) {
           productData.images[currentUploadSlot] = result.url;
           renderGallery();
-          markUnsaved();
-          Admin.Toast.success('Image uploaded');
+          Admin.Toast.success('Image uploaded, saving...');
+          // Auto-save the gallery after successful upload
+          await saveGallery();
+        } else {
+          // Show error message from server
+          Admin.Toast.error(result.error || 'Failed to upload image');
         }
       } catch (error) {
+        console.error('Upload error:', error);
         Admin.Toast.error('Failed to upload image');
       }
       input.value = '';
@@ -1140,7 +1210,7 @@
 
     async function saveRoomLabels() {
       try {
-        await Admin.API.put('/product-content/room-labels', { labels: productData.roomLabels });
+        await Admin.API.put('/room-labels', { labels: productData.roomLabels });
         Admin.Toast.success('Room labels saved');
       } catch {
         Admin.Toast.error('Failed to save room labels');
@@ -1169,18 +1239,40 @@
     }
 
     async function saveGallery() {
+      // Check if user is authenticated
+      if (!Admin.Auth.getToken()) {
+        Admin.Toast.error('Session expired. Redirecting to login...');
+        setTimeout(() => window.location.href = '/admin/login.html', 1500);
+        return;
+      }
+
+      if (!currentProduct || !currentProduct.id) {
+        console.error('Cannot save gallery: currentProduct is', currentProduct);
+        Admin.Toast.error('Cannot save gallery: Product not loaded');
+        return;
+      }
+
       const data = {
         image_url: productData.images[0] || null,
         gallery_images: productData.images.slice(1).filter(Boolean)
       };
 
+      console.log('Saving gallery for product:', currentProduct.id, 'with data:', data);
+
       try {
-        await Admin.ProductsAPI.update(currentProduct.id, data);
+        const result = await Admin.ProductsAPI.update(currentProduct.id, data);
+        // Check if result is null (means 401 - will redirect automatically)
+        if (result === null) {
+          Admin.Toast.error('Session expired. Redirecting to login...');
+          return;
+        }
+        console.log('Save result:', result);
         Admin.Toast.success('Gallery saved');
         hideSaveBanner();
         updatePreview();
       } catch (error) {
-        Admin.Toast.error('Failed to save gallery');
+        console.error('Failed to save gallery:', error);
+        Admin.Toast.error('Failed to save gallery: ' + (error.message || 'Unknown error'));
       }
     }
 
@@ -1273,8 +1365,20 @@
     }
 
     function updatePreview() {
+      const slug = document.getElementById('productSelector').value;
       const iframe = document.getElementById('previewIframe');
-      iframe.src = iframe.src;
+      const previewLink = document.querySelector('.preview-link');
+      const viewLiveBtn = document.querySelector('.header-right .btn-secondary');
+
+      const productUrl = `/product/${slug}`;
+      iframe.src = productUrl;
+
+      if (previewLink) {
+        previewLink.href = productUrl;
+      }
+      if (viewLiveBtn) {
+        viewLiveBtn.href = productUrl;
+      }
     }
 
     function escapeHtml(text) {

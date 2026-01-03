@@ -1,0 +1,1424 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Media Library - Peekaboo Shades Admin</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --primary: #6366f1;
+      --primary-dark: #4f46e5;
+      --secondary: #8E6545;
+      --success: #10b981;
+      --warning: #f59e0b;
+      --danger: #ef4444;
+      --dark: #1f2937;
+      --gray: #6b7280;
+      --light: #f3f4f6;
+      --white: #ffffff;
+      --sidebar-width: 260px;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--light);
+      min-height: 100vh;
+    }
+
+    .admin-layout {
+      display: flex;
+      min-height: 100vh;
+    }
+
+    /* Sidebar */
+    .sidebar {
+      width: var(--sidebar-width);
+      background: var(--dark);
+      color: var(--white);
+      position: fixed;
+      height: 100vh;
+      overflow-y: auto;
+      z-index: 100;
+    }
+
+    .sidebar-header {
+      padding: 1.5rem;
+      border-bottom: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .sidebar-header h1 {
+      font-size: 1.25rem;
+      font-weight: 700;
+      color: var(--secondary);
+    }
+
+    .sidebar-header span {
+      font-size: 0.75rem;
+      color: var(--gray);
+    }
+
+    .sidebar-nav {
+      padding: 1rem 0;
+    }
+
+    .nav-section {
+      padding: 0.5rem 1.5rem;
+      font-size: 0.7rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--gray);
+      margin-top: 1rem;
+    }
+
+    .nav-link {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.75rem 1.5rem;
+      color: rgba(255,255,255,0.7);
+      text-decoration: none;
+      transition: all 0.2s;
+      font-size: 0.875rem;
+    }
+
+    .nav-link:hover, .nav-link.active {
+      background: rgba(255,255,255,0.1);
+      color: var(--white);
+    }
+
+    .nav-link.active {
+      border-left: 3px solid var(--primary);
+    }
+
+    .nav-link i {
+      width: 20px;
+      text-align: center;
+    }
+
+    /* Main Content */
+    .main-content {
+      flex: 1;
+      margin-left: var(--sidebar-width);
+      padding: 2rem;
+    }
+
+    /* Page Header */
+    .page-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2rem;
+    }
+
+    .page-title h1 {
+      font-size: 1.75rem;
+      font-weight: 700;
+      color: var(--dark);
+      margin-bottom: 0.25rem;
+    }
+
+    .page-title p {
+      color: var(--gray);
+      font-size: 0.875rem;
+    }
+
+    /* Stats Cards */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .stat-card {
+      background: var(--white);
+      padding: 1.5rem;
+      border-radius: 12px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+
+    .stat-card h3 {
+      font-size: 0.75rem;
+      color: var(--gray);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 0.5rem;
+    }
+
+    .stat-card .value {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--dark);
+    }
+
+    .stat-card .subtitle {
+      font-size: 0.75rem;
+      color: var(--gray);
+      margin-top: 0.25rem;
+    }
+
+    /* Toolbar */
+    .toolbar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+      align-items: center;
+    }
+
+    .search-box {
+      flex: 1;
+      min-width: 200px;
+      position: relative;
+    }
+
+    .search-box input {
+      width: 100%;
+      padding: 0.75rem 1rem 0.75rem 2.5rem;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      font-size: 0.875rem;
+      background: var(--white);
+    }
+
+    .search-box i {
+      position: absolute;
+      left: 1rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--gray);
+    }
+
+    .filter-group {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .filter-select {
+      padding: 0.75rem 1rem;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      font-size: 0.875rem;
+      background: var(--white);
+      cursor: pointer;
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.75rem 1.5rem;
+      border-radius: 8px;
+      font-size: 0.875rem;
+      font-weight: 500;
+      text-decoration: none;
+      cursor: pointer;
+      border: none;
+      transition: all 0.2s;
+    }
+
+    .btn-primary {
+      background: var(--primary);
+      color: var(--white);
+    }
+
+    .btn-primary:hover {
+      background: var(--primary-dark);
+    }
+
+    .btn-secondary {
+      background: var(--white);
+      color: var(--dark);
+      border: 1px solid #e5e7eb;
+    }
+
+    .btn-secondary:hover {
+      background: var(--light);
+    }
+
+    .btn-success {
+      background: var(--success);
+      color: var(--white);
+    }
+
+    .btn-danger {
+      background: var(--danger);
+      color: var(--white);
+    }
+
+    /* View Toggle */
+    .view-toggle {
+      display: flex;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    .view-toggle button {
+      padding: 0.75rem 1rem;
+      background: var(--white);
+      border: none;
+      cursor: pointer;
+      color: var(--gray);
+      transition: all 0.2s;
+    }
+
+    .view-toggle button.active {
+      background: var(--primary);
+      color: var(--white);
+    }
+
+    /* Media Grid */
+    .media-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 1.5rem;
+    }
+
+    .media-card {
+      background: var(--white);
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      transition: all 0.2s;
+      position: relative;
+    }
+
+    .media-card:hover {
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      transform: translateY(-2px);
+    }
+
+    .media-card.selected {
+      outline: 3px solid var(--primary);
+    }
+
+    .media-thumbnail {
+      height: 160px;
+      background: #f9fafb;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .media-thumbnail img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .media-thumbnail .placeholder {
+      font-size: 3rem;
+      color: var(--gray);
+    }
+
+    .media-select {
+      position: absolute;
+      top: 0.5rem;
+      left: 0.5rem;
+      width: 24px;
+      height: 24px;
+      border-radius: 4px;
+      background: var(--white);
+      border: 2px solid #e5e7eb;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+
+    .media-card:hover .media-select,
+    .media-card.selected .media-select {
+      opacity: 1;
+    }
+
+    .media-card.selected .media-select {
+      background: var(--primary);
+      border-color: var(--primary);
+      color: var(--white);
+    }
+
+    .media-actions {
+      position: absolute;
+      top: 0.5rem;
+      right: 0.5rem;
+      display: flex;
+      gap: 0.25rem;
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+
+    .media-card:hover .media-actions {
+      opacity: 1;
+    }
+
+    .media-action-btn {
+      width: 32px;
+      height: 32px;
+      border-radius: 6px;
+      background: var(--white);
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--gray);
+      transition: all 0.2s;
+    }
+
+    .media-action-btn:hover {
+      background: var(--primary);
+      color: var(--white);
+    }
+
+    .media-action-btn.delete:hover {
+      background: var(--danger);
+    }
+
+    .media-info {
+      padding: 1rem;
+    }
+
+    .media-name {
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: var(--dark);
+      margin-bottom: 0.25rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .media-meta {
+      font-size: 0.75rem;
+      color: var(--gray);
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .media-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.25rem;
+      margin-top: 0.5rem;
+    }
+
+    .tag {
+      padding: 0.125rem 0.5rem;
+      border-radius: 4px;
+      font-size: 0.625rem;
+      background: var(--light);
+      color: var(--gray);
+    }
+
+    /* Media List View */
+    .media-list {
+      background: var(--white);
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      display: none;
+    }
+
+    .media-list.active {
+      display: block;
+    }
+
+    .media-grid.hidden {
+      display: none;
+    }
+
+    .media-list-header, .media-list-item {
+      display: grid;
+      grid-template-columns: 40px 80px 1fr 120px 100px 120px 100px;
+      gap: 1rem;
+      padding: 0.75rem 1rem;
+      align-items: center;
+    }
+
+    .media-list-header {
+      background: var(--light);
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: var(--gray);
+      text-transform: uppercase;
+    }
+
+    .media-list-item {
+      border-bottom: 1px solid #e5e7eb;
+      font-size: 0.875rem;
+    }
+
+    .media-list-item:hover {
+      background: #f9fafb;
+    }
+
+    .media-list-thumbnail {
+      width: 60px;
+      height: 60px;
+      border-radius: 6px;
+      overflow: hidden;
+      background: var(--light);
+    }
+
+    .media-list-thumbnail img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    /* Upload Modal */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.5);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+
+    .modal-overlay.active {
+      display: flex;
+    }
+
+    .modal {
+      background: var(--white);
+      border-radius: 16px;
+      width: 90%;
+      max-width: 600px;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+
+    .modal-header {
+      padding: 1.5rem;
+      border-bottom: 1px solid #e5e7eb;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .modal-header h2 {
+      font-size: 1.25rem;
+      font-weight: 600;
+    }
+
+    .modal-close {
+      background: none;
+      border: none;
+      font-size: 1.5rem;
+      cursor: pointer;
+      color: var(--gray);
+    }
+
+    .modal-body {
+      padding: 1.5rem;
+    }
+
+    .modal-footer {
+      padding: 1.5rem;
+      border-top: 1px solid #e5e7eb;
+      display: flex;
+      justify-content: flex-end;
+      gap: 1rem;
+    }
+
+    /* Upload Zone */
+    .upload-zone {
+      border: 2px dashed #e5e7eb;
+      border-radius: 12px;
+      padding: 3rem;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .upload-zone:hover, .upload-zone.dragover {
+      border-color: var(--primary);
+      background: rgba(99, 102, 241, 0.05);
+    }
+
+    .upload-zone i {
+      font-size: 3rem;
+      color: var(--gray);
+      margin-bottom: 1rem;
+    }
+
+    .upload-zone h3 {
+      font-size: 1rem;
+      margin-bottom: 0.5rem;
+      color: var(--dark);
+    }
+
+    .upload-zone p {
+      font-size: 0.875rem;
+      color: var(--gray);
+    }
+
+    .upload-zone input {
+      display: none;
+    }
+
+    /* Form Group */
+    .form-group {
+      margin-bottom: 1rem;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 0.875rem;
+      font-weight: 500;
+      margin-bottom: 0.5rem;
+      color: var(--dark);
+    }
+
+    .form-group input, .form-group select, .form-group textarea {
+      width: 100%;
+      padding: 0.75rem;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      font-size: 0.875rem;
+    }
+
+    .form-group textarea {
+      min-height: 100px;
+      resize: vertical;
+    }
+
+    /* Detail Panel */
+    .detail-panel {
+      position: fixed;
+      top: 0;
+      right: -400px;
+      width: 400px;
+      height: 100vh;
+      background: var(--white);
+      box-shadow: -4px 0 20px rgba(0,0,0,0.1);
+      transition: right 0.3s;
+      z-index: 200;
+      overflow-y: auto;
+    }
+
+    .detail-panel.active {
+      right: 0;
+    }
+
+    .detail-header {
+      padding: 1.5rem;
+      border-bottom: 1px solid #e5e7eb;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .detail-preview {
+      padding: 1.5rem;
+      background: var(--light);
+    }
+
+    .detail-preview img {
+      width: 100%;
+      border-radius: 8px;
+    }
+
+    .detail-info {
+      padding: 1.5rem;
+    }
+
+    .detail-info .info-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 0.75rem 0;
+      border-bottom: 1px solid #f3f4f6;
+      font-size: 0.875rem;
+    }
+
+    .detail-info .info-label {
+      color: var(--gray);
+    }
+
+    .detail-info .info-value {
+      color: var(--dark);
+      font-weight: 500;
+    }
+
+    /* Version History */
+    .version-history {
+      padding: 1.5rem;
+    }
+
+    .version-history h4 {
+      font-size: 0.875rem;
+      font-weight: 600;
+      margin-bottom: 1rem;
+    }
+
+    .version-item {
+      display: flex;
+      gap: 1rem;
+      padding: 0.75rem;
+      background: var(--light);
+      border-radius: 8px;
+      margin-bottom: 0.5rem;
+      font-size: 0.75rem;
+    }
+
+    .version-badge {
+      background: var(--primary);
+      color: var(--white);
+      padding: 0.25rem 0.5rem;
+      border-radius: 4px;
+      font-weight: 600;
+    }
+
+    .version-badge.current {
+      background: var(--success);
+    }
+
+    /* Empty State */
+    .empty-state {
+      text-align: center;
+      padding: 4rem 2rem;
+    }
+
+    .empty-state i {
+      font-size: 4rem;
+      color: var(--gray);
+      margin-bottom: 1rem;
+    }
+
+    .empty-state h3 {
+      font-size: 1.25rem;
+      color: var(--dark);
+      margin-bottom: 0.5rem;
+    }
+
+    .empty-state p {
+      color: var(--gray);
+      margin-bottom: 1.5rem;
+    }
+
+    /* Loading */
+    .loading {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 3rem;
+    }
+
+    .spinner {
+      width: 40px;
+      height: 40px;
+      border: 4px solid var(--light);
+      border-top-color: var(--primary);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* Toast */
+    .toast {
+      position: fixed;
+      bottom: 2rem;
+      right: 2rem;
+      padding: 1rem 1.5rem;
+      background: var(--dark);
+      color: var(--white);
+      border-radius: 8px;
+      font-size: 0.875rem;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+      transform: translateY(100px);
+      opacity: 0;
+      transition: all 0.3s;
+      z-index: 1000;
+    }
+
+    .toast.show {
+      transform: translateY(0);
+      opacity: 1;
+    }
+
+    .toast.success {
+      background: var(--success);
+    }
+
+    .toast.error {
+      background: var(--danger);
+    }
+  </style>
+</head>
+<body>
+  <div class="admin-layout">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <h1>Peekaboo Shades</h1>
+        <span>Admin Dashboard</span>
+      </div>
+      <nav class="sidebar-nav">
+        <a href="index.html" class="nav-link"><i class="fas fa-home"></i> Dashboard</a>
+
+        <div class="nav-section">Content</div>
+        <a href="products.html" class="nav-link"><i class="fas fa-box"></i> Products</a>
+        <a href="categories.html" class="nav-link"><i class="fas fa-folder"></i> Categories</a>
+        <a href="media-library.html" class="nav-link active"><i class="fas fa-images"></i> Media Library</a>
+        <a href="pages.html" class="nav-link"><i class="fas fa-file-alt"></i> Pages</a>
+
+        <div class="nav-section">Sales</div>
+        <a href="orders.html" class="nav-link"><i class="fas fa-shopping-cart"></i> Orders</a>
+        <a href="quotes.html" class="nav-link"><i class="fas fa-file-invoice"></i> Quotes</a>
+        <a href="customers.html" class="nav-link"><i class="fas fa-users"></i> Customers</a>
+
+        <div class="nav-section">Configuration</div>
+        <a href="theme-settings.html" class="nav-link"><i class="fas fa-palette"></i> Theme & Colors</a>
+        <a href="system-config.html" class="nav-link"><i class="fas fa-cog"></i> System Config</a>
+        <a href="fabrics.html" class="nav-link"><i class="fas fa-swatchbook"></i> Fabrics</a>
+      </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <!-- Page Header -->
+      <div class="page-header">
+        <div class="page-title">
+          <h1>Media Library</h1>
+          <p>Manage all your images and media assets</p>
+        </div>
+        <div class="header-actions">
+          <button class="btn btn-secondary" onclick="syncFilesystem()">
+            <i class="fas fa-sync"></i> Sync Files
+          </button>
+          <button class="btn btn-primary" onclick="openUploadModal()">
+            <i class="fas fa-upload"></i> Upload
+          </button>
+        </div>
+      </div>
+
+      <!-- Stats -->
+      <div class="stats-grid" id="statsGrid">
+        <div class="stat-card">
+          <h3>Total Assets</h3>
+          <div class="value" id="statTotal">-</div>
+        </div>
+        <div class="stat-card">
+          <h3>Storage Used</h3>
+          <div class="value" id="statStorage">-</div>
+        </div>
+        <div class="stat-card">
+          <h3>Images</h3>
+          <div class="value" id="statImages">-</div>
+        </div>
+        <div class="stat-card">
+          <h3>Documents</h3>
+          <div class="value" id="statDocs">-</div>
+        </div>
+      </div>
+
+      <!-- Toolbar -->
+      <div class="toolbar">
+        <div class="search-box">
+          <i class="fas fa-search"></i>
+          <input type="text" id="searchInput" placeholder="Search media..." onkeyup="debounceSearch()">
+        </div>
+        <div class="filter-group">
+          <select class="filter-select" id="categoryFilter" onchange="loadMedia()">
+            <option value="">All Categories</option>
+            <option value="products">Products</option>
+            <option value="fabrics">Fabrics</option>
+            <option value="hardware">Hardware</option>
+            <option value="banners">Banners</option>
+            <option value="uploads">Uploads</option>
+          </select>
+          <select class="filter-select" id="sortFilter" onchange="loadMedia()">
+            <option value="createdAt-desc">Newest First</option>
+            <option value="createdAt-asc">Oldest First</option>
+            <option value="name-asc">Name A-Z</option>
+            <option value="name-desc">Name Z-A</option>
+            <option value="size-desc">Largest First</option>
+            <option value="size-asc">Smallest First</option>
+          </select>
+        </div>
+        <div class="view-toggle">
+          <button class="active" onclick="setView('grid')" id="gridViewBtn">
+            <i class="fas fa-th"></i>
+          </button>
+          <button onclick="setView('list')" id="listViewBtn">
+            <i class="fas fa-list"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Bulk Actions -->
+      <div id="bulkActions" style="display: none; margin-bottom: 1rem;">
+        <span id="selectedCount">0 selected</span>
+        <button class="btn btn-secondary" onclick="clearSelection()">Clear</button>
+        <button class="btn btn-danger" onclick="bulkDelete()">Delete Selected</button>
+      </div>
+
+      <!-- Media Grid -->
+      <div class="media-grid" id="mediaGrid">
+        <div class="loading">
+          <div class="spinner"></div>
+        </div>
+      </div>
+
+      <!-- Media List -->
+      <div class="media-list" id="mediaList">
+        <div class="media-list-header">
+          <div></div>
+          <div>Preview</div>
+          <div>Name</div>
+          <div>Category</div>
+          <div>Size</div>
+          <div>Uploaded</div>
+          <div>Actions</div>
+        </div>
+        <div id="mediaListBody"></div>
+      </div>
+
+      <!-- Pagination -->
+      <div id="pagination" style="display: flex; justify-content: center; gap: 0.5rem; margin-top: 2rem;"></div>
+    </main>
+  </div>
+
+  <!-- Upload Modal -->
+  <div class="modal-overlay" id="uploadModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h2>Upload Media</h2>
+        <button class="modal-close" onclick="closeUploadModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="upload-zone" id="uploadZone">
+          <i class="fas fa-cloud-upload-alt"></i>
+          <h3>Drag & drop files here</h3>
+          <p>or click to browse</p>
+          <input type="file" id="fileInput" multiple accept="image/*,.pdf">
+        </div>
+        <div id="uploadPreview" style="margin-top: 1rem;"></div>
+        <div class="form-group" style="margin-top: 1rem;">
+          <label>Category</label>
+          <select id="uploadCategory">
+            <option value="uploads">General Uploads</option>
+            <option value="products">Products</option>
+            <option value="fabrics">Fabrics</option>
+            <option value="hardware">Hardware</option>
+            <option value="banners">Banners</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Tags (comma separated)</label>
+          <input type="text" id="uploadTags" placeholder="e.g., summer, sale, featured">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeUploadModal()">Cancel</button>
+        <button class="btn btn-primary" onclick="uploadFiles()" id="uploadBtn" disabled>Upload</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Detail Panel -->
+  <div class="detail-panel" id="detailPanel">
+    <div class="detail-header">
+      <h3>Asset Details</h3>
+      <button class="modal-close" onclick="closeDetailPanel()">&times;</button>
+    </div>
+    <div class="detail-preview" id="detailPreview"></div>
+    <div class="detail-info" id="detailInfo"></div>
+    <div class="version-history" id="versionHistory"></div>
+    <div style="padding: 1.5rem;">
+      <button class="btn btn-secondary" onclick="copyAssetUrl()" style="width: 100%; margin-bottom: 0.5rem;">
+        <i class="fas fa-copy"></i> Copy URL
+      </button>
+      <button class="btn btn-danger" onclick="deleteCurrentAsset()" style="width: 100%;">
+        <i class="fas fa-trash"></i> Delete Asset
+      </button>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div class="toast" id="toast"></div>
+
+  <script>
+    // State
+    let authToken = localStorage.getItem('adminToken');
+    let currentPage = 1;
+    let totalPages = 1;
+    let selectedAssets = new Set();
+    let currentAsset = null;
+    let pendingFiles = [];
+    let searchTimeout = null;
+    let currentView = 'grid';
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', () => {
+      if (!authToken) {
+        window.location.href = 'login.html';
+        return;
+      }
+      loadStats();
+      loadMedia();
+      setupUploadZone();
+    });
+
+    // API helper
+    async function apiCall(endpoint, options = {}) {
+      const response = await fetch(endpoint, {
+        ...options,
+        headers: {
+          'Authorization': `Bearer ${authToken}`,
+          ...(options.headers || {})
+        }
+      });
+      return response.json();
+    }
+
+    // Load stats
+    async function loadStats() {
+      try {
+        const result = await apiCall('/api/admin/media/stats/overview');
+        if (result.success) {
+          const stats = result.stats;
+          document.getElementById('statTotal').textContent = stats.totalAssets;
+          document.getElementById('statStorage').textContent = stats.totalSizeFormatted;
+          document.getElementById('statImages').textContent = stats.byType.image?.count || 0;
+          document.getElementById('statDocs').textContent = stats.byType.application?.count || 0;
+        }
+      } catch (error) {
+        console.error('Failed to load stats:', error);
+      }
+    }
+
+    // Load media
+    async function loadMedia() {
+      const grid = document.getElementById('mediaGrid');
+      const listBody = document.getElementById('mediaListBody');
+      grid.innerHTML = '<div class="loading"><div class="spinner"></div></div>';
+
+      const category = document.getElementById('categoryFilter').value;
+      const sortParts = document.getElementById('sortFilter').value.split('-');
+      const search = document.getElementById('searchInput').value;
+
+      let url = `/api/admin/media?page=${currentPage}&limit=24&sortBy=${sortParts[0]}&sortOrder=${sortParts[1]}`;
+      if (category) url += `&category=${category}`;
+      if (search) url += `&search=${encodeURIComponent(search)}`;
+
+      try {
+        const result = await apiCall(url);
+        if (result.success) {
+          renderMedia(result.assets);
+          totalPages = result.pagination.totalPages;
+          renderPagination();
+        } else {
+          grid.innerHTML = '<div class="empty-state"><i class="fas fa-images"></i><h3>No media found</h3><p>Upload some images to get started</p></div>';
+        }
+      } catch (error) {
+        grid.innerHTML = '<div class="empty-state"><i class="fas fa-exclamation-triangle"></i><h3>Error loading media</h3></div>';
+      }
+    }
+
+    // Render media grid/list
+    function renderMedia(assets) {
+      const grid = document.getElementById('mediaGrid');
+      const listBody = document.getElementById('mediaListBody');
+
+      if (assets.length === 0) {
+        grid.innerHTML = '<div class="empty-state"><i class="fas fa-images"></i><h3>No media found</h3><p>Upload some images to get started</p><button class="btn btn-primary" onclick="openUploadModal()"><i class="fas fa-upload"></i> Upload</button></div>';
+        listBody.innerHTML = '';
+        return;
+      }
+
+      // Grid view
+      grid.innerHTML = assets.map(asset => `
+        <div class="media-card ${selectedAssets.has(asset.id) ? 'selected' : ''}" data-id="${asset.id}">
+          <div class="media-thumbnail">
+            ${asset.mimeType?.startsWith('image/')
+              ? `<img src="${asset.url}" alt="${asset.altText || asset.name}" loading="lazy">`
+              : `<i class="fas fa-file placeholder"></i>`
+            }
+            <div class="media-select" onclick="toggleSelect('${asset.id}', event)">
+              <i class="fas fa-check"></i>
+            </div>
+            <div class="media-actions">
+              <button class="media-action-btn" onclick="openDetailPanel('${asset.id}')" title="View details">
+                <i class="fas fa-eye"></i>
+              </button>
+              <button class="media-action-btn delete" onclick="deleteAsset('${asset.id}', event)" title="Delete">
+                <i class="fas fa-trash"></i>
+              </button>
+            </div>
+          </div>
+          <div class="media-info">
+            <div class="media-name">${asset.name}</div>
+            <div class="media-meta">
+              <span>${formatBytes(asset.size)}</span>
+              <span>${asset.category}</span>
+            </div>
+            ${asset.tags?.length ? `
+              <div class="media-tags">
+                ${asset.tags.slice(0, 3).map(t => `<span class="tag">${t}</span>`).join('')}
+              </div>
+            ` : ''}
+          </div>
+        </div>
+      `).join('');
+
+      // List view
+      listBody.innerHTML = assets.map(asset => `
+        <div class="media-list-item" data-id="${asset.id}">
+          <input type="checkbox" ${selectedAssets.has(asset.id) ? 'checked' : ''} onchange="toggleSelect('${asset.id}', event)">
+          <div class="media-list-thumbnail">
+            ${asset.mimeType?.startsWith('image/')
+              ? `<img src="${asset.url}" alt="${asset.name}">`
+              : `<i class="fas fa-file" style="font-size: 1.5rem; color: var(--gray);"></i>`
+            }
+          </div>
+          <div style="overflow: hidden;">
+            <div style="font-weight: 500; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${asset.name}</div>
+            <div style="font-size: 0.75rem; color: var(--gray);">${asset.url}</div>
+          </div>
+          <div>${asset.category}</div>
+          <div>${formatBytes(asset.size)}</div>
+          <div>${formatDate(asset.createdAt)}</div>
+          <div>
+            <button class="media-action-btn" onclick="openDetailPanel('${asset.id}')" title="View">
+              <i class="fas fa-eye"></i>
+            </button>
+            <button class="media-action-btn delete" onclick="deleteAsset('${asset.id}', event)" title="Delete">
+              <i class="fas fa-trash"></i>
+            </button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // View toggle
+    function setView(view) {
+      currentView = view;
+      const grid = document.getElementById('mediaGrid');
+      const list = document.getElementById('mediaList');
+      const gridBtn = document.getElementById('gridViewBtn');
+      const listBtn = document.getElementById('listViewBtn');
+
+      if (view === 'grid') {
+        grid.classList.remove('hidden');
+        list.classList.remove('active');
+        gridBtn.classList.add('active');
+        listBtn.classList.remove('active');
+      } else {
+        grid.classList.add('hidden');
+        list.classList.add('active');
+        gridBtn.classList.remove('active');
+        listBtn.classList.add('active');
+      }
+    }
+
+    // Pagination
+    function renderPagination() {
+      const container = document.getElementById('pagination');
+      if (totalPages <= 1) {
+        container.innerHTML = '';
+        return;
+      }
+
+      let html = '';
+      for (let i = 1; i <= totalPages; i++) {
+        html += `<button class="btn ${i === currentPage ? 'btn-primary' : 'btn-secondary'}" onclick="goToPage(${i})">${i}</button>`;
+      }
+      container.innerHTML = html;
+    }
+
+    function goToPage(page) {
+      currentPage = page;
+      loadMedia();
+    }
+
+    // Search
+    function debounceSearch() {
+      clearTimeout(searchTimeout);
+      searchTimeout = setTimeout(() => {
+        currentPage = 1;
+        loadMedia();
+      }, 300);
+    }
+
+    // Selection
+    function toggleSelect(assetId, event) {
+      event.stopPropagation();
+      if (selectedAssets.has(assetId)) {
+        selectedAssets.delete(assetId);
+      } else {
+        selectedAssets.add(assetId);
+      }
+      updateBulkActions();
+      loadMedia(); // Re-render to update selection state
+    }
+
+    function clearSelection() {
+      selectedAssets.clear();
+      updateBulkActions();
+      loadMedia();
+    }
+
+    function updateBulkActions() {
+      const container = document.getElementById('bulkActions');
+      const countEl = document.getElementById('selectedCount');
+      if (selectedAssets.size > 0) {
+        container.style.display = 'flex';
+        container.style.alignItems = 'center';
+        container.style.gap = '1rem';
+        countEl.textContent = `${selectedAssets.size} selected`;
+      } else {
+        container.style.display = 'none';
+      }
+    }
+
+    async function bulkDelete() {
+      if (!confirm(`Delete ${selectedAssets.size} selected assets?`)) return;
+
+      for (const assetId of selectedAssets) {
+        await apiCall(`/api/admin/media/${assetId}`, { method: 'DELETE' });
+      }
+
+      selectedAssets.clear();
+      updateBulkActions();
+      loadMedia();
+      loadStats();
+      showToast('Assets deleted', 'success');
+    }
+
+    // Upload
+    function setupUploadZone() {
+      const zone = document.getElementById('uploadZone');
+      const input = document.getElementById('fileInput');
+
+      zone.addEventListener('click', () => input.click());
+
+      zone.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        zone.classList.add('dragover');
+      });
+
+      zone.addEventListener('dragleave', () => {
+        zone.classList.remove('dragover');
+      });
+
+      zone.addEventListener('drop', (e) => {
+        e.preventDefault();
+        zone.classList.remove('dragover');
+        handleFiles(e.dataTransfer.files);
+      });
+
+      input.addEventListener('change', (e) => {
+        handleFiles(e.target.files);
+      });
+    }
+
+    function handleFiles(files) {
+      pendingFiles = Array.from(files);
+      const preview = document.getElementById('uploadPreview');
+      const btn = document.getElementById('uploadBtn');
+
+      preview.innerHTML = pendingFiles.map(f => `
+        <div style="display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem; background: var(--light); border-radius: 6px; margin-bottom: 0.5rem;">
+          <i class="fas ${f.type.startsWith('image/') ? 'fa-image' : 'fa-file'}"></i>
+          <span style="flex: 1;">${f.name}</span>
+          <span style="color: var(--gray); font-size: 0.75rem;">${formatBytes(f.size)}</span>
+        </div>
+      `).join('');
+
+      btn.disabled = pendingFiles.length === 0;
+    }
+
+    function openUploadModal() {
+      document.getElementById('uploadModal').classList.add('active');
+    }
+
+    function closeUploadModal() {
+      document.getElementById('uploadModal').classList.remove('active');
+      document.getElementById('uploadPreview').innerHTML = '';
+      document.getElementById('fileInput').value = '';
+      pendingFiles = [];
+      document.getElementById('uploadBtn').disabled = true;
+    }
+
+    async function uploadFiles() {
+      const category = document.getElementById('uploadCategory').value;
+      const tags = document.getElementById('uploadTags').value;
+      const btn = document.getElementById('uploadBtn');
+
+      btn.disabled = true;
+      btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Uploading...';
+
+      let successCount = 0;
+      for (const file of pendingFiles) {
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('category', category);
+        formData.append('name', file.name);
+        if (tags) formData.append('tags', tags);
+
+        try {
+          const result = await fetch('/api/admin/media/upload', {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${authToken}` },
+            body: formData
+          }).then(r => r.json());
+
+          if (result.success) successCount++;
+        } catch (error) {
+          console.error('Upload failed:', error);
+        }
+      }
+
+      closeUploadModal();
+      loadMedia();
+      loadStats();
+      showToast(`${successCount} file(s) uploaded`, 'success');
+    }
+
+    // Detail Panel
+    async function openDetailPanel(assetId) {
+      const result = await apiCall(`/api/admin/media/${assetId}`);
+      if (!result.success) return;
+
+      currentAsset = result.asset;
+      const panel = document.getElementById('detailPanel');
+
+      // Preview
+      document.getElementById('detailPreview').innerHTML = currentAsset.mimeType?.startsWith('image/')
+        ? `<img src="${currentAsset.url}" alt="${currentAsset.name}">`
+        : `<div style="text-align: center; padding: 2rem;"><i class="fas fa-file" style="font-size: 4rem; color: var(--gray);"></i></div>`;
+
+      // Info
+      document.getElementById('detailInfo').innerHTML = `
+        <div class="info-row"><span class="info-label">Name</span><span class="info-value">${currentAsset.name}</span></div>
+        <div class="info-row"><span class="info-label">Category</span><span class="info-value">${currentAsset.category}</span></div>
+        <div class="info-row"><span class="info-label">Size</span><span class="info-value">${formatBytes(currentAsset.size)}</span></div>
+        <div class="info-row"><span class="info-label">Type</span><span class="info-value">${currentAsset.mimeType}</span></div>
+        <div class="info-row"><span class="info-label">Uploaded</span><span class="info-value">${formatDate(currentAsset.createdAt)}</span></div>
+        <div class="info-row"><span class="info-label">Usage Count</span><span class="info-value">${currentAsset.usageCount || 0}</span></div>
+        <div class="info-row"><span class="info-label">Version</span><span class="info-value">${currentAsset.currentVersion || 1}</span></div>
+      `;
+
+      // Versions
+      if (currentAsset.versions?.length > 1) {
+        document.getElementById('versionHistory').innerHTML = `
+          <h4>Version History</h4>
+          ${currentAsset.versions.map(v => `
+            <div class="version-item">
+              <span class="version-badge ${v.version === currentAsset.currentVersion ? 'current' : ''}">v${v.version}</span>
+              <div>
+                <div>${formatDate(v.createdAt)}</div>
+                <div style="color: var(--gray);">${v.createdBy}</div>
+              </div>
+            </div>
+          `).join('')}
+        `;
+      } else {
+        document.getElementById('versionHistory').innerHTML = '';
+      }
+
+      panel.classList.add('active');
+    }
+
+    function closeDetailPanel() {
+      document.getElementById('detailPanel').classList.remove('active');
+      currentAsset = null;
+    }
+
+    function copyAssetUrl() {
+      if (!currentAsset) return;
+      navigator.clipboard.writeText(window.location.origin + currentAsset.url);
+      showToast('URL copied to clipboard', 'success');
+    }
+
+    async function deleteCurrentAsset() {
+      if (!currentAsset) return;
+      if (!confirm('Delete this asset?')) return;
+
+      const result = await apiCall(`/api/admin/media/${currentAsset.id}`, { method: 'DELETE' });
+      if (result.success) {
+        closeDetailPanel();
+        loadMedia();
+        loadStats();
+        showToast('Asset deleted', 'success');
+      } else {
+        showToast(result.error || 'Delete failed', 'error');
+      }
+    }
+
+    async function deleteAsset(assetId, event) {
+      event.stopPropagation();
+      if (!confirm('Delete this asset?')) return;
+
+      const result = await apiCall(`/api/admin/media/${assetId}`, { method: 'DELETE' });
+      if (result.success) {
+        loadMedia();
+        loadStats();
+        showToast('Asset deleted', 'success');
+      } else {
+        showToast(result.error || 'Delete failed', 'error');
+      }
+    }
+
+    // Sync filesystem
+    async function syncFilesystem() {
+      showToast('Syncing files...', '');
+      const result = await apiCall('/api/admin/media/sync', { method: 'POST' });
+      if (result.success) {
+        loadMedia();
+        loadStats();
+        showToast(`Sync complete: ${result.newAssets} new, ${result.orphanedAssets} orphaned`, 'success');
+      } else {
+        showToast('Sync failed', 'error');
+      }
+    }
+
+    // Helpers
+    function formatBytes(bytes) {
+      if (!bytes || bytes === 0) return '0 B';
+      const k = 1024;
+      const sizes = ['B', 'KB', 'MB', 'GB'];
+      const i = Math.floor(Math.log(bytes) / Math.log(k));
+      return parseFloat((bytes / Math.pow(k, i)).toFixed(1)) + ' ' + sizes[i];
+    }
+
+    function formatDate(dateStr) {
+      if (!dateStr) return '-';
+      return new Date(dateStr).toLocaleDateString('en-US', {
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric'
+      });
+    }
+
+    function showToast(message, type = '') {
+      const toast = document.getElementById('toast');
+      toast.textContent = message;
+      toast.className = 'toast show ' + type;
+      setTimeout(() => toast.classList.remove('show'), 3000);
+    }
+  </script>
+</body>
+</html>

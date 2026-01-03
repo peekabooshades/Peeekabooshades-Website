@@ -1,0 +1,753 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>System Configuration - Peekaboo Shades Admin</title>
+  <link rel="stylesheet" href="css/admin.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="icon" type="image/png" href="/images/favicon.png">
+  <style>
+    .config-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+      gap: 24px;
+    }
+
+    .config-section {
+      background: var(--admin-card);
+      border: 1px solid var(--admin-border);
+      border-radius: 12px;
+      padding: 24px;
+    }
+
+    .config-section h3 {
+      font-size: 16px;
+      font-weight: 600;
+      color: #202223;
+      margin-bottom: 20px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .config-section h3 i {
+      color: #8E6545;
+    }
+
+    .config-field {
+      margin-bottom: 20px;
+    }
+
+    .config-field label {
+      display: block;
+      font-size: 13px;
+      font-weight: 500;
+      color: #202223;
+      margin-bottom: 6px;
+    }
+
+    .config-field .hint {
+      font-size: 12px;
+      color: #6D7175;
+      margin-top: 4px;
+    }
+
+    .config-field input,
+    .config-field select {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid #C9CCCF;
+      border-radius: 8px;
+      font-size: 14px;
+    }
+
+    .config-field input:focus,
+    .config-field select:focus {
+      outline: none;
+      border-color: #8E6545;
+    }
+
+    .config-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    .toggle-field {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px;
+      background: #F6F6F7;
+      border-radius: 8px;
+      margin-bottom: 12px;
+    }
+
+    .toggle-field label {
+      margin-bottom: 0;
+    }
+
+    .toggle-switch {
+      position: relative;
+      width: 48px;
+      height: 24px;
+    }
+
+    .toggle-switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .toggle-slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: #C9CCCF;
+      transition: .3s;
+      border-radius: 24px;
+    }
+
+    .toggle-slider:before {
+      position: absolute;
+      content: "";
+      height: 18px;
+      width: 18px;
+      left: 3px;
+      bottom: 3px;
+      background-color: white;
+      transition: .3s;
+      border-radius: 50%;
+    }
+
+    input:checked + .toggle-slider {
+      background-color: #8E6545;
+    }
+
+    input:checked + .toggle-slider:before {
+      transform: translateX(24px);
+    }
+
+    .tax-rules-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 16px;
+    }
+
+    .tax-rules-table th,
+    .tax-rules-table td {
+      padding: 10px;
+      text-align: left;
+      border-bottom: 1px solid #E1E3E5;
+      font-size: 13px;
+    }
+
+    .tax-rules-table th {
+      background: #F6F6F7;
+      font-weight: 600;
+    }
+
+    .tax-rules-table input {
+      width: 100%;
+      padding: 6px 8px;
+      border: 1px solid #C9CCCF;
+      border-radius: 4px;
+      font-size: 13px;
+    }
+
+    .add-rule-btn {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 8px 16px;
+      background: none;
+      border: 1px dashed #8E6545;
+      color: #8E6545;
+      border-radius: 6px;
+      cursor: pointer;
+      margin-top: 12px;
+      font-size: 13px;
+    }
+
+    .add-rule-btn:hover {
+      background: rgba(142, 101, 69, 0.05);
+    }
+
+    .save-section {
+      display: flex;
+      justify-content: flex-end;
+      gap: 12px;
+      margin-top: 20px;
+      padding-top: 20px;
+      border-top: 1px solid #E1E3E5;
+    }
+
+    .btn-save {
+      padding: 10px 24px;
+      background: #8E6545;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+    }
+
+    .btn-save:hover {
+      background: #7A5539;
+    }
+
+    .btn-reset {
+      padding: 10px 24px;
+      background: none;
+      color: #6D7175;
+      border: 1px solid #C9CCCF;
+      border-radius: 8px;
+      font-size: 14px;
+      cursor: pointer;
+    }
+
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 500;
+    }
+
+    .status-badge.success {
+      background: #E3F1DF;
+      color: #008060;
+    }
+
+    .status-badge.warning {
+      background: #FFF5EA;
+      color: #B98900;
+    }
+
+    .audit-log {
+      background: #F6F6F7;
+      border-radius: 8px;
+      padding: 16px;
+      margin-top: 20px;
+    }
+
+    .audit-log h4 {
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 12px;
+    }
+
+    .audit-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 0;
+      border-bottom: 1px solid #E1E3E5;
+      font-size: 13px;
+    }
+
+    .audit-item:last-child {
+      border-bottom: none;
+    }
+
+    .audit-item .action {
+      color: #202223;
+    }
+
+    .audit-item .time {
+      color: #6D7175;
+    }
+  </style>
+</head>
+<body>
+  <div class="admin-layout">
+    <!-- Sidebar will be injected by admin.js -->
+    <aside class="admin-sidebar" id="adminSidebar"></aside>
+
+    <main class="admin-main">
+      <!-- Header -->
+      <header class="admin-header">
+        <div class="header-left">
+          <button class="menu-toggle" onclick="Admin.UI.toggleSidebar()">
+            <i class="fas fa-bars"></i>
+          </button>
+          <h1 class="page-title">System Configuration</h1>
+        </div>
+        <div class="header-right">
+          <span class="status-badge success" id="syncStatus">
+            <i class="fas fa-check-circle"></i> Synced
+          </span>
+        </div>
+      </header>
+
+      <!-- Content -->
+      <div class="admin-content">
+        <div class="page-header">
+          <div>
+            <h1>System Configuration</h1>
+            <p style="color: #6D7175; margin-top: 4px;">
+              Manage pricing, tax, shipping, and business rules. All changes are tracked in audit logs.
+            </p>
+          </div>
+        </div>
+
+        <div class="config-grid">
+          <!-- Pricing Configuration -->
+          <div class="config-section">
+            <h3><i class="fas fa-dollar-sign"></i> Pricing Configuration</h3>
+
+            <div class="config-field">
+              <label>Currency</label>
+              <div class="config-row">
+                <select id="currencyCode">
+                  <option value="USD">USD - US Dollar</option>
+                  <option value="CAD">CAD - Canadian Dollar</option>
+                  <option value="EUR">EUR - Euro</option>
+                  <option value="GBP">GBP - British Pound</option>
+                </select>
+                <input type="text" id="currencySymbol" placeholder="$" maxlength="3">
+              </div>
+            </div>
+
+            <div class="config-field">
+              <label>Base Square Inches (for pricing calculation)</label>
+              <input type="number" id="baseSquareInches" min="1" value="864">
+              <div class="hint">Standard window size used as base for pricing multiplier (default: 24" x 36" = 864)</div>
+            </div>
+
+            <div class="config-row">
+              <div class="config-field">
+                <label>Min Price Multiplier</label>
+                <input type="number" id="minMultiplier" min="0.1" step="0.1" value="1.0">
+              </div>
+              <div class="config-field">
+                <label>Max Price Multiplier</label>
+                <input type="number" id="maxMultiplier" min="1" step="0.5" value="10.0">
+              </div>
+            </div>
+
+            <div class="config-field">
+              <label>Extended Warranty Price</label>
+              <input type="number" id="warrantyPrice" min="0" step="0.01" value="15.00">
+            </div>
+
+            <div class="save-section">
+              <button class="btn-reset" onclick="loadConfig()">Reset</button>
+              <button class="btn-save" onclick="savePricingConfig()">
+                <i class="fas fa-save"></i> Save Pricing
+              </button>
+            </div>
+          </div>
+
+          <!-- Tax Configuration -->
+          <div class="config-section">
+            <h3><i class="fas fa-percentage"></i> Tax Configuration</h3>
+
+            <div class="toggle-field">
+              <label>Enable Tax Calculation</label>
+              <label class="toggle-switch">
+                <input type="checkbox" id="taxEnabled" checked>
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+
+            <div class="config-field">
+              <label>Default Tax Rate (%)</label>
+              <input type="number" id="defaultTaxRate" min="0" max="100" step="0.01" value="8">
+            </div>
+
+            <div class="config-field">
+              <label>Tax Rules by State</label>
+              <table class="tax-rules-table" id="taxRulesTable">
+                <thead>
+                  <tr>
+                    <th>State</th>
+                    <th>Rate (%)</th>
+                    <th>Name</th>
+                    <th></th>
+                  </tr>
+                </thead>
+                <tbody id="taxRulesBody">
+                  <!-- Tax rules will be loaded here -->
+                </tbody>
+              </table>
+              <button class="add-rule-btn" onclick="addTaxRule()">
+                <i class="fas fa-plus"></i> Add Tax Rule
+              </button>
+            </div>
+
+            <div class="save-section">
+              <button class="btn-reset" onclick="loadConfig()">Reset</button>
+              <button class="btn-save" onclick="saveTaxConfig()">
+                <i class="fas fa-save"></i> Save Tax Settings
+              </button>
+            </div>
+          </div>
+
+          <!-- Shipping Configuration -->
+          <div class="config-section">
+            <h3><i class="fas fa-truck"></i> Shipping Configuration</h3>
+
+            <div class="config-field">
+              <label>Free Shipping Threshold ($)</label>
+              <input type="number" id="freeShippingThreshold" min="0" step="1" value="499">
+              <div class="hint">Orders above this amount qualify for free shipping</div>
+            </div>
+
+            <div class="config-field">
+              <label>Default Shipping Rate ($)</label>
+              <input type="number" id="defaultShippingRate" min="0" step="0.01" value="9.99">
+            </div>
+
+            <div class="config-field">
+              <label>Calculation Type</label>
+              <select id="shippingCalcType">
+                <option value="threshold">Threshold (Free above amount)</option>
+                <option value="flat">Flat Rate</option>
+                <option value="weight">Weight-based</option>
+                <option value="zone">Zone-based</option>
+              </select>
+            </div>
+
+            <div class="save-section">
+              <button class="btn-reset" onclick="loadConfig()">Reset</button>
+              <button class="btn-save" onclick="saveShippingConfig()">
+                <i class="fas fa-save"></i> Save Shipping
+              </button>
+            </div>
+          </div>
+
+          <!-- Business Rules -->
+          <div class="config-section">
+            <h3><i class="fas fa-cogs"></i> Business Rules</h3>
+
+            <div class="config-row">
+              <div class="config-field">
+                <label>Min Order Value ($)</label>
+                <input type="number" id="minOrderValue" min="0" step="1" value="0">
+              </div>
+              <div class="config-field">
+                <label>Max Order Value ($)</label>
+                <input type="number" id="maxOrderValue" min="0" step="100" value="50000">
+              </div>
+            </div>
+
+            <div class="config-field">
+              <label>Lead Time (Days)</label>
+              <input type="number" id="leadTimeDays" min="1" step="1" value="7">
+              <div class="hint">Standard production lead time for custom products</div>
+            </div>
+
+            <div class="toggle-field">
+              <label>Enable Rush Orders</label>
+              <label class="toggle-switch">
+                <input type="checkbox" id="rushOrderEnabled">
+                <span class="toggle-slider"></span>
+              </label>
+            </div>
+
+            <div class="config-field">
+              <label>Rush Order Surcharge ($)</label>
+              <input type="number" id="rushOrderSurcharge" min="0" step="1" value="50">
+            </div>
+
+            <h4 style="margin: 24px 0 16px; font-size: 14px;">Product Dimension Limits</h4>
+
+            <div class="config-row">
+              <div class="config-field">
+                <label>Min Width (inches)</label>
+                <input type="number" id="minWidth" min="1" step="1" value="12">
+              </div>
+              <div class="config-field">
+                <label>Max Width (inches)</label>
+                <input type="number" id="maxWidth" min="1" step="1" value="144">
+              </div>
+            </div>
+
+            <div class="config-row">
+              <div class="config-field">
+                <label>Min Height (inches)</label>
+                <input type="number" id="minHeight" min="1" step="1" value="12">
+              </div>
+              <div class="config-field">
+                <label>Max Height (inches)</label>
+                <input type="number" id="maxHeight" min="1" step="1" value="120">
+              </div>
+            </div>
+
+            <div class="save-section">
+              <button class="btn-reset" onclick="loadConfig()">Reset</button>
+              <button class="btn-save" onclick="saveBusinessRules()">
+                <i class="fas fa-save"></i> Save Business Rules
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Recent Audit Log -->
+        <div class="config-section" style="margin-top: 24px;">
+          <h3><i class="fas fa-history"></i> Recent Configuration Changes</h3>
+          <div id="auditLogContainer">
+            <p style="color: #6D7175; font-size: 13px;">Loading audit log...</p>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="js/admin.js"></script>
+  <script>
+    let currentConfig = {};
+
+    document.addEventListener('DOMContentLoaded', () => {
+      Admin.Auth.requireAuth();
+      loadConfig();
+      loadAuditLog();
+    });
+
+    async function loadConfig() {
+      try {
+        const response = await Admin.API.get('/system-config');
+        if (response.success) {
+          currentConfig = response.data;
+          populateForm(currentConfig);
+        }
+      } catch (error) {
+        console.error('Error loading config:', error);
+        Admin.UI.showToast('Error loading configuration', 'error');
+      }
+    }
+
+    function populateForm(config) {
+      // Pricing
+      document.getElementById('currencyCode').value = config.pricing?.currency?.code || 'USD';
+      document.getElementById('currencySymbol').value = config.pricing?.currency?.symbol || '$';
+      document.getElementById('baseSquareInches').value = config.pricing?.dimensionMultiplier?.baseSquareInches || 864;
+      document.getElementById('minMultiplier').value = config.pricing?.dimensionMultiplier?.minimumMultiplier || 1.0;
+      document.getElementById('maxMultiplier').value = config.pricing?.dimensionMultiplier?.maximumMultiplier || 10.0;
+      document.getElementById('warrantyPrice').value = config.pricing?.warranty?.extended?.price || 15.00;
+
+      // Tax
+      document.getElementById('taxEnabled').checked = config.tax?.enabled !== false;
+      document.getElementById('defaultTaxRate').value = (config.tax?.defaultRate || 0.08) * 100;
+      renderTaxRules(config.tax?.rules || []);
+
+      // Shipping
+      document.getElementById('freeShippingThreshold').value = config.shipping?.freeShippingThreshold || 499;
+      document.getElementById('defaultShippingRate').value = config.shipping?.defaultRate || 9.99;
+      document.getElementById('shippingCalcType').value = config.shipping?.calculationType || 'threshold';
+
+      // Business Rules
+      document.getElementById('minOrderValue').value = config.businessRules?.minimumOrderValue || 0;
+      document.getElementById('maxOrderValue').value = config.businessRules?.maximumOrderValue || 50000;
+      document.getElementById('leadTimeDays').value = config.businessRules?.leadTimeDays || 7;
+      document.getElementById('rushOrderEnabled').checked = config.businessRules?.rushOrderEnabled || false;
+      document.getElementById('rushOrderSurcharge').value = config.businessRules?.rushOrderSurcharge || 50;
+      document.getElementById('minWidth').value = config.products?.dimensions?.width?.min || 12;
+      document.getElementById('maxWidth').value = config.products?.dimensions?.width?.max || 144;
+      document.getElementById('minHeight').value = config.products?.dimensions?.height?.min || 12;
+      document.getElementById('maxHeight').value = config.products?.dimensions?.height?.max || 120;
+    }
+
+    function renderTaxRules(rules) {
+      const tbody = document.getElementById('taxRulesBody');
+      tbody.innerHTML = rules.map((rule, index) => `
+        <tr>
+          <td><input type="text" value="${rule.region}" data-index="${index}" data-field="region" onchange="updateTaxRule(this)"></td>
+          <td><input type="number" value="${(rule.rate * 100).toFixed(2)}" step="0.01" data-index="${index}" data-field="rate" onchange="updateTaxRule(this)"></td>
+          <td><input type="text" value="${rule.name}" data-index="${index}" data-field="name" onchange="updateTaxRule(this)"></td>
+          <td><button onclick="removeTaxRule(${index})" style="color: #D72C0D; background: none; border: none; cursor: pointer;"><i class="fas fa-trash"></i></button></td>
+        </tr>
+      `).join('');
+    }
+
+    function updateTaxRule(input) {
+      const index = parseInt(input.dataset.index);
+      const field = input.dataset.field;
+      let value = input.value;
+
+      if (field === 'rate') {
+        value = parseFloat(value) / 100;
+      }
+
+      if (!currentConfig.tax) currentConfig.tax = {};
+      if (!currentConfig.tax.rules) currentConfig.tax.rules = [];
+      if (!currentConfig.tax.rules[index]) currentConfig.tax.rules[index] = {};
+
+      currentConfig.tax.rules[index][field] = value;
+    }
+
+    function addTaxRule() {
+      if (!currentConfig.tax) currentConfig.tax = {};
+      if (!currentConfig.tax.rules) currentConfig.tax.rules = [];
+
+      currentConfig.tax.rules.push({
+        region: 'XX',
+        rate: 0.05,
+        name: 'New Tax Rule'
+      });
+
+      renderTaxRules(currentConfig.tax.rules);
+    }
+
+    function removeTaxRule(index) {
+      currentConfig.tax.rules.splice(index, 1);
+      renderTaxRules(currentConfig.tax.rules);
+    }
+
+    async function savePricingConfig() {
+      const data = {
+        currency: {
+          code: document.getElementById('currencyCode').value,
+          symbol: document.getElementById('currencySymbol').value,
+          decimalPlaces: 2
+        },
+        dimensionMultiplier: {
+          baseSquareInches: parseInt(document.getElementById('baseSquareInches').value),
+          minimumMultiplier: parseFloat(document.getElementById('minMultiplier').value),
+          maximumMultiplier: parseFloat(document.getElementById('maxMultiplier').value)
+        },
+        warranty: {
+          extended: {
+            price: parseFloat(document.getElementById('warrantyPrice').value),
+            duration: '5 years',
+            enabled: true
+          }
+        }
+      };
+
+      try {
+        const response = await Admin.API.put('/system-config/pricing', data);
+        if (response.success) {
+          Admin.UI.showToast('Pricing configuration saved', 'success');
+          updateSyncStatus('success');
+          loadAuditLog();
+        }
+      } catch (error) {
+        Admin.UI.showToast('Error saving pricing config', 'error');
+        updateSyncStatus('warning');
+      }
+    }
+
+    async function saveTaxConfig() {
+      const data = {
+        enabled: document.getElementById('taxEnabled').checked,
+        defaultRate: parseFloat(document.getElementById('defaultTaxRate').value) / 100,
+        rules: currentConfig.tax?.rules || []
+      };
+
+      try {
+        const response = await Admin.API.put('/system-config/tax', data);
+        if (response.success) {
+          Admin.UI.showToast('Tax configuration saved', 'success');
+          updateSyncStatus('success');
+          loadAuditLog();
+        }
+      } catch (error) {
+        Admin.UI.showToast('Error saving tax config', 'error');
+        updateSyncStatus('warning');
+      }
+    }
+
+    async function saveShippingConfig() {
+      const data = {
+        freeShippingThreshold: parseFloat(document.getElementById('freeShippingThreshold').value),
+        defaultRate: parseFloat(document.getElementById('defaultShippingRate').value),
+        calculationType: document.getElementById('shippingCalcType').value
+      };
+
+      try {
+        const response = await Admin.API.put('/system-config/shipping', data);
+        if (response.success) {
+          Admin.UI.showToast('Shipping configuration saved', 'success');
+          updateSyncStatus('success');
+          loadAuditLog();
+        }
+      } catch (error) {
+        Admin.UI.showToast('Error saving shipping config', 'error');
+        updateSyncStatus('warning');
+      }
+    }
+
+    async function saveBusinessRules() {
+      const data = {
+        minimumOrderValue: parseFloat(document.getElementById('minOrderValue').value),
+        maximumOrderValue: parseFloat(document.getElementById('maxOrderValue').value),
+        leadTimeDays: parseInt(document.getElementById('leadTimeDays').value),
+        rushOrderEnabled: document.getElementById('rushOrderEnabled').checked,
+        rushOrderSurcharge: parseFloat(document.getElementById('rushOrderSurcharge').value)
+      };
+
+      // Also save product dimension limits
+      const productsConfig = {
+        dimensions: {
+          width: {
+            min: parseInt(document.getElementById('minWidth').value),
+            max: parseInt(document.getElementById('maxWidth').value),
+            unit: 'inches'
+          },
+          height: {
+            min: parseInt(document.getElementById('minHeight').value),
+            max: parseInt(document.getElementById('maxHeight').value),
+            unit: 'inches'
+          }
+        }
+      };
+
+      try {
+        const [rulesResponse] = await Promise.all([
+          Admin.API.put('/system-config/business-rules', data)
+        ]);
+
+        if (rulesResponse.success) {
+          Admin.UI.showToast('Business rules saved', 'success');
+          updateSyncStatus('success');
+          loadAuditLog();
+        }
+      } catch (error) {
+        Admin.UI.showToast('Error saving business rules', 'error');
+        updateSyncStatus('warning');
+      }
+    }
+
+    function updateSyncStatus(status) {
+      const badge = document.getElementById('syncStatus');
+      if (status === 'success') {
+        badge.innerHTML = '<i class="fas fa-check-circle"></i> Synced';
+        badge.className = 'status-badge success';
+      } else {
+        badge.innerHTML = '<i class="fas fa-exclamation-circle"></i> Sync Error';
+        badge.className = 'status-badge warning';
+      }
+    }
+
+    async function loadAuditLog() {
+      try {
+        const response = await Admin.API.get('/audit-logs?actionPrefix=config&limit=10');
+        if (response.success && response.data.length > 0) {
+          const container = document.getElementById('auditLogContainer');
+          container.innerHTML = response.data.map(log => `
+            <div class="audit-item">
+              <span class="action">
+                <strong>${log.actor?.email || 'System'}</strong> updated ${log.resource?.id || 'configuration'}
+              </span>
+              <span class="time">${new Date(log.timestamp).toLocaleString()}</span>
+            </div>
+          `).join('');
+        } else {
+          document.getElementById('auditLogContainer').innerHTML =
+            '<p style="color: #6D7175; font-size: 13px;">No configuration changes recorded yet.</p>';
+        }
+      } catch (error) {
+        console.error('Error loading audit log:', error);
+      }
+    }
+  </script>
+</body>
+</html>

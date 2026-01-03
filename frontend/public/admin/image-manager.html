@@ -1,0 +1,1083 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Image Manager - Peekaboo Shades Admin</title>
+  <link rel="stylesheet" href="css/admin.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="icon" type="image/png" href="/images/favicon.png">
+  <style>
+    .image-manager-layout {
+      display: grid;
+      grid-template-columns: 240px 1fr;
+      gap: 24px;
+      min-height: calc(100vh - 140px);
+    }
+
+    /* Sidebar */
+    .image-sidebar {
+      background: var(--admin-card);
+      border: 1px solid var(--admin-border);
+      border-radius: 12px;
+      padding: 20px;
+      height: fit-content;
+      position: sticky;
+      top: 24px;
+    }
+
+    .sidebar-title {
+      font-size: 12px;
+      text-transform: uppercase;
+      color: #888;
+      margin-bottom: 12px;
+    }
+
+    .folder-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      border-radius: 8px;
+      cursor: pointer;
+      color: #555;
+      transition: all 0.2s;
+    }
+
+    .folder-item:hover {
+      background: #f3f4f6;
+    }
+
+    .folder-item.active {
+      background: #8E6545;
+      color: white;
+    }
+
+    .folder-item i {
+      width: 18px;
+    }
+
+    .folder-item .count {
+      margin-left: auto;
+      background: rgba(0,0,0,0.1);
+      padding: 2px 8px;
+      border-radius: 10px;
+      font-size: 11px;
+    }
+
+    .folder-item.active .count {
+      background: rgba(255,255,255,0.2);
+    }
+
+    /* Main Content */
+    .image-content {
+      display: flex;
+      flex-direction: column;
+      gap: 20px;
+    }
+
+    /* Toolbar */
+    .image-toolbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: var(--admin-card);
+      border: 1px solid var(--admin-border);
+      border-radius: 12px;
+      padding: 16px 20px;
+    }
+
+    .toolbar-left {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .search-box {
+      display: flex;
+      align-items: center;
+      background: #f3f4f6;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      padding: 8px 12px;
+      width: 280px;
+    }
+
+    .search-box input {
+      border: none;
+      background: none;
+      outline: none;
+      flex: 1;
+      font-size: 14px;
+    }
+
+    .search-box i {
+      color: #9ca3af;
+    }
+
+    .view-toggle {
+      display: flex;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    .view-toggle button {
+      padding: 8px 12px;
+      background: white;
+      border: none;
+      cursor: pointer;
+      color: #666;
+    }
+
+    .view-toggle button.active {
+      background: #8E6545;
+      color: white;
+    }
+
+    .toolbar-right {
+      display: flex;
+      gap: 12px;
+    }
+
+    /* Upload Zone */
+    .upload-zone {
+      background: var(--admin-card);
+      border: 2px dashed #d1d5db;
+      border-radius: 12px;
+      padding: 40px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .upload-zone:hover, .upload-zone.dragover {
+      border-color: #8E6545;
+      background: #fdf8f5;
+    }
+
+    .upload-zone i {
+      font-size: 48px;
+      color: #9ca3af;
+      margin-bottom: 16px;
+    }
+
+    .upload-zone h3 {
+      color: #374151;
+      margin-bottom: 8px;
+    }
+
+    .upload-zone p {
+      color: #9ca3af;
+      font-size: 14px;
+    }
+
+    /* Image Grid */
+    .image-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 20px;
+    }
+
+    .image-grid.list-view {
+      grid-template-columns: 1fr;
+    }
+
+    .image-card {
+      background: var(--admin-card);
+      border: 1px solid var(--admin-border);
+      border-radius: 12px;
+      overflow: hidden;
+      position: relative;
+      transition: all 0.2s;
+    }
+
+    .image-card:hover {
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+      transform: translateY(-2px);
+    }
+
+    .image-card.selected {
+      border-color: #8E6545;
+      box-shadow: 0 0 0 2px rgba(142, 101, 69, 0.3);
+    }
+
+    .image-card .checkbox {
+      position: absolute;
+      top: 12px;
+      left: 12px;
+      width: 22px;
+      height: 22px;
+      background: white;
+      border: 2px solid #d1d5db;
+      border-radius: 6px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 10;
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+
+    .image-card:hover .checkbox, .image-card.selected .checkbox {
+      opacity: 1;
+    }
+
+    .image-card.selected .checkbox {
+      background: #8E6545;
+      border-color: #8E6545;
+      color: white;
+    }
+
+    .image-preview {
+      height: 140px;
+      background: #f3f4f6;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+    }
+
+    .image-preview img {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+    }
+
+    .image-info {
+      padding: 12px;
+    }
+
+    .image-name {
+      font-size: 13px;
+      font-weight: 500;
+      color: #1a1a1a;
+      word-break: break-all;
+      margin-bottom: 4px;
+    }
+
+    .image-meta {
+      font-size: 11px;
+      color: #9ca3af;
+    }
+
+    .image-actions {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      display: flex;
+      gap: 6px;
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+
+    .image-card:hover .image-actions {
+      opacity: 1;
+    }
+
+    .image-actions button {
+      width: 28px;
+      height: 28px;
+      border-radius: 6px;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+    }
+
+    .btn-copy {
+      background: rgba(255,255,255,0.9);
+      color: #374151;
+    }
+
+    .btn-delete {
+      background: rgba(220, 53, 69, 0.9);
+      color: white;
+    }
+
+    /* List View */
+    .image-grid.list-view .image-card {
+      display: flex;
+      align-items: center;
+    }
+
+    .image-grid.list-view .image-preview {
+      width: 80px;
+      height: 60px;
+      flex-shrink: 0;
+    }
+
+    .image-grid.list-view .image-info {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .image-grid.list-view .checkbox {
+      position: relative;
+      top: auto;
+      left: auto;
+      margin-left: 12px;
+      opacity: 1;
+    }
+
+    .image-grid.list-view .image-actions {
+      position: relative;
+      top: auto;
+      right: auto;
+      opacity: 1;
+      margin-right: 12px;
+    }
+
+    /* Selection Bar */
+    .selection-bar {
+      position: fixed;
+      bottom: 0;
+      left: 280px;
+      right: 0;
+      background: #1a1a1a;
+      color: white;
+      padding: 16px 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transform: translateY(100%);
+      transition: transform 0.3s;
+      z-index: 100;
+    }
+
+    .selection-bar.show {
+      transform: translateY(0);
+    }
+
+    .selection-info {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .selection-actions {
+      display: flex;
+      gap: 12px;
+    }
+
+    /* Modal */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.7);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+
+    .modal-overlay.show {
+      display: flex;
+    }
+
+    .image-modal {
+      background: white;
+      border-radius: 12px;
+      width: 90%;
+      max-width: 900px;
+      max-height: 90vh;
+      display: flex;
+      overflow: hidden;
+    }
+
+    .modal-image-preview {
+      flex: 1;
+      background: #1a1a1a;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+
+    .modal-image-preview img {
+      max-width: 100%;
+      max-height: 70vh;
+      object-fit: contain;
+    }
+
+    .modal-sidebar {
+      width: 300px;
+      padding: 24px;
+      border-left: 1px solid #e5e7eb;
+    }
+
+    .modal-close {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      width: 40px;
+      height: 40px;
+      background: rgba(255,255,255,0.1);
+      border: none;
+      border-radius: 50%;
+      color: white;
+      font-size: 20px;
+      cursor: pointer;
+    }
+
+    /* Buttons */
+    .btn {
+      padding: 10px 18px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.2s;
+    }
+
+    .btn-primary {
+      background: #8E6545;
+      color: white;
+      border: none;
+    }
+
+    .btn-primary:hover {
+      background: #7a5539;
+    }
+
+    .btn-secondary {
+      background: white;
+      color: #374151;
+      border: 1px solid #d1d5db;
+    }
+
+    .btn-danger {
+      background: #dc3545;
+      color: white;
+      border: none;
+    }
+
+    /* Toast */
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      padding: 16px 24px;
+      background: #1a1a1a;
+      color: white;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      z-index: 1000;
+      transform: translateY(100px);
+      opacity: 0;
+      transition: all 0.3s;
+    }
+
+    .toast.show {
+      transform: translateY(0);
+      opacity: 1;
+    }
+
+    .toast.success { background: #28a745; }
+    .toast.error { background: #dc3545; }
+
+    /* Loading */
+    .loading {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 60px;
+      color: #9ca3af;
+    }
+
+    .loading i {
+      font-size: 32px;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+
+    /* Progress */
+    .upload-progress {
+      margin-top: 16px;
+      display: none;
+    }
+
+    .upload-progress.show {
+      display: block;
+    }
+
+    .progress-bar {
+      height: 8px;
+      background: #e5e7eb;
+      border-radius: 4px;
+      overflow: hidden;
+    }
+
+    .progress-fill {
+      height: 100%;
+      background: #8E6545;
+      width: 0%;
+      transition: width 0.3s;
+    }
+  </style>
+</head>
+<body>
+  <div class="admin-layout">
+    <!-- Sidebar -->
+    <aside class="admin-sidebar">
+      <div class="sidebar-header">
+        <a href="/admin/" class="sidebar-logo">
+          <img src="/images/logo.png" alt="Logo" onerror="this.style.display='none'">
+          <span>Peekaboo Shades</span>
+        </a>
+      </div>
+
+      <nav class="sidebar-nav">
+        <div class="nav-section">
+          <a href="/admin/" class="nav-item">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+            </svg>
+            <span>Dashboard</span>
+          </a>
+        </div>
+
+        <div class="nav-section">
+          <div class="nav-section-title">Catalog</div>
+          <a href="/admin/products.html" class="nav-item">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+            </svg>
+            <span>Products</span>
+          </a>
+          <a href="/admin/fabrics.html" class="nav-item">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
+            <span>Fabrics</span>
+          </a>
+        </div>
+
+        <div class="nav-section">
+          <div class="nav-section-title">Content</div>
+          <a href="/admin/product-content.html" class="nav-item">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+            </svg>
+            <span>Product Content</span>
+          </a>
+          <a href="/admin/product-page-editor.html" class="nav-item">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5z" />
+            </svg>
+            <span>Page Editor</span>
+          </a>
+        </div>
+
+        <div class="nav-section">
+          <div class="nav-section-title">Appearance</div>
+          <a href="/admin/theme-settings.html" class="nav-item">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" />
+            </svg>
+            <span>Theme & Colors</span>
+          </a>
+          <a href="/admin/image-manager.html" class="nav-item active">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
+            <span>Image Manager</span>
+          </a>
+        </div>
+      </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="admin-main">
+      <header class="admin-header">
+        <div class="header-left">
+          <div class="breadcrumb">
+            <a href="/admin/">Dashboard</a>
+            <span class="breadcrumb-separator">/</span>
+            <span class="breadcrumb-current">Image Manager</span>
+          </div>
+        </div>
+      </header>
+
+      <div class="admin-content">
+        <div class="page-header" style="margin-bottom: 24px;">
+          <h1 class="page-title">Image Manager</h1>
+          <p style="color: #6b7280; margin-top: 4px;">Upload, organize, and manage all your images</p>
+        </div>
+
+        <div class="image-manager-layout">
+          <!-- Sidebar Folders -->
+          <div class="image-sidebar">
+            <div class="sidebar-title">Folders</div>
+            <div class="folder-item active" onclick="selectFolder('all')">
+              <i class="fas fa-images"></i>
+              <span>All Images</span>
+              <span class="count" id="count-all">0</span>
+            </div>
+            <div class="folder-item" onclick="selectFolder('uploads')">
+              <i class="fas fa-cloud-upload-alt"></i>
+              <span>Uploads</span>
+              <span class="count" id="count-uploads">0</span>
+            </div>
+            <div class="folder-item" onclick="selectFolder('products')">
+              <i class="fas fa-box"></i>
+              <span>Products</span>
+              <span class="count" id="count-products">0</span>
+            </div>
+            <div class="folder-item" onclick="selectFolder('fabrics')">
+              <i class="fas fa-swatchbook"></i>
+              <span>Fabrics</span>
+              <span class="count" id="count-fabrics">0</span>
+            </div>
+            <div class="folder-item" onclick="selectFolder('hardware')">
+              <i class="fas fa-cogs"></i>
+              <span>Hardware</span>
+              <span class="count" id="count-hardware">0</span>
+            </div>
+
+            <div style="margin-top: 24px; padding-top: 16px; border-top: 1px solid #e5e7eb;">
+              <div class="sidebar-title">Storage</div>
+              <div style="font-size: 13px; color: #666;">
+                <span id="totalImages">0</span> images
+              </div>
+              <div style="font-size: 12px; color: #9ca3af; margin-top: 4px;">
+                <span id="totalSize">0 MB</span> used
+              </div>
+            </div>
+          </div>
+
+          <!-- Main Content -->
+          <div class="image-content">
+            <!-- Toolbar -->
+            <div class="image-toolbar">
+              <div class="toolbar-left">
+                <div class="search-box">
+                  <i class="fas fa-search"></i>
+                  <input type="text" placeholder="Search images..." id="searchInput" oninput="filterImages()">
+                </div>
+                <div class="view-toggle">
+                  <button class="active" onclick="setView('grid')" title="Grid View">
+                    <i class="fas fa-th"></i>
+                  </button>
+                  <button onclick="setView('list')" title="List View">
+                    <i class="fas fa-list"></i>
+                  </button>
+                </div>
+              </div>
+              <div class="toolbar-right">
+                <button class="btn btn-primary" onclick="document.getElementById('fileInput').click()">
+                  <i class="fas fa-upload"></i> Upload Images
+                </button>
+                <input type="file" id="fileInput" multiple accept="image/*" style="display:none" onchange="handleFileSelect(this.files)">
+              </div>
+            </div>
+
+            <!-- Upload Zone -->
+            <div class="upload-zone" id="uploadZone" onclick="document.getElementById('fileInput').click()">
+              <i class="fas fa-cloud-upload-alt"></i>
+              <h3>Drop images here or click to upload</h3>
+              <p>Supports: JPG, PNG, GIF, WebP, SVG (max 5MB each)</p>
+              <div class="upload-progress" id="uploadProgress">
+                <div class="progress-bar">
+                  <div class="progress-fill" id="progressFill"></div>
+                </div>
+                <p style="margin-top: 8px; font-size: 13px;" id="uploadStatus">Uploading...</p>
+              </div>
+            </div>
+
+            <!-- Image Grid -->
+            <div class="image-grid" id="imageGrid">
+              <div class="loading">
+                <i class="fas fa-spinner"></i>
+                <p style="margin-top: 12px;">Loading images...</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Selection Bar -->
+  <div class="selection-bar" id="selectionBar">
+    <div class="selection-info">
+      <span><span id="selectedCount">0</span> images selected</span>
+      <button class="btn btn-secondary" onclick="selectAll()">Select All</button>
+      <button class="btn btn-secondary" onclick="clearSelection()">Clear</button>
+    </div>
+    <div class="selection-actions">
+      <button class="btn btn-danger" onclick="deleteSelected()">
+        <i class="fas fa-trash"></i> Delete Selected
+      </button>
+    </div>
+  </div>
+
+  <!-- Image Preview Modal -->
+  <div class="modal-overlay" id="imageModal">
+    <button class="modal-close" onclick="closeModal()">&times;</button>
+    <div class="image-modal">
+      <div class="modal-image-preview">
+        <img id="modalImage" src="" alt="">
+      </div>
+      <div class="modal-sidebar">
+        <h3 style="margin-bottom: 20px;">Image Details</h3>
+        <div style="margin-bottom: 16px;">
+          <label style="font-size: 12px; color: #888; display: block; margin-bottom: 4px;">Filename</label>
+          <p id="modalFilename" style="font-weight: 500; word-break: break-all;"></p>
+        </div>
+        <div style="margin-bottom: 16px;">
+          <label style="font-size: 12px; color: #888; display: block; margin-bottom: 4px;">URL</label>
+          <div style="display: flex; gap: 8px;">
+            <input type="text" id="modalUrl" class="form-input" readonly style="flex: 1; font-size: 12px;">
+            <button class="btn btn-secondary" onclick="copyUrl()" style="padding: 8px 12px;">
+              <i class="fas fa-copy"></i>
+            </button>
+          </div>
+        </div>
+        <div style="margin-bottom: 16px;">
+          <label style="font-size: 12px; color: #888; display: block; margin-bottom: 4px;">Size</label>
+          <p id="modalSize"></p>
+        </div>
+        <div style="margin-bottom: 24px;">
+          <label style="font-size: 12px; color: #888; display: block; margin-bottom: 4px;">Modified</label>
+          <p id="modalModified"></p>
+        </div>
+        <button class="btn btn-danger" onclick="deleteCurrentImage()" style="width: 100%;">
+          <i class="fas fa-trash"></i> Delete Image
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div class="toast" id="toast">
+    <i class="fas fa-check-circle"></i>
+    <span id="toastMessage">Success!</span>
+  </div>
+
+  <script>
+    const token = localStorage.getItem('adminToken');
+    if (!token) window.location.href = '/admin/login.html';
+
+    let allImages = [];
+    let selectedImages = new Set();
+    let currentFolder = 'all';
+    let currentView = 'grid';
+    let currentImage = null;
+
+    // API helper
+    async function api(endpoint, method = 'GET', body = null) {
+      const options = {
+        method,
+        headers: { 'Authorization': `Bearer ${token}` }
+      };
+      if (body && !(body instanceof FormData)) {
+        options.headers['Content-Type'] = 'application/json';
+        options.body = JSON.stringify(body);
+      } else if (body) {
+        options.body = body;
+      }
+      return fetch(endpoint, options).then(r => r.json());
+    }
+
+    // Toast
+    function showToast(message, type = 'success') {
+      const toast = document.getElementById('toast');
+      document.getElementById('toastMessage').textContent = message;
+      toast.className = `toast ${type} show`;
+      setTimeout(() => toast.classList.remove('show'), 3000);
+    }
+
+    // Load images
+    async function loadImages() {
+      try {
+        const result = await api('/api/admin/images');
+        if (result.success) {
+          allImages = result.uploadedFiles || [];
+          updateCounts();
+          renderImages();
+        }
+      } catch (error) {
+        console.error('Error loading images:', error);
+      }
+    }
+
+    // Update folder counts
+    function updateCounts() {
+      document.getElementById('count-all').textContent = allImages.length;
+      document.getElementById('count-uploads').textContent = allImages.length;
+      document.getElementById('totalImages').textContent = allImages.length;
+
+      const totalSize = allImages.reduce((sum, img) => sum + (img.size || 0), 0);
+      document.getElementById('totalSize').textContent = formatSize(totalSize);
+    }
+
+    // Format file size
+    function formatSize(bytes) {
+      if (bytes < 1024) return bytes + ' B';
+      if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + ' KB';
+      return (bytes / (1024 * 1024)).toFixed(2) + ' MB';
+    }
+
+    // Render images
+    function renderImages() {
+      const grid = document.getElementById('imageGrid');
+      const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+
+      let filtered = allImages;
+      if (searchTerm) {
+        filtered = allImages.filter(img => img.filename.toLowerCase().includes(searchTerm));
+      }
+
+      if (filtered.length === 0) {
+        grid.innerHTML = `
+          <div style="grid-column: 1/-1; text-align: center; padding: 60px; color: #9ca3af;">
+            <i class="fas fa-images" style="font-size: 48px; margin-bottom: 16px;"></i>
+            <p>No images found</p>
+          </div>
+        `;
+        return;
+      }
+
+      grid.innerHTML = filtered.map(img => `
+        <div class="image-card ${selectedImages.has(img.filename) ? 'selected' : ''}" data-filename="${img.filename}">
+          <div class="checkbox" onclick="toggleSelect('${img.filename}', event)">
+            ${selectedImages.has(img.filename) ? '<i class="fas fa-check"></i>' : ''}
+          </div>
+          <div class="image-actions">
+            <button class="btn-copy" onclick="copyImageUrl('${img.url}', event)" title="Copy URL">
+              <i class="fas fa-link"></i>
+            </button>
+            <button class="btn-delete" onclick="deleteImage('${img.filename}', event)" title="Delete">
+              <i class="fas fa-trash"></i>
+            </button>
+          </div>
+          <div class="image-preview" onclick="openPreview('${img.filename}')">
+            <img src="${img.url}" alt="${img.filename}" loading="lazy">
+          </div>
+          <div class="image-info">
+            <div class="image-name">${img.filename}</div>
+            <div class="image-meta">${formatSize(img.size)}</div>
+          </div>
+        </div>
+      `).join('');
+
+      grid.className = `image-grid ${currentView === 'list' ? 'list-view' : ''}`;
+    }
+
+    // Filter images
+    function filterImages() {
+      renderImages();
+    }
+
+    // Select folder
+    function selectFolder(folder) {
+      currentFolder = folder;
+      document.querySelectorAll('.folder-item').forEach(f => f.classList.remove('active'));
+      event.target.closest('.folder-item').classList.add('active');
+      renderImages();
+    }
+
+    // Toggle view
+    function setView(view) {
+      currentView = view;
+      document.querySelectorAll('.view-toggle button').forEach(b => b.classList.remove('active'));
+      event.target.classList.add('active');
+      renderImages();
+    }
+
+    // Toggle select image
+    function toggleSelect(filename, event) {
+      event.stopPropagation();
+      if (selectedImages.has(filename)) {
+        selectedImages.delete(filename);
+      } else {
+        selectedImages.add(filename);
+      }
+      updateSelectionUI();
+      renderImages();
+    }
+
+    // Update selection UI
+    function updateSelectionUI() {
+      const bar = document.getElementById('selectionBar');
+      const count = document.getElementById('selectedCount');
+      if (selectedImages.size > 0) {
+        bar.classList.add('show');
+        count.textContent = selectedImages.size;
+      } else {
+        bar.classList.remove('show');
+      }
+    }
+
+    // Select all
+    function selectAll() {
+      allImages.forEach(img => selectedImages.add(img.filename));
+      updateSelectionUI();
+      renderImages();
+    }
+
+    // Clear selection
+    function clearSelection() {
+      selectedImages.clear();
+      updateSelectionUI();
+      renderImages();
+    }
+
+    // Delete selected
+    async function deleteSelected() {
+      if (!confirm(`Delete ${selectedImages.size} images?`)) return;
+
+      for (const filename of selectedImages) {
+        await api(`/api/admin/images/file/${filename}`, 'DELETE');
+      }
+
+      showToast(`${selectedImages.size} images deleted`);
+      selectedImages.clear();
+      updateSelectionUI();
+      loadImages();
+    }
+
+    // Copy image URL
+    function copyImageUrl(url, event) {
+      event.stopPropagation();
+      navigator.clipboard.writeText(window.location.origin + url);
+      showToast('URL copied to clipboard!');
+    }
+
+    // Delete single image
+    async function deleteImage(filename, event) {
+      event.stopPropagation();
+      if (!confirm('Delete this image?')) return;
+
+      try {
+        await api(`/api/admin/images/file/${filename}`, 'DELETE');
+        showToast('Image deleted!');
+        loadImages();
+      } catch (error) {
+        showToast('Error deleting image', 'error');
+      }
+    }
+
+    // Open preview modal
+    function openPreview(filename) {
+      currentImage = allImages.find(img => img.filename === filename);
+      if (!currentImage) return;
+
+      document.getElementById('modalImage').src = currentImage.url;
+      document.getElementById('modalFilename').textContent = currentImage.filename;
+      document.getElementById('modalUrl').value = window.location.origin + currentImage.url;
+      document.getElementById('modalSize').textContent = formatSize(currentImage.size);
+      document.getElementById('modalModified').textContent = new Date(currentImage.modified).toLocaleString();
+      document.getElementById('imageModal').classList.add('show');
+    }
+
+    // Close modal
+    function closeModal() {
+      document.getElementById('imageModal').classList.remove('show');
+      currentImage = null;
+    }
+
+    // Copy URL from modal
+    function copyUrl() {
+      const input = document.getElementById('modalUrl');
+      input.select();
+      navigator.clipboard.writeText(input.value);
+      showToast('URL copied!');
+    }
+
+    // Delete current image from modal
+    async function deleteCurrentImage() {
+      if (!currentImage) return;
+      if (!confirm('Delete this image?')) return;
+
+      try {
+        await api(`/api/admin/images/file/${currentImage.filename}`, 'DELETE');
+        showToast('Image deleted!');
+        closeModal();
+        loadImages();
+      } catch (error) {
+        showToast('Error deleting image', 'error');
+      }
+    }
+
+    // File upload handling
+    const uploadZone = document.getElementById('uploadZone');
+
+    uploadZone.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      uploadZone.classList.add('dragover');
+    });
+
+    uploadZone.addEventListener('dragleave', () => {
+      uploadZone.classList.remove('dragover');
+    });
+
+    uploadZone.addEventListener('drop', (e) => {
+      e.preventDefault();
+      uploadZone.classList.remove('dragover');
+      handleFileSelect(e.dataTransfer.files);
+    });
+
+    async function handleFileSelect(files) {
+      if (!files || files.length === 0) return;
+
+      const progressDiv = document.getElementById('uploadProgress');
+      const progressFill = document.getElementById('progressFill');
+      const statusText = document.getElementById('uploadStatus');
+
+      progressDiv.classList.add('show');
+      let uploaded = 0;
+
+      for (const file of files) {
+        statusText.textContent = `Uploading ${file.name}...`;
+
+        const formData = new FormData();
+        formData.append('image', file);
+
+        try {
+          await api('/api/admin/upload', 'POST', formData);
+          uploaded++;
+          progressFill.style.width = `${(uploaded / files.length) * 100}%`;
+        } catch (error) {
+          console.error('Error uploading:', error);
+        }
+      }
+
+      progressDiv.classList.remove('show');
+      progressFill.style.width = '0%';
+      showToast(`${uploaded} image(s) uploaded successfully!`);
+      loadImages();
+
+      // Reset file input
+      document.getElementById('fileInput').value = '';
+    }
+
+    // Close modal on escape
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') closeModal();
+    });
+
+    // Initialize
+    loadImages();
+  </script>
+</body>
+</html>

@@ -251,7 +251,10 @@
       updateCartCount();
     });
 
-    // Load cart
+    // Order summary from server
+    let orderSummary = null;
+
+    // Load cart - ALL pricing comes from server
     async function loadCart() {
       const sessionId = getSessionId();
 
@@ -262,17 +265,69 @@
         if (result.success) {
           cartItems = result.data;
           subtotal = result.subtotal;
+
+          // Get complete order totals from server (tax, shipping, etc.)
+          if (cartItems.length > 0) {
+            await calculateOrderTotal();
+          }
+
           renderCart();
         }
       } catch (error) {
-        // Load from localStorage as fallback
-        cartItems = JSON.parse(localStorage.getItem('cart') || '[]');
-        subtotal = cartItems.reduce((sum, item) => sum + (item.unitPrice * item.quantity), 0);
+        console.error('Error loading cart:', error);
+        cartItems = [];
         renderCart();
       }
     }
 
-    // Render cart
+    // Calculate order total from server - NEVER calculate locally
+    async function calculateOrderTotal() {
+      try {
+        // Prepare items for pricing API
+        const items = cartItems.map(item => ({
+          id: item.id,
+          productId: item.product_id,
+          width: item.width,
+          height: item.height,
+          quantity: item.quantity,
+          options: typeof item.configuration === 'string'
+            ? JSON.parse(item.configuration)
+            : item.configuration,
+          extendedWarranty: item.extended_warranty === 1
+        }));
+
+        const response = await fetch('/api/calculate-order-total', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            items,
+            shippingAddress: {
+              state: localStorage.getItem('shippingState') || 'CA',
+              country: 'US'
+            },
+            promoCode: localStorage.getItem('promoCode') || null
+          })
+        });
+
+        const result = await response.json();
+        if (result.success) {
+          orderSummary = result.summary;
+          subtotal = result.summary.subtotal;
+        }
+      } catch (error) {
+        console.error('Error calculating order total:', error);
+        // Fallback: use cart subtotal only, no tax/shipping
+        orderSummary = {
+          subtotal: subtotal,
+          tax: { amount: 0, description: 'Tax calculated at checkout' },
+          shipping: { amount: 0, description: 'Calculated at checkout' },
+          discount: { amount: 0 },
+          grandTotal: subtotal
+        };
+      }
+    }
+
+    // Render cart - uses server-calculated totals
     function renderCart() {
       const container = document.getElementById('cartContent');
 
@@ -290,9 +345,19 @@
         return;
       }
 
-      const tax = subtotal * 0.08; // 8% tax
-      const shipping = subtotal > 99 ? 0 : 9.99;
-      const total = subtotal + tax + shipping;
+      // Use server-calculated values (NEVER calculate locally)
+      const summary = orderSummary || {
+        subtotal: subtotal,
+        tax: { amount: 0 },
+        shipping: { amount: 0 },
+        discount: { amount: 0 },
+        grandTotal: subtotal
+      };
+
+      const tax = summary.tax.amount;
+      const shipping = summary.shipping.amount;
+      const discount = summary.discount.amount;
+      const total = summary.grandTotal;
 
       container.innerHTML = `
         <div class="cart-grid">

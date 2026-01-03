@@ -1,0 +1,1573 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Theme & Customization - Peekaboo Shades Admin</title>
+  <link rel="stylesheet" href="css/admin.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="icon" type="image/png" href="/images/favicon.png">
+  <style>
+    .theme-layout {
+      display: grid;
+      grid-template-columns: 280px 1fr;
+      gap: 24px;
+      min-height: calc(100vh - 140px);
+    }
+
+    /* Sidebar Navigation */
+    .theme-nav {
+      background: var(--admin-card);
+      border: 1px solid var(--admin-border);
+      border-radius: 12px;
+      padding: 16px;
+      position: sticky;
+      top: 24px;
+      height: fit-content;
+    }
+
+    .theme-nav-title {
+      font-size: 12px;
+      text-transform: uppercase;
+      color: #888;
+      margin-bottom: 12px;
+      padding: 0 12px;
+    }
+
+    .theme-nav-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 16px;
+      border-radius: 8px;
+      color: #555;
+      text-decoration: none;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .theme-nav-item:hover {
+      background: #f3f4f6;
+    }
+
+    .theme-nav-item.active {
+      background: #8E6545;
+      color: white;
+    }
+
+    .theme-nav-item i {
+      width: 20px;
+      text-align: center;
+    }
+
+    /* Content Sections */
+    .theme-content {
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    .theme-section {
+      background: var(--admin-card);
+      border: 1px solid var(--admin-border);
+      border-radius: 12px;
+      display: none;
+    }
+
+    .theme-section.active {
+      display: block;
+    }
+
+    .section-header {
+      padding: 20px 24px;
+      border-bottom: 1px solid var(--admin-border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .section-title {
+      font-size: 18px;
+      font-weight: 600;
+      color: #1a1a1a;
+    }
+
+    .section-subtitle {
+      font-size: 13px;
+      color: #888;
+      margin-top: 4px;
+    }
+
+    .section-body {
+      padding: 24px;
+    }
+
+    /* Color Picker Grid */
+    .color-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 20px;
+    }
+
+    .color-item {
+      background: #f9fafb;
+      border: 1px solid #e5e7eb;
+      border-radius: 10px;
+      padding: 16px;
+    }
+
+    .color-label {
+      font-size: 12px;
+      text-transform: uppercase;
+      color: #888;
+      margin-bottom: 8px;
+    }
+
+    .color-input-row {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .color-preview {
+      width: 40px;
+      height: 40px;
+      border-radius: 8px;
+      border: 2px solid #ddd;
+      cursor: pointer;
+    }
+
+    .color-hex-input {
+      flex: 1;
+      padding: 10px 12px;
+      border: 1px solid #d1d5db;
+      border-radius: 6px;
+      font-size: 14px;
+      font-family: monospace;
+    }
+
+    /* Font Settings */
+    .font-item {
+      background: #f9fafb;
+      border: 1px solid #e5e7eb;
+      border-radius: 10px;
+      padding: 20px;
+      margin-bottom: 16px;
+    }
+
+    .font-preview {
+      font-size: 24px;
+      margin-bottom: 16px;
+      padding: 16px;
+      background: white;
+      border-radius: 8px;
+      border: 1px solid #e5e7eb;
+    }
+
+    .font-controls {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    /* Image Manager */
+    .image-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+      gap: 16px;
+    }
+
+    .image-card {
+      background: #f9fafb;
+      border: 1px solid #e5e7eb;
+      border-radius: 10px;
+      padding: 12px;
+      text-align: center;
+      position: relative;
+    }
+
+    .image-card img {
+      width: 100%;
+      height: 100px;
+      object-fit: cover;
+      border-radius: 6px;
+      margin-bottom: 8px;
+    }
+
+    .image-card .filename {
+      font-size: 11px;
+      color: #666;
+      word-break: break-all;
+    }
+
+    .image-card .delete-btn {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      width: 24px;
+      height: 24px;
+      background: rgba(220, 53, 69, 0.9);
+      color: white;
+      border: none;
+      border-radius: 50%;
+      cursor: pointer;
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+
+    .image-card:hover .delete-btn {
+      opacity: 1;
+    }
+
+    .upload-zone {
+      border: 2px dashed #d1d5db;
+      border-radius: 12px;
+      padding: 40px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s;
+      background: #fafafa;
+    }
+
+    .upload-zone:hover {
+      border-color: #8E6545;
+      background: #fdf8f5;
+    }
+
+    .upload-zone i {
+      font-size: 48px;
+      color: #9ca3af;
+      margin-bottom: 16px;
+    }
+
+    /* Section Builder */
+    .section-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .section-item {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 16px 20px;
+      background: #f9fafb;
+      border: 1px solid #e5e7eb;
+      border-radius: 10px;
+    }
+
+    .section-item .drag-handle {
+      color: #9ca3af;
+      cursor: grab;
+    }
+
+    .section-item .toggle-switch {
+      margin-left: auto;
+    }
+
+    .section-item-info {
+      flex: 1;
+    }
+
+    .section-item-title {
+      font-weight: 600;
+      color: #1a1a1a;
+    }
+
+    .section-item-desc {
+      font-size: 12px;
+      color: #888;
+    }
+
+    /* Toggle Switch */
+    .toggle-switch {
+      position: relative;
+      width: 44px;
+      height: 24px;
+    }
+
+    .toggle-switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .toggle-slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: #ccc;
+      transition: .3s;
+      border-radius: 24px;
+    }
+
+    .toggle-slider:before {
+      position: absolute;
+      content: "";
+      height: 18px;
+      width: 18px;
+      left: 3px;
+      bottom: 3px;
+      background-color: white;
+      transition: .3s;
+      border-radius: 50%;
+    }
+
+    input:checked + .toggle-slider {
+      background-color: #8E6545;
+    }
+
+    input:checked + .toggle-slider:before {
+      transform: translateX(20px);
+    }
+
+    /* Fabric Categories */
+    .fabric-category {
+      background: #f9fafb;
+      border: 1px solid #e5e7eb;
+      border-radius: 12px;
+      margin-bottom: 16px;
+      overflow: hidden;
+    }
+
+    .fabric-category-header {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      padding: 16px 20px;
+      background: #f3f4f6;
+      cursor: pointer;
+    }
+
+    .fabric-category-header h3 {
+      flex: 1;
+      font-size: 15px;
+      font-weight: 600;
+    }
+
+    .fabric-count {
+      background: #8E6545;
+      color: white;
+      padding: 4px 10px;
+      border-radius: 12px;
+      font-size: 12px;
+    }
+
+    .fabric-category-body {
+      padding: 20px;
+      display: none;
+    }
+
+    .fabric-category.open .fabric-category-body {
+      display: block;
+    }
+
+    .fabric-swatches {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+      gap: 12px;
+    }
+
+    .fabric-swatch {
+      position: relative;
+      text-align: center;
+    }
+
+    .fabric-swatch img {
+      width: 70px;
+      height: 70px;
+      border-radius: 8px;
+      object-fit: cover;
+      border: 2px solid #e5e7eb;
+    }
+
+    .fabric-swatch .code {
+      font-size: 10px;
+      color: #666;
+      margin-top: 4px;
+    }
+
+    .fabric-swatch .delete-btn {
+      position: absolute;
+      top: -6px;
+      right: -6px;
+      width: 20px;
+      height: 20px;
+      background: #dc3545;
+      color: white;
+      border: none;
+      border-radius: 50%;
+      cursor: pointer;
+      font-size: 10px;
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+
+    .fabric-swatch:hover .delete-btn {
+      opacity: 1;
+    }
+
+    /* Form Elements */
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-label {
+      display: block;
+      font-size: 13px;
+      font-weight: 500;
+      color: #374151;
+      margin-bottom: 6px;
+    }
+
+    .form-input, .form-select, .form-textarea {
+      width: 100%;
+      padding: 10px 14px;
+      border: 1px solid #d1d5db;
+      border-radius: 8px;
+      font-size: 14px;
+    }
+
+    .form-input:focus, .form-select:focus, .form-textarea:focus {
+      outline: none;
+      border-color: #8E6545;
+      box-shadow: 0 0 0 3px rgba(142, 101, 69, 0.1);
+    }
+
+    /* Buttons */
+    .btn {
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.2s;
+    }
+
+    .btn-primary {
+      background: #8E6545;
+      color: white;
+      border: none;
+    }
+
+    .btn-primary:hover {
+      background: #7a5539;
+    }
+
+    .btn-secondary {
+      background: white;
+      color: #374151;
+      border: 1px solid #d1d5db;
+    }
+
+    .btn-secondary:hover {
+      background: #f9fafb;
+    }
+
+    .btn-danger {
+      background: #dc3545;
+      color: white;
+      border: none;
+    }
+
+    .btn-danger:hover {
+      background: #c82333;
+    }
+
+    /* Toast Notifications */
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      padding: 16px 24px;
+      background: #1a1a1a;
+      color: white;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      z-index: 1000;
+      transform: translateY(100px);
+      opacity: 0;
+      transition: all 0.3s;
+    }
+
+    .toast.show {
+      transform: translateY(0);
+      opacity: 1;
+    }
+
+    .toast.success {
+      background: #28a745;
+    }
+
+    .toast.error {
+      background: #dc3545;
+    }
+
+    /* Modal */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.5);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+    }
+
+    .modal-overlay.show {
+      display: flex;
+    }
+
+    .modal {
+      background: white;
+      border-radius: 12px;
+      width: 100%;
+      max-width: 500px;
+      max-height: 90vh;
+      overflow: auto;
+    }
+
+    .modal-header {
+      padding: 20px 24px;
+      border-bottom: 1px solid #e5e7eb;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .modal-title {
+      font-size: 18px;
+      font-weight: 600;
+    }
+
+    .modal-close {
+      background: none;
+      border: none;
+      font-size: 24px;
+      cursor: pointer;
+      color: #888;
+    }
+
+    .modal-body {
+      padding: 24px;
+    }
+
+    .modal-footer {
+      padding: 16px 24px;
+      border-top: 1px solid #e5e7eb;
+      display: flex;
+      justify-content: flex-end;
+      gap: 12px;
+    }
+
+    /* Live Preview */
+    .preview-panel {
+      background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+      border-radius: 12px;
+      padding: 20px;
+      color: white;
+      margin-bottom: 24px;
+    }
+
+    .preview-title {
+      font-size: 14px;
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .preview-frame {
+      background: white;
+      border-radius: 8px;
+      height: 300px;
+      overflow: hidden;
+    }
+
+    .preview-frame iframe {
+      width: 100%;
+      height: 600px;
+      border: none;
+      transform: scale(0.5);
+      transform-origin: top left;
+      width: 200%;
+    }
+  </style>
+</head>
+<body>
+  <div class="admin-layout">
+    <!-- Sidebar -->
+    <aside class="admin-sidebar">
+      <div class="sidebar-header">
+        <a href="/admin/" class="sidebar-logo">
+          <img src="/images/logo.png" alt="Logo" onerror="this.style.display='none'">
+          <span>Peekaboo Shades</span>
+        </a>
+      </div>
+
+      <nav class="sidebar-nav">
+        <div class="nav-section">
+          <a href="/admin/" class="nav-item">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+            </svg>
+            <span>Dashboard</span>
+          </a>
+        </div>
+
+        <div class="nav-section">
+          <div class="nav-section-title">Catalog</div>
+          <a href="/admin/products.html" class="nav-item">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+            </svg>
+            <span>Products</span>
+          </a>
+          <a href="/admin/fabrics.html" class="nav-item">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
+            <span>Fabrics</span>
+          </a>
+        </div>
+
+        <div class="nav-section">
+          <div class="nav-section-title">Content</div>
+          <a href="/admin/product-content.html" class="nav-item">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+            </svg>
+            <span>Product Content</span>
+          </a>
+          <a href="/admin/product-page-editor.html" class="nav-item">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5z" />
+            </svg>
+            <span>Page Editor</span>
+          </a>
+        </div>
+
+        <div class="nav-section">
+          <div class="nav-section-title">Appearance</div>
+          <a href="/admin/theme-settings.html" class="nav-item active">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01" />
+            </svg>
+            <span>Theme & Colors</span>
+          </a>
+          <a href="/admin/image-manager.html" class="nav-item">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
+            <span>Image Manager</span>
+          </a>
+        </div>
+
+        <div class="nav-section">
+          <div class="nav-section-title">Settings</div>
+          <a href="/admin/settings.html" class="nav-item">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+            <span>Settings</span>
+          </a>
+        </div>
+      </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="admin-main">
+      <header class="admin-header">
+        <div class="header-left">
+          <div class="breadcrumb">
+            <a href="/admin/">Dashboard</a>
+            <span class="breadcrumb-separator">/</span>
+            <span class="breadcrumb-current">Theme & Customization</span>
+          </div>
+        </div>
+        <div class="header-right">
+          <a href="/product/affordable-custom-roller-blinds" target="_blank" class="btn btn-secondary">
+            <i class="fas fa-external-link-alt"></i> Preview Site
+          </a>
+        </div>
+      </header>
+
+      <div class="admin-content">
+        <div class="page-header" style="margin-bottom: 24px;">
+          <h1 class="page-title">Theme & Customization</h1>
+          <p style="color: #6b7280; margin-top: 4px;">Manage colors, fonts, images, and page sections</p>
+        </div>
+
+        <div class="theme-layout">
+          <!-- Left Navigation -->
+          <div class="theme-nav">
+            <div class="theme-nav-title">Settings</div>
+            <div class="theme-nav-item active" onclick="showSection('colors')">
+              <i class="fas fa-palette"></i> Colors
+            </div>
+            <div class="theme-nav-item" onclick="showSection('fonts')">
+              <i class="fas fa-font"></i> Fonts
+            </div>
+            <div class="theme-nav-item" onclick="showSection('images')">
+              <i class="fas fa-images"></i> Images
+            </div>
+            <div class="theme-nav-item" onclick="showSection('sections')">
+              <i class="fas fa-layer-group"></i> Page Sections
+            </div>
+            <div class="theme-nav-item" onclick="showSection('fabrics')">
+              <i class="fas fa-swatchbook"></i> Fabric Categories
+            </div>
+            <div class="theme-nav-item" onclick="showSection('header')">
+              <i class="fas fa-heading"></i> Header & Nav
+            </div>
+            <div class="theme-nav-item" onclick="showSection('footer')">
+              <i class="fas fa-shoe-prints"></i> Footer
+            </div>
+          </div>
+
+          <!-- Right Content -->
+          <div class="theme-content">
+            <!-- Colors Section -->
+            <div class="theme-section active" id="section-colors">
+              <div class="section-header">
+                <div>
+                  <h2 class="section-title">Color Palette</h2>
+                  <p class="section-subtitle">Customize your brand colors</p>
+                </div>
+                <button class="btn btn-primary" onclick="saveColors()">
+                  <i class="fas fa-save"></i> Save Colors
+                </button>
+              </div>
+              <div class="section-body">
+                <div class="color-grid" id="colorGrid">
+                  <!-- Colors loaded dynamically -->
+                </div>
+              </div>
+            </div>
+
+            <!-- Fonts Section -->
+            <div class="theme-section" id="section-fonts">
+              <div class="section-header">
+                <div>
+                  <h2 class="section-title">Typography</h2>
+                  <p class="section-subtitle">Manage fonts and text styles</p>
+                </div>
+                <button class="btn btn-primary" onclick="saveFonts()">
+                  <i class="fas fa-save"></i> Save Fonts
+                </button>
+              </div>
+              <div class="section-body">
+                <div class="font-item">
+                  <h3 style="margin-bottom: 12px;">Primary Font</h3>
+                  <div class="font-preview" id="primaryFontPreview" style="font-family: Montserrat;">
+                    The quick brown fox jumps over the lazy dog
+                  </div>
+                  <div class="font-controls">
+                    <div class="form-group">
+                      <label class="form-label">Font Family</label>
+                      <select class="form-select" id="primaryFontFamily" onchange="updateFontPreview('primary')">
+                        <option value="Montserrat">Montserrat</option>
+                        <option value="Open Sans">Open Sans</option>
+                        <option value="Roboto">Roboto</option>
+                        <option value="Lato">Lato</option>
+                        <option value="Poppins">Poppins</option>
+                        <option value="Playfair Display">Playfair Display</option>
+                        <option value="Raleway">Raleway</option>
+                      </select>
+                    </div>
+                    <div class="form-group">
+                      <label class="form-label">Google Fonts URL</label>
+                      <input type="text" class="form-input" id="primaryFontUrl" placeholder="https://fonts.googleapis.com/css2?family=...">
+                    </div>
+                  </div>
+                </div>
+
+                <div class="font-item">
+                  <h3 style="margin-bottom: 12px;">Secondary Font</h3>
+                  <div class="font-preview" id="secondaryFontPreview" style="font-family: 'Open Sans';">
+                    The quick brown fox jumps over the lazy dog
+                  </div>
+                  <div class="font-controls">
+                    <div class="form-group">
+                      <label class="form-label">Font Family</label>
+                      <select class="form-select" id="secondaryFontFamily" onchange="updateFontPreview('secondary')">
+                        <option value="Open Sans">Open Sans</option>
+                        <option value="Montserrat">Montserrat</option>
+                        <option value="Roboto">Roboto</option>
+                        <option value="Lato">Lato</option>
+                        <option value="Poppins">Poppins</option>
+                      </select>
+                    </div>
+                    <div class="form-group">
+                      <label class="form-label">Google Fonts URL</label>
+                      <input type="text" class="form-input" id="secondaryFontUrl" placeholder="https://fonts.googleapis.com/css2?family=...">
+                    </div>
+                  </div>
+                </div>
+
+                <h3 style="margin: 24px 0 16px;">Font Sizes</h3>
+                <div class="color-grid">
+                  <div class="color-item">
+                    <div class="color-label">Extra Small (XS)</div>
+                    <input type="text" class="form-input" id="fontSize-xs" value="11px">
+                  </div>
+                  <div class="color-item">
+                    <div class="color-label">Small (SM)</div>
+                    <input type="text" class="form-input" id="fontSize-sm" value="13px">
+                  </div>
+                  <div class="color-item">
+                    <div class="color-label">Base</div>
+                    <input type="text" class="form-input" id="fontSize-base" value="14px">
+                  </div>
+                  <div class="color-item">
+                    <div class="color-label">Medium (MD)</div>
+                    <input type="text" class="form-input" id="fontSize-md" value="16px">
+                  </div>
+                  <div class="color-item">
+                    <div class="color-label">Large (LG)</div>
+                    <input type="text" class="form-input" id="fontSize-lg" value="18px">
+                  </div>
+                  <div class="color-item">
+                    <div class="color-label">Extra Large (XL)</div>
+                    <input type="text" class="form-input" id="fontSize-xl" value="22px">
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Images Section -->
+            <div class="theme-section" id="section-images">
+              <div class="section-header">
+                <div>
+                  <h2 class="section-title">Image Manager</h2>
+                  <p class="section-subtitle">Manage site logos and uploaded images</p>
+                </div>
+                <button class="btn btn-primary" onclick="document.getElementById('imageUpload').click()">
+                  <i class="fas fa-upload"></i> Upload Image
+                </button>
+                <input type="file" id="imageUpload" accept="image/*" style="display:none" onchange="uploadImage(this)">
+              </div>
+              <div class="section-body">
+                <h3 style="margin-bottom: 16px;">Site Logo & Favicon</h3>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 32px;">
+                  <div class="image-card" style="padding: 20px;">
+                    <div style="margin-bottom: 12px; font-weight: 600;">Logo</div>
+                    <img id="logoPreview" src="/images/logo.png" alt="Logo" style="height: 60px; width: auto; object-fit: contain;" onerror="this.src='https://via.placeholder.com/200x60?text=No+Logo'">
+                    <button class="btn btn-secondary" style="margin-top: 12px;" onclick="selectImage('logo')">
+                      <i class="fas fa-edit"></i> Change
+                    </button>
+                  </div>
+                  <div class="image-card" style="padding: 20px;">
+                    <div style="margin-bottom: 12px; font-weight: 600;">Favicon</div>
+                    <img id="faviconPreview" src="/images/favicon.png" alt="Favicon" style="height: 60px; width: 60px; object-fit: contain;" onerror="this.src='https://via.placeholder.com/60?text=No+Icon'">
+                    <button class="btn btn-secondary" style="margin-top: 12px;" onclick="selectImage('favicon')">
+                      <i class="fas fa-edit"></i> Change
+                    </button>
+                  </div>
+                </div>
+
+                <h3 style="margin-bottom: 16px;">Uploaded Images</h3>
+                <div class="image-grid" id="uploadedImagesGrid">
+                  <!-- Images loaded dynamically -->
+                </div>
+              </div>
+            </div>
+
+            <!-- Page Sections -->
+            <div class="theme-section" id="section-sections">
+              <div class="section-header">
+                <div>
+                  <h2 class="section-title">Product Page Sections</h2>
+                  <p class="section-subtitle">Enable or disable page sections</p>
+                </div>
+                <button class="btn btn-primary" onclick="savePageSections()">
+                  <i class="fas fa-save"></i> Save Sections
+                </button>
+              </div>
+              <div class="section-body">
+                <div class="section-list" id="pageSectionsList">
+                  <!-- Sections loaded dynamically -->
+                </div>
+              </div>
+            </div>
+
+            <!-- Fabric Categories -->
+            <div class="theme-section" id="section-fabrics">
+              <div class="section-header">
+                <div>
+                  <h2 class="section-title">Fabric Categories</h2>
+                  <p class="section-subtitle">Manage fabric swatch categories</p>
+                </div>
+                <button class="btn btn-primary" onclick="showAddCategoryModal()">
+                  <i class="fas fa-plus"></i> Add Category
+                </button>
+              </div>
+              <div class="section-body">
+                <div id="fabricCategoriesList">
+                  <!-- Categories loaded dynamically -->
+                </div>
+              </div>
+            </div>
+
+            <!-- Header & Nav -->
+            <div class="theme-section" id="section-header">
+              <div class="section-header">
+                <div>
+                  <h2 class="section-title">Header & Navigation</h2>
+                  <p class="section-subtitle">Customize header content and navigation menu</p>
+                </div>
+                <button class="btn btn-primary" onclick="saveHeaderSettings()">
+                  <i class="fas fa-save"></i> Save Header
+                </button>
+              </div>
+              <div class="section-body">
+                <h3 style="margin-bottom: 16px;">Top Bar</h3>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-bottom: 24px;">
+                  <div class="form-group">
+                    <label class="form-label">Phone Number</label>
+                    <input type="text" class="form-input" id="topBarPhone" value="1-800-PEEKABOO">
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Email</label>
+                    <input type="text" class="form-input" id="topBarEmail" value="info@peekabooshades.com">
+                  </div>
+                </div>
+
+                <h3 style="margin-bottom: 16px;">Logo</h3>
+                <div class="form-group">
+                  <label class="form-label">Logo Text</label>
+                  <input type="text" class="form-input" id="logoText" value="PEEKABOO SHADES">
+                </div>
+
+                <h3 style="margin: 24px 0 16px;">Navigation Items</h3>
+                <div id="navItemsList">
+                  <!-- Nav items loaded dynamically -->
+                </div>
+                <button class="btn btn-secondary" onclick="addNavItem()" style="margin-top: 12px;">
+                  <i class="fas fa-plus"></i> Add Nav Item
+                </button>
+              </div>
+            </div>
+
+            <!-- Footer -->
+            <div class="theme-section" id="section-footer">
+              <div class="section-header">
+                <div>
+                  <h2 class="section-title">Footer Settings</h2>
+                  <p class="section-subtitle">Customize footer content</p>
+                </div>
+                <button class="btn btn-primary" onclick="saveFooterSettings()">
+                  <i class="fas fa-save"></i> Save Footer
+                </button>
+              </div>
+              <div class="section-body">
+                <div class="form-group">
+                  <label class="form-label">Copyright Text</label>
+                  <input type="text" class="form-input" id="footerCopyright" value="© 2024 Peekaboo Shades. All rights reserved.">
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Add Category Modal -->
+  <div class="modal-overlay" id="addCategoryModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 class="modal-title">Add Fabric Category</h3>
+        <button class="modal-close" onclick="closeModal('addCategoryModal')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label">Category Name</label>
+          <input type="text" class="form-input" id="newCategoryName" placeholder="e.g., Premium Blackout">
+        </div>
+        <div class="form-group">
+          <label class="form-label">Folder Name</label>
+          <input type="text" class="form-input" id="newCategoryFolder" placeholder="e.g., Premium_Blackout">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeModal('addCategoryModal')">Cancel</button>
+        <button class="btn btn-primary" onclick="addFabricCategory()">Add Category</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div class="toast" id="toast">
+    <i class="fas fa-check-circle"></i>
+    <span id="toastMessage">Saved successfully!</span>
+  </div>
+
+  <script>
+    // Auth token
+    const token = localStorage.getItem('adminToken');
+    if (!token) {
+      window.location.href = '/admin/login.html';
+    }
+
+    // API helper
+    async function api(endpoint, method = 'GET', body = null) {
+      const options = {
+        method,
+        headers: {
+          'Authorization': `Bearer ${token}`,
+          'Content-Type': 'application/json'
+        }
+      };
+      if (body) options.body = JSON.stringify(body);
+      const response = await fetch(endpoint, options);
+      return response.json();
+    }
+
+    // Toast notification
+    function showToast(message, type = 'success') {
+      const toast = document.getElementById('toast');
+      const toastMessage = document.getElementById('toastMessage');
+      toastMessage.textContent = message;
+      toast.className = `toast ${type} show`;
+      setTimeout(() => toast.classList.remove('show'), 3000);
+    }
+
+    // Show section
+    function showSection(section) {
+      document.querySelectorAll('.theme-section').forEach(s => s.classList.remove('active'));
+      document.querySelectorAll('.theme-nav-item').forEach(n => n.classList.remove('active'));
+      document.getElementById(`section-${section}`).classList.add('active');
+      event.target.closest('.theme-nav-item').classList.add('active');
+    }
+
+    // Modal functions
+    function showAddCategoryModal() {
+      document.getElementById('addCategoryModal').classList.add('show');
+    }
+
+    function closeModal(id) {
+      document.getElementById(id).classList.remove('show');
+    }
+
+    // Load theme settings
+    async function loadThemeSettings() {
+      try {
+        const result = await api('/api/admin/theme');
+        if (result.success) {
+          renderColors(result.data.colors);
+          renderFonts(result.data.fonts);
+        }
+      } catch (error) {
+        console.error('Error loading theme:', error);
+      }
+    }
+
+    // Render colors
+    function renderColors(colors) {
+      const grid = document.getElementById('colorGrid');
+      const colorLabels = {
+        primary: 'Primary Color',
+        primaryDark: 'Primary Dark',
+        secondary: 'Secondary Color',
+        accent: 'Accent Color',
+        textDark: 'Text Dark',
+        textLight: 'Text Light',
+        textMuted: 'Text Muted',
+        bgCream: 'Background Cream',
+        bgLight: 'Background Light',
+        bgWhite: 'Background White',
+        borderLight: 'Border Light',
+        borderMedium: 'Border Medium',
+        success: 'Success',
+        error: 'Error',
+        warning: 'Warning'
+      };
+
+      grid.innerHTML = Object.entries(colors).map(([key, value]) => `
+        <div class="color-item">
+          <div class="color-label">${colorLabels[key] || key}</div>
+          <div class="color-input-row">
+            <input type="color" class="color-preview" id="color-${key}" value="${value}" onchange="updateColorHex('${key}')">
+            <input type="text" class="color-hex-input" id="colorHex-${key}" value="${value}" onchange="updateColorPreview('${key}')">
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function updateColorHex(key) {
+      const color = document.getElementById(`color-${key}`).value;
+      document.getElementById(`colorHex-${key}`).value = color;
+    }
+
+    function updateColorPreview(key) {
+      const hex = document.getElementById(`colorHex-${key}`).value;
+      document.getElementById(`color-${key}`).value = hex;
+    }
+
+    // Save colors
+    async function saveColors() {
+      const colors = {};
+      document.querySelectorAll('.color-preview').forEach(input => {
+        const key = input.id.replace('color-', '');
+        colors[key] = input.value;
+      });
+
+      try {
+        const result = await api('/api/admin/theme/colors', 'PUT', colors);
+        if (result.success) {
+          showToast('Colors saved successfully!');
+        }
+      } catch (error) {
+        showToast('Error saving colors', 'error');
+      }
+    }
+
+    // Render fonts
+    function renderFonts(fonts) {
+      if (fonts.primary) {
+        document.getElementById('primaryFontFamily').value = fonts.primary.family;
+        document.getElementById('primaryFontUrl').value = fonts.primary.url || '';
+        document.getElementById('primaryFontPreview').style.fontFamily = fonts.primary.family;
+      }
+      if (fonts.secondary) {
+        document.getElementById('secondaryFontFamily').value = fonts.secondary.family;
+        document.getElementById('secondaryFontUrl').value = fonts.secondary.url || '';
+        document.getElementById('secondaryFontPreview').style.fontFamily = fonts.secondary.family;
+      }
+      if (fonts.sizes) {
+        Object.entries(fonts.sizes).forEach(([key, value]) => {
+          const input = document.getElementById(`fontSize-${key}`);
+          if (input) input.value = value;
+        });
+      }
+    }
+
+    function updateFontPreview(type) {
+      const family = document.getElementById(`${type}FontFamily`).value;
+      document.getElementById(`${type}FontPreview`).style.fontFamily = family;
+    }
+
+    // Save fonts
+    async function saveFonts() {
+      const fonts = {
+        primary: {
+          family: document.getElementById('primaryFontFamily').value,
+          url: document.getElementById('primaryFontUrl').value
+        },
+        secondary: {
+          family: document.getElementById('secondaryFontFamily').value,
+          url: document.getElementById('secondaryFontUrl').value
+        },
+        sizes: {
+          xs: document.getElementById('fontSize-xs').value,
+          sm: document.getElementById('fontSize-sm').value,
+          base: document.getElementById('fontSize-base').value,
+          md: document.getElementById('fontSize-md').value,
+          lg: document.getElementById('fontSize-lg').value,
+          xl: document.getElementById('fontSize-xl').value
+        }
+      };
+
+      try {
+        const result = await api('/api/admin/theme/fonts', 'PUT', fonts);
+        if (result.success) {
+          showToast('Fonts saved successfully!');
+        }
+      } catch (error) {
+        showToast('Error saving fonts', 'error');
+      }
+    }
+
+    // Load images
+    async function loadImages() {
+      try {
+        const result = await api('/api/admin/images');
+        if (result.success) {
+          if (result.data.logo) {
+            document.getElementById('logoPreview').src = result.data.logo;
+          }
+          if (result.data.favicon) {
+            document.getElementById('faviconPreview').src = result.data.favicon;
+          }
+          renderUploadedImages(result.uploadedFiles || []);
+        }
+      } catch (error) {
+        console.error('Error loading images:', error);
+      }
+    }
+
+    function renderUploadedImages(files) {
+      const grid = document.getElementById('uploadedImagesGrid');
+      if (files.length === 0) {
+        grid.innerHTML = '<p style="color: #888; grid-column: 1/-1;">No uploaded images yet. Click "Upload Image" to add images.</p>';
+        return;
+      }
+
+      grid.innerHTML = files.map(file => `
+        <div class="image-card">
+          <button class="delete-btn" onclick="deleteImage('${file.filename}')" title="Delete">
+            <i class="fas fa-times"></i>
+          </button>
+          <img src="${file.url}" alt="${file.filename}">
+          <div class="filename">${file.filename}</div>
+        </div>
+      `).join('');
+    }
+
+    // Upload image
+    async function uploadImage(input) {
+      if (!input.files || !input.files[0]) return;
+
+      const formData = new FormData();
+      formData.append('image', input.files[0]);
+
+      try {
+        const response = await fetch('/api/admin/upload', {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${token}` },
+          body: formData
+        });
+        const result = await response.json();
+        if (result.success) {
+          showToast('Image uploaded successfully!');
+          loadImages();
+        }
+      } catch (error) {
+        showToast('Error uploading image', 'error');
+      }
+
+      input.value = '';
+    }
+
+    // Delete image
+    async function deleteImage(filename) {
+      if (!confirm('Are you sure you want to delete this image?')) return;
+
+      try {
+        const result = await api(`/api/admin/images/file/${filename}`, 'DELETE');
+        if (result.success) {
+          showToast('Image deleted!');
+          loadImages();
+        }
+      } catch (error) {
+        showToast('Error deleting image', 'error');
+      }
+    }
+
+    // Load page sections
+    async function loadPageSections() {
+      try {
+        const result = await api('/api/admin/page-sections');
+        if (result.success && result.data.product) {
+          renderPageSections(result.data.product);
+        }
+      } catch (error) {
+        console.error('Error loading page sections:', error);
+      }
+    }
+
+    function renderPageSections(sections) {
+      const list = document.getElementById('pageSectionsList');
+      const sectionConfig = [
+        { id: 'topBar', title: 'Top Bar', desc: 'Phone, email, and quick links bar' },
+        { id: 'header', title: 'Header', desc: 'Logo and main navigation' },
+        { id: 'productGallery', title: 'Product Gallery', desc: 'Product images and thumbnails' },
+        { id: 'productInfo', title: 'Product Info', desc: 'Title, description, and price' },
+        { id: 'configurator', title: 'Product Configurator', desc: 'Dimensions, fabrics, and options' },
+        { id: 'trustBadges', title: 'Trust Badges', desc: 'Warranty, shipping, returns icons' },
+        { id: 'features', title: 'Features Section', desc: 'Product features and benefits' },
+        { id: 'footer', title: 'Footer', desc: 'Copyright and links' }
+      ];
+
+      list.innerHTML = sectionConfig.map(section => {
+        const enabled = sections[section.id]?.enabled !== false;
+        return `
+          <div class="section-item">
+            <i class="fas fa-grip-vertical drag-handle"></i>
+            <div class="section-item-info">
+              <div class="section-item-title">${section.title}</div>
+              <div class="section-item-desc">${section.desc}</div>
+            </div>
+            <label class="toggle-switch">
+              <input type="checkbox" id="section-${section.id}" ${enabled ? 'checked' : ''}>
+              <span class="toggle-slider"></span>
+            </label>
+            <button class="btn btn-secondary" onclick="editSection('${section.id}')" style="margin-left: 12px;">
+              <i class="fas fa-edit"></i>
+            </button>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // Save page sections
+    async function savePageSections() {
+      const sections = {};
+      document.querySelectorAll('[id^="section-"]').forEach(input => {
+        if (input.type === 'checkbox') {
+          const id = input.id.replace('section-', '');
+          sections[id] = { enabled: input.checked };
+        }
+      });
+
+      try {
+        const result = await api('/api/admin/page-sections', 'PUT', { product: sections });
+        if (result.success) {
+          showToast('Page sections saved!');
+        }
+      } catch (error) {
+        showToast('Error saving sections', 'error');
+      }
+    }
+
+    // Load fabric categories
+    async function loadFabricCategories() {
+      try {
+        const result = await api('/api/admin/fabric-categories');
+        if (result.success) {
+          renderFabricCategories(result.data);
+        }
+      } catch (error) {
+        console.error('Error loading fabric categories:', error);
+      }
+    }
+
+    function renderFabricCategories(categories) {
+      const list = document.getElementById('fabricCategoriesList');
+      list.innerHTML = categories.map(cat => `
+        <div class="fabric-category" id="fabric-cat-${cat.id}">
+          <div class="fabric-category-header" onclick="toggleFabricCategory('${cat.id}')">
+            <label class="toggle-switch" onclick="event.stopPropagation()">
+              <input type="checkbox" ${cat.enabled ? 'checked' : ''} onchange="toggleCategoryEnabled('${cat.id}', this.checked)">
+              <span class="toggle-slider"></span>
+            </label>
+            <h3>${cat.name}</h3>
+            <span class="fabric-count">${cat.fileCount} fabrics</span>
+            <i class="fas fa-chevron-down" style="margin-left: auto;"></i>
+          </div>
+          <div class="fabric-category-body">
+            <div class="fabric-swatches">
+              ${cat.files.map(file => `
+                <div class="fabric-swatch">
+                  <button class="delete-btn" onclick="deleteFabricImage('${cat.id}', '${file}')" title="Delete">
+                    <i class="fas fa-times"></i>
+                  </button>
+                  <img src="/images/RollerBlinds_Zstar_Fabric_Samples/${cat.folder}/${file}" alt="${file}">
+                  <div class="code">${file.split('_')[0]}</div>
+                </div>
+              `).join('')}
+            </div>
+            <div style="margin-top: 16px; display: flex; gap: 12px;">
+              <button class="btn btn-secondary" onclick="uploadFabricImage('${cat.id}')">
+                <i class="fas fa-upload"></i> Upload Fabric
+              </button>
+              <button class="btn btn-danger" onclick="deleteFabricCategory('${cat.id}')">
+                <i class="fas fa-trash"></i> Delete Category
+              </button>
+            </div>
+            <input type="file" id="fabricUpload-${cat.id}" accept="image/*" style="display:none" onchange="handleFabricUpload('${cat.id}', this)">
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function toggleFabricCategory(id) {
+      document.getElementById(`fabric-cat-${id}`).classList.toggle('open');
+    }
+
+    async function toggleCategoryEnabled(id, enabled) {
+      try {
+        await api(`/api/admin/fabric-categories/${id}`, 'PUT', { enabled });
+        showToast(`Category ${enabled ? 'enabled' : 'disabled'}`);
+      } catch (error) {
+        showToast('Error updating category', 'error');
+      }
+    }
+
+    function uploadFabricImage(categoryId) {
+      document.getElementById(`fabricUpload-${categoryId}`).click();
+    }
+
+    async function handleFabricUpload(categoryId, input) {
+      if (!input.files || !input.files[0]) return;
+
+      const formData = new FormData();
+      formData.append('image', input.files[0]);
+
+      try {
+        const response = await fetch(`/api/admin/fabric-categories/${categoryId}/upload`, {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${token}` },
+          body: formData
+        });
+        const result = await response.json();
+        if (result.success) {
+          showToast('Fabric uploaded!');
+          loadFabricCategories();
+        }
+      } catch (error) {
+        showToast('Error uploading fabric', 'error');
+      }
+      input.value = '';
+    }
+
+    async function deleteFabricImage(categoryId, filename) {
+      if (!confirm('Delete this fabric swatch?')) return;
+
+      try {
+        const result = await api(`/api/admin/fabric-categories/${categoryId}/image/${filename}`, 'DELETE');
+        if (result.success) {
+          showToast('Fabric deleted!');
+          loadFabricCategories();
+        }
+      } catch (error) {
+        showToast('Error deleting fabric', 'error');
+      }
+    }
+
+    async function deleteFabricCategory(id) {
+      if (!confirm('Delete this category? This will NOT delete the fabric images.')) return;
+
+      try {
+        const result = await api(`/api/admin/fabric-categories/${id}`, 'DELETE');
+        if (result.success) {
+          showToast('Category deleted!');
+          loadFabricCategories();
+        }
+      } catch (error) {
+        showToast('Error deleting category', 'error');
+      }
+    }
+
+    async function addFabricCategory() {
+      const name = document.getElementById('newCategoryName').value;
+      const folder = document.getElementById('newCategoryFolder').value;
+
+      if (!name || !folder) {
+        showToast('Please fill in all fields', 'error');
+        return;
+      }
+
+      try {
+        const result = await api('/api/admin/fabric-categories', 'POST', { name, folder });
+        if (result.success) {
+          showToast('Category added!');
+          closeModal('addCategoryModal');
+          loadFabricCategories();
+          document.getElementById('newCategoryName').value = '';
+          document.getElementById('newCategoryFolder').value = '';
+        }
+      } catch (error) {
+        showToast('Error adding category', 'error');
+      }
+    }
+
+    // Header settings
+    let navItems = [];
+
+    async function loadHeaderSettings() {
+      try {
+        const result = await api('/api/admin/page-sections');
+        if (result.success && result.data.product) {
+          const header = result.data.product.header || {};
+          const topBar = result.data.product.topBar || {};
+
+          document.getElementById('topBarPhone').value = topBar.phone || '';
+          document.getElementById('topBarEmail').value = topBar.email || '';
+          document.getElementById('logoText').value = header.logoText || 'PEEKABOO SHADES';
+
+          navItems = header.navItems || [];
+          renderNavItems();
+        }
+      } catch (error) {
+        console.error('Error loading header settings:', error);
+      }
+    }
+
+    function renderNavItems() {
+      const list = document.getElementById('navItemsList');
+      list.innerHTML = navItems.map((item, index) => `
+        <div class="section-item" style="margin-bottom: 8px;">
+          <i class="fas fa-grip-vertical drag-handle"></i>
+          <input type="text" class="form-input" value="${item.text}" onchange="updateNavItem(${index}, 'text', this.value)" style="flex: 1;">
+          <input type="text" class="form-input" value="${item.url}" onchange="updateNavItem(${index}, 'url', this.value)" placeholder="URL" style="flex: 1;">
+          <button class="btn btn-danger" onclick="removeNavItem(${index})" style="padding: 8px 12px;">
+            <i class="fas fa-trash"></i>
+          </button>
+        </div>
+      `).join('');
+    }
+
+    function addNavItem() {
+      navItems.push({ text: 'New Item', url: '/' });
+      renderNavItems();
+    }
+
+    function updateNavItem(index, field, value) {
+      navItems[index][field] = value;
+    }
+
+    function removeNavItem(index) {
+      navItems.splice(index, 1);
+      renderNavItems();
+    }
+
+    async function saveHeaderSettings() {
+      const header = {
+        logoText: document.getElementById('logoText').value,
+        navItems: navItems
+      };
+
+      const topBar = {
+        phone: document.getElementById('topBarPhone').value,
+        email: document.getElementById('topBarEmail').value
+      };
+
+      try {
+        await api('/api/admin/page-sections/product/header', 'PUT', header);
+        await api('/api/admin/page-sections/product/topBar', 'PUT', topBar);
+        showToast('Header settings saved!');
+      } catch (error) {
+        showToast('Error saving header settings', 'error');
+      }
+    }
+
+    async function saveFooterSettings() {
+      const footer = {
+        copyright: document.getElementById('footerCopyright').value
+      };
+
+      try {
+        await api('/api/admin/page-sections/product/footer', 'PUT', footer);
+        showToast('Footer settings saved!');
+      } catch (error) {
+        showToast('Error saving footer settings', 'error');
+      }
+    }
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', function() {
+      loadThemeSettings();
+      loadImages();
+      loadPageSections();
+      loadFabricCategories();
+      loadHeaderSettings();
+    });
+  </script>
+</body>
+</html>

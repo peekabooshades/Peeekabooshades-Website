@@ -1123,33 +1123,50 @@
       });
     }
 
-    function renderCategoryChart() {
+    async function renderCategoryChart() {
       const ctx = document.getElementById('categoryChart').getContext('2d');
 
       if (categoryChart) categoryChart.destroy();
 
-      // Mock category data
-      const categories = ['Cellular Shades', 'Roller Shades', 'Roman Shades', 'Wood Blinds', 'Accessories'];
-      const values = [45, 25, 15, 10, 5];
-      const colors = ['#8E6545', '#B38B6D', '#D4B896', '#2C6ECB', '#6D7175'];
+      // Fetch real category sales data from API
+      try {
+        const response = await fetch('/api/admin/analytics/sales-by-category', {
+          headers: { 'Authorization': `Bearer ${localStorage.getItem('adminToken')}` }
+        });
+        const result = await response.json();
 
-      categoryChart = new Chart(ctx, {
-        type: 'doughnut',
-        data: {
-          labels: categories,
-          datasets: [{
-            data: values,
-            backgroundColor: colors
-          }]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: {
-            legend: { position: 'bottom' }
-          }
+        if (result.success && result.data.length > 0) {
+          const categories = result.data.map(c => c.name);
+          const values = result.data.map(c => c.revenue);
+          const colors = ['#8E6545', '#B38B6D', '#D4B896', '#2C6ECB', '#6D7175', '#A0522D', '#CD853F'];
+
+          categoryChart = new Chart(ctx, {
+            type: 'doughnut',
+            data: {
+              labels: categories,
+              datasets: [{
+                data: values,
+                backgroundColor: colors.slice(0, categories.length)
+              }]
+            },
+            options: {
+              responsive: true,
+              maintainAspectRatio: false,
+              plugins: {
+                legend: { position: 'bottom' }
+              }
+            }
+          });
+        } else {
+          // No sales data yet
+          ctx.font = '14px Montserrat';
+          ctx.fillStyle = '#6D7175';
+          ctx.textAlign = 'center';
+          ctx.fillText('No category sales data yet', ctx.canvas.width / 2, ctx.canvas.height / 2);
         }
-      });
+      } catch (error) {
+        console.error('Error loading category sales:', error);
+      }
     }
 
     function renderSalesBreakdownTable(salesData) {

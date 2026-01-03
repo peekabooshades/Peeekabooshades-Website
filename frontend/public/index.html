@@ -619,45 +619,6 @@
       line-height: 1.7;
     }
 
-    .order-samples-box {
-      background: var(--bg-white);
-      border-radius: 15px;
-      padding: 40px;
-      text-align: center;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.08);
-    }
-
-    .order-samples-box h3 {
-      font-size: 18px;
-      font-weight: 600;
-      color: var(--text-brown);
-      margin-bottom: 12px;
-    }
-
-    .order-samples-box p {
-      font-size: 13px;
-      color: var(--text-light);
-      margin-bottom: 20px;
-    }
-
-    .btn-order {
-      padding: 12px 28px;
-      background: #8E6545;
-      color: #FFFFFF;
-      border-radius: 6px;
-      font-size: 14px;
-      font-weight: 600;
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      transition: all 0.3s;
-    }
-
-    .btn-order:hover {
-      background: #7A5639;
-      transform: translateY(-2px);
-    }
-
     /* ============================================
        MOTORIZED BLINDS SECTION
        ============================================ */
@@ -1324,7 +1285,6 @@
         <span><i class="fas fa-envelope"></i> info@peekabooshades.com</span>
       </div>
       <div class="top-bar-center">
-        <a href="#">Free Samples</a>
         <a href="#">Trade</a>
       </div>
       <div class="top-bar-right">
@@ -1338,14 +1298,7 @@
   <header class="main-header">
     <div class="container header-container">
       <a href="/" class="logo">
-        <div class="logo-icon">
-          <svg viewBox="0 0 24 24" fill="currentColor">
-            <path d="M12 2L2 7v10l10 5 10-5V7L12 2zm0 2.18l6.9 3.45L12 11.09 5.1 7.63 12 4.18zM4 8.82l7 3.5v7.36l-7-3.5V8.82zm9 10.86v-7.36l7-3.5v7.36l-7 3.5z"/>
-          </svg>
-        </div>
-        <div class="logo-text">
-          <span class="peekaboo">PEEKABOO</span> <span class="shades">SHADES</span>
-        </div>
+        <img src="/images/peekabooshades_logo.jpeg" alt="Peekaboo Shades" class="logo-img" style="height: 50px; width: auto;">
       </a>
 
       <nav class="main-nav">
@@ -1495,13 +1448,6 @@
           <p>Discover a stylish selection of window coverings at Peekaboo Shades! Shop blinds, shades, and shutters, each product is carefully designed for effortless installation. Plus, enjoy free shipping and exceptional customer service!</p>
         </div>
 
-        <div class="order-samples-box">
-          <h3>Order samples</h3>
-          <p>To help you make the right choice, we offer fabric samples so you can see the material, color, and texture in person before placing your full order.</p>
-          <a href="#" class="btn-order">
-            Order Now <i class="fas fa-arrow-right"></i>
-          </a>
-        </div>
       </div>
     </div>
   </section>
@@ -1654,14 +1600,7 @@
       <div class="footer-grid">
         <div class="footer-brand">
           <div class="logo">
-            <div class="logo-icon">
-              <svg viewBox="0 0 24 24" fill="currentColor" style="width: 20px; height: 20px;">
-                <path d="M12 2L2 7v10l10 5 10-5V7L12 2zm0 2.18l6.9 3.45L12 11.09 5.1 7.63 12 4.18zM4 8.82l7 3.5v7.36l-7-3.5V8.82zm9 10.86v-7.36l7-3.5v7.36l-7 3.5z"/>
-              </svg>
-            </div>
-            <div class="logo-text">
-              <span class="peekaboo">PEEKABOO</span> <span class="shades">SHADES</span>
-            </div>
+            <img src="/images/peekabooshades_logo.jpeg" alt="Peekaboo Shades" class="logo-img" style="height: 40px; width: auto;">
           </div>
           <p>Custom Window Blinds & Coverings designed to transform your space. Quality products at affordable prices.</p>
           <div class="footer-social">
@@ -1709,7 +1648,6 @@
           <ul>
             <li><a href="#">Measuring Guide</a></li>
             <li><a href="#">Installation</a></li>
-            <li><a href="#">Free Samples</a></li>
             <li><a href="#">Trade Program</a></li>
           </ul>
         </div>
@@ -1819,46 +1757,235 @@
     }
 
     // ============================================
-    // API-DRIVEN CONTENT MANAGEMENT
+    // API-DRIVEN CONTENT MANAGEMENT (CMS)
     // ============================================
     async function loadSiteContent() {
       try {
-        const response = await fetch('/api/site-content');
-        if (!response.ok) return;
-        const content = await response.json();
+        // Load from new CMS API
+        const [bundleRes, homePageRes] = await Promise.all([
+          fetch('/api/content/bundle'),
+          fetch('/api/content/pages/home')
+        ]);
 
-        // Apply theme colors
-        if (content.theme) {
-          applyTheme(content.theme);
+        const bundle = await bundleRes.json();
+        const homePage = await homePageRes.json();
+
+        // Apply global settings (from CMS)
+        if (bundle.success && bundle.global) {
+          applyGlobalSettings(bundle.global);
         }
 
-        // Apply header/navigation
-        if (content.navigation) {
-          applyNavigation(content.navigation);
+        // Apply theme (from CMS)
+        if (bundle.theme) {
+          applyTheme(bundle.theme);
         }
 
-        // Apply hero slides
-        if (content.heroSlides && content.heroSlides.length > 0) {
-          applyHeroSlides(content.heroSlides);
+        // Apply navigation (from CMS)
+        if (bundle.navigation) {
+          applyCMSNavigation(bundle.navigation);
         }
 
-        // Apply homepage sections
-        if (content.homepage) {
-          applyHomepageSections(content.homepage);
+        // Apply homepage content (from CMS)
+        if (homePage.success && homePage.page) {
+          applyHomepageFromCMS(homePage.page);
         }
 
-        // Apply footer
-        if (content.footer) {
-          applyFooter(content.footer);
+        // Apply banners (from CMS)
+        if (bundle.banners && bundle.banners.length > 0) {
+          applyBanners(bundle.banners);
         }
 
-        // Apply announcement bar
-        if (content.announcements && content.announcements.bar && content.announcements.bar.enabled) {
-          showAnnouncementBar(content.announcements.bar);
+        // Fallback: try legacy API
+        const legacyResponse = await fetch('/api/site-content');
+        if (legacyResponse.ok) {
+          const content = await legacyResponse.json();
+          if (content.navigation) applyNavigation(content.navigation);
+          if (content.heroSlides) applyHeroSlides(content.heroSlides);
+          if (content.footer) applyFooter(content.footer);
         }
 
       } catch (error) {
-        console.log('Using default content (API not available)');
+        console.log('Using default content (API not available)', error);
+      }
+    }
+
+    // Apply global settings from CMS
+    function applyGlobalSettings(global) {
+      // Update site title
+      if (global.siteName) {
+        document.title = global.siteName + ' - Transform Your Home';
+        const logoText = document.querySelector('.logo-text');
+        if (logoText) logoText.textContent = global.siteName;
+      }
+
+      // Update contact info in top bar
+      if (global.contactPhone) {
+        const phoneEl = document.querySelector('.top-bar-left span:first-child');
+        if (phoneEl) phoneEl.innerHTML = `<i class="fas fa-phone-alt"></i> ${global.contactPhone}`;
+      }
+      if (global.contactEmail) {
+        const emailEl = document.querySelector('.top-bar-left span:last-child');
+        if (emailEl) emailEl.innerHTML = `<i class="fas fa-envelope"></i> ${global.contactEmail}`;
+      }
+
+      // Update header top bar text
+      if (global.header && global.header.topBarText) {
+        const topBarCenter = document.querySelector('.top-bar-center');
+        if (topBarCenter) {
+          topBarCenter.innerHTML = `<a href="${global.header.topBarLink || '/products'}">${global.header.topBarText}</a>`;
+        }
+      }
+
+      // Update social media links
+      if (global.socialMedia) {
+        const socialContainer = document.querySelector('.footer-social');
+        if (socialContainer) {
+          let html = '';
+          if (global.socialMedia.facebook) html += `<a href="${global.socialMedia.facebook}" class="social-icon" target="_blank"><i class="fab fa-facebook-f"></i></a>`;
+          if (global.socialMedia.instagram) html += `<a href="${global.socialMedia.instagram}" class="social-icon" target="_blank"><i class="fab fa-instagram"></i></a>`;
+          if (global.socialMedia.pinterest) html += `<a href="${global.socialMedia.pinterest}" class="social-icon" target="_blank"><i class="fab fa-pinterest-p"></i></a>`;
+          if (global.socialMedia.twitter) html += `<a href="${global.socialMedia.twitter}" class="social-icon" target="_blank"><i class="fab fa-twitter"></i></a>`;
+          if (html) socialContainer.innerHTML = html;
+        }
+      }
+
+      // Update footer
+      if (global.footer) {
+        if (global.footer.copyrightText) {
+          const copyright = document.querySelector('.footer-copyright');
+          if (copyright) copyright.textContent = global.footer.copyrightText;
+        }
+
+        // Update footer columns
+        if (global.footer.columns && global.footer.columns.length > 0) {
+          const footerGrid = document.querySelector('.footer-grid');
+          if (footerGrid) {
+            const brandSection = footerGrid.querySelector('.footer-brand');
+            const columnsHtml = global.footer.columns.map(col => `
+              <div class="footer-column">
+                <h4>${col.title}</h4>
+                <ul>
+                  ${(col.links || []).map(link => `<li><a href="${link.url}">${link.text}</a></li>`).join('')}
+                </ul>
+              </div>
+            `).join('');
+            if (brandSection) {
+              footerGrid.innerHTML = brandSection.outerHTML + columnsHtml;
+            }
+          }
+        }
+      }
+    }
+
+    // Apply CMS navigation
+    function applyCMSNavigation(navigation) {
+      if (navigation.main && navigation.main.length > 0) {
+        const navUl = document.querySelector('.main-nav ul');
+        if (navUl) {
+          navUl.innerHTML = navigation.main.map(item => {
+            if (item.children && item.children.length > 0) {
+              return `
+                <li class="nav-dropdown">
+                  <a href="${item.url}">${item.text} <i class="fas fa-chevron-down"></i></a>
+                  <div class="nav-dropdown-menu">
+                    ${item.children.map(child => `<a href="${child.url}">${child.text}</a>`).join('')}
+                  </div>
+                </li>
+              `;
+            }
+            return `<li><a href="${item.url}">${item.text}</a></li>`;
+          }).join('');
+        }
+      }
+    }
+
+    // Apply homepage content from CMS
+    function applyHomepageFromCMS(page) {
+      if (!page.sections) return;
+
+      page.sections.forEach(section => {
+        if (!section.enabled) return;
+
+        switch (section.type) {
+          case 'hero':
+            applyHeroSection(section.content);
+            break;
+          case 'categoryGrid':
+            applyCategorySection(section.content);
+            break;
+          case 'featureList':
+            applyFeatureSection(section.content);
+            break;
+          case 'cta':
+            applyCTASection(section.content);
+            break;
+        }
+      });
+    }
+
+    // Apply hero section from CMS
+    function applyHeroSection(content) {
+      const heroSubtitle = document.querySelector('.hero-subtitle');
+      const heroTitle = document.querySelector('.hero-title');
+      const shopAllBtn = document.querySelector('.btn-shop-all');
+      const shopNewBtn = document.querySelector('.btn-shop-new');
+
+      if (heroSubtitle && content.subheadline) {
+        heroSubtitle.textContent = content.subheadline;
+      }
+      if (heroTitle && content.headline) {
+        heroTitle.innerHTML = content.headline.replace(' ', '<br>');
+      }
+      if (shopAllBtn && content.primaryButton) {
+        shopAllBtn.innerHTML = `${content.primaryButton.text} <i class="fas fa-arrow-up-right-from-square"></i>`;
+        shopAllBtn.href = content.primaryButton.url;
+      }
+      if (shopNewBtn && content.secondaryButton) {
+        shopNewBtn.innerHTML = `${content.secondaryButton.text} <i class="fas fa-arrow-up-right-from-square"></i>`;
+        shopNewBtn.href = content.secondaryButton.url;
+      }
+    }
+
+    // Apply category section from CMS
+    function applyCategorySection(content) {
+      const sectionHeader = document.querySelector('.purpose-section .section-header');
+      if (sectionHeader && content.title) {
+        const titleEl = sectionHeader.querySelector('.section-title');
+        const subtitleEl = sectionHeader.querySelector('.section-subtitle');
+        if (titleEl) titleEl.textContent = content.title;
+        if (subtitleEl) subtitleEl.textContent = content.subtitle || '';
+      }
+    }
+
+    // Apply feature section from CMS
+    function applyFeatureSection(content) {
+      // Features are typically part of the "imagination" section
+      const imaginationText = document.querySelector('.imagination-text');
+      if (imaginationText && content.title) {
+        const h2 = imaginationText.querySelector('h2');
+        if (h2) h2.textContent = content.title;
+      }
+    }
+
+    // Apply CTA section from CMS
+    function applyCTASection(content) {
+      // Could update a CTA banner if one exists
+      console.log('CTA section:', content);
+    }
+
+    // Apply banners from CMS
+    function applyBanners(banners) {
+      const topBanner = banners.find(b => b.location === 'top');
+      if (topBanner) {
+        const topBar = document.querySelector('.top-bar');
+        if (topBar) {
+          topBar.style.backgroundColor = topBanner.backgroundColor || '#8E6545';
+          const centerLink = topBar.querySelector('.top-bar-center a');
+          if (centerLink) {
+            centerLink.textContent = topBanner.text;
+            centerLink.href = topBanner.link || '#';
+          }
+        }
       }
     }
 
