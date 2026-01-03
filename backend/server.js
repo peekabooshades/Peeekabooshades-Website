@@ -855,6 +855,41 @@ app.post('/api/calculate-price', (req, res) => {
 });
 
 /**
+ * V1 Pricing API - Uses Extended Pricing Engine with fabric-based cordless pricing
+ * This is the PREFERRED pricing endpoint for product pages
+ */
+app.post('/api/v1/pricing/calculate', (req, res) => {
+  try {
+    const { productSlug, productType, width, height, quantity, fabricCode, options } = req.body;
+
+    // Find product by slug
+    const db = getDatabase();
+    const product = db.products.find(p => p.slug === productSlug);
+
+    if (!product) {
+      return res.status(404).json({ success: false, error: 'Product not found' });
+    }
+
+    // Use extended pricing engine with fabric-based pricing
+    const result = extendedPricingEngine.calculatePrice({
+      productId: product.id,
+      productType: productType || product.category_slug?.replace('-shades', '') || 'roller',
+      fabricCode: fabricCode || null,
+      width: width || 24,
+      height: height || 36,
+      quantity: quantity || 1,
+      options: options || {},
+      db
+    });
+
+    res.json(result);
+  } catch (error) {
+    console.error('V1 Pricing error:', error);
+    res.status(400).json({ success: false, error: error.message });
+  }
+});
+
+/**
  * Calculate complete order total - including tax, shipping, discounts
  * This is the ONLY source of truth for order pricing
  */
