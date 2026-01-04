@@ -557,7 +557,7 @@
         const data = await response.json();
 
         if (data.success) {
-          allMarginRules = data.rules || [];
+          allMarginRules = data.data || data.rules || [];
           renderMargins(allMarginRules);
         }
       } catch (error) {
@@ -580,10 +580,10 @@
       container.innerHTML = rules.map(r => `
         <div class="margin-rule">
           <div class="rule-info">
-            <div class="rule-name">${Admin.Utils.escapeHtml(r.name || r.type + ': ' + (r.target || 'All'))}</div>
-            <div class="rule-description">${Admin.Utils.escapeHtml(r.description || 'No description')}</div>
+            <div class="rule-name">${Admin.Utils.escapeHtml(r.name || r.type + ': ' + (r.target || r.productType || 'All'))}</div>
+            <div class="rule-description">${Admin.Utils.escapeHtml(r.description || (r.status === 'active' ? 'Active rule' : 'Inactive'))}</div>
           </div>
-          <div class="rule-value">${r.percentage}%</div>
+          <div class="rule-value">${r.percentage || r.marginValue || 0}%</div>
         </div>
       `).join('');
     }

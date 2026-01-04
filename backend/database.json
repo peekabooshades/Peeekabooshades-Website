@@ -1041,6 +1041,236 @@
       "created_at": "2026-01-03T19:05:21.464Z",
       "updated_at": "2026-01-03T19:05:21.471Z",
       "placed_at": "2026-01-03T19:05:21.464Z"
+    },
+    {
+      "id": "9d6305c7-5089-42c8-8916-f459cb0e156b",
+      "order_number": "ORD-MJYPYHZQ",
+      "status": "order_received",
+      "customer": {
+        "name": "Comprehensive Test Customer",
+        "email": "comprehensive.test@example.com",
+        "phone": "555-7890",
+        "address": "789 Test Boulevard, Suite 100, San Francisco, CA 94102"
+      },
+      "items": [
+        {
+          "id": "33b119bf-ea07-4581-9b64-7a6a510503af",
+          "session_id": "test-comprehensive-1767469896",
+          "product_id": "b23180d5-7989-4f9d-bf28-9b210cb31256",
+          "product_name": "Affordable Custom Roller Blinds & shades",
+          "quantity": 1,
+          "width": 36,
+          "height": 48,
+          "room_label": "Kitchen",
+          "configuration": "{\"lightFiltering\":\"blackout\",\"fabricCode\":\"82141A\",\"fabricColor\":\"82141A\",\"standardCassette\":\"square-v2\",\"standardBottomBar\":\"type-a-waterdrop\",\"chainType\":\"bead-chain-plastic\",\"chainSide\":\"left\",\"rollerType\":\"forward-roll\",\"mountType\":\"inside\",\"controlType\":\"manual\",\"motorType\":\"\",\"remoteType\":\"\",\"solarType\":\"\"}",
+          "unit_price": 80,
+          "line_total": 80,
+          "extended_warranty": 0,
+          "price_breakdown": {
+            "productId": "b23180d5-7989-4f9d-bf28-9b210cb31256",
+            "productName": "Affordable Custom Roller Blinds & shades",
+            "basePrice": 40,
+            "dimensionAdjustedPrice": 80,
+            "width": 36,
+            "height": 48,
+            "quantity": 1,
+            "optionPrice": 0,
+            "warrantyPrice": 0,
+            "unitPrice": 80,
+            "lineTotal": 80
+          },
+          "created_at": "2026-01-03T19:51:36.854Z",
+          "calculated_price": 80,
+          "order_id": "9d6305c7-5089-42c8-8916-f459cb0e156b",
+          "snapshot_at": "2026-01-03T19:52:04.502Z",
+          "price_snapshots": {
+            "manufacturer_price": {
+              "cost": 48,
+              "fabricCode": null,
+              "source": "calculated",
+              "captured_at": "2026-01-03T19:52:04.502Z"
+            },
+            "margin": {
+              "amount": 32,
+              "percent": 40,
+              "captured_at": "2026-01-03T19:52:04.502Z"
+            },
+            "customer_price": {
+              "unit_price": 80,
+              "line_total": 80,
+              "captured_at": "2026-01-03T19:52:04.502Z"
+            }
+          }
+        },
+        {
+          "id": "d3207ab4-3c9c-46e3-b1dc-4d3feedf2bfb",
+          "session_id": "test-comprehensive-1767469896",
+          "product_id": "b23180d5-7989-4f9d-bf28-9b210cb31256",
+          "product_name": "Affordable Custom Roller Blinds & shades",
+          "quantity": 2,
+          "width": 48,
+          "height": 60,
+          "room_label": "Living Room",
+          "configuration": "{\"lightFiltering\":\"transparent\",\"fabricCode\":\"82176C\",\"fabricColor\":\"82176C\",\"standardCassette\":\"fabric-wrapped-v3\",\"standardBottomBar\":\"type-c-fabric-wrapped\",\"chainType\":\"\",\"chainSide\":\"right\",\"rollerType\":\"reverse-roll\",\"mountType\":\"outside\",\"controlType\":\"motorized\",\"motorType\":\"dooya\",\"remoteType\":\"15-channel\",\"solarType\":\"yes\"}",
+          "unit_price": 133.33,
+          "line_total": 266.67,
+          "extended_warranty": 0,
+          "price_breakdown": {
+            "productId": "b23180d5-7989-4f9d-bf28-9b210cb31256",
+            "productName": "Affordable Custom Roller Blinds & shades",
+            "basePrice": 40,
+            "dimensionAdjustedPrice": 133.33,
+            "width": 48,
+            "height": 60,
+            "quantity": 2,
+            "optionPrice": 0,
+            "warrantyPrice": 0,
+            "unitPrice": 133.33,
+            "lineTotal": 266.67
+          },
+          "created_at": "2026-01-03T19:51:36.868Z",
+          "calculated_price": 266.67,
+          "order_id": "9d6305c7-5089-42c8-8916-f459cb0e156b",
+          "snapshot_at": "2026-01-03T19:52:04.502Z",
+          "price_snapshots": {
+            "manufacturer_price": {
+              "cost": 160,
+              "fabricCode": null,
+              "source": "calculated",
+              "captured_at": "2026-01-03T19:52:04.502Z"
+            },
+            "margin": {
+              "amount": 106.67,
+              "percent": 40,
+              "captured_at": "2026-01-03T19:52:04.502Z"
+            },
+            "customer_price": {
+              "unit_price": 133.33,
+              "line_total": 533.34,
+              "captured_at": "2026-01-03T19:52:04.502Z"
+            }
+          }
+        },
+        {
+          "id": "9e4a8cbe-54cd-40b1-9b43-c691c9f06576",
+          "session_id": "test-comprehensive-1767469896",
+          "product_id": "b23180d5-7989-4f9d-bf28-9b210cb31256",
+          "product_name": "Affordable Custom Roller Blinds & shades",
+          "quantity": 1,
+          "width": 60,
+          "height": 72,
+          "room_label": "Master Bedroom",
+          "configuration": "{\"lightFiltering\":\"light-filtering\",\"fabricCode\":\"82077B\",\"fabricColor\":\"82077B\",\"standardCassette\":\"fabric-inserted-s1\",\"standardBottomBar\":\"simple-rolling\",\"chainType\":\"\",\"chainSide\":\"left\",\"rollerType\":\"forward-roll\",\"mountType\":\"inside\",\"controlType\":\"motorized\",\"motorType\":\"aok\",\"remoteType\":\"5-channel\",\"solarType\":\"no\"}",
+          "unit_price": 200,
+          "line_total": 200,
+          "extended_warranty": 0,
+          "price_breakdown": {
+            "productId": "b23180d5-7989-4f9d-bf28-9b210cb31256",
+            "productName": "Affordable Custom Roller Blinds & shades",
+            "basePrice": 40,
+            "dimensionAdjustedPrice": 200,
+            "width": 60,
+            "height": 72,
+            "quantity": 1,
+            "optionPrice": 0,
+            "warrantyPrice": 0,
+            "unitPrice": 200,
+            "lineTotal": 200
+          },
+          "created_at": "2026-01-03T19:51:50.856Z",
+          "calculated_price": 200,
+          "order_id": "9d6305c7-5089-42c8-8916-f459cb0e156b",
+          "snapshot_at": "2026-01-03T19:52:04.502Z",
+          "price_snapshots": {
+            "manufacturer_price": {
+              "cost": 120,
+              "fabricCode": null,
+              "source": "calculated",
+              "captured_at": "2026-01-03T19:52:04.502Z"
+            },
+            "margin": {
+              "amount": 80,
+              "percent": 40,
+              "captured_at": "2026-01-03T19:52:04.502Z"
+            },
+            "customer_price": {
+              "unit_price": 200,
+              "line_total": 200,
+              "captured_at": "2026-01-03T19:52:04.502Z"
+            }
+          }
+        },
+        {
+          "id": "875dec7f-f64f-4e02-a02b-3bb89839ef9e",
+          "session_id": "test-comprehensive-1767469896",
+          "product_id": "b23180d5-7989-4f9d-bf28-9b210cb31256",
+          "product_name": "Affordable Custom Roller Blinds & shades",
+          "quantity": 3,
+          "width": 24,
+          "height": 36,
+          "room_label": "Office",
+          "configuration": "{\"lightFiltering\":\"blackout\",\"fabricCode\":\"82143D\",\"fabricColor\":\"82143D\",\"standardCassette\":\"curve-white-s2\",\"standardBottomBar\":\"type-b\",\"chainType\":\"bead-chain-metal\",\"chainSide\":\"right\",\"rollerType\":\"reverse-roll\",\"mountType\":\"outside\",\"controlType\":\"manual\",\"motorType\":\"\",\"remoteType\":\"\",\"solarType\":\"\"}",
+          "unit_price": 40,
+          "line_total": 120,
+          "extended_warranty": 0,
+          "price_breakdown": {
+            "productId": "b23180d5-7989-4f9d-bf28-9b210cb31256",
+            "productName": "Affordable Custom Roller Blinds & shades",
+            "basePrice": 40,
+            "dimensionAdjustedPrice": 40,
+            "width": 24,
+            "height": 36,
+            "quantity": 3,
+            "optionPrice": 0,
+            "warrantyPrice": 0,
+            "unitPrice": 40,
+            "lineTotal": 120
+          },
+          "created_at": "2026-01-03T19:51:50.869Z",
+          "calculated_price": 120,
+          "order_id": "9d6305c7-5089-42c8-8916-f459cb0e156b",
+          "snapshot_at": "2026-01-03T19:52:04.502Z",
+          "price_snapshots": {
+            "manufacturer_price": {
+              "cost": 72,
+              "fabricCode": null,
+              "source": "calculated",
+              "captured_at": "2026-01-03T19:52:04.502Z"
+            },
+            "margin": {
+              "amount": 48,
+              "percent": 40,
+              "captured_at": "2026-01-03T19:52:04.502Z"
+            },
+            "customer_price": {
+              "unit_price": 40,
+              "line_total": 360,
+              "captured_at": "2026-01-03T19:52:04.502Z"
+            }
+          }
+        }
+      ],
+      "pricing": {
+        "subtotal": 1173.3400000000001,
+        "tax": 85.07,
+        "tax_rate": 0.0725,
+        "shipping": 0,
+        "total": 1258.41,
+        "currency": "USD",
+        "manufacturer_cost_total": 704,
+        "margin_total": 469.34,
+        "margin_percent": 40
+      },
+      "payment": {
+        "method": "fake_checkout",
+        "status": "completed",
+        "masked_card": null,
+        "transaction_id": null,
+        "paid_at": "2026-01-03T19:52:04.506Z"
+      },
+      "created_at": "2026-01-03T19:52:04.502Z",
+      "updated_at": "2026-01-03T19:52:04.506Z",
+      "placed_at": "2026-01-03T19:52:04.502Z"
     }
   ],
   "quotes": [
@@ -1096,7 +1326,7 @@
       "name": "Admin",
       "role": "admin",
       "createdAt": "2025-01-01T00:00:00.000Z",
-      "lastLogin": "2026-01-03T19:11:50.348Z"
+      "lastLogin": "2026-01-04T02:54:29.620Z"
     }
   ],
   "settings": {
@@ -2392,7 +2622,7 @@
           "id": "sys-001b",
           "value": "bead-chain-metal",
           "label": "Metal Bead Chain",
-          "price": 2.20,
+          "price": 2.2,
           "priceType": "sqm",
           "imageUrl": "/images/control-system/bead-chain-metal.png",
           "sortOrder": 2,
@@ -2636,7 +2866,7 @@
           "id": "remote-002",
           "value": "6-channel",
           "label": "6 Channel",
-          "price": 6.60,
+          "price": 6.6,
           "sortOrder": 2,
           "isActive": true
         },
@@ -2654,7 +2884,7 @@
           "id": "solar-001",
           "value": "yes",
           "label": "Yes",
-          "price": 20.50,
+          "price": 20.5,
           "sortOrder": 1,
           "isActive": true
         },
@@ -10507,6 +10737,108 @@
         }
       },
       "metadata": {}
+    },
+    {
+      "id": "8c7da61b-ee31-4d9c-bb61-727e6789f5a5",
+      "timestamp": "2026-01-03T19:52:04.504Z",
+      "action": "order.create",
+      "severity": "info",
+      "actor": {
+        "userId": "customer",
+        "ipAddress": null,
+        "userAgent": null
+      },
+      "resource": {
+        "type": "order",
+        "id": "9d6305c7-5089-42c8-8916-f459cb0e156b",
+        "name": "ORD-MJYPYHZQ"
+      },
+      "changes": {
+        "type": "create",
+        "data": {
+          "orderNumber": "ORD-MJYPYHZQ",
+          "total": 1258.41,
+          "itemCount": 4
+        }
+      },
+      "metadata": {}
+    },
+    {
+      "id": "509fa10f-252e-426b-8ef9-e527a665132e",
+      "timestamp": "2026-01-03T19:52:04.507Z",
+      "action": "order.status_change",
+      "severity": "info",
+      "actor": {
+        "userId": "system",
+        "ipAddress": null,
+        "userAgent": null
+      },
+      "resource": {
+        "type": "order",
+        "id": "9d6305c7-5089-42c8-8916-f459cb0e156b",
+        "name": "ORD-MJYPYHZQ"
+      },
+      "changes": {
+        "status": {
+          "from": "order_placed",
+          "to": "order_received"
+        }
+      },
+      "metadata": {
+        "reason": "Payment received - fake checkout"
+      }
+    },
+    {
+      "id": "61c989c6-6ab4-4744-b62b-6e956a102fd4",
+      "timestamp": "2026-01-03T19:58:00.437Z",
+      "action": "invoice.create",
+      "severity": "info",
+      "actor": {
+        "userId": "admin-001",
+        "email": "admin@peekabooshades.com",
+        "ipAddress": null,
+        "userAgent": null
+      },
+      "resource": {
+        "type": "invoice",
+        "id": "9c1976d6-f2cb-40cd-90cc-eba4f93a04ec",
+        "name": "INV-MJYQ64MSMJHY"
+      },
+      "changes": {
+        "type": "create",
+        "data": {
+          "invoiceNumber": "INV-MJYQ64MSMJHY",
+          "total": 1258.41,
+          "type": "customer"
+        }
+      },
+      "metadata": {}
+    },
+    {
+      "id": "fb69cfcb-65fb-470b-b16a-af22a4cc376d",
+      "timestamp": "2026-01-03T19:58:00.453Z",
+      "action": "invoice.create",
+      "severity": "info",
+      "actor": {
+        "userId": "admin-001",
+        "email": "admin@peekabooshades.com",
+        "ipAddress": null,
+        "userAgent": null
+      },
+      "resource": {
+        "type": "invoice",
+        "id": "a5b6c6b2-bb13-46ec-b060-55f0b1f0a89a",
+        "name": "MFR-INV-MJYQ64N74K6S"
+      },
+      "changes": {
+        "type": "create",
+        "data": {
+          "invoiceNumber": "MFR-INV-MJYQ64N74K6S",
+          "total": 704,
+          "type": "manufacturer"
+        }
+      },
+      "metadata": {}
     }
   ],
   "cmsContent": {
@@ -11885,7 +12217,7 @@
           {
             "value": "bead-chain-metal",
             "name": "Metal Bead Chain",
-            "price": 2.20,
+            "price": 2.2,
             "priceType": "sqm",
             "image": "/images/control-system/bead-chain-metal.png"
           },
@@ -11955,7 +12287,7 @@
           {
             "value": "6-channel",
             "name": "6 Channel",
-            "price": 6.60
+            "price": 6.6
           },
           {
             "value": "15-channel",
@@ -11981,7 +12313,7 @@
           {
             "value": "yes",
             "name": "Yes",
-            "price": 20.50
+            "price": 20.5
           }
         ]
       },
@@ -18039,6 +18371,27 @@
       "changedBy": "system",
       "changedAt": "2026-01-03T19:05:21.471Z",
       "reason": "Payment received - fake checkout"
+    },
+    {
+      "id": "7443253c-af9f-48a0-84b3-09cc00d138b7",
+      "orderId": "9d6305c7-5089-42c8-8916-f459cb0e156b",
+      "orderNumber": "ORD-MJYPYHZQ",
+      "fromStatus": null,
+      "toStatus": "order_placed",
+      "changedBy": "customer",
+      "changedAt": "2026-01-03T19:52:04.502Z",
+      "reason": "Order created via checkout",
+      "diff": null
+    },
+    {
+      "id": "92ded19a-657c-454c-88cd-54c832f31c0c",
+      "orderId": "9d6305c7-5089-42c8-8916-f459cb0e156b",
+      "orderNumber": "ORD-MJYPYHZQ",
+      "fromStatus": "order_placed",
+      "toStatus": "order_received",
+      "changedBy": "system",
+      "changedAt": "2026-01-03T19:52:04.506Z",
+      "reason": "Payment received - fake checkout"
     }
   ],
   "shipments": [],
@@ -18514,6 +18867,133 @@
       "updatedAt": "2026-01-03T19:20:22.835Z",
       "notes": "",
       "internalNotes": ""
+    },
+    {
+      "id": "9c1976d6-f2cb-40cd-90cc-eba4f93a04ec",
+      "invoiceNumber": "INV-MJYQ64MSMJHY",
+      "type": "customer",
+      "status": "paid",
+      "orderId": "9d6305c7-5089-42c8-8916-f459cb0e156b",
+      "orderNumber": "ORD-MJYPYHZQ",
+      "customer": {
+        "name": "Comprehensive Test Customer",
+        "email": "comprehensive.test@example.com",
+        "phone": "555-7890",
+        "address": "789 Test Boulevard, Suite 100, San Francisco, CA 94102"
+      },
+      "billingAddress": "789 Test Boulevard, Suite 100, San Francisco, CA 94102",
+      "shippingAddress": "789 Test Boulevard, Suite 100, San Francisco, CA 94102",
+      "items": [
+        {
+          "id": "33b119bf-ea07-4581-9b64-7a6a510503af",
+          "description": "Affordable Custom Roller Blinds & shades",
+          "details": "36\" W x 48\" H",
+          "quantity": 1,
+          "unitPrice": 80,
+          "lineTotal": 80
+        },
+        {
+          "id": "d3207ab4-3c9c-46e3-b1dc-4d3feedf2bfb",
+          "description": "Affordable Custom Roller Blinds & shades",
+          "details": "48\" W x 60\" H",
+          "quantity": 2,
+          "unitPrice": 133.33,
+          "lineTotal": 266.67
+        },
+        {
+          "id": "9e4a8cbe-54cd-40b1-9b43-c691c9f06576",
+          "description": "Affordable Custom Roller Blinds & shades",
+          "details": "60\" W x 72\" H",
+          "quantity": 1,
+          "unitPrice": 200,
+          "lineTotal": 200
+        },
+        {
+          "id": "875dec7f-f64f-4e02-a02b-3bb89839ef9e",
+          "description": "Affordable Custom Roller Blinds & shades",
+          "details": "24\" W x 36\" H",
+          "quantity": 3,
+          "unitPrice": 40,
+          "lineTotal": 120
+        }
+      ],
+      "subtotal": 1173.3400000000001,
+      "tax": 85.07,
+      "taxRate": 0.0725,
+      "shipping": 0,
+      "discount": 0,
+      "total": 1258.41,
+      "currency": "USD",
+      "amountPaid": 1258.41,
+      "amountDue": 0,
+      "paymentMethod": "fake_checkout",
+      "paidAt": "2026-01-03T19:52:04.506Z",
+      "issueDate": "2026-01-03T19:58:00.436Z",
+      "dueDate": "2026-02-02T19:58:00.436Z",
+      "createdAt": "2026-01-03T19:58:00.436Z",
+      "updatedAt": "2026-01-03T19:58:00.436Z",
+      "notes": "",
+      "internalNotes": ""
+    },
+    {
+      "id": "a5b6c6b2-bb13-46ec-b060-55f0b1f0a89a",
+      "invoiceNumber": "MFR-INV-MJYQ64N74K6S",
+      "type": "manufacturer",
+      "status": "draft",
+      "orderId": "9d6305c7-5089-42c8-8916-f459cb0e156b",
+      "orderNumber": "ORD-MJYPYHZQ",
+      "manufacturer": {
+        "id": "mfr-default",
+        "name": "Default Manufacturer",
+        "email": ""
+      },
+      "items": [
+        {
+          "id": "33b119bf-ea07-4581-9b64-7a6a510503af",
+          "description": "Affordable Custom Roller Blinds & shades",
+          "details": "36\" W x 48\" H - Fabric: N/A",
+          "quantity": 1,
+          "unitPrice": 48,
+          "lineTotal": 48
+        },
+        {
+          "id": "d3207ab4-3c9c-46e3-b1dc-4d3feedf2bfb",
+          "description": "Affordable Custom Roller Blinds & shades",
+          "details": "48\" W x 60\" H - Fabric: N/A",
+          "quantity": 2,
+          "unitPrice": 160,
+          "lineTotal": 320
+        },
+        {
+          "id": "9e4a8cbe-54cd-40b1-9b43-c691c9f06576",
+          "description": "Affordable Custom Roller Blinds & shades",
+          "details": "60\" W x 72\" H - Fabric: N/A",
+          "quantity": 1,
+          "unitPrice": 120,
+          "lineTotal": 120
+        },
+        {
+          "id": "875dec7f-f64f-4e02-a02b-3bb89839ef9e",
+          "description": "Affordable Custom Roller Blinds & shades",
+          "details": "24\" W x 36\" H - Fabric: N/A",
+          "quantity": 3,
+          "unitPrice": 72,
+          "lineTotal": 216
+        }
+      ],
+      "subtotal": 704,
+      "tax": 0,
+      "shipping": 0,
+      "total": 704,
+      "currency": "USD",
+      "amountPaid": 0,
+      "amountDue": 704,
+      "issueDate": "2026-01-03T19:58:00.451Z",
+      "dueDate": "2026-02-02T19:58:00.451Z",
+      "createdAt": "2026-01-03T19:58:00.451Z",
+      "updatedAt": "2026-01-03T19:58:00.451Z",
+      "notes": "",
+      "internalNotes": ""
     }
   ],
   "payments": [],
@@ -18712,6 +19192,29 @@
         "itemCount": 2
       },
       "createdAt": "2026-01-03T19:05:21.488Z"
+    },
+    {
+      "id": "evt-58562354",
+      "type": "checkout_completed",
+      "sessionId": "test-comprehensive-1767469896",
+      "userId": null,
+      "productId": null,
+      "productName": null,
+      "fabricCode": null,
+      "orderId": "9d6305c7-5089-42c8-8916-f459cb0e156b",
+      "orderNumber": "ORD-MJYPYHZQ",
+      "value": 1258.41,
+      "quantity": 4,
+      "source": "direct",
+      "page": "",
+      "referrer": null,
+      "metadata": {
+        "subtotal": 1173.3400000000001,
+        "tax": 85.07,
+        "shipping": 0,
+        "itemCount": 4
+      },
+      "createdAt": "2026-01-03T19:52:04.518Z"
     }
   ],
   "priceImportLogs": [],
@@ -18850,277 +19353,53 @@
   },
   "ledgerEntries": [
     {
-      "id": "5575ee80-30d3-468c-b795-4e5cdfde8ff8",
-      "type": "customer_payment_received",
-      "orderId": "99bc05dd-338b-43e2-906a-b9e34e199400",
-      "amount": 358.19,
-      "description": "Payment for order ORD-MJXVNYQO",
-      "metadata": {
-        "orderNumber": "ORD-MJXVNYQO"
-      },
-      "createdAt": "2026-01-03T05:44:04.518Z"
+      "id": "fadb182c-f723-421b-8e9e-48e9795a0bed",
+      "type": "manufacturer_payable",
+      "orderId": "9d6305c7-5089-42c8-8916-f459cb0e156b",
+      "amount": -400,
+      "description": "Manufacturer cost for order ORD-MJYPYHZQ",
+      "metadata": {},
+      "createdAt": "2026-01-03T19:52:04.515Z"
     },
     {
-      "id": "8287072e-1176-41e9-9409-8e40cba6a7b3",
+      "id": "3bd6cbf4-62f9-4b51-b8ce-75075e93c89d",
       "type": "sales_tax_collected",
-      "orderId": "99bc05dd-338b-43e2-906a-b9e34e199400",
-      "amount": 23.2,
-      "description": "Sales tax for order ORD-MJXVNYQO",
+      "orderId": "9d6305c7-5089-42c8-8916-f459cb0e156b",
+      "amount": 85.07,
+      "description": "Sales tax for order ORD-MJYPYHZQ",
       "metadata": {
         "taxRate": 0.0725
       },
-      "createdAt": "2026-01-03T05:44:04.520Z"
+      "createdAt": "2026-01-03T19:52:04.512Z"
     },
     {
-      "id": "4fbcd200-1d29-4888-831d-4097ae4e7bd7",
-      "type": "shipping_charged",
-      "orderId": "99bc05dd-338b-43e2-906a-b9e34e199400",
-      "amount": 14.99,
-      "description": "Shipping for order ORD-MJXVNYQO",
-      "metadata": {},
-      "createdAt": "2026-01-03T05:44:04.522Z"
-    },
-    {
-      "id": "93a389ca-be4b-4873-b5db-a7cc732d29a3",
-      "type": "manufacturer_payable",
-      "orderId": "99bc05dd-338b-43e2-906a-b9e34e199400",
-      "amount": -96,
-      "description": "Manufacturer cost for order ORD-MJXVNYQO",
-      "metadata": {},
-      "createdAt": "2026-01-03T05:44:04.524Z"
-    },
-    {
-      "id": "78a019d3-bbcc-4176-a8ed-fe38a2091130",
+      "id": "cad84776-2ccb-469a-aa54-e25384799d9a",
       "type": "customer_payment_received",
-      "orderId": "5853f352-b9d3-41a3-baf7-ceca2e619c6f",
-      "amount": 157.99,
-      "description": "Payment for order ORD-MJXVZAJN",
+      "orderId": "9d6305c7-5089-42c8-8916-f459cb0e156b",
+      "amount": 1258.41,
+      "description": "Payment for order ORD-MJYPYHZQ",
       "metadata": {
-        "orderNumber": "ORD-MJXVZAJN"
+        "orderNumber": "ORD-MJYPYHZQ"
       },
-      "createdAt": "2026-01-03T05:52:53.034Z"
+      "createdAt": "2026-01-03T19:52:04.509Z"
     },
     {
-      "id": "5aeb48b6-272e-4c1b-9ddf-451f32bdb9ac",
-      "type": "sales_tax_collected",
-      "orderId": "5853f352-b9d3-41a3-baf7-ceca2e619c6f",
-      "amount": 9.67,
-      "description": "Sales tax for order ORD-MJXVZAJN",
-      "metadata": {
-        "taxRate": 0.0725
-      },
-      "createdAt": "2026-01-03T05:52:53.037Z"
-    },
-    {
-      "id": "49ed7601-2af8-4a7f-af7c-fce87f5adc6d",
-      "type": "shipping_charged",
-      "orderId": "5853f352-b9d3-41a3-baf7-ceca2e619c6f",
-      "amount": 14.99,
-      "description": "Shipping for order ORD-MJXVZAJN",
-      "metadata": {},
-      "createdAt": "2026-01-03T05:52:53.046Z"
-    },
-    {
-      "id": "487af434-4c31-4ec7-85c2-6c4db9951878",
+      "id": "0e809432-2750-424d-a36f-322109327eb6",
       "type": "manufacturer_payable",
-      "orderId": "5853f352-b9d3-41a3-baf7-ceca2e619c6f",
-      "amount": -80,
-      "description": "Manufacturer cost for order ORD-MJXVZAJN",
-      "metadata": {},
-      "createdAt": "2026-01-03T05:52:53.050Z"
-    },
-    {
-      "id": "ee6418f4-1b80-4ef4-ac31-524c77bfdb4b",
-      "type": "customer_payment_received",
-      "orderId": "30494dc2-6d0e-4795-8515-bc95dd90745c",
-      "amount": 100.79,
-      "description": "Payment for order ORD-MJXWIG47",
-      "metadata": {
-        "orderNumber": "ORD-MJXWIG47"
-      },
-      "createdAt": "2026-01-03T06:07:46.715Z"
-    },
-    {
-      "id": "b0566c73-f04d-4d47-8952-0779ded1ae90",
-      "type": "sales_tax_collected",
-      "orderId": "30494dc2-6d0e-4795-8515-bc95dd90745c",
-      "amount": 5.8,
-      "description": "Sales tax for order ORD-MJXWIG47",
-      "metadata": {
-        "taxRate": 0.0725
-      },
-      "createdAt": "2026-01-03T06:07:46.718Z"
-    },
-    {
-      "id": "75e3383e-7d4f-41e7-a79d-d22f852b6271",
-      "type": "shipping_charged",
-      "orderId": "30494dc2-6d0e-4795-8515-bc95dd90745c",
-      "amount": 14.99,
-      "description": "Shipping for order ORD-MJXWIG47",
-      "metadata": {},
-      "createdAt": "2026-01-03T06:07:46.720Z"
-    },
-    {
-      "id": "15de3d57-57a5-49e9-8b03-c0c3e8ac8b47",
-      "type": "manufacturer_payable",
-      "orderId": "30494dc2-6d0e-4795-8515-bc95dd90745c",
-      "amount": -48,
-      "description": "Manufacturer cost for order ORD-MJXWIG47",
-      "metadata": {},
-      "createdAt": "2026-01-03T06:07:46.722Z"
-    },
-    {
-      "id": "8529b951-284f-41a7-abb0-2c4bc62c3b9c",
-      "type": "customer_payment_received",
-      "orderId": "ce9f9360-fa36-457e-974b-0afe0daa5baa",
-      "amount": 157.99,
-      "description": "Payment for order ORD-MJXX39X5",
-      "metadata": {
-        "orderNumber": "ORD-MJXX39X5"
-      },
-      "createdAt": "2026-01-03T06:23:58.463Z"
-    },
-    {
-      "id": "1dd7f722-1c29-4b98-9789-0c73597541aa",
-      "type": "sales_tax_collected",
-      "orderId": "ce9f9360-fa36-457e-974b-0afe0daa5baa",
-      "amount": 9.67,
-      "description": "Sales tax for order ORD-MJXX39X5",
-      "metadata": {
-        "taxRate": 0.0725
-      },
-      "createdAt": "2026-01-03T06:23:58.465Z"
-    },
-    {
-      "id": "ac6b276c-ab96-48e0-b444-49e32dfe4fed",
-      "type": "shipping_charged",
-      "orderId": "ce9f9360-fa36-457e-974b-0afe0daa5baa",
-      "amount": 14.99,
-      "description": "Shipping for order ORD-MJXX39X5",
-      "metadata": {},
-      "createdAt": "2026-01-03T06:23:58.468Z"
-    },
-    {
-      "id": "8aee5acf-5308-40bf-8257-909a7aaf3f26",
-      "type": "manufacturer_payable",
-      "orderId": "ce9f9360-fa36-457e-974b-0afe0daa5baa",
-      "amount": -80,
-      "description": "Manufacturer cost for order ORD-MJXX39X5",
-      "metadata": {},
-      "createdAt": "2026-01-03T06:23:58.470Z"
-    },
-    {
-      "id": "9e21c99e-3cad-495a-afb5-86ede4fb6126",
-      "type": "customer_payment_received",
-      "orderId": "729759af-11c1-4bb5-b9d9-815a3489da8d",
-      "amount": 572.01,
-      "description": "Payment for order ORD-MJXYRC59",
-      "metadata": {
-        "orderNumber": "ORD-MJXYRC59"
-      },
-      "createdAt": "2026-01-03T07:10:40.706Z"
-    },
-    {
-      "id": "d3a7acfe-c2e3-4bda-b602-58885c142198",
-      "type": "sales_tax_collected",
-      "orderId": "729759af-11c1-4bb5-b9d9-815a3489da8d",
-      "amount": 38.67,
-      "description": "Sales tax for order ORD-MJXYRC59",
-      "metadata": {
-        "taxRate": 0.0725
-      },
-      "createdAt": "2026-01-03T07:10:40.709Z"
-    },
-    {
-      "id": "c50b4042-215e-429e-b160-fbd77e658861",
-      "type": "manufacturer_payable",
-      "orderId": "729759af-11c1-4bb5-b9d9-815a3489da8d",
-      "amount": -160,
-      "description": "Manufacturer cost for order ORD-MJXYRC59",
-      "metadata": {},
-      "createdAt": "2026-01-03T07:10:40.712Z"
-    },
-    {
-      "id": "0af713e3-b25c-4f59-9b8a-a9d94f2fb122",
-      "type": "customer_payment_received",
-      "orderId": "970453a2-0569-4f6b-a44a-2d1613329cfa",
-      "amount": 1517.59,
-      "description": "Payment for order ORD-MJYKJ75P",
-      "metadata": {
-        "orderNumber": "ORD-MJYKJ75P"
-      },
-      "createdAt": "2026-01-03T17:20:12.546Z"
-    },
-    {
-      "id": "0eb06d49-764f-4c1f-9811-f1db0af7c4c5",
-      "type": "sales_tax_collected",
-      "orderId": "970453a2-0569-4f6b-a44a-2d1613329cfa",
-      "amount": 102.59,
-      "description": "Sales tax for order ORD-MJYKJ75P",
-      "metadata": {
-        "taxRate": 0.0725
-      },
-      "createdAt": "2026-01-03T17:20:12.548Z"
-    },
-    {
-      "id": "f9aa42c1-8e88-4475-8b29-31fdb7907479",
-      "type": "manufacturer_payable",
-      "orderId": "970453a2-0569-4f6b-a44a-2d1613329cfa",
-      "amount": -393,
-      "description": "Manufacturer cost for order ORD-MJYKJ75P",
-      "metadata": {},
-      "createdAt": "2026-01-03T17:20:12.551Z"
-    },
-    {
-      "id": "0d4d3231-bc5e-4e60-be36-5373eb6fa78c",
-      "type": "customer_payment_received",
-      "orderId": "05e12985-166e-48e7-af4e-f15d610b4f26",
-      "amount": 517.27,
-      "description": "Payment for order ORD-MJYMIYNL",
-      "metadata": {
-        "orderNumber": "ORD-MJYMIYNL"
-      },
-      "createdAt": "2026-01-03T18:16:00.759Z"
-    },
-    {
-      "id": "2c366924-dbde-4199-a5bc-7d560b04b48a",
-      "type": "sales_tax_collected",
-      "orderId": "05e12985-166e-48e7-af4e-f15d610b4f26",
-      "amount": 33.95,
-      "description": "Sales tax for order ORD-MJYMIYNL",
-      "metadata": {
-        "taxRate": 0.0725
-      },
-      "createdAt": "2026-01-03T18:16:00.762Z"
-    },
-    {
-      "id": "52c679da-eafc-4099-8ece-e9432e26679c",
-      "type": "shipping_charged",
-      "orderId": "05e12985-166e-48e7-af4e-f15d610b4f26",
-      "amount": 14.99,
-      "description": "Shipping for order ORD-MJYMIYNL",
-      "metadata": {},
-      "createdAt": "2026-01-03T18:16:00.765Z"
-    },
-    {
-      "id": "e240a71b-5337-482a-80a0-ecdc41819aee",
-      "type": "manufacturer_payable",
-      "orderId": "05e12985-166e-48e7-af4e-f15d610b4f26",
-      "amount": -185,
-      "description": "Manufacturer cost for order ORD-MJYMIYNL",
-      "metadata": {},
-      "createdAt": "2026-01-03T18:16:00.767Z"
-    },
-    {
-      "id": "d7840f2a-da7f-471e-9ba2-118bd2923e2f",
-      "type": "customer_payment_received",
       "orderId": "1df1e46d-3016-425c-b42b-74136a60dbb6",
-      "amount": 501.19,
-      "description": "Payment for order ORD-MJYOAF5K",
-      "metadata": {
-        "orderNumber": "ORD-MJYOAF5K"
-      },
-      "createdAt": "2026-01-03T19:05:21.475Z"
+      "amount": -176,
+      "description": "Manufacturer cost for order ORD-MJYOAF5K",
+      "metadata": {},
+      "createdAt": "2026-01-03T19:05:21.485Z"
+    },
+    {
+      "id": "55fee824-287d-4778-858d-c1f784472366",
+      "type": "shipping_charged",
+      "orderId": "1df1e46d-3016-425c-b42b-74136a60dbb6",
+      "amount": 14.99,
+      "description": "Shipping for order ORD-MJYOAF5K",
+      "metadata": {},
+      "createdAt": "2026-01-03T19:05:21.482Z"
     },
     {
       "id": "4857ec0b-fa6d-4dc5-80ae-d73ed40cccc8",
@@ -19134,22 +19413,277 @@
       "createdAt": "2026-01-03T19:05:21.478Z"
     },
     {
-      "id": "55fee824-287d-4778-858d-c1f784472366",
-      "type": "shipping_charged",
+      "id": "d7840f2a-da7f-471e-9ba2-118bd2923e2f",
+      "type": "customer_payment_received",
       "orderId": "1df1e46d-3016-425c-b42b-74136a60dbb6",
-      "amount": 14.99,
-      "description": "Shipping for order ORD-MJYOAF5K",
-      "metadata": {},
-      "createdAt": "2026-01-03T19:05:21.482Z"
+      "amount": 501.19,
+      "description": "Payment for order ORD-MJYOAF5K",
+      "metadata": {
+        "orderNumber": "ORD-MJYOAF5K"
+      },
+      "createdAt": "2026-01-03T19:05:21.475Z"
     },
     {
-      "id": "0e809432-2750-424d-a36f-322109327eb6",
+      "id": "e240a71b-5337-482a-80a0-ecdc41819aee",
       "type": "manufacturer_payable",
-      "orderId": "1df1e46d-3016-425c-b42b-74136a60dbb6",
-      "amount": -176,
-      "description": "Manufacturer cost for order ORD-MJYOAF5K",
+      "orderId": "05e12985-166e-48e7-af4e-f15d610b4f26",
+      "amount": -185,
+      "description": "Manufacturer cost for order ORD-MJYMIYNL",
       "metadata": {},
-      "createdAt": "2026-01-03T19:05:21.485Z"
+      "createdAt": "2026-01-03T18:16:00.767Z"
+    },
+    {
+      "id": "52c679da-eafc-4099-8ece-e9432e26679c",
+      "type": "shipping_charged",
+      "orderId": "05e12985-166e-48e7-af4e-f15d610b4f26",
+      "amount": 14.99,
+      "description": "Shipping for order ORD-MJYMIYNL",
+      "metadata": {},
+      "createdAt": "2026-01-03T18:16:00.765Z"
+    },
+    {
+      "id": "2c366924-dbde-4199-a5bc-7d560b04b48a",
+      "type": "sales_tax_collected",
+      "orderId": "05e12985-166e-48e7-af4e-f15d610b4f26",
+      "amount": 33.95,
+      "description": "Sales tax for order ORD-MJYMIYNL",
+      "metadata": {
+        "taxRate": 0.0725
+      },
+      "createdAt": "2026-01-03T18:16:00.762Z"
+    },
+    {
+      "id": "0d4d3231-bc5e-4e60-be36-5373eb6fa78c",
+      "type": "customer_payment_received",
+      "orderId": "05e12985-166e-48e7-af4e-f15d610b4f26",
+      "amount": 517.27,
+      "description": "Payment for order ORD-MJYMIYNL",
+      "metadata": {
+        "orderNumber": "ORD-MJYMIYNL"
+      },
+      "createdAt": "2026-01-03T18:16:00.759Z"
+    },
+    {
+      "id": "f9aa42c1-8e88-4475-8b29-31fdb7907479",
+      "type": "manufacturer_payable",
+      "orderId": "970453a2-0569-4f6b-a44a-2d1613329cfa",
+      "amount": -393,
+      "description": "Manufacturer cost for order ORD-MJYKJ75P",
+      "metadata": {},
+      "createdAt": "2026-01-03T17:20:12.551Z"
+    },
+    {
+      "id": "0eb06d49-764f-4c1f-9811-f1db0af7c4c5",
+      "type": "sales_tax_collected",
+      "orderId": "970453a2-0569-4f6b-a44a-2d1613329cfa",
+      "amount": 102.59,
+      "description": "Sales tax for order ORD-MJYKJ75P",
+      "metadata": {
+        "taxRate": 0.0725
+      },
+      "createdAt": "2026-01-03T17:20:12.548Z"
+    },
+    {
+      "id": "0af713e3-b25c-4f59-9b8a-a9d94f2fb122",
+      "type": "customer_payment_received",
+      "orderId": "970453a2-0569-4f6b-a44a-2d1613329cfa",
+      "amount": 1517.59,
+      "description": "Payment for order ORD-MJYKJ75P",
+      "metadata": {
+        "orderNumber": "ORD-MJYKJ75P"
+      },
+      "createdAt": "2026-01-03T17:20:12.546Z"
+    },
+    {
+      "id": "c50b4042-215e-429e-b160-fbd77e658861",
+      "type": "manufacturer_payable",
+      "orderId": "729759af-11c1-4bb5-b9d9-815a3489da8d",
+      "amount": -160,
+      "description": "Manufacturer cost for order ORD-MJXYRC59",
+      "metadata": {},
+      "createdAt": "2026-01-03T07:10:40.712Z"
+    },
+    {
+      "id": "d3a7acfe-c2e3-4bda-b602-58885c142198",
+      "type": "sales_tax_collected",
+      "orderId": "729759af-11c1-4bb5-b9d9-815a3489da8d",
+      "amount": 38.67,
+      "description": "Sales tax for order ORD-MJXYRC59",
+      "metadata": {
+        "taxRate": 0.0725
+      },
+      "createdAt": "2026-01-03T07:10:40.709Z"
+    },
+    {
+      "id": "9e21c99e-3cad-495a-afb5-86ede4fb6126",
+      "type": "customer_payment_received",
+      "orderId": "729759af-11c1-4bb5-b9d9-815a3489da8d",
+      "amount": 572.01,
+      "description": "Payment for order ORD-MJXYRC59",
+      "metadata": {
+        "orderNumber": "ORD-MJXYRC59"
+      },
+      "createdAt": "2026-01-03T07:10:40.706Z"
+    },
+    {
+      "id": "8aee5acf-5308-40bf-8257-909a7aaf3f26",
+      "type": "manufacturer_payable",
+      "orderId": "ce9f9360-fa36-457e-974b-0afe0daa5baa",
+      "amount": -80,
+      "description": "Manufacturer cost for order ORD-MJXX39X5",
+      "metadata": {},
+      "createdAt": "2026-01-03T06:23:58.470Z"
+    },
+    {
+      "id": "ac6b276c-ab96-48e0-b444-49e32dfe4fed",
+      "type": "shipping_charged",
+      "orderId": "ce9f9360-fa36-457e-974b-0afe0daa5baa",
+      "amount": 14.99,
+      "description": "Shipping for order ORD-MJXX39X5",
+      "metadata": {},
+      "createdAt": "2026-01-03T06:23:58.468Z"
+    },
+    {
+      "id": "1dd7f722-1c29-4b98-9789-0c73597541aa",
+      "type": "sales_tax_collected",
+      "orderId": "ce9f9360-fa36-457e-974b-0afe0daa5baa",
+      "amount": 9.67,
+      "description": "Sales tax for order ORD-MJXX39X5",
+      "metadata": {
+        "taxRate": 0.0725
+      },
+      "createdAt": "2026-01-03T06:23:58.465Z"
+    },
+    {
+      "id": "8529b951-284f-41a7-abb0-2c4bc62c3b9c",
+      "type": "customer_payment_received",
+      "orderId": "ce9f9360-fa36-457e-974b-0afe0daa5baa",
+      "amount": 157.99,
+      "description": "Payment for order ORD-MJXX39X5",
+      "metadata": {
+        "orderNumber": "ORD-MJXX39X5"
+      },
+      "createdAt": "2026-01-03T06:23:58.463Z"
+    },
+    {
+      "id": "15de3d57-57a5-49e9-8b03-c0c3e8ac8b47",
+      "type": "manufacturer_payable",
+      "orderId": "30494dc2-6d0e-4795-8515-bc95dd90745c",
+      "amount": -48,
+      "description": "Manufacturer cost for order ORD-MJXWIG47",
+      "metadata": {},
+      "createdAt": "2026-01-03T06:07:46.722Z"
+    },
+    {
+      "id": "75e3383e-7d4f-41e7-a79d-d22f852b6271",
+      "type": "shipping_charged",
+      "orderId": "30494dc2-6d0e-4795-8515-bc95dd90745c",
+      "amount": 14.99,
+      "description": "Shipping for order ORD-MJXWIG47",
+      "metadata": {},
+      "createdAt": "2026-01-03T06:07:46.720Z"
+    },
+    {
+      "id": "b0566c73-f04d-4d47-8952-0779ded1ae90",
+      "type": "sales_tax_collected",
+      "orderId": "30494dc2-6d0e-4795-8515-bc95dd90745c",
+      "amount": 5.8,
+      "description": "Sales tax for order ORD-MJXWIG47",
+      "metadata": {
+        "taxRate": 0.0725
+      },
+      "createdAt": "2026-01-03T06:07:46.718Z"
+    },
+    {
+      "id": "ee6418f4-1b80-4ef4-ac31-524c77bfdb4b",
+      "type": "customer_payment_received",
+      "orderId": "30494dc2-6d0e-4795-8515-bc95dd90745c",
+      "amount": 100.79,
+      "description": "Payment for order ORD-MJXWIG47",
+      "metadata": {
+        "orderNumber": "ORD-MJXWIG47"
+      },
+      "createdAt": "2026-01-03T06:07:46.715Z"
+    },
+    {
+      "id": "487af434-4c31-4ec7-85c2-6c4db9951878",
+      "type": "manufacturer_payable",
+      "orderId": "5853f352-b9d3-41a3-baf7-ceca2e619c6f",
+      "amount": -80,
+      "description": "Manufacturer cost for order ORD-MJXVZAJN",
+      "metadata": {},
+      "createdAt": "2026-01-03T05:52:53.050Z"
+    },
+    {
+      "id": "49ed7601-2af8-4a7f-af7c-fce87f5adc6d",
+      "type": "shipping_charged",
+      "orderId": "5853f352-b9d3-41a3-baf7-ceca2e619c6f",
+      "amount": 14.99,
+      "description": "Shipping for order ORD-MJXVZAJN",
+      "metadata": {},
+      "createdAt": "2026-01-03T05:52:53.046Z"
+    },
+    {
+      "id": "5aeb48b6-272e-4c1b-9ddf-451f32bdb9ac",
+      "type": "sales_tax_collected",
+      "orderId": "5853f352-b9d3-41a3-baf7-ceca2e619c6f",
+      "amount": 9.67,
+      "description": "Sales tax for order ORD-MJXVZAJN",
+      "metadata": {
+        "taxRate": 0.0725
+      },
+      "createdAt": "2026-01-03T05:52:53.037Z"
+    },
+    {
+      "id": "78a019d3-bbcc-4176-a8ed-fe38a2091130",
+      "type": "customer_payment_received",
+      "orderId": "5853f352-b9d3-41a3-baf7-ceca2e619c6f",
+      "amount": 157.99,
+      "description": "Payment for order ORD-MJXVZAJN",
+      "metadata": {
+        "orderNumber": "ORD-MJXVZAJN"
+      },
+      "createdAt": "2026-01-03T05:52:53.034Z"
+    },
+    {
+      "id": "93a389ca-be4b-4873-b5db-a7cc732d29a3",
+      "type": "manufacturer_payable",
+      "orderId": "99bc05dd-338b-43e2-906a-b9e34e199400",
+      "amount": -96,
+      "description": "Manufacturer cost for order ORD-MJXVNYQO",
+      "metadata": {},
+      "createdAt": "2026-01-03T05:44:04.524Z"
+    },
+    {
+      "id": "4fbcd200-1d29-4888-831d-4097ae4e7bd7",
+      "type": "shipping_charged",
+      "orderId": "99bc05dd-338b-43e2-906a-b9e34e199400",
+      "amount": 14.99,
+      "description": "Shipping for order ORD-MJXVNYQO",
+      "metadata": {},
+      "createdAt": "2026-01-03T05:44:04.522Z"
+    },
+    {
+      "id": "8287072e-1176-41e9-9409-8e40cba6a7b3",
+      "type": "sales_tax_collected",
+      "orderId": "99bc05dd-338b-43e2-906a-b9e34e199400",
+      "amount": 23.2,
+      "description": "Sales tax for order ORD-MJXVNYQO",
+      "metadata": {
+        "taxRate": 0.0725
+      },
+      "createdAt": "2026-01-03T05:44:04.520Z"
+    },
+    {
+      "id": "5575ee80-30d3-468c-b795-4e5cdfde8ff8",
+      "type": "customer_payment_received",
+      "orderId": "99bc05dd-338b-43e2-906a-b9e34e199400",
+      "amount": 358.19,
+      "description": "Payment for order ORD-MJXVNYQO",
+      "metadata": {
+        "orderNumber": "ORD-MJXVNYQO"
+      },
+      "createdAt": "2026-01-03T05:44:04.518Z"
     }
   ],
   "manufacturerUsers": [
@@ -19162,7 +19696,7 @@
       "password": "$2b$10$ImrOrEwYkbn9A6Wjt3yKVeYVFTJ85Hz0JXWkeN9nNWmzaV8l8uR36",
       "role": "manager",
       "status": "active",
-      "lastLogin": "2026-01-03T19:24:43.369Z",
+      "lastLogin": "2026-01-04T02:27:41.096Z",
       "createdAt": "2026-01-03T06:14:30.191Z",
       "updatedAt": "2026-01-03T06:14:30.191Z"
     }
@@ -19223,7 +19757,7 @@
       "password": "$2b$10$EmJa5fcEC28hUCuA5iwcJu.qEMrtPRpNWPZszdgHb/VehSTkQUyFe",
       "role": "admin",
       "status": "active",
-      "lastLogin": "2026-01-03T17:32:52.767Z",
+      "lastLogin": "2026-01-04T02:20:39.438Z",
       "createdAt": "2026-01-01T00:00:00.000Z",
       "updatedAt": "2026-01-01T00:00:00.000Z"
     },
@@ -19277,6 +19811,18 @@
       "totalSpent": 1800,
       "createdAt": "2026-01-02T00:00:00.000Z",
       "updatedAt": "2026-01-02T00:00:00.000Z"
+    },
+    {
+      "id": "dc-fe79516c",
+      "name": "Surya",
+      "email": "Surya@gmail.com",
+      "phone": "8179339009",
+      "address": "205 blue jasmine trl",
+      "notes": "",
+      "totalOrders": 0,
+      "totalSpent": 0,
+      "createdAt": "2026-01-04T02:26:37.581Z",
+      "updatedAt": "2026-01-04T02:26:37.581Z"
     }
   ],
   "dealerOrders": [],

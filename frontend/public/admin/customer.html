@@ -109,23 +109,48 @@
       color: #6D7175;
       margin-top: 4px;
     }
-    .info-row {
-      display: flex;
-      padding: 12px 0;
-      border-bottom: 1px solid #F0F0F0;
+    .info-table {
+      width: 100%;
+      border-collapse: collapse;
+      border: 2px solid #1a1a2e;
     }
-    .info-row:last-child {
-      border-bottom: none;
-    }
-    .info-label {
-      width: 120px;
+    .info-table th,
+    .info-table td {
+      padding: 12px 16px;
+      text-align: left;
+      border: 1px solid #ddd;
       font-size: 14px;
-      color: #6D7175;
-      flex-shrink: 0;
     }
-    .info-value {
-      flex: 1;
-      font-size: 14px;
+    .info-table th {
+      background: #1a1a2e;
+      color: white;
+      font-weight: 600;
+      width: 40%;
+    }
+    .info-table td {
+      background: white;
+      color: #202223;
+    }
+    .address-table {
+      width: 100%;
+      border-collapse: collapse;
+      border: 2px solid #1a1a2e;
+      margin-bottom: 16px;
+    }
+    .address-table th,
+    .address-table td {
+      padding: 10px 14px;
+      text-align: left;
+      border: 1px solid #ddd;
+      font-size: 13px;
+    }
+    .address-table th {
+      background: #1a1a2e;
+      color: white;
+      font-weight: 600;
+    }
+    .address-table td {
+      background: white;
       color: #202223;
     }
     .customer-tags-list {
@@ -619,22 +644,28 @@
                 <button class="btn btn-secondary btn-sm" onclick="editContact()">Edit</button>
               </div>
               <div class="customer-section-body">
-                <div class="info-row">
-                  <div class="info-label">Email</div>
-                  <div class="info-value">${Admin.Utils.escapeHtml(customer.email)}</div>
-                </div>
-                <div class="info-row">
-                  <div class="info-label">Phone</div>
-                  <div class="info-value">${customer.phone ? Admin.Utils.escapeHtml(customer.phone) : '-'}</div>
-                </div>
-                <div class="info-row">
-                  <div class="info-label">Company</div>
-                  <div class="info-value">${customer.companyName ? Admin.Utils.escapeHtml(customer.companyName) : '-'}</div>
-                </div>
-                <div class="info-row">
-                  <div class="info-label">Type</div>
-                  <div class="info-value">${capitalizeFirst(customer.type || 'retail')}</div>
-                </div>
+                <table class="info-table">
+                  <tr>
+                    <th>Email</th>
+                    <td>${Admin.Utils.escapeHtml(customer.email)}</td>
+                  </tr>
+                  <tr>
+                    <th>Phone</th>
+                    <td>${customer.phone ? Admin.Utils.escapeHtml(customer.phone) : '-'}</td>
+                  </tr>
+                  <tr>
+                    <th>Company</th>
+                    <td>${customer.companyName ? Admin.Utils.escapeHtml(customer.companyName) : '-'}</td>
+                  </tr>
+                  <tr>
+                    <th>Type</th>
+                    <td>${capitalizeFirst(customer.type || 'retail')}</td>
+                  </tr>
+                  <tr>
+                    <th>Customer Since</th>
+                    <td>${Admin.Utils.formatDate(customer.createdAt)}</td>
+                  </tr>
+                </table>
               </div>
             </div>
 
@@ -784,16 +815,38 @@
         return '<div class="empty-section">No addresses</div>';
       }
 
-      return addresses.map((addr, i) => `
-        <div class="address-card">
-          <div class="address-label">${addr.type || 'Address'} ${i + 1}</div>
-          <div class="address-text">
-            ${addr.street || ''}<br>
-            ${addr.city || ''}, ${addr.state || ''} ${addr.zip || ''}<br>
-            ${addr.country || ''}
-          </div>
-        </div>
-      `).join('');
+      return `
+        <table class="address-table">
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>TYPE</th>
+              <th>NAME</th>
+              <th>ADDRESS</th>
+              <th>CITY</th>
+              <th>STATE</th>
+              <th>ZIP</th>
+              <th>COUNTRY</th>
+              <th>PHONE</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${addresses.map((addr, i) => `
+              <tr>
+                <td>${i + 1}</td>
+                <td>${(addr.type || 'shipping').toUpperCase()}${addr.default ? ' (Default)' : ''}</td>
+                <td>${Admin.Utils.escapeHtml((addr.firstName || '') + ' ' + (addr.lastName || ''))}</td>
+                <td>${Admin.Utils.escapeHtml(addr.address1 || addr.street || '')}${addr.address2 ? ', ' + Admin.Utils.escapeHtml(addr.address2) : ''}</td>
+                <td>${Admin.Utils.escapeHtml(addr.city || '-')}</td>
+                <td>${Admin.Utils.escapeHtml(addr.state || '-')}</td>
+                <td>${Admin.Utils.escapeHtml(addr.zip || '-')}</td>
+                <td>${Admin.Utils.escapeHtml(addr.country || 'US')}</td>
+                <td>${Admin.Utils.escapeHtml(addr.phone || '-')}</td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      `;
     }
 
     async function addTag() {

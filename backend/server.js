@@ -3210,7 +3210,7 @@ app.get('/api/admin/analytics/dashboard', authMiddleware, (req, res) => {
     // Calculate metrics
     const purchases = analytics.filter(e => e.type === 'purchase');
     const totalRevenue = purchases.reduce((sum, e) => sum + (e.value || 0), 0) +
-                        orders.reduce((sum, o) => sum + (o.total || 0), 0);
+                        orders.reduce((sum, o) => sum + (o.pricing?.total || o.total || 0), 0);
     const totalOrders = orders.length + purchases.length;
     const pageViews = analytics.filter(e => e.type === 'page_view').length;
     const addToCarts = analytics.filter(e => e.type === 'add_to_cart').length;
@@ -3284,7 +3284,8 @@ app.get('/api/admin/analytics/sales', authMiddleware, (req, res) => {
 
     // Group by day/week/month
     const salesByDate = {};
-    const addToGroup = (date, value) => {
+    const countByDate = {};
+    const addToGroup = (date, value, isOrder = false) => {
       let key;
       const d = new Date(date);
       if (groupBy === 'month') {
@@ -3297,14 +3298,17 @@ app.get('/api/admin/analytics/sales', authMiddleware, (req, res) => {
         key = d.toISOString().split('T')[0];
       }
       salesByDate[key] = (salesByDate[key] || 0) + value;
+      if (isOrder) {
+        countByDate[key] = (countByDate[key] || 0) + 1;
+      }
     };
 
-    analytics.forEach(e => addToGroup(e.createdAt, e.value || 0));
-    orders.forEach(o => addToGroup(o.created_at, o.total || 0));
+    analytics.forEach(e => addToGroup(e.createdAt, e.value || 0, false));
+    orders.forEach(o => addToGroup(o.created_at, o.pricing?.total || o.total || 0, true));
 
     const salesData = Object.entries(salesByDate)
       .sort((a, b) => a[0].localeCompare(b[0]))
-      .map(([date, value]) => ({ date, value }));
+      .map(([date, value]) => ({ date, value, count: countByDate[date] || 0 }));
 
     res.json({ success: true, salesData });
   } catch (error) {
@@ -3477,6 +3481,90 @@ app.get('/api/admin/analytics/sales-by-category', authMiddleware, (req, res) => 
 });
 
 // ============================================
+// ============================================
+// LEDGER/ACCOUNTING ENDPOINTS
+// ============================================
+
+// Get all ledger entries for admin accounts page
+app.get('/api/admin/ledger', authMiddleware, (req, res) => {
+  try {
+    const db = loadDatabase();
+    const { type, startDate, endDate } = req.query;
+
+    let entries = db.ledgerEntries || [];
+
+    // Filter by type if specified
+    if (type) {
+      entries = entries.filter(e => e.type === type);
+    }
+
+    // Filter by date range
+    if (startDate) {
+      entries = entries.filter(e => new Date(e.createdAt) >= new Date(startDate));
+    }
+    if (endDate) {
+      entries = entries.filter(e => new Date(e.createdAt) <= new Date(endDate));
+    }
+
+    // Sort by date descending (newest first)
+    entries = entries.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+    // Transform entries for the UI (convert amount to debit/credit)
+    const transformedEntries = entries.map(entry => {
+      // Find order number if available
+      const order = entry.orderId ? (db.orders || []).find(o => o.id === entry.orderId) : null;
+
+      return {
+        id: entry.id,
+        type: entry.type,
+        orderId: entry.orderId,
+        orderNumber: entry.metadata?.orderNumber || (order ? order.order_number : null),
+        description: entry.description,
+        debit: entry.amount < 0 ? Math.abs(entry.amount) : null,
+        credit: entry.amount > 0 ? entry.amount : null,
+        createdAt: entry.createdAt,
+        metadata: entry.metadata
+      };
+    });
+
+    // Calculate totals for stats
+    let totalPayments = 0, totalTax = 0, totalPayable = 0;
+    entries.forEach(e => {
+      if (e.type === 'customer_payment_received') totalPayments += e.amount;
+      if (e.type === 'sales_tax_collected') totalTax += e.amount;
+      if (e.type === 'manufacturer_payable') totalPayable += Math.abs(e.amount);
+    });
+
+    res.json({
+      success: true,
+      entries: transformedEntries,
+      stats: {
+        totalPayments,
+        totalTax,
+        totalPayable,
+        netBalance: totalPayments - totalTax - totalPayable
+      }
+    });
+  } catch (error) {
+    console.error('Error fetching ledger:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Get ledger summary for accounts page
+app.get('/api/admin/ledger/summary', authMiddleware, (req, res) => {
+  try {
+    const { getLedgerSummary } = require('./services/ledger-service');
+    const { startDate, endDate } = req.query;
+
+    const summary = getLedgerSummary(startDate, endDate);
+    res.json({ success: true, data: summary });
+  } catch (error) {
+    console.error('Error fetching ledger summary:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
 // MARGIN MANAGEMENT ENDPOINTS (Admin Ticket 001)
 // ============================================
 

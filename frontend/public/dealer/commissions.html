@@ -3,87 +3,272 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Commissions - Dealer Portal - Peekaboo Shades</title>
+  <title>Commissions - Dealer Portal</title>
   <link rel="icon" type="image/png" href="/images/favicon.png">
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
-    body { font-family: 'Montserrat', sans-serif; background: #f5f7fa; min-height: 100vh; }
-    .dealer-header { background: linear-gradient(135deg, #8E6545 0%, #6B4D35 100%); color: white; padding: 0 24px; height: 64px; display: flex; align-items: center; justify-content: space-between; position: fixed; top: 0; left: 0; right: 0; z-index: 100; }
+    body {
+      font-family: 'Montserrat', sans-serif;
+      background: #f5f7fa;
+      min-height: 100vh;
+    }
+
+    /* Header */
+    .dealer-header {
+      background: #2d5a27;
+      color: white;
+      padding: 0 24px;
+      height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+    }
     .dealer-header-left { display: flex; align-items: center; gap: 16px; }
+    .dealer-header img { height: 32px; }
     .dealer-header h1 { font-size: 18px; font-weight: 600; }
+    .tier-badge {
+      background: rgba(255,255,255,0.2);
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+    .tier-badge.bronze { background: #cd7f32; }
+    .tier-badge.silver { background: #c0c0c0; color: #333; }
+    .tier-badge.gold { background: #ffd700; color: #333; }
     .dealer-header-right { display: flex; align-items: center; gap: 16px; }
-    .dealer-user { display: flex; align-items: center; gap: 8px; font-size: 14px; }
-    .dealer-user-avatar { width: 32px; height: 32px; background: rgba(255,255,255,0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 600; }
-    .btn-logout { background: transparent; border: 1px solid rgba(255,255,255,0.3); color: white; padding: 8px 16px; border-radius: 6px; font-size: 13px; cursor: pointer; }
-    .dealer-nav { background: white; border-bottom: 1px solid #e5e7eb; padding: 0 24px; margin-top: 64px; position: sticky; top: 64px; z-index: 50; }
-    .nav-links { display: flex; gap: 8px; }
-    .nav-link { padding: 16px 20px; text-decoration: none; color: #6b7280; font-size: 14px; font-weight: 500; border-bottom: 2px solid transparent; }
-    .nav-link:hover { color: #8E6545; }
-    .nav-link.active { color: #8E6545; border-bottom-color: #8E6545; }
-    .dealer-main { padding: 24px; max-width: 1400px; margin: 0 auto; }
-    .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+    .btn-logout {
+      background: transparent;
+      border: 1px solid rgba(255,255,255,0.3);
+      color: white;
+      padding: 8px 16px;
+      border-radius: 6px;
+      font-size: 13px;
+      cursor: pointer;
+    }
+    .btn-logout:hover { background: rgba(255,255,255,0.1); }
+
+    /* Navigation */
+    .dealer-nav {
+      background: white;
+      border-bottom: 1px solid #e5e7eb;
+      position: fixed;
+      top: 64px;
+      left: 0;
+      right: 0;
+      z-index: 99;
+      padding: 0 24px;
+    }
+    .nav-links { display: flex; gap: 8px; max-width: 1400px; margin: 0 auto; }
+    .nav-link {
+      padding: 16px 20px;
+      color: #6b7280;
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 500;
+      border-bottom: 2px solid transparent;
+    }
+    .nav-link:hover { color: #2d5a27; }
+    .nav-link.active { color: #2d5a27; border-bottom-color: #2d5a27; }
+
+    /* Main Content */
+    .dealer-main {
+      margin-top: 120px;
+      padding: 24px;
+      max-width: 1400px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    /* Page Header */
+    .page-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+    }
     .page-title { font-size: 24px; font-weight: 700; color: #1a1a2e; }
-    .btn-export { background: white; border: 1px solid #e5e7eb; padding: 10px 20px; border-radius: 8px; font-size: 14px; cursor: pointer; display: flex; align-items: center; gap: 8px; }
-    .btn-export:hover { background: #f9fafb; }
+    .btn-export {
+      background: white;
+      color: #2d5a27;
+      padding: 10px 20px;
+      border: 1px solid #2d5a27;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+    }
+    .btn-export:hover { background: #f0f9f0; }
 
     /* Summary Cards */
-    .summary-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin-bottom: 24px; }
-    @media (max-width: 1200px) { .summary-grid { grid-template-columns: repeat(2, 1fr); } }
-    @media (max-width: 600px) { .summary-grid { grid-template-columns: 1fr; } }
-    .summary-card { background: white; border-radius: 12px; padding: 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
-    .summary-card.highlight { background: linear-gradient(135deg, #10b981 0%, #059669 100%); color: white; }
-    .summary-label { font-size: 13px; color: #6b7280; margin-bottom: 8px; }
+    .summary-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+    @media (max-width: 1024px) {
+      .summary-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+    @media (max-width: 640px) {
+      .summary-grid { grid-template-columns: 1fr; }
+    }
+    .summary-card {
+      background: white;
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    }
+    .summary-card.highlight {
+      background: linear-gradient(135deg, #2d5a27 0%, #1a3a15 100%);
+      color: white;
+    }
     .summary-card.highlight .summary-label { color: rgba(255,255,255,0.8); }
-    .summary-value { font-size: 28px; font-weight: 700; color: #1a1a2e; }
     .summary-card.highlight .summary-value { color: white; }
-    .summary-subtext { font-size: 12px; color: #6b7280; margin-top: 4px; }
-    .summary-card.highlight .summary-subtext { color: rgba(255,255,255,0.7); }
+    .summary-label {
+      font-size: 12px;
+      color: #6b7280;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 8px;
+    }
+    .summary-value {
+      font-size: 28px;
+      font-weight: 700;
+      color: #1a1a2e;
+    }
+    .summary-subtext {
+      font-size: 12px;
+      margin-top: 8px;
+      opacity: 0.8;
+    }
 
-    /* Chart Card */
-    .card { background: white; border-radius: 12px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin-bottom: 24px; }
-    .card-header { padding: 20px 24px; border-bottom: 1px solid #e5e7eb; display: flex; justify-content: space-between; align-items: center; }
-    .card-title { font-size: 16px; font-weight: 600; color: #1a1a2e; }
-    .card-body { padding: 24px; }
-    .chart-container { height: 300px; position: relative; }
+    /* Tier Progress */
+    .tier-card {
+      background: white;
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 24px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    }
+    .tier-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+    .tier-title { font-size: 16px; font-weight: 600; }
+    .tier-info { font-size: 13px; color: #6b7280; }
+    .tier-progress {
+      background: #e5e7eb;
+      border-radius: 8px;
+      height: 12px;
+      overflow: hidden;
+      margin-bottom: 12px;
+    }
+    .tier-progress-bar {
+      height: 100%;
+      background: linear-gradient(90deg, #2d5a27 0%, #4a9141 100%);
+      border-radius: 8px;
+      transition: width 0.5s ease;
+    }
+    .tier-labels {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      color: #6b7280;
+    }
+    .tier-label.active { color: #2d5a27; font-weight: 600; }
 
-    /* Orders Table */
-    .orders-table { width: 100%; border-collapse: collapse; }
-    .orders-table th, .orders-table td { padding: 12px 16px; text-align: left; border-bottom: 1px solid #f0f0f0; }
-    .orders-table th { font-size: 12px; font-weight: 600; color: #6b7280; text-transform: uppercase; background: #f9fafb; }
-    .orders-table td { font-size: 14px; color: #374151; }
-    .order-number { color: #8E6545; font-weight: 600; text-decoration: none; }
-    .status-badge { display: inline-block; padding: 4px 10px; border-radius: 12px; font-size: 12px; font-weight: 500; }
-    .status-pending { background: #fef3c7; color: #92400e; }
-    .status-confirmed { background: #dbeafe; color: #1e40af; }
-    .status-processing { background: #e0e7ff; color: #4338ca; }
-    .status-shipped { background: #d1fae5; color: #065f46; }
-    .status-delivered { background: #dcfce7; color: #166534; }
-    .commission-amount { color: #10b981; font-weight: 600; }
-    .empty-state { text-align: center; padding: 60px; color: #6b7280; }
+    /* Date Filter */
+    .filter-bar {
+      background: white;
+      border-radius: 12px;
+      padding: 16px 20px;
+      margin-bottom: 24px;
+      display: flex;
+      gap: 16px;
+      align-items: center;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    }
+    .filter-label { font-size: 14px; font-weight: 500; color: #1a1a2e; }
+    .filter-select {
+      padding: 8px 12px;
+      border: 1px solid #e5e7eb;
+      border-radius: 6px;
+      font-size: 14px;
+      font-family: inherit;
+    }
 
-    /* Monthly Breakdown */
-    .monthly-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 16px; }
-    .month-card { background: #f9fafb; border-radius: 8px; padding: 16px; }
-    .month-name { font-size: 14px; font-weight: 600; color: #374151; margin-bottom: 8px; }
-    .month-stats { display: flex; justify-content: space-between; }
-    .month-stat-label { font-size: 11px; color: #6b7280; }
-    .month-stat-value { font-size: 14px; font-weight: 600; }
-    .month-stat-value.commission { color: #10b981; }
+    /* Commission Table */
+    .section-card {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+      overflow: hidden;
+    }
+    .section-header {
+      padding: 20px 24px;
+      border-bottom: 1px solid #e5e7eb;
+    }
+    .section-title { font-size: 16px; font-weight: 600; }
+    .commission-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    .commission-table th {
+      text-align: left;
+      padding: 14px 20px;
+      font-size: 12px;
+      font-weight: 600;
+      color: #6b7280;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      background: #f9fafb;
+    }
+    .commission-table td {
+      padding: 16px 20px;
+      font-size: 14px;
+      color: #1a1a2e;
+      border-bottom: 1px solid #f3f4f6;
+    }
+    .commission-table tr:hover { background: #f9fafb; }
+    .order-number { font-weight: 600; color: #2d5a27; }
+    .commission-amount { font-weight: 600; color: #10b981; }
+    .status-badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 500;
+    }
+    .status-badge.paid { background: #d1fae5; color: #065f46; }
+    .status-badge.pending { background: #fef3c7; color: #92400e; }
+
+    /* Empty State */
+    .empty-state {
+      text-align: center;
+      padding: 64px 24px;
+      color: #6b7280;
+    }
+    .empty-state-icon { font-size: 48px; margin-bottom: 16px; }
   </style>
 </head>
 <body>
   <header class="dealer-header">
     <div class="dealer-header-left">
-      <img src="/images/logo.png" alt="Peekaboo Shades" style="height: 32px;" onerror="this.style.display='none'">
+      <img src="/images/logo-white.png" alt="Peekaboo Shades" onerror="this.src='/images/logo.png'">
       <h1>Dealer Portal</h1>
+      <span id="tier-badge" class="tier-badge">Bronze</span>
     </div>
     <div class="dealer-header-right">
-      <div class="dealer-user">
-        <div class="dealer-user-avatar" id="user-avatar">D</div>
-        <span id="user-name">Dealer</span>
-      </div>
       <button class="btn-logout" onclick="logout()">Logout</button>
     </div>
   </header>
@@ -92,7 +277,6 @@
     <div class="nav-links">
       <a href="/dealer/" class="nav-link">Dashboard</a>
       <a href="/dealer/orders.html" class="nav-link">Orders</a>
-      <a href="/dealer/new-order.html" class="nav-link">New Order</a>
       <a href="/dealer/customers.html" class="nav-link">Customers</a>
       <a href="/dealer/commissions.html" class="nav-link active">Commissions</a>
     </div>
@@ -101,273 +285,215 @@
   <main class="dealer-main">
     <div class="page-header">
       <h1 class="page-title">Commissions</h1>
-      <button class="btn-export" onclick="exportCSV()">
-        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
-        </svg>
-        Export CSV
-      </button>
+      <button class="btn-export" onclick="exportCommissions()">Export CSV</button>
     </div>
 
-    <!-- Summary Cards -->
     <div class="summary-grid">
       <div class="summary-card highlight">
-        <div class="summary-label">Total Commissions</div>
-        <div class="summary-value" id="total-commission">$0.00</div>
-        <div class="summary-subtext">All time earnings</div>
+        <div class="summary-label">Total Earned</div>
+        <div class="summary-value" id="total-earned">$0.00</div>
+        <div class="summary-subtext">Lifetime commissions</div>
       </div>
       <div class="summary-card">
         <div class="summary-label">This Month</div>
-        <div class="summary-value" id="monthly-commission">$0.00</div>
-        <div class="summary-subtext" id="monthly-orders">0 orders</div>
+        <div class="summary-value" id="month-earned">$0.00</div>
+        <div class="summary-subtext" id="month-orders">0 orders</div>
       </div>
       <div class="summary-card">
-        <div class="summary-label">Total Revenue</div>
-        <div class="summary-value" id="total-revenue">$0.00</div>
-        <div class="summary-subtext">Your sales volume</div>
+        <div class="summary-label">Pending Payout</div>
+        <div class="summary-value" id="pending-payout">$0.00</div>
+        <div class="summary-subtext">Awaiting payment</div>
       </div>
       <div class="summary-card">
-        <div class="summary-label">Avg Commission</div>
-        <div class="summary-value" id="avg-commission">$0.00</div>
-        <div class="summary-subtext">Per order</div>
+        <div class="summary-label">Commission Rate</div>
+        <div class="summary-value" id="commission-rate">10%</div>
+        <div class="summary-subtext">Based on tier</div>
       </div>
     </div>
 
-    <!-- Chart -->
-    <div class="card">
-      <div class="card-header">
-        <h3 class="card-title">Commission Trend</h3>
+    <div class="tier-card">
+      <div class="tier-header">
+        <div class="tier-title">Tier Progress</div>
+        <div class="tier-info" id="tier-info">Orders this month: <strong id="monthly-orders">0</strong></div>
       </div>
-      <div class="card-body">
-        <div class="chart-container">
-          <canvas id="commission-chart"></canvas>
+      <div class="tier-progress">
+        <div class="tier-progress-bar" id="tier-progress-bar" style="width: 0%"></div>
+      </div>
+      <div class="tier-labels">
+        <span class="tier-label" id="tier-bronze">Bronze (0-10)</span>
+        <span class="tier-label" id="tier-silver">Silver (11-50)</span>
+        <span class="tier-label" id="tier-gold">Gold (50+)</span>
+      </div>
+    </div>
+
+    <div class="filter-bar">
+      <span class="filter-label">Date Range:</span>
+      <select class="filter-select" id="filter-period" onchange="loadCommissions()">
+        <option value="30">Last 30 Days</option>
+        <option value="90">Last 90 Days</option>
+        <option value="365">Last Year</option>
+        <option value="">All Time</option>
+      </select>
+    </div>
+
+    <div class="section-card">
+      <div class="section-header">
+        <h3 class="section-title">Commission History</h3>
+      </div>
+      <div id="commissions-container">
+        <div class="empty-state">
+          <div class="empty-state-icon">&#128176;</div>
+          <p>Loading commissions...</p>
         </div>
-      </div>
-    </div>
-
-    <!-- Monthly Breakdown -->
-    <div class="card">
-      <div class="card-header">
-        <h3 class="card-title">Monthly Breakdown</h3>
-      </div>
-      <div class="card-body">
-        <div class="monthly-grid" id="monthly-breakdown">
-          <!-- Populated by JS -->
-        </div>
-      </div>
-    </div>
-
-    <!-- Commission Details -->
-    <div class="card">
-      <div class="card-header">
-        <h3 class="card-title">Commission Details</h3>
-      </div>
-      <div class="card-body" style="padding: 0;">
-        <table class="orders-table">
-          <thead>
-            <tr>
-              <th>Order #</th>
-              <th>Customer</th>
-              <th>Order Total</th>
-              <th>Commission</th>
-              <th>Status</th>
-              <th>Date</th>
-            </tr>
-          </thead>
-          <tbody id="orders-tbody">
-            <tr><td colspan="6"><div class="empty-state">Loading...</div></td></tr>
-          </tbody>
-        </table>
       </div>
     </div>
   </main>
 
   <script>
+    // Check authentication
     const token = localStorage.getItem('dealerToken');
     const user = JSON.parse(localStorage.getItem('dealerUser') || '{}');
-    if (!token) window.location.href = '/dealer/login.html';
 
-    if (user.name) {
-      document.getElementById('user-name').textContent = user.name;
-      document.getElementById('user-avatar').textContent = user.name.charAt(0).toUpperCase();
+    if (!token) {
+      window.location.href = '/dealer/login.html';
     }
 
-    let commissionsData = null;
-    let commissionChart = null;
+    // Set tier badge
+    if (user.tier) {
+      const badge = document.getElementById('tier-badge');
+      badge.textContent = user.tier.charAt(0).toUpperCase() + user.tier.slice(1);
+      badge.classList.add(user.tier.toLowerCase());
 
-    async function api(endpoint, options = {}) {
-      const response = await fetch(endpoint, {
-        ...options,
-        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}`, ...options.headers }
+      // Highlight current tier
+      const tierLabels = ['bronze', 'silver', 'gold'];
+      tierLabels.forEach(t => {
+        const el = document.getElementById(`tier-${t}`);
+        if (t === user.tier.toLowerCase()) {
+          el.classList.add('active');
+        }
       });
-      return response.json();
     }
 
-    async function loadCommissions() {
+    // Load commission summary
+    async function loadSummary() {
       try {
-        const response = await api('/api/dealer/commissions');
-        if (response.success) {
-          commissionsData = response.data;
-          renderSummary(commissionsData.summary);
-          renderMonthlyBreakdown(commissionsData.monthlyBreakdown);
-          renderOrders(commissionsData.orders);
-          renderChart(commissionsData.monthlyBreakdown);
+        const response = await fetch('/api/dealer/commissions', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const result = await response.json();
+
+        if (result.success) {
+          const data = result.data;
+
+          document.getElementById('total-earned').textContent = formatCurrency(data.totalEarned || 0);
+          document.getElementById('month-earned').textContent = formatCurrency(data.monthlyEarned || 0);
+          document.getElementById('month-orders').textContent = `${data.monthlyOrders || 0} orders`;
+          document.getElementById('pending-payout').textContent = formatCurrency(data.pendingPayout || 0);
+
+          // Commission rate based on tier
+          const rates = { bronze: 15, silver: 20, gold: 25 };
+          const rate = rates[user.tier?.toLowerCase()] || 15;
+          document.getElementById('commission-rate').textContent = `${rate}%`;
+
+          // Tier progress
+          const monthlyOrders = data.monthlyOrders || 0;
+          document.getElementById('monthly-orders').textContent = monthlyOrders;
+
+          let progressPercent = 0;
+          if (monthlyOrders <= 10) {
+            progressPercent = (monthlyOrders / 10) * 33;
+          } else if (monthlyOrders <= 50) {
+            progressPercent = 33 + ((monthlyOrders - 10) / 40) * 33;
+          } else {
+            progressPercent = 66 + Math.min(((monthlyOrders - 50) / 50) * 34, 34);
+          }
+          document.getElementById('tier-progress-bar').style.width = `${progressPercent}%`;
         }
       } catch (error) {
-        console.error('Failed to load commissions:', error);
+        console.error('Error loading summary:', error);
       }
     }
 
-    function renderSummary(summary) {
-      document.getElementById('total-commission').textContent = formatCurrency(summary.totalCommission);
-      document.getElementById('total-revenue').textContent = formatCurrency(summary.totalRevenue);
-      document.getElementById('avg-commission').textContent = formatCurrency(summary.averageCommission);
+    // Load commission history
+    async function loadCommissions() {
+      const days = document.getElementById('filter-period').value;
+      let url = '/api/dealer/commissions';
+      if (days) url += `?days=${days}`;
 
-      // Calculate current month
-      const now = new Date();
-      const currentMonth = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
-      const monthData = commissionsData.monthlyBreakdown.find(m => m.month === currentMonth);
-      if (monthData) {
-        document.getElementById('monthly-commission').textContent = formatCurrency(monthData.commission);
-        document.getElementById('monthly-orders').textContent = `${monthData.orderCount} orders`;
-      }
-    }
+      try {
+        const response = await fetch(url, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const result = await response.json();
 
-    function renderMonthlyBreakdown(months) {
-      const container = document.getElementById('monthly-breakdown');
-      if (months.length === 0) {
-        container.innerHTML = '<div class="empty-state">No data yet</div>';
-        return;
-      }
+        const container = document.getElementById('commissions-container');
 
-      container.innerHTML = months.slice(0, 6).map(m => `
-        <div class="month-card">
-          <div class="month-name">${formatMonthName(m.month)}</div>
-          <div class="month-stats">
-            <div>
-              <div class="month-stat-label">Orders</div>
-              <div class="month-stat-value">${m.orderCount}</div>
+        if (result.success && result.data.history?.length > 0) {
+          container.innerHTML = `
+            <table class="commission-table">
+              <thead>
+                <tr>
+                  <th>Date</th>
+                  <th>Order #</th>
+                  <th>Customer</th>
+                  <th>Order Total</th>
+                  <th>Commission</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${result.data.history.map(item => `
+                  <tr>
+                    <td>${formatDate(item.date)}</td>
+                    <td><span class="order-number">${item.orderNumber || item.orderId}</span></td>
+                    <td>${item.customerName || 'N/A'}</td>
+                    <td>${formatCurrency(item.orderTotal)}</td>
+                    <td><span class="commission-amount">${formatCurrency(item.commission)}</span></td>
+                    <td><span class="status-badge ${item.paid ? 'paid' : 'pending'}">${item.paid ? 'Paid' : 'Pending'}</span></td>
+                  </tr>
+                `).join('')}
+              </tbody>
+            </table>
+          `;
+        } else {
+          container.innerHTML = `
+            <div class="empty-state">
+              <div class="empty-state-icon">&#128176;</div>
+              <p>No commissions earned yet. Place orders to start earning!</p>
             </div>
-            <div>
-              <div class="month-stat-label">Revenue</div>
-              <div class="month-stat-value">${formatCurrency(m.revenue)}</div>
-            </div>
-            <div>
-              <div class="month-stat-label">Commission</div>
-              <div class="month-stat-value commission">${formatCurrency(m.commission)}</div>
-            </div>
-          </div>
-        </div>
-      `).join('');
-    }
-
-    function renderOrders(orders) {
-      const tbody = document.getElementById('orders-tbody');
-      if (orders.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="6"><div class="empty-state">No orders yet</div></td></tr>';
-        return;
-      }
-
-      tbody.innerHTML = orders.map(order => `
-        <tr>
-          <td><a href="/dealer/orders.html?id=${order.id}" class="order-number">${order.orderNumber}</a></td>
-          <td>${escapeHtml(order.customerName || 'N/A')}</td>
-          <td>${formatCurrency(order.total)}</td>
-          <td class="commission-amount">${formatCurrency(order.commission)}</td>
-          <td><span class="status-badge status-${order.status}">${capitalizeFirst(order.status)}</span></td>
-          <td>${formatDate(order.createdAt)}</td>
-        </tr>
-      `).join('');
-    }
-
-    function renderChart(months) {
-      const ctx = document.getElementById('commission-chart').getContext('2d');
-
-      if (commissionChart) {
-        commissionChart.destroy();
-      }
-
-      const labels = months.slice(0, 6).reverse().map(m => formatMonthName(m.month));
-      const commissionData = months.slice(0, 6).reverse().map(m => m.commission);
-      const revenueData = months.slice(0, 6).reverse().map(m => m.revenue);
-
-      commissionChart = new Chart(ctx, {
-        type: 'bar',
-        data: {
-          labels,
-          datasets: [
-            {
-              label: 'Commission',
-              data: commissionData,
-              backgroundColor: '#10b981',
-              borderRadius: 4
-            },
-            {
-              label: 'Revenue',
-              data: revenueData,
-              backgroundColor: '#8E6545',
-              borderRadius: 4
-            }
-          ]
-        },
-        options: {
-          responsive: true,
-          maintainAspectRatio: false,
-          plugins: {
-            legend: {
-              position: 'top'
-            }
-          },
-          scales: {
-            y: {
-              beginAtZero: true,
-              ticks: {
-                callback: value => '$' + value
-              }
-            }
-          }
+          `;
         }
-      });
+      } catch (error) {
+        console.error('Error loading commissions:', error);
+        document.getElementById('commissions-container').innerHTML = `
+          <div class="empty-state">
+            <p>Unable to load commissions. Please try again.</p>
+          </div>
+        `;
+      }
     }
 
-    function exportCSV() {
-      if (!commissionsData) return;
-
-      const headers = ['Order #', 'Customer', 'Order Total', 'Commission', 'Status', 'Date'];
-      const rows = commissionsData.orders.map(o => [
-        o.orderNumber,
-        o.customerName || 'N/A',
-        o.total,
-        o.commission,
-        o.status,
-        formatDate(o.createdAt)
-      ]);
-
-      let csv = headers.join(',') + '\n';
-      rows.forEach(row => {
-        csv += row.join(',') + '\n';
-      });
-
-      const blob = new Blob([csv], { type: 'text/csv' });
-      const url = window.URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `commissions-${new Date().toISOString().slice(0, 10)}.csv`;
-      a.click();
+    function exportCommissions() {
+      alert('CSV export coming soon!');
     }
 
-    function formatMonthName(monthStr) {
-      const [year, month] = monthStr.split('-');
-      const date = new Date(year, month - 1);
-      return date.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+    function formatCurrency(amount) {
+      return '$' + (amount || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     }
 
-    function formatCurrency(amount) { return '$' + (amount || 0).toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ','); }
-    function formatDate(dateStr) { if (!dateStr) return 'N/A'; return new Date(dateStr).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }); }
-    function capitalizeFirst(str) { return str ? str.charAt(0).toUpperCase() + str.slice(1) : ''; }
-    function escapeHtml(str) { if (!str) return ''; const div = document.createElement('div'); div.textContent = str; return div.innerHTML; }
-    function logout() { localStorage.removeItem('dealerToken'); localStorage.removeItem('dealerUser'); window.location.href = '/dealer/login.html'; }
+    function formatDate(dateString) {
+      if (!dateString) return 'N/A';
+      return new Date(dateString).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    }
 
+    function logout() {
+      localStorage.removeItem('dealerToken');
+      localStorage.removeItem('dealerUser');
+      window.location.href = '/dealer/login.html';
+    }
+
+    // Load initial data
+    loadSummary();
     loadCommissions();
   </script>
 </body>

@@ -420,24 +420,26 @@
 
         <!-- Customers Table -->
         <div class="card">
-          <div class="table-container">
-            <table class="admin-table">
+          <div class="table-container" style="overflow-x: auto;">
+            <table class="admin-table" style="width: 100%; border-collapse: collapse; border: 2px solid #1a1a2e; min-width: 900px;">
               <thead>
-                <tr>
-                  <th style="width: 40px;">
+                <tr style="background: #1a1a2e; color: white;">
+                  <th style="width: 40px; padding: 12px; border: 1px solid #ddd;">
                     <input type="checkbox" id="selectAll" onchange="toggleSelectAll()">
                   </th>
-                  <th>Customer</th>
-                  <th>Type</th>
-                  <th>Tags</th>
-                  <th style="text-align: right;">Orders</th>
-                  <th style="text-align: right;">Total Spent</th>
-                  <th style="width: 80px;"></th>
+                  <th style="padding: 12px; border: 1px solid #ddd; text-align: left;">NAME</th>
+                  <th style="padding: 12px; border: 1px solid #ddd; text-align: left;">EMAIL</th>
+                  <th style="padding: 12px; border: 1px solid #ddd; text-align: left;">PHONE</th>
+                  <th style="padding: 12px; border: 1px solid #ddd; text-align: left;">TYPE</th>
+                  <th style="padding: 12px; border: 1px solid #ddd; text-align: left;">COMPANY</th>
+                  <th style="padding: 12px; border: 1px solid #ddd; text-align: center;">ORDERS</th>
+                  <th style="padding: 12px; border: 1px solid #ddd; text-align: right;">TOTAL SPENT</th>
+                  <th style="width: 80px; padding: 12px; border: 1px solid #ddd;"></th>
                 </tr>
               </thead>
               <tbody id="customersTable">
                 <tr>
-                  <td colspan="7" style="text-align: center; padding: 40px;">
+                  <td colspan="9" style="text-align: center; padding: 40px; border: 1px solid #ddd;">
                     Loading customers...
                   </td>
                 </tr>
@@ -577,7 +579,7 @@
       if (!customers || customers.length === 0) {
         tbody.innerHTML = `
           <tr>
-            <td colspan="7">
+            <td colspan="9" style="border: 1px solid #ddd;">
               <div class="empty-state">
                 <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
@@ -593,47 +595,31 @@
       }
 
       tbody.innerHTML = customers.map(customer => {
-        const initials = getInitials(customer.firstName, customer.lastName);
-        const tags = customer.tags || [];
+        const fullName = `${customer.firstName || ''} ${customer.lastName || ''}`.trim();
 
         return `
-          <tr>
-            <td>
+          <tr style="background: white;">
+            <td style="padding: 12px; border: 1px solid #ddd; text-align: center;">
               <input type="checkbox" class="customer-checkbox" value="${customer.id}"
                 ${selectedCustomers.has(customer.id) ? 'checked' : ''}
                 onchange="toggleCustomerSelection('${customer.id}')">
             </td>
-            <td>
-              <a href="/admin/customer.html?id=${customer.id}" class="customer-info" style="text-decoration: none;">
-                <div class="customer-avatar">${initials}</div>
-                <div>
-                  <div class="customer-name">${Admin.Utils.escapeHtml(customer.firstName)} ${Admin.Utils.escapeHtml(customer.lastName)}</div>
-                  <div class="customer-email">${Admin.Utils.escapeHtml(customer.email)}</div>
-                </div>
+            <td style="padding: 12px; border: 1px solid #ddd;">
+              <a href="/admin/customer.html?id=${customer.id}" style="color: #2c6ecb; text-decoration: none; font-weight: 500;">
+                ${Admin.Utils.escapeHtml(fullName)}
               </a>
             </td>
-            <td>
+            <td style="padding: 12px; border: 1px solid #ddd;">${Admin.Utils.escapeHtml(customer.email)}</td>
+            <td style="padding: 12px; border: 1px solid #ddd;">${customer.phone ? Admin.Utils.escapeHtml(customer.phone) : '-'}</td>
+            <td style="padding: 12px; border: 1px solid #ddd;">
               <span class="customer-type-badge ${customer.type || 'retail'}">
                 ${capitalizeFirst(customer.type || 'retail')}
               </span>
             </td>
-            <td>
-              <div class="customer-tags">
-                ${tags.slice(0, 3).map(tag => `<span class="customer-tag">${Admin.Utils.escapeHtml(tag)}</span>`).join('')}
-                ${tags.length > 3 ? `<span class="customer-tag">+${tags.length - 3}</span>` : ''}
-              </div>
-            </td>
-            <td style="text-align: right;">
-              <div class="customer-stats">
-                <div class="customer-stats-value">${customer.totalOrders || 0}</div>
-              </div>
-            </td>
-            <td style="text-align: right;">
-              <div class="customer-stats">
-                <div class="customer-stats-value">${Admin.Utils.formatCurrency(customer.totalSpent || 0)}</div>
-              </div>
-            </td>
-            <td>
+            <td style="padding: 12px; border: 1px solid #ddd;">${customer.companyName ? Admin.Utils.escapeHtml(customer.companyName) : '-'}</td>
+            <td style="padding: 12px; border: 1px solid #ddd; text-align: center; font-weight: 600;">${customer.totalOrders || 0}</td>
+            <td style="padding: 12px; border: 1px solid #ddd; text-align: right; font-weight: 600;">${Admin.Utils.formatCurrency(customer.totalSpent || 0)}</td>
+            <td style="padding: 12px; border: 1px solid #ddd;">
               <div class="dropdown">
                 <button class="btn btn-icon">
                   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor">

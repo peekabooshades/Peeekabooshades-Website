@@ -589,6 +589,13 @@
       });
     }
 
+    // Parse configuration JSON
+    function parseConfig(configStr) {
+      if (!configStr) return {};
+      if (typeof configStr === 'object') return configStr;
+      try { return JSON.parse(configStr); } catch (e) { return {}; }
+    }
+
     async function viewInvoice(id) {
       try {
         const response = await fetch(`/api/admin/invoices/${id}`, {
@@ -608,60 +615,78 @@
               <span class="badge badge-${inv.status}" style="font-size: 14px;">${formatStatus(inv.status)}</span>
             </div>
 
-            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 24px;">
-              <div style="background: var(--admin-body-bg); padding: 16px; border-radius: 8px;">
-                <h5 style="margin-bottom: 12px; font-size: 13px; text-transform: uppercase; color: var(--admin-text-secondary);">
-                  ${inv.type === 'customer' ? 'Bill To' : 'Pay To'}
-                </h5>
+            <!-- Customer/Manufacturer Details Table -->
+            <h5 style="margin-bottom: 12px; font-size: 13px; text-transform: uppercase; color: var(--admin-text-secondary);">
+              ${inv.type === 'customer' ? 'Customer Details' : 'Manufacturer Details'}
+            </h5>
+            <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px; border: 2px solid #1a1a2e;">
+              <thead>
+                <tr style="background: #1a1a2e; color: white;">
+                  <th style="padding: 10px; text-align: left; border: 1px solid #374151; width: 30%;">FIELD</th>
+                  <th style="padding: 10px; text-align: left; border: 1px solid #374151;">VALUE</th>
+                </tr>
+              </thead>
+              <tbody>
                 ${inv.type === 'customer' ? `
-                  <p style="font-weight: 500;">${Admin.Utils.escapeHtml(inv.customer?.name || '-')}</p>
-                  <p style="color: var(--admin-text-secondary); font-size: 14px;">${Admin.Utils.escapeHtml(inv.customer?.email || '')}</p>
-                  <p style="color: var(--admin-text-secondary); font-size: 14px;">${Admin.Utils.escapeHtml(inv.customer?.phone || '')}</p>
+                  <tr><td style="padding: 8px 10px; border: 1px solid #ddd; font-weight: 600; background: #f9fafb;">Name</td><td style="padding: 8px 10px; border: 1px solid #ddd;">${Admin.Utils.escapeHtml(inv.customer?.name || '-')}</td></tr>
+                  <tr><td style="padding: 8px 10px; border: 1px solid #ddd; font-weight: 600; background: #f9fafb;">Email</td><td style="padding: 8px 10px; border: 1px solid #ddd;">${Admin.Utils.escapeHtml(inv.customer?.email || '-')}</td></tr>
+                  <tr><td style="padding: 8px 10px; border: 1px solid #ddd; font-weight: 600; background: #f9fafb;">Phone</td><td style="padding: 8px 10px; border: 1px solid #ddd;">${Admin.Utils.escapeHtml(inv.customer?.phone || '-')}</td></tr>
+                  <tr><td style="padding: 8px 10px; border: 1px solid #ddd; font-weight: 600; background: #f9fafb;">Address</td><td style="padding: 8px 10px; border: 1px solid #ddd;">${Admin.Utils.escapeHtml(inv.customer?.address || '-')}</td></tr>
                 ` : `
-                  <p style="font-weight: 500;">${Admin.Utils.escapeHtml(inv.manufacturer?.name || '-')}</p>
-                  <p style="color: var(--admin-text-secondary); font-size: 14px;">${Admin.Utils.escapeHtml(inv.manufacturer?.email || '')}</p>
+                  <tr><td style="padding: 8px 10px; border: 1px solid #ddd; font-weight: 600; background: #f9fafb;">Manufacturer</td><td style="padding: 8px 10px; border: 1px solid #ddd;">${Admin.Utils.escapeHtml(inv.manufacturer?.name || '-')}</td></tr>
+                  <tr><td style="padding: 8px 10px; border: 1px solid #ddd; font-weight: 600; background: #f9fafb;">Email</td><td style="padding: 8px 10px; border: 1px solid #ddd;">${Admin.Utils.escapeHtml(inv.manufacturer?.email || '-')}</td></tr>
                 `}
-              </div>
-              <div style="background: var(--admin-body-bg); padding: 16px; border-radius: 8px;">
-                <h5 style="margin-bottom: 12px; font-size: 13px; text-transform: uppercase; color: var(--admin-text-secondary);">Invoice Details</h5>
-                <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
-                  <span style="color: var(--admin-text-secondary);">Issue Date</span>
-                  <span>${Admin.Utils.formatDate(inv.issueDate)}</span>
-                </div>
-                <div style="display: flex; justify-content: space-between; margin-bottom: 8px;">
-                  <span style="color: var(--admin-text-secondary);">Due Date</span>
-                  <span>${Admin.Utils.formatDate(inv.dueDate)}</span>
-                </div>
-                <div style="display: flex; justify-content: space-between;">
-                  <span style="color: var(--admin-text-secondary);">Type</span>
-                  <span class="badge badge-${inv.type}">${inv.type === 'customer' ? 'Customer' : 'Manufacturer'}</span>
-                </div>
-              </div>
-            </div>
+                <tr><td style="padding: 8px 10px; border: 1px solid #ddd; font-weight: 600; background: #f9fafb;">Issue Date</td><td style="padding: 8px 10px; border: 1px solid #ddd;">${Admin.Utils.formatDate(inv.issueDate)}</td></tr>
+                <tr><td style="padding: 8px 10px; border: 1px solid #ddd; font-weight: 600; background: #f9fafb;">Due Date</td><td style="padding: 8px 10px; border: 1px solid #ddd;">${Admin.Utils.formatDate(inv.dueDate)}</td></tr>
+                <tr><td style="padding: 8px 10px; border: 1px solid #ddd; font-weight: 600; background: #f9fafb;">Type</td><td style="padding: 8px 10px; border: 1px solid #ddd;"><span class="badge badge-${inv.type}">${inv.type === 'customer' ? 'Customer Invoice' : 'Manufacturer Invoice'}</span></td></tr>
+              </tbody>
+            </table>
 
-            <div style="margin-bottom: 24px;">
-              <h5 style="margin-bottom: 12px; font-size: 13px; text-transform: uppercase; color: var(--admin-text-secondary);">Line Items</h5>
-              <table style="width: 100%; border-collapse: collapse;">
+            <!-- Order Items Table with Customer Selections -->
+            <h5 style="margin-bottom: 12px; font-size: 13px; text-transform: uppercase; color: var(--admin-text-secondary);">Order Items (${inv.items?.length || 0} items)</h5>
+            <div style="overflow-x: auto; margin-bottom: 24px;">
+              <table style="width: 100%; border-collapse: collapse; border: 2px solid #1a1a2e; min-width: 1200px;">
                 <thead>
-                  <tr style="border-bottom: 1px solid var(--admin-border);">
-                    <th style="text-align: left; padding: 12px 0; font-size: 13px; color: var(--admin-text-secondary);">Description</th>
-                    <th style="text-align: center; padding: 12px 0; font-size: 13px; color: var(--admin-text-secondary);">Qty</th>
-                    <th style="text-align: right; padding: 12px 0; font-size: 13px; color: var(--admin-text-secondary);">Unit Price</th>
-                    <th style="text-align: right; padding: 12px 0; font-size: 13px; color: var(--admin-text-secondary);">Total</th>
+                  <tr style="background: #1a1a2e; color: white;">
+                    <th style="padding: 8px 5px; text-align: center; font-size: 10px; border: 1px solid #374151;">#</th>
+                    <th style="padding: 8px 5px; text-align: left; font-size: 10px; border: 1px solid #374151;">ROOM</th>
+                    <th style="padding: 8px 5px; text-align: center; font-size: 10px; border: 1px solid #374151;">QTY</th>
+                    <th style="padding: 8px 5px; text-align: center; font-size: 10px; border: 1px solid #374151;">W x H</th>
+                    <th style="padding: 8px 5px; text-align: left; font-size: 10px; border: 1px solid #374151;">FABRIC</th>
+                    <th style="padding: 8px 5px; text-align: left; font-size: 10px; border: 1px solid #374151;">LIGHT</th>
+                    <th style="padding: 8px 5px; text-align: left; font-size: 10px; border: 1px solid #374151;">CASSETTE</th>
+                    <th style="padding: 8px 5px; text-align: left; font-size: 10px; border: 1px solid #374151;">BOTTOM BAR</th>
+                    <th style="padding: 8px 5px; text-align: left; font-size: 10px; border: 1px solid #374151;">ROLL</th>
+                    <th style="padding: 8px 5px; text-align: left; font-size: 10px; border: 1px solid #374151;">MOUNT</th>
+                    <th style="padding: 8px 5px; text-align: left; font-size: 10px; border: 1px solid #374151;">CONTROL</th>
+                    <th style="padding: 8px 5px; text-align: left; font-size: 10px; border: 1px solid #374151;">MOTOR</th>
+                    <th style="padding: 8px 5px; text-align: left; font-size: 10px; border: 1px solid #374151;">REMOTE</th>
+                    <th style="padding: 8px 5px; text-align: right; font-size: 10px; border: 1px solid #374151;">UNIT</th>
+                    <th style="padding: 8px 5px; text-align: right; font-size: 10px; border: 1px solid #374151;">TOTAL</th>
                   </tr>
                 </thead>
                 <tbody>
-                  ${(inv.items || []).map(item => `
-                    <tr style="border-bottom: 1px solid var(--admin-border);">
-                      <td style="padding: 12px 0;">
-                        <p style="font-weight: 500;">${Admin.Utils.escapeHtml(item.description)}</p>
-                        <p style="font-size: 13px; color: var(--admin-text-secondary);">${Admin.Utils.escapeHtml(item.details || '')}</p>
-                      </td>
-                      <td style="text-align: center; padding: 12px 0;">${item.quantity}</td>
-                      <td style="text-align: right; padding: 12px 0;">${Admin.Utils.formatCurrency(item.unitPrice)}</td>
-                      <td style="text-align: right; padding: 12px 0; font-weight: 500;">${Admin.Utils.formatCurrency(item.lineTotal)}</td>
-                    </tr>
-                  `).join('')}
+                  ${(inv.items || []).map((item, idx) => {
+                    const cfg = parseConfig(item.configuration || item.options);
+                    return `
+                    <tr style="background: ${idx % 2 === 0 ? '#fff' : '#f9fafb'};">
+                      <td style="padding: 6px 5px; text-align: center; font-size: 11px; border: 1px solid #ddd; font-weight: 700;">${idx + 1}</td>
+                      <td style="padding: 6px 5px; font-size: 10px; border: 1px solid #ddd; color: #3b82f6; font-weight: 600;">${Admin.Utils.escapeHtml(item.roomLabel || item.room_label || '-')}</td>
+                      <td style="padding: 6px 5px; text-align: center; font-size: 11px; border: 1px solid #ddd; font-weight: 700; background: #fef3c7;">${item.quantity}</td>
+                      <td style="padding: 6px 5px; text-align: center; font-size: 10px; border: 1px solid #ddd;">${item.width || '-'}" x ${item.height || '-'}"</td>
+                      <td style="padding: 6px 5px; font-size: 10px; border: 1px solid #ddd; font-weight: 600;">${cfg.fabricCode || '-'}</td>
+                      <td style="padding: 6px 5px; font-size: 10px; border: 1px solid #ddd;">${cfg.lightFiltering || '-'}</td>
+                      <td style="padding: 6px 5px; font-size: 10px; border: 1px solid #ddd;">${cfg.standardCassette || '-'}</td>
+                      <td style="padding: 6px 5px; font-size: 10px; border: 1px solid #ddd;">${cfg.standardBottomBar || '-'}</td>
+                      <td style="padding: 6px 5px; font-size: 10px; border: 1px solid #ddd;">${cfg.rollerType || '-'}</td>
+                      <td style="padding: 6px 5px; font-size: 10px; border: 1px solid #ddd;">${cfg.mountType || '-'}</td>
+                      <td style="padding: 6px 5px; font-size: 10px; border: 1px solid #ddd;">${cfg.controlType || '-'}</td>
+                      <td style="padding: 6px 5px; font-size: 10px; border: 1px solid #ddd;">${cfg.motorType || cfg.chainType || '-'}</td>
+                      <td style="padding: 6px 5px; font-size: 10px; border: 1px solid #ddd;">${cfg.remoteType || '-'}</td>
+                      <td style="padding: 6px 5px; text-align: right; font-size: 11px; border: 1px solid #ddd;">${Admin.Utils.formatCurrency(item.unitPrice)}</td>
+                      <td style="padding: 6px 5px; text-align: right; font-size: 11px; border: 1px solid #ddd; font-weight: 700; color: #065f46;">${Admin.Utils.formatCurrency(item.lineTotal)}</td>
+                    </tr>`;
+                  }).join('')}
                 </tbody>
               </table>
             </div>
