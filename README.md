@@ -351,18 +351,74 @@ Total = (Base + Fabric + Hardware + Accessories) × Quantity × (1 - Discount)
 
 ### Component Pricing
 
-| Component | Pricing Method |
-|-----------|----------------|
-| Base Price | Fixed per product |
+#### Base & Fabric
+| Component | Pricing |
+|-----------|---------|
+| Base Price | Fixed per product ($40-100) |
 | Fabric | Per square meter ($8-15/m²) |
-| Valance | Per square meter ($2.20/m²) or free |
-| Bottom Rail | Per square meter ($2.20/m²) or free |
-| Motor (AOK) | Fixed $55 |
-| Motor (Dooya) | Fixed $47 |
-| Smart Hub | Fixed $23.50 |
-| USB Charger | Fixed $5 |
-| Remote | Fixed $15 |
-| Reverse Roll | Free |
+
+#### Control System
+| Option | Price |
+|--------|-------|
+| Manual (Bead Chain) | $0 (included) |
+| Bead Chain + Wand | $8 |
+| Cordless | $0 (included) |
+| Motorized | $0 (motor brand determines price) |
+| Cordless-Motorized (2-in-1) | $0 (motor brand determines price) |
+
+> **Note:** Control system options have NO base prices. Motor cost is charged separately based on Motor Brand selection.
+
+#### Motor Brands
+| Brand | Price |
+|-------|-------|
+| AOK Normal (25mm) | $45 |
+| AOK Ultra Quiet (AM28mm) | $57 |
+| Dooya | $47 |
+| Matter | $85 |
+| Collise | $160 |
+| Somfy | $600 |
+| Bliss | $540 |
+
+#### Hardware Options
+| Option | Pricing |
+|--------|---------|
+| Valance (Plain) | $0 (free) |
+| Valance (Fabric Wrapped) | $2.20/m² |
+| Bottom Rail (Plain) | $0 (free) |
+| Bottom Rail (Fabric Wrapped) | $2.20/m² |
+| Metal Bead Chain | $2.20/m² |
+| Reverse Roll | $0 (free) |
+| Forward Roll | $0 (free) |
+
+#### Remotes
+| Type | Price |
+|------|-------|
+| Single Channel | $6.00 |
+| 6 Channel | $6.60 |
+| 15 Channel | $11.35 |
+
+#### Accessories
+| Accessory | Price |
+|-----------|-------|
+| Smart Hub | $23.50 |
+| USB Charger | $5.00 |
+| Solar Panel | $20.50 |
+
+#### Shipping
+| Zone | Price |
+|------|-------|
+| Free Shipping Threshold | $499+ |
+| Continental US | $9.99 - $39.99 (by weight) |
+| Alaska/Hawaii | $19.99 - $59.99 (by weight) |
+
+#### Tax Rates (by State)
+| State | Rate |
+|-------|------|
+| California | 7.25% |
+| New York | 8.00% |
+| Texas | 6.25% |
+| Florida | 6.00% |
+| Default | 8.00% |
 
 ### Dealer Discounts
 
