@@ -9,9 +9,11 @@ A comprehensive e-commerce platform for custom window blinds and shades, featuri
 - [Project Structure](#project-structure)
 - [Features](#features)
 - [Portals](#portals)
+- [Finance & Accounting](#finance--accounting)
 - [API Documentation](#api-documentation)
 - [Database Schema](#database-schema)
 - [Pricing System](#pricing-system)
+- [Additional Documentation](#additional-documentation)
 
 ---
 
@@ -195,6 +197,51 @@ peekabooshades-new/
 - Margin rules configuration
 - Content management
 - System settings
+
+---
+
+## Finance & Accounting
+
+The platform includes comprehensive financial management tools.
+
+### Invoices (`/admin/invoices.html`)
+
+| Feature | Description |
+|---------|-------------|
+| Auto-generation | Create invoices from orders |
+| Status tracking | Draft, Sent, Paid, Overdue |
+| Payment recording | Track partial/full payments |
+| Email sending | Send invoices to customers |
+| Batch operations | Generate missing invoices |
+
+### Accounts/Ledger (`/admin/accounts.html`)
+
+| Feature | Description |
+|---------|-------------|
+| Double-entry | Journal entries for all transactions |
+| Chart of accounts | Assets, Liabilities, Equity, Revenue, Expenses |
+| Order linking | Entries linked to source orders |
+| Balance reporting | Account balances and summaries |
+
+### Margins (`/admin/` → Pricing)
+
+| Feature | Description |
+|---------|-------------|
+| Product margins | Set margin per product |
+| Category margins | Set margin per product type |
+| Priority rules | Specific overrides general |
+| Minimum margins | Protect profitability |
+
+### Analytics (`/admin/analytics.html`)
+
+| Feature | Description |
+|---------|-------------|
+| Revenue tracking | Daily, weekly, monthly, yearly |
+| Sales analytics | By product, category, customer |
+| Profitability | Gross/net margin calculations |
+| Top products | Best sellers and trends |
+
+> **Full documentation:** See [docs/FINANCE_ACCOUNTING.md](docs/FINANCE_ACCOUNTING.md)
 
 ---
 
@@ -461,6 +508,23 @@ NODE_ENV=development
 2. **Database**: Update `database.json` schema
 3. **Frontend**: Create HTML page in appropriate portal folder
 4. **Authentication**: Use appropriate middleware (adminAuth, dealerAuth, mfrAuth)
+
+---
+
+## Additional Documentation
+
+Detailed documentation is available in the `/docs` folder:
+
+| Document | Description |
+|----------|-------------|
+| [API_REFERENCE.md](docs/API_REFERENCE.md) | Complete API endpoint documentation |
+| [DEALER_PORTAL.md](docs/DEALER_PORTAL.md) | Dealer portal user guide |
+| [FINANCE_ACCOUNTING.md](docs/FINANCE_ACCOUNTING.md) | Invoices, ledger, margins, profitability |
+| [ARCHITECTURE.md](docs/ARCHITECTURE.md) | System architecture overview |
+| [KNOWLEDGE_TRANSFER.md](docs/KNOWLEDGE_TRANSFER.md) | Developer onboarding guide |
+| [API_DOCUMENTATION.md](docs/API_DOCUMENTATION.md) | Original API documentation |
+| [peekabooshades_knowledge_summary.md](docs/peekabooshades_knowledge_summary.md) | Business rules & pricing summary |
+| [admin_guide.md](docs/admin_guide.md) | Admin portal guide |
 
 ---
 
