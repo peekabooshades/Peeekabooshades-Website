@@ -47,7 +47,10 @@
     .badge-customer_payment_received { background: #d1fae5; color: #059669; }
     .badge-sales_tax_collected { background: #dbeafe; color: #1d4ed8; }
     .badge-manufacturer_payable { background: #fee2e2; color: #dc2626; }
+    .badge-manufacturer_paid { background: #fef3c7; color: #d97706; }
     .badge-manufacturer_payment { background: #fef3c7; color: #d97706; }
+    .badge-margin_earned { background: #ecfdf5; color: #059669; }
+    .badge-shipping_charged { background: #e0f2fe; color: #0284c7; }
     .badge-refund { background: #f3e8ff; color: #7c3aed; }
     .badge-adjustment { background: #f3f4f6; color: #6b7280; }
     .tab-buttons {
@@ -296,8 +299,10 @@
                   <option value="">All Types</option>
                   <option value="customer_payment_received">Customer Payments</option>
                   <option value="sales_tax_collected">Tax Collected</option>
+                  <option value="shipping_charged">Shipping Charged</option>
                   <option value="manufacturer_payable">Manufacturer Payable</option>
-                  <option value="manufacturer_payment">Manufacturer Payments</option>
+                  <option value="manufacturer_paid">Manufacturer Paid</option>
+                  <option value="margin_earned">Margin Earned</option>
                   <option value="refund">Refunds</option>
                 </select>
               </div>
@@ -476,12 +481,13 @@
 
     function updateStats(data) {
       // Calculate stats from ledger entries
-      let payments = 0, tax = 0, payable = 0, balance = 0;
+      let payments = 0, tax = 0, payable = 0, marginEarned = 0, balance = 0;
 
       allLedgerEntries.forEach(e => {
         if (e.type === 'customer_payment_received') payments += e.credit || 0;
         if (e.type === 'sales_tax_collected') tax += e.credit || 0;
         if (e.type === 'manufacturer_payable') payable += e.debit || 0;
+        if (e.type === 'margin_earned') marginEarned += e.credit || 0;
         balance += (e.credit || 0) - (e.debit || 0);
       });
 
@@ -529,8 +535,11 @@
       const types = {
         'customer_payment_received': 'Payment',
         'sales_tax_collected': 'Tax',
+        'shipping_charged': 'Shipping',
         'manufacturer_payable': 'Mfr Payable',
+        'manufacturer_paid': 'Mfr Paid',
         'manufacturer_payment': 'Mfr Payment',
+        'margin_earned': 'Margin',
         'refund': 'Refund',
         'adjustment': 'Adjustment'
       };

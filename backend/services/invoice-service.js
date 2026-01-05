@@ -9,6 +9,151 @@ const { v4: uuidv4 } = require('uuid');
 
 const DB_PATH = path.join(__dirname, '../database.json');
 
+// US State Sales Tax Rates (2024 rates - update as needed)
+const STATE_TAX_RATES = {
+  'AL': 0.04,    // Alabama
+  'AK': 0,       // Alaska - no state sales tax
+  'AZ': 0.056,   // Arizona
+  'AR': 0.065,   // Arkansas
+  'CA': 0.0725,  // California
+  'CO': 0.029,   // Colorado
+  'CT': 0.0635,  // Connecticut
+  'DE': 0,       // Delaware - no state sales tax
+  'FL': 0.06,    // Florida
+  'GA': 0.04,    // Georgia
+  'HI': 0.04,    // Hawaii
+  'ID': 0.06,    // Idaho
+  'IL': 0.0625,  // Illinois
+  'IN': 0.07,    // Indiana
+  'IA': 0.06,    // Iowa
+  'KS': 0.065,   // Kansas
+  'KY': 0.06,    // Kentucky
+  'LA': 0.0445,  // Louisiana
+  'ME': 0.055,   // Maine
+  'MD': 0.06,    // Maryland
+  'MA': 0.0625,  // Massachusetts
+  'MI': 0.06,    // Michigan
+  'MN': 0.06875, // Minnesota
+  'MS': 0.07,    // Mississippi
+  'MO': 0.04225, // Missouri
+  'MT': 0,       // Montana - no state sales tax
+  'NE': 0.055,   // Nebraska
+  'NV': 0.0685,  // Nevada
+  'NH': 0,       // New Hampshire - no state sales tax
+  'NJ': 0.06625, // New Jersey
+  'NM': 0.05125, // New Mexico
+  'NY': 0.04,    // New York
+  'NC': 0.0475,  // North Carolina
+  'ND': 0.05,    // North Dakota
+  'OH': 0.0575,  // Ohio
+  'OK': 0.045,   // Oklahoma
+  'OR': 0,       // Oregon - no state sales tax
+  'PA': 0.06,    // Pennsylvania
+  'RI': 0.07,    // Rhode Island
+  'SC': 0.06,    // South Carolina
+  'SD': 0.045,   // South Dakota
+  'TN': 0.07,    // Tennessee
+  'TX': 0.0625,  // Texas
+  'UT': 0.061,   // Utah
+  'VT': 0.06,    // Vermont
+  'VA': 0.053,   // Virginia
+  'WA': 0.065,   // Washington
+  'WV': 0.06,    // West Virginia
+  'WI': 0.05,    // Wisconsin
+  'WY': 0.04,    // Wyoming
+  'DC': 0.06     // District of Columbia
+};
+
+/**
+ * Extract state from address string
+ * Supports formats like:
+ * - "123 Main St, City, CA 90210"
+ * - "123 Main St, City, California 90210"
+ * - "CA" (just state code)
+ */
+function extractStateFromAddress(address) {
+  if (!address || typeof address !== 'string') return null;
+
+  const stateAbbreviations = Object.keys(STATE_TAX_RATES);
+
+  // State full names to abbreviations
+  const stateNames = {
+    'ALABAMA': 'AL', 'ALASKA': 'AK', 'ARIZONA': 'AZ', 'ARKANSAS': 'AR',
+    'CALIFORNIA': 'CA', 'COLORADO': 'CO', 'CONNECTICUT': 'CT', 'DELAWARE': 'DE',
+    'FLORIDA': 'FL', 'GEORGIA': 'GA', 'HAWAII': 'HI', 'IDAHO': 'ID',
+    'ILLINOIS': 'IL', 'INDIANA': 'IN', 'IOWA': 'IA', 'KANSAS': 'KS',
+    'KENTUCKY': 'KY', 'LOUISIANA': 'LA', 'MAINE': 'ME', 'MARYLAND': 'MD',
+    'MASSACHUSETTS': 'MA', 'MICHIGAN': 'MI', 'MINNESOTA': 'MN', 'MISSISSIPPI': 'MS',
+    'MISSOURI': 'MO', 'MONTANA': 'MT', 'NEBRASKA': 'NE', 'NEVADA': 'NV',
+    'NEW HAMPSHIRE': 'NH', 'NEW JERSEY': 'NJ', 'NEW MEXICO': 'NM', 'NEW YORK': 'NY',
+    'NORTH CAROLINA': 'NC', 'NORTH DAKOTA': 'ND', 'OHIO': 'OH', 'OKLAHOMA': 'OK',
+    'OREGON': 'OR', 'PENNSYLVANIA': 'PA', 'RHODE ISLAND': 'RI', 'SOUTH CAROLINA': 'SC',
+    'SOUTH DAKOTA': 'SD', 'TENNESSEE': 'TN', 'TEXAS': 'TX', 'UTAH': 'UT',
+    'VERMONT': 'VT', 'VIRGINIA': 'VA', 'WASHINGTON': 'WA', 'WEST VIRGINIA': 'WV',
+    'WISCONSIN': 'WI', 'WYOMING': 'WY', 'DISTRICT OF COLUMBIA': 'DC'
+  };
+
+  const upperAddress = address.toUpperCase();
+
+  // Try to find state abbreviation with zip code pattern (e.g., "CA 90210" or "CA, 90210")
+  const stateZipRegex = /\b([A-Z]{2})\s*,?\s*(\d{5}(-\d{4})?)\b/;
+  const stateZipMatch = upperAddress.match(stateZipRegex);
+  if (stateZipMatch && stateAbbreviations.includes(stateZipMatch[1])) {
+    return stateZipMatch[1];
+  }
+
+  // Try to find state abbreviation after comma (e.g., ", CA")
+  const commaStateRegex = /,\s*([A-Z]{2})\b/;
+  const commaStateMatch = upperAddress.match(commaStateRegex);
+  if (commaStateMatch && stateAbbreviations.includes(commaStateMatch[1])) {
+    return commaStateMatch[1];
+  }
+
+  // Try to find full state name
+  for (const [fullName, abbr] of Object.entries(stateNames)) {
+    if (upperAddress.includes(fullName)) {
+      return abbr;
+    }
+  }
+
+  // Last resort: look for any standalone state abbreviation
+  for (const abbr of stateAbbreviations) {
+    const regex = new RegExp(`\\b${abbr}\\b`);
+    if (regex.test(upperAddress)) {
+      return abbr;
+    }
+  }
+
+  return null;
+}
+
+/**
+ * Calculate sales tax based on shipping address
+ */
+function calculateSalesTax(subtotal, shippingAddress) {
+  const state = extractStateFromAddress(shippingAddress);
+
+  if (!state) {
+    // Default to California rate if state cannot be determined
+    return {
+      taxRate: 0.0725,
+      taxAmount: Math.round(subtotal * 0.0725 * 100) / 100,
+      state: 'CA',
+      note: 'Default CA rate used - shipping state not determined'
+    };
+  }
+
+  const taxRate = STATE_TAX_RATES[state] || 0;
+  const taxAmount = Math.round(subtotal * taxRate * 100) / 100;
+
+  return {
+    taxRate,
+    taxAmount,
+    state,
+    note: taxRate === 0 ? `${state} has no state sales tax` : null
+  };
+}
+
 // Invoice Statuses
 const INVOICE_STATUS = {
   DRAFT: 'draft',
@@ -72,8 +217,15 @@ function createInvoiceFromOrder(orderId, type = 'customer', options = {}) {
   let invoice;
 
   if (type === INVOICE_TYPE.CUSTOMER) {
+    // Handle both new format (order.customer.name) and legacy format (order.customer_name)
+    const customerName = order.customer?.name || order.customer_name || 'Unknown';
+    const customerEmail = order.customer?.email || order.customer_email || '';
+    const customerPhone = order.customer?.phone || order.customer_phone || '';
+    const customerAddress = order.customer?.address || order.shipping_address || '';
+    const customerId = order.customer?.id || order.customerId;
+
     // Generate customer number if not present
-    const customerNumber = order.customer?.id ||
+    const customerNumber = customerId ||
       'CUST-' + Date.now().toString(36).toUpperCase() + Math.random().toString(36).substring(2, 6).toUpperCase();
 
     // Customer invoice - what customer owes us
@@ -85,21 +237,21 @@ function createInvoiceFromOrder(orderId, type = 'customer', options = {}) {
       orderId: order.id,
       orderNumber: order.order_number,
 
-      // Customer info with ID/Number
-      customerId: order.customer?.id || customerNumber,
+      // Customer info with ID/Number - supports both new and legacy order formats
+      customerId: customerId || customerNumber,
       customerNumber: customerNumber,
       customer: {
-        id: order.customer?.id || customerNumber,
+        id: customerId || customerNumber,
         number: customerNumber,
-        name: order.customer?.name || 'Unknown',
-        email: order.customer?.email || '',
-        phone: order.customer?.phone || '',
-        address: order.customer?.address || ''
+        name: customerName,
+        email: customerEmail,
+        phone: customerPhone,
+        address: customerAddress
       },
 
       // Billing/Shipping
-      billingAddress: order.billing_address || order.customer?.address || '',
-      shippingAddress: order.shipping_address || order.customer?.address || '',
+      billingAddress: order.billing_address || customerAddress,
+      shippingAddress: order.shipping_address || customerAddress,
 
       // Line items - include full configuration details and customer pricing
       items: order.items.map(item => {
@@ -213,18 +365,52 @@ function createInvoiceFromOrder(orderId, type = 'customer', options = {}) {
         };
       }),
 
-      // Totals
-      subtotal: order.pricing?.subtotal || 0,
-      tax: order.pricing?.tax || 0,
-      taxRate: order.pricing?.tax_rate || 0.0725,
-      shipping: order.pricing?.shipping || 0,
-      discount: order.pricing?.discount || 0,
-      total: order.pricing?.total || 0,
+      // Totals - calculate tax based on shipping address
+      // Get subtotal and shipping from order
+      subtotal: (() => {
+        const orderSubtotal = order.pricing?.subtotal || order.subtotal || 0;
+        return orderSubtotal;
+      })(),
+      // Calculate sales tax based on shipping address
+      ...(() => {
+        const orderSubtotal = order.pricing?.subtotal || order.subtotal || 0;
+        const shippingAddr = order.shipping_address || customerAddress;
+        const taxCalc = calculateSalesTax(orderSubtotal, shippingAddr);
+        // Ensure shipping is a number (could be an object with tracking info)
+        const rawShipping = order.pricing?.shipping || order.shipping || 0;
+        const orderShipping = typeof rawShipping === 'number' ? rawShipping : 0;
+        const orderDiscount = order.pricing?.discount || order.discount || 0;
+        const calculatedTotal = Math.round((orderSubtotal + taxCalc.taxAmount + orderShipping - orderDiscount) * 100) / 100;
+
+        return {
+          tax: taxCalc.taxAmount,
+          taxRate: taxCalc.taxRate,
+          taxState: taxCalc.state,
+          taxNote: taxCalc.note,
+          shipping: orderShipping,
+          shippingInfo: typeof rawShipping === 'object' ? rawShipping : null,
+          discount: orderDiscount,
+          total: calculatedTotal
+        };
+      })(),
       currency: 'USD',
 
-      // Payment info
-      amountPaid: order.payment?.status === 'completed' ? order.pricing?.total : 0,
-      amountDue: order.payment?.status === 'completed' ? 0 : order.pricing?.total,
+      // Payment info - use calculated total based on shipping address tax
+      ...(() => {
+        const orderSubtotal = order.pricing?.subtotal || order.subtotal || 0;
+        const shippingAddr = order.shipping_address || customerAddress;
+        const taxCalc = calculateSalesTax(orderSubtotal, shippingAddr);
+        // Ensure shipping is a number (could be an object with tracking info)
+        const rawShipping = order.pricing?.shipping || order.shipping || 0;
+        const orderShipping = typeof rawShipping === 'number' ? rawShipping : 0;
+        const orderDiscount = order.pricing?.discount || order.discount || 0;
+        const calculatedTotal = Math.round((orderSubtotal + taxCalc.taxAmount + orderShipping - orderDiscount) * 100) / 100;
+
+        return {
+          amountPaid: order.payment?.status === 'completed' ? calculatedTotal : 0,
+          amountDue: order.payment?.status === 'completed' ? 0 : calculatedTotal
+        };
+      })(),
       paymentMethod: order.payment?.method || null,
 
       // Important Dates
@@ -580,7 +766,10 @@ function generateMissingInvoices() {
 module.exports = {
   INVOICE_STATUS,
   INVOICE_TYPE,
+  STATE_TAX_RATES,
   generateInvoiceNumber,
+  extractStateFromAddress,
+  calculateSalesTax,
   createInvoiceFromOrder,
   getInvoices,
   getInvoice,

@@ -673,6 +673,22 @@
                 <tbody>
                   ${(inv.items || []).map((item, idx) => {
                     const cfg = parseConfig(item.configuration || item.options);
+                    // Check if this is an accessory item
+                    if (item.isAccessory) {
+                      return `
+                      <tr style="background: #eff6ff;">
+                        <td style="padding: 6px 5px; text-align: center; font-size: 11px; border: 1px solid #ddd; font-weight: 700;">${idx + 1}</td>
+                        <td style="padding: 6px 5px; font-size: 10px; border: 1px solid #ddd; color: #9ca3af;">-</td>
+                        <td style="padding: 6px 5px; text-align: center; font-size: 11px; border: 1px solid #ddd; font-weight: 700; background: #dbeafe;">${item.quantity || 1}</td>
+                        <td colspan="15" style="padding: 6px 5px; font-size: 11px; border: 1px solid #ddd; color: #1e40af; font-weight: 600;">
+                          <span style="background: #1e40af; color: white; padding: 2px 8px; border-radius: 4px; font-size: 9px; margin-right: 8px;">ACCESSORY</span>
+                          ${Admin.Utils.escapeHtml(item.description || 'Accessory')} ${item.details ? '(' + Admin.Utils.escapeHtml(item.details) + ')' : ''}
+                        </td>
+                        <td style="padding: 6px 5px; text-align: right; font-size: 11px; border: 1px solid #ddd;">${Admin.Utils.formatCurrency(item.unitPrice || 0)}</td>
+                        <td style="padding: 6px 5px; text-align: right; font-size: 11px; border: 1px solid #ddd; font-weight: 700; color: #1e40af;">${Admin.Utils.formatCurrency(item.lineTotal || 0)}</td>
+                      </tr>`;
+                    }
+                    // Regular blind item
                     return `
                     <tr style="background: ${idx % 2 === 0 ? '#fff' : '#f9fafb'};">
                       <td style="padding: 6px 5px; text-align: center; font-size: 11px; border: 1px solid #ddd; font-weight: 700;">${idx + 1}</td>
@@ -691,8 +707,8 @@
                       <td style="padding: 6px 5px; font-size: 10px; border: 1px solid #ddd;">${cfg.motorType || '-'}</td>
                       <td style="padding: 6px 5px; font-size: 10px; border: 1px solid #ddd;">${cfg.remoteType || '-'}</td>
                       <td style="padding: 6px 5px; text-align: center; font-size: 10px; border: 1px solid #ddd; ${cfg.solarType === 'yes' ? 'background: #d1fae5; color: #065f46; font-weight: 600;' : ''}">${cfg.solarType === 'yes' ? 'YES' : '-'}</td>
-                      <td style="padding: 6px 5px; text-align: center; font-size: 10px; border: 1px solid #ddd; ${(cfg.smartHubQty > 0 || cfg.smartHub === 'yes') ? 'background: #dbeafe; color: #1e40af; font-weight: 600;' : ''}">${cfg.smartHubQty > 0 ? cfg.smartHubQty : (cfg.smartHub === 'yes' ? 'YES' : '-')}</td>
-                      <td style="padding: 6px 5px; text-align: center; font-size: 10px; border: 1px solid #ddd; ${(cfg.usbChargerQty > 0 || cfg.usbCharger === 'yes') ? 'background: #fef3c7; color: #92400e; font-weight: 600;' : ''}">${cfg.usbChargerQty > 0 ? cfg.usbChargerQty : (cfg.usbCharger === 'yes' ? 'YES' : '-')}</td>
+                      <td style="padding: 6px 5px; text-align: center; font-size: 10px; border: 1px solid #ddd;">-</td>
+                      <td style="padding: 6px 5px; text-align: center; font-size: 10px; border: 1px solid #ddd;">-</td>
                       <td style="padding: 6px 5px; text-align: right; font-size: 11px; border: 1px solid #ddd;">${Admin.Utils.formatCurrency(item.unitPrice)}</td>
                       <td style="padding: 6px 5px; text-align: right; font-size: 11px; border: 1px solid #ddd; font-weight: 700; color: #065f46;">${Admin.Utils.formatCurrency(item.lineTotal)}</td>
                     </tr>`;
@@ -701,16 +717,20 @@
               </table>
             </div>
 
-            <!-- Accessories Breakdown -->
+            <!-- Accessories Breakdown - Match Orders Page Format -->
             ${(() => {
-              // Collect all accessories from items
+              // Collect accessories from items - MATCH ORDERS PAGE FORMAT
               const allAccessories = [];
               (inv.items || []).forEach((item, idx) => {
                 const cfg = parseConfig(item.configuration || item.options);
-                const accPricing = item.accessoriesPricing || [];
                 const accBreakdown = item.accessoriesBreakdown || [];
+                const unitPrice = item.unitPrice || 0;
+                const lineTotal = item.lineTotal || 0;
+                const quantity = item.quantity || 1;
+                // Calculate accessories total same way as orders page
+                const accessoriesTotal = lineTotal - (unitPrice * quantity);
 
-                // Check accessoriesBreakdown first
+                // Check accessoriesBreakdown first (same as orders page)
                 if (accBreakdown.length > 0) {
                   accBreakdown.forEach(acc => {
                     allAccessories.push({
@@ -719,37 +739,21 @@
                       price: acc.price
                     });
                   });
-                } else if (cfg.smartHubQty > 0 || cfg.usbChargerQty > 0) {
-                  // Fallback: calculate from config quantities
-                  // Use pricing from item or estimate
-                  if (cfg.smartHubQty > 0) {
-                    const smartHubPrice = item.pricing?.accessoriesTotal > 0
-                      ? (item.pricing.accessoriesTotal * (cfg.smartHubQty / (cfg.smartHubQty + (cfg.usbChargerQty || 0))))
-                      : cfg.smartHubQty * 32.90;
-                    allAccessories.push({
-                      roomLabel: item.roomLabel || item.room_label || 'Item ' + (idx + 1),
-                      name: 'Smart Hub x' + cfg.smartHubQty,
-                      price: smartHubPrice
-                    });
-                  }
-                  if (cfg.usbChargerQty > 0) {
-                    const usbPrice = item.pricing?.accessoriesTotal > 0
-                      ? (item.pricing.accessoriesTotal * (cfg.usbChargerQty / ((cfg.smartHubQty || 0) + cfg.usbChargerQty)))
-                      : cfg.usbChargerQty * 7.00;
-                    allAccessories.push({
-                      roomLabel: item.roomLabel || item.room_label || 'Item ' + (idx + 1),
-                      name: 'USB Charger x' + cfg.usbChargerQty,
-                      price: usbPrice
-                    });
-                  }
+                } else if (accessoriesTotal > 0.01) {
+                  // Fallback: Show as combined line like orders page does
+                  allAccessories.push({
+                    roomLabel: item.roomLabel || item.room_label || 'Item ' + (idx + 1),
+                    name: 'Smart Hub + USB',
+                    price: accessoriesTotal
+                  });
                 }
               });
 
               if (allAccessories.length === 0) return '';
 
-              const accessoriesTotal = allAccessories.reduce((sum, a) => sum + (a.price || 0), 0);
+              const totalAccessories = allAccessories.reduce((sum, a) => sum + (a.price || 0), 0);
 
-              return '<h5 style="margin-bottom: 12px; font-size: 13px; text-transform: uppercase; color: var(--admin-text-secondary);">Accessories</h5>' +
+              return '<h5 style="margin-bottom: 12px; font-size: 13px; text-transform: uppercase; color: var(--admin-text-secondary);">Accessories (per order)</h5>' +
                 '<div style="overflow-x: auto; margin-bottom: 24px;">' +
                   '<table style="width: 100%; max-width: 500px; border-collapse: collapse; border: 2px solid #1a1a2e;">' +
                     '<thead>' +
@@ -769,7 +773,7 @@
                       ).join('') +
                       '<tr style="background: #f3f4f6; font-weight: 600;">' +
                         '<td colspan="2" style="padding: 8px 10px; font-size: 11px; border: 1px solid #ddd; text-align: right;">Accessories Total</td>' +
-                        '<td style="padding: 8px 10px; font-size: 11px; border: 1px solid #ddd; text-align: right; color: #059669;">' + Admin.Utils.formatCurrency(accessoriesTotal) + '</td>' +
+                        '<td style="padding: 8px 10px; font-size: 11px; border: 1px solid #ddd; text-align: right; color: #059669;">' + Admin.Utils.formatCurrency(totalAccessories) + '</td>' +
                       '</tr>' +
                     '</tbody>' +
                   '</table>' +
@@ -782,11 +786,12 @@
                   <span>Subtotal</span>
                   <span>${Admin.Utils.formatCurrency(inv.subtotal)}</span>
                 </div>
-                ${inv.tax > 0 ? `
+                ${inv.tax > 0 || inv.taxState ? `
                 <div style="display: flex; justify-content: space-between; padding: 8px 0;">
-                  <span>Tax (${(inv.taxRate * 100).toFixed(2)}%)</span>
-                  <span>${Admin.Utils.formatCurrency(inv.tax)}</span>
+                  <span>Sales Tax ${inv.taxState ? `(${inv.taxState})` : ''} (${((inv.taxRate || 0) * 100).toFixed(2)}%)</span>
+                  <span>${Admin.Utils.formatCurrency(inv.tax || 0)}</span>
                 </div>
+                ${inv.taxNote ? `<div style="font-size: 11px; color: #6b7280; text-align: right; margin-top: -4px;">${inv.taxNote}</div>` : ''}
                 ` : ''}
                 ${inv.shipping > 0 ? `
                 <div style="display: flex; justify-content: space-between; padding: 8px 0;">

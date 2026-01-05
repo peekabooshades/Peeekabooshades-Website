@@ -1,6 +1,7 @@
 /**
  * LEDGER SERVICE - Accounting Entries
  * Ticket 002: Cart + Fake Checkout + Orders + AuditLog
+ * Updated: Proper manufacturer cost calculation from price_snapshot
  */
 
 const fs = require('fs');
@@ -9,6 +10,52 @@ const { v4: uuidv4 } = require('uuid');
 
 const DB_PATH = path.join(__dirname, '../database.json');
 
+/**
+ * Calculate total manufacturer cost for an item from price snapshots
+ * Handles both price_snapshot (singular) and price_snapshots (plural)
+ */
+function calculateItemManufacturerCost(item) {
+  const qty = item.quantity || 1;
+
+  // Try price_snapshots (plural) first - from order-service
+  const snapPlural = item.price_snapshots?.manufacturer_price;
+  if (snapPlural?.cost) {
+    return snapPlural.cost * qty;
+  }
+  if (snapPlural?.unit_cost) {
+    return snapPlural.unit_cost * qty;
+  }
+  if (snapPlural?.total_cost) {
+    return snapPlural.total_cost; // Already includes quantity
+  }
+
+  // Try price_snapshot (singular) - from cart snapshot
+  const snapSingular = item.price_snapshot?.manufacturer_price;
+  if (snapSingular?.unit_cost) {
+    // Also add options manufacturer costs
+    const optionsCost = (item.price_snapshot?.customer_price?.options_breakdown || [])
+      .reduce((sum, opt) => sum + (opt.manufacturerCost || 0), 0);
+    return (snapSingular.unit_cost + optionsCost) * qty;
+  }
+  if (snapSingular?.total_cost) {
+    const optionsCost = (item.price_snapshot?.customer_price?.options_breakdown || [])
+      .reduce((sum, opt) => sum + (opt.manufacturerCost || 0), 0);
+    return snapSingular.total_cost + (optionsCost * qty);
+  }
+
+  // Fallback to manufacturer_cost field or 60% estimate
+  return (item.manufacturer_cost || (item.calculated_price || item.unit_price || 0) * 0.6) * qty;
+}
+
+/**
+ * Calculate total margin/profit for an item
+ */
+function calculateItemMargin(item) {
+  const customerPrice = item.line_total || (item.unit_price * (item.quantity || 1)) || item.calculated_price || 0;
+  const mfrCost = calculateItemManufacturerCost(item);
+  return customerPrice - mfrCost;
+}
+
 // Ledger Entry Types
 const LEDGER_TYPES = {
   CUSTOMER_PAYMENT: 'customer_payment_received',
@@ -16,6 +63,7 @@ const LEDGER_TYPES = {
   SHIPPING_CHARGED: 'shipping_charged',
   MANUFACTURER_PAYABLE: 'manufacturer_payable',
   MANUFACTURER_PAID: 'manufacturer_paid',
+  MARGIN_EARNED: 'margin_earned',
   SHIPPING_PAID: 'shipping_paid',
   TRANSACTION_FEE: 'transaction_fee',
   REFUND_PAID: 'refund_paid',
@@ -92,16 +140,27 @@ function createOrderLedgerEntries(order) {
     ));
   }
 
-  // Manufacturer payable (calculate from items)
+  // Manufacturer payable (calculate from items using price snapshots)
   const manufacturerCost = order.items.reduce((sum, item) => {
-    return sum + (item.manufacturer_cost || item.calculated_price * 0.6);
+    return sum + calculateItemManufacturerCost(item);
   }, 0);
+
+  // Calculate margin/profit
+  const subtotal = order.subtotal || order.pricing?.subtotal ||
+    order.items.reduce((sum, item) => sum + (item.line_total || item.calculated_price || 0), 0);
+  const margin = subtotal - manufacturerCost;
 
   entries.push(createEntry(
     LEDGER_TYPES.MANUFACTURER_PAYABLE,
     order.id,
     -manufacturerCost, // Negative = liability
-    `Manufacturer cost for order ${order.order_number}`
+    `Manufacturer cost for order ${order.order_number}`,
+    {
+      orderNumber: order.order_number,
+      manufacturerCost: Math.round(manufacturerCost * 100) / 100,
+      margin: Math.round(margin * 100) / 100,
+      marginPercent: subtotal > 0 ? Math.round((margin / subtotal * 100) * 100) / 100 : 0
+    }
   ));
 
   return entries;
@@ -161,12 +220,9 @@ function recordShippedProfit(orderId) {
     return { alreadyRecorded: true };
   }
 
-  // Calculate manufacturer cost
+  // Calculate manufacturer cost using helper
   const manufacturerCost = order.items.reduce((sum, item) => {
-    // Use price_snapshots if available
-    const snap = item.price_snapshots?.manufacturer_price;
-    if (snap?.cost) return sum + (snap.cost * item.quantity);
-    return sum + (item.manufacturer_cost || (item.calculated_price || item.unit_price) * 0.6);
+    return sum + calculateItemManufacturerCost(item);
   }, 0);
 
   // Record manufacturer payment (converts payable to paid)
@@ -193,11 +249,125 @@ function recordShippedProfit(orderId) {
   };
 }
 
+/**
+ * Backfill missing manufacturer cost and margin data for all orders
+ * Also creates missing ledger entries
+ */
+function backfillOrderPricingAndLedger() {
+  const db = loadDatabase();
+  const results = { ordersUpdated: 0, ledgerEntriesCreated: 0, errors: [] };
+
+  if (!db.orders) return results;
+  if (!db.ledgerEntries) db.ledgerEntries = [];
+
+  for (const order of db.orders) {
+    try {
+      // Calculate manufacturer cost and margin from items
+      const manufacturerCostTotal = order.items.reduce((sum, item) => {
+        return sum + calculateItemManufacturerCost(item);
+      }, 0);
+
+      const subtotal = order.subtotal || order.pricing?.subtotal ||
+        order.items.reduce((sum, item) => sum + (item.line_total || item.calculated_price || 0), 0);
+      const marginTotal = subtotal - manufacturerCostTotal;
+      const marginPercent = subtotal > 0 ? (marginTotal / subtotal * 100) : 0;
+
+      // Update order pricing if missing
+      if (!order.pricing) order.pricing = {};
+      if (order.pricing.manufacturer_cost_total === undefined) {
+        order.pricing.manufacturer_cost_total = Math.round(manufacturerCostTotal * 100) / 100;
+        order.pricing.margin_total = Math.round(marginTotal * 100) / 100;
+        order.pricing.margin_percent = Math.round(marginPercent * 100) / 100;
+        results.ordersUpdated++;
+      }
+
+      // Check for missing ledger entries
+      const existingEntries = db.ledgerEntries.filter(e => e.orderId === order.id);
+      const hasPayment = existingEntries.some(e => e.type === LEDGER_TYPES.CUSTOMER_PAYMENT);
+      const hasMfrPayable = existingEntries.some(e => e.type === LEDGER_TYPES.MANUFACTURER_PAYABLE);
+      const hasMargin = existingEntries.some(e => e.type === LEDGER_TYPES.MARGIN_EARNED);
+
+      // Create missing customer payment entry
+      if (!hasPayment) {
+        const total = order.pricing?.total || order.total || 0;
+        if (total > 0) {
+          db.ledgerEntries.push({
+            id: `ledger-backfill-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+            type: LEDGER_TYPES.CUSTOMER_PAYMENT,
+            orderId: order.id,
+            orderNumber: order.order_number,
+            amount: Math.round(total * 100) / 100,
+            description: `Payment for order ${order.order_number}`,
+            debit: null,
+            credit: Math.round(total * 100) / 100,
+            createdAt: order.created_at || new Date().toISOString(),
+            metadata: { backfilled: true }
+          });
+          results.ledgerEntriesCreated++;
+        }
+      }
+
+      // Create missing manufacturer payable entry
+      if (!hasMfrPayable && manufacturerCostTotal > 0) {
+        db.ledgerEntries.push({
+          id: `ledger-backfill-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+          type: LEDGER_TYPES.MANUFACTURER_PAYABLE,
+          orderId: order.id,
+          orderNumber: order.order_number,
+          amount: -Math.round(manufacturerCostTotal * 100) / 100,
+          description: `Manufacturer cost for order ${order.order_number}`,
+          debit: Math.round(manufacturerCostTotal * 100) / 100,
+          credit: null,
+          createdAt: order.created_at || new Date().toISOString(),
+          metadata: {
+            backfilled: true,
+            manufacturerCost: Math.round(manufacturerCostTotal * 100) / 100,
+            margin: Math.round(marginTotal * 100) / 100,
+            marginPercent: Math.round(marginPercent * 100) / 100
+          }
+        });
+        results.ledgerEntriesCreated++;
+      }
+
+      // Create margin earned entry
+      if (!hasMargin && marginTotal > 0) {
+        db.ledgerEntries.push({
+          id: `ledger-backfill-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+          type: LEDGER_TYPES.MARGIN_EARNED,
+          orderId: order.id,
+          orderNumber: order.order_number,
+          amount: Math.round(marginTotal * 100) / 100,
+          description: `Margin/profit for order ${order.order_number}`,
+          debit: null,
+          credit: Math.round(marginTotal * 100) / 100,
+          createdAt: order.created_at || new Date().toISOString(),
+          metadata: {
+            backfilled: true,
+            subtotal: Math.round(subtotal * 100) / 100,
+            manufacturerCost: Math.round(manufacturerCostTotal * 100) / 100,
+            marginPercent: Math.round(marginPercent * 100) / 100
+          }
+        });
+        results.ledgerEntriesCreated++;
+      }
+
+    } catch (err) {
+      results.errors.push({ orderId: order.id, orderNumber: order.order_number, error: err.message });
+    }
+  }
+
+  saveDatabase(db);
+  return results;
+}
+
 module.exports = {
   LEDGER_TYPES,
   createEntry,
   createOrderLedgerEntries,
   getEntriesForOrder,
   getLedgerSummary,
-  recordShippedProfit
+  recordShippedProfit,
+  backfillOrderPricingAndLedger,
+  calculateItemManufacturerCost,
+  calculateItemMargin
 };
