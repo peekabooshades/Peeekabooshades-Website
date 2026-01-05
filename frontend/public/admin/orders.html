@@ -530,13 +530,19 @@
                       <div style="font-size: 13px; color: #dc2626; font-weight: 700; padding-top: 8px; border-top: 1px dashed #fecaca;">Total: <span style="float: right;">$${optionsBreakdown.reduce((sum, opt) => sum + (opt.manufacturerCost || 0), 0).toFixed(2)}</span></div>
                     </div>
 
-                    <!-- Accessories Pricing -->
+                    <!-- Accessories Pricing (Customer + MFR) -->
                     <div style="background: #eff6ff; padding: 12px; border-radius: 6px;">
-                      <div style="font-size: 11px; text-transform: uppercase; color: #1e40af; margin-bottom: 8px; font-weight: 600;">Accessories</div>
+                      <div style="font-size: 11px; text-transform: uppercase; color: #1e40af; margin-bottom: 8px; font-weight: 600;">Accessories (Customer / MFR)</div>
                       ${accessoriesBreakdown.length > 0 ? accessoriesBreakdown.map(acc => `
-                        <div style="font-size: 11px; color: #374151; margin-bottom: 3px;">${acc.name}: <span style="float: right; font-weight: 500;">$${acc.price.toFixed(2)}</span></div>
+                        <div style="font-size: 11px; color: #374151; margin-bottom: 3px; display: flex; justify-content: space-between;">
+                          <span>${acc.name}</span>
+                          <span><span style="color: #1e40af; font-weight: 500;">$${acc.price.toFixed(2)}</span> / <span style="color: #dc2626; font-weight: 500;">$${(acc.manufacturerCost || 0).toFixed(2)}</span></span>
+                        </div>
                       `).join('') : (accessoriesTotal > 0 ? `<div style="font-size: 11px; color: #374151;">Smart Hub + USB: <span style="float: right; font-weight: 500;">$${accessoriesTotal.toFixed(2)}</span></div>` : '<div style="font-size: 12px; color: #9ca3af;">No accessories</div>')}
-                      <div style="font-size: 13px; color: #1e40af; font-weight: 700; padding-top: 8px; border-top: 1px dashed #bfdbfe;">Total: <span style="float: right;">$${(customerPrice.accessories_total || accessoriesTotal || 0).toFixed(2)}</span></div>
+                      <div style="font-size: 12px; padding-top: 8px; border-top: 1px dashed #bfdbfe; display: flex; justify-content: space-between;">
+                        <span style="font-weight: 600;">Total:</span>
+                        <span><span style="color: #1e40af; font-weight: 700;">$${(customerPrice.accessories_total || accessoriesTotal || 0).toFixed(2)}</span> / <span style="color: #dc2626; font-weight: 700;">$${accessoriesBreakdown.reduce((sum, acc) => sum + (acc.manufacturerCost || 0), 0).toFixed(2)}</span></span>
+                      </div>
                     </div>
                   </div>
 
