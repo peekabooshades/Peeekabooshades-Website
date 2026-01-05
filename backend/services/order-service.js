@@ -112,15 +112,18 @@ function createOrderFromCart(sessionId, customerInfo, paymentInfo, userId = 'sys
       }
 
       // TICKET 010: Verify stored price matches snapshot
-      const snapshotPrice = snapshot.customer_price?.unit_price;
-      if (snapshotPrice && Math.abs(price - snapshotPrice) > 0.01) {
+      // Compare unit prices (not line totals) to account for quantity
+      const snapshotUnitPrice = snapshot.customer_price?.unit_price;
+      const cartUnitPrice = item.unit_price || (price / (item.quantity || 1));
+      if (snapshotUnitPrice && Math.abs(cartUnitPrice - snapshotUnitPrice) > 0.01) {
         priceIssues.push({
           itemId: item.id,
           roomLabel: item.room_label,
           reason: 'Price mismatch between cart and snapshot',
-          cartPrice: price,
-          snapshotPrice: snapshotPrice,
-          difference: Math.abs(price - snapshotPrice).toFixed(2)
+          cartUnitPrice: cartUnitPrice,
+          snapshotUnitPrice: snapshotUnitPrice,
+          quantity: item.quantity || 1,
+          difference: Math.abs(cartUnitPrice - snapshotUnitPrice).toFixed(2)
         });
       }
     }
@@ -142,7 +145,8 @@ function createOrderFromCart(sessionId, customerInfo, paymentInfo, userId = 'sys
   const now = new Date().toISOString();
 
   // Calculate totals
-  const subtotal = cartItems.reduce((sum, item) => sum + (item.calculated_price * (item.quantity || 1)), 0);
+  // NOTE: calculated_price is already line_total (unit_price × qty), so don't multiply again
+  const subtotal = cartItems.reduce((sum, item) => sum + item.calculated_price, 0);
   const taxRate = 0.0725; // CA default
   const tax = Math.round(subtotal * taxRate * 100) / 100;
   // Shipping is 0 by default - manufacturer will update when shipping the order

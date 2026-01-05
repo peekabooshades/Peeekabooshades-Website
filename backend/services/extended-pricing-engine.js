@@ -284,7 +284,9 @@ class ExtendedPricingEngine {
       profitAnalysis: {
         grossProfit: this.round((unitPrice - manufacturerCost.unitCost - optionCosts.manufacturerCost) * validatedQty),
         grossMarginPercent: this.round(((unitPrice - manufacturerCost.unitCost - optionCosts.manufacturerCost) / unitPrice) * 100)
-      }
+      },
+      // Include warning if margin not defined
+      warning: marginResult.warning || null
     };
   }
 
@@ -403,7 +405,14 @@ class ExtendedPricingEngine {
 
   /**
    * Apply margin rules to get customer price
-   * Priority: 1) Per-fabric margin from admin portal, 2) customerPriceRules, 3) Default 40%
+   *
+   * BUSINESS LOGIC:
+   * Customer Price = Mfr Cost + (Mfr Cost × Margin%)
+   *
+   * NO minimum margin - margin is purely percentage based
+   *
+   * Priority: 1) Per-fabric margin from admin portal, 2) customerPriceRules
+   * WARNING: If no margin defined, return warning - margin is required
    */
   applyMarginRules(params) {
     const { manufacturerCost, productType, productId, fabricCode, fabricMargin, db } = params;
@@ -420,7 +429,8 @@ class ExtendedPricingEngine {
         marginPercentage: fabricMargin,
         customerPrice,
         ruleId: null,
-        ruleName: 'Per-Fabric Margin (Admin Portal)'
+        ruleName: 'Per-Fabric Margin (Admin Portal)',
+        warning: null
       };
     }
 
@@ -466,20 +476,20 @@ class ExtendedPricingEngine {
       );
     }
 
-    // PRIORITY 3: If no rule found, use default 40% margin
+    // WARNING: If no margin rule found, return warning
+    // Margin MUST be defined - this is critical for pricing
     if (!matchedRule) {
-      const defaultMargin = 0.40;
-      const marginAmount = manufacturerCost * defaultMargin;
-      const customerPrice = manufacturerCost + marginAmount;
+      console.warn(`⚠️ WARNING: No margin defined for fabric ${fabricCode}, productType ${productType}. Please set margin in Admin > Product Pricing.`);
 
       return {
-        marginType: 'percentage',
-        marginValue: 40,
-        marginAmount,
-        marginPercentage: 40,
-        customerPrice,
+        marginType: 'undefined',
+        marginValue: 0,
+        marginAmount: 0,
+        marginPercentage: 0,
+        customerPrice: manufacturerCost, // Return at cost (no profit)
         ruleId: null,
-        ruleName: 'Default (40%)'
+        ruleName: 'NO MARGIN DEFINED',
+        warning: `No margin defined for fabric ${fabricCode}. Please configure margin in Admin > Product Pricing.`
       };
     }
 
@@ -488,6 +498,7 @@ class ExtendedPricingEngine {
 
     switch (matchedRule.marginType) {
       case 'percentage':
+        // Customer Price = Mfr Cost + (Mfr Cost × Margin%)
         marginAmount = manufacturerCost * (matchedRule.marginValue / 100);
         break;
 
@@ -507,17 +518,17 @@ class ExtendedPricingEngine {
         break;
 
       default:
-        marginAmount = manufacturerCost * 0.40; // 40% default
+        // No default - margin must be explicitly defined
+        console.warn(`⚠️ WARNING: Unknown margin type ${matchedRule.marginType} for fabric ${fabricCode}`);
+        marginAmount = 0;
     }
 
-    // Apply minimum margin if set
-    if (matchedRule.minMarginAmount && marginAmount < matchedRule.minMarginAmount) {
-      marginAmount = matchedRule.minMarginAmount;
-    }
+    // NO MINIMUM MARGIN - removed per business requirement
+    // Margin is purely: Mfr Cost × Margin%
 
     customerPrice = manufacturerCost + marginAmount;
 
-    // Apply maximum price ceiling if set
+    // Apply maximum price ceiling if set (optional cap)
     if (matchedRule.maxCustomerPrice && customerPrice > matchedRule.maxCustomerPrice) {
       customerPrice = matchedRule.maxCustomerPrice;
       marginAmount = customerPrice - manufacturerCost;
@@ -530,7 +541,8 @@ class ExtendedPricingEngine {
       marginPercentage: (marginAmount / manufacturerCost) * 100,
       customerPrice,
       ruleId: matchedRule.id,
-      ruleName: matchedRule.name
+      ruleName: matchedRule.name,
+      warning: null
     };
   }
 

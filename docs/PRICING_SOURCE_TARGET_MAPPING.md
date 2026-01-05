@@ -140,16 +140,26 @@ Complete pricing documentation showing ALL options and sub-options with:
 
 ### Margin Rules (Affordable Roller Blinds)
 - **Margin %:** 50%
-- **Minimum Margin:** $15.00 (whichever is higher)
+- **NO Minimum Margin** - margin is purely percentage based
+
+### Business Logic Formula
+```
+Customer Price = Mfr Cost + (Mfr Cost × Margin%)
+               = Mfr Cost × (1 + Margin%)
+```
 
 ### Calculated Prices for 40" × 50" (1.29 m²)
 
-| Control Type | Mfr Cost (area × $/m²) | Calculated Margin (50%) | Min Margin | Applied Margin | Customer Price |
-|--------------|------------------------|-------------------------|------------|----------------|----------------|
-| **Manual** | 1.29 × $12.99 = **$16.76** | $16.76 × 50% = $8.38 | $15.00 | **$15.00** | $16.76 + $15.00 = **$31.76** |
-| **Cordless** | 1.29 × $16.24 = **$20.95** | $20.95 × 50% = $10.48 | $15.00 | **$15.00** | $20.95 + $15.00 = **$35.95** |
+| Control Type | Mfr Cost (area × $/m²) | Margin % | Margin Amount | Customer Price |
+|--------------|------------------------|----------|---------------|----------------|
+| **Manual** | 1.29 × $12.99 = **$16.76** | 50% | $16.76 × 50% = **$8.38** | $16.76 + $8.38 = **$25.14** |
+| **Cordless** | 1.29 × $16.24 = **$20.95** | 50% | $20.95 × 50% = **$10.48** | $20.95 + $10.48 = **$31.43** |
 
-**Note:** The minimum margin of $15 kicks in because 50% of the manufacturer cost ($8.38 for manual, $10.48 for cordless) is less than $15.
+### Warning System
+If margin is NOT defined for a fabric in Admin > Product Pricing, the backend will:
+1. Log a warning: `⚠️ WARNING: No margin defined for fabric {code}`
+2. Return the product at manufacturer cost (no profit)
+3. Include a `warning` field in the API response
 
 ### Transformation Formula
 
@@ -169,19 +179,19 @@ Complete pricing documentation showing ALL options and sub-options with:
 │   Area = 1.29 m²                                                                 │
 │   Mfr Cost = 1.29 × $12.99 = $16.76                                             │
 │                                                                                  │
-│ Step 3: Apply Margin (Affordable Roller = 50%, min $15)                         │
+│ Step 3: Apply Margin (Affordable Roller = 50%)                                   │
 │ ─────────────────────────────────────────────────────────────────────────────── │
-│   Calculated Margin = $16.76 × 50% = $8.38                                      │
-│   Applied Margin = MAX($8.38, $15.00) = $15.00                                  │
+│   Margin Amount = $16.76 × 50% = $8.38                                          │
+│   (NO minimum margin - pure percentage)                                          │
 │                                                                                  │
 │ Step 4: Customer Base Price                                                      │
 │ ─────────────────────────────────────────────────────────────────────────────── │
-│   Customer Price = $16.76 + $15.00 = $31.76                                     │
+│   Customer Price = $16.76 + $8.38 = $25.14                                      │
 │                                                                                  │
 │ FOR CORDLESS CONTROL:                                                            │
 │   Mfr Cost = 1.29 × $16.24 = $20.95                                             │
-│   Margin = MAX($20.95 × 50%, $15) = $15.00                                      │
-│   Customer Price = $20.95 + $15.00 = $35.95                                     │
+│   Margin = $20.95 × 50% = $10.48                                                │
+│   Customer Price = $20.95 + $10.48 = $31.43                                     │
 │                                                                                  │
 └─────────────────────────────────────────────────────────────────────────────────┘
 ```
@@ -190,9 +200,9 @@ Complete pricing documentation showing ALL options and sub-options with:
 
 | Portal | Field | Value (Manual) | Value (Cordless) |
 |--------|-------|----------------|------------------|
-| Product UI | Base Price | $31.76 | $35.95 |
-| Orders Portal | unit_price (base) | $31.76 | $35.95 |
-| Invoice Portal | unitPrice (base) | $31.76 | $35.95 |
+| Product UI | Base Price | $25.14 | $31.43 |
+| Orders Portal | unit_price (base) | $25.14 | $31.43 |
+| Invoice Portal | unitPrice (base) | $25.14 | $31.43 |
 | Manufacturer Portal | manufacturer_price.unit_cost | $16.76 | $20.95 |
 
 ---
@@ -603,13 +613,15 @@ Complete pricing documentation showing ALL options and sub-options with:
 
 ### Active Margin Rules
 
-| ID | Name | Product Type | Product ID | Margin Type | Margin % | Min Margin | Priority |
-|----|------|--------------|------------|-------------|----------|------------|----------|
-| cpr-prod-81ccd028 | Affordable Custom Roller Blinds | roller | b23180d5-... | percentage | **50%** | **$15.00** | 10 |
-| cpr-default-roller | Default Roller Blinds | roller | (all) | percentage | 0% | $0.00 | 1 |
-| cpr-default-zebra | Default Zebra Blinds | zebra | (all) | percentage | 45% | $20.00 | 1 |
-| cpr-default-honeycomb | Default Honeycomb Blinds | honeycomb | (all) | percentage | 50% | $25.00 | 1 |
-| cpr-default-roman | Default Roman Shades | roman | (all) | percentage | 45% | $20.00 | 1 |
+| ID | Name | Product Type | Product ID | Margin Type | Margin % | Priority |
+|----|------|--------------|------------|-------------|----------|----------|
+| cpr-prod-81ccd028 | Affordable Custom Roller Blinds | roller | b23180d5-... | percentage | **50%** | 10 |
+| cpr-default-roller | Default Roller Blinds | roller | (all) | percentage | 0% | 1 |
+| cpr-default-zebra | Default Zebra Blinds | zebra | (all) | percentage | 45% | 1 |
+| cpr-default-honeycomb | Default Honeycomb Blinds | honeycomb | (all) | percentage | 50% | 1 |
+| cpr-default-roman | Default Roman Shades | roman | (all) | percentage | 45% | 1 |
+
+**Note:** NO minimum margin - margin is purely percentage based.
 
 ### Priority Resolution
 
@@ -625,18 +637,18 @@ Complete pricing documentation showing ALL options and sub-options with:
 │    → Most specific rule                                                         │
 │                                                                                  │
 │ 3. Product Specific (productId only)                                            │
-│    → Affordable Roller = 50%, min $15                                           │
+│    → Affordable Roller = 50%                                                    │
 │                                                                                  │
 │ 4. Fabric Specific (fabricCode only)                                            │
 │                                                                                  │
 │ 5. Product Type (productType = 'roller', 'zebra', etc.)                         │
 │                                                                                  │
-│ 6. Default (40%)                                                                 │
+│ 6. WARNING: If no rule found → return warning, sell at cost (no profit)         │
 │                                                                                  │
 │ For Affordable Roller Blinds (productId = b23180d5-...):                        │
 │   Matched Rule: cpr-prod-81ccd028 (priority 10)                                 │
-│   Margin = 50%                                                                   │
-│   Min Margin = $15.00                                                            │
+│   Margin = 50% (NO minimum)                                                      │
+│   Customer Price = Mfr Cost × 1.50                                              │
 │                                                                                  │
 └─────────────────────────────────────────────────────────────────────────────────┘
 ```
@@ -775,9 +787,9 @@ When item is added to cart, complete pricing is captured:
 │ ─────────────────────────────────────────────────────────────────────────────── │
 │ Source: manufacturerPrices[82086B].pricePerSqMeter = $12.99/m²                  │
 │ Mfr Cost: 1.29 × $12.99 = $16.76                                                │
-│ Margin Rule: 50%, min $15                                                        │
-│ Margin Amount: MAX($16.76 × 50%, $15) = $15.00                                  │
-│ Customer Base: $16.76 + $15.00 = $31.76                                         │
+│ Margin Rule: 50% (NO minimum)                                                    │
+│ Margin Amount: $16.76 × 50% = $8.38                                             │
+│ Customer Base: $16.76 + $8.38 = $25.14                                          │
 │                                                                                  │
 ├─────────────────────────────────────────────────────────────────────────────────┤
 │                                                                                  │
@@ -786,26 +798,26 @@ When item is added to cart, complete pricing is captured:
 │                                                                                  │
 │ Component              │ Mfr Cost   │ Margin │ Cust Price │ Formula             │
 │ ───────────────────────┼────────────┼────────┼────────────┼──────────────────── │
-│ Fabric (82086B)        │ $16.76     │ 50%    │ $31.76     │ 1.29m² × $12.99 + margin │
-│ Dooya Motor            │ $47.00     │ 40%    │ $65.80     │ flat                │
-│ 15-Channel Remote      │ $11.35     │ 40%    │ $15.89     │ flat                │
-│ Solar Panel            │ $20.50     │ 40%    │ $28.70     │ flat                │
-│ Fabric Wrapped V3      │ $2.84      │ 40%    │ $3.97      │ 1.29m² × $2.20      │
-│ Type B Bottom Rail     │ $2.84      │ 40%    │ $3.97      │ 1.29m² × $2.20      │
-│ Smart Hub (×1)         │ $23.50     │ 40%    │ $32.90     │ 1 × $23.50          │
-│ USB Charger (×1)       │ $5.00      │ 40%    │ $7.00      │ 1 × $5.00           │
+│ Fabric (82086B)        │ $16.76     │ 50%    │ $25.14     │ Mfr × 1.50          │
+│ Dooya Motor            │ $47.00     │ 40%    │ $65.80     │ Mfr × 1.40          │
+│ 15-Channel Remote      │ $11.35     │ 40%    │ $15.89     │ Mfr × 1.40          │
+│ Solar Panel            │ $20.50     │ 40%    │ $28.70     │ Mfr × 1.40          │
+│ Fabric Wrapped V3      │ $2.84      │ 40%    │ $3.97      │ 1.29m² × $2.20 × 1.40 │
+│ Type B Bottom Rail     │ $2.84      │ 40%    │ $3.97      │ 1.29m² × $2.20 × 1.40 │
+│ Smart Hub (×1)         │ $23.50     │ 40%    │ $32.90     │ Mfr × 1.40          │
+│ USB Charger (×1)       │ $5.00      │ 40%    │ $7.00      │ Mfr × 1.40          │
 │ ───────────────────────┼────────────┼────────┼────────────┼──────────────────── │
-│ TOTAL                  │ $129.79    │        │ $189.99    │                     │
+│ TOTAL                  │ $129.79    │        │ $183.37    │                     │
 │                                                                                  │
 ├─────────────────────────────────────────────────────────────────────────────────┤
 │                                                                                  │
 │ STEP 4: FINAL SUMMARY                                                            │
 │ ─────────────────────────────────────────────────────────────────────────────── │
 │                                                                                  │
-│ Customer Unit Price:  $189.99                                                    │
+│ Customer Unit Price:  $183.37                                                    │
 │ Manufacturer Cost:    $129.79                                                    │
-│ Gross Profit:         $60.20                                                     │
-│ Gross Margin:         31.7%                                                      │
+│ Gross Profit:         $53.58                                                     │
+│ Gross Margin:         29.2%                                                      │
 │                                                                                  │
 └─────────────────────────────────────────────────────────────────────────────────┘
 ```
@@ -814,16 +826,16 @@ When item is added to cart, complete pricing is captured:
 
 | Portal | Field | Value |
 |--------|-------|-------|
-| **Product UI** | Unit Price | $189.99 |
-| **Orders Portal** | Line Total | $189.99 |
-| **Invoice Portal** | Unit Price | $189.99 |
+| **Product UI** | Unit Price | $183.37 |
+| **Orders Portal** | Line Total | $183.37 |
+| **Invoice Portal** | Unit Price | $183.37 |
 | **Manufacturer Portal** | Total Mfr Cost | $129.79 |
 
 ### Options Breakdown in Price Snapshot
 
 | Option | Customer Price | Manufacturer Cost | Margin % |
 |--------|----------------|-------------------|----------|
-| Fabric (base) | $31.76 | $16.76 | 50% (min $15) |
+| Fabric (base) | $25.14 | $16.76 | 50% |
 | Dooya Motor | $65.80 | $47.00 | 40% |
 | 15-Channel Remote | $15.89 | $11.35 | 40% |
 | Solar Panel | $28.70 | $20.50 | 40% |
@@ -831,7 +843,7 @@ When item is added to cart, complete pricing is captured:
 | Type B Bottom Rail (1.29m²) | $3.97 | $2.84 | 40% |
 | Smart Hub | $32.90 | $23.50 | 40% |
 | USB Charger | $7.00 | $5.00 | 40% |
-| **TOTAL** | **$189.99** | **$129.79** | **~32%** |
+| **TOTAL** | **$183.37** | **$129.79** | **~29%** |
 
 ---
 
