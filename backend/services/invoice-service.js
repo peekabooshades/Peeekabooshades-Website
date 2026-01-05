@@ -114,10 +114,28 @@ function createInvoiceFromOrder(orderId, type = 'customer', options = {}) {
         }
 
         // Get price snapshot data for detailed breakdown
-        const priceSnapshot = item.price_snapshots || {};
-        const mfrPrice = priceSnapshot.manufacturer_price || {};
-        const margin = priceSnapshot.margin || {};
-        const customerPrice = priceSnapshot.customer_price || {};
+        // Check both price_snapshots (plural - from order-service) and price_snapshot (singular - from cart)
+        const priceSnapshots = item.price_snapshots || {};
+        const priceSnapshotSingular = item.price_snapshot || {};
+
+        // Use plural first, fallback to singular for each field
+        const mfrPrice = priceSnapshots.manufacturer_price || priceSnapshotSingular.manufacturer_price || {};
+        const margin = priceSnapshots.margin || priceSnapshotSingular.margin || {};
+        const customerPriceP = priceSnapshots.customer_price || {};
+        const customerPriceS = priceSnapshotSingular.customer_price || {};
+
+        // Merge customer price fields, preferring plural but falling back to singular
+        const customerPrice = {
+          unit_price: customerPriceP.unit_price || customerPriceS.unit_price,
+          line_total: customerPriceP.line_total || customerPriceS.line_total,
+          options_total: customerPriceP.options_total || customerPriceS.options_total,
+          options_breakdown: customerPriceP.options_breakdown || customerPriceS.options_breakdown || [],
+          accessories_total: customerPriceP.accessories_total ?? customerPriceS.accessories_total ?? 0,
+          accessories_breakdown: customerPriceP.accessories_breakdown?.length > 0
+            ? customerPriceP.accessories_breakdown
+            : (customerPriceS.accessories_breakdown || [])
+        };
+
         const optionsBreakdown = customerPrice.options_breakdown || [];
         const accessoriesBreakdown = customerPrice.accessories_breakdown || [];
 

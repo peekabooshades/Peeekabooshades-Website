@@ -701,6 +701,81 @@
               </table>
             </div>
 
+            <!-- Accessories Breakdown -->
+            ${(() => {
+              // Collect all accessories from items
+              const allAccessories = [];
+              (inv.items || []).forEach((item, idx) => {
+                const cfg = parseConfig(item.configuration || item.options);
+                const accPricing = item.accessoriesPricing || [];
+                const accBreakdown = item.accessoriesBreakdown || [];
+
+                // Check accessoriesBreakdown first
+                if (accBreakdown.length > 0) {
+                  accBreakdown.forEach(acc => {
+                    allAccessories.push({
+                      roomLabel: item.roomLabel || item.room_label || 'Item ' + (idx + 1),
+                      name: acc.name,
+                      price: acc.price
+                    });
+                  });
+                } else if (cfg.smartHubQty > 0 || cfg.usbChargerQty > 0) {
+                  // Fallback: calculate from config quantities
+                  // Use pricing from item or estimate
+                  if (cfg.smartHubQty > 0) {
+                    const smartHubPrice = item.pricing?.accessoriesTotal > 0
+                      ? (item.pricing.accessoriesTotal * (cfg.smartHubQty / (cfg.smartHubQty + (cfg.usbChargerQty || 0))))
+                      : cfg.smartHubQty * 32.90;
+                    allAccessories.push({
+                      roomLabel: item.roomLabel || item.room_label || 'Item ' + (idx + 1),
+                      name: 'Smart Hub x' + cfg.smartHubQty,
+                      price: smartHubPrice
+                    });
+                  }
+                  if (cfg.usbChargerQty > 0) {
+                    const usbPrice = item.pricing?.accessoriesTotal > 0
+                      ? (item.pricing.accessoriesTotal * (cfg.usbChargerQty / ((cfg.smartHubQty || 0) + cfg.usbChargerQty)))
+                      : cfg.usbChargerQty * 7.00;
+                    allAccessories.push({
+                      roomLabel: item.roomLabel || item.room_label || 'Item ' + (idx + 1),
+                      name: 'USB Charger x' + cfg.usbChargerQty,
+                      price: usbPrice
+                    });
+                  }
+                }
+              });
+
+              if (allAccessories.length === 0) return '';
+
+              const accessoriesTotal = allAccessories.reduce((sum, a) => sum + (a.price || 0), 0);
+
+              return '<h5 style="margin-bottom: 12px; font-size: 13px; text-transform: uppercase; color: var(--admin-text-secondary);">Accessories</h5>' +
+                '<div style="overflow-x: auto; margin-bottom: 24px;">' +
+                  '<table style="width: 100%; max-width: 500px; border-collapse: collapse; border: 2px solid #1a1a2e;">' +
+                    '<thead>' +
+                      '<tr style="background: #1a1a2e; color: white;">' +
+                        '<th style="padding: 8px 10px; text-align: left; font-size: 11px; border: 1px solid #374151;">ROOM</th>' +
+                        '<th style="padding: 8px 10px; text-align: left; font-size: 11px; border: 1px solid #374151;">ACCESSORY</th>' +
+                        '<th style="padding: 8px 10px; text-align: right; font-size: 11px; border: 1px solid #374151;">PRICE</th>' +
+                      '</tr>' +
+                    '</thead>' +
+                    '<tbody>' +
+                      allAccessories.map((acc, i) =>
+                        '<tr style="background: ' + (i % 2 === 0 ? '#fff' : '#f9fafb') + ';">' +
+                          '<td style="padding: 6px 10px; font-size: 11px; border: 1px solid #ddd; color: #3b82f6;">' + Admin.Utils.escapeHtml(acc.roomLabel) + '</td>' +
+                          '<td style="padding: 6px 10px; font-size: 11px; border: 1px solid #ddd;">' + Admin.Utils.escapeHtml(acc.name) + '</td>' +
+                          '<td style="padding: 6px 10px; font-size: 11px; border: 1px solid #ddd; text-align: right; font-weight: 600;">' + Admin.Utils.formatCurrency(acc.price) + '</td>' +
+                        '</tr>'
+                      ).join('') +
+                      '<tr style="background: #f3f4f6; font-weight: 600;">' +
+                        '<td colspan="2" style="padding: 8px 10px; font-size: 11px; border: 1px solid #ddd; text-align: right;">Accessories Total</td>' +
+                        '<td style="padding: 8px 10px; font-size: 11px; border: 1px solid #ddd; text-align: right; color: #059669;">' + Admin.Utils.formatCurrency(accessoriesTotal) + '</td>' +
+                      '</tr>' +
+                    '</tbody>' +
+                  '</table>' +
+                '</div>';
+            })()}
+
             <div style="display: flex; justify-content: flex-end; margin-bottom: 24px;">
               <div style="width: 280px;">
                 <div style="display: flex; justify-content: space-between; padding: 8px 0;">
