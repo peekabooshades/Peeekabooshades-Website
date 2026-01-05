@@ -128,15 +128,28 @@ Complete pricing documentation showing ALL options and sub-options with:
 - **Database:** `manufacturerPrices[]`
 - **Admin UI:** `/admin/product-pricing.html`
 
-### Pricing Table (Per Square Meter)
+### Pricing Table (Per Square Meter - Manufacturer Cost)
 
-| Fabric Code | Category | Manual Mfr $/m² | Cordless Mfr $/m² | Margin % | Manual Cust $/m² | Cordless Cust $/m² |
-|-------------|----------|-----------------|-------------------|----------|------------------|---------------------|
-| 82086K | semi-blackout | $12.99 | $18.99 | 50% | $19.49 | $28.49 |
-| 82086W | semi-blackout | $12.99 | $16.24 | 50% | $19.49 | $24.36 |
-| 82086B | semi-blackout | $12.99 | $16.24 | 50% | $19.49 | $24.36 |
-| 82086C | semi-blackout | $12.99 | $16.24 | 50% | $19.49 | $24.36 |
-| 82086E | semi-blackout | $12.99 | $16.24 | 50% | $19.49 | $24.36 |
+| Fabric Code | Category | Manual Mfr $/m² | Cordless Mfr $/m² |
+|-------------|----------|-----------------|-------------------|
+| 82086K | semi-blackout | $12.99 | $18.99 |
+| 82086W | semi-blackout | $12.99 | $16.24 |
+| 82086B | semi-blackout | $12.99 | $16.24 |
+| 82086C | semi-blackout | $12.99 | $16.24 |
+| 82086E | semi-blackout | $12.99 | $16.24 |
+
+### Margin Rules (Affordable Roller Blinds)
+- **Margin %:** 50%
+- **Minimum Margin:** $15.00 (whichever is higher)
+
+### Calculated Prices for 40" × 50" (1.29 m²)
+
+| Control Type | Mfr Cost (area × $/m²) | Calculated Margin (50%) | Min Margin | Applied Margin | Customer Price |
+|--------------|------------------------|-------------------------|------------|----------------|----------------|
+| **Manual** | 1.29 × $12.99 = **$16.76** | $16.76 × 50% = $8.38 | $15.00 | **$15.00** | $16.76 + $15.00 = **$31.76** |
+| **Cordless** | 1.29 × $16.24 = **$20.95** | $20.95 × 50% = $10.48 | $15.00 | **$15.00** | $20.95 + $15.00 = **$35.95** |
+
+**Note:** The minimum margin of $15 kicks in because 50% of the manufacturer cost ($8.38 for manual, $10.48 for cordless) is less than $15.
 
 ### Transformation Formula
 
