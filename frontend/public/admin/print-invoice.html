@@ -1,0 +1,512 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Invoice - Peekaboo Shades</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    body {
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      font-size: 12px;
+      line-height: 1.4;
+      color: #333;
+      background: #fff;
+      padding: 20px;
+    }
+    .invoice-container {
+      max-width: 800px;
+      margin: 0 auto;
+      background: white;
+    }
+    .invoice-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 30px;
+      padding-bottom: 20px;
+      border-bottom: 2px solid #8E6545;
+    }
+    .company-info h1 {
+      font-size: 24px;
+      color: #8E6545;
+      margin-bottom: 5px;
+    }
+    .company-info p {
+      color: #666;
+      font-size: 11px;
+    }
+    .invoice-title {
+      text-align: right;
+    }
+    .invoice-title h2 {
+      font-size: 28px;
+      color: #1a1a2e;
+      margin-bottom: 5px;
+    }
+    .invoice-title .invoice-number {
+      font-size: 14px;
+      font-family: monospace;
+      color: #8E6545;
+      font-weight: 600;
+    }
+    .invoice-title .invoice-date {
+      font-size: 11px;
+      color: #666;
+      margin-top: 5px;
+    }
+    .status-badge {
+      display: inline-block;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      margin-top: 8px;
+    }
+    .status-paid { background: #d1fae5; color: #059669; }
+    .status-sent { background: #dbeafe; color: #1d4ed8; }
+    .status-draft { background: #f3f4f6; color: #6b7280; }
+    .status-overdue { background: #fee2e2; color: #dc2626; }
+    .status-partially_paid { background: #fef3c7; color: #d97706; }
+
+    .info-section {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 30px;
+    }
+    .info-box {
+      width: 48%;
+    }
+    .info-box h3 {
+      font-size: 11px;
+      text-transform: uppercase;
+      color: #8E6545;
+      margin-bottom: 8px;
+      letter-spacing: 0.5px;
+    }
+    .info-box p {
+      margin-bottom: 3px;
+    }
+    .info-box .label {
+      color: #666;
+      font-size: 10px;
+    }
+
+    .items-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 20px;
+    }
+    .items-table th {
+      background: #1a1a2e;
+      color: white;
+      padding: 10px 8px;
+      text-align: left;
+      font-size: 10px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .items-table th:last-child,
+    .items-table td:last-child {
+      text-align: right;
+    }
+    .items-table td {
+      padding: 10px 8px;
+      border-bottom: 1px solid #e5e7eb;
+      vertical-align: top;
+    }
+    .items-table tr:nth-child(even) {
+      background: #f9fafb;
+    }
+    .item-details {
+      font-size: 10px;
+      color: #666;
+      margin-top: 3px;
+    }
+    .config-tag {
+      display: inline-block;
+      background: #f3f4f6;
+      padding: 2px 6px;
+      border-radius: 3px;
+      font-size: 9px;
+      margin: 1px 2px 1px 0;
+    }
+
+    .totals-section {
+      display: flex;
+      justify-content: flex-end;
+      margin-bottom: 30px;
+    }
+    .totals-box {
+      width: 300px;
+    }
+    .totals-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 0;
+      border-bottom: 1px solid #e5e7eb;
+    }
+    .totals-row.subtotal {
+      font-weight: 500;
+    }
+    .totals-row.tax {
+      color: #6b7280;
+    }
+    .totals-row.tax .tax-state {
+      font-size: 10px;
+      color: #8E6545;
+      font-weight: 600;
+    }
+    .totals-row.total {
+      font-size: 16px;
+      font-weight: 700;
+      border-top: 2px solid #1a1a2e;
+      border-bottom: none;
+      padding-top: 12px;
+      margin-top: 4px;
+    }
+    .totals-row.amount-paid {
+      color: #059669;
+    }
+    .totals-row.amount-due {
+      font-weight: 600;
+      color: #dc2626;
+    }
+    .totals-row.amount-due.paid {
+      color: #059669;
+    }
+
+    .tax-note {
+      font-size: 10px;
+      color: #6b7280;
+      text-align: right;
+      margin-top: -6px;
+      margin-bottom: 8px;
+    }
+
+    .payment-history {
+      margin-bottom: 30px;
+    }
+    .payment-history h3 {
+      font-size: 11px;
+      text-transform: uppercase;
+      color: #8E6545;
+      margin-bottom: 10px;
+    }
+    .payment-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 12px;
+      background: #f9fafb;
+      border-radius: 4px;
+      margin-bottom: 6px;
+    }
+
+    .footer {
+      margin-top: 40px;
+      padding-top: 20px;
+      border-top: 1px solid #e5e7eb;
+      text-align: center;
+      color: #666;
+      font-size: 10px;
+    }
+    .footer p {
+      margin-bottom: 5px;
+    }
+
+    .notes-section {
+      background: #f9fafb;
+      padding: 15px;
+      border-radius: 6px;
+      margin-bottom: 20px;
+    }
+    .notes-section h4 {
+      font-size: 11px;
+      text-transform: uppercase;
+      color: #666;
+      margin-bottom: 8px;
+    }
+
+    .loading {
+      text-align: center;
+      padding: 60px;
+      color: #666;
+    }
+    .error {
+      text-align: center;
+      padding: 60px;
+      color: #dc2626;
+    }
+
+    @media print {
+      body {
+        padding: 0;
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+      .no-print {
+        display: none;
+      }
+      .invoice-container {
+        max-width: 100%;
+      }
+    }
+
+    .print-button {
+      position: fixed;
+      top: 20px;
+      right: 20px;
+      background: #8E6545;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 500;
+    }
+    .print-button:hover {
+      background: #7a5639;
+    }
+  </style>
+</head>
+<body>
+  <button class="print-button no-print" onclick="window.print()">Print Invoice</button>
+
+  <div class="invoice-container" id="invoice-content">
+    <div class="loading">Loading invoice...</div>
+  </div>
+
+  <script>
+    // Get invoice ID from URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const invoiceId = urlParams.get('id') || window.location.pathname.split('/').pop();
+
+    function formatCurrency(amount) {
+      return new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(amount || 0);
+    }
+
+    function formatDate(dateStr) {
+      if (!dateStr) return '-';
+      return new Date(dateStr).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+    }
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      const div = document.createElement('div');
+      div.textContent = str;
+      return div.innerHTML;
+    }
+
+    function parseConfig(cfg) {
+      if (!cfg) return {};
+      if (typeof cfg === 'object') return cfg;
+      try { return JSON.parse(cfg); } catch (e) { return {}; }
+    }
+
+    function getStatusClass(status) {
+      return 'status-' + (status || 'draft');
+    }
+
+    function formatStatus(status) {
+      const map = {
+        'draft': 'Draft',
+        'sent': 'Sent',
+        'paid': 'Paid',
+        'partially_paid': 'Partial',
+        'overdue': 'Overdue',
+        'cancelled': 'Cancelled',
+        'refunded': 'Refunded'
+      };
+      return map[status] || status;
+    }
+
+    async function loadInvoice() {
+      const container = document.getElementById('invoice-content');
+
+      try {
+        // Try to fetch from API
+        const response = await fetch('/api/invoices/' + invoiceId + '/print');
+        const data = await response.json();
+
+        if (!data.success || !data.data) {
+          container.innerHTML = '<div class="error">Invoice not found</div>';
+          return;
+        }
+
+        const inv = data.data;
+        const isCustomer = inv.type === 'customer';
+
+        // Build items HTML
+        let itemsHtml = '';
+        (inv.items || []).forEach((item, idx) => {
+          const cfg = parseConfig(item.configuration);
+          const configTags = [];
+          if (cfg.fabricCode) configTags.push('Fabric: ' + cfg.fabricCode);
+          if (cfg.lightFiltering) configTags.push(cfg.lightFiltering);
+          if (cfg.controlType) configTags.push(cfg.controlType);
+          if (cfg.motorBrand) configTags.push('Motor: ' + cfg.motorBrand);
+          if (cfg.standardCassette) configTags.push('Cassette: ' + cfg.standardCassette);
+          if (cfg.standardBottomBar) configTags.push('Bar: ' + cfg.standardBottomBar);
+
+          itemsHtml += '<tr>' +
+            '<td>' + (idx + 1) + '</td>' +
+            '<td>' +
+              '<strong>' + escapeHtml(item.roomLabel || item.description || 'Roller Blind') + '</strong>' +
+              '<div class="item-details">' + (item.width || '-') + '" W x ' + (item.height || '-') + '" H</div>' +
+              '<div class="item-details">' + configTags.map(t => '<span class="config-tag">' + escapeHtml(t) + '</span>').join('') + '</div>' +
+            '</td>' +
+            '<td style="text-align: center;">' + (item.quantity || 1) + '</td>' +
+            '<td>' + formatCurrency(item.unitPrice) + '</td>' +
+            '<td>' + formatCurrency(item.lineTotal) + '</td>' +
+          '</tr>';
+        });
+
+        // Build payment history HTML
+        let paymentsHtml = '';
+        if (inv.payments && inv.payments.length > 0) {
+          paymentsHtml = '<div class="payment-history">' +
+            '<h3>Payment History</h3>';
+          inv.payments.forEach(p => {
+            paymentsHtml += '<div class="payment-row">' +
+              '<span>' + formatCurrency(p.amount) + ' via ' + (p.method || 'other') + (p.reference ? ' - ' + escapeHtml(p.reference) : '') + '</span>' +
+              '<span>' + formatDate(p.recordedAt) + '</span>' +
+            '</div>';
+          });
+          paymentsHtml += '</div>';
+        }
+
+        // Build tax display
+        const taxRate = inv.taxRate || 0;
+        const taxPercent = (taxRate * 100).toFixed(2);
+        const taxState = inv.taxState || '';
+        const taxStateDisplay = taxState ? ' (' + taxState + ')' : '';
+
+        container.innerHTML = `
+          <div class="invoice-header">
+            <div class="company-info">
+              <h1>Peekaboo Shades</h1>
+              <p>Custom Window Treatments</p>
+              <p>www.peekabooshades.com</p>
+            </div>
+            <div class="invoice-title">
+              <h2>INVOICE</h2>
+              <div class="invoice-number">${escapeHtml(inv.invoiceNumber)}</div>
+              <div class="invoice-date">Date: ${formatDate(inv.issueDate)}</div>
+              <div class="invoice-date">Due: ${formatDate(inv.dueDate)}</div>
+              <span class="status-badge ${getStatusClass(inv.status)}">${formatStatus(inv.status)}</span>
+            </div>
+          </div>
+
+          <div class="info-section">
+            <div class="info-box">
+              <h3>${isCustomer ? 'Bill To' : 'Vendor'}</h3>
+              ${isCustomer ? `
+                <p><strong>${escapeHtml(inv.customer?.name || '-')}</strong></p>
+                <p>${escapeHtml(inv.customer?.email || '')}</p>
+                <p>${escapeHtml(inv.customer?.phone || '')}</p>
+                <p>${escapeHtml(inv.customer?.address || inv.billingAddress || '')}</p>
+              ` : `
+                <p><strong>${escapeHtml(inv.manufacturer?.name || '-')}</strong></p>
+                <p>${escapeHtml(inv.manufacturer?.email || '')}</p>
+              `}
+            </div>
+            <div class="info-box">
+              <h3>Ship To</h3>
+              <p>${escapeHtml(inv.shippingAddress || inv.customer?.address || '-')}</p>
+              <p class="label" style="margin-top: 15px;">Order Reference</p>
+              <p><strong>${escapeHtml(inv.orderNumber || '-')}</strong></p>
+            </div>
+          </div>
+
+          <table class="items-table">
+            <thead>
+              <tr>
+                <th style="width: 40px;">#</th>
+                <th>Description</th>
+                <th style="width: 60px; text-align: center;">Qty</th>
+                <th style="width: 100px;">Unit Price</th>
+                <th style="width: 100px;">Total</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${itemsHtml}
+            </tbody>
+          </table>
+
+          <div class="totals-section">
+            <div class="totals-box">
+              <div class="totals-row subtotal">
+                <span>Subtotal</span>
+                <span>${formatCurrency(inv.subtotal)}</span>
+              </div>
+              ${inv.tax > 0 || inv.taxState ? `
+              <div class="totals-row tax">
+                <span>Sales Tax <span class="tax-state">${taxStateDisplay}</span> @ ${taxPercent}%</span>
+                <span>${formatCurrency(inv.tax)}</span>
+              </div>
+              ${inv.taxNote ? '<div class="tax-note">' + escapeHtml(inv.taxNote) + '</div>' : ''}
+              ` : ''}
+              ${inv.shipping > 0 ? `
+              <div class="totals-row">
+                <span>Shipping</span>
+                <span>${formatCurrency(inv.shipping)}</span>
+              </div>
+              ` : ''}
+              ${inv.discount > 0 ? `
+              <div class="totals-row" style="color: #059669;">
+                <span>Discount</span>
+                <span>-${formatCurrency(inv.discount)}</span>
+              </div>
+              ` : ''}
+              <div class="totals-row total">
+                <span>Total</span>
+                <span>${formatCurrency(inv.total)}</span>
+              </div>
+              ${inv.amountPaid > 0 ? `
+              <div class="totals-row amount-paid">
+                <span>Amount Paid</span>
+                <span>${formatCurrency(inv.amountPaid)}</span>
+              </div>
+              ` : ''}
+              <div class="totals-row amount-due ${inv.amountDue <= 0 ? 'paid' : ''}">
+                <span>Balance Due</span>
+                <span>${formatCurrency(inv.amountDue)}</span>
+              </div>
+            </div>
+          </div>
+
+          ${paymentsHtml}
+
+          ${inv.notes ? `
+          <div class="notes-section">
+            <h4>Notes</h4>
+            <p>${escapeHtml(inv.notes)}</p>
+          </div>
+          ` : ''}
+
+          <div class="footer">
+            <p>Thank you for your business!</p>
+            <p>Questions? Contact us at support@peekabooshades.com</p>
+          </div>
+        `;
+
+        // Update page title
+        document.title = 'Invoice ' + inv.invoiceNumber + ' - Peekaboo Shades';
+
+      } catch (error) {
+        console.error('Error loading invoice:', error);
+        container.innerHTML = '<div class="error">Error loading invoice: ' + error.message + '</div>';
+      }
+    }
+
+    // Load invoice on page load
+    loadInvoice();
+  </script>
+</body>
+</html>
