@@ -417,14 +417,9 @@
         .map(([key, value]) => `${formatKey(key)}: ${value}`)
         .join(' | ');
 
-      // Get recalculated price from orderSummary.lineItems if available
-      let itemPrice = (item.unit_price || item.unitPrice) * item.quantity;
-      if (orderSummary && orderSummary.lineItems) {
-        const lineItem = orderSummary.lineItems.find(li => li.itemId === item.id);
-        if (lineItem) {
-          itemPrice = lineItem.lineTotal;
-        }
-      }
+      // Use line_total which already includes (unit_price × quantity) + accessories
+      // NEVER use unit_price * quantity as it excludes accessories
+      let itemPrice = item.line_total || item.lineTotal || (item.unit_price || item.unitPrice) * item.quantity;
 
       const imageUrl = item.image_url || productImages[item.product_name?.toLowerCase().replace(/\s+/g, '-')] || productImages.default;
 

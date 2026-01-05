@@ -208,9 +208,10 @@ class ExtendedPricingEngine {
       baseCustomerPrice = Math.max(baseCustomerPrice, product.base_price);
     }
 
-    // Add option costs
-    const unitPrice = baseCustomerPrice + optionCosts.total;
-    const lineTotal = unitPrice * validatedQty;
+    // Add per-unit option costs (excludes accessories)
+    const unitPrice = baseCustomerPrice + optionCosts.perUnitTotal;
+    // Line total = (unit price × quantity) + accessories (NOT multiplied by quantity)
+    const lineTotal = (unitPrice * validatedQty) + optionCosts.accessoriesTotal;
 
     // Step 5: Calculate shipping (if requested)
     let shippingEstimate = { amount: 0, method: null, description: null };
@@ -264,11 +265,15 @@ class ExtendedPricingEngine {
           percentage: this.round(marginResult.marginPercentage)
         },
         options: {
-          breakdown: optionCosts.breakdown,
-          total: this.round(optionCosts.total)
+          breakdown: optionCosts.perUnitBreakdown, // Only per-unit options
+          total: this.round(optionCosts.perUnitTotal)
         },
-        unitPrice: this.round(unitPrice),
-        lineTotal: this.round(lineTotal),
+        accessories: {
+          breakdown: optionCosts.accessoryBreakdown,
+          total: this.round(optionCosts.accessoriesTotal)
+        },
+        unitPrice: this.round(unitPrice), // Per-unit price (excludes accessories)
+        lineTotal: this.round(lineTotal), // (unitPrice × qty) + accessories
         shipping: includeShipping ? {
           method: shippingEstimate.method,
           amount: this.round(shippingEstimate.amount),
@@ -827,10 +832,25 @@ class ExtendedPricingEngine {
       }
     }
 
+    // Separate accessories from per-unit options
+    // Accessories should NOT be multiplied by quantity
+    const accessoryBreakdown = breakdown.filter(item => item.type === 'accessory');
+    const perUnitBreakdown = breakdown.filter(item => item.type !== 'accessory');
+
+    const accessoriesTotal = accessoryBreakdown.reduce((sum, item) => sum + item.price, 0);
+    const accessoriesMfrCost = accessoryBreakdown.reduce((sum, item) => sum + (item.manufacturerCost || 0), 0);
+    const perUnitTotal = perUnitBreakdown.reduce((sum, item) => sum + item.price, 0);
+    const perUnitMfrCost = perUnitBreakdown.reduce((sum, item) => sum + (item.manufacturerCost || 0), 0);
+
     return {
       breakdown,
-      total,
-      manufacturerCost
+      perUnitBreakdown,
+      accessoryBreakdown,
+      total: perUnitTotal, // Only per-unit options (excludes accessories)
+      perUnitTotal,
+      accessoriesTotal,
+      manufacturerCost: perUnitMfrCost,
+      accessoriesMfrCost
     };
   }
 

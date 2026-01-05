@@ -406,7 +406,8 @@ app.get('/api/cart/:sessionId', (req, res) => {
     const db = loadDatabase();
     const items = db.cart.filter(item => item.session_id === req.params.sessionId);
 
-    const subtotal = items.reduce((sum, item) => sum + (item.unit_price * item.quantity), 0);
+    // Use line_total which already includes (unit_price × quantity) + accessories
+    const subtotal = items.reduce((sum, item) => sum + (item.line_total || item.unit_price * item.quantity), 0);
 
     res.json({
       success: true,
@@ -997,17 +998,74 @@ app.post('/api/calculate-order-total', (req, res) => {
       return res.status(400).json({ success: false, error: 'No items provided' });
     }
 
-    // Extract location info for tax/shipping calculation
-    const orderInfo = {
-      shippingState: shippingAddress?.state,
-      shippingCountry: shippingAddress?.country || 'US',
-      promoCode
-    };
+    const db = loadDatabase();
+    const lineItems = [];
+    let subtotal = 0;
 
-    // Use centralized pricing engine for complete order calculation
-    const result = pricingEngine.calculateOrderTotal(items, orderInfo);
+    // Calculate each item using extendedPricingEngine (same as cart)
+    for (const item of items) {
+      const product = db.products.find(p => p.id === item.productId);
+      if (!product) {
+        throw new Error(`Product not found: ${item.productId}`);
+      }
 
-    res.json(result);
+      const priceResult = extendedPricingEngine.calculateCustomerPrice({
+        productId: item.productId,
+        productSlug: product.slug,
+        productType: product.category_slug?.replace('-shades', '') || 'roller',
+        width: item.width || 24,
+        height: item.height || 36,
+        quantity: item.quantity || 1,
+        fabricCode: item.options?.fabricCode,
+        options: item.options || {}
+      });
+
+      if (!priceResult.success) {
+        throw new Error(`Pricing failed for product ${item.productId}`);
+      }
+
+      lineItems.push({
+        itemId: item.id,
+        productId: product.id,
+        productName: product.name,
+        unitPrice: priceResult.pricing.unitPrice,
+        lineTotal: priceResult.pricing.lineTotal,
+        quantity: priceResult.quantity
+      });
+
+      subtotal += priceResult.pricing.lineTotal;
+    }
+
+    // Calculate tax (CA default 7.25%)
+    const taxRate = 0.0725;
+    const taxAmount = subtotal * taxRate;
+
+    // Calculate shipping
+    const shippingAmount = subtotal >= 99 ? 0 : 9.99;
+
+    // Calculate grand total
+    const grandTotal = subtotal + taxAmount + shippingAmount;
+
+    res.json({
+      success: true,
+      lineItems,
+      summary: {
+        subtotal: Math.round(subtotal * 100) / 100,
+        discount: { code: null, amount: 0, description: null },
+        tax: {
+          rate: taxRate,
+          amount: Math.round(taxAmount * 100) / 100,
+          description: 'California Sales Tax'
+        },
+        shipping: {
+          method: shippingAmount === 0 ? 'free' : 'standard',
+          amount: shippingAmount,
+          description: shippingAmount === 0 ? 'Free shipping' : 'Standard shipping'
+        },
+        grandTotal: Math.round(grandTotal * 100) / 100
+      },
+      currency: 'USD'
+    });
   } catch (error) {
     res.status(400).json({ success: false, error: error.message });
   }

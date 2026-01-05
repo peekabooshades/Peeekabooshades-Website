@@ -5449,39 +5449,19 @@
         breakdown.push({ name: `Quantity: ${quantity}x`, price: 0, multiplier: true });
       }
 
-      // Calculate accessories total
-      let accessoriesTotal = 0;
-      if (productOptionsData && productOptionsData.accessories && productOptionsData.accessories.options) {
-        productOptionsData.accessories.options.forEach(opt => {
-          const optionId = opt.value.replace(/[^a-zA-Z0-9]/g, '');
-          const qtyInput = document.getElementById(`${optionId}Qty`);
-          if (qtyInput) {
-            const qty = parseInt(qtyInput.value) || 0;
-            if (qty > 0) {
-              const itemTotal = qty * opt.price;
-              accessoriesTotal += itemTotal;
-              breakdown.push({ name: `${opt.name} x${qty}`, price: itemTotal });
-            }
-          }
+      // Accessories are now included in API lineTotal (not multiplied by quantity)
+      // Just display them from the API response
+      if (pricing.accessories && pricing.accessories.breakdown) {
+        pricing.accessories.breakdown.forEach(acc => {
+          breakdown.push({ name: acc.name, price: acc.price });
         });
-      } else {
-        const smartHubQty = parseInt(document.getElementById('smartHubQty')?.value) || 0;
-        const usbChargerQty = parseInt(document.getElementById('usbChargerQty')?.value) || 0;
-        if (smartHubQty > 0) {
-          const smartHubTotal = smartHubQty * accessoryPrices.smartHub;
-          accessoriesTotal += smartHubTotal;
-          breakdown.push({ name: `Smart Hub x${smartHubQty}`, price: smartHubTotal });
-        }
-        if (usbChargerQty > 0) {
-          const usbChargerTotal = usbChargerQty * accessoryPrices.usbCharger;
-          accessoriesTotal += usbChargerTotal;
-          breakdown.push({ name: `USB Charger x${usbChargerQty}`, price: usbChargerTotal });
-        }
       }
 
-      // Calculate total: (API unit price + additional options + warranty) * quantity + accessories
-      const unitPriceWithOptions = pricing.unitPrice + additionalOptionsTotal + warrantyPrice;
-      const totalPrice = (unitPriceWithOptions * quantity) + accessoriesTotal;
+      // Calculate total: API lineTotal already includes (unitPrice × qty) + accessories
+      // Only add warranty (which is per-unit) and any additional DOM options
+      const warrantyTotal = warrantyPrice * quantity;
+      const additionalTotal = additionalOptionsTotal * quantity;
+      const totalPrice = pricing.lineTotal + warrantyTotal + additionalTotal;
 
       document.getElementById('totalPrice').textContent = totalPrice.toFixed(2);
       updatePriceBreakdown(breakdown, totalPrice);
@@ -5493,7 +5473,9 @@
         manufacturerCost: pricing.manufacturerCost,
         margin: pricing.margin,
         unitPrice: pricing.unitPrice,
-        calculatedTotal: totalPrice
+        lineTotal: pricing.lineTotal,
+        accessories: pricing.accessories,
+        displayTotal: totalPrice
       });
     }
 
@@ -5656,6 +5638,8 @@
         rollerType: document.querySelector('#rollerTypeSwatches .hardware-option.selected')?.dataset.value || 'standard-roll-back',
         mountType: document.querySelector('#mountTypeSwatches .hardware-option.selected')?.dataset.value || 'inside',
         controlType: document.querySelector('#controlTypeSwatches .hardware-option.selected')?.dataset.value || 'manual',
+        // Motor brand is critical for pricing - must match what pricing API uses
+        motorBrand: document.querySelector('#motorBrandSwatches .motor-brand-btn.selected')?.dataset.value || '',
         motorType: document.querySelector('#motorTypeSwatches .motor-btn.selected')?.dataset.value || '',
         remoteType: document.querySelector('#remoteTypeSwatches .remote-btn.selected')?.dataset.value || '',
         solarType: document.querySelector('#solarTypeSwatches .solar-btn.selected')?.dataset.value || '',
