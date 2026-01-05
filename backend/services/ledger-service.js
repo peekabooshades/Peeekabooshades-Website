@@ -141,10 +141,63 @@ function getLedgerSummary(fromDate = null, toDate = null) {
   return summary;
 }
 
+/**
+ * TICKET 014: Record manufacturer payment and realize profit when order ships
+ */
+function recordShippedProfit(orderId) {
+  const db = loadDatabase();
+
+  // Find the order
+  const order = db.orders.find(o => o.id === orderId);
+  if (!order) {
+    throw new Error('Order not found');
+  }
+
+  // Check if already recorded (avoid duplicates)
+  const existingPaid = (db.ledgerEntries || []).find(
+    e => e.orderId === orderId && e.type === LEDGER_TYPES.MANUFACTURER_PAID
+  );
+  if (existingPaid) {
+    return { alreadyRecorded: true };
+  }
+
+  // Calculate manufacturer cost
+  const manufacturerCost = order.items.reduce((sum, item) => {
+    // Use price_snapshots if available
+    const snap = item.price_snapshots?.manufacturer_price;
+    if (snap?.cost) return sum + (snap.cost * item.quantity);
+    return sum + (item.manufacturer_cost || (item.calculated_price || item.unit_price) * 0.6);
+  }, 0);
+
+  // Record manufacturer payment (converts payable to paid)
+  const paidEntry = createEntry(
+    LEDGER_TYPES.MANUFACTURER_PAID,
+    orderId,
+    -manufacturerCost, // Negative = money going out
+    `Manufacturer payment for order ${order.order_number}`,
+    {
+      orderNumber: order.order_number,
+      shippedAt: new Date().toISOString()
+    }
+  );
+
+  // Calculate realized profit
+  const customerPayment = order.pricing?.total || order.total || 0;
+  const salesTax = order.pricing?.tax || 0;
+  const profit = customerPayment - salesTax - manufacturerCost;
+
+  return {
+    entries: [paidEntry],
+    profit: Math.round(profit * 100) / 100,
+    manufacturerCost: Math.round(manufacturerCost * 100) / 100
+  };
+}
+
 module.exports = {
   LEDGER_TYPES,
   createEntry,
   createOrderLedgerEntries,
   getEntriesForOrder,
-  getLedgerSummary
+  getLedgerSummary,
+  recordShippedProfit
 };

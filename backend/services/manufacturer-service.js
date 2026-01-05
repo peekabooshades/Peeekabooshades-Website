@@ -146,7 +146,7 @@ function getManufacturerOrders(manufacturerId, filters = {}) {
     id: o.id,
     orderNumber: o.order_number,
     status: o.status,
-    customer: o.customer?.name || 'N/A',
+    customer: o.customer?.name || o.customer_name || 'N/A',
     itemCount: o.items?.length || 0,
     items: o.items?.map(item => ({
       productName: item.product_name,
@@ -158,7 +158,7 @@ function getManufacturerOrders(manufacturerId, filters = {}) {
     })),
     createdAt: o.created_at,
     placedAt: o.placed_at,
-    shippingAddress: o.customer?.address
+    shippingAddress: o.customer?.address || o.shipping_address
   }));
 }
 
@@ -193,12 +193,15 @@ function getManufacturerOrderDetail(manufacturerId, orderId) {
     orderNumber: order.order_number,
     status: order.status,
     customer: {
-      name: order.customer?.name,
-      email: order.customer?.email,
-      phone: order.customer?.phone,
-      address: order.customer?.address
+      name: order.customer?.name || order.customer_name,
+      email: order.customer?.email || order.customer_email,
+      phone: order.customer?.phone || order.customer_phone,
+      address: order.customer?.address || order.shipping_address
     },
-    shippingAddress: order.shipping_address,
+    customer_name: order.customer_name,
+    customer_email: order.customer_email,
+    customer_phone: order.customer_phone,
+    shipping_address: order.shipping_address,
     // Invoice information
     manufacturerInvoice: mfrInvoice ? {
       invoiceNumber: mfrInvoice.invoiceNumber,

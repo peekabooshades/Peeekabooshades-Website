@@ -59,6 +59,30 @@
     .price-cell.zero {
       color: var(--admin-text-secondary);
     }
+    .mfr-cost-cell {
+      color: #6c757d;
+      font-size: 13px;
+    }
+    .margin-cell {
+      color: #8E6545;
+      font-weight: 500;
+    }
+    .inline-input {
+      width: 70px;
+      padding: 4px 6px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      text-align: right;
+      font-size: 12px;
+    }
+    .inline-input:focus {
+      border-color: var(--admin-primary);
+      outline: none;
+    }
+    .inline-input.modified {
+      border-color: #8E6545;
+      background: #fffaf5;
+    }
     .image-preview {
       width: 100%;
       max-width: 150px;
@@ -357,20 +381,38 @@
 
           <!-- Details & Pricing Tab -->
           <div class="modal-tab-content" id="modal-tab-details" style="display: none;">
-            <div class="form-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
-              <div class="form-group">
-                <label class="form-label" for="opt-sku">SKU / Part Number</label>
-                <input type="text" class="form-input" id="opt-sku" placeholder="e.g., HW-MT-001">
-              </div>
-              <div class="form-group">
-                <label class="form-label" for="opt-cost">Cost Price ($)</label>
-                <input type="number" class="form-input" id="opt-cost" value="0" min="0" step="0.01" placeholder="Your cost">
+            <div style="background: #f8f9fa; padding: 16px; border-radius: 8px; margin-bottom: 16px;">
+              <h4 style="margin: 0 0 12px 0; font-size: 14px; color: #333;">Manufacturing Cost & Margin</h4>
+              <div class="form-row" style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 16px;">
+                <div class="form-group" style="margin-bottom: 0;">
+                  <label class="form-label" for="opt-price-type">Price Type</label>
+                  <select class="form-input" id="opt-price-type" onchange="updateCalculatedPrice()">
+                    <option value="flat">Flat (fixed $)</option>
+                    <option value="sqm">Per m² ($/m²)</option>
+                  </select>
+                  <p class="form-help">How price is calculated</p>
+                </div>
+                <div class="form-group" style="margin-bottom: 0;">
+                  <label class="form-label" for="opt-mfr-cost">Mfr Cost *</label>
+                  <input type="number" class="form-input" id="opt-mfr-cost" value="0" min="0" step="0.01" placeholder="Manufacturing cost">
+                  <p class="form-help" id="mfr-cost-help">Your manufacturing cost</p>
+                </div>
+                <div class="form-group" style="margin-bottom: 0;">
+                  <label class="form-label" for="opt-margin">Margin (%)</label>
+                  <input type="number" class="form-input" id="opt-margin" value="40" min="0" max="500" step="1" placeholder="Margin %">
+                  <p class="form-help">Markup percentage</p>
+                </div>
+                <div class="form-group" style="margin-bottom: 0;">
+                  <label class="form-label">Customer Price</label>
+                  <div id="calculated-price" style="padding: 10px; background: #e8f5e9; border-radius: 6px; font-weight: 600; color: #28a745;">$0.00</div>
+                  <p class="form-help">Auto-calculated</p>
+                </div>
               </div>
             </div>
             <div class="form-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
               <div class="form-group">
-                <label class="form-label" for="opt-compare-price">Compare at Price ($)</label>
-                <input type="number" class="form-input" id="opt-compare-price" value="0" min="0" step="0.01" placeholder="Original price for strikethrough">
+                <label class="form-label" for="opt-sku">SKU / Part Number</label>
+                <input type="text" class="form-input" id="opt-sku" placeholder="e.g., HW-MT-001">
               </div>
               <div class="form-group">
                 <label class="form-label" for="opt-stock">Stock Status</label>
@@ -544,27 +586,60 @@
             <table class="admin-table">
               <thead>
                 <tr>
-                  <th style="width: 80px;">Image</th>
-                  <th>Value</th>
+                  <th style="width: 50px;">Image</th>
                   <th>Label</th>
-                  <th style="width: 100px;">Price</th>
-                  <th style="width: 80px;">Order</th>
-                  <th style="width: 120px;">Actions</th>
+                  <th style="width: 75px;">Type</th>
+                  <th style="width: 90px;">Mfr Cost</th>
+                  <th style="width: 70px;">Margin</th>
+                  <th style="width: 95px;">Cust Price</th>
+                  <th style="width: 50px;">Order</th>
+                  <th style="width: 90px;">Actions</th>
                 </tr>
               </thead>
               <tbody>
-                ${options.map(opt => `
+                ${options.map(opt => {
+                  const mfrCost = opt.manufacturerCost || opt.costPrice || 0;
+                  const margin = opt.margin || 40;
+                  const priceType = opt.priceType || 'flat';
+                  const custPrice = opt.price || (mfrCost * (1 + margin/100));
+                  const priceUnit = priceType === 'sqm' ? '/m²' : '';
+                  return `
                   <tr data-id="${opt.id}">
                     <td>
                       ${opt.imageUrl ?
-                        `<img src="${opt.imageUrl}" alt="${Admin.Utils.escapeHtml(opt.label)}" class="option-image" onerror="this.src='/images/placeholder.png'">` :
-                        `<div class="option-image" style="display: flex; align-items: center; justify-content: center; color: var(--admin-text-secondary); font-size: 11px;">No image</div>`
+                        `<img src="${opt.imageUrl}" alt="${Admin.Utils.escapeHtml(opt.label)}" class="option-image" style="width:40px;height:40px;" onerror="this.src='/images/placeholder.png'">` :
+                        `<div class="option-image" style="width:40px;height:40px;display:flex;align-items:center;justify-content:center;color:var(--admin-text-secondary);font-size:10px;">-</div>`
                       }
                     </td>
-                    <td><code style="background: #f3f4f6; padding: 2px 6px; border-radius: 4px;">${Admin.Utils.escapeHtml(opt.value)}</code></td>
-                    <td style="font-weight: 500;">${Admin.Utils.escapeHtml(opt.label)}</td>
-                    <td class="price-cell ${opt.price === 0 ? 'zero' : ''}">${opt.price === 0 ? 'Free' : Admin.Utils.formatCurrency(opt.price)}</td>
-                    <td style="text-align: center;">${opt.sortOrder || '-'}</td>
+                    <td>
+                      <div style="font-weight:500;font-size:13px;">${Admin.Utils.escapeHtml(opt.label)}</div>
+                      <code style="background:#f3f4f6;padding:1px 4px;border-radius:3px;font-size:10px;color:#666;">${Admin.Utils.escapeHtml(opt.value)}</code>
+                    </td>
+                    <td>
+                      <select class="inline-input" style="width:70px;padding:4px;"
+                        onchange="updateOptionField('${opt.id}', 'priceType', this.value)">
+                        <option value="flat" ${priceType === 'flat' ? 'selected' : ''}>Flat</option>
+                        <option value="sqm" ${priceType === 'sqm' ? 'selected' : ''}>Per m²</option>
+                      </select>
+                    </td>
+                    <td class="mfr-cost-cell">
+                      <input type="number" class="inline-input ${mfrCost > 0 ? 'modified' : ''}"
+                        value="${mfrCost}" min="0" step="0.01"
+                        data-field="manufacturerCost" data-id="${opt.id}"
+                        onchange="updateOptionField('${opt.id}', 'manufacturerCost', this.value)"
+                        title="Manufacturing cost${priceUnit}">
+                    </td>
+                    <td class="margin-cell">
+                      <input type="number" class="inline-input ${opt.margin ? 'modified' : ''}"
+                        value="${margin}" min="0" max="500" step="1" style="width:50px;"
+                        data-field="margin" data-id="${opt.id}"
+                        onchange="updateOptionField('${opt.id}', 'margin', this.value)"
+                        title="Margin percentage">%
+                    </td>
+                    <td class="price-cell ${custPrice === 0 ? 'zero' : ''}">
+                      ${custPrice === 0 ? 'Free' : '$' + custPrice.toFixed(2) + priceUnit}
+                    </td>
+                    <td style="text-align:center;font-size:12px;">${opt.sortOrder || '-'}</td>
                     <td>
                       <div class="action-buttons">
                         <button class="action-btn" title="Edit" onclick="editOption('${opt.id}')">
@@ -580,7 +655,7 @@
                       </div>
                     </td>
                   </tr>
-                `).join('')}
+                `}).join('')}
               </tbody>
             </table>
           </div>
@@ -692,6 +767,31 @@
     });
 
     // ============================================
+    // PRICE CALCULATION FROM MFR COST + MARGIN
+    // ============================================
+    function updateCalculatedPrice() {
+      const priceType = document.getElementById('opt-price-type')?.value || 'flat';
+      const mfrCost = parseFloat(document.getElementById('opt-mfr-cost')?.value) || 0;
+      const margin = parseFloat(document.getElementById('opt-margin')?.value) || 40;
+      const customerPrice = mfrCost * (1 + margin / 100);
+      const unit = priceType === 'sqm' ? '/m²' : '';
+      const priceEl = document.getElementById('calculated-price');
+      if (priceEl) {
+        priceEl.textContent = '$' + customerPrice.toFixed(2) + unit;
+        // Also update the base price field
+        document.getElementById('opt-price').value = customerPrice.toFixed(2);
+      }
+      // Update help text
+      const helpEl = document.getElementById('mfr-cost-help');
+      if (helpEl) {
+        helpEl.textContent = priceType === 'sqm' ? 'Cost per square meter' : 'Your manufacturing cost';
+      }
+    }
+    document.getElementById('opt-mfr-cost')?.addEventListener('input', updateCalculatedPrice);
+    document.getElementById('opt-margin')?.addEventListener('input', updateCalculatedPrice);
+    document.getElementById('opt-price-type')?.addEventListener('change', updateCalculatedPrice);
+
+    // ============================================
     // MODAL FUNCTIONS
     // ============================================
     function openModal(option = null) {
@@ -714,11 +814,14 @@
       document.getElementById('opt-active').checked = option?.isActive !== false;
       document.getElementById('opt-popular').checked = option?.isPopular || false;
 
-      // Details & Pricing
+      // Details & Pricing - Manufacturing Cost & Margin
+      document.getElementById('opt-price-type').value = option?.priceType || 'flat';
+      document.getElementById('opt-mfr-cost').value = option?.manufacturerCost || option?.costPrice || 0;
+      document.getElementById('opt-margin').value = option?.margin || 40;
       document.getElementById('opt-sku').value = option?.sku || '';
-      document.getElementById('opt-cost').value = option?.costPrice || 0;
-      document.getElementById('opt-compare-price').value = option?.comparePrice || 0;
       document.getElementById('opt-stock').value = option?.stockStatus || 'in-stock';
+      // Update calculated price display
+      updateCalculatedPrice();
       document.getElementById('opt-full-description').value = option?.fullDescription || '';
       document.getElementById('opt-features').value = option?.features?.join('\n') || '';
       document.getElementById('opt-specs').value = option?.specifications?.map(s => `${s.label}: ${s.value}`).join('\n') || '';
@@ -780,6 +883,35 @@
       }
     }
 
+    // ============================================
+    // INLINE FIELD UPDATE
+    // ============================================
+    async function updateOptionField(optionId, field, value) {
+      const numValue = parseFloat(value) || 0;
+      const option = allOptions.find(o => o.id === optionId);
+      if (!option) return;
+
+      // Update local option
+      option[field] = numValue;
+
+      // If manufacturerCost or margin changed, recalculate customer price
+      if (field === 'manufacturerCost' || field === 'margin') {
+        const mfrCost = option.manufacturerCost || option.costPrice || 0;
+        const margin = option.margin || 40;
+        option.price = mfrCost * (1 + margin / 100);
+      }
+
+      try {
+        await Admin.HardwareAPI.updateOption(currentCategory, optionId, { [field]: numValue, price: option.price });
+        Admin.Toast.success(`${field === 'manufacturerCost' ? 'Mfr Cost' : 'Margin'} updated`);
+        // Re-render to update calculated price
+        renderOptions(currentCategory, allOptions);
+      } catch (error) {
+        Admin.Toast.error('Failed to update field');
+        console.error(error);
+      }
+    }
+
     // Form submission
     document.getElementById('option-form').addEventListener('submit', async function(e) {
       e.preventDefault();
@@ -809,21 +941,31 @@
           return { label: label.trim(), value: valueParts.join(':').trim() };
         }) : [];
 
+        // Calculate customer price from mfr cost + margin
+        const priceType = document.getElementById('opt-price-type').value || 'flat';
+        const mfrCost = parseFloat(document.getElementById('opt-mfr-cost').value) || 0;
+        const margin = parseFloat(document.getElementById('opt-margin').value) || 40;
+        const calculatedPrice = mfrCost * (1 + margin / 100);
+
         const formData = {
           // Basic Info
           value: document.getElementById('opt-value').value.trim(),
           label: document.getElementById('opt-label').value.trim(),
           imageUrl: imageUrl,
-          price: parseFloat(document.getElementById('opt-price').value) || 0,
+          price: calculatedPrice,  // Customer price from mfr cost + margin
+          priceType: priceType,    // 'flat' or 'sqm' (per square meter)
           sortOrder: parseInt(document.getElementById('opt-order').value) || 1,
           description: document.getElementById('opt-description').value.trim(),
           isActive: document.getElementById('opt-active').checked,
           isPopular: document.getElementById('opt-popular').checked,
 
+          // Manufacturing Cost & Margin
+          manufacturerCost: mfrCost,
+          margin: margin,
+
           // Details & Pricing
           sku: document.getElementById('opt-sku').value.trim(),
-          costPrice: parseFloat(document.getElementById('opt-cost').value) || 0,
-          comparePrice: parseFloat(document.getElementById('opt-compare-price').value) || 0,
+          costPrice: mfrCost,  // Keep for backward compatibility
           stockStatus: document.getElementById('opt-stock').value,
           fullDescription: document.getElementById('opt-full-description').value.trim(),
           features: features,

@@ -2807,7 +2807,10 @@
 
             <!-- Control Type -->
             <div class="hardware-group" style="margin-bottom: 24px;">
-              <span class="hardware-label" style="font-size: 15px; color: #333333; font-weight: 500; display: block; margin-bottom: 12px;">Control Type</span>
+              <span class="hardware-label" style="font-size: 15px; color: #333333; font-weight: 500; display: block; margin-bottom: 8px;">Control Type</span>
+              <p id="controlTypePriceNote" style="font-size: 11px; color: #666; margin: 0 0 12px 0; padding: 8px 12px; background: #f5f5f5; border-radius: 6px; display: inline-block;">
+                <span style="color: #28a745; font-weight: 600;">Manual: Standard fabric rate</span>
+              </p>
               <div class="hardware-swatches" id="controlTypeSwatches" style="display: flex; gap: 12px; flex-wrap: wrap;">
                 <div class="hardware-option selected" data-value="manual" data-price="0" onclick="selectControlType(this, event)" style="text-align: center; cursor: pointer;">
                   <div style="width: 100px; height: 80px; border-radius: 8px; overflow: hidden; border: 3px solid #8E6545; background: #ffffff; margin-bottom: 6px; display: flex; align-items: center; justify-content: center; padding: 4px;">
@@ -2830,18 +2833,14 @@
               </div>
             </div>
 
-            <!-- Motor Brand (shows only when Motorized is selected) -->
+            <!-- Motor Brand (shows only when Motorized is selected) - Dynamically loaded from API -->
             <div class="hardware-group" id="motorBrandGroup" style="margin-bottom: 24px; display: none; padding: 15px; background: #f9f7f4; border-radius: 10px; border-left: 4px solid #8E6545;">
               <span class="hardware-label" style="font-size: 14px; color: #333333; font-weight: 500; display: block; margin-bottom: 12px;">
                 <i class="fas fa-cog" style="color: #8E6545; margin-right: 8px;"></i>Motor Brand
               </span>
               <div class="motor-brand-buttons" id="motorBrandSwatches" style="display: flex; gap: 12px; flex-wrap: wrap;">
-                <button type="button" class="motor-brand-btn selected" data-value="aok" data-price="45" onclick="selectMotorBrand(this)" style="padding: 12px 24px; border: 2px solid #8E6545; border-radius: 8px; background: #8E6545; color: #FFFFFF; font-size: 14px; font-weight: 500; cursor: pointer; transition: all 0.3s ease;">
-                  AOK (from $45)
-                </button>
-                <button type="button" class="motor-brand-btn" data-value="dooya" data-price="47" onclick="selectMotorBrand(this)" style="padding: 12px 24px; border: 2px solid #D4D4D4; border-radius: 8px; background: transparent; color: #333; font-size: 14px; font-weight: 500; cursor: pointer; transition: all 0.3s ease;">
-                  Dooya (from $47)
-                </button>
+                <!-- Motor brands loaded dynamically from /api/products/:slug/options -->
+                <span style="color: #666; font-size: 13px;">Loading motor brands...</span>
               </div>
             </div>
 
@@ -2893,43 +2892,6 @@
               </p>
             </div>
 
-            <!-- Control System -->
-            <div class="hardware-group" style="margin-bottom: 24px;">
-              <span class="hardware-label" style="font-size: 15px; color: #333333; font-weight: 500; display: block; margin-bottom: 12px;">Control System</span>
-              <div class="hardware-swatches" id="chainTypeSwatches" style="display: flex; gap: 12px; flex-wrap: wrap;">
-                <div class="hardware-option selected" data-value="bead-chain-plastic" data-price="0" onclick="selectHardwareOption(this, 'chainType', event)" style="text-align: center; cursor: pointer;">
-                  <div style="width: 100px; height: 80px; border-radius: 8px; overflow: hidden; border: 3px solid #8E6545; background: #ffffff; margin-bottom: 6px; display: flex; align-items: center; justify-content: center; padding: 4px;">
-                    <img src="/images/control-system/bead-chain.png" alt="Bead Chain" style="max-width: 100%; max-height: 100%; object-fit: contain; pointer-events: none;">
-                  </div>
-                  <span style="font-size: 11px; color: #333; font-weight: 500;">Bead Chain</span>
-                </div>
-                <div class="hardware-option" data-value="bead-chain-wand" data-price="8.00" onclick="selectHardwareOption(this, 'chainType', event)" style="text-align: center; cursor: pointer;">
-                  <div style="width: 100px; height: 80px; border-radius: 8px; overflow: hidden; border: 2px solid #E5E5E5; background: #ffffff; margin-bottom: 6px; display: flex; align-items: center; justify-content: center; padding: 4px;">
-                    <img src="/images/control-system/bead-chain-wand.png" alt="Bead Chain + Wand" style="max-width: 100%; max-height: 100%; object-fit: contain; pointer-events: none;">
-                  </div>
-                  <span style="font-size: 11px; color: #333; font-weight: 500;">Chain + Wand (+$8)</span>
-                </div>
-                <div class="hardware-option" data-value="cordless" data-price="0" onclick="selectHardwareOption(this, 'chainType', event)" style="text-align: center; cursor: pointer;">
-                  <div style="width: 100px; height: 80px; border-radius: 8px; overflow: hidden; border: 2px solid #E5E5E5; background: #ffffff; margin-bottom: 6px; display: flex; align-items: center; justify-content: center; padding: 4px;">
-                    <img src="/images/control-system/cordless.png" alt="Cordless" style="max-width: 100%; max-height: 100%; object-fit: contain; pointer-events: none;">
-                  </div>
-                  <span style="font-size: 11px; color: #333; font-weight: 500;">Cordless</span>
-                </div>
-                <div class="hardware-option" data-value="motorized-app" data-price="0" onclick="selectHardwareOption(this, 'chainType', event)" style="text-align: center; cursor: pointer;">
-                  <div style="width: 100px; height: 80px; border-radius: 8px; overflow: hidden; border: 2px solid #E5E5E5; background: #ffffff; margin-bottom: 6px; display: flex; align-items: center; justify-content: center; padding: 4px;">
-                    <img src="/images/control-system/motorized-app.png" alt="Motorized APP" style="max-width: 100%; max-height: 100%; object-fit: contain; pointer-events: none;">
-                  </div>
-                  <span style="font-size: 11px; color: #333; font-weight: 500;">Motorized</span>
-                </div>
-                <div class="hardware-option" data-value="cordless-motorized" data-price="0" onclick="selectHardwareOption(this, 'chainType', event)" style="text-align: center; cursor: pointer;">
-                  <div style="width: 100px; height: 80px; border-radius: 8px; overflow: hidden; border: 2px solid #E5E5E5; background: #ffffff; margin-bottom: 6px; display: flex; align-items: center; justify-content: center; padding: 4px;">
-                    <img src="/images/control-system/cordless-motorized.png" alt="Cordless-Motorized" style="max-width: 100%; max-height: 100%; object-fit: contain; pointer-events: none;">
-                  </div>
-                  <span style="font-size: 11px; color: #333; font-weight: 500;">2 in 1</span>
-                </div>
-              </div>
-            </div>
-
             <!-- Motor Type -->
             <div class="hardware-group" id="motorTypeGroup" style="margin-bottom: 24px;">
               <span class="hardware-label" style="font-size: 15px; color: #333333; font-weight: 500; display: block; margin-bottom: 12px;">Motor Type</span>
@@ -2940,22 +2902,21 @@
               </div>
             </div>
 
-            <!-- Remote Type -->
+            <!-- Remote Type - Dynamically loaded from API -->
             <div class="hardware-group" id="remoteTypeGroup" style="margin-bottom: 24px;">
               <span class="hardware-label" style="font-size: 15px; color: #333333; font-weight: 500; display: block; margin-bottom: 12px;">Remote Type</span>
               <div class="remote-type-buttons" id="remoteTypeSwatches" style="display: flex; gap: 12px; flex-wrap: wrap;">
-                <button type="button" class="remote-btn selected" data-value="single-channel" data-price="6" onclick="selectRemoteType(this)" style="padding: 12px 24px; border: 2px solid #8E6545; border-radius: 8px; background: #8E6545; color: #FFFFFF; font-size: 14px; font-weight: 500; cursor: pointer; transition: all 0.3s ease;">Single Channel (+$6)</button>
-                <button type="button" class="remote-btn" data-value="6-channel" data-price="6.60" onclick="selectRemoteType(this)" style="padding: 12px 24px; border: 2px solid #D4D4D4; border-radius: 8px; background: transparent; color: #333; font-size: 14px; font-weight: 500; cursor: pointer; transition: all 0.3s ease;">6 Channel (+$6.60)</button>
-                <button type="button" class="remote-btn" data-value="15-channel" data-price="11.35" onclick="selectRemoteType(this)" style="padding: 12px 24px; border: 2px solid #D4D4D4; border-radius: 8px; background: transparent; color: #333; font-size: 14px; font-weight: 500; cursor: pointer; transition: all 0.3s ease;">15 Channel (+$11.35)</button>
+                <!-- Remote types loaded dynamically from /api/products/:slug/options -->
+                <span style="color: #666; font-size: 13px;">Loading remote types...</span>
               </div>
             </div>
 
-            <!-- Solar Type -->
-            <div class="hardware-group" style="margin-bottom: 24px;">
-              <span class="hardware-label" style="font-size: 15px; color: #333333; font-weight: 500; display: block; margin-bottom: 12px;">Solar Type</span>
+            <!-- Solar Panel -->
+            <div class="hardware-group" id="solarPanelGroup" style="margin-bottom: 24px;">
+              <span class="hardware-label" style="font-size: 15px; color: #333333; font-weight: 500; display: block; margin-bottom: 12px;">Solar Panel</span>
               <div class="solar-type-buttons" id="solarTypeSwatches" style="display: flex; gap: 12px;">
-                <button type="button" class="solar-btn selected" data-value="yes" onclick="selectSolarType(this)" style="padding: 12px 32px; border: 2px solid #8E6545; border-radius: 8px; background: #8E6545; color: #FFFFFF; font-size: 14px; font-weight: 500; cursor: pointer; transition: all 0.3s ease;">Yes</button>
-                <button type="button" class="solar-btn" data-value="no" onclick="selectSolarType(this)" style="padding: 12px 32px; border: 2px solid #D4D4D4; border-radius: 8px; background: transparent; color: #333333; font-size: 14px; font-weight: 500; cursor: pointer; transition: all 0.3s ease;">No</button>
+                <!-- Solar options loaded dynamically from API -->
+                <span style="color: #666; font-size: 13px;">Loading solar options...</span>
               </div>
             </div>
           </div>
@@ -2974,86 +2935,24 @@
             <!-- Technical Catalog Reference -->
             <div class="hardware-group" style="margin-bottom: 24px; padding: 15px; background: #F6F1EB; border-radius: 8px;">
               <span style="font-size: 13px; color: #8E6545; font-weight: 600;">For full view of Valance Type</span>
-              <p style="font-size: 12px; color: #666; margin-top: 5px;"><a href="/images/hardware/page-4.jpg" target="_blank" style="color: #8E6545; text-decoration: underline;">Valance Options</a> | <a href="/images/hardware/page-5.jpg" target="_blank" style="color: #8E6545; text-decoration: underline;">Bottom Rails</a> | <a href="/images/hardware/page-7.jpg" target="_blank" style="color: #8E6545; text-decoration: underline;">Control Systems</a></p>
+              <p style="font-size: 12px; color: #666; margin-top: 5px;"><a href="/images/hardware/page-4.jpg" target="_blank" style="color: #8E6545; text-decoration: underline;">Valance Options</a> | <a href="/images/hardware/page-5.jpg" target="_blank" style="color: #8E6545; text-decoration: underline;">Bottom Rails</a></p>
             </div>
 
-            <!-- Valance Type -->
+            <!-- Valance Type - Dynamically loaded from API -->
             <div class="hardware-group" style="margin-bottom: 24px;">
               <span class="hardware-label" style="font-size: 15px; color: #333333; font-weight: 500; display: block; margin-bottom: 12px;">Valance Type</span>
               <div class="hardware-swatches" id="cassetteSwatches" style="display: flex; gap: 20px; flex-wrap: wrap;">
-                <div class="hardware-option selected" data-value="square-v2" data-price="0" onclick="selectHardwareOption(this, 'cassette', event)" style="text-align: center; cursor: pointer;">
-                  <div style="width: 150px; height: 120px; border-radius: 8px; overflow: visible; border: 3px solid #8E6545; background: #f5f5f5; margin-bottom: 8px; display: flex; align-items: center; justify-content: center;">
-                    <img src="/images/hardware/square-v2.png" alt="Square V2" style="max-width: 100%; max-height: 100%; object-fit: contain;">
-                  </div>
-                  <span style="font-size: 12px; color: #666;">Square V2</span>
-                </div>
-                <div class="hardware-option" data-value="fabric-wrapped-v3" data-price="2.20" data-price-type="sqm" onclick="selectHardwareOption(this, 'cassette', event)" style="text-align: center; cursor: pointer;">
-                  <div style="width: 150px; height: 120px; border-radius: 8px; overflow: visible; border: 2px solid #E5E5E5; background: #f5f5f5; margin-bottom: 8px; display: flex; align-items: center; justify-content: center;">
-                    <img src="/images/hardware/fabric-wrapped-v3.png" alt="Fabric Wrapped V3" style="max-width: 100%; max-height: 100%; object-fit: contain;">
-                  </div>
-                  <span style="font-size: 12px; color: #666;">Fabric Wrapped V3<br>(+$2.20/m²)</span>
-                </div>
-                <div class="hardware-option" data-value="fabric-inserted-s1" data-price="2.20" data-price-type="sqm" onclick="selectHardwareOption(this, 'cassette', event)" style="text-align: center; cursor: pointer;">
-                  <div style="width: 150px; height: 120px; border-radius: 8px; overflow: visible; border: 2px solid #E5E5E5; background: #f5f5f5; margin-bottom: 8px; display: flex; align-items: center; justify-content: center;">
-                    <img src="/images/hardware/fabric-inserted-s1.png" alt="Fabric Inserted S1" style="max-width: 100%; max-height: 100%; object-fit: contain;">
-                  </div>
-                  <span style="font-size: 12px; color: #666;">Fabric Inserted S1<br>(+$2.20/m²)</span>
-                </div>
-                <div class="hardware-option" data-value="curve-white-s2" data-price="2.20" data-price-type="sqm" onclick="selectHardwareOption(this, 'cassette', event)" style="text-align: center; cursor: pointer;">
-                  <div style="width: 150px; height: 120px; border-radius: 8px; overflow: visible; border: 2px solid #E5E5E5; background: #f5f5f5; margin-bottom: 8px; display: flex; align-items: center; justify-content: center;">
-                    <img src="/images/hardware/curve-white-s2.png" alt="Curve White S2" style="max-width: 100%; max-height: 100%; object-fit: contain;">
-                  </div>
-                  <span style="font-size: 12px; color: #666;">Curve White S2<br>(+$2.20/m²)</span>
-                </div>
-                <div class="hardware-option" data-value="fabric-wrapped-s3" data-price="2.20" data-price-type="sqm" onclick="selectHardwareOption(this, 'cassette', event)" style="text-align: center; cursor: pointer;">
-                  <div style="width: 150px; height: 120px; border-radius: 8px; overflow: visible; border: 2px solid #E5E5E5; background: #f5f5f5; margin-bottom: 8px; display: flex; align-items: center; justify-content: center;">
-                    <img src="/images/hardware/fabric-wrapped-s3.png" alt="Fabric Wrapped S3" style="max-width: 100%; max-height: 100%; object-fit: contain;">
-                  </div>
-                  <span style="font-size: 12px; color: #666;">Fabric Wrapped S3<br>(+$2.20/m²)</span>
-                </div>
-                <div class="hardware-option" data-value="simple-rolling" data-price="0" onclick="selectHardwareOption(this, 'cassette', event)" style="text-align: center; cursor: pointer;">
-                  <div style="width: 150px; height: 120px; border-radius: 8px; overflow: visible; border: 2px solid #E5E5E5; background: #f5f5f5; margin-bottom: 8px; display: flex; align-items: center; justify-content: center;">
-                    <img src="/images/hardware/simple-rolling.png" alt="Simple Rolling" style="max-width: 100%; max-height: 100%; object-fit: contain;">
-                  </div>
-                  <span style="font-size: 12px; color: #666;">Simple Rolling</span>
-                </div>
+                <!-- Valance types loaded dynamically from /api/products/:slug/options -->
+                <span style="color: #666; font-size: 13px;">Loading valance options...</span>
               </div>
             </div>
 
-            <!-- Bottom Rail (from PDF page 5) -->
+            <!-- Bottom Rail - Dynamically loaded from API -->
             <div class="hardware-group" style="margin-bottom: 24px;">
               <span class="hardware-label" style="font-size: 15px; color: #333333; font-weight: 500; display: block; margin-bottom: 12px;">Bottom Rail</span>
               <div class="hardware-swatches" id="bottomBarSwatches" style="display: flex; gap: 16px; flex-wrap: wrap;">
-                <div class="hardware-option selected" data-value="type-a-waterdrop" data-price="0" onclick="selectHardwareOption(this, 'bottomBar', event)" style="text-align: center; cursor: pointer;">
-                  <div style="width: 120px; height: 80px; border-radius: 8px; overflow: hidden; border: 3px solid #8E6545; background: #f5f5f5; margin-bottom: 8px;">
-                    <img src="/images/bottom-rail/type-a-waterdrop.png" alt="Type A Streamlined Water-drop" style="width: 100%; height: 100%; object-fit: contain;">
-                  </div>
-                  <span style="font-size: 11px; color: #666;">Type A<br>Streamlined Water-drop</span>
-                </div>
-                <div class="hardware-option" data-value="simple-rolling" data-price="2.20" data-price-type="sqm" onclick="selectHardwareOption(this, 'bottomBar', event)" style="text-align: center; cursor: pointer;">
-                  <div style="width: 120px; height: 80px; border-radius: 8px; overflow: hidden; border: 2px solid #E5E5E5; background: #f5f5f5; margin-bottom: 8px;">
-                    <img src="/images/bottom-rail/simple-rolling.png" alt="Simple Rolling" style="width: 100%; height: 100%; object-fit: contain;">
-                  </div>
-                  <span style="font-size: 11px; color: #666;">Simple Rolling<br>(+$2.20/m²)</span>
-                </div>
-                <div class="hardware-option" data-value="type-b" data-price="2.20" data-price-type="sqm" onclick="selectHardwareOption(this, 'bottomBar', event)" style="text-align: center; cursor: pointer;">
-                  <div style="width: 120px; height: 80px; border-radius: 8px; overflow: hidden; border: 2px solid #E5E5E5; background: #f5f5f5; margin-bottom: 8px;">
-                    <img src="/images/bottom-rail/type-b.png" alt="Type B" style="width: 100%; height: 100%; object-fit: contain;">
-                  </div>
-                  <span style="font-size: 11px; color: #666;">Type B<br>(+$2.20/m²)</span>
-                </div>
-                <div class="hardware-option" data-value="type-c-fabric-wrapped" data-price="2.20" data-price-type="sqm" onclick="selectHardwareOption(this, 'bottomBar', event)" style="text-align: center; cursor: pointer;">
-                  <div style="width: 120px; height: 80px; border-radius: 8px; overflow: hidden; border: 2px solid #E5E5E5; background: #f5f5f5; margin-bottom: 8px;">
-                    <img src="/images/bottom-rail/type-c-fabric-wrapped.png" alt="Type C Fabric Wrapped" style="width: 100%; height: 100%; object-fit: contain;">
-                  </div>
-                  <span style="font-size: 11px; color: #666;">Type C Fabric Wrapped<br>(+$2.20/m²)</span>
-                </div>
-                <div class="hardware-option" data-value="type-d" data-price="2.20" data-price-type="sqm" onclick="selectHardwareOption(this, 'bottomBar', event)" style="text-align: center; cursor: pointer;">
-                  <div style="width: 120px; height: 80px; border-radius: 8px; overflow: hidden; border: 2px solid #E5E5E5; background: #f5f5f5; margin-bottom: 8px;">
-                    <img src="/images/bottom-rail/type-d.png" alt="Type D" style="width: 100%; height: 100%; object-fit: contain;">
-                  </div>
-                  <span style="font-size: 11px; color: #666;">Type D<br>(+$2.20/m²)</span>
-                </div>
+                <!-- Bottom rail options loaded dynamically from /api/products/:slug/options -->
+                <span style="color: #666; font-size: 13px;">Loading bottom rail options...</span>
               </div>
             </div>
 
@@ -3136,7 +3035,7 @@
                   </div>
                   <div>
                     <span style="font-size: 14px; font-weight: 600; color: #333; display: block;">Smart Hub</span>
-                    <span style="font-size: 12px; color: #8E6545; font-weight: 600;">$45.00</span>
+                    <span id="smartHubPrice" style="font-size: 12px; color: #8E6545; font-weight: 600;">$23.50</span>
                   </div>
                 </div>
                 <div class="accessory-qty" style="display: flex; align-items: center; gap: 8px;">
@@ -3159,7 +3058,7 @@
                   </div>
                   <div>
                     <span style="font-size: 14px; font-weight: 600; color: #333; display: block;">USB Charger</span>
-                    <span style="font-size: 12px; color: #8E6545; font-weight: 600;">$15.00</span>
+                    <span id="usbChargerPrice" style="font-size: 12px; color: #8E6545; font-weight: 600;">$5.00</span>
                   </div>
                 </div>
                 <div class="accessory-qty" style="display: flex; align-items: center; gap: 8px;">
@@ -3343,37 +3242,6 @@
               </div>
             </div>
 
-            <!-- Control Systems -->
-            <div class="catalog-section">
-              <h4>Control Systems</h4>
-              <div class="catalog-grid">
-                <div class="catalog-item">
-                  <strong>Bead Chain</strong>
-                  <span>Plastic or metal options</span>
-                </div>
-                <div class="catalog-item">
-                  <strong>Cordless</strong>
-                  <span>Child-safe operation</span>
-                </div>
-                <div class="catalog-item">
-                  <strong>Bead Chain with Wand</strong>
-                  <span>2 in 1 control system</span>
-                </div>
-                <div class="catalog-item">
-                  <strong>Retractable Wand</strong>
-                  <span>Space-saving design</span>
-                </div>
-                <div class="catalog-item">
-                  <strong>Motorized (APP)</strong>
-                  <span>Smart home compatible</span>
-                </div>
-                <div class="catalog-item">
-                  <strong>Cordless-Motorized</strong>
-                  <span>Premium automation</span>
-                </div>
-              </div>
-            </div>
-
             <!-- Configuration Features -->
             <div class="catalog-section">
               <h4>Configuration Features</h4>
@@ -3409,7 +3277,6 @@
                   <tr>
                     <th>Type</th>
                     <th>Products</th>
-                    <th>Control System</th>
                     <th>Width</th>
                     <th>Light Gap</th>
                     <th>Installation</th>
@@ -3419,7 +3286,6 @@
                   <tr>
                     <td>Simple</td>
                     <td>Roller Blinds, Shangri-la Blinds</td>
-                    <td>Bead Chain Manual</td>
                     <td>0.3~1.5m</td>
                     <td>~3.3cm</td>
                     <td>Most walls</td>
@@ -3427,7 +3293,6 @@
                   <tr>
                     <td>Curved Plus</td>
                     <td>Roller Blinds, Zebra Blinds, Shangri-la Blinds</td>
-                    <td>Bead Chain Manual</td>
                     <td>0.3~1.8m</td>
                     <td>~4.5cm</td>
                     <td>All walls</td>
@@ -4507,6 +4372,9 @@
       });
     });
 
+    // Store motor brands data globally
+    let motorBrandsData = [];
+
     // Load product options from database and update DOM
     async function loadProductOptions() {
       const slug = window.location.pathname.split('/').pop();
@@ -4518,6 +4386,13 @@
         if (result.success && result.options) {
           productOptionsData = result.options;
           console.log('Product options loaded:', productOptionsData);
+
+          // Store motor brands if available
+          if (result.motorBrands && result.motorBrands.length > 0) {
+            motorBrandsData = result.motorBrands;
+            console.log('Motor brands loaded:', motorBrandsData);
+          }
+
           renderDynamicOptions();
         }
       } catch (error) {
@@ -4540,19 +4415,29 @@
         renderOptionSwatches('controlTypeSwatches', productOptionsData.controlType.options, 'controlType', true, true);
       }
 
-      // Update Control System (Chain Type) options
-      if (productOptionsData.chainType) {
-        renderOptionSwatches('chainTypeSwatches', productOptionsData.chainType.options, 'chainType', true);
+      // Update Remote Type options with dynamic prices
+      if (productOptionsData.remoteType) {
+        renderRemoteTypeOptions('remoteTypeSwatches', productOptionsData.remoteType.options);
       }
 
-      // Update Valance Type (Cassette) options
+      // Update Solar Panel options with dynamic prices
+      if (productOptionsData.solarPanel) {
+        renderSolarPanelOptions('solarTypeSwatches', productOptionsData.solarPanel.options);
+      }
+
+      // Update Motor Brands dynamically
+      if (motorBrandsData && motorBrandsData.length > 0) {
+        renderMotorBrandsOptions('motorBrandSwatches', motorBrandsData);
+      }
+
+      // Update Valance Type (Cassette) options with priceType support
       if (productOptionsData.valanceType) {
-        renderOptionSwatches('cassetteSwatches', productOptionsData.valanceType.options, 'cassette', true, false, 'large');
+        renderPricedOptions('cassetteSwatches', productOptionsData.valanceType.options, 'cassette', 'large');
       }
 
-      // Update Bottom Rail options
+      // Update Bottom Rail options with priceType support
       if (productOptionsData.bottomRail) {
-        renderOptionSwatches('bottomBarSwatches', productOptionsData.bottomRail.options, 'bottomBar', true, false, 'medium');
+        renderPricedOptions('bottomBarSwatches', productOptionsData.bottomRail.options, 'bottomBar', 'medium');
       }
 
       // Update Roller Type options
@@ -4568,10 +4453,106 @@
       // Update Accessories
       if (productOptionsData.accessories) {
         renderAccessoriesOptions(productOptionsData.accessories.options);
+        // Update accessory prices for calculation
+        updateAccessoryPrices();
       }
 
       // Recalculate price after options are rendered
       calculatePrice();
+    }
+
+    // Render Motor Brands dynamically from API
+    function renderMotorBrandsOptions(containerId, brands) {
+      const container = document.getElementById(containerId);
+      if (!container || !brands || brands.length === 0) return;
+
+      container.innerHTML = brands.map((brand, index) => {
+        const isSelected = index === 0 ? 'selected' : '';
+        const bgColor = index === 0 ? '#8E6545' : 'transparent';
+        const textColor = index === 0 ? '#FFFFFF' : '#333';
+        const borderColor = index === 0 ? '#8E6545' : '#D4D4D4';
+        const priceDisplay = brand.priceType === 'sqm' ? `from $${brand.price.toFixed(2)}/m²` : `from $${brand.price.toFixed(0)}`;
+
+        return `
+          <button type="button" class="motor-brand-btn ${isSelected}" data-value="${brand.value}" data-price="${brand.price}" data-price-type="${brand.priceType || 'flat'}" onclick="selectMotorBrand(this)" style="padding: 12px 24px; border: 2px solid ${borderColor}; border-radius: 8px; background: ${bgColor}; color: ${textColor}; font-size: 14px; font-weight: 500; cursor: pointer; transition: all 0.3s ease;">
+            ${brand.label} (${priceDisplay})
+          </button>
+        `;
+      }).join('');
+    }
+
+    // Render Remote Type options dynamically
+    function renderRemoteTypeOptions(containerId, options) {
+      const container = document.getElementById(containerId);
+      if (!container || !options || options.length === 0) return;
+
+      container.innerHTML = options.map((opt, index) => {
+        const isSelected = opt.isDefault ? 'selected' : '';
+        const bgColor = opt.isDefault ? '#8E6545' : 'transparent';
+        const textColor = opt.isDefault ? '#FFFFFF' : '#333';
+        const borderColor = opt.isDefault ? '#8E6545' : '#D4D4D4';
+        const priceDisplay = opt.price > 0 ? ` (+$${opt.price.toFixed(2)})` : '';
+
+        return `
+          <button type="button" class="remote-btn ${isSelected}" data-value="${opt.value}" data-price="${opt.price || 0}" onclick="selectRemoteType(this)" style="padding: 12px 24px; border: 2px solid ${borderColor}; border-radius: 8px; background: ${bgColor}; color: ${textColor}; font-size: 14px; font-weight: 500; cursor: pointer; transition: all 0.3s ease;">
+            ${opt.name}${priceDisplay}
+          </button>
+        `;
+      }).join('');
+    }
+
+    // Render Solar Panel options with dynamic prices
+    function renderSolarPanelOptions(containerId, options) {
+      const container = document.getElementById(containerId);
+      if (!container || !options || options.length === 0) return;
+
+      container.innerHTML = options.map(opt => {
+        const isSelected = opt.isDefault ? 'selected' : '';
+        const bgColor = opt.isDefault ? '#8E6545' : 'transparent';
+        const textColor = opt.isDefault ? '#FFFFFF' : '#333';
+        const borderColor = opt.isDefault ? '#8E6545' : '#D4D4D4';
+        const priceDisplay = opt.price > 0 ? ` (+$${opt.price.toFixed(2)})` : '';
+
+        return `
+          <button type="button" class="solar-btn ${isSelected}" data-value="${opt.value}" data-price="${opt.price || 0}" onclick="selectSolarType(this)" style="padding: 12px 32px; border: 2px solid ${borderColor}; border-radius: 8px; background: ${bgColor}; color: ${textColor}; font-size: 14px; font-weight: 500; cursor: pointer; transition: all 0.3s ease;">
+            ${opt.name}${priceDisplay}
+          </button>
+        `;
+      }).join('');
+    }
+
+    // Render options with priceType support (valance, bottom rail)
+    function renderPricedOptions(containerId, options, optionType, size = 'normal') {
+      const container = document.getElementById(containerId);
+      if (!container || !options || options.length === 0) return;
+
+      let imgWidth = '100px', imgHeight = '80px';
+      if (size === 'large') { imgWidth = '150px'; imgHeight = '120px'; }
+      if (size === 'medium') { imgWidth = '120px'; imgHeight = '80px'; }
+
+      container.innerHTML = options.map(opt => {
+        const isSelected = opt.isDefault ? 'selected' : '';
+        const borderStyle = opt.isDefault ? '3px solid #8E6545' : '2px solid #E5E5E5';
+
+        // Handle per-sqm pricing display
+        let priceText = '';
+        if (opt.price > 0) {
+          if (opt.priceType === 'sqm') {
+            priceText = `<br>(+$${opt.price.toFixed(2)}/m²)`;
+          } else {
+            priceText = `<br>(+$${opt.price.toFixed(0)})`;
+          }
+        }
+
+        return `
+          <div class="hardware-option ${isSelected}" data-value="${opt.value}" data-price="${opt.price || 0}" data-price-type="${opt.priceType || 'flat'}" onclick="selectHardwareOption(this, '${optionType}', event)" style="text-align: center; cursor: pointer;">
+            <div style="width: ${imgWidth}; height: ${imgHeight}; border-radius: 8px; overflow: visible; border: ${borderStyle}; background: #f5f5f5; margin-bottom: 8px; display: flex; align-items: center; justify-content: center;">
+              ${opt.image ? `<img src="${opt.image}" alt="${opt.name}" style="max-width: 100%; max-height: 100%; object-fit: contain;">` : ''}
+            </div>
+            <span style="font-size: 12px; color: #666;">${opt.name}${priceText}</span>
+          </div>
+        `;
+      }).join('');
     }
 
     // Generic function to render option swatches
@@ -4674,6 +4655,16 @@
           }
 
           displayProduct(product);
+
+          // TICKET 015: Track product view
+          if (typeof trackEvent === 'function') {
+            trackEvent('product_view', {
+              productId: product.id,
+              productName: product.name,
+              product_id: product.id,
+              product_name: product.name
+            });
+          }
 
           // Check stock status
           if (product.stock_status === 'out_of_stock') {
@@ -5010,7 +5001,19 @@
       const motorizedLocationGroup = document.getElementById('motorizedLocationGroup');
       const chainLocationGroup = document.getElementById('chainLocationGroup');
       const motorBrandGroup = document.getElementById('motorBrandGroup');
+      const priceNote = document.getElementById('controlTypePriceNote');
       const selectedValue = option.getAttribute('data-value');
+
+      // Update price note based on control type
+      if (priceNote) {
+        if (selectedValue === 'motorized') {
+          priceNote.innerHTML = '<span style="color: #1565c0; font-weight: 600;">Motorized: Standard fabric rate</span> + Motor Brand cost';
+        } else if (selectedValue === 'cordless') {
+          priceNote.innerHTML = '<span style="color: #e65100; font-weight: 600;">Cordless: +$3.25/m² fabric</span> (includes cordless spring)';
+        } else {
+          priceNote.innerHTML = '<span style="color: #28a745; font-weight: 600;">Manual: Standard fabric rate</span>';
+        }
+      }
 
       if (selectedValue === 'motorized') {
         motorizedLocationGroup.style.display = 'block';
@@ -5124,6 +5127,7 @@
       btn.style.color = '#FFFFFF';
       btn.style.borderColor = '#8E6545';
       btn.classList.add('selected');
+      calculatePrice();
     }
 
     // Change quantity
@@ -5162,11 +5166,27 @@
       calculatePrice();
     }
 
-    // Accessory prices
-    const accessoryPrices = {
+    // Accessory prices - loaded dynamically from API, fallback to these defaults
+    let accessoryPrices = {
       smartHub: 23.50,
       usbCharger: 5.00
     };
+
+    // Update accessory prices from product options when loaded
+    function updateAccessoryPrices() {
+      if (productOptionsData && productOptionsData.accessories && productOptionsData.accessories.options) {
+        productOptionsData.accessories.options.forEach(acc => {
+          const key = acc.value.replace(/[^a-zA-Z0-9]/g, '');
+          accessoryPrices[key] = acc.price || accessoryPrices[key] || 0;
+        });
+
+        // Update displayed prices in the UI
+        const smartHubPriceEl = document.getElementById('smartHubPrice');
+        const usbChargerPriceEl = document.getElementById('usbChargerPrice');
+        if (smartHubPriceEl) smartHubPriceEl.textContent = '$' + accessoryPrices.smartHub.toFixed(2);
+        if (usbChargerPriceEl) usbChargerPriceEl.textContent = '$' + accessoryPrices.usbCharger.toFixed(2);
+      }
+    }
 
     // Debounce timer for API calls
     let priceCalculationTimeout = null;
@@ -5222,7 +5242,6 @@
       // Get hardware options
       const cassetteOption = document.querySelector('#cassetteSwatches .hardware-option.selected');
       const bottomBarOption = document.querySelector('#bottomBarSwatches .hardware-option.selected');
-      const chainTypeOption = document.querySelector('#chainTypeSwatches .hardware-option.selected');
       const rollerTypeOption = document.querySelector('#rollerTypeSwatches .hardware-option.selected');
       const mountTypeOption = document.querySelector('#mountTypeSwatches .hardware-option.selected');
 
@@ -5231,7 +5250,6 @@
         controlType,
         standardCassette: cassetteOption?.dataset.value || null,
         standardBottomBar: bottomBarOption?.dataset.value || null,
-        chainType: chainTypeOption?.dataset.value || null,
         rollerType: rollerTypeOption?.dataset.value || null,
         mountType: mountTypeOption?.dataset.value || null,
         // Map hardware selectors to pricing engine option names
@@ -5243,11 +5261,19 @@
       const motorBrandOption = document.querySelector('#motorBrandSwatches .motor-brand-btn.selected');
       const motorTypeOption = document.querySelector('#motorTypeSwatches .motor-btn.selected');
       const remoteTypeOption = document.querySelector('#remoteTypeSwatches .remote-btn.selected');
+      const solarTypeOption = document.querySelector('#solarTypeSwatches .solar-btn.selected');
       if (controlType === 'motorized') {
         options.motorBrand = motorBrandOption?.dataset.value || 'aok';
         options.motorType = motorTypeOption?.dataset.value || null;
         options.remoteType = remoteTypeOption?.dataset.value || null;
+        options.solarType = solarTypeOption?.dataset.value || null;
       }
+
+      // Accessories (Smart Hub, USB Charger)
+      const smartHubQty = parseInt(document.getElementById('smartHubQty')?.value) || 0;
+      const usbChargerQty = parseInt(document.getElementById('usbChargerQty')?.value) || 0;
+      options.smartHubQty = smartHubQty;
+      options.usbChargerQty = usbChargerQty;
 
       // Build API request
       const pricingRequest = {
@@ -5339,7 +5365,6 @@
       // Add hardware options prices from DOM (for items not in API response)
       const cassetteOption = document.querySelector('#cassetteSwatches .hardware-option.selected');
       const bottomBarOption = document.querySelector('#bottomBarSwatches .hardware-option.selected');
-      const chainTypeOption = document.querySelector('#chainTypeSwatches .hardware-option.selected');
       const rollerTypeOption = document.querySelector('#rollerTypeSwatches .hardware-option.selected');
       const controlTypeOption = document.querySelector('#controlTypeSwatches .hardware-option.selected');
       const mountTypeOption = document.querySelector('#mountTypeSwatches .hardware-option.selected');
@@ -5362,13 +5387,6 @@
         if (bottomBarPrice > 0) {
           additionalOptionsTotal += bottomBarPrice;
           breakdown.push({ name: `Bottom Rail: ${bottomBarOption.querySelector('span')?.textContent.split('(')[0].trim() || 'Standard'}`, price: bottomBarPrice });
-        }
-      }
-      if (chainTypeOption) {
-        const chainTypePrice = parseFloat(chainTypeOption.dataset.price) || 0;
-        if (chainTypePrice > 0) {
-          additionalOptionsTotal += chainTypePrice;
-          breakdown.push({ name: `Chain Type: ${chainTypeOption.querySelector('span')?.textContent.split('(')[0].trim() || 'Standard'}`, price: chainTypePrice });
         }
       }
       if (rollerTypeOption) {
@@ -5483,10 +5501,7 @@
     function fallbackPriceCalculation(width, height, quantity, warranty) {
       const breakdown = [];
 
-      let price = basePrice;
-      breakdown.push({ name: 'Base Price', price: basePrice });
-
-      // Size adjustment using m² formula
+      // Size calculation using m² formula
       const INCHES_TO_METERS = 0.0254;
       const widthMeters = width * INCHES_TO_METERS;
       const heightMeters = height * INCHES_TO_METERS;
@@ -5494,19 +5509,18 @@
       const minArea = 1.2; // Minimum 1.2 m² for roller blinds
       areaSqMeters = Math.max(areaSqMeters, minArea);
 
-      // Approximate price per m² for fallback
+      // Approximate price per m² for fallback (fabric price)
       const pricePerSqMeter = 20; // Approximate customer price per m²
-      price = areaSqMeters * pricePerSqMeter;
+      let price = areaSqMeters * pricePerSqMeter;
 
       breakdown.push({
-        name: `Size (${width.toFixed(1)}" x ${height.toFixed(1)}" = ${areaSqMeters.toFixed(2)} m²)`,
-        price: price - basePrice
+        name: `Fabric (${areaSqMeters.toFixed(2)} m²)`,
+        price: price
       });
 
       // Get hardware option prices
       const cassetteOption = document.querySelector('#cassetteSwatches .hardware-option.selected');
       const bottomBarOption = document.querySelector('#bottomBarSwatches .hardware-option.selected');
-      const chainTypeOption = document.querySelector('#chainTypeSwatches .hardware-option.selected');
       const rollerTypeOption = document.querySelector('#rollerTypeSwatches .hardware-option.selected');
       const controlTypeOption = document.querySelector('#controlTypeSwatches .hardware-option.selected');
       const mountTypeOption = document.querySelector('#mountTypeSwatches .hardware-option.selected');
@@ -5520,11 +5534,6 @@
         const bottomBarPrice = parseFloat(bottomBarOption.dataset.price) || 0;
         price += bottomBarPrice;
         if (bottomBarPrice > 0) breakdown.push({ name: 'Bottom Bar', price: bottomBarPrice });
-      }
-      if (chainTypeOption) {
-        const chainTypePrice = parseFloat(chainTypeOption.dataset.price) || 0;
-        price += chainTypePrice;
-        if (chainTypePrice > 0) breakdown.push({ name: 'Chain Type', price: chainTypePrice });
       }
       if (rollerTypeOption) {
         const rollerTypePrice = parseFloat(rollerTypeOption.dataset.price) || 0;
@@ -5540,6 +5549,14 @@
         const mountTypePrice = parseFloat(mountTypeOption.dataset.price) || 0;
         price += mountTypePrice;
         if (mountTypePrice > 0) breakdown.push({ name: 'Mount Type', price: mountTypePrice });
+      }
+
+      // Solar Panel
+      const solarTypeOption = document.querySelector('#solarTypeSwatches .solar-btn.selected');
+      if (solarTypeOption) {
+        const solarPrice = parseFloat(solarTypeOption.dataset.price) || 0;
+        price += solarPrice;
+        if (solarPrice > 0) breakdown.push({ name: 'Solar Panel', price: solarPrice });
       }
 
       if (warranty) {
@@ -5625,20 +5642,26 @@
       const roomLabel = document.getElementById('roomLabel').value;
       const warranty = document.getElementById('extendedWarranty').checked;
 
+      // Get accessory quantities
+      const smartHubQty = parseInt(document.getElementById('smartHubQty')?.value) || 0;
+      const usbChargerQty = parseInt(document.getElementById('usbChargerQty')?.value) || 0;
+
       const configuration = {
         lightFiltering: document.querySelector('#lightFilteringSwatches .filter-toggle-btn.selected')?.dataset.value || 'blackout',
         fabricCode: document.querySelector('.fabric-group .fabric-swatch.selected')?.dataset.code || '82143A',
         fabricColor: document.querySelector('.fabric-group .fabric-swatch.selected')?.dataset.color || '82143A',
         standardCassette: document.querySelector('#cassetteSwatches .hardware-option.selected')?.dataset.value || 'fabric-insert',
         standardBottomBar: document.querySelector('#bottomBarSwatches .hardware-option.selected')?.dataset.value || 'standard',
-        chainType: document.querySelector('#chainTypeSwatches .hardware-option.selected')?.dataset.value || 'plastic',
         chainSide: document.querySelector('#chainSideSwatches .chain-side-btn.selected')?.dataset.value || 'left',
         rollerType: document.querySelector('#rollerTypeSwatches .hardware-option.selected')?.dataset.value || 'standard-roll-back',
         mountType: document.querySelector('#mountTypeSwatches .hardware-option.selected')?.dataset.value || 'inside',
         controlType: document.querySelector('#controlTypeSwatches .hardware-option.selected')?.dataset.value || 'manual',
         motorType: document.querySelector('#motorTypeSwatches .motor-btn.selected')?.dataset.value || '',
         remoteType: document.querySelector('#remoteTypeSwatches .remote-btn.selected')?.dataset.value || '',
-        solarType: document.querySelector('#solarTypeSwatches .solar-btn.selected')?.dataset.value || 'yes'
+        solarType: document.querySelector('#solarTypeSwatches .solar-btn.selected')?.dataset.value || '',
+        // Accessories
+        smartHubQty: smartHubQty,
+        usbChargerQty: usbChargerQty
       };
 
       const totalPrice = parseFloat(document.getElementById('totalPrice').textContent);
@@ -5667,6 +5690,19 @@
         if (result.success) {
           showToast('Added to cart!', 'success');
           updateCartCount();
+
+          // TICKET 015: Track add to cart
+          if (typeof trackEvent === 'function') {
+            trackEvent('add_to_cart', {
+              productId: product?.id,
+              productName: product?.name,
+              product_id: product?.id,
+              product_name: product?.name,
+              fabricCode: configuration.fabricCode,
+              quantity: parseInt(quantity),
+              value: totalPrice
+            });
+          }
         }
       } catch (error) {
         const cart = JSON.parse(localStorage.getItem('cart') || '[]');

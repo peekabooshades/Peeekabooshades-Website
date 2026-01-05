@@ -159,18 +159,52 @@ class PricingEngine {
       }
     }
 
-    // Motorization pricing
+    // Motorization pricing - Motor Brand pricing (when controlType is motorized)
     if (options.controlType === 'motorized') {
-      const motorConfig = db.systemConfig?.motorization || { basePrice: 75 };
-      totalOptionPrice += motorConfig.basePrice;
+      // Motor brand pricing - based on chainType/motorBrand selection
+      const motorBrand = options.motorBrand || options.chainType;
+      const motorBrandPrices = {
+        'motorized-app': 45,      // AOK motor
+        'motorized-remote': 47,   // Dooya motor
+        'plugin-motor': 55,       // Plugin motor
+        'battery': 0              // Battery type is free, motor cost is in brand
+      };
 
-      if (options.motorType) {
-        const motorTypePrice = motorConfig[options.motorType] || 0;
-        totalOptionPrice += motorTypePrice;
+      if (motorBrand && motorBrandPrices[motorBrand] !== undefined) {
+        totalOptionPrice += motorBrandPrices[motorBrand];
       }
     }
 
-    // Accessories pricing
+    // Remote type pricing
+    if (options.remoteType && options.controlType === 'motorized') {
+      const remotePrices = {
+        '1-channel': 4.40,
+        '6-channel': 6.60,
+        '16-channel': 8.80
+      };
+      if (remotePrices[options.remoteType]) {
+        totalOptionPrice += remotePrices[options.remoteType];
+      }
+    }
+
+    // Solar panel pricing
+    if (options.solarType === 'yes' && options.controlType === 'motorized') {
+      totalOptionPrice += 15; // Solar panel $15
+    }
+
+    // Smart Hub pricing (quantity based)
+    const smartHubQty = parseInt(options.smartHubQty) || 0;
+    if (smartHubQty > 0) {
+      totalOptionPrice += smartHubQty * 23.50; // Smart Hub $23.50 each
+    }
+
+    // USB Charger pricing (quantity based)
+    const usbChargerQty = parseInt(options.usbChargerQty) || 0;
+    if (usbChargerQty > 0) {
+      totalOptionPrice += usbChargerQty * 5; // USB Charger $5 each
+    }
+
+    // Legacy accessories array pricing
     if (options.accessories && Array.isArray(options.accessories)) {
       for (const accessoryId of options.accessories) {
         const accessory = this.findAccessory(accessoryId, db);

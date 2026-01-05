@@ -14,6 +14,7 @@ const { authMiddleware, generateToken, verifyToken } = require('./middleware/aut
 // ============================================
 const { systemConfig } = require('./config/system-config');
 const { pricingEngine } = require('./services/pricing-engine');
+const { extendedPricingEngine } = require('./services/extended-pricing-engine');
 const { auditLogger, AUDIT_ACTIONS, SEVERITY } = require('./services/audit-logger');
 const { requirePermission, requireRole, ROLES } = require('./middleware/rbac');
 const { validate, validateParams, sanitizeBody, isValidUUID } = require('./middleware/validation');
@@ -21,7 +22,7 @@ const { mediaManager, MEDIA_CATEGORIES } = require('./services/media-manager');
 const { contentManager } = require('./services/content-manager');
 const { realtimeSync } = require('./services/realtime-sync');
 const { ORDER_STATES, createOrderFromCart, transitionOrderStatus, simulateFakePayment, getOrderWithHistory } = require('./services/order-service');
-const { createOrderLedgerEntries, getEntriesForOrder } = require('./services/ledger-service');
+const { createOrderLedgerEntries, getEntriesForOrder, recordShippedProfit } = require('./services/ledger-service');
 const analyticsService = require('./services/analytics-service');
 const manufacturerService = require('./services/manufacturer-service');
 const dealerService = require('./services/dealer-service');
@@ -446,15 +447,52 @@ app.post('/api/cart', (req, res) => {
 
     // CRITICAL: Calculate price SERVER-SIDE using pricing engine
     // NEVER trust client-provided price
+
+    // Parse configuration if it's a string
+    let configObj = configuration;
+    if (typeof configuration === 'string') {
+      try { configObj = JSON.parse(configuration); } catch (e) { configObj = {}; }
+    }
+    configObj = configObj || {};
+
+    // Build options object from configuration for pricing engine
+    const pricingOptions = {
+      fabricCode: configObj.fabricCode,
+      controlType: configObj.controlType,
+      motorType: configObj.motorType,
+      // Motor brand can come from motorBrand field or chainType (legacy)
+      motorBrand: configObj.motorBrand || configObj.chainType,
+      remoteType: configObj.remoteType,
+      solarType: configObj.solarType,
+      smartHubQty: configObj.smartHubQty || 0,
+      usbChargerQty: configObj.usbChargerQty || 0,
+      // Hardware options - pass directly for pricing engine
+      standardCassette: configObj.standardCassette,
+      valanceType: configObj.standardCassette, // Alias for valance pricing
+      standardBottomBar: configObj.standardBottomBar,
+      bottomRail: configObj.standardBottomBar, // Alias for bottom rail pricing
+      rollerType: configObj.rollerType,
+      // Also keep nested hardware for backward compatibility
+      hardware: {
+        cassette: configObj.standardCassette,
+        bottomBar: configObj.standardBottomBar,
+        rollerType: configObj.rollerType
+      },
+      ...options // Allow override with explicit options
+    };
+
+    // TICKET 009: Use ExtendedPricingEngine for customer vs manufacturer pricing split
     let priceResult;
     try {
-      priceResult = pricingEngine.calculateProductPrice({
+      priceResult = extendedPricingEngine.calculateCustomerPrice({
         productId,
+        productSlug: product.slug,
+        productType: product.category_slug?.replace('-shades', '') || 'roller',
         width: width || 24,
         height: height || 36,
         quantity: quantity || 1,
-        options: options || {},
-        extendedWarranty: extendedWarranty || false
+        fabricCode: pricingOptions.fabricCode,
+        options: pricingOptions
       });
     } catch (priceError) {
       return res.status(400).json({ success: false, error: priceError.message });
@@ -464,22 +502,44 @@ app.post('/api/cart', (req, res) => {
       return res.status(400).json({ success: false, error: 'Price calculation failed' });
     }
 
+    const now = new Date().toISOString();
     const cartItem = {
       id: uuidv4(),
       session_id: sessionId,
       product_id: productId,
       product_name: product.name,
       quantity: quantity || 1,
-      width: priceResult.breakdown.width,
-      height: priceResult.breakdown.height,
+      width: priceResult.dimensions.width,
+      height: priceResult.dimensions.height,
       room_label: roomLabel || '',
       configuration: typeof configuration === 'string' ? configuration : JSON.stringify(configuration || {}),
-      // CRITICAL: Use server-calculated price, NOT client price
+      // CRITICAL: Use server-calculated CUSTOMER price (manufacturer + margin)
       unit_price: priceResult.pricing.unitPrice,
-      line_total: priceResult.pricing.totalPrice,
+      line_total: priceResult.pricing.lineTotal,
       extended_warranty: extendedWarranty ? 1 : 0,
-      price_breakdown: priceResult.breakdown,
-      created_at: new Date().toISOString()
+      // TICKET 009: Store BOTH manufacturer and customer price breakdowns
+      price_snapshot: {
+        captured_at: now,
+        manufacturer_price: {
+          unit_cost: priceResult.pricing.manufacturerCost.unitCost,
+          total_cost: priceResult.pricing.manufacturerCost.totalCost,
+          source: priceResult.pricing.manufacturerCost.source,
+          fabric_code: priceResult.fabricCode
+        },
+        margin: {
+          type: priceResult.pricing.margin.type,
+          value: priceResult.pricing.margin.value,
+          amount: priceResult.pricing.margin.amount,
+          percentage: priceResult.pricing.margin.percentage
+        },
+        customer_price: {
+          unit_price: priceResult.pricing.unitPrice,
+          line_total: priceResult.pricing.lineTotal,
+          options_total: priceResult.pricing.options.total,
+          options_breakdown: priceResult.pricing.options.breakdown
+        }
+      },
+      created_at: now
     };
 
     db.cart.push(cartItem);
@@ -489,7 +549,14 @@ app.post('/api/cart', (req, res) => {
       success: true,
       message: 'Item added to cart',
       cartItemId: cartItem.id,
-      pricing: priceResult.pricing
+      // TICKET 009: Return customer-facing price only
+      pricing: {
+        unitPrice: priceResult.pricing.unitPrice,
+        lineTotal: priceResult.pricing.lineTotal,
+        optionsTotal: priceResult.pricing.options.total
+      },
+      // Full breakdown for debugging (admin can see manufacturer cost)
+      priceSnapshot: cartItem.price_snapshot
     });
   } catch (error) {
     res.status(500).json({ success: false, error: error.message });
@@ -645,6 +712,18 @@ app.post('/api/checkout', (req, res) => {
     // Track analytics event (Ticket 003)
     analyticsService.trackOrderCompletion(order);
 
+    // TICKET 012: Create customer invoice automatically with order
+    let invoice = null;
+    try {
+      invoice = invoiceService.createInvoiceFromOrder(order.id, 'customer', {
+        notes: 'Auto-generated with order'
+      });
+      console.log(`Invoice ${invoice.invoiceNumber} created for order ${order.order_number}`);
+    } catch (invoiceError) {
+      // Log but don't fail checkout if invoice creation fails
+      console.error('Invoice creation error (non-fatal):', invoiceError.message);
+    }
+
     res.json({
       success: true,
       message: 'Checkout complete',
@@ -660,11 +739,28 @@ app.post('/api/checkout', (req, res) => {
           status: order.payment.status,
           method: order.payment.method
         },
-        ledgerEntriesCreated: ledgerEntries.length
+        ledgerEntriesCreated: ledgerEntries.length,
+        // TICKET 012: Include invoice info in response
+        invoice: invoice ? {
+          id: invoice.id,
+          invoiceNumber: invoice.invoiceNumber,
+          status: invoice.status,
+          total: invoice.total
+        } : null
       }
     });
   } catch (error) {
     console.error('Checkout error:', error);
+    // TICKET 010: Handle price validation errors specially
+    if (error.code === 'PRICE_VALIDATION_FAILED') {
+      return res.status(409).json({
+        success: false,
+        error: error.message,
+        code: 'PRICE_VALIDATION_FAILED',
+        issues: error.issues,
+        action: 'Please refresh your cart to get updated pricing'
+      });
+    }
     res.status(500).json({ success: false, error: error.message });
   }
 });
@@ -871,15 +967,15 @@ app.post('/api/v1/pricing/calculate', (req, res) => {
     }
 
     // Use extended pricing engine with fabric-based pricing
-    const result = extendedPricingEngine.calculatePrice({
+    const result = extendedPricingEngine.calculateCustomerPrice({
       productId: product.id,
+      productSlug: productSlug,
       productType: productType || product.category_slug?.replace('-shades', '') || 'roller',
       fabricCode: fabricCode || null,
       width: width || 24,
       height: height || 36,
       quantity: quantity || 1,
-      options: options || {},
-      db
+      options: options || {}
     });
 
     res.json(result);
@@ -1302,7 +1398,8 @@ app.get('/api/admin/orders', authMiddleware, (req, res) => {
 app.get('/api/admin/orders/:id', authMiddleware, (req, res) => {
   try {
     const db = loadDatabase();
-    const order = db.orders.find(o => o.id === req.params.id);
+    // Search by id OR order_number
+    const order = db.orders.find(o => o.id === req.params.id || o.order_number === req.params.id);
 
     if (!order) {
       return res.status(404).json({ success: false, error: 'Order not found' });
@@ -1314,6 +1411,81 @@ app.get('/api/admin/orders/:id', authMiddleware, (req, res) => {
   }
 });
 
+// TICKET 011: Validation function for ORDER_RECEIVED transition
+function validateOrderReceivedTransition(order, db) {
+  const errors = [];
+  const warnings = [];
+
+  // 1. Check if invoice exists and is linked to order
+  const invoice = (db.invoices || []).find(inv =>
+    inv.orderId === order.id || inv.order_id === order.id
+  );
+
+  if (!invoice) {
+    errors.push({
+      code: 'INVOICE_MISSING',
+      message: 'Invoice must be created before transitioning to ORDER_RECEIVED'
+    });
+  } else {
+    // 2. Validate invoice totals match order customer totals
+    const orderTotal = order.total || order.pricing?.total;
+    const invoiceTotal = invoice.total || invoice.amount;
+
+    if (Math.abs(orderTotal - invoiceTotal) > 0.01) {
+      errors.push({
+        code: 'INVOICE_TOTAL_MISMATCH',
+        message: `Invoice total ($${invoiceTotal}) does not match order total ($${orderTotal})`,
+        orderTotal,
+        invoiceTotal,
+        difference: Math.abs(orderTotal - invoiceTotal).toFixed(2)
+      });
+    }
+  }
+
+  // 3. Validate manufacturer cost breakdown exists
+  const items = order.items || [];
+  for (let i = 0; i < items.length; i++) {
+    const item = items[i];
+    const snapshot = item.price_snapshots || item.price_snapshot;
+
+    if (!snapshot || !snapshot.manufacturer_price) {
+      errors.push({
+        code: 'MANUFACTURER_COST_MISSING',
+        message: `Item ${i + 1} (${item.room_label || item.product_name}) is missing manufacturer cost breakdown`,
+        itemId: item.id
+      });
+    } else {
+      // 4. Check for equal manufacturer and customer prices (warning)
+      const mfrCost = snapshot.manufacturer_price?.cost || snapshot.manufacturer_price?.unit_cost;
+      const custPrice = snapshot.customer_price?.unit_price || item.unit_price;
+
+      if (mfrCost && custPrice && Math.abs(mfrCost - custPrice) < 0.01) {
+        warnings.push({
+          code: 'ZERO_MARGIN_WARNING',
+          message: `Item ${i + 1} (${item.room_label || item.product_name}) has zero margin - manufacturer cost equals customer price ($${mfrCost})`,
+          itemId: item.id,
+          manufacturerCost: mfrCost,
+          customerPrice: custPrice
+        });
+      }
+    }
+  }
+
+  // 5. Validate order has pricing breakdown
+  if (!order.pricing || order.pricing.manufacturer_cost_total === undefined) {
+    warnings.push({
+      code: 'MANUFACTURER_TOTAL_MISSING',
+      message: 'Order is missing manufacturer cost total - profit tracking may be affected'
+    });
+  }
+
+  return {
+    valid: errors.length === 0,
+    errors,
+    warnings
+  };
+}
+
 // Update order status
 app.put('/api/admin/orders/:id/status', authMiddleware, (req, res) => {
   try {
@@ -1324,18 +1496,85 @@ app.put('/api/admin/orders/:id/status', authMiddleware, (req, res) => {
       return res.status(404).json({ success: false, error: 'Order not found' });
     }
 
-    const { status } = req.body;
-    const validStatuses = ['pending', 'processing', 'shipped', 'delivered', 'cancelled'];
+    const { status, notes } = req.body;
+
+    // All valid order statuses matching the complete workflow
+    const validStatuses = [
+      'pending',              // Order placed, awaiting payment
+      'order_placed',         // Order placed by customer
+      'payment_received',     // Payment confirmed
+      'order_received',       // Ready for manufacturer
+      'sent_to_manufacturer', // Sent to manufacturer
+      'manufacturing',        // In production
+      'in_manufacturing',     // In production (alias)
+      'qa',                   // Quality assurance
+      'in_testing',           // Quality assurance (alias)
+      'shipped',              // Shipped to customer
+      'in_shipping',          // In transit (alias)
+      'delivered',            // Delivered to customer
+      'closed',               // Order completed
+      'issue_reported',       // Customer reported an issue
+      'refund_requested',     // Customer requested refund
+      'refunded',             // Order refunded
+      'disputed',             // Customer dispute
+      'cancelled'             // Order cancelled
+    ];
 
     if (!validStatuses.includes(status)) {
-      return res.status(400).json({ success: false, error: 'Invalid status' });
+      return res.status(400).json({
+        success: false,
+        error: 'Invalid status',
+        validStatuses: validStatuses
+      });
     }
 
+    // TICKET 011: Validation gate for ORDER_RECEIVED transition (soft validation - warnings only)
+    let validationWarnings = [];
+    if (status === 'order_received') {
+      const validationResult = validateOrderReceivedTransition(order, db);
+      // Convert errors to warnings for softer validation - admin can still proceed
+      validationWarnings = [...(validationResult.errors || []), ...(validationResult.warnings || [])];
+      if (validationWarnings.length > 0) {
+        // Add warnings to notes for audit trail
+        const warningNotes = validationWarnings.map(w => w.message).join('; ');
+        req.body.notes = (notes || '') + ' [Validation notes: ' + warningNotes + ']';
+      }
+    }
+
+    // Record status change in history
+    const previousStatus = order.status;
     order.status = status;
     order.updated_at = new Date().toISOString();
+
+    // Add to status history
+    if (!order.status_history) order.status_history = [];
+    order.status_history.push({
+      previousStatus,
+      newStatus: status,
+      changedAt: new Date().toISOString(),
+      notes: notes || ''
+    });
+
     saveDatabase(db);
 
-    res.json({ success: true, message: 'Order status updated', data: order });
+    // TICKET 014: Record profit when order ships
+    let profitInfo = null;
+    if (status === 'shipped' && previousStatus !== 'shipped') {
+      try {
+        profitInfo = recordShippedProfit(order.id);
+        console.log(`Profit recorded for order ${order.order_number}:`, profitInfo);
+      } catch (profitError) {
+        console.error('Error recording profit:', profitError.message);
+      }
+    }
+
+    res.json({
+      success: true,
+      message: 'Order status updated',
+      data: order,
+      profitInfo: profitInfo,
+      validationWarnings: validationWarnings.length > 0 ? validationWarnings : undefined
+    });
   } catch (error) {
     res.status(500).json({ success: false, error: error.message });
   }
@@ -2271,6 +2510,273 @@ app.put('/api/admin/fabrics/:id/toggle', authMiddleware, (req, res) => {
   }
 });
 
+// --- MOTOR BRANDS ---
+// Get all motor brands (public - for product page)
+app.get('/api/motor-brands', (req, res) => {
+  try {
+    const db = loadDatabase();
+    const brands = (db.motorBrands || []).filter(b => b.isActive);
+    res.json({ success: true, data: brands });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// ============================================
+// MANUFACTURER FABRIC PRICES API
+// Dynamic pricing per fabric code (manual/cordless per m²)
+// ============================================
+
+// Get all manufacturer fabric prices
+app.get('/api/admin/manufacturer-prices', authMiddleware, (req, res) => {
+  try {
+    const db = loadDatabase();
+    const { productType, fabricCode, search } = req.query;
+
+    let prices = db.manufacturerPrices || [];
+
+    if (productType) {
+      prices = prices.filter(p => p.productType === productType);
+    }
+    if (fabricCode) {
+      prices = prices.filter(p => p.fabricCode === fabricCode);
+    }
+    if (search) {
+      const searchLower = search.toLowerCase();
+      prices = prices.filter(p =>
+        (p.fabricCode && p.fabricCode.toLowerCase().includes(searchLower)) ||
+        (p.fabricName && p.fabricName.toLowerCase().includes(searchLower))
+      );
+    }
+
+    res.json({ success: true, data: prices, total: prices.length });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Get single manufacturer price by fabric code
+app.get('/api/admin/manufacturer-prices/:fabricCode', authMiddleware, (req, res) => {
+  try {
+    const db = loadDatabase();
+    const price = (db.manufacturerPrices || []).find(p =>
+      p.fabricCode === req.params.fabricCode || p.id === req.params.fabricCode
+    );
+
+    if (!price) {
+      return res.status(404).json({ success: false, error: 'Fabric price not found' });
+    }
+
+    res.json({ success: true, data: price });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Update manufacturer price for a fabric
+app.put('/api/admin/manufacturer-prices/:fabricCode', authMiddleware, (req, res) => {
+  try {
+    const db = loadDatabase();
+    if (!db.manufacturerPrices) db.manufacturerPrices = [];
+
+    const index = db.manufacturerPrices.findIndex(p =>
+      p.fabricCode === req.params.fabricCode || p.id === req.params.fabricCode
+    );
+
+    if (index === -1) {
+      return res.status(404).json({ success: false, error: 'Fabric price not found' });
+    }
+
+    const { pricePerSqMeter, pricePerSqMeterCordless, margin, manualMargin, cordlessMargin } = req.body;
+
+    // Update only provided fields
+    if (pricePerSqMeter !== undefined) {
+      db.manufacturerPrices[index].pricePerSqMeter = parseFloat(pricePerSqMeter);
+      db.manufacturerPrices[index].basePrice = parseFloat(pricePerSqMeter);
+    }
+    if (pricePerSqMeterCordless !== undefined) {
+      db.manufacturerPrices[index].pricePerSqMeterCordless = parseFloat(pricePerSqMeterCordless);
+    }
+    if (margin !== undefined) {
+      db.manufacturerPrices[index].margin = parseFloat(margin);
+    }
+    if (manualMargin !== undefined) {
+      db.manufacturerPrices[index].manualMargin = parseFloat(manualMargin);
+    }
+    if (cordlessMargin !== undefined) {
+      db.manufacturerPrices[index].cordlessMargin = parseFloat(cordlessMargin);
+    }
+
+    db.manufacturerPrices[index].updatedAt = new Date().toISOString();
+    db.manufacturerPrices[index].updatedBy = req.user?.id || 'admin';
+
+    saveDatabase(db);
+
+    res.json({ success: true, data: db.manufacturerPrices[index] });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Create new manufacturer price entry
+app.post('/api/admin/manufacturer-prices', authMiddleware, (req, res) => {
+  try {
+    const db = loadDatabase();
+    if (!db.manufacturerPrices) db.manufacturerPrices = [];
+
+    const { fabricCode, fabricName, productType, pricePerSqMeter, pricePerSqMeterCordless } = req.body;
+
+    if (!fabricCode || !pricePerSqMeter) {
+      return res.status(400).json({ success: false, error: 'fabricCode and pricePerSqMeter are required' });
+    }
+
+    // Check if already exists
+    const existing = db.manufacturerPrices.find(p =>
+      p.fabricCode === fabricCode && p.productType === (productType || 'roller')
+    );
+    if (existing) {
+      return res.status(409).json({ success: false, error: 'Price entry already exists for this fabric' });
+    }
+
+    const newPrice = {
+      id: `mp-${Date.now().toString(36)}`,
+      manufacturerId: 'mfr-default',
+      productType: productType || 'roller',
+      fabricCode,
+      fabricName: fabricName || fabricCode,
+      pricePerSqMeter: parseFloat(pricePerSqMeter),
+      pricePerSqMeterCordless: parseFloat(pricePerSqMeterCordless) || parseFloat(pricePerSqMeter) * 1.25,
+      basePrice: parseFloat(pricePerSqMeter),
+      minAreaSqMeter: 1.2,
+      status: 'active',
+      createdAt: new Date().toISOString(),
+      createdBy: req.user?.id || 'admin'
+    };
+
+    db.manufacturerPrices.push(newPrice);
+    saveDatabase(db);
+
+    res.json({ success: true, data: newPrice });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Bulk update manufacturer prices
+app.post('/api/admin/manufacturer-prices/bulk-update', authMiddleware, (req, res) => {
+  try {
+    const db = loadDatabase();
+    if (!db.manufacturerPrices) db.manufacturerPrices = [];
+
+    const { updates } = req.body; // Array of { fabricCode, pricePerSqMeter, pricePerSqMeterCordless }
+
+    if (!Array.isArray(updates)) {
+      return res.status(400).json({ success: false, error: 'updates must be an array' });
+    }
+
+    let updated = 0;
+    updates.forEach(update => {
+      const index = db.manufacturerPrices.findIndex(p => p.fabricCode === update.fabricCode);
+      if (index !== -1) {
+        if (update.pricePerSqMeter !== undefined) {
+          db.manufacturerPrices[index].pricePerSqMeter = parseFloat(update.pricePerSqMeter);
+          db.manufacturerPrices[index].basePrice = parseFloat(update.pricePerSqMeter);
+        }
+        if (update.pricePerSqMeterCordless !== undefined) {
+          db.manufacturerPrices[index].pricePerSqMeterCordless = parseFloat(update.pricePerSqMeterCordless);
+        }
+        db.manufacturerPrices[index].updatedAt = new Date().toISOString();
+        updated++;
+      }
+    });
+
+    saveDatabase(db);
+
+    res.json({ success: true, message: `Updated ${updated} fabric prices` });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Get all motor brands (admin)
+app.get('/api/admin/motor-brands', authMiddleware, (req, res) => {
+  try {
+    const db = loadDatabase();
+    res.json({ success: true, data: db.motorBrands || [] });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Create motor brand
+app.post('/api/admin/motor-brands', authMiddleware, (req, res) => {
+  try {
+    const db = loadDatabase();
+    if (!db.motorBrands) db.motorBrands = [];
+
+    const mfrCost = parseFloat(req.body.manufacturerCost) || 0;
+    const margin = parseFloat(req.body.margin) || 40;
+
+    const newBrand = {
+      id: `motor-${Date.now()}`,
+      value: req.body.value || req.body.label.toLowerCase().replace(/\s+/g, '-'),
+      label: req.body.label,
+      manufacturerCost: mfrCost,
+      margin: margin,
+      price: mfrCost * (1 + margin / 100),
+      priceType: 'flat',
+      isActive: req.body.isActive !== false,
+      sortOrder: db.motorBrands.length + 1
+    };
+
+    db.motorBrands.push(newBrand);
+    saveDatabase(db);
+    res.json({ success: true, data: newBrand });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Update motor brand
+app.put('/api/admin/motor-brands/:id', authMiddleware, (req, res) => {
+  try {
+    const db = loadDatabase();
+    const index = (db.motorBrands || []).findIndex(b => b.id === req.params.id);
+    if (index === -1) return res.status(404).json({ success: false, error: 'Motor brand not found' });
+
+    const mfrCost = parseFloat(req.body.manufacturerCost) || db.motorBrands[index].manufacturerCost;
+    const margin = parseFloat(req.body.margin) || db.motorBrands[index].margin;
+
+    db.motorBrands[index] = {
+      ...db.motorBrands[index],
+      ...req.body,
+      manufacturerCost: mfrCost,
+      margin: margin,
+      price: mfrCost * (1 + margin / 100)
+    };
+
+    saveDatabase(db);
+    res.json({ success: true, data: db.motorBrands[index] });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Delete motor brand
+app.delete('/api/admin/motor-brands/:id', authMiddleware, (req, res) => {
+  try {
+    const db = loadDatabase();
+    const index = (db.motorBrands || []).findIndex(b => b.id === req.params.id);
+    if (index === -1) return res.status(404).json({ success: false, error: 'Motor brand not found' });
+
+    db.motorBrands.splice(index, 1);
+    saveDatabase(db);
+    res.json({ success: true });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
 // --- HARDWARE OPTIONS ---
 app.get('/api/admin/hardware/:category', authMiddleware, (req, res) => {
   try {
@@ -3193,18 +3699,23 @@ app.get('/api/admin/analytics/dashboard', authMiddleware, (req, res) => {
     const { startDate, endDate } = req.query;
 
     let analytics = db.analytics || [];
-    let orders = db.orders || [];
+    // Filter out orders with invalid dates
+    let orders = (db.orders || []).filter(o => o.created_at && !isNaN(new Date(o.created_at).getTime()));
 
     // Filter by date range if provided
     if (startDate) {
       const start = new Date(startDate);
-      analytics = analytics.filter(e => new Date(e.createdAt) >= start);
-      orders = orders.filter(o => new Date(o.created_at) >= start);
+      if (!isNaN(start.getTime())) {
+        analytics = analytics.filter(e => e.createdAt && new Date(e.createdAt) >= start);
+        orders = orders.filter(o => new Date(o.created_at) >= start);
+      }
     }
     if (endDate) {
       const end = new Date(endDate);
-      analytics = analytics.filter(e => new Date(e.createdAt) <= end);
-      orders = orders.filter(o => new Date(o.created_at) <= end);
+      if (!isNaN(end.getTime())) {
+        analytics = analytics.filter(e => e.createdAt && new Date(e.createdAt) <= end);
+        orders = orders.filter(o => new Date(o.created_at) <= end);
+      }
     }
 
     // Calculate metrics
@@ -3269,25 +3780,33 @@ app.get('/api/admin/analytics/sales', authMiddleware, (req, res) => {
     const { startDate, endDate, groupBy } = req.query;
 
     let analytics = (db.analytics || []).filter(e => e.type === 'purchase');
-    let orders = db.orders || [];
+    // Filter out orders with invalid dates
+    let orders = (db.orders || []).filter(o => o.created_at && !isNaN(new Date(o.created_at).getTime()));
 
     if (startDate) {
       const start = new Date(startDate);
-      analytics = analytics.filter(e => new Date(e.createdAt) >= start);
-      orders = orders.filter(o => new Date(o.created_at) >= start);
+      if (!isNaN(start.getTime())) {
+        analytics = analytics.filter(e => e.createdAt && new Date(e.createdAt) >= start);
+        orders = orders.filter(o => new Date(o.created_at) >= start);
+      }
     }
     if (endDate) {
       const end = new Date(endDate);
-      analytics = analytics.filter(e => new Date(e.createdAt) <= end);
-      orders = orders.filter(o => new Date(o.created_at) <= end);
+      if (!isNaN(end.getTime())) {
+        analytics = analytics.filter(e => e.createdAt && new Date(e.createdAt) <= end);
+        orders = orders.filter(o => new Date(o.created_at) <= end);
+      }
     }
 
     // Group by day/week/month
     const salesByDate = {};
     const countByDate = {};
     const addToGroup = (date, value, isOrder = false) => {
-      let key;
+      if (!date) return;
       const d = new Date(date);
+      if (isNaN(d.getTime())) return; // Skip invalid dates
+
+      let key;
       if (groupBy === 'month') {
         key = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}`;
       } else if (groupBy === 'week') {
@@ -3321,19 +3840,36 @@ app.get('/api/admin/analytics/products', authMiddleware, (req, res) => {
   try {
     const db = loadDatabase();
     const analytics = db.analytics || [];
+    const orders = db.orders || [];
     const products = db.products || [];
 
     const productStats = {};
+
+    // Initialize stats from analytics events
     analytics.filter(e => e.productId).forEach(e => {
       if (!productStats[e.productId]) {
-        productStats[e.productId] = { views: 0, carts: 0, purchases: 0, revenue: 0 };
+        productStats[e.productId] = { views: 0, carts: 0, purchases: 0, revenue: 0, orders: 0, addToCart: 0 };
       }
-      if (e.type === 'page_view') productStats[e.productId].views++;
-      if (e.type === 'add_to_cart') productStats[e.productId].carts++;
+      if (e.type === 'page_view' || e.type === 'product_view') productStats[e.productId].views++;
+      if (e.type === 'add_to_cart') productStats[e.productId].addToCart++;
       if (e.type === 'purchase') {
         productStats[e.productId].purchases++;
         productStats[e.productId].revenue += e.value || 0;
       }
+    });
+
+    // Aggregate data from actual orders
+    orders.forEach(order => {
+      (order.items || []).forEach(item => {
+        const productId = item.productId || item.product_id;
+        if (productId) {
+          if (!productStats[productId]) {
+            productStats[productId] = { views: 0, carts: 0, purchases: 0, revenue: 0, orders: 0, addToCart: 0 };
+          }
+          productStats[productId].orders++;
+          productStats[productId].revenue += item.lineTotal || item.price || 0;
+        }
+      });
     });
 
     const topProducts = Object.entries(productStats)
@@ -3343,13 +3879,16 @@ app.get('/api/admin/analytics/products', authMiddleware, (req, res) => {
           id,
           name: product?.name || 'Unknown',
           slug: product?.slug || '',
-          ...stats
+          count: stats.views,
+          addToCart: stats.addToCart,
+          orders: stats.orders,
+          revenue: stats.revenue
         };
       })
       .sort((a, b) => b.revenue - a.revenue)
       .slice(0, 10);
 
-    res.json({ success: true, topProducts });
+    res.json({ success: true, products: topProducts, topProducts });
   } catch (error) {
     res.status(500).json({ success: false, error: error.message });
   }
@@ -3359,34 +3898,55 @@ app.get('/api/admin/analytics/products', authMiddleware, (req, res) => {
 app.get('/api/admin/analytics/fabrics', authMiddleware, (req, res) => {
   try {
     const db = loadDatabase();
-    const cart = db.cart || [];
+    const orders = db.orders || [];
     const fabrics = db.productContent?.fabrics || [];
+    const manufacturerPrices = db.manufacturerPrices || [];
 
-    const fabricCounts = {};
-    cart.forEach(item => {
-      try {
-        const config = JSON.parse(item.configuration || '{}');
-        const fabricCode = config.fabricCode;
-        if (fabricCode) {
-          fabricCounts[fabricCode] = (fabricCounts[fabricCode] || 0) + item.quantity;
+    const fabricStats = {};
+
+    // Aggregate from orders (more reliable than cart)
+    orders.forEach(order => {
+      (order.items || []).forEach(item => {
+        // Try to get fabric code from various places
+        let fabricCode = item.fabricCode;
+        if (!fabricCode && item.configuration) {
+          try {
+            const config = typeof item.configuration === 'string'
+              ? JSON.parse(item.configuration)
+              : item.configuration;
+            fabricCode = config.fabricCode || config.fabric_code;
+          } catch (e) {}
         }
-      } catch (e) {}
+
+        if (fabricCode) {
+          if (!fabricStats[fabricCode]) {
+            fabricStats[fabricCode] = { orders: 0, revenue: 0, quantity: 0 };
+          }
+          fabricStats[fabricCode].orders++;
+          fabricStats[fabricCode].quantity += item.quantity || 1;
+          fabricStats[fabricCode].revenue += item.lineTotal || item.price || 0;
+        }
+      });
     });
 
-    const topFabrics = Object.entries(fabricCounts)
-      .map(([code, count]) => {
+    const topFabrics = Object.entries(fabricStats)
+      .map(([code, stats]) => {
+        // Try to find fabric info from fabrics or manufacturerPrices
         const fabric = fabrics.find(f => f.code === code);
+        const mfrPrice = manufacturerPrices.find(p => p.fabricCode === code);
         return {
           code,
-          name: fabric?.name || code,
-          filterType: fabric?.filterType || 'unknown',
-          count
+          name: fabric?.name || mfrPrice?.fabricName || code,
+          filterType: fabric?.filterType || mfrPrice?.filterType || 'unknown',
+          orders: stats.orders,
+          revenue: stats.revenue,
+          count: stats.quantity  // For backward compatibility
         };
       })
       .sort((a, b) => b.count - a.count)
       .slice(0, 10);
 
-    res.json({ success: true, topFabrics });
+    res.json({ success: true, fabrics: topFabrics, topFabrics });
   } catch (error) {
     res.status(500).json({ success: false, error: error.message });
   }
@@ -3475,6 +4035,659 @@ app.get('/api/admin/analytics/sales-by-category', authMiddleware, (req, res) => 
     const { startDate, endDate } = req.query;
     const data = analyticsService.getSalesByCategory(startDate, endDate);
     res.json({ success: true, data });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// ============================================
+// COMPREHENSIVE ANALYTICS ENDPOINTS
+// ============================================
+
+// Product Analytics - Blinds Type, Control System, Measurements
+app.get('/api/admin/analytics/product-insights', authMiddleware, (req, res) => {
+  try {
+    const db = loadDatabase();
+    const orders = (db.orders || []).filter(o => o.created_at && !isNaN(new Date(o.created_at).getTime()));
+    const products = db.products || [];
+    const categories = db.categories || [];
+
+    // Blinds Type Analytics (by category)
+    const blindsTypeStats = {};
+    categories.forEach(cat => {
+      blindsTypeStats[cat.slug] = { name: cat.name, orders: 0, revenue: 0, items: 0 };
+    });
+
+    // Control System Analytics
+    const controlSystemStats = {
+      manual: { name: 'Manual', orders: 0, revenue: 0 },
+      cordless: { name: 'Cordless', orders: 0, revenue: 0 },
+      motorized: { name: 'Motorized', orders: 0, revenue: 0 }
+    };
+
+    // Motor Brand Analytics
+    const motorBrandStats = {};
+
+    // Measurements Analytics (size ranges)
+    const measurementStats = {
+      'small': { label: 'Small (< 24")', widthRange: [0, 24], orders: 0, revenue: 0 },
+      'medium': { label: 'Medium (24-48")', widthRange: [24, 48], orders: 0, revenue: 0 },
+      'large': { label: 'Large (48-72")', widthRange: [48, 72], orders: 0, revenue: 0 },
+      'xlarge': { label: 'X-Large (> 72")', widthRange: [72, 999], orders: 0, revenue: 0 }
+    };
+
+    // Popular Sizes (exact dimensions)
+    const popularSizes = {};
+
+    // Hardware Options Analytics
+    const valanceStats = {};
+    const bottomRailStats = {};
+    const rollerTypeStats = {};
+
+    // Light Filtering Analytics
+    const lightFilteringStats = {
+      blackout: { name: 'Blackout', orders: 0, revenue: 0 },
+      'semi-blackout': { name: 'Semi-Blackout', orders: 0, revenue: 0 },
+      transparent: { name: 'Light Filtering', orders: 0, revenue: 0 },
+      'super-blackout': { name: 'Super Blackout', orders: 0, revenue: 0 }
+    };
+
+    orders.forEach(order => {
+      (order.items || []).forEach(item => {
+        const revenue = item.lineTotal || item.price || 0;
+        const qty = item.quantity || 1;
+
+        // Get configuration
+        let config = {};
+        if (item.configuration) {
+          try {
+            config = typeof item.configuration === 'string' ? JSON.parse(item.configuration) : item.configuration;
+          } catch (e) {}
+        }
+
+        // Get product category
+        const productId = item.productId || item.product_id;
+        const product = products.find(p => p.id === productId);
+        if (product && product.category_slug) {
+          if (!blindsTypeStats[product.category_slug]) {
+            blindsTypeStats[product.category_slug] = { name: product.category_slug, orders: 0, revenue: 0, items: 0 };
+          }
+          blindsTypeStats[product.category_slug].orders++;
+          blindsTypeStats[product.category_slug].revenue += revenue;
+          blindsTypeStats[product.category_slug].items += qty;
+        }
+
+        // Control System
+        const controlType = config.controlType || item.controlType || 'manual';
+        if (controlSystemStats[controlType]) {
+          controlSystemStats[controlType].orders++;
+          controlSystemStats[controlType].revenue += revenue;
+        }
+
+        // Motor Brand (for motorized)
+        if (controlType === 'motorized') {
+          const motorBrand = config.motorBrand || item.motorBrand || 'unknown';
+          if (!motorBrandStats[motorBrand]) {
+            motorBrandStats[motorBrand] = { name: motorBrand, orders: 0, revenue: 0 };
+          }
+          motorBrandStats[motorBrand].orders++;
+          motorBrandStats[motorBrand].revenue += revenue;
+        }
+
+        // Measurements
+        const width = item.width || config.width || 24;
+        const height = item.height || config.height || 36;
+        const sizeKey = `${width}x${height}`;
+
+        if (!popularSizes[sizeKey]) {
+          popularSizes[sizeKey] = { width, height, orders: 0, revenue: 0 };
+        }
+        popularSizes[sizeKey].orders++;
+        popularSizes[sizeKey].revenue += revenue;
+
+        // Size range
+        for (const [key, range] of Object.entries(measurementStats)) {
+          if (width >= range.widthRange[0] && width < range.widthRange[1]) {
+            measurementStats[key].orders++;
+            measurementStats[key].revenue += revenue;
+            break;
+          }
+        }
+
+        // Light Filtering
+        const lightFiltering = config.lightFiltering || item.lightFiltering || 'blackout';
+        if (lightFilteringStats[lightFiltering]) {
+          lightFilteringStats[lightFiltering].orders++;
+          lightFilteringStats[lightFiltering].revenue += revenue;
+        }
+
+        // Valance Type
+        const valance = config.standardCassette || config.valanceType || item.valanceType;
+        if (valance) {
+          if (!valanceStats[valance]) valanceStats[valance] = { name: valance, orders: 0 };
+          valanceStats[valance].orders++;
+        }
+
+        // Bottom Rail
+        const bottomRail = config.standardBottomBar || config.bottomRail || item.bottomRail;
+        if (bottomRail) {
+          if (!bottomRailStats[bottomRail]) bottomRailStats[bottomRail] = { name: bottomRail, orders: 0 };
+          bottomRailStats[bottomRail].orders++;
+        }
+
+        // Roller Type
+        const rollerType = config.rollerType || item.rollerType;
+        if (rollerType) {
+          if (!rollerTypeStats[rollerType]) rollerTypeStats[rollerType] = { name: rollerType, orders: 0 };
+          rollerTypeStats[rollerType].orders++;
+        }
+      });
+    });
+
+    // Sort and format results
+    const topSizes = Object.values(popularSizes)
+      .sort((a, b) => b.orders - a.orders)
+      .slice(0, 10);
+
+    res.json({
+      success: true,
+      blindsType: Object.values(blindsTypeStats).filter(s => s.orders > 0).sort((a, b) => b.orders - a.orders),
+      controlSystem: Object.values(controlSystemStats).sort((a, b) => b.orders - a.orders),
+      motorBrands: Object.values(motorBrandStats).sort((a, b) => b.orders - a.orders),
+      measurements: Object.values(measurementStats),
+      popularSizes: topSizes,
+      lightFiltering: Object.values(lightFilteringStats).filter(s => s.orders > 0).sort((a, b) => b.orders - a.orders),
+      valanceTypes: Object.values(valanceStats).sort((a, b) => b.orders - a.orders).slice(0, 10),
+      bottomRails: Object.values(bottomRailStats).sort((a, b) => b.orders - a.orders).slice(0, 10),
+      rollerTypes: Object.values(rollerTypeStats).sort((a, b) => b.orders - a.orders)
+    });
+  } catch (error) {
+    console.error('Product insights error:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Customer Analytics
+app.get('/api/admin/analytics/customer-insights', authMiddleware, (req, res) => {
+  try {
+    const db = loadDatabase();
+    const orders = (db.orders || []).filter(o => o.created_at && !isNaN(new Date(o.created_at).getTime()));
+    const customers = db.customers || [];
+
+    // Customer by location (state/city)
+    const locationStats = { byState: {}, byCity: {} };
+
+    // Customer by order count (new vs returning)
+    const customerOrderCount = {};
+    const customerTypeStats = { new: 0, returning: 0, loyal: 0 };
+
+    // Customer acquisition by date
+    const acquisitionByDate = {};
+
+    // Average order value by customer type
+    let newCustomerRevenue = 0, returningRevenue = 0;
+
+    // Social login stats
+    const socialLoginStats = {
+      email: { name: 'Email', count: 0 },
+      google: { name: 'Google', count: 0 },
+      facebook: { name: 'Facebook', count: 0 },
+      apple: { name: 'Apple', count: 0 }
+    };
+
+    // Top customers by spend
+    const customerSpend = {};
+
+    orders.forEach(order => {
+      const email = order.customer_email || order.customer?.email || 'guest';
+      const total = order.pricing?.total || order.total || 0;
+
+      // Track customer orders
+      if (!customerOrderCount[email]) {
+        customerOrderCount[email] = { orders: 0, revenue: 0, firstOrder: order.created_at };
+      }
+      customerOrderCount[email].orders++;
+      customerOrderCount[email].revenue += total;
+
+      // Customer spend tracking
+      if (!customerSpend[email]) {
+        customerSpend[email] = {
+          email,
+          name: order.customer_name || order.customer?.name || 'Guest',
+          orders: 0,
+          revenue: 0
+        };
+      }
+      customerSpend[email].orders++;
+      customerSpend[email].revenue += total;
+
+      // Location tracking
+      const state = order.shipping?.state || order.shippingAddress?.state || order.customer?.address?.state;
+      const city = order.shipping?.city || order.shippingAddress?.city || order.customer?.address?.city;
+
+      if (state) {
+        if (!locationStats.byState[state]) locationStats.byState[state] = { name: state, orders: 0, revenue: 0 };
+        locationStats.byState[state].orders++;
+        locationStats.byState[state].revenue += total;
+      }
+      if (city) {
+        if (!locationStats.byCity[city]) locationStats.byCity[city] = { name: city, orders: 0, revenue: 0 };
+        locationStats.byCity[city].orders++;
+        locationStats.byCity[city].revenue += total;
+      }
+
+      // Acquisition date
+      const date = new Date(order.created_at).toISOString().split('T')[0];
+      if (!acquisitionByDate[date]) acquisitionByDate[date] = { date, newCustomers: 0, orders: 0 };
+      acquisitionByDate[date].orders++;
+    });
+
+    // Categorize customers
+    for (const [email, data] of Object.entries(customerOrderCount)) {
+      if (data.orders === 1) {
+        customerTypeStats.new++;
+        newCustomerRevenue += data.revenue;
+      } else if (data.orders >= 3) {
+        customerTypeStats.loyal++;
+        returningRevenue += data.revenue;
+      } else {
+        customerTypeStats.returning++;
+        returningRevenue += data.revenue;
+      }
+
+      // Track new customer acquisition
+      const date = new Date(data.firstOrder).toISOString().split('T')[0];
+      if (acquisitionByDate[date]) {
+        acquisitionByDate[date].newCustomers++;
+      }
+    }
+
+    // Social login from customers table
+    customers.forEach(c => {
+      const loginMethod = c.loginMethod || c.authProvider || 'email';
+      if (socialLoginStats[loginMethod]) {
+        socialLoginStats[loginMethod].count++;
+      } else {
+        socialLoginStats.email.count++;
+      }
+    });
+
+    // Sort and limit results
+    const topStates = Object.values(locationStats.byState).sort((a, b) => b.orders - a.orders).slice(0, 10);
+    const topCities = Object.values(locationStats.byCity).sort((a, b) => b.orders - a.orders).slice(0, 10);
+    const topCustomers = Object.values(customerSpend).sort((a, b) => b.revenue - a.revenue).slice(0, 10);
+    const acquisitionTrend = Object.values(acquisitionByDate).sort((a, b) => a.date.localeCompare(b.date));
+
+    res.json({
+      success: true,
+      summary: {
+        totalCustomers: Object.keys(customerOrderCount).length,
+        newCustomers: customerTypeStats.new,
+        returningCustomers: customerTypeStats.returning,
+        loyalCustomers: customerTypeStats.loyal,
+        avgOrderValueNew: customerTypeStats.new > 0 ? (newCustomerRevenue / customerTypeStats.new).toFixed(2) : 0,
+        avgOrderValueReturning: (customerTypeStats.returning + customerTypeStats.loyal) > 0
+          ? (returningRevenue / (customerTypeStats.returning + customerTypeStats.loyal)).toFixed(2) : 0
+      },
+      customerTypes: [
+        { name: 'New (1 order)', value: customerTypeStats.new },
+        { name: 'Returning (2 orders)', value: customerTypeStats.returning },
+        { name: 'Loyal (3+ orders)', value: customerTypeStats.loyal }
+      ],
+      topStates,
+      topCities,
+      topCustomers,
+      acquisitionTrend,
+      socialLogin: Object.values(socialLoginStats)
+    });
+  } catch (error) {
+    console.error('Customer insights error:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Finance Analytics
+app.get('/api/admin/analytics/finance-insights', authMiddleware, (req, res) => {
+  try {
+    const db = loadDatabase();
+    const orders = (db.orders || []).filter(o => o.created_at && !isNaN(new Date(o.created_at).getTime()));
+    const ledger = db.ledgerEntries || [];
+    const invoices = db.invoices || [];
+
+    // Revenue breakdown
+    let totalRevenue = 0, totalMfrCost = 0, totalTax = 0, totalShipping = 0;
+    let grossProfit = 0;
+
+    // Revenue by date
+    const revenueByDate = {};
+
+    // Revenue by product category
+    const revenueByCategory = {};
+
+    // Profit margin trend
+    const profitByDate = {};
+
+    // Payment method breakdown (if tracked)
+    const paymentMethods = {};
+
+    // Order status breakdown
+    const orderStatusStats = {};
+
+    // Invoice status
+    const invoiceStats = { paid: 0, pending: 0, overdue: 0, totalPaid: 0, totalPending: 0 };
+
+    orders.forEach(order => {
+      const total = order.pricing?.total || order.total || 0;
+      const subtotal = order.pricing?.subtotal || total;
+      const tax = order.pricing?.tax || 0;
+      const shipping = order.pricing?.shipping || 0;
+      const mfrCost = order.pricing?.manufacturer_cost_total || 0;
+
+      totalRevenue += total;
+      totalTax += tax;
+      totalShipping += shipping;
+      totalMfrCost += mfrCost;
+
+      // By date
+      const date = new Date(order.created_at).toISOString().split('T')[0];
+      if (!revenueByDate[date]) {
+        revenueByDate[date] = { date, revenue: 0, orders: 0, mfrCost: 0, profit: 0 };
+      }
+      revenueByDate[date].revenue += total;
+      revenueByDate[date].orders++;
+      revenueByDate[date].mfrCost += mfrCost;
+      revenueByDate[date].profit += (subtotal - mfrCost);
+
+      // By product category
+      (order.items || []).forEach(item => {
+        const product = (db.products || []).find(p => p.id === (item.productId || item.product_id));
+        const category = product?.category_slug || 'other';
+        if (!revenueByCategory[category]) {
+          revenueByCategory[category] = { name: category, revenue: 0, orders: 0 };
+        }
+        revenueByCategory[category].revenue += item.lineTotal || item.price || 0;
+        revenueByCategory[category].orders++;
+      });
+
+      // Order status
+      const status = order.status || 'pending';
+      if (!orderStatusStats[status]) orderStatusStats[status] = { name: status, count: 0, revenue: 0 };
+      orderStatusStats[status].count++;
+      orderStatusStats[status].revenue += total;
+
+      // Payment method
+      const paymentMethod = order.paymentMethod || order.payment?.method || 'card';
+      if (!paymentMethods[paymentMethod]) paymentMethods[paymentMethod] = { name: paymentMethod, count: 0, revenue: 0 };
+      paymentMethods[paymentMethod].count++;
+      paymentMethods[paymentMethod].revenue += total;
+    });
+
+    // Ledger summary
+    let totalPaymentsReceived = 0, totalPayableToMfr = 0, totalMfrPaid = 0;
+    ledger.forEach(entry => {
+      if (entry.type === 'customer_payment_received') totalPaymentsReceived += entry.amount || 0;
+      if (entry.type === 'manufacturer_payable') totalPayableToMfr += Math.abs(entry.amount || 0);
+      if (entry.type === 'manufacturer_paid') totalMfrPaid += Math.abs(entry.amount || 0);
+    });
+
+    // Invoice stats
+    invoices.forEach(inv => {
+      if (inv.status === 'paid') {
+        invoiceStats.paid++;
+        invoiceStats.totalPaid += inv.total || 0;
+      } else if (inv.status === 'pending' || inv.status === 'sent') {
+        invoiceStats.pending++;
+        invoiceStats.totalPending += inv.total || 0;
+      } else if (inv.status === 'overdue') {
+        invoiceStats.overdue++;
+        invoiceStats.totalPending += inv.total || 0;
+      }
+    });
+
+    grossProfit = totalRevenue - totalMfrCost - totalTax;
+    const profitMargin = totalRevenue > 0 ? ((grossProfit / totalRevenue) * 100).toFixed(1) : 0;
+
+    res.json({
+      success: true,
+      summary: {
+        totalRevenue,
+        totalMfrCost,
+        grossProfit,
+        profitMargin,
+        totalTax,
+        totalShipping,
+        totalOrders: orders.length,
+        avgOrderValue: orders.length > 0 ? (totalRevenue / orders.length).toFixed(2) : 0
+      },
+      revenueByDate: Object.values(revenueByDate).sort((a, b) => a.date.localeCompare(b.date)),
+      revenueByCategory: Object.values(revenueByCategory).sort((a, b) => b.revenue - a.revenue),
+      orderStatus: Object.values(orderStatusStats),
+      paymentMethods: Object.values(paymentMethods),
+      ledgerSummary: {
+        paymentsReceived: totalPaymentsReceived,
+        payableToManufacturer: totalPayableToMfr,
+        paidToManufacturer: totalMfrPaid,
+        outstandingPayable: totalPayableToMfr - totalMfrPaid
+      },
+      invoiceStats
+    });
+  } catch (error) {
+    console.error('Finance insights error:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Traffic & Session Analytics
+app.get('/api/admin/analytics/traffic-insights', authMiddleware, (req, res) => {
+  try {
+    const db = loadDatabase();
+    const analytics = db.analytics || [];
+    const sessions = db.sessions || [];
+    const orders = db.orders || [];
+
+    // Page views by page
+    const pageViews = {};
+    analytics.filter(e => e.type === 'page_view' || e.type === 'product_view').forEach(e => {
+      const page = e.page || e.productSlug || '/';
+      if (!pageViews[page]) pageViews[page] = { page, views: 0, uniqueVisitors: new Set() };
+      pageViews[page].views++;
+      if (e.sessionId) pageViews[page].uniqueVisitors.add(e.sessionId);
+    });
+
+    // Traffic sources
+    const trafficSources = {};
+    analytics.forEach(e => {
+      const source = e.source || e.utm_source || 'direct';
+      if (!trafficSources[source]) trafficSources[source] = { name: source, visits: 0, conversions: 0 };
+      trafficSources[source].visits++;
+      if (e.type === 'purchase') trafficSources[source].conversions++;
+    });
+
+    // Geographic data from orders (more reliable than analytics)
+    const geoData = { byState: {}, byCity: {}, byCountry: {} };
+    orders.forEach(order => {
+      const state = order.shipping?.state || order.shippingAddress?.state;
+      const city = order.shipping?.city || order.shippingAddress?.city;
+      const country = order.shipping?.country || order.shippingAddress?.country || 'US';
+
+      if (state) {
+        if (!geoData.byState[state]) geoData.byState[state] = { name: state, orders: 0, revenue: 0 };
+        geoData.byState[state].orders++;
+        geoData.byState[state].revenue += order.pricing?.total || order.total || 0;
+      }
+      if (city) {
+        if (!geoData.byCity[city]) geoData.byCity[city] = { name: city, orders: 0, revenue: 0 };
+        geoData.byCity[city].orders++;
+        geoData.byCity[city].revenue += order.pricing?.total || order.total || 0;
+      }
+      if (country) {
+        if (!geoData.byCountry[country]) geoData.byCountry[country] = { name: country, orders: 0, revenue: 0 };
+        geoData.byCountry[country].orders++;
+        geoData.byCountry[country].revenue += order.pricing?.total || order.total || 0;
+      }
+    });
+
+    // Session data
+    const now = new Date();
+    const activeSessionThreshold = 15 * 60 * 1000; // 15 minutes
+    let activeSessions = 0;
+    let totalSessionDuration = 0;
+    let sessionCount = 0;
+
+    // Aggregate sessions from analytics events
+    const sessionData = {};
+    analytics.forEach(e => {
+      if (e.sessionId) {
+        if (!sessionData[e.sessionId]) {
+          sessionData[e.sessionId] = {
+            id: e.sessionId,
+            startTime: e.createdAt,
+            lastActivity: e.createdAt,
+            pageViews: 0,
+            events: []
+          };
+        }
+        sessionData[e.sessionId].pageViews++;
+        sessionData[e.sessionId].lastActivity = e.createdAt;
+        sessionData[e.sessionId].events.push(e.type);
+      }
+    });
+
+    // Calculate session metrics
+    Object.values(sessionData).forEach(session => {
+      const lastActivity = new Date(session.lastActivity);
+      const startTime = new Date(session.startTime);
+
+      // Check if active
+      if ((now - lastActivity) < activeSessionThreshold) {
+        activeSessions++;
+      }
+
+      // Calculate duration
+      const duration = lastActivity - startTime;
+      if (duration > 0 && duration < 24 * 60 * 60 * 1000) { // Max 24 hours
+        totalSessionDuration += duration;
+        sessionCount++;
+      }
+    });
+
+    const avgSessionDuration = sessionCount > 0 ? Math.round(totalSessionDuration / sessionCount / 1000) : 0; // in seconds
+
+    // Device/Browser (if tracked in analytics)
+    const deviceStats = { desktop: 0, mobile: 0, tablet: 0 };
+    const browserStats = {};
+    analytics.forEach(e => {
+      if (e.device) {
+        deviceStats[e.device] = (deviceStats[e.device] || 0) + 1;
+      }
+      if (e.browser) {
+        browserStats[e.browser] = (browserStats[e.browser] || 0) + 1;
+      }
+    });
+
+    // Social media referrals
+    const socialReferrals = {
+      facebook: { name: 'Facebook', visits: 0 },
+      instagram: { name: 'Instagram', visits: 0 },
+      pinterest: { name: 'Pinterest', visits: 0 },
+      twitter: { name: 'Twitter/X', visits: 0 },
+      tiktok: { name: 'TikTok', visits: 0 },
+      youtube: { name: 'YouTube', visits: 0 }
+    };
+    analytics.forEach(e => {
+      const source = (e.source || e.utm_source || '').toLowerCase();
+      for (const platform of Object.keys(socialReferrals)) {
+        if (source.includes(platform)) {
+          socialReferrals[platform].visits++;
+        }
+      }
+    });
+
+    // Format page views
+    const topPages = Object.values(pageViews)
+      .map(p => ({ ...p, uniqueVisitors: p.uniqueVisitors.size }))
+      .sort((a, b) => b.views - a.views)
+      .slice(0, 20);
+
+    res.json({
+      success: true,
+      summary: {
+        totalPageViews: analytics.filter(e => e.type === 'page_view').length,
+        uniqueSessions: Object.keys(sessionData).length,
+        activeSessions,
+        avgSessionDuration, // in seconds
+        avgSessionDurationFormatted: `${Math.floor(avgSessionDuration / 60)}m ${avgSessionDuration % 60}s`,
+        bounceRate: 0 // Would need more data to calculate
+      },
+      topPages,
+      trafficSources: Object.values(trafficSources).sort((a, b) => b.visits - a.visits),
+      geographic: {
+        topStates: Object.values(geoData.byState).sort((a, b) => b.orders - a.orders).slice(0, 10),
+        topCities: Object.values(geoData.byCity).sort((a, b) => b.orders - a.orders).slice(0, 10),
+        topCountries: Object.values(geoData.byCountry).sort((a, b) => b.orders - a.orders)
+      },
+      devices: Object.entries(deviceStats).map(([name, count]) => ({ name, count })),
+      browsers: Object.entries(browserStats).map(([name, count]) => ({ name, count })).sort((a, b) => b.count - a.count).slice(0, 5),
+      socialReferrals: Object.values(socialReferrals).filter(s => s.visits > 0)
+    });
+  } catch (error) {
+    console.error('Traffic insights error:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Track analytics event (for frontend to send events)
+app.post('/api/analytics/track', (req, res) => {
+  try {
+    const db = loadDatabase();
+    const {
+      type, // page_view, product_view, add_to_cart, checkout_start, purchase
+      sessionId,
+      page,
+      productId,
+      productSlug,
+      value,
+      source,
+      utm_source,
+      utm_medium,
+      utm_campaign,
+      device,
+      browser,
+      referrer
+    } = req.body;
+
+    if (!type) {
+      return res.status(400).json({ success: false, error: 'Event type required' });
+    }
+
+    const event = {
+      id: require('uuid').v4(),
+      type,
+      sessionId: sessionId || req.headers['x-session-id'] || 'unknown',
+      page,
+      productId,
+      productSlug,
+      value: value || 0,
+      source: source || utm_source || 'direct',
+      utm_medium,
+      utm_campaign,
+      device,
+      browser,
+      referrer,
+      createdAt: new Date().toISOString(),
+      ip: req.ip
+    };
+
+    if (!db.analytics) db.analytics = [];
+    db.analytics.push(event);
+
+    // Keep only last 10000 events
+    if (db.analytics.length > 10000) {
+      db.analytics = db.analytics.slice(-10000);
+    }
+
+    saveDatabase(db);
+    res.json({ success: true, eventId: event.id });
   } catch (error) {
     res.status(500).json({ success: false, error: error.message });
   }
@@ -3894,7 +5107,8 @@ app.get('/api/admin/invoices/:id', authMiddleware, (req, res) => {
     if (!invoice) {
       return res.status(404).json({ success: false, error: 'Invoice not found' });
     }
-    res.json({ success: true, data: invoice });
+    // TICKET 012: Return as 'invoice' to match frontend expectation
+    res.json({ success: true, invoice: invoice });
   } catch (error) {
     res.status(500).json({ success: false, error: error.message });
   }
@@ -4056,9 +5270,6 @@ app.get('/api/invoices/:id/print', (req, res) => {
 // ============================================
 // PRICING ENDPOINTS (Admin + Store)
 // ============================================
-
-// Import extended pricing engine
-const { extendedPricingEngine } = require('./services/extended-pricing-engine');
 
 /**
  * POST /api/admin/manufacturer/price-preview
@@ -4309,6 +5520,86 @@ app.post('/api/manufacturer/orders/:orderId/tracking', manufacturerAuthMiddlewar
     res.json({ success: true, data: order });
   } catch (error) {
     res.status(400).json({ success: false, error: error.message });
+  }
+});
+
+// Update shipping charges - manufacturer sets shipping when ready to ship
+app.post('/api/manufacturer/orders/:orderId/shipping', manufacturerAuthMiddleware, (req, res) => {
+  try {
+    const { shippingCost } = req.body;
+
+    if (shippingCost === undefined || shippingCost === null) {
+      return res.status(400).json({ success: false, error: 'Shipping cost is required' });
+    }
+
+    const cost = parseFloat(shippingCost);
+    if (isNaN(cost) || cost < 0) {
+      return res.status(400).json({ success: false, error: 'Invalid shipping cost' });
+    }
+
+    const db = loadDatabase();
+    const order = db.orders.find(o => o.id === req.params.orderId || o.order_number === req.params.orderId);
+
+    if (!order) {
+      return res.status(404).json({ success: false, error: 'Order not found' });
+    }
+
+    // Update shipping cost
+    order.shipping = cost;
+    order.pricing = order.pricing || {};
+    order.pricing.shipping = cost;
+
+    // Recalculate total
+    const subtotal = order.subtotal || order.pricing?.subtotal || 0;
+    const tax = order.tax || order.pricing?.tax || 0;
+    order.total = Math.round((subtotal + tax + cost) * 100) / 100;
+    order.pricing.total = order.total;
+
+    // Add to status history
+    order.statusHistory = order.statusHistory || [];
+    order.statusHistory.push({
+      fromStatus: order.status,
+      toStatus: order.status,
+      changedAt: new Date().toISOString(),
+      changedBy: req.manufacturer.id,
+      reason: `Shipping cost updated to $${cost.toFixed(2)}`
+    });
+
+    order.updated_at = new Date().toISOString();
+    saveDatabase(db);
+
+    // Update invoice if exists
+    const invoice = db.invoices?.find(inv => inv.orderId === order.id);
+    if (invoice) {
+      invoice.shipping = cost;
+      invoice.total = Math.round((invoice.subtotal + (invoice.tax || 0) + cost) * 100) / 100;
+      saveDatabase(db);
+    }
+
+    // Update ledger
+    const ledgerEntry = db.ledgerEntries?.find(e => e.orderId === order.id && e.type === 'shipping_charged');
+    if (ledgerEntry) {
+      ledgerEntry.amount = cost;
+      saveDatabase(db);
+    } else if (cost > 0) {
+      // Create new shipping ledger entry
+      db.ledgerEntries = db.ledgerEntries || [];
+      db.ledgerEntries.push({
+        id: `ledger-${Date.now()}`,
+        orderId: order.id,
+        orderNumber: order.order_number,
+        type: 'shipping_charged',
+        amount: cost,
+        direction: 'credit',
+        description: `Shipping charges for order ${order.order_number}`,
+        createdAt: new Date().toISOString()
+      });
+      saveDatabase(db);
+    }
+
+    res.json({ success: true, message: 'Shipping cost updated', data: { shipping: cost, total: order.total } });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
   }
 });
 
@@ -6710,10 +8001,131 @@ app.get('/api/products/:slug/options', (req, res) => {
     // Return product-specific options or defaults
     const options = db.productOptions[slug] || JSON.parse(JSON.stringify(defaultProductOptions));
 
+    // Include motor brands from database (filtered to active only)
+    const motorBrands = (db.motorBrands || [])
+      .filter(b => b.isActive)
+      .sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0))
+      .map(b => ({
+        value: b.value,
+        label: b.label,
+        price: b.price,
+        priceType: b.priceType || 'flat',
+        manufacturerCost: b.manufacturerCost
+      }));
+
+    // Merge pricing from hardwareOptions (primary source - check productContent first)
+    const hw = db.productContent?.hardwareOptions || db.hardwareOptions || {};
+
+    // Helper function to merge hardware options
+    const mergeHardwareOptions = (optionKey, targetKey) => {
+      if (hw[optionKey] && options[targetKey] && options[targetKey].options) {
+        const hwMap = {};
+        hw[optionKey].forEach(opt => { hwMap[opt.value] = opt; });
+        options[targetKey].options = options[targetKey].options.map(opt => ({
+          ...opt,
+          price: hwMap[opt.value]?.price ?? opt.price,
+          priceType: hwMap[opt.value]?.priceType || 'flat'
+        }));
+      }
+    };
+
+    // Merge all hardware options
+    mergeHardwareOptions('chainType', 'chainType');
+    mergeHardwareOptions('valanceType', 'valanceType');
+    mergeHardwareOptions('bottomRail', 'bottomRail');
+    mergeHardwareOptions('rollerType', 'rollerType');
+    mergeHardwareOptions('remoteType', 'remoteType');
+    mergeHardwareOptions('accessories', 'accessories');
+    mergeHardwareOptions('solarPanel', 'solarPanel');
+    mergeHardwareOptions('mountType', 'mountType');
+    mergeHardwareOptions('controlType', 'controlType');
+
+    // Remote types - use hardwareOptions or default prices
+    if (options.remoteType && options.remoteType.options) {
+      const hwRemote = {};
+      (hw.remoteType || []).forEach(r => { hwRemote[r.value] = r; });
+      const defaultRemotePrices = { 'single-channel': 6, '1-channel': 4.40, '6-channel': 6.60, '15-channel': 11.35 };
+      options.remoteType.options = options.remoteType.options.map(opt => ({
+        ...opt,
+        price: hwRemote[opt.value]?.price ?? defaultRemotePrices[opt.value] ?? opt.price ?? 0
+      }));
+    }
+
+    // Merge product-specific pricing from productPageLayouts if exists (overrides hardwareOptions)
+    if (db.productPageLayouts && db.productPageLayouts[slug]) {
+      const layout = db.productPageLayouts[slug];
+
+      // Merge chainType prices
+      if (layout.chainType && options.chainType) {
+        const layoutChainMap = {};
+        layout.chainType.forEach(opt => { layoutChainMap[opt.value] = opt; });
+        options.chainType.options = options.chainType.options.map(opt => ({
+          ...opt,
+          price: layoutChainMap[opt.value]?.price ?? opt.price,
+          priceType: layoutChainMap[opt.value]?.priceType || opt.priceType || 'flat'
+        }));
+      }
+
+      // Merge valanceType prices
+      if (layout.valanceType && options.valanceType) {
+        const layoutValanceMap = {};
+        layout.valanceType.forEach(opt => { layoutValanceMap[opt.value] = opt; });
+        options.valanceType.options = options.valanceType.options.map(opt => ({
+          ...opt,
+          price: layoutValanceMap[opt.value]?.price ?? opt.price,
+          priceType: layoutValanceMap[opt.value]?.priceType || opt.priceType || 'flat'
+        }));
+      }
+
+      // Merge bottomRail prices
+      if (layout.bottomRail && options.bottomRail) {
+        const layoutBottomMap = {};
+        layout.bottomRail.forEach(opt => { layoutBottomMap[opt.value] = opt; });
+        options.bottomRail.options = options.bottomRail.options.map(opt => ({
+          ...opt,
+          price: layoutBottomMap[opt.value]?.price ?? opt.price,
+          priceType: layoutBottomMap[opt.value]?.priceType || opt.priceType || 'flat'
+        }));
+      }
+
+      // Merge rollerType prices
+      if (layout.rollerType && options.rollerType) {
+        const layoutRollerMap = {};
+        layout.rollerType.forEach(opt => { layoutRollerMap[opt.value] = opt; });
+        options.rollerType.options = options.rollerType.options.map(opt => ({
+          ...opt,
+          price: layoutRollerMap[opt.value]?.price ?? opt.price,
+          priceType: layoutRollerMap[opt.value]?.priceType || opt.priceType || 'flat'
+        }));
+      }
+
+      // Merge remoteType prices
+      if (layout.remoteType && options.remoteType) {
+        const layoutRemoteMap = {};
+        layout.remoteType.forEach(opt => { layoutRemoteMap[opt.value] = opt; });
+        options.remoteType.options = options.remoteType.options.map(opt => ({
+          ...opt,
+          price: layoutRemoteMap[opt.value]?.price ?? opt.price,
+          priceType: layoutRemoteMap[opt.value]?.priceType || opt.priceType || 'flat'
+        }));
+      }
+
+      // Merge accessories prices
+      if (layout.accessories && options.accessories) {
+        const layoutAccMap = {};
+        layout.accessories.forEach(opt => { layoutAccMap[opt.value] = opt; });
+        options.accessories.options = options.accessories.options.map(opt => ({
+          ...opt,
+          price: layoutAccMap[opt.value]?.price ?? opt.price
+        }));
+      }
+    }
+
     res.json({
       success: true,
       slug,
-      options
+      options,
+      motorBrands
     });
   } catch (error) {
     res.status(500).json({ success: false, error: error.message });

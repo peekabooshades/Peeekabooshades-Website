@@ -295,6 +295,27 @@ function trackEvent(eventName, eventData = {}) {
   if (typeof gtag !== 'undefined') {
     gtag('event', eventName, eventData);
   }
+
+  // TICKET 015: Send event to backend analytics API
+  try {
+    fetch('/api/analytics/event', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        type: eventName,
+        sessionId: getSessionId(),
+        productId: eventData.product_id || eventData.productId || null,
+        productName: eventData.product_name || eventData.productName || null,
+        fabricCode: eventData.fabricCode || null,
+        value: eventData.value || eventData.price || 0,
+        quantity: eventData.quantity || 1,
+        page: window.location.pathname,
+        metadata: eventData
+      })
+    }).catch(() => {}); // Silent fail for analytics
+  } catch (e) {
+    // Silent fail for analytics
+  }
 }
 
 function trackPageView(pageName) {

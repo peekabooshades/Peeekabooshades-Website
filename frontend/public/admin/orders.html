@@ -128,12 +128,24 @@
               <div class="filter-group">
                 <select id="status-filter" class="filter-select">
                   <option value="">All Status</option>
-                  <option value="pending">Pending</option>
-                  <option value="processing">Processing</option>
+                  <option value="order_placed">Order Placed</option>
+                  <option value="order_received">Order Received</option>
+                  <option value="manufacturing">Manufacturing</option>
+                  <option value="qa">QA</option>
                   <option value="shipped">Shipped</option>
                   <option value="delivered">Delivered</option>
+                  <option value="issue_reported">Issue Reported</option>
+                  <option value="refund_requested">Refund Requested</option>
+                  <option value="refunded">Refunded</option>
                   <option value="cancelled">Cancelled</option>
                 </select>
+              </div>
+              <!-- TICKET 013: Add date range filters -->
+              <div class="filter-group">
+                <input type="date" id="date-from" class="form-input" placeholder="From" title="From Date">
+              </div>
+              <div class="filter-group">
+                <input type="date" id="date-to" class="form-input" placeholder="To" title="To Date">
               </div>
             </div>
           </div>
@@ -171,20 +183,20 @@
 
   <!-- Order Detail Modal -->
   <div class="modal-overlay" id="order-modal">
-    <div class="modal" style="max-width: 600px;">
-      <div class="modal-header">
-        <h3 class="modal-title">Order Details</h3>
-        <button class="modal-close" onclick="Admin.Modal.hide('order-modal')">
+    <div class="modal" style="max-width: 95%; width: 1400px;">
+      <div class="modal-header" style="background: linear-gradient(135deg, #8E6545 0%, #A67C5B 100%); color: white; border-radius: 8px 8px 0 0; padding: 20px 24px;">
+        <h3 class="modal-title" style="color: white; font-size: 20px; font-weight: 600;">Order Details</h3>
+        <button class="modal-close" onclick="Admin.Modal.hide('order-modal')" style="color: white; opacity: 0.9;">
           <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
           </svg>
         </button>
       </div>
-      <div class="modal-body" id="order-detail-content">
+      <div class="modal-body" id="order-detail-content" style="padding: 24px; max-height: 75vh; overflow-y: auto;">
         <!-- Content will be loaded dynamically -->
       </div>
-      <div class="modal-footer">
-        <button class="btn btn-secondary" onclick="Admin.Modal.hide('order-modal')">Close</button>
+      <div class="modal-footer" style="background: #f8f9fa; border-top: 1px solid #e5e7eb; padding: 16px 24px;">
+        <button class="btn btn-secondary" onclick="Admin.Modal.hide('order-modal')" style="background: #8E6545; color: white; border: none; padding: 10px 24px; border-radius: 6px; font-weight: 500;">Close</button>
       </div>
     </div>
   </div>
@@ -249,7 +261,7 @@
               #${order.order_number || order.id.slice(0, 8).toUpperCase()}
             </a>
           </td>
-          <td>${Admin.Utils.formatDate(order.created_at)}</td>
+          <td>${Admin.Utils.formatDateTime(order.created_at)}</td>
           <td>
             <div>${Admin.Utils.escapeHtml(customerName)}</div>
             <div style="font-size: 12px; color: var(--admin-text-secondary);">${Admin.Utils.escapeHtml(customerEmail)}</div>
@@ -258,15 +270,20 @@
           <td style="font-weight: 500;">${Admin.Utils.formatCurrency(total)}</td>
           <td>
             <select class="filter-select" style="min-width: 140px;" onchange="updateStatus('${order.id}', this.value)">
+              <option value="pending" ${order.status === 'pending' ? 'selected' : ''}>Pending</option>
               <option value="order_placed" ${order.status === 'order_placed' ? 'selected' : ''}>Order Placed</option>
+              <option value="payment_received" ${order.status === 'payment_received' ? 'selected' : ''}>Payment Received</option>
               <option value="order_received" ${order.status === 'order_received' ? 'selected' : ''}>Order Received</option>
+              <option value="sent_to_manufacturer" ${order.status === 'sent_to_manufacturer' ? 'selected' : ''}>Sent to Manufacturer</option>
               <option value="manufacturing" ${order.status === 'manufacturing' ? 'selected' : ''}>Manufacturing</option>
               <option value="qa" ${order.status === 'qa' ? 'selected' : ''}>QA</option>
               <option value="shipped" ${order.status === 'shipped' ? 'selected' : ''}>Shipped</option>
               <option value="delivered" ${order.status === 'delivered' ? 'selected' : ''}>Delivered</option>
+              <option value="closed" ${order.status === 'closed' ? 'selected' : ''}>Closed</option>
               <option value="issue_reported" ${order.status === 'issue_reported' ? 'selected' : ''}>Issue Reported</option>
               <option value="refund_requested" ${order.status === 'refund_requested' ? 'selected' : ''}>Refund Requested</option>
               <option value="refunded" ${order.status === 'refunded' ? 'selected' : ''}>Refunded</option>
+              <option value="disputed" ${order.status === 'disputed' ? 'selected' : ''}>Disputed</option>
               <option value="cancelled" ${order.status === 'cancelled' ? 'selected' : ''}>Cancelled</option>
             </select>
           </td>
@@ -292,10 +309,15 @@
     function initFilters() {
       const searchInput = document.getElementById('search-input');
       const statusFilter = document.getElementById('status-filter');
+      // TICKET 013: Date range filters
+      const dateFrom = document.getElementById('date-from');
+      const dateTo = document.getElementById('date-to');
 
       const applyFilters = Admin.Utils.debounce(() => {
         const search = searchInput.value.toLowerCase();
         const status = statusFilter.value;
+        const fromDate = dateFrom.value ? new Date(dateFrom.value) : null;
+        const toDate = dateTo.value ? new Date(dateTo.value + 'T23:59:59') : null;
 
         const filtered = allOrders.filter(o => {
           const matchesSearch = !search ||
@@ -304,7 +326,15 @@
             (o.customer_email && o.customer_email.toLowerCase().includes(search));
           const matchesStatus = !status || o.status === status;
 
-          return matchesSearch && matchesStatus;
+          // TICKET 013: Date range filtering
+          let matchesDate = true;
+          if (fromDate || toDate) {
+            const orderDate = new Date(o.created_at);
+            if (fromDate && orderDate < fromDate) matchesDate = false;
+            if (toDate && orderDate > toDate) matchesDate = false;
+          }
+
+          return matchesSearch && matchesStatus && matchesDate;
         });
 
         renderOrders(filtered);
@@ -312,16 +342,21 @@
 
       searchInput.addEventListener('input', applyFilters);
       statusFilter.addEventListener('change', applyFilters);
+      dateFrom.addEventListener('change', applyFilters);
+      dateTo.addEventListener('change', applyFilters);
     }
 
     async function updateStatus(id, status) {
       try {
-        await Admin.OrdersAPI.updateStatus(id, status);
+        console.log('Updating order status:', id, '->', status);
+        const result = await Admin.OrdersAPI.updateStatus(id, status);
+        console.log('Status update result:', result);
         const order = allOrders.find(o => o.id === id);
         if (order) order.status = status;
         Admin.Toast.success('Order status updated');
       } catch (error) {
-        Admin.Toast.error('Failed to update status');
+        console.error('Status update error:', error);
+        Admin.Toast.error('Failed to update status: ' + (error.message || 'Unknown error'));
         loadOrders();
       }
     }
@@ -345,85 +380,113 @@
           const orderTotal = order.total || order.pricing?.total || 0;
 
           document.getElementById('order-detail-content').innerHTML = `
-            <div style="margin-bottom: 20px;">
-              <h4 style="margin-bottom: 8px; color: var(--admin-text-primary);">Order #${order.order_number || order.id.slice(0, 8).toUpperCase()}</h4>
-              <p style="color: var(--admin-text-secondary); font-size: 14px;">Placed on ${Admin.Utils.formatDateTime(order.created_at)}</p>
+            <!-- Order Header Card -->
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; padding: 16px 20px; background: linear-gradient(135deg, #fdf8f5 0%, #fff 100%); border-radius: 10px; border-left: 4px solid #8E6545;">
+              <div>
+                <h4 style="margin: 0 0 4px 0; color: #8E6545; font-size: 22px; font-weight: 700;">Order #${order.order_number || order.id.slice(0, 8).toUpperCase()}</h4>
+                <p style="margin: 0; color: #6b7280; font-size: 14px;">Placed on ${Admin.Utils.formatDateTime(order.created_at)}</p>
+              </div>
+              <div style="text-align: right;">
+                <span style="display: inline-block; padding: 6px 16px; background: ${order.status === 'shipped' || order.status === 'delivered' ? '#d1fae5' : order.status === 'manufacturing' || order.status === 'qa' ? '#fef3c7' : '#e0e7ff'}; color: ${order.status === 'shipped' || order.status === 'delivered' ? '#065f46' : order.status === 'manufacturing' || order.status === 'qa' ? '#92400e' : '#3730a3'}; border-radius: 20px; font-size: 12px; font-weight: 600; text-transform: uppercase;">${order.status?.replace(/_/g, ' ') || 'Pending'}</span>
+              </div>
             </div>
 
-            <!-- Customer Details Table -->
-            <h5 style="margin-bottom: 12px; font-size: 14px; text-transform: uppercase; color: var(--admin-text-secondary);">Customer Details</h5>
-            <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px; border: 2px solid #1a1a2e;">
-              <thead>
-                <tr style="background: #1a1a2e; color: white;">
-                  <th style="padding: 10px; text-align: left; border: 1px solid #374151;">FIELD</th>
-                  <th style="padding: 10px; text-align: left; border: 1px solid #374151;">VALUE</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr><td style="padding: 8px 10px; border: 1px solid #ddd; font-weight: 600; background: #f9fafb;">Name</td><td style="padding: 8px 10px; border: 1px solid #ddd;">${Admin.Utils.escapeHtml(customerName)}</td></tr>
-                <tr><td style="padding: 8px 10px; border: 1px solid #ddd; font-weight: 600; background: #f9fafb;">Email</td><td style="padding: 8px 10px; border: 1px solid #ddd;">${Admin.Utils.escapeHtml(customerEmail)}</td></tr>
-                <tr><td style="padding: 8px 10px; border: 1px solid #ddd; font-weight: 600; background: #f9fafb;">Phone</td><td style="padding: 8px 10px; border: 1px solid #ddd;">${Admin.Utils.escapeHtml(customerPhone)}</td></tr>
-                <tr><td style="padding: 8px 10px; border: 1px solid #ddd; font-weight: 600; background: #f9fafb;">Address</td><td style="padding: 8px 10px; border: 1px solid #ddd;">${Admin.Utils.escapeHtml(shippingAddr || 'N/A')}</td></tr>
-              </tbody>
-            </table>
-
-            <!-- Order Items Table -->
-            <h5 style="margin-bottom: 12px; font-size: 14px; text-transform: uppercase; color: var(--admin-text-secondary);">Items Ordered (${order.items?.length || 0} items)</h5>
-            <div style="overflow-x: auto;">
-              <table style="width: 100%; border-collapse: collapse; border: 2px solid #1a1a2e; min-width: 1200px;">
+            <!-- Customer Details Card -->
+            <div style="margin-bottom: 24px;">
+              <h5 style="margin-bottom: 12px; font-size: 13px; text-transform: uppercase; color: #8E6545; font-weight: 600; letter-spacing: 0.5px; display: flex; align-items: center; gap: 8px;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="#8E6545"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+                Customer Information
+              </h5>
+              <table style="width: 100%; border-collapse: collapse; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
                 <thead>
-                  <tr style="background: #1a1a2e; color: white;">
-                    <th style="padding: 8px 5px; text-align: center; font-size: 10px; border: 1px solid #374151;">#</th>
-                    <th style="padding: 8px 5px; text-align: left; font-size: 10px; border: 1px solid #374151;">ROOM</th>
-                    <th style="padding: 8px 5px; text-align: center; font-size: 10px; border: 1px solid #374151;">QTY</th>
-                    <th style="padding: 8px 5px; text-align: center; font-size: 10px; border: 1px solid #374151;">W x H</th>
-                    <th style="padding: 8px 5px; text-align: left; font-size: 10px; border: 1px solid #374151;">FABRIC</th>
-                    <th style="padding: 8px 5px; text-align: left; font-size: 10px; border: 1px solid #374151;">LIGHT</th>
-                    <th style="padding: 8px 5px; text-align: left; font-size: 10px; border: 1px solid #374151;">CASSETTE</th>
-                    <th style="padding: 8px 5px; text-align: left; font-size: 10px; border: 1px solid #374151;">BOTTOM BAR</th>
-                    <th style="padding: 8px 5px; text-align: left; font-size: 10px; border: 1px solid #374151;">ROLL</th>
-                    <th style="padding: 8px 5px; text-align: left; font-size: 10px; border: 1px solid #374151;">MOUNT</th>
-                    <th style="padding: 8px 5px; text-align: left; font-size: 10px; border: 1px solid #374151;">CONTROL</th>
-                    <th style="padding: 8px 5px; text-align: left; font-size: 10px; border: 1px solid #374151;">MOTOR</th>
-                    <th style="padding: 8px 5px; text-align: left; font-size: 10px; border: 1px solid #374151;">REMOTE</th>
-                    <th style="padding: 8px 5px; text-align: right; font-size: 10px; border: 1px solid #374151;">PRICE</th>
+                  <tr style="background: linear-gradient(135deg, #8E6545 0%, #A67C5B 100%);">
+                    <th style="padding: 12px 16px; text-align: left; color: white; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; width: 150px;">Field</th>
+                    <th style="padding: 12px 16px; text-align: left; color: white; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Value</th>
                   </tr>
                 </thead>
                 <tbody>
-                  ${order.items && order.items.length > 0 ? order.items.map((item, idx) => {
-                    const cfg = parseConfig(item.configuration || item.options);
-                    const unitPrice = item.unit_price || item.unitPrice || 0;
-                    return `
-                    <tr style="background: ${idx % 2 === 0 ? '#fff' : '#f9fafb'};">
-                      <td style="padding: 6px 5px; text-align: center; font-size: 11px; border: 1px solid #ddd; font-weight: 700;">${idx + 1}</td>
-                      <td style="padding: 6px 5px; font-size: 10px; border: 1px solid #ddd; color: #3b82f6; font-weight: 600;">${Admin.Utils.escapeHtml(item.room_label || '-')}</td>
-                      <td style="padding: 6px 5px; text-align: center; font-size: 11px; border: 1px solid #ddd; font-weight: 700; background: #fef3c7;">${item.quantity}</td>
-                      <td style="padding: 6px 5px; text-align: center; font-size: 10px; border: 1px solid #ddd;">${item.width}" x ${item.height}"</td>
-                      <td style="padding: 6px 5px; font-size: 10px; border: 1px solid #ddd; font-weight: 600;">${cfg.fabricCode || '-'}</td>
-                      <td style="padding: 6px 5px; font-size: 10px; border: 1px solid #ddd;">${cfg.lightFiltering || '-'}</td>
-                      <td style="padding: 6px 5px; font-size: 10px; border: 1px solid #ddd;">${cfg.standardCassette || '-'}</td>
-                      <td style="padding: 6px 5px; font-size: 10px; border: 1px solid #ddd;">${cfg.standardBottomBar || '-'}</td>
-                      <td style="padding: 6px 5px; font-size: 10px; border: 1px solid #ddd;">${cfg.rollerType || '-'}</td>
-                      <td style="padding: 6px 5px; font-size: 10px; border: 1px solid #ddd;">${cfg.mountType || '-'}</td>
-                      <td style="padding: 6px 5px; font-size: 10px; border: 1px solid #ddd;">${cfg.controlType || '-'}</td>
-                      <td style="padding: 6px 5px; font-size: 10px; border: 1px solid #ddd;">${cfg.motorType || cfg.chainType || '-'}</td>
-                      <td style="padding: 6px 5px; font-size: 10px; border: 1px solid #ddd;">${cfg.remoteType || '-'}</td>
-                      <td style="padding: 6px 5px; text-align: right; font-size: 11px; border: 1px solid #ddd; font-weight: 700; color: #065f46;">${Admin.Utils.formatCurrency(unitPrice * item.quantity)}</td>
-                    </tr>`;
-                  }).join('') : '<tr><td colspan="14" style="padding: 20px; text-align: center;">No items</td></tr>'}
+                  <tr style="background: #fff;"><td style="padding: 10px 16px; border-bottom: 1px solid #e5e7eb; font-weight: 600; color: #374151;">Name</td><td style="padding: 10px 16px; border-bottom: 1px solid #e5e7eb; color: #1f2937;">${Admin.Utils.escapeHtml(customerName)}</td></tr>
+                  <tr style="background: #fafafa;"><td style="padding: 10px 16px; border-bottom: 1px solid #e5e7eb; font-weight: 600; color: #374151;">Email</td><td style="padding: 10px 16px; border-bottom: 1px solid #e5e7eb; color: #1f2937;">${Admin.Utils.escapeHtml(customerEmail)}</td></tr>
+                  <tr style="background: #fff;"><td style="padding: 10px 16px; border-bottom: 1px solid #e5e7eb; font-weight: 600; color: #374151;">Phone</td><td style="padding: 10px 16px; border-bottom: 1px solid #e5e7eb; color: #1f2937;">${Admin.Utils.escapeHtml(customerPhone)}</td></tr>
+                  <tr style="background: #fafafa;"><td style="padding: 10px 16px; font-weight: 600; color: #374151;">Address</td><td style="padding: 10px 16px; color: #1f2937;">${Admin.Utils.escapeHtml(shippingAddr || 'N/A')}</td></tr>
                 </tbody>
               </table>
             </div>
 
-            <!-- Order Totals -->
-            <table style="width: 300px; margin-left: auto; margin-top: 20px; border-collapse: collapse; border: 2px solid #1a1a2e;">
-              <tbody>
-                <tr><td style="padding: 8px 12px; border: 1px solid #ddd;">Subtotal</td><td style="padding: 8px 12px; border: 1px solid #ddd; text-align: right;">${Admin.Utils.formatCurrency(order.subtotal || order.pricing?.subtotal || 0)}</td></tr>
-                <tr><td style="padding: 8px 12px; border: 1px solid #ddd;">Tax</td><td style="padding: 8px 12px; border: 1px solid #ddd; text-align: right;">${Admin.Utils.formatCurrency(order.tax || order.pricing?.tax || 0)}</td></tr>
-                <tr><td style="padding: 8px 12px; border: 1px solid #ddd;">Shipping</td><td style="padding: 8px 12px; border: 1px solid #ddd; text-align: right;">${Admin.Utils.formatCurrency(order.shipping || order.pricing?.shipping || 0)}</td></tr>
-                <tr style="background: #1a1a2e; color: white;"><td style="padding: 10px 12px; border: 1px solid #374151; font-weight: 700;">TOTAL</td><td style="padding: 10px 12px; border: 1px solid #374151; text-align: right; font-weight: 700; font-size: 16px;">${Admin.Utils.formatCurrency(orderTotal)}</td></tr>
-              </tbody>
-            </table>
+            <!-- Order Items Card -->
+            <div style="margin-bottom: 24px;">
+              <h5 style="margin-bottom: 12px; font-size: 13px; text-transform: uppercase; color: #8E6545; font-weight: 600; letter-spacing: 0.5px; display: flex; align-items: center; gap: 8px;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="#8E6545"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
+                Items Ordered <span style="background: #8E6545; color: white; padding: 2px 10px; border-radius: 12px; font-size: 11px; margin-left: 8px;">${order.items?.length || 0}</span>
+              </h5>
+              <div style="overflow-x: auto; border-radius: 8px; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+                <table style="width: 100%; border-collapse: collapse; min-width: 1400px;">
+                  <thead>
+                    <tr style="background: linear-gradient(135deg, #8E6545 0%, #A67C5B 100%);">
+                      <th style="padding: 10px 8px; text-align: center; font-size: 11px; color: white; font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px;">#</th>
+                      <th style="padding: 10px 8px; text-align: left; font-size: 11px; color: white; font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px;">Room</th>
+                      <th style="padding: 10px 8px; text-align: center; font-size: 11px; color: white; font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px;">Qty</th>
+                      <th style="padding: 10px 8px; text-align: center; font-size: 11px; color: white; font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px;">Size</th>
+                      <th style="padding: 10px 8px; text-align: left; font-size: 11px; color: white; font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px;">Fabric</th>
+                      <th style="padding: 10px 8px; text-align: left; font-size: 11px; color: white; font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px;">Light</th>
+                      <th style="padding: 10px 8px; text-align: left; font-size: 11px; color: white; font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px;">Cassette</th>
+                      <th style="padding: 10px 8px; text-align: left; font-size: 11px; color: white; font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px;">Bottom Bar</th>
+                      <th style="padding: 10px 8px; text-align: left; font-size: 11px; color: white; font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px;">Roll</th>
+                      <th style="padding: 10px 8px; text-align: left; font-size: 11px; color: white; font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px;">Mount</th>
+                      <th style="padding: 10px 8px; text-align: left; font-size: 11px; color: white; font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px;">Chain</th>
+                      <th style="padding: 10px 8px; text-align: left; font-size: 11px; color: white; font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px;">Control</th>
+                      <th style="padding: 10px 8px; text-align: left; font-size: 11px; color: white; font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px;">Motor</th>
+                      <th style="padding: 10px 8px; text-align: left; font-size: 11px; color: white; font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px;">Type</th>
+                      <th style="padding: 10px 8px; text-align: left; font-size: 11px; color: white; font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px;">Remote</th>
+                      <th style="padding: 10px 8px; text-align: center; font-size: 11px; color: white; font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px;">Solar</th>
+                      <th style="padding: 10px 8px; text-align: center; font-size: 11px; color: white; font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px;">Hub</th>
+                      <th style="padding: 10px 8px; text-align: center; font-size: 11px; color: white; font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px;">USB</th>
+                      <th style="padding: 10px 8px; text-align: right; font-size: 11px; color: white; font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px;">Price</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    ${order.items && order.items.length > 0 ? order.items.map((item, idx) => {
+                      const cfg = parseConfig(item.configuration || item.options);
+                      const unitPrice = item.unit_price || item.unitPrice || 0;
+                      return `
+                      <tr style="background: ${idx % 2 === 0 ? '#fff' : '#faf7f5'}; transition: background 0.2s;" onmouseover="this.style.background='#f5ebe4'" onmouseout="this.style.background='${idx % 2 === 0 ? '#fff' : '#faf7f5'}'">
+                        <td style="padding: 10px 8px; text-align: center; font-size: 12px; border-bottom: 1px solid #e5e7eb; font-weight: 700; color: #8E6545;">${idx + 1}</td>
+                        <td style="padding: 10px 8px; font-size: 11px; border-bottom: 1px solid #e5e7eb; color: #8E6545; font-weight: 600;">${Admin.Utils.escapeHtml(item.room_label || '-')}</td>
+                        <td style="padding: 10px 8px; text-align: center; font-size: 12px; border-bottom: 1px solid #e5e7eb; font-weight: 700; background: rgba(142,101,69,0.1); color: #8E6545;">${item.quantity}</td>
+                        <td style="padding: 10px 8px; text-align: center; font-size: 11px; border-bottom: 1px solid #e5e7eb; color: #374151;">${item.width}" x ${item.height}"</td>
+                        <td style="padding: 10px 8px; font-size: 11px; border-bottom: 1px solid #e5e7eb; font-weight: 600; color: #1f2937;">${cfg.fabricCode || '-'}</td>
+                        <td style="padding: 10px 8px; font-size: 11px; border-bottom: 1px solid #e5e7eb; color: #374151;">${cfg.lightFiltering || '-'}</td>
+                        <td style="padding: 10px 8px; font-size: 11px; border-bottom: 1px solid #e5e7eb; color: #374151;">${cfg.standardCassette || '-'}</td>
+                        <td style="padding: 10px 8px; font-size: 11px; border-bottom: 1px solid #e5e7eb; color: #374151;">${cfg.standardBottomBar || '-'}</td>
+                        <td style="padding: 10px 8px; font-size: 11px; border-bottom: 1px solid #e5e7eb; color: #374151;">${cfg.rollerType || '-'}</td>
+                        <td style="padding: 10px 8px; font-size: 11px; border-bottom: 1px solid #e5e7eb; color: #374151;">${cfg.mountType || '-'}</td>
+                        <td style="padding: 10px 8px; font-size: 11px; border-bottom: 1px solid #e5e7eb; color: #374151;">${cfg.chainSide || '-'}</td>
+                        <td style="padding: 10px 8px; font-size: 11px; border-bottom: 1px solid #e5e7eb; color: #374151;">${cfg.controlType || '-'}</td>
+                        <td style="padding: 10px 8px; font-size: 11px; border-bottom: 1px solid #e5e7eb; color: #374151;">${cfg.motorBrand || cfg.chainType || '-'}</td>
+                        <td style="padding: 10px 8px; font-size: 11px; border-bottom: 1px solid #e5e7eb; color: #374151;">${cfg.motorType || '-'}</td>
+                        <td style="padding: 10px 8px; font-size: 11px; border-bottom: 1px solid #e5e7eb; color: #374151;">${cfg.remoteType || '-'}</td>
+                        <td style="padding: 10px 8px; text-align: center; font-size: 11px; border-bottom: 1px solid #e5e7eb; ${cfg.solarType === 'yes' ? 'background: #d1fae5; color: #065f46; font-weight: 600; border-radius: 4px;' : 'color: #9ca3af;'}">${cfg.solarType === 'yes' ? 'YES' : '-'}</td>
+                        <td style="padding: 10px 8px; text-align: center; font-size: 11px; border-bottom: 1px solid #e5e7eb; ${(cfg.smartHubQty > 0 || cfg.smartHub === 'yes') ? 'background: #dbeafe; color: #1e40af; font-weight: 600; border-radius: 4px;' : 'color: #9ca3af;'}">${cfg.smartHubQty > 0 ? cfg.smartHubQty : (cfg.smartHub === 'yes' ? 'YES' : '-')}</td>
+                        <td style="padding: 10px 8px; text-align: center; font-size: 11px; border-bottom: 1px solid #e5e7eb; ${(cfg.usbChargerQty > 0 || cfg.usbCharger === 'yes') ? 'background: #fef3c7; color: #92400e; font-weight: 600; border-radius: 4px;' : 'color: #9ca3af;'}">${cfg.usbChargerQty > 0 ? cfg.usbChargerQty : (cfg.usbCharger === 'yes' ? 'YES' : '-')}</td>
+                        <td style="padding: 10px 8px; text-align: right; font-size: 12px; border-bottom: 1px solid #e5e7eb; font-weight: 700; color: #065f46;">${Admin.Utils.formatCurrency(unitPrice * item.quantity)}</td>
+                      </tr>`;
+                    }).join('') : '<tr><td colspan="19" style="padding: 40px; text-align: center; color: #9ca3af;">No items in this order</td></tr>'}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- Order Totals Card -->
+            <div style="display: flex; justify-content: flex-end;">
+              <table style="width: 320px; border-collapse: collapse; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+                <tbody>
+                  <tr style="background: #fff;"><td style="padding: 12px 16px; border-bottom: 1px solid #e5e7eb; color: #6b7280;">Subtotal</td><td style="padding: 12px 16px; border-bottom: 1px solid #e5e7eb; text-align: right; font-weight: 500; color: #1f2937;">${Admin.Utils.formatCurrency(order.subtotal || order.pricing?.subtotal || 0)}</td></tr>
+                  <tr style="background: #fafafa;"><td style="padding: 12px 16px; border-bottom: 1px solid #e5e7eb; color: #6b7280;">Tax</td><td style="padding: 12px 16px; border-bottom: 1px solid #e5e7eb; text-align: right; font-weight: 500; color: #1f2937;">${Admin.Utils.formatCurrency(order.tax || order.pricing?.tax || 0)}</td></tr>
+                  <tr style="background: #fff;"><td style="padding: 12px 16px; border-bottom: 1px solid #e5e7eb; color: #6b7280;">Shipping</td><td style="padding: 12px 16px; border-bottom: 1px solid #e5e7eb; text-align: right; font-weight: 500; color: #1f2937;">${Admin.Utils.formatCurrency(order.shipping || order.pricing?.shipping || 0)}</td></tr>
+                  <tr style="background: linear-gradient(135deg, #8E6545 0%, #A67C5B 100%);"><td style="padding: 14px 16px; color: white; font-weight: 700; font-size: 14px;">TOTAL</td><td style="padding: 14px 16px; text-align: right; color: white; font-weight: 700; font-size: 18px;">${Admin.Utils.formatCurrency(orderTotal)}</td></tr>
+                </tbody>
+              </table>
+            </div>
           `;
           Admin.Modal.show('order-modal');
         }

@@ -623,7 +623,27 @@
       <div class="modal-body" id="modal-body">
         <div class="loading"><div class="spinner"></div></div>
       </div>
-      <div class="modal-footer">
+      <div class="modal-footer" style="justify-content: space-between;">
+        <div style="display: flex; gap: 8px;">
+          <button class="btn-action" onclick="downloadOrderExcel()" style="background: #10b981; color: white; border-color: #10b981;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 4px; vertical-align: middle;">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+              <polyline points="7 10 12 15 17 10"></polyline>
+              <line x1="12" y1="15" x2="12" y2="3"></line>
+            </svg>
+            Excel
+          </button>
+          <button class="btn-action" onclick="downloadOrderPDF()" style="background: #ef4444; color: white; border-color: #ef4444;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 4px; vertical-align: middle;">
+              <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+              <polyline points="14 2 14 8 20 8"></polyline>
+              <line x1="16" y1="13" x2="8" y2="13"></line>
+              <line x1="16" y1="17" x2="8" y2="17"></line>
+              <polyline points="10 9 9 9 8 9"></polyline>
+            </svg>
+            PDF
+          </button>
+        </div>
         <button class="btn-action" onclick="closeModal()">Close</button>
       </div>
     </div>
@@ -648,6 +668,7 @@
     // Current filter
     let currentStatus = null;
     let orders = [];
+    let currentOrderDetail = null; // Store current order for download functions
 
     // API helper
     async function api(endpoint, options = {}) {
@@ -761,14 +782,38 @@
 
     // Open order detail modal
     async function openOrderDetail(orderId) {
+      console.log('openOrderDetail: Loading order', orderId);
       document.getElementById('order-modal').classList.add('show');
       document.getElementById('modal-body').innerHTML = '<div class="loading"><div class="spinner"></div></div>';
 
-      const result = await api(`/api/manufacturer/orders/${orderId}`);
-      if (result.success) {
-        const order = result.data;
-        document.getElementById('modal-order-number').textContent = order.orderNumber;
-        renderOrderDetail(order);
+      try {
+        const result = await api(`/api/manufacturer/orders/${orderId}`);
+        console.log('openOrderDetail: API response', result);
+
+        if (result.success) {
+          const order = result.data;
+          currentOrderDetail = order; // Store for download functions
+          document.getElementById('modal-order-number').textContent = order.orderNumber;
+          renderOrderDetail(order);
+        } else {
+          console.error('openOrderDetail: API returned error', result.error);
+          document.getElementById('modal-body').innerHTML = `
+            <div class="empty-state">
+              <p style="color: #ef4444; font-weight: 600;">Failed to load order details</p>
+              <p style="color: #6b7280; font-size: 14px;">${result.error || 'Unknown error'}</p>
+              <button class="btn-action" onclick="closeModal()" style="margin-top: 16px;">Close</button>
+            </div>
+          `;
+        }
+      } catch (error) {
+        console.error('openOrderDetail: Exception', error);
+        document.getElementById('modal-body').innerHTML = `
+          <div class="empty-state">
+            <p style="color: #ef4444; font-weight: 600;">Error loading order</p>
+            <p style="color: #6b7280; font-size: 14px;">${error.message}</p>
+            <button class="btn-action" onclick="closeModal()" style="margin-top: 16px;">Close</button>
+          </div>
+        `;
       }
     }
 
@@ -804,10 +849,10 @@
               </tr>
             </thead>
             <tbody>
-              <tr><td style="padding: 8px 10px; border: 1px solid #ddd; font-weight: 600; background: #f9fafb;">Name</td><td style="padding: 8px 10px; border: 1px solid #ddd;">${escapeHtml(order.customer?.name || 'N/A')}</td></tr>
-              <tr><td style="padding: 8px 10px; border: 1px solid #ddd; font-weight: 600; background: #f9fafb;">Email</td><td style="padding: 8px 10px; border: 1px solid #ddd;">${escapeHtml(order.customer?.email || 'N/A')}</td></tr>
-              <tr><td style="padding: 8px 10px; border: 1px solid #ddd; font-weight: 600; background: #f9fafb;">Phone</td><td style="padding: 8px 10px; border: 1px solid #ddd;">${escapeHtml(order.customer?.phone || 'N/A')}</td></tr>
-              <tr><td style="padding: 8px 10px; border: 1px solid #ddd; font-weight: 600; background: #f9fafb;">Shipping Address</td><td style="padding: 8px 10px; border: 1px solid #ddd;">${escapeHtml(order.customer?.address || 'N/A')}</td></tr>
+              <tr><td style="padding: 8px 10px; border: 1px solid #ddd; font-weight: 600; background: #f9fafb;">Name</td><td style="padding: 8px 10px; border: 1px solid #ddd;">${escapeHtml(order.customer?.name || order.customer_name || 'N/A')}</td></tr>
+              <tr><td style="padding: 8px 10px; border: 1px solid #ddd; font-weight: 600; background: #f9fafb;">Email</td><td style="padding: 8px 10px; border: 1px solid #ddd;">${escapeHtml(order.customer?.email || order.customer_email || 'N/A')}</td></tr>
+              <tr><td style="padding: 8px 10px; border: 1px solid #ddd; font-weight: 600; background: #f9fafb;">Phone</td><td style="padding: 8px 10px; border: 1px solid #ddd;">${escapeHtml(order.customer?.phone || order.customer_phone || 'N/A')}</td></tr>
+              <tr><td style="padding: 8px 10px; border: 1px solid #ddd; font-weight: 600; background: #f9fafb;">Shipping Address</td><td style="padding: 8px 10px; border: 1px solid #ddd;">${formatAddress(order.customer?.address || order.shipping_address)}</td></tr>
             </tbody>
           </table>
 
@@ -832,7 +877,7 @@
         <div class="order-detail-section">
           <h3>Items to Manufacture (${order.items.length} items, ${order.items.reduce((sum, i) => sum + i.quantity, 0)} total units)</h3>
           <div style="overflow-x: auto;">
-            <table style="width: 100%; border-collapse: collapse; background: white; border: 2px solid #1a1a2e; min-width: 1400px;">
+            <table style="width: 100%; border-collapse: collapse; background: white; border: 2px solid #1a1a2e; min-width: 1700px;">
               <thead>
                 <tr style="background: #1a1a2e; color: white;">
                   <th style="padding: 8px 5px; text-align: center; font-size: 10px; font-weight: 600; border: 1px solid #374151;">#</th>
@@ -845,11 +890,14 @@
                   <th style="padding: 8px 5px; text-align: left; font-size: 10px; font-weight: 600; border: 1px solid #374151;">BOTTOM BAR</th>
                   <th style="padding: 8px 5px; text-align: left; font-size: 10px; font-weight: 600; border: 1px solid #374151;">ROLL TYPE</th>
                   <th style="padding: 8px 5px; text-align: left; font-size: 10px; font-weight: 600; border: 1px solid #374151;">MOUNT</th>
+                  <th style="padding: 8px 5px; text-align: left; font-size: 10px; font-weight: 600; border: 1px solid #374151;">CHAIN SIDE</th>
                   <th style="padding: 8px 5px; text-align: left; font-size: 10px; font-weight: 600; border: 1px solid #374151;">CONTROL</th>
-                  <th style="padding: 8px 5px; text-align: left; font-size: 10px; font-weight: 600; border: 1px solid #374151;">MOTOR/CHAIN</th>
-                  <th style="padding: 8px 5px; text-align: left; font-size: 10px; font-weight: 600; border: 1px solid #374151;">SIDE</th>
+                  <th style="padding: 8px 5px; text-align: left; font-size: 10px; font-weight: 600; border: 1px solid #374151;">MOTOR BRAND</th>
+                  <th style="padding: 8px 5px; text-align: left; font-size: 10px; font-weight: 600; border: 1px solid #374151;">MOTOR TYPE</th>
                   <th style="padding: 8px 5px; text-align: left; font-size: 10px; font-weight: 600; border: 1px solid #374151;">REMOTE</th>
-                  <th style="padding: 8px 5px; text-align: left; font-size: 10px; font-weight: 600; border: 1px solid #374151;">SOLAR</th>
+                  <th style="padding: 8px 5px; text-align: center; font-size: 10px; font-weight: 600; border: 1px solid #374151;">SOLAR</th>
+                  <th style="padding: 8px 5px; text-align: center; font-size: 10px; font-weight: 600; border: 1px solid #374151;">SMART HUB</th>
+                  <th style="padding: 8px 5px; text-align: center; font-size: 10px; font-weight: 600; border: 1px solid #374151;">USB</th>
                   <th style="padding: 8px 5px; text-align: right; font-size: 10px; font-weight: 600; border: 1px solid #374151; background: #065f46;">UNIT COST</th>
                   <th style="padding: 8px 5px; text-align: right; font-size: 10px; font-weight: 600; border: 1px solid #374151; background: #065f46;">LINE COST</th>
                 </tr>
@@ -857,10 +905,29 @@
               <tbody>
                 ${order.items.map((item, idx) => {
                   const cfg = parseConfig(item.configuration || item.options);
-                  // For MOTOR/CHAIN column: show motorType if motorized, chainType if manual
-                  const motorChain = cfg.controlType === 'motorized' ? (cfg.motorType || '-') : (cfg.chainType || '-');
-                  // Get manufacturer cost from price_snapshots
-                  const mfrCost = item.price_snapshots?.manufacturer_price?.cost || 0;
+                  const pb = item.price_breakdown || {};
+
+                  // Calculate manufacturer cost from price_breakdown when price_snapshots unavailable
+                  const widthM = item.width * 0.0254;
+                  const heightM = item.height * 0.0254;
+                  const areaSqM = Math.max(widthM * heightM, 1.2);
+
+                  const baseFabricCost = (pb.dimensionAdjustedPrice || pb.basePrice || 40) * 0.5;
+                  const motorBrand = cfg.motorBrand || cfg.chainType || '';
+                  const motorMfrCosts = { 'motorized-app': 45, 'aok': 45, 'motorized-remote': 47, 'dooya': 47, 'plugin-motor': 55 };
+                  const motorCost = cfg.controlType === 'motorized' ? (motorMfrCosts[motorBrand] || 45) : 0;
+                  const remoteMfrCosts = { '1-channel': 4.40, '6-channel': 6.60, '15-channel': 11.35, '16-channel': 11.35 };
+                  const remoteCost = cfg.remoteType ? (remoteMfrCosts[cfg.remoteType] || 0) : 0;
+                  const solarCost = (cfg.solarType === 'yes' && cfg.controlType === 'motorized') ? 15 : 0;
+                  const smartHubCost = (parseInt(cfg.smartHubQty) || 0) * 23.50;
+                  const usbChargerCost = (parseInt(cfg.usbChargerQty) || 0) * 5;
+                  const fabricCassettes = ['fabric-wrapped-v3', 'fabric-inserted-s1', 'curve-white-s2', 'fabric-wrapped-s3'];
+                  const cassetteCost = fabricCassettes.includes(cfg.standardCassette) ? (2.20 * areaSqM * 0.5) : 0;
+                  const fabricBars = ['type-c-fabric-wrapped', 'type-b', 'simple-rolling', 'type-d'];
+                  const barCost = fabricBars.includes(cfg.standardBottomBar) ? (2.20 * areaSqM * 0.5) : 0;
+
+                  const calculatedMfrCost = baseFabricCost + motorCost + remoteCost + solarCost + smartHubCost + usbChargerCost + cassetteCost + barCost;
+                  const mfrCost = item.price_snapshots?.manufacturer_price?.cost || calculatedMfrCost;
                   const lineCost = mfrCost * item.quantity;
                   return `
                 <tr style="${idx % 2 === 0 ? 'background: #ffffff;' : 'background: #f9fafb;'}">
@@ -874,18 +941,42 @@
                   <td style="padding: 8px 5px; text-align: left; font-size: 10px; font-weight: 500; border: 1px solid #d1d5db;">${cfg.standardBottomBar || '-'}</td>
                   <td style="padding: 8px 5px; text-align: left; font-size: 10px; font-weight: 500; border: 1px solid #d1d5db;">${cfg.rollerType || '-'}</td>
                   <td style="padding: 8px 5px; text-align: left; font-size: 10px; font-weight: 500; border: 1px solid #d1d5db;">${cfg.mountType || '-'}</td>
-                  <td style="padding: 8px 5px; text-align: left; font-size: 10px; font-weight: 500; border: 1px solid #d1d5db;">${cfg.controlType || '-'}</td>
-                  <td style="padding: 8px 5px; text-align: left; font-size: 10px; font-weight: 500; border: 1px solid #d1d5db;">${motorChain}</td>
                   <td style="padding: 8px 5px; text-align: left; font-size: 10px; font-weight: 500; border: 1px solid #d1d5db;">${cfg.chainSide || '-'}</td>
+                  <td style="padding: 8px 5px; text-align: left; font-size: 10px; font-weight: 500; border: 1px solid #d1d5db;">${cfg.controlType || '-'}</td>
+                  <td style="padding: 8px 5px; text-align: left; font-size: 10px; font-weight: 500; border: 1px solid #d1d5db;">${cfg.motorBrand || cfg.chainType || '-'}</td>
+                  <td style="padding: 8px 5px; text-align: left; font-size: 10px; font-weight: 500; border: 1px solid #d1d5db;">${cfg.motorType || '-'}</td>
                   <td style="padding: 8px 5px; text-align: left; font-size: 10px; font-weight: 500; border: 1px solid #d1d5db;">${cfg.remoteType || '-'}</td>
-                  <td style="padding: 8px 5px; text-align: left; font-size: 10px; font-weight: 500; border: 1px solid #d1d5db;">${cfg.solarType || '-'}</td>
+                  <td style="padding: 8px 5px; text-align: center; font-size: 10px; font-weight: 500; border: 1px solid #d1d5db; ${cfg.solarType === 'yes' ? 'background: #d1fae5; color: #065f46; font-weight: 600;' : ''}">${cfg.solarType === 'yes' ? 'YES' : '-'}</td>
+                  <td style="padding: 8px 5px; text-align: center; font-size: 10px; font-weight: 500; border: 1px solid #d1d5db; ${(cfg.smartHubQty > 0 || cfg.smartHub === 'yes') ? 'background: #dbeafe; color: #1e40af; font-weight: 600;' : ''}">${cfg.smartHubQty > 0 ? cfg.smartHubQty : (cfg.smartHub === 'yes' ? 'YES' : '-')}</td>
+                  <td style="padding: 8px 5px; text-align: center; font-size: 10px; font-weight: 500; border: 1px solid #d1d5db; ${(cfg.usbChargerQty > 0 || cfg.usbCharger === 'yes') ? 'background: #fef3c7; color: #92400e; font-weight: 600;' : ''}">${cfg.usbChargerQty > 0 ? cfg.usbChargerQty : (cfg.usbCharger === 'yes' ? 'YES' : '-')}</td>
                   <td style="padding: 8px 5px; text-align: right; font-size: 11px; font-weight: 700; border: 1px solid #d1d5db; background: #d1fae5; color: #065f46;">$${mfrCost.toFixed(2)}</td>
                   <td style="padding: 8px 5px; text-align: right; font-size: 11px; font-weight: 700; border: 1px solid #d1d5db; background: #a7f3d0; color: #065f46;">$${lineCost.toFixed(2)}</td>
                 </tr>
                 `;}).join('')}
                 <tr style="background: #1a1a2e; color: white;">
-                  <td colspan="15" style="padding: 10px; text-align: right; font-size: 12px; font-weight: 700; border: 1px solid #374151;">TOTAL MANUFACTURER COST:</td>
-                  <td colspan="2" style="padding: 10px; text-align: right; font-size: 14px; font-weight: 700; border: 1px solid #374151; background: #065f46;">$${(order.pricing?.manufacturerCost || order.items.reduce((sum, i) => sum + ((i.price_snapshots?.manufacturer_price?.cost || 0) * i.quantity), 0)).toFixed(2)}</td>
+                  <td colspan="18" style="padding: 10px; text-align: right; font-size: 12px; font-weight: 700; border: 1px solid #374151;">TOTAL MANUFACTURER COST:</td>
+                  <td colspan="2" style="padding: 10px; text-align: right; font-size: 14px; font-weight: 700; border: 1px solid #374151; background: #065f46;">$${(order.pricing?.manufacturerCost || order.items.reduce((sum, i) => {
+                    const cfg = parseConfig(i.configuration || i.options);
+                    const pb = i.price_breakdown || {};
+                    const widthM = i.width * 0.0254;
+                    const heightM = i.height * 0.0254;
+                    const areaSqM = Math.max(widthM * heightM, 1.2);
+                    const baseFabricCost = (pb.dimensionAdjustedPrice || pb.basePrice || 40) * 0.5;
+                    const motorBrand = cfg.motorBrand || cfg.chainType || '';
+                    const motorMfrCosts = { 'motorized-app': 45, 'aok': 45, 'motorized-remote': 47, 'dooya': 47, 'plugin-motor': 55 };
+                    const motorCost = cfg.controlType === 'motorized' ? (motorMfrCosts[motorBrand] || 45) : 0;
+                    const remoteMfrCosts = { '1-channel': 4.40, '6-channel': 6.60, '15-channel': 11.35, '16-channel': 11.35 };
+                    const remoteCost = cfg.remoteType ? (remoteMfrCosts[cfg.remoteType] || 0) : 0;
+                    const solarCost = (cfg.solarType === 'yes' && cfg.controlType === 'motorized') ? 15 : 0;
+                    const smartHubCost = (parseInt(cfg.smartHubQty) || 0) * 23.50;
+                    const usbChargerCost = (parseInt(cfg.usbChargerQty) || 0) * 5;
+                    const fabricCassettes = ['fabric-wrapped-v3', 'fabric-inserted-s1', 'curve-white-s2', 'fabric-wrapped-s3'];
+                    const cassetteCost = fabricCassettes.includes(cfg.standardCassette) ? (2.20 * areaSqM * 0.5) : 0;
+                    const fabricBars = ['type-c-fabric-wrapped', 'type-b', 'simple-rolling', 'type-d'];
+                    const barCost = fabricBars.includes(cfg.standardBottomBar) ? (2.20 * areaSqM * 0.5) : 0;
+                    const itemMfrCost = i.price_snapshots?.manufacturer_price?.cost || (baseFabricCost + motorCost + remoteCost + solarCost + smartHubCost + usbChargerCost + cassetteCost + barCost);
+                    return sum + (itemMfrCost * i.quantity);
+                  }, 0)).toFixed(2)}</td>
                 </tr>
               </tbody>
             </table>
@@ -895,36 +986,59 @@
           <h4 style="margin-top: 24px; margin-bottom: 12px; color: #1a1a2e;">Detailed Price Breakdown by Item</h4>
           ${order.items.map((item, idx) => {
             const cfg = parseConfig(item.configuration || item.options);
-            const mfrCost = item.price_snapshots?.manufacturer_price?.cost || 0;
+            const pb = item.price_breakdown || {};
 
             // Calculate individual option costs based on configuration
             const widthM = item.width * 0.0254;
             const heightM = item.height * 0.0254;
             const areaSqM = Math.max(widthM * heightM, 1.2);
 
-            // Base blind cost (fabric + dimensions)
-            const baseCost = mfrCost * 0.6; // Approximate base fabric cost
+            // Base blind cost (fabric + dimensions) - 50% of customer price
+            const baseFabricCost = (pb.dimensionAdjustedPrice || pb.basePrice || 40) * 0.5;
 
-            // Motor costs
-            const motorPrices = { 'aok': 45, 'dooya': 47, 'matter': 85, 'collise': 160, 'somfy': 600, 'bliss': 540 };
-            const motorCost = cfg.controlType === 'motorized' ? (motorPrices[cfg.motorType] || 45) * 0.6 : 0;
+            // Motor costs - these ARE the manufacturer costs (not customer prices)
+            const motorBrand = cfg.motorBrand || cfg.chainType || '';
+            const motorMfrCosts = {
+              'motorized-app': 45, 'aok': 45,       // AOK motor = $45 mfr cost
+              'motorized-remote': 47, 'dooya': 47,  // Dooya motor = $47 mfr cost
+              'plugin-motor': 55,                    // Plugin motor = $55 mfr cost
+              'matter': 85, 'collise': 160, 'somfy': 600, 'bliss': 540
+            };
+            const motorCost = cfg.controlType === 'motorized' ? (motorMfrCosts[motorBrand] || 45) : 0;
 
-            // Remote costs
-            const remotePrices = { 'single-channel': 6, '5-channel': 6.60, '6-channel': 6.60, '15-channel': 11.35, '16-channel': 11.35 };
-            const remoteCost = cfg.remoteType ? (remotePrices[cfg.remoteType] || 0) * 0.5 : 0;
+            // Remote costs - these ARE the manufacturer costs
+            const remoteMfrCosts = { 'single-channel': 6, '1-channel': 4.40, '5-channel': 6.60, '6-channel': 6.60, '15-channel': 11.35, '16-channel': 11.35 };
+            const remoteCost = cfg.remoteType ? (remoteMfrCosts[cfg.remoteType] || 0) : 0;
+
+            // Solar panel cost - $15 is the manufacturer cost
+            const solarCost = (cfg.solarType === 'yes' && cfg.controlType === 'motorized') ? 15 : 0;
+
+            // Smart Hub ($23.50) and USB Charger ($5) - these ARE manufacturer costs
+            const smartHubQty = parseInt(cfg.smartHubQty) || 0;
+            const usbChargerQty = parseInt(cfg.usbChargerQty) || 0;
+            const smartHubCost = smartHubQty * 23.50;
+            const usbChargerCost = usbChargerQty * 5;
 
             // Cassette costs (per sqm)
             const fabricCassettes = ['fabric-wrapped-v3', 'fabric-inserted-s1', 'curve-white-s2', 'fabric-wrapped-s3'];
-            const cassetteCost = fabricCassettes.includes(cfg.standardCassette) ? (2.20 * areaSqM * 0.5) : 0;
+            const cassetteCustomerPrice = fabricCassettes.includes(cfg.standardCassette) ? (2.20 * areaSqM) : 0;
+            const cassetteCost = cassetteCustomerPrice * 0.5;
 
             // Bottom bar costs (per sqm)
             const fabricBars = ['type-c-fabric-wrapped', 'type-b', 'simple-rolling', 'type-d'];
-            const barCost = fabricBars.includes(cfg.standardBottomBar) ? (2.20 * areaSqM * 0.5) : 0;
+            const barCustomerPrice = fabricBars.includes(cfg.standardBottomBar) ? (2.20 * areaSqM) : 0;
+            const barCost = barCustomerPrice * 0.5;
 
-            return \`
+            // Calculate total manufacturer cost
+            const totalMfrCost = baseFabricCost + motorCost + remoteCost + solarCost + smartHubCost + usbChargerCost + cassetteCost + barCost;
+
+            // Use price_snapshots if available, otherwise use calculated
+            const mfrCost = item.price_snapshots?.manufacturer_price?.cost || totalMfrCost;
+
+            return `
           <div style="margin-bottom: 16px; background: white; border: 2px solid #1a1a2e; border-radius: 8px; overflow: hidden;">
             <div style="background: #1a1a2e; color: white; padding: 10px 16px; font-weight: 600;">
-              Item \${idx + 1}: \${escapeHtml(item.room_label || item.roomLabel || 'Blind')} - \${item.width}" x \${item.height}" (Qty: \${item.quantity})
+              Item ${idx + 1}: ${escapeHtml(item.room_label || item.roomLabel || 'Blind')} - ${item.width}" x ${item.height}" (Qty: ${item.quantity})
             </div>
             <table style="width: 100%; border-collapse: collapse;">
               <thead>
@@ -935,33 +1049,36 @@
                 </tr>
               </thead>
               <tbody>
-                <tr><td style="padding: 6px 12px; font-size: 11px; border-bottom: 1px solid #eee;">Base Blind (Fabric + Size)</td><td style="padding: 6px 12px; font-size: 11px; border-bottom: 1px solid #eee;">\${cfg.fabricCode || '-'} (\${(areaSqM).toFixed(2)} m²)</td><td style="padding: 6px 12px; font-size: 11px; text-align: right; border-bottom: 1px solid #eee; font-weight: 600;">$\${baseCost.toFixed(2)}</td></tr>
-                <tr><td style="padding: 6px 12px; font-size: 11px; border-bottom: 1px solid #eee;">Light Filtering</td><td style="padding: 6px 12px; font-size: 11px; border-bottom: 1px solid #eee;">\${cfg.lightFiltering || '-'}</td><td style="padding: 6px 12px; font-size: 11px; text-align: right; border-bottom: 1px solid #eee;">$0.00</td></tr>
-                <tr><td style="padding: 6px 12px; font-size: 11px; border-bottom: 1px solid #eee;">Cassette Type</td><td style="padding: 6px 12px; font-size: 11px; border-bottom: 1px solid #eee;">\${cfg.standardCassette || '-'}</td><td style="padding: 6px 12px; font-size: 11px; text-align: right; border-bottom: 1px solid #eee; \${cassetteCost > 0 ? 'font-weight: 600;' : ''}">$\${cassetteCost.toFixed(2)}</td></tr>
-                <tr><td style="padding: 6px 12px; font-size: 11px; border-bottom: 1px solid #eee;">Bottom Bar</td><td style="padding: 6px 12px; font-size: 11px; border-bottom: 1px solid #eee;">\${cfg.standardBottomBar || '-'}</td><td style="padding: 6px 12px; font-size: 11px; text-align: right; border-bottom: 1px solid #eee; \${barCost > 0 ? 'font-weight: 600;' : ''}">$\${barCost.toFixed(2)}</td></tr>
-                <tr><td style="padding: 6px 12px; font-size: 11px; border-bottom: 1px solid #eee;">Roll Type</td><td style="padding: 6px 12px; font-size: 11px; border-bottom: 1px solid #eee;">\${cfg.rollerType || '-'}</td><td style="padding: 6px 12px; font-size: 11px; text-align: right; border-bottom: 1px solid #eee;">$0.00</td></tr>
-                <tr><td style="padding: 6px 12px; font-size: 11px; border-bottom: 1px solid #eee;">Mount Type</td><td style="padding: 6px 12px; font-size: 11px; border-bottom: 1px solid #eee;">\${cfg.mountType || '-'}</td><td style="padding: 6px 12px; font-size: 11px; text-align: right; border-bottom: 1px solid #eee;">$0.00</td></tr>
-                <tr><td style="padding: 6px 12px; font-size: 11px; border-bottom: 1px solid #eee;">Control Type</td><td style="padding: 6px 12px; font-size: 11px; border-bottom: 1px solid #eee;">\${cfg.controlType || '-'}</td><td style="padding: 6px 12px; font-size: 11px; text-align: right; border-bottom: 1px solid #eee;">$0.00</td></tr>
-                \${cfg.controlType === 'motorized' ? \`
-                <tr style="background: #fef3c7;"><td style="padding: 6px 12px; font-size: 11px; border-bottom: 1px solid #eee; font-weight: 600;">Motor Brand</td><td style="padding: 6px 12px; font-size: 11px; border-bottom: 1px solid #eee; font-weight: 600;">\${(cfg.motorType || 'aok').toUpperCase()}</td><td style="padding: 6px 12px; font-size: 11px; text-align: right; border-bottom: 1px solid #eee; font-weight: 700; color: #92400e;">$\${motorCost.toFixed(2)}</td></tr>
-                <tr style="background: #fef3c7;"><td style="padding: 6px 12px; font-size: 11px; border-bottom: 1px solid #eee;">Remote Type</td><td style="padding: 6px 12px; font-size: 11px; border-bottom: 1px solid #eee;">\${cfg.remoteType || '-'}</td><td style="padding: 6px 12px; font-size: 11px; text-align: right; border-bottom: 1px solid #eee; \${remoteCost > 0 ? 'font-weight: 600; color: #92400e;' : ''}">$\${remoteCost.toFixed(2)}</td></tr>
-                <tr style="background: #fef3c7;"><td style="padding: 6px 12px; font-size: 11px; border-bottom: 1px solid #eee;">Solar Panel</td><td style="padding: 6px 12px; font-size: 11px; border-bottom: 1px solid #eee;">\${cfg.solarType || '-'}</td><td style="padding: 6px 12px; font-size: 11px; text-align: right; border-bottom: 1px solid #eee;">$0.00</td></tr>
-                \` : \`
-                <tr><td style="padding: 6px 12px; font-size: 11px; border-bottom: 1px solid #eee;">Chain Type</td><td style="padding: 6px 12px; font-size: 11px; border-bottom: 1px solid #eee;">\${cfg.chainType || '-'}</td><td style="padding: 6px 12px; font-size: 11px; text-align: right; border-bottom: 1px solid #eee;">$0.00</td></tr>
-                <tr><td style="padding: 6px 12px; font-size: 11px; border-bottom: 1px solid #eee;">Chain Side</td><td style="padding: 6px 12px; font-size: 11px; border-bottom: 1px solid #eee;">\${cfg.chainSide || '-'}</td><td style="padding: 6px 12px; font-size: 11px; text-align: right; border-bottom: 1px solid #eee;">$0.00</td></tr>
-                \`}
+                <tr><td style="padding: 6px 12px; font-size: 11px; border-bottom: 1px solid #eee;">Base Blind (Fabric + Size)</td><td style="padding: 6px 12px; font-size: 11px; border-bottom: 1px solid #eee;">${cfg.fabricCode || '-'} (${(areaSqM).toFixed(2)} m²)</td><td style="padding: 6px 12px; font-size: 11px; text-align: right; border-bottom: 1px solid #eee; font-weight: 600;">$${baseFabricCost.toFixed(2)}</td></tr>
+                <tr><td style="padding: 6px 12px; font-size: 11px; border-bottom: 1px solid #eee;">Light Filtering</td><td style="padding: 6px 12px; font-size: 11px; border-bottom: 1px solid #eee;">${cfg.lightFiltering || '-'}</td><td style="padding: 6px 12px; font-size: 11px; text-align: right; border-bottom: 1px solid #eee;">$0.00</td></tr>
+                <tr><td style="padding: 6px 12px; font-size: 11px; border-bottom: 1px solid #eee;">Cassette Type</td><td style="padding: 6px 12px; font-size: 11px; border-bottom: 1px solid #eee;">${cfg.standardCassette || '-'}</td><td style="padding: 6px 12px; font-size: 11px; text-align: right; border-bottom: 1px solid #eee; ${cassetteCost > 0 ? 'font-weight: 600;' : ''}">$${cassetteCost.toFixed(2)}</td></tr>
+                <tr><td style="padding: 6px 12px; font-size: 11px; border-bottom: 1px solid #eee;">Bottom Bar</td><td style="padding: 6px 12px; font-size: 11px; border-bottom: 1px solid #eee;">${cfg.standardBottomBar || '-'}</td><td style="padding: 6px 12px; font-size: 11px; text-align: right; border-bottom: 1px solid #eee; ${barCost > 0 ? 'font-weight: 600;' : ''}">$${barCost.toFixed(2)}</td></tr>
+                <tr><td style="padding: 6px 12px; font-size: 11px; border-bottom: 1px solid #eee;">Roll Type</td><td style="padding: 6px 12px; font-size: 11px; border-bottom: 1px solid #eee;">${cfg.rollerType || '-'}</td><td style="padding: 6px 12px; font-size: 11px; text-align: right; border-bottom: 1px solid #eee;">$0.00</td></tr>
+                <tr><td style="padding: 6px 12px; font-size: 11px; border-bottom: 1px solid #eee;">Mount Type</td><td style="padding: 6px 12px; font-size: 11px; border-bottom: 1px solid #eee;">${cfg.mountType || '-'}</td><td style="padding: 6px 12px; font-size: 11px; text-align: right; border-bottom: 1px solid #eee;">$0.00</td></tr>
+                <tr><td style="padding: 6px 12px; font-size: 11px; border-bottom: 1px solid #eee;">Control Type</td><td style="padding: 6px 12px; font-size: 11px; border-bottom: 1px solid #eee;">${cfg.controlType || '-'}</td><td style="padding: 6px 12px; font-size: 11px; text-align: right; border-bottom: 1px solid #eee;">$0.00</td></tr>
+                ${cfg.controlType === 'motorized' ? `
+                <tr style="background: #fef3c7;"><td style="padding: 6px 12px; font-size: 11px; border-bottom: 1px solid #eee; font-weight: 600;">Motor Brand</td><td style="padding: 6px 12px; font-size: 11px; border-bottom: 1px solid #eee; font-weight: 600;">${(motorBrand || 'AOK').replace('motorized-', '').toUpperCase()}</td><td style="padding: 6px 12px; font-size: 11px; text-align: right; border-bottom: 1px solid #eee; font-weight: 700; color: #92400e;">$${motorCost.toFixed(2)}</td></tr>
+                <tr style="background: #fef3c7;"><td style="padding: 6px 12px; font-size: 11px; border-bottom: 1px solid #eee;">Motor Type</td><td style="padding: 6px 12px; font-size: 11px; border-bottom: 1px solid #eee;">${cfg.motorType || '-'}</td><td style="padding: 6px 12px; font-size: 11px; text-align: right; border-bottom: 1px solid #eee;">$0.00</td></tr>
+                <tr style="background: #fef3c7;"><td style="padding: 6px 12px; font-size: 11px; border-bottom: 1px solid #eee;">Remote Type</td><td style="padding: 6px 12px; font-size: 11px; border-bottom: 1px solid #eee;">${cfg.remoteType || '-'}</td><td style="padding: 6px 12px; font-size: 11px; text-align: right; border-bottom: 1px solid #eee; ${remoteCost > 0 ? 'font-weight: 600; color: #92400e;' : ''}">$${remoteCost.toFixed(2)}</td></tr>
+                <tr style="background: #fef3c7;"><td style="padding: 6px 12px; font-size: 11px; border-bottom: 1px solid #eee;">Solar Panel</td><td style="padding: 6px 12px; font-size: 11px; border-bottom: 1px solid #eee;">${cfg.solarType === 'yes' ? 'YES' : '-'}</td><td style="padding: 6px 12px; font-size: 11px; text-align: right; border-bottom: 1px solid #eee; ${solarCost > 0 ? 'font-weight: 600; color: #92400e;' : ''}">$${solarCost.toFixed(2)}</td></tr>
+                ` : `
+                <tr><td style="padding: 6px 12px; font-size: 11px; border-bottom: 1px solid #eee;">Chain Type</td><td style="padding: 6px 12px; font-size: 11px; border-bottom: 1px solid #eee;">${cfg.chainType || '-'}</td><td style="padding: 6px 12px; font-size: 11px; text-align: right; border-bottom: 1px solid #eee;">$0.00</td></tr>
+                <tr><td style="padding: 6px 12px; font-size: 11px; border-bottom: 1px solid #eee;">Chain Side</td><td style="padding: 6px 12px; font-size: 11px; border-bottom: 1px solid #eee;">${cfg.chainSide || '-'}</td><td style="padding: 6px 12px; font-size: 11px; text-align: right; border-bottom: 1px solid #eee;">$0.00</td></tr>
+                `}
+                ${smartHubQty > 0 ? `<tr style="background: #dbeafe;"><td style="padding: 6px 12px; font-size: 11px; border-bottom: 1px solid #eee; font-weight: 600;">Smart Hub</td><td style="padding: 6px 12px; font-size: 11px; border-bottom: 1px solid #eee; font-weight: 600;">x${smartHubQty}</td><td style="padding: 6px 12px; font-size: 11px; text-align: right; border-bottom: 1px solid #eee; font-weight: 700; color: #1e40af;">$${smartHubCost.toFixed(2)}</td></tr>` : ''}
+                ${usbChargerQty > 0 ? `<tr style="background: #fef3c7;"><td style="padding: 6px 12px; font-size: 11px; border-bottom: 1px solid #eee; font-weight: 600;">USB Charger</td><td style="padding: 6px 12px; font-size: 11px; border-bottom: 1px solid #eee; font-weight: 600;">x${usbChargerQty}</td><td style="padding: 6px 12px; font-size: 11px; text-align: right; border-bottom: 1px solid #eee; font-weight: 700; color: #92400e;">$${usbChargerCost.toFixed(2)}</td></tr>` : ''}
                 <tr style="background: #d1fae5;">
                   <td colspan="2" style="padding: 10px 12px; font-size: 12px; font-weight: 700; text-align: right;">UNIT COST:</td>
-                  <td style="padding: 10px 12px; font-size: 13px; font-weight: 700; text-align: right; color: #065f46;">$\${mfrCost.toFixed(2)}</td>
+                  <td style="padding: 10px 12px; font-size: 13px; font-weight: 700; text-align: right; color: #065f46;">$${mfrCost.toFixed(2)}</td>
                 </tr>
                 <tr style="background: #065f46; color: white;">
-                  <td colspan="2" style="padding: 10px 12px; font-size: 12px; font-weight: 700; text-align: right;">LINE COST (x\${item.quantity}):</td>
-                  <td style="padding: 10px 12px; font-size: 14px; font-weight: 700; text-align: right;">$\${(mfrCost * item.quantity).toFixed(2)}</td>
+                  <td colspan="2" style="padding: 10px 12px; font-size: 12px; font-weight: 700; text-align: right;">LINE COST (x${item.quantity}):</td>
+                  <td style="padding: 10px 12px; font-size: 14px; font-weight: 700; text-align: right;">$${(mfrCost * item.quantity).toFixed(2)}</td>
                 </tr>
               </tbody>
             </table>
           </div>
-          \`;
+          `;
           }).join('')}
 
           ${order.accessories && order.accessories.length > 0 ? `
@@ -1000,7 +1117,11 @@
               <h4>Shipping Information</h4>
               <div class="tracking-grid">
                 <div class="form-group">
-                  <label>Carrier</label>
+                  <label>Shipping Cost ($) <span style="color: #ef4444;">*</span></label>
+                  <input type="number" id="shipping-cost" placeholder="0.00" step="0.01" min="0" value="${order.shipping || order.pricing?.shipping || ''}" style="font-weight: 600;">
+                </div>
+                <div class="form-group">
+                  <label>Carrier <span style="color: #ef4444;">*</span></label>
                   <select id="tracking-carrier">
                     <option value="UPS">UPS</option>
                     <option value="FedEx">FedEx</option>
@@ -1011,7 +1132,7 @@
                   </select>
                 </div>
                 <div class="form-group">
-                  <label>Tracking Number</label>
+                  <label>Tracking Number <span style="color: #ef4444;">*</span></label>
                   <input type="text" id="tracking-number" placeholder="Enter tracking number">
                 </div>
                 <div class="form-group">
@@ -1019,6 +1140,7 @@
                   <input type="date" id="tracking-eta">
                 </div>
               </div>
+              <p style="margin-top: 12px; font-size: 12px; color: #6b7280;"><span style="color: #ef4444;">*</span> Required fields. Shipping cost will be added to the customer invoice.</p>
             </div>
           ` : ''}
         </div>
@@ -1026,9 +1148,9 @@
         <div class="order-detail-section">
           <h3>Status History</h3>
           <div class="status-timeline">
-            ${(order.statusHistory || []).map((h, i) => `
+            ${(order.statusHistory || []).map((h, i, arr) => `
               <div class="timeline-item">
-                <div class="timeline-dot ${i === order.statusHistory.length - 1 ? 'current' : 'completed'}"></div>
+                <div class="timeline-dot ${i === arr.length - 1 ? 'current' : 'completed'}"></div>
                 <div class="timeline-content">
                   <div class="timeline-status">${formatStatus(h.toStatus)}</div>
                   <div class="timeline-date">${formatDateTime(h.changedAt)} - ${h.reason || ''}</div>
@@ -1083,9 +1205,15 @@
 
     // Ship order with tracking
     async function shipOrder() {
+      const shippingCost = document.getElementById('shipping-cost').value;
       const carrier = document.getElementById('tracking-carrier').value;
       const trackingNumber = document.getElementById('tracking-number').value;
       const eta = document.getElementById('tracking-eta').value;
+
+      if (!shippingCost || parseFloat(shippingCost) < 0) {
+        showToast('Please enter a valid shipping cost', 'error');
+        return;
+      }
 
       if (!trackingNumber) {
         showToast('Please enter a tracking number', 'error');
@@ -1097,7 +1225,20 @@
 
       if (!order) return;
 
-      // Add tracking info first
+      // Update shipping cost first
+      const shippingResult = await api(`/api/manufacturer/orders/${order.id}/shipping`, {
+        method: 'POST',
+        body: JSON.stringify({
+          shippingCost: parseFloat(shippingCost)
+        })
+      });
+
+      if (!shippingResult.success) {
+        showToast(shippingResult.error || 'Failed to update shipping cost', 'error');
+        return;
+      }
+
+      // Add tracking info
       const trackResult = await api(`/api/manufacturer/orders/${order.id}/tracking`, {
         method: 'POST',
         body: JSON.stringify({
@@ -1109,7 +1250,7 @@
 
       if (trackResult.success) {
         // Then update status to shipped
-        await updateStatus('shipped', 'Shipped with tracking: ' + trackingNumber);
+        await updateStatus('shipped', 'Shipped with tracking: ' + trackingNumber + ', Shipping cost: $' + parseFloat(shippingCost).toFixed(2));
       } else {
         showToast(trackResult.error || 'Failed to add tracking', 'error');
       }
@@ -1329,11 +1470,215 @@
       }
     }
 
+    // Format address object to string
+    function formatAddress(addr) {
+      if (!addr) return 'N/A';
+      if (typeof addr === 'string') return escapeHtml(addr);
+      // Handle address object
+      const parts = [];
+      if (addr.street) parts.push(addr.street);
+      if (addr.city) parts.push(addr.city);
+      if (addr.state) parts.push(addr.state);
+      if (addr.zip) parts.push(addr.zip);
+      if (addr.country && addr.country !== 'US') parts.push(addr.country);
+      return parts.length > 0 ? escapeHtml(parts.join(', ')) : 'N/A';
+    }
+
     function escapeHtml(str) {
       if (!str) return '';
+      if (typeof str !== 'string') str = String(str);
       return str.replace(/[&<>"']/g, c => ({
         '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
       })[c]);
+    }
+
+    // Download order as Excel (CSV format)
+    function downloadOrderExcel() {
+      if (!currentOrderDetail) {
+        showToast('No order loaded', 'error');
+        return;
+      }
+      const order = currentOrderDetail;
+
+      // Build CSV content
+      let csv = 'MANUFACTURING ORDER SHEET\n';
+      csv += `Order Number,${order.orderNumber}\n`;
+      csv += `Order Date,${formatDate(order.createdAt)}\n`;
+      csv += `Status,${formatStatus(order.status)}\n`;
+      csv += `Customer Name,${order.customer?.name || 'N/A'}\n`;
+      csv += `Customer Email,${order.customer?.email || 'N/A'}\n`;
+      csv += `Customer Phone,${order.customer?.phone || 'N/A'}\n`;
+      csv += `Shipping Address,"${formatAddress(order.customer?.address || order.shipping_address)}"\n`;
+      csv += '\n';
+      csv += 'ITEMS TO MANUFACTURE\n';
+      csv += '#,Room,Qty,Width,Height,Fabric,Light Filter,Cassette,Bottom Bar,Roll Type,Mount,Chain Side,Control,Motor Brand,Motor Type,Remote,Solar,Smart Hub,USB,Unit Cost,Line Cost\n';
+
+      order.items.forEach((item, idx) => {
+        const cfg = parseConfig(item.configuration || item.options);
+        const mfrCost = item.price_snapshots?.manufacturer_price?.cost || 0;
+        const lineCost = mfrCost * item.quantity;
+
+        csv += `${idx + 1},`;
+        csv += `"${item.room_label || item.roomLabel || '-'}",`;
+        csv += `${item.quantity},`;
+        csv += `${item.width},`;
+        csv += `${item.height},`;
+        csv += `${cfg.fabricCode || '-'},`;
+        csv += `${cfg.lightFiltering || '-'},`;
+        csv += `${cfg.standardCassette || '-'},`;
+        csv += `${cfg.standardBottomBar || '-'},`;
+        csv += `${cfg.rollerType || '-'},`;
+        csv += `${cfg.mountType || '-'},`;
+        csv += `${cfg.chainSide || '-'},`;
+        csv += `${cfg.controlType || '-'},`;
+        csv += `${cfg.motorBrand || cfg.chainType || '-'},`;
+        csv += `${cfg.motorType || '-'},`;
+        csv += `${cfg.remoteType || '-'},`;
+        csv += `${cfg.solarType === 'yes' ? 'YES' : '-'},`;
+        csv += `${cfg.smartHubQty > 0 ? cfg.smartHubQty : '-'},`;
+        csv += `${cfg.usbChargerQty > 0 ? cfg.usbChargerQty : '-'},`;
+        csv += `$${mfrCost.toFixed(2)},`;
+        csv += `$${lineCost.toFixed(2)}\n`;
+      });
+
+      const totalMfrCost = order.items.reduce((sum, i) =>
+        sum + ((i.price_snapshots?.manufacturer_price?.cost || 0) * i.quantity), 0);
+      csv += `\n,,,,,,,,,,,,,,,,,,TOTAL:,$${totalMfrCost.toFixed(2)}\n`;
+
+      // Download
+      const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = `Order_${order.orderNumber}_${new Date().toISOString().slice(0, 10)}.csv`;
+      link.click();
+      showToast('Excel (CSV) downloaded', 'success');
+    }
+
+    // Download order as PDF
+    function downloadOrderPDF() {
+      if (!currentOrderDetail) {
+        showToast('No order loaded', 'error');
+        return;
+      }
+      const order = currentOrderDetail;
+
+      // Create printable HTML content
+      const printContent = `
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <title>Order ${order.orderNumber}</title>
+          <style>
+            body { font-family: Arial, sans-serif; font-size: 12px; margin: 20px; }
+            h1 { color: #1a1a2e; font-size: 18px; margin-bottom: 5px; }
+            h2 { color: #1a1a2e; font-size: 14px; margin: 15px 0 8px 0; border-bottom: 1px solid #ddd; padding-bottom: 4px; }
+            .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+            .order-info { margin-bottom: 15px; }
+            .info-row { margin: 3px 0; }
+            .label { font-weight: bold; color: #666; display: inline-block; width: 120px; }
+            table { width: 100%; border-collapse: collapse; margin: 10px 0; font-size: 10px; }
+            th { background: #1a1a2e; color: white; padding: 6px 4px; text-align: left; font-weight: 600; }
+            td { padding: 5px 4px; border-bottom: 1px solid #ddd; }
+            tr:nth-child(even) { background: #f9f9f9; }
+            .total-row { background: #1a1a2e !important; color: white; font-weight: bold; }
+            .text-right { text-align: right; }
+            .cost { color: #065f46; font-weight: 600; }
+            @media print { body { margin: 0; } }
+          </style>
+        </head>
+        <body>
+          <div class="header">
+            <div>
+              <h1>MANUFACTURING ORDER SHEET</h1>
+              <p style="color: #666;">Peekaboo Shades</p>
+            </div>
+            <div style="text-align: right;">
+              <strong style="font-size: 16px; color: #3b82f6;">${order.orderNumber}</strong><br>
+              <span style="color: #666;">${formatDate(order.createdAt)}</span>
+            </div>
+          </div>
+
+          <h2>Order Information</h2>
+          <div class="order-info">
+            <div class="info-row"><span class="label">Status:</span> ${formatStatus(order.status)}</div>
+            <div class="info-row"><span class="label">Customer:</span> ${order.customer?.name || 'N/A'}</div>
+            <div class="info-row"><span class="label">Email:</span> ${order.customer?.email || 'N/A'}</div>
+            <div class="info-row"><span class="label">Phone:</span> ${order.customer?.phone || 'N/A'}</div>
+            <div class="info-row"><span class="label">Ship To:</span> ${formatAddress(order.customer?.address)}</div>
+          </div>
+
+          <h2>Items to Manufacture (${order.items.length} items, ${order.items.reduce((s, i) => s + i.quantity, 0)} units)</h2>
+          <table>
+            <thead>
+              <tr>
+                <th>#</th>
+                <th>Room</th>
+                <th>Qty</th>
+                <th>W x H</th>
+                <th>Fabric</th>
+                <th>Light</th>
+                <th>Cassette</th>
+                <th>Bottom Bar</th>
+                <th>Roll</th>
+                <th>Mount</th>
+                <th>Control</th>
+                <th>Motor</th>
+                <th>Remote</th>
+                <th>Solar</th>
+                <th>Unit Cost</th>
+                <th>Line Cost</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${order.items.map((item, idx) => {
+                const cfg = parseConfig(item.configuration || item.options);
+                const mfrCost = item.price_snapshots?.manufacturer_price?.cost || 0;
+                const lineCost = mfrCost * item.quantity;
+                return `
+                  <tr>
+                    <td>${idx + 1}</td>
+                    <td>${item.room_label || item.roomLabel || '-'}</td>
+                    <td><strong>${item.quantity}</strong></td>
+                    <td>${item.width}" x ${item.height}"</td>
+                    <td><strong>${cfg.fabricCode || '-'}</strong></td>
+                    <td>${cfg.lightFiltering || '-'}</td>
+                    <td>${cfg.standardCassette || '-'}</td>
+                    <td>${cfg.standardBottomBar || '-'}</td>
+                    <td>${cfg.rollerType || '-'}</td>
+                    <td>${cfg.mountType || '-'}</td>
+                    <td>${cfg.controlType || '-'}</td>
+                    <td>${cfg.motorBrand || '-'}</td>
+                    <td>${cfg.remoteType || '-'}</td>
+                    <td>${cfg.solarType === 'yes' ? 'YES' : '-'}</td>
+                    <td class="cost text-right">$${mfrCost.toFixed(2)}</td>
+                    <td class="cost text-right">$${lineCost.toFixed(2)}</td>
+                  </tr>
+                `;
+              }).join('')}
+              <tr class="total-row">
+                <td colspan="14" class="text-right">TOTAL MANUFACTURER COST:</td>
+                <td colspan="2" class="text-right">$${order.items.reduce((sum, i) =>
+                  sum + ((i.price_snapshots?.manufacturer_price?.cost || 0) * i.quantity), 0).toFixed(2)}</td>
+              </tr>
+            </tbody>
+          </table>
+
+          <p style="margin-top: 30px; color: #666; font-size: 10px;">
+            Generated on ${new Date().toLocaleString()} | Peekaboo Shades Manufacturing Portal
+          </p>
+        </body>
+        </html>
+      `;
+
+      // Open print dialog (which can save as PDF)
+      const printWindow = window.open('', '_blank');
+      printWindow.document.write(printContent);
+      printWindow.document.close();
+      printWindow.focus();
+      setTimeout(() => {
+        printWindow.print();
+      }, 250);
+      showToast('PDF ready - use Print dialog to save', 'success');
     }
 
     // Init

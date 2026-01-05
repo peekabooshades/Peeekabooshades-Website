@@ -93,15 +93,45 @@ function createInvoiceFromOrder(orderId, type = 'customer', options = {}) {
       billingAddress: order.billing_address || order.customer?.address || '',
       shippingAddress: order.shipping_address || order.customer?.address || '',
 
-      // Line items
-      items: order.items.map(item => ({
-        id: item.id,
-        description: item.product_name,
-        details: `${item.width}" W x ${item.height}" H`,
-        quantity: item.quantity,
-        unitPrice: item.unit_price,
-        lineTotal: item.line_total || (item.unit_price * item.quantity)
-      })),
+      // Line items - include full configuration details
+      items: order.items.map(item => {
+        // Parse configuration if it's a string
+        let cfg = {};
+        if (item.configuration) {
+          try {
+            cfg = typeof item.configuration === 'string' ? JSON.parse(item.configuration) : item.configuration;
+          } catch (e) {
+            cfg = {};
+          }
+        }
+
+        return {
+          id: item.id,
+          description: item.product_name,
+          details: `${item.width}" W x ${item.height}" H`,
+          roomLabel: item.room_label || '',
+          width: item.width,
+          height: item.height,
+          quantity: item.quantity,
+          unitPrice: item.unit_price,
+          lineTotal: item.line_total || (item.unit_price * item.quantity),
+          // Configuration columns
+          fabricCode: cfg.fabricCode || '',
+          fabricColor: cfg.fabricColor || '',
+          lightFiltering: cfg.lightFiltering || '',
+          standardCassette: cfg.standardCassette || '',
+          standardBottomBar: cfg.standardBottomBar || '',
+          rollerType: cfg.rollerType || '',
+          mountType: cfg.mountType || '',
+          controlType: cfg.controlType || '',
+          motorType: cfg.motorType || '',
+          remoteType: cfg.remoteType || '',
+          solarType: cfg.solarType || '',
+          chainType: cfg.chainType || '',
+          chainSide: cfg.chainSide || '',
+          configuration: item.configuration || '{}'
+        };
+      }),
 
       // Totals
       subtotal: order.pricing?.subtotal || 0,
@@ -151,16 +181,45 @@ function createInvoiceFromOrder(orderId, type = 'customer', options = {}) {
         email: options.manufacturerEmail || ''
       },
 
-      // Line items with manufacturer costs
+      // Line items with manufacturer costs - include full configuration
       items: order.items.map(item => {
         const mfrCost = item.price_snapshots?.manufacturer_price?.cost || (item.unit_price * 0.6);
+
+        // Parse configuration if it's a string
+        let cfg = {};
+        if (item.configuration) {
+          try {
+            cfg = typeof item.configuration === 'string' ? JSON.parse(item.configuration) : item.configuration;
+          } catch (e) {
+            cfg = {};
+          }
+        }
+
         return {
           id: item.id,
           description: item.product_name,
-          details: `${item.width}" W x ${item.height}" H - Fabric: ${item.price_breakdown?.fabricCode || 'N/A'}`,
+          details: `${item.width}" W x ${item.height}" H - Fabric: ${cfg.fabricCode || 'N/A'}`,
+          roomLabel: item.room_label || '',
+          width: item.width,
+          height: item.height,
           quantity: item.quantity,
           unitPrice: mfrCost,
-          lineTotal: mfrCost * item.quantity
+          lineTotal: mfrCost * item.quantity,
+          // Configuration columns
+          fabricCode: cfg.fabricCode || '',
+          fabricColor: cfg.fabricColor || '',
+          lightFiltering: cfg.lightFiltering || '',
+          standardCassette: cfg.standardCassette || '',
+          standardBottomBar: cfg.standardBottomBar || '',
+          rollerType: cfg.rollerType || '',
+          mountType: cfg.mountType || '',
+          controlType: cfg.controlType || '',
+          motorType: cfg.motorType || '',
+          remoteType: cfg.remoteType || '',
+          solarType: cfg.solarType || '',
+          chainType: cfg.chainType || '',
+          chainSide: cfg.chainSide || '',
+          configuration: item.configuration || '{}'
         };
       }),
 

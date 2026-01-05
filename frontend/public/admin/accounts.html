@@ -491,14 +491,8 @@
       document.getElementById('stat-balance').textContent = Admin.Utils.formatCurrency(balance);
       document.getElementById('stat-balance').className = 'value ' + (balance >= 0 ? 'positive' : 'negative');
 
-      // Update profit summary
-      const revenue = payments - tax;
-      const costs = payable;
-      const profit = revenue - costs;
-
-      document.getElementById('total-revenue').textContent = Admin.Utils.formatCurrency(revenue);
-      document.getElementById('total-costs').textContent = Admin.Utils.formatCurrency(costs);
-      document.getElementById('gross-profit').textContent = Admin.Utils.formatCurrency(profit);
+      // Note: Profit summary (Total Revenue, Total Costs, Gross Profit) is updated by
+      // loadOrderProfits() -> renderOrderProfits() which uses actual order data
     }
 
     function renderLedger(entries) {
@@ -628,15 +622,36 @@
       }
     }
 
+    let ledgerMfrCostByOrder = {}; // Cache for MFR costs from ledger
+
     async function loadOrderProfits() {
       try {
-        const response = await fetch('/api/admin/orders', {
-          headers: { 'Authorization': `Bearer ${Admin.Auth.getToken()}` }
-        });
-        const data = await response.json();
+        // Load both orders and ledger entries to get MFR cost data
+        const [ordersResponse, ledgerResponse] = await Promise.all([
+          fetch('/api/admin/orders', {
+            headers: { 'Authorization': `Bearer ${Admin.Auth.getToken()}` }
+          }),
+          fetch('/api/admin/ledger', {
+            headers: { 'Authorization': `Bearer ${Admin.Auth.getToken()}` }
+          })
+        ]);
 
-        if (data.success) {
-          renderOrderProfits(data.orders || []);
+        const ordersData = await ordersResponse.json();
+        const ledgerData = await ledgerResponse.json();
+
+        // Build a map of MFR costs by order ID from ledger
+        if (ledgerData.success && ledgerData.entries) {
+          ledgerMfrCostByOrder = {};
+          ledgerData.entries.forEach(entry => {
+            if (entry.orderId && entry.type === 'manufacturer_payable') {
+              const cost = entry.debit || Math.abs(entry.amount || 0);
+              ledgerMfrCostByOrder[entry.orderId] = (ledgerMfrCostByOrder[entry.orderId] || 0) + cost;
+            }
+          });
+        }
+
+        if (ordersData.success) {
+          renderOrderProfits(ordersData.orders || []);
         }
       } catch (error) {
         console.error('Failed to load orders:', error);
@@ -656,11 +671,33 @@
         return;
       }
 
-      tbody.innerHTML = orders.map(o => {
+      // Calculate totals for summary
+      let totalRevenue = 0;
+      let totalMfrCost = 0;
+
+      const rows = orders.map(o => {
+        // Get revenue (total with tax)
         const revenue = o.pricing?.total || o.total || 0;
-        const mfrCost = o.pricing?.manufacturer_cost_total || (revenue * 0.6);
-        const margin = revenue > 0 ? ((revenue - mfrCost) / revenue * 100).toFixed(1) : 0;
-        const profit = revenue - mfrCost;
+
+        // Get MFR cost: first try order.pricing, then ledger, then 0
+        let mfrCost = o.pricing?.manufacturer_cost_total;
+        if (mfrCost === undefined || mfrCost === null) {
+          mfrCost = ledgerMfrCostByOrder[o.id] || 0;
+        }
+
+        // Calculate margin and profit
+        const subtotal = o.pricing?.subtotal || (revenue / 1.09); // Approximate subtotal without tax
+        const profit = subtotal - mfrCost;
+        const margin = subtotal > 0 ? ((profit / subtotal) * 100).toFixed(1) : 0;
+
+        // Accumulate totals
+        totalRevenue += revenue;
+        totalMfrCost += mfrCost;
+
+        // Show indicator if MFR cost is missing
+        const mfrCostDisplay = mfrCost > 0
+          ? Admin.Utils.formatCurrency(mfrCost)
+          : '<span style="color: #d97706;">N/A</span>';
 
         return `
           <tr>
@@ -668,12 +705,20 @@
             <td>${Admin.Utils.formatDate(o.created_at || o.createdAt)}</td>
             <td>${Admin.Utils.escapeHtml(o.customer_name || o.customer?.name || 'Guest')}</td>
             <td>${Admin.Utils.formatCurrency(revenue)}</td>
-            <td>${Admin.Utils.formatCurrency(mfrCost)}</td>
-            <td>${margin}%</td>
-            <td class="ledger-amount ${profit >= 0 ? 'credit' : 'debit'}">${Admin.Utils.formatCurrency(profit)}</td>
+            <td>${mfrCostDisplay}</td>
+            <td>${mfrCost > 0 ? margin + '%' : '-'}</td>
+            <td class="ledger-amount ${profit >= 0 ? 'credit' : 'debit'}">${mfrCost > 0 ? Admin.Utils.formatCurrency(profit) : '-'}</td>
           </tr>
         `;
-      }).join('');
+      });
+
+      tbody.innerHTML = rows.join('');
+
+      // Update profit summary with order data
+      const totalProfit = totalRevenue - totalMfrCost;
+      document.getElementById('total-revenue').textContent = Admin.Utils.formatCurrency(totalRevenue);
+      document.getElementById('total-costs').textContent = Admin.Utils.formatCurrency(totalMfrCost);
+      document.getElementById('gross-profit').textContent = Admin.Utils.formatCurrency(totalProfit);
     }
   </script>
 </body>

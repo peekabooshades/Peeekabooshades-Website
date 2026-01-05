@@ -1,0 +1,1297 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Product Pricing - Peekaboo Shades Admin</title>
+  <link rel="stylesheet" href="css/admin.css">
+  <link rel="icon" type="image/png" href="/images/favicon.png">
+  <style>
+    .pricing-card {
+      background: white;
+      border-radius: 8px;
+      padding: 20px;
+      margin-bottom: 20px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    .pricing-card h3 {
+      margin: 0 0 16px 0;
+      font-size: 16px;
+      color: #333;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .pricing-card h3 .badge {
+      background: #8E6545;
+      color: white;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 500;
+    }
+    .pricing-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    .pricing-table th, .pricing-table td {
+      padding: 10px 12px;
+      text-align: left;
+      border-bottom: 1px solid #eee;
+    }
+    .pricing-table th {
+      background: #f8f9fa;
+      font-weight: 600;
+      font-size: 12px;
+      color: #666;
+      text-transform: uppercase;
+    }
+    .pricing-table td {
+      font-size: 14px;
+    }
+    .pricing-table tr:hover {
+      background: #f8f9fa;
+    }
+    .price-input {
+      width: 80px;
+      padding: 6px 8px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      text-align: right;
+      font-size: 13px;
+    }
+    .price-input:focus {
+      border-color: #8E6545;
+      outline: none;
+    }
+    .price-input.modified {
+      border-color: #8E6545;
+      background: #fffaf5;
+    }
+    .calculated-price {
+      font-weight: 600;
+      color: #28a745;
+    }
+    .mfr-cost {
+      color: #666;
+    }
+    .margin-value {
+      color: #8E6545;
+      font-weight: 500;
+    }
+    .option-label {
+      display: flex;
+      flex-direction: column;
+    }
+    .option-label .code {
+      font-size: 11px;
+      color: #999;
+      font-family: monospace;
+    }
+    .summary-box {
+      background: linear-gradient(135deg, #8E6545 0%, #a5785d 100%);
+      color: white;
+      border-radius: 8px;
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+    .summary-box h2 {
+      margin: 0 0 16px 0;
+      font-size: 18px;
+    }
+    .summary-stats {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+    }
+    .summary-stat {
+      text-align: center;
+    }
+    .summary-stat .value {
+      font-size: 24px;
+      font-weight: 700;
+    }
+    .summary-stat .label {
+      font-size: 12px;
+      opacity: 0.8;
+    }
+    .section-tabs {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+    }
+    .section-tab {
+      padding: 8px 16px;
+      border: 1px solid #ddd;
+      background: white;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 13px;
+      transition: all 0.2s;
+    }
+    .section-tab:hover {
+      border-color: #8E6545;
+    }
+    .section-tab.active {
+      background: #8E6545;
+      color: white;
+      border-color: #8E6545;
+    }
+    .save-bar {
+      position: fixed;
+      bottom: 0;
+      left: 280px;
+      right: 0;
+      background: white;
+      border-top: 1px solid #ddd;
+      padding: 12px 24px;
+      display: flex;
+      justify-content: flex-end;
+      gap: 12px;
+      z-index: 100;
+      display: none;
+    }
+    .save-bar.visible {
+      display: flex;
+    }
+    .action-hint {
+      font-size: 12px;
+      color: #666;
+      margin-top: 8px;
+    }
+  </style>
+</head>
+<body>
+  <div class="admin-layout">
+    <!-- Sidebar -->
+    <aside class="admin-sidebar">
+      <div class="sidebar-header">
+        <a href="/admin/" class="sidebar-logo">
+          <img src="/images/logo.png" alt="Logo" onerror="this.style.display='none'">
+          <span>Peekaboo Shades</span>
+        </a>
+      </div>
+      <nav class="sidebar-nav">
+        <div class="nav-section">
+          <a href="/admin/" class="nav-item">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+            </svg>
+            <span>Dashboard</span>
+          </a>
+        </div>
+        <div class="nav-section">
+          <div class="nav-section-title">Catalog</div>
+          <a href="/admin/products.html" class="nav-item">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+            </svg>
+            <span>Products</span>
+          </a>
+          <a href="/admin/hardware-options.html" class="nav-item">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+            <span>Hardware Options</span>
+          </a>
+          <a href="/admin/product-pricing.html" class="nav-item active">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <span>Product Pricing</span>
+          </a>
+        </div>
+        <div class="nav-section">
+          <div class="nav-section-title">Sales</div>
+          <a href="/admin/orders.html" class="nav-item">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+            </svg>
+            <span>Orders</span>
+          </a>
+        </div>
+      </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="admin-main">
+      <header class="admin-header">
+        <div class="header-left">
+          <div class="breadcrumb">
+            <a href="/admin/">Dashboard</a>
+            <span class="breadcrumb-separator">/</span>
+            <a href="/admin/products.html">Products</a>
+            <span class="breadcrumb-separator">/</span>
+            <span class="breadcrumb-current">Pricing Configuration</span>
+          </div>
+        </div>
+        <div class="header-right">
+          <select id="product-selector" class="filter-select" style="min-width: 250px;">
+            <option value="">Select a product...</option>
+          </select>
+        </div>
+      </header>
+
+      <div class="admin-content" style="padding-bottom: 80px;">
+        <div class="page-header">
+          <h1 class="page-title" id="product-title">Product Pricing Configuration</h1>
+          <p style="color: #666; margin-top: 4px;">Configure manufacturing costs and margins for each option</p>
+        </div>
+
+        <!-- Summary Box -->
+        <div class="summary-box" id="summary-box" style="display: none;">
+          <h2 id="summary-product-name">Product Name</h2>
+          <div class="summary-stats">
+            <div class="summary-stat">
+              <div class="value" id="total-options">0</div>
+              <div class="label">Total Options</div>
+            </div>
+            <div class="summary-stat">
+              <div class="value" id="avg-margin">0%</div>
+              <div class="label">Avg Margin</div>
+            </div>
+            <div class="summary-stat">
+              <div class="value" id="options-configured">0</div>
+              <div class="label">Configured</div>
+            </div>
+            <div class="summary-stat">
+              <div class="value" id="options-pending">0</div>
+              <div class="label">Pending</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Dimension Calculator for Per-SQM pricing -->
+        <div class="pricing-card" style="background: #fffaf5; border: 1px solid #8E6545;">
+          <h3 style="margin: 0 0 12px 0;">Per Square Meter Price Calculator</h3>
+          <p style="color: #666; font-size: 13px; margin-bottom: 12px;">
+            Enter customer dimensions to see how per-m² options are calculated:
+          </p>
+          <div style="display: flex; gap: 16px; align-items: center; flex-wrap: wrap;">
+            <div>
+              <label style="font-size: 12px; color: #666;">Width (inches)</label>
+              <input type="number" id="calc-width" value="40" min="1" style="width: 80px; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" onchange="updateSqmCalc()">
+            </div>
+            <div>
+              <label style="font-size: 12px; color: #666;">Height (inches)</label>
+              <input type="number" id="calc-height" value="30" min="1" style="width: 80px; padding: 8px; border: 1px solid #ddd; border-radius: 4px;" onchange="updateSqmCalc()">
+            </div>
+            <div style="font-size: 18px; color: #666;">=</div>
+            <div style="background: white; padding: 12px 16px; border-radius: 6px; border: 1px solid #ddd;">
+              <div style="font-size: 11px; color: #666;">Square Meters</div>
+              <div id="calc-sqm" style="font-size: 20px; font-weight: 700; color: #8E6545;">0.77 m²</div>
+            </div>
+            <div style="background: #e8f5e9; padding: 12px 16px; border-radius: 6px;">
+              <div style="font-size: 11px; color: #666;">Example: Metal Bead Chain ($2.20/m²)</div>
+              <div id="calc-example" style="font-size: 20px; font-weight: 700; color: #28a745;">$1.70</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Section Tabs -->
+        <div class="section-tabs" id="section-tabs">
+          <button class="section-tab active" data-section="all">All Options</button>
+          <button class="section-tab" data-section="fabrics">Fabric Prices ($/m²)</button>
+          <button class="section-tab" data-section="motors">Motors & Control</button>
+          <button class="section-tab" data-section="hardware">Hardware (Cassette/Rail)</button>
+          <button class="section-tab" data-section="accessories">Accessories</button>
+        </div>
+
+        <!-- Pricing Tables -->
+        <div id="pricing-content">
+          <div class="pricing-card" style="text-align: center; padding: 60px;">
+            <p style="color: #666;">Select a product to configure pricing</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Save Bar -->
+      <div class="save-bar" id="save-bar">
+        <span id="changes-count">0 unsaved changes</span>
+        <button class="btn btn-secondary" onclick="discardChanges()">Discard</button>
+        <button class="btn btn-primary" onclick="saveAllChanges()">Save All Changes</button>
+      </div>
+    </main>
+  </div>
+
+  <!-- Motor Brand Modal -->
+  <div id="motor-brand-modal" class="modal-overlay">
+    <div class="modal" style="padding:24px;">
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:20px;">
+        <h3 id="motor-modal-title" style="margin:0;font-size:18px;">Add Motor Brand</h3>
+        <button onclick="closeMotorBrandModal()" style="background:none;border:none;cursor:pointer;font-size:20px;color:#666;">&times;</button>
+      </div>
+
+      <div style="margin-bottom:16px;">
+        <label style="display:block;font-size:13px;font-weight:500;margin-bottom:6px;">Motor Brand Name *</label>
+        <input type="text" id="motor-label" placeholder="e.g., Somfy Motor" style="width:100%;padding:10px;border:1px solid #ddd;border-radius:6px;font-size:14px;">
+      </div>
+
+      <div style="margin-bottom:16px;">
+        <label style="display:block;font-size:13px;font-weight:500;margin-bottom:6px;">Value (ID)</label>
+        <input type="text" id="motor-value" placeholder="Auto-generated from name" style="width:100%;padding:10px;border:1px solid #ddd;border-radius:6px;font-size:14px;">
+        <p style="font-size:11px;color:#666;margin-top:4px;">Leave empty to auto-generate from name</p>
+      </div>
+
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;margin-bottom:16px;">
+        <div>
+          <label style="display:block;font-size:13px;font-weight:500;margin-bottom:6px;">Mfr Cost ($)</label>
+          <input type="number" id="motor-mfr-cost" value="0" min="0" step="0.01" oninput="updateMotorModalPrice()" style="width:100%;padding:10px;border:1px solid #ddd;border-radius:6px;font-size:14px;">
+        </div>
+        <div>
+          <label style="display:block;font-size:13px;font-weight:500;margin-bottom:6px;">Margin (%)</label>
+          <input type="number" id="motor-margin" value="40" min="0" max="500" oninput="updateMotorModalPrice()" style="width:100%;padding:10px;border:1px solid #ddd;border-radius:6px;font-size:14px;">
+        </div>
+        <div>
+          <label style="display:block;font-size:13px;font-weight:500;margin-bottom:6px;">Customer Price</label>
+          <div id="motor-cust-price" style="padding:10px;background:#e8f5e9;border-radius:6px;font-size:16px;font-weight:600;color:#28a745;text-align:center;">$0.00</div>
+        </div>
+      </div>
+
+      <div style="margin-bottom:20px;">
+        <label style="display:flex;align-items:center;gap:8px;cursor:pointer;">
+          <input type="checkbox" id="motor-active" checked style="width:18px;height:18px;">
+          <span style="font-size:14px;">Active (show on product page)</span>
+        </label>
+      </div>
+
+      <div style="display:flex;gap:12px;justify-content:flex-end;">
+        <button onclick="closeMotorBrandModal()" class="btn btn-secondary" style="padding:10px 20px;">Cancel</button>
+        <button onclick="saveMotorBrand()" class="btn btn-primary" style="padding:10px 20px;">Save Motor Brand</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/admin.js"></script>
+  <script>
+    if (!Admin.Auth.requireAuth()) {
+      // Will redirect
+    } else {
+      loadProducts();
+    }
+
+    let allProducts = [];
+    let hardwareOptions = {};
+    let currentProduct = null;
+    let pendingChanges = {};
+    let currentSection = 'all';
+
+    // Known manufacturing costs (from user's pricing data)
+    const KNOWN_MFR_COSTS = {
+      // Motor Brands (FLAT pricing)
+      'motorized-app': { label: 'AOK Motor', mfrCost: 45, priceType: 'flat' },
+      'aok': { label: 'AOK Motor', mfrCost: 45, priceType: 'flat' },
+      'motorized-remote': { label: 'Dooya Motor', mfrCost: 47, priceType: 'flat' },
+      'dooya': { label: 'Dooya Motor', mfrCost: 47, priceType: 'flat' },
+      'plugin-wire': { label: 'Plugin Wire Motor', mfrCost: 55, priceType: 'flat' },
+      'plugin-motor': { label: 'Plugin Wire Motor', mfrCost: 55, priceType: 'flat' },
+
+      // Remote Types (FLAT pricing)
+      'single-channel': { label: 'Single Channel Remote', mfrCost: 6, priceType: 'flat' },
+      '1-channel': { label: '1 Channel Remote', mfrCost: 4.40, priceType: 'flat' },
+      '6-channel': { label: '6 Channel Remote', mfrCost: 6.60, priceType: 'flat' },
+      '15-channel': { label: '15 Channel Remote', mfrCost: 11.35, priceType: 'flat' },
+
+      // Valance/Cassette - Per SQM pricing (fabric types)
+      'fabric-wrapped-v3': { label: 'Fabric Wrapped V3', mfrCost: 2.20, priceType: 'sqm' },
+      'fabric-inserted-s1': { label: 'Fabric Inserted S1', mfrCost: 2.20, priceType: 'sqm' },
+      'curve-white-s2': { label: 'Curve White S2', mfrCost: 2.20, priceType: 'sqm' },
+      'fabric-wrapped-s3': { label: 'Fabric Wrapped S3', mfrCost: 2.20, priceType: 'sqm' },
+
+      // Bottom Rail - Per SQM pricing
+      'simple-rolling': { label: 'Simple Rolling', mfrCost: 2.20, priceType: 'sqm' },
+      'type-b': { label: 'Type B', mfrCost: 2.20, priceType: 'sqm' },
+      'type-c-fabric-wrapped': { label: 'Type C Fabric Wrapped', mfrCost: 2.20, priceType: 'sqm' },
+      'type-d': { label: 'Type D', mfrCost: 2.20, priceType: 'sqm' },
+
+      // Solar (FLAT pricing)
+      'solar-panel': { label: 'Solar Panel', mfrCost: 15, priceType: 'flat' },
+      'yes': { label: 'Solar Panel', mfrCost: 15, priceType: 'flat' },
+
+      // Accessories (FLAT pricing)
+      'smart-hub': { label: 'Smart Hub', mfrCost: 23.50, priceType: 'flat' },
+      'usb-charger': { label: 'USB Charger', mfrCost: 5, priceType: 'flat' },
+    };
+
+    // Motor brands - loaded from API
+    let motorBrands = [];
+
+    // Fabric prices - loaded from API (dynamic per fabric code)
+    let fabricPrices = [];
+
+    async function loadProducts() {
+      try {
+        const data = await Admin.ProductsAPI.getAll();
+        if (data.success) {
+          allProducts = data.data || data.products || [];
+          populateProductSelector();
+        }
+      } catch (error) {
+        Admin.Toast.error('Failed to load products');
+      }
+    }
+
+    function populateProductSelector() {
+      const select = document.getElementById('product-selector');
+      allProducts.forEach(p => {
+        const option = document.createElement('option');
+        option.value = p.slug;
+        option.textContent = p.name;
+        select.appendChild(option);
+      });
+
+      select.addEventListener('change', function() {
+        if (this.value) {
+          loadProductPricing(this.value);
+        }
+      });
+
+      // Auto-select first product (Affordable Custom Roller Blinds)
+      const rollerBlinds = allProducts.find(p => p.slug === 'affordable-custom-roller-blinds');
+      if (rollerBlinds) {
+        select.value = rollerBlinds.slug;
+        loadProductPricing(rollerBlinds.slug);
+      }
+    }
+
+    async function loadProductPricing(productSlug) {
+      const product = allProducts.find(p => p.slug === productSlug);
+      if (!product) return;
+
+      currentProduct = product;
+      document.getElementById('product-title').textContent = product.name + ' - Pricing';
+      document.getElementById('summary-product-name').textContent = product.name;
+      document.getElementById('summary-box').style.display = 'block';
+
+      // Load motor brands, hardware options, and fabric prices in parallel
+      try {
+        const [motorRes, hardwareRes, fabricRes] = await Promise.all([
+          fetch('/api/admin/motor-brands', {
+            headers: { 'Authorization': 'Bearer ' + Admin.Auth.getToken() }
+          }),
+          fetch('/api/product-content/hardware'),
+          fetch('/api/admin/manufacturer-prices?productType=roller', {
+            headers: { 'Authorization': 'Bearer ' + Admin.Auth.getToken() }
+          })
+        ]);
+
+        const motorData = await motorRes.json();
+        const hardwareData = await hardwareRes.json();
+        const fabricData = await fabricRes.json();
+
+        if (motorData.success) {
+          motorBrands = motorData.data || [];
+        }
+        if (hardwareData.success) {
+          hardwareOptions = hardwareData.hardware;
+        }
+        if (fabricData.success) {
+          fabricPrices = fabricData.data || [];
+        }
+
+        renderPricingTables();
+      } catch (error) {
+        Admin.Toast.error('Failed to load pricing data');
+        console.error(error);
+      }
+    }
+
+    // SQM Calculator
+    function updateSqmCalc() {
+      const width = parseFloat(document.getElementById('calc-width')?.value) || 40;
+      const height = parseFloat(document.getElementById('calc-height')?.value) || 30;
+      // Convert inches to meters (1 inch = 0.0254 m)
+      const widthM = width * 0.0254;
+      const heightM = height * 0.0254;
+      const sqm = widthM * heightM;
+
+      document.getElementById('calc-sqm').textContent = sqm.toFixed(2) + ' m²';
+
+      // Example calculation with Metal Bead Chain at $2.20/m²
+      const mfrCost = 2.20;
+      const margin = 40;
+      const mfrTotal = sqm * mfrCost;
+      const custTotal = mfrTotal * (1 + margin / 100);
+      document.getElementById('calc-example').textContent = '$' + custTotal.toFixed(2);
+
+      // Update fabric column headers with current dimensions
+      const manualHeaderEl = document.getElementById('fabric-calc-header-manual');
+      const cordlessHeaderEl = document.getElementById('fabric-calc-header-cordless');
+      if (manualHeaderEl) manualHeaderEl.textContent = `Manual (${width}"x${height}")`;
+      if (cordlessHeaderEl) cordlessHeaderEl.textContent = `Cordless (${width}"x${height}")`;
+
+      // Recalculate all fabric prices with new dimensions
+      if (fabricPrices && fabricPrices.length > 0) {
+        fabricPrices.forEach(fp => {
+          const manualMfr = fp.pricePerSqMeter || 0;
+          const manualMargin = fp.manualMargin || 40;
+          const cordlessMfr = fp.pricePerSqMeterCordless || manualMfr * 1.25;
+          const cordlessMargin = fp.cordlessMargin || 40;
+
+          const manualCustPricePerSqm = manualMfr * (1 + manualMargin / 100);
+          const cordlessCustPricePerSqm = cordlessMfr * (1 + cordlessMargin / 100);
+          const manualTotal = sqm * manualCustPricePerSqm;
+          const cordlessTotal = sqm * cordlessCustPricePerSqm;
+
+          const fabricId = (fp.fabricCode || '').replace(/[^a-zA-Z0-9]/g, '');
+          const manualEl = document.getElementById(`fabric-calc-manual-${fabricId}`);
+          const cordlessEl = document.getElementById(`fabric-calc-cordless-${fabricId}`);
+          if (manualEl) manualEl.textContent = '$' + manualTotal.toFixed(2);
+          if (cordlessEl) cordlessEl.textContent = '$' + cordlessTotal.toFixed(2);
+        });
+      }
+    }
+
+    function renderPricingTables() {
+      const container = document.getElementById('pricing-content');
+      let html = '';
+
+      // Fabric Prices (per m² by fabric code)
+      if (currentSection === 'all' || currentSection === 'fabrics') {
+        html += renderFabricPricesSection();
+      }
+
+      // Motors & Control - with Motor Brands
+      if (currentSection === 'all' || currentSection === 'motors') {
+        html += renderMotorBrandsSection();
+        html += renderSection('Remote Types', ['remoteType']);
+        html += renderSection('Solar Panel', ['solarPanel']);
+      }
+
+      // Hardware - Per SQM items
+      if (currentSection === 'all' || currentSection === 'hardware') {
+        html += renderSection('Cassette/Valance Type (Per m²)', ['valanceType']);
+        html += renderSection('Bottom Rail (Per m²)', ['bottomRail']);
+        html += renderSection('Roller Type', ['rollerType']);
+      }
+
+      // Control Options
+      if (currentSection === 'all') {
+        html += renderControlMountSection();
+      }
+
+      // Accessories
+      if (currentSection === 'all' || currentSection === 'accessories') {
+        html += renderAccessoriesSection();
+      }
+
+      container.innerHTML = html;
+      updateSummary();
+      updateSqmCalc();
+    }
+
+    // Render Fabric Prices Section
+    function renderFabricPricesSection() {
+      let html = `<div class="pricing-card">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+          <div>
+            <h3 style="margin:0;">Fabric Prices <span class="badge" style="background:#1565c0;">Per m²</span></h3>
+            <p style="color:#666;font-size:12px;margin:4px 0 0 0;">Base fabric cost per square meter - changes here reflect on customer product page</p>
+          </div>
+          <input type="text" id="fabric-search" placeholder="Search fabric code..."
+                 onkeyup="filterFabricPrices(this.value)"
+                 style="padding:8px 12px;border:1px solid #ddd;border-radius:4px;width:200px;">
+        </div>
+        <div style="background:linear-gradient(135deg,#e3f2fd 0%,#bbdefb 100%);border-radius:8px;padding:12px;margin-bottom:16px;border-left:4px solid #1565c0;">
+          <p style="margin:0;font-size:13px;color:#0d47a1;">
+            <strong>📊 Dynamic Pricing:</strong> Each fabric has separate Manual and Cordless/Motorized prices per m².
+            Customer sees price based on their control type selection.
+          </p>
+        </div>`;
+
+      const calcW = document.getElementById('calc-width')?.value || 40;
+      const calcH = document.getElementById('calc-height')?.value || 30;
+
+      html += `<table class="pricing-table" id="fabric-prices-table">
+        <thead>
+          <tr>
+            <th style="width:90px;">Fabric Code</th>
+            <th>Name</th>
+            <th style="width:80px;">Manual MFR $/m²</th>
+            <th style="width:55px;">Margin</th>
+            <th style="width:80px;">Cordless MFR $/m²</th>
+            <th style="width:55px;">Margin</th>
+            <th style="width:100px;" id="fabric-calc-header-manual">Manual (${calcW}"x${calcH}")</th>
+            <th style="width:100px;" id="fabric-calc-header-cordless">Cordless (${calcW}"x${calcH}")</th>
+          </tr>
+        </thead>
+        <tbody>`;
+
+      // Sort fabrics by code
+      const sortedFabrics = [...fabricPrices].sort((a, b) =>
+        (a.fabricCode || '').localeCompare(b.fabricCode || '')
+      );
+
+      // Limit display to first 50 for performance
+      const displayFabrics = sortedFabrics.slice(0, 50);
+
+      displayFabrics.forEach(fp => {
+        const manualMfr = fp.pricePerSqMeter || 0;
+        const manualMargin = fp.manualMargin || 40;
+        const cordlessMfr = fp.pricePerSqMeterCordless || manualMfr * 1.25;
+        const cordlessMargin = fp.cordlessMargin || 40;
+        // Use calculator dimensions
+        const calcWidth = parseFloat(document.getElementById('calc-width')?.value || 40);
+        const calcHeight = parseFloat(document.getElementById('calc-height')?.value || 30);
+        const calcArea = (calcWidth * 0.0254) * (calcHeight * 0.0254); // convert inches to m²
+        const manualCustPricePerSqm = manualMfr * (1 + manualMargin / 100);
+        const cordlessCustPricePerSqm = cordlessMfr * (1 + cordlessMargin / 100);
+        const manualTotal = calcArea * manualCustPricePerSqm;
+        const cordlessTotal = calcArea * cordlessCustPricePerSqm;
+        const fabricId = (fp.fabricCode || '').replace(/[^a-zA-Z0-9]/g, '');
+
+        html += `<tr data-fabric="${fp.fabricCode}">
+          <td><code style="background:#f5f5f5;padding:2px 6px;border-radius:3px;font-size:11px;">${fp.fabricCode || 'N/A'}</code></td>
+          <td style="font-size:11px;">${fp.fabricName || fp.fabricCode || 'Unknown'}</td>
+          <td>
+            <div style="display:flex;align-items:center;gap:2px;">
+              $<input type="number" step="0.01" min="0" value="${manualMfr.toFixed(2)}"
+                     class="price-input" style="width:55px;font-size:12px;"
+                     onchange="updateFabricPrice('${fp.fabricCode}', 'pricePerSqMeter', this.value)">
+            </div>
+          </td>
+          <td>
+            <input type="number" step="1" min="0" max="500" value="${manualMargin}"
+                   class="price-input" style="width:40px;font-size:12px;"
+                   onchange="updateFabricPrice('${fp.fabricCode}', 'manualMargin', this.value)">%
+          </td>
+          <td>
+            <div style="display:flex;align-items:center;gap:2px;">
+              $<input type="number" step="0.01" min="0" value="${cordlessMfr.toFixed(2)}"
+                     class="price-input" style="width:55px;font-size:12px;"
+                     onchange="updateFabricPrice('${fp.fabricCode}', 'pricePerSqMeterCordless', this.value)">
+            </div>
+          </td>
+          <td>
+            <input type="number" step="1" min="0" max="500" value="${cordlessMargin}"
+                   class="price-input" style="width:40px;font-size:12px;"
+                   onchange="updateFabricPrice('${fp.fabricCode}', 'cordlessMargin', this.value)">%
+          </td>
+          <td class="calculated-price" style="color:#28a745;" id="fabric-calc-manual-${fabricId}">$${manualTotal.toFixed(2)}</td>
+          <td class="calculated-price" style="color:#e65100;" id="fabric-calc-cordless-${fabricId}">$${cordlessTotal.toFixed(2)}</td>
+        </tr>`;
+      });
+
+      if (sortedFabrics.length > 50) {
+        html += `<tr><td colspan="8" style="text-align:center;color:#666;padding:16px;">
+          Showing 50 of ${sortedFabrics.length} fabrics. Use search to find specific fabric codes.
+        </td></tr>`;
+      }
+
+      html += `</tbody></table></div>`;
+      return html;
+    }
+
+    // Filter fabric prices by search
+    function filterFabricPrices(search) {
+      const rows = document.querySelectorAll('#fabric-prices-table tbody tr[data-fabric]');
+      const searchLower = search.toLowerCase();
+      rows.forEach(row => {
+        const code = row.dataset.fabric.toLowerCase();
+        const name = row.children[1]?.textContent.toLowerCase() || '';
+        row.style.display = (code.includes(searchLower) || name.includes(searchLower)) ? '' : 'none';
+      });
+    }
+
+    // Update fabric price
+    function updateFabricPrice(fabricCode, field, value) {
+      const key = `fabric-${fabricCode}`;
+      if (!pendingChanges[key]) {
+        pendingChanges[key] = { category: 'fabric', optionId: fabricCode, changes: {} };
+      }
+      pendingChanges[key].changes[field] = parseFloat(value) || 0;
+
+      // Update example calculation using calculator dimensions
+      const fp = fabricPrices.find(f => f.fabricCode === fabricCode);
+      if (fp) {
+        // Update local values for recalculation
+        if (field === 'pricePerSqMeter') fp.pricePerSqMeter = parseFloat(value) || 0;
+        if (field === 'manualMargin') fp.manualMargin = parseFloat(value) || 40;
+        if (field === 'pricePerSqMeterCordless') fp.pricePerSqMeterCordless = parseFloat(value) || 0;
+        if (field === 'cordlessMargin') fp.cordlessMargin = parseFloat(value) || 40;
+
+        const manualMfr = fp.pricePerSqMeter || 0;
+        const manualMargin = fp.manualMargin || 40;
+        const cordlessMfr = fp.pricePerSqMeterCordless || manualMfr * 1.25;
+        const cordlessMargin = fp.cordlessMargin || 40;
+
+        const calcWidth = parseFloat(document.getElementById('calc-width')?.value || 40);
+        const calcHeight = parseFloat(document.getElementById('calc-height')?.value || 30);
+        const calcArea = (calcWidth * 0.0254) * (calcHeight * 0.0254);
+
+        const manualCustPricePerSqm = manualMfr * (1 + manualMargin / 100);
+        const cordlessCustPricePerSqm = cordlessMfr * (1 + cordlessMargin / 100);
+        const manualTotal = calcArea * manualCustPricePerSqm;
+        const cordlessTotal = calcArea * cordlessCustPricePerSqm;
+
+        const fabricId = fabricCode.replace(/[^a-zA-Z0-9]/g, '');
+        const manualEl = document.getElementById(`fabric-calc-manual-${fabricId}`);
+        const cordlessEl = document.getElementById(`fabric-calc-cordless-${fabricId}`);
+        if (manualEl) manualEl.textContent = '$' + manualTotal.toFixed(2);
+        if (cordlessEl) cordlessEl.textContent = '$' + cordlessTotal.toFixed(2);
+      }
+
+      showSaveBar();
+    }
+
+    // Render Motor Brands as separate section
+    function renderMotorBrandsSection() {
+      let html = `<div class="pricing-card">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+          <div>
+            <h3 style="margin:0;">Motor Brands <span class="badge">Flat Pricing</span></h3>
+            <p style="color:#666;font-size:12px;margin:4px 0 0 0;">These are charged when customer selects Motorized control type</p>
+          </div>
+          <button class="btn btn-primary" onclick="openMotorBrandModal()" style="padding:8px 16px;font-size:13px;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="margin-right:4px;">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+            </svg>
+            Add Motor Brand
+          </button>
+        </div>`;
+      html += `<table class="pricing-table">
+        <thead>
+          <tr>
+            <th>Motor Brand</th>
+            <th style="width: 80px;">Type</th>
+            <th style="width: 100px;">Mfr Cost</th>
+            <th style="width: 80px;">Margin</th>
+            <th style="width: 100px;">Cust Price</th>
+            <th style="width: 80px;">Actions</th>
+          </tr>
+        </thead>
+        <tbody>`;
+
+      if (motorBrands.length === 0) {
+        html += `<tr><td colspan="6" style="text-align:center;color:#666;padding:20px;">No motor brands configured. Click "Add Motor Brand" to create one.</td></tr>`;
+      } else {
+        motorBrands.forEach(motor => {
+          const mfrCost = motor.manufacturerCost || 0;
+          const margin = motor.margin || 40;
+          const custPrice = mfrCost * (1 + margin / 100);
+          html += `
+            <tr data-category="motorBrands" data-id="${motor.id}">
+              <td>
+                <div class="option-label">
+                  <span style="font-weight:600;">${Admin.Utils.escapeHtml(motor.label)}</span>
+                  <span class="code">${motor.value}</span>
+                </div>
+              </td>
+              <td><span style="background:#e3f2fd;color:#1565c0;padding:2px 8px;border-radius:4px;font-size:11px;">Flat</span></td>
+              <td>
+                <input type="number" class="price-input modified" value="${mfrCost}" min="0" step="0.01"
+                  onchange="updateMotorBrand('${motor.id}', 'manufacturerCost', this.value)">
+              </td>
+              <td>
+                <input type="number" class="price-input" value="${margin}" min="0" max="500" step="1" style="width:50px;"
+                  onchange="updateMotorBrand('${motor.id}', 'margin', this.value)">%
+              </td>
+              <td class="calculated-price" id="price-${motor.id}">$${custPrice.toFixed(2)}</td>
+              <td>
+                <div class="action-buttons" style="display:flex;gap:4px;">
+                  <button class="action-btn" title="Edit" onclick="editMotorBrand('${motor.id}')">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                    </svg>
+                  </button>
+                  <button class="action-btn danger" title="Delete" onclick="deleteMotorBrand('${motor.id}', '${Admin.Utils.escapeHtml(motor.label)}')">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                    </svg>
+                  </button>
+                </div>
+              </td>
+            </tr>
+          `;
+        });
+      }
+
+      html += '</tbody></table></div>';
+      return html;
+    }
+
+    // Motor Brand Modal
+    let editingMotorBrandId = null;
+
+    function openMotorBrandModal(motor = null) {
+      editingMotorBrandId = motor ? motor.id : null;
+
+      document.getElementById('motor-modal-title').textContent = motor ? 'Edit Motor Brand' : 'Add Motor Brand';
+      document.getElementById('motor-label').value = motor?.label || '';
+      document.getElementById('motor-value').value = motor?.value || '';
+      document.getElementById('motor-mfr-cost').value = motor?.manufacturerCost || 0;
+      document.getElementById('motor-margin').value = motor?.margin || 40;
+      document.getElementById('motor-active').checked = motor?.isActive !== false;
+
+      updateMotorModalPrice();
+      // Use .active class for proper visibility (CSS uses visibility/opacity)
+      document.getElementById('motor-brand-modal').classList.add('active');
+    }
+
+    function closeMotorBrandModal() {
+      document.getElementById('motor-brand-modal').classList.remove('active');
+      editingMotorBrandId = null;
+    }
+
+    function updateMotorModalPrice() {
+      const mfrCost = parseFloat(document.getElementById('motor-mfr-cost').value) || 0;
+      const margin = parseFloat(document.getElementById('motor-margin').value) || 40;
+      const custPrice = mfrCost * (1 + margin / 100);
+      document.getElementById('motor-cust-price').textContent = '$' + custPrice.toFixed(2);
+    }
+
+    async function saveMotorBrand() {
+      const label = document.getElementById('motor-label').value.trim();
+      const value = document.getElementById('motor-value').value.trim() || label.toLowerCase().replace(/\s+/g, '-');
+      const manufacturerCost = parseFloat(document.getElementById('motor-mfr-cost').value) || 0;
+      const margin = parseFloat(document.getElementById('motor-margin').value) || 40;
+      const isActive = document.getElementById('motor-active').checked;
+
+      if (!label) {
+        Admin.Toast.error('Please enter a label');
+        return;
+      }
+
+      try {
+        const url = editingMotorBrandId
+          ? '/api/admin/motor-brands/' + editingMotorBrandId
+          : '/api/admin/motor-brands';
+        const method = editingMotorBrandId ? 'PUT' : 'POST';
+
+        const response = await fetch(url, {
+          method,
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + Admin.Auth.getToken()
+          },
+          body: JSON.stringify({ label, value, manufacturerCost, margin, isActive })
+        });
+
+        const data = await response.json();
+        if (data.success) {
+          Admin.Toast.success(editingMotorBrandId ? 'Motor brand updated' : 'Motor brand added');
+          closeMotorBrandModal();
+          // Reload the page data
+          loadProductPricing(currentProduct.slug);
+        } else {
+          Admin.Toast.error(data.error || 'Failed to save');
+        }
+      } catch (error) {
+        Admin.Toast.error('Failed to save motor brand');
+        console.error(error);
+      }
+    }
+
+    function editMotorBrand(motorId) {
+      const motor = motorBrands.find(m => m.id === motorId);
+      if (motor) openMotorBrandModal(motor);
+    }
+
+    async function deleteMotorBrand(motorId, label) {
+      if (!confirm(`Delete "${label}"? This will remove it from the customer product page.`)) return;
+
+      try {
+        const response = await fetch('/api/admin/motor-brands/' + motorId, {
+          method: 'DELETE',
+          headers: { 'Authorization': 'Bearer ' + Admin.Auth.getToken() }
+        });
+
+        const data = await response.json();
+        if (data.success) {
+          Admin.Toast.success('Motor brand deleted');
+          loadProductPricing(currentProduct.slug);
+        } else {
+          Admin.Toast.error(data.error || 'Failed to delete');
+        }
+      } catch (error) {
+        Admin.Toast.error('Failed to delete motor brand');
+      }
+    }
+
+    function updateMotorBrand(motorId, field, value) {
+      const motor = motorBrands.find(m => m.id === motorId);
+      if (!motor) return;
+
+      const numValue = parseFloat(value) || 0;
+      motor[field] = numValue;
+
+      const mfrCost = motor.manufacturerCost || 0;
+      const margin = motor.margin || 40;
+      const custPrice = mfrCost * (1 + margin / 100);
+      document.getElementById(`price-${motorId}`).textContent = '$' + custPrice.toFixed(2);
+
+      // Track changes
+      const key = `motorBrands-${motorId}`;
+      if (!pendingChanges[key]) {
+        pendingChanges[key] = { category: 'motorBrands', optionId: motorId, changes: {} };
+      }
+      pendingChanges[key].changes = { manufacturerCost: mfrCost, margin: margin };
+      showSaveBar();
+    }
+
+    // Render Control & Mount section with fabric pricing explanation
+    function renderControlMountSection() {
+      let html = '<div class="pricing-card">';
+      html += '<h3>Control & Mount Options <span class="badge" style="background:#fff3e0;color:#e65100;">Fabric Price Per m²</span></h3>';
+      html += '<div style="background:linear-gradient(135deg,#e3f2fd 0%,#f3e5f5 100%);border-radius:8px;padding:16px;margin-bottom:16px;border-left:4px solid #1565c0;">';
+      html += '<p style="margin:0 0 8px 0;font-weight:600;color:#1565c0;">📊 Control Type Affects Fabric Pricing</p>';
+      html += '<p style="margin:0;font-size:13px;color:#555;">The fabric price per square meter changes based on control type selected:</p>';
+      html += '<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:12px;">';
+      html += '<div style="background:white;border-radius:6px;padding:12px;text-align:center;box-shadow:0 1px 3px rgba(0,0,0,0.1);"><strong style="color:#333;">Manual (Bead Chain)</strong><br><span style="color:#28a745;font-size:16px;font-weight:600;">$12.99/m²</span><br><span style="font-size:11px;color:#666;">Standard fabric rate</span></div>';
+      html += '<div style="background:white;border-radius:6px;padding:12px;text-align:center;box-shadow:0 1px 3px rgba(0,0,0,0.1);"><strong style="color:#333;">Cordless</strong><br><span style="color:#e65100;font-size:16px;font-weight:600;">$16.24/m²</span><br><span style="font-size:11px;color:#666;">Includes cordless spring</span></div>';
+      html += '<div style="background:white;border-radius:6px;padding:12px;text-align:center;box-shadow:0 1px 3px rgba(0,0,0,0.1);"><strong style="color:#333;">Motorized</strong><br><span style="color:#1565c0;font-size:16px;font-weight:600;">$12.99/m²</span><br><span style="font-size:11px;color:#666;">+ Motor Brand (flat)</span></div>';
+      html += '</div>';
+      html += '<p style="margin:12px 0 0 0;font-size:12px;color:#666;"><em>These rates are defined in the PDF pricing document per fabric code. Each fabric may have different rates.</em></p>';
+      html += '</div>';
+
+      // Render the standard control/mount options table
+      html += '<table class="pricing-table"><thead><tr><th>Option</th><th style="width:80px;">Type</th><th style="width:100px;">Note</th></tr></thead><tbody>';
+
+      const categories = ['controlType', 'mountType', 'chainLocation', 'motorLocation'];
+      categories.forEach(category => {
+        const options = hardwareOptions[category] || [];
+        const categoryLabel = getCategoryLabel(category);
+
+        if (options.length > 0) {
+          html += '<tr style="background:#f8f9fa;"><td colspan="3" style="font-weight:600;color:#8E6545;">' + categoryLabel + '</td></tr>';
+        }
+
+        options.forEach(opt => {
+          const isControlType = category === 'controlType';
+          const typeLabel = isControlType ? '<span style="background:#fff3e0;color:#e65100;padding:2px 8px;border-radius:4px;font-size:11px;">Per m²</span>' : '<span style="background:#e8f5e9;color:#2e7d32;padding:2px 8px;border-radius:4px;font-size:11px;">Free</span>';
+          const noteText = isControlType ? 'Affects fabric $/m²' : 'No additional cost';
+
+          html += '<tr data-category="' + category + '" data-id="' + opt.id + '">';
+          html += '<td><div class="option-label"><span>' + Admin.Utils.escapeHtml(opt.label) + '</span><span class="code">' + opt.value + '</span></div></td>';
+          html += '<td>' + typeLabel + '</td>';
+          html += '<td style="font-size:12px;color:#666;">' + noteText + '</td>';
+          html += '</tr>';
+        });
+      });
+
+      html += '</tbody></table></div>';
+      return html;
+    }
+
+    function renderSection(title, categories) {
+      let html = `<div class="pricing-card"><h3>${title}</h3>`;
+      html += `<table class="pricing-table">
+        <thead>
+          <tr>
+            <th>Option</th>
+            <th style="width: 80px;">Type</th>
+            <th style="width: 100px;">Mfr Cost</th>
+            <th style="width: 80px;">Margin</th>
+            <th style="width: 100px;">Cust Price</th>
+          </tr>
+        </thead>
+        <tbody>`;
+
+      categories.forEach(category => {
+        const options = hardwareOptions[category] || [];
+        const categoryLabel = getCategoryLabel(category);
+
+        if (options.length > 0) {
+          html += `<tr style="background:#f8f9fa;"><td colspan="5" style="font-weight:600;color:#8E6545;">${categoryLabel}</td></tr>`;
+        }
+
+        options.forEach(opt => {
+          // Get known mfr cost from our config, or from database, fallback to 0
+          const knownCost = KNOWN_MFR_COSTS[opt.value];
+          const mfrCost = opt.manufacturerCost || opt.costPrice || knownCost?.mfrCost || 0;
+          const margin = opt.margin || 40;
+          const priceType = opt.priceType || knownCost?.priceType || 'flat';
+          const custPrice = mfrCost * (1 + margin / 100);
+          const isConfigured = mfrCost > 0;
+          const unit = priceType === 'sqm' ? '/m²' : '';
+          const typeLabel = priceType === 'sqm' ?
+            '<span style="background:#fff3e0;color:#e65100;padding:2px 8px;border-radius:4px;font-size:11px;">Per m²</span>' :
+            '<span style="background:#e3f2fd;color:#1565c0;padding:2px 8px;border-radius:4px;font-size:11px;">Flat</span>';
+
+          html += `
+            <tr data-category="${category}" data-id="${opt.id}">
+              <td>
+                <div class="option-label">
+                  <span>${Admin.Utils.escapeHtml(opt.label)}</span>
+                  <span class="code">${opt.value}</span>
+                </div>
+              </td>
+              <td>
+                <select class="price-input" style="width:75px;padding:4px;"
+                  onchange="updatePricing('${category}', '${opt.id}', 'priceType', this.value)">
+                  <option value="flat" ${priceType === 'flat' ? 'selected' : ''}>Flat</option>
+                  <option value="sqm" ${priceType === 'sqm' ? 'selected' : ''}>Per m²</option>
+                </select>
+              </td>
+              <td>
+                <input type="number" class="price-input ${isConfigured ? 'modified' : ''}"
+                  value="${mfrCost}" min="0" step="0.01"
+                  onchange="updatePricing('${category}', '${opt.id}', 'manufacturerCost', this.value)">
+                <span style="font-size:10px;color:#999;">${unit}</span>
+              </td>
+              <td>
+                <input type="number" class="price-input" value="${margin}" min="0" max="500" step="1" style="width:50px;"
+                  onchange="updatePricing('${category}', '${opt.id}', 'margin', this.value)">%
+              </td>
+              <td class="calculated-price" id="price-${opt.id}">$${custPrice.toFixed(2)}${unit}</td>
+            </tr>
+          `;
+        });
+      });
+
+      html += '</tbody></table></div>';
+      return html;
+    }
+
+    function renderAccessoriesSection() {
+      // Load accessories from hardwareOptions (database) or use defaults
+      const dbAccessories = hardwareOptions.accessories || [];
+      const accessories = dbAccessories.length > 0 ? dbAccessories.map(acc => ({
+        id: acc.id || acc.value,
+        label: acc.name || acc.label,
+        value: acc.value || acc.id,
+        mfrCost: acc.manufacturerCost || 0,
+        margin: acc.margin || 40
+      })) : [
+        // Fallback defaults if not in database
+        { id: 'smart-hub', label: 'Smart Hub', value: 'smartHub', mfrCost: 23.50, margin: 40 },
+        { id: 'usb-charger', label: 'USB Charger', value: 'usbCharger', mfrCost: 5, margin: 40 },
+      ];
+
+      let html = `<div class="pricing-card"><h3>Accessories</h3>`;
+      html += `<table class="pricing-table">
+        <thead>
+          <tr>
+            <th>Accessory</th>
+            <th style="width: 100px;">Mfr Cost ($)</th>
+            <th style="width: 80px;">Margin (%)</th>
+            <th style="width: 100px;">Customer Price</th>
+          </tr>
+        </thead>
+        <tbody>`;
+
+      accessories.forEach(acc => {
+        const custPrice = acc.mfrCost * (1 + acc.margin / 100);
+        html += `
+          <tr data-category="accessories" data-id="${acc.id}">
+            <td>
+              <div class="option-label">
+                <span>${acc.label}</span>
+                <span class="code">${acc.value}</span>
+              </div>
+            </td>
+            <td>
+              <input type="number" class="price-input modified" value="${acc.mfrCost}" min="0" step="0.01"
+                onchange="updateAccessoryPricing('${acc.id}', 'mfrCost', this.value)">
+            </td>
+            <td>
+              <input type="number" class="price-input" value="${acc.margin}" min="0" max="500" step="1"
+                onchange="updateAccessoryPricing('${acc.id}', 'margin', this.value)">
+            </td>
+            <td class="calculated-price" id="price-acc-${acc.id}">$${custPrice.toFixed(2)}</td>
+          </tr>
+        `;
+      });
+
+      html += '</tbody></table></div>';
+      return html;
+    }
+
+    function getCategoryLabel(category) {
+      const labels = {
+        controlType: 'Control Type',
+        motorType: 'Motor Type',
+        remoteType: 'Remote Type',
+        solarPanel: 'Solar Panel',
+        valanceType: 'Cassette/Valance Type',
+        bottomRail: 'Bottom Rail',
+        rollerType: 'Roller Type',
+        sideCover: 'Side Cover',
+        mountType: 'Mount Type',
+        chainLocation: 'Chain Location',
+        motorLocation: 'Motor Location'
+      };
+      return labels[category] || category;
+    }
+
+    function updatePricing(category, optionId, field, value) {
+      const key = `${category}-${optionId}`;
+
+      if (!pendingChanges[key]) {
+        pendingChanges[key] = { category, optionId, changes: {} };
+      }
+
+      // Handle different field types
+      if (field === 'priceType') {
+        pendingChanges[key].changes[field] = value;
+      } else {
+        pendingChanges[key].changes[field] = parseFloat(value) || 0;
+      }
+
+      // Update calculated price display
+      const options = hardwareOptions[category] || [];
+      const opt = options.find(o => o.id === optionId);
+      if (opt) {
+        const mfrCost = field === 'manufacturerCost' ? parseFloat(value) || 0 : (opt.manufacturerCost || opt.costPrice || 0);
+        const margin = field === 'margin' ? parseFloat(value) || 0 : (opt.margin || 40);
+        const priceType = field === 'priceType' ? value : (opt.priceType || 'flat');
+        const custPrice = mfrCost * (1 + margin / 100);
+        const unit = priceType === 'sqm' ? '/m²' : '';
+        const priceEl = document.getElementById(`price-${optionId}`);
+        if (priceEl) priceEl.textContent = '$' + custPrice.toFixed(2) + unit;
+
+        // Update local option for summary calc
+        if (field === 'manufacturerCost') opt.manufacturerCost = parseFloat(value) || 0;
+        if (field === 'margin') opt.margin = parseFloat(value) || 0;
+        if (field === 'priceType') opt.priceType = value;
+      }
+
+      showSaveBar();
+    }
+
+    function updateAccessoryPricing(accId, field, value) {
+      const numValue = parseFloat(value) || 0;
+      const key = `accessories-${accId}`;
+
+      if (!pendingChanges[key]) {
+        pendingChanges[key] = { category: 'accessories', optionId: accId, changes: {} };
+      }
+      pendingChanges[key].changes[field] = numValue;
+
+      // Update calculated price display
+      const row = document.querySelector(`tr[data-id="${accId}"]`);
+      if (row) {
+        const mfrInput = row.querySelector('input[type="number"]');
+        const marginInput = row.querySelectorAll('input[type="number"]')[1];
+        const mfrCost = field === 'mfrCost' ? numValue : parseFloat(mfrInput?.value || 0);
+        const margin = field === 'margin' ? numValue : parseFloat(marginInput?.value || 40);
+        const custPrice = mfrCost * (1 + margin / 100);
+        const priceEl = document.getElementById(`price-acc-${accId}`);
+        if (priceEl) priceEl.textContent = '$' + custPrice.toFixed(2);
+      }
+
+      showSaveBar();
+    }
+
+    function showSaveBar() {
+      const count = Object.keys(pendingChanges).length;
+      document.getElementById('changes-count').textContent = `${count} unsaved change${count !== 1 ? 's' : ''}`;
+      document.getElementById('save-bar').classList.add('visible');
+      updateSummary();
+    }
+
+    function discardChanges() {
+      pendingChanges = {};
+      document.getElementById('save-bar').classList.remove('visible');
+      loadProductPricing(currentProduct.slug);
+    }
+
+    async function saveAllChanges() {
+      const saveBtn = document.querySelector('#save-bar .btn-primary');
+      saveBtn.disabled = true;
+      saveBtn.textContent = 'Saving...';
+
+      try {
+        for (const key of Object.keys(pendingChanges)) {
+          const { category, optionId, changes } = pendingChanges[key];
+
+          if (category === 'fabric') {
+            // Save fabric price per m² with margins to manufacturerPrices collection
+            await fetch(`/api/admin/manufacturer-prices/${encodeURIComponent(optionId)}`, {
+              method: 'PUT',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + Admin.Auth.getToken()
+              },
+              body: JSON.stringify({
+                pricePerSqMeter: changes.pricePerSqMeter,
+                manualMargin: changes.manualMargin,
+                pricePerSqMeterCordless: changes.pricePerSqMeterCordless,
+                cordlessMargin: changes.cordlessMargin
+              })
+            });
+          } else if (category === 'accessories') {
+            // Save to manufacturerPrices collection
+            await fetch('/api/admin/manufacturer-prices', {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + Admin.Auth.getToken()
+              },
+              body: JSON.stringify({
+                optionType: 'accessory',
+                optionId: optionId,
+                manufacturerCost: changes.mfrCost || 0,
+                margin: changes.margin || 40
+              })
+            });
+          } else {
+            // Get current option values
+            const options = hardwareOptions[category] || [];
+            const opt = options.find(o => o.id === optionId) || {};
+            const mfrCost = changes.manufacturerCost !== undefined ? changes.manufacturerCost : (opt.manufacturerCost || 0);
+            const margin = changes.margin !== undefined ? changes.margin : (opt.margin || 40);
+            const priceType = changes.priceType !== undefined ? changes.priceType : (opt.priceType || 'flat');
+
+            // Update hardware option
+            await Admin.HardwareAPI.updateOption(category, optionId, {
+              manufacturerCost: mfrCost,
+              margin: margin,
+              priceType: priceType,
+              price: mfrCost * (1 + margin / 100)
+            });
+          }
+        }
+
+        Admin.Toast.success('All changes saved successfully');
+        pendingChanges = {};
+        document.getElementById('save-bar').classList.remove('visible');
+      } catch (error) {
+        Admin.Toast.error('Failed to save some changes');
+        console.error(error);
+      } finally {
+        saveBtn.disabled = false;
+        saveBtn.textContent = 'Save All Changes';
+      }
+    }
+
+    function updateSummary() {
+      let totalOptions = 0;
+      let configured = 0;
+      let totalMargin = 0;
+      let marginCount = 0;
+
+      Object.keys(hardwareOptions).forEach(category => {
+        const options = hardwareOptions[category] || [];
+        totalOptions += options.length;
+        options.forEach(opt => {
+          const mfrCost = opt.manufacturerCost || opt.costPrice || 0;
+          if (mfrCost > 0) {
+            configured++;
+            totalMargin += (opt.margin || 40);
+            marginCount++;
+          }
+        });
+      });
+
+      document.getElementById('total-options').textContent = totalOptions;
+      document.getElementById('options-configured').textContent = configured;
+      document.getElementById('options-pending').textContent = totalOptions - configured;
+      document.getElementById('avg-margin').textContent = marginCount > 0 ?
+        Math.round(totalMargin / marginCount) + '%' : '40%';
+    }
+
+    // Section tab switching
+    document.querySelectorAll('.section-tab').forEach(tab => {
+      tab.addEventListener('click', function() {
+        document.querySelectorAll('.section-tab').forEach(t => t.classList.remove('active'));
+        this.classList.add('active');
+        currentSection = this.dataset.section;
+        renderPricingTables();
+      });
+    });
+  </script>
+</body>
+</html>

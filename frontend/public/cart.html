@@ -413,9 +413,18 @@
         : item.configuration || {};
 
       const configString = Object.entries(config)
-        .filter(([key, value]) => value)
+        .filter(([key, value]) => value && key !== 'smartHubQty' && key !== 'usbChargerQty')
         .map(([key, value]) => `${formatKey(key)}: ${value}`)
         .join(' | ');
+
+      // Get recalculated price from orderSummary.lineItems if available
+      let itemPrice = (item.unit_price || item.unitPrice) * item.quantity;
+      if (orderSummary && orderSummary.lineItems) {
+        const lineItem = orderSummary.lineItems.find(li => li.itemId === item.id);
+        if (lineItem) {
+          itemPrice = lineItem.lineTotal;
+        }
+      }
 
       const imageUrl = item.image_url || productImages[item.product_name?.toLowerCase().replace(/\s+/g, '-')] || productImages.default;
 
@@ -439,7 +448,7 @@
                        onchange="setItemQuantity('${item.id}', this.value)">
                 <button class="quantity-btn" onclick="updateItemQuantity('${item.id}', 1)">+</button>
               </div>
-              <span class="cart-item-price">$${((item.unit_price || item.unitPrice) * item.quantity).toFixed(2)}</span>
+              <span class="cart-item-price">$${itemPrice.toFixed(2)}</span>
               <button class="cart-item-remove" onclick="removeItem('${item.id}')">
                 <i class="fas fa-trash"></i> Remove
               </button>

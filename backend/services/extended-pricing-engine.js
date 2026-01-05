@@ -43,6 +43,94 @@ class ExtendedPricingEngine {
   }
 
   /**
+   * Get hardware option price from database
+   * @param {Object} db - Database
+   * @param {string} category - Option category (e.g., 'mountType', 'valanceType')
+   * @param {string} optionId - Option ID or code to lookup
+   * @param {number} areaSqMeters - Area in square meters (for per-sqm pricing)
+   * @returns {Object} - { price, manufacturerCost, priceType, name }
+   */
+  getHardwareOptionPrice(db, category, optionId, areaSqMeters = 1) {
+    const hardwareOptions = db?.productContent?.hardwareOptions || {};
+    const categoryOptions = hardwareOptions[category] || [];
+
+    // Normalize optionId for comparison
+    const normalizedId = optionId?.toLowerCase()?.replace(/[-_\s]/g, '');
+
+    // Find the option by id, code, value, or label (handle various naming conventions)
+    const option = categoryOptions.find(opt => {
+      const optId = opt.id?.toLowerCase()?.replace(/[-_\s]/g, '');
+      const optCode = opt.code?.toLowerCase()?.replace(/[-_\s]/g, '');
+      const optValue = opt.value?.toLowerCase()?.replace(/[-_\s]/g, '');
+      const optLabel = opt.label?.toLowerCase()?.replace(/[-_\s]/g, '');
+      const optName = opt.name?.toLowerCase()?.replace(/[-_\s]/g, '');
+
+      return optId === normalizedId ||
+             optCode === normalizedId ||
+             optValue === normalizedId ||
+             optLabel === normalizedId ||
+             optName === normalizedId ||
+             // Also match partial label/name (e.g., "inside" matches "Inside Mount")
+             optLabel?.includes(normalizedId) ||
+             optName?.includes(normalizedId);
+    });
+
+    if (!option) {
+      return { price: 0, manufacturerCost: 0, priceType: 'flat', name: optionId };
+    }
+
+    let price = option.price || 0;
+    let mfrCost = option.manufacturerCost || 0;
+    const priceType = option.priceType || 'flat';
+
+    // If price type is per square meter, multiply by area
+    if (priceType === 'sqm' || priceType === 'per_sqm' || priceType === 'persqm') {
+      price = price * areaSqMeters;
+      mfrCost = mfrCost * areaSqMeters;
+    }
+
+    return {
+      price: this.round(price),
+      manufacturerCost: this.round(mfrCost),
+      priceType,
+      name: option.name || option.label || optionId
+    };
+  }
+
+  /**
+   * Get motor brand price from database
+   * @param {Object} db - Database
+   * @param {string} brandId - Motor brand ID
+   * @param {string} motorType - Motor type (battery, plugin-wire, etc.)
+   * @returns {Object} - { price, manufacturerCost, name }
+   */
+  getMotorBrandPrice(db, brandId, motorType = 'standard') {
+    const motorBrands = db?.motorBrands || [];
+    const brand = motorBrands.find(b => b.id === brandId || b.code === brandId);
+
+    if (!brand) {
+      // Fallback to default prices if brand not found
+      return { price: 45, manufacturerCost: 27, name: 'Motor' };
+    }
+
+    // Get price based on motor type if available
+    let price = brand.price || 0;
+    let mfrCost = brand.manufacturerCost || price * 0.6;
+
+    // Check for type-specific pricing
+    if (brand.types && brand.types[motorType]) {
+      price = brand.types[motorType].price || price;
+      mfrCost = brand.types[motorType].manufacturerCost || price * 0.6;
+    }
+
+    return {
+      price: this.round(price),
+      manufacturerCost: this.round(mfrCost),
+      name: brand.name || brandId
+    };
+  }
+
+  /**
    * Calculate complete customer price with full breakdown
    * This is the SINGLE SOURCE OF TRUTH for pricing
    *
@@ -99,12 +187,13 @@ class ExtendedPricingEngine {
       db
     });
 
-    // Step 2: Apply margin rules
+    // Step 2: Apply margin rules (use per-fabric margin from admin portal if set)
     const marginResult = this.applyMarginRules({
       manufacturerCost: manufacturerCost.unitCost,
       productType,
       productId: product.id,
       fabricCode,
+      fabricMargin: manufacturerCost.fabricMargin,  // Per-fabric margin from admin portal
       db
     });
 
@@ -241,10 +330,19 @@ class ExtendedPricingEngine {
       // Use pricePerSqMeter for m² pricing (from imported customer-config data)
       let pricePerSqMeter = priceRecord.pricePerSqMeter || priceRecord.basePrice;
 
-      // Use cordless pricing if control type is cordless or motorized
-      const isCordless = controlType === 'cordless' || controlType === 'motorized';
-      if (isCordless && priceRecord.pricePerSqMeterCordless) {
-        pricePerSqMeter = priceRecord.pricePerSqMeterCordless;
+      // Get per-fabric margin from admin portal (if set)
+      let fabricMargin = priceRecord.manualMargin;
+
+      // Use cordless pricing ONLY for cordless control type (includes cordless spring mechanism)
+      // Motorized uses standard fabric price + motor brand cost separately
+      if (controlType === 'cordless') {
+        if (priceRecord.pricePerSqMeterCordless) {
+          pricePerSqMeter = priceRecord.pricePerSqMeterCordless;
+        }
+        // Use cordless margin if set
+        if (priceRecord.cordlessMargin !== undefined && priceRecord.cordlessMargin !== null) {
+          fabricMargin = priceRecord.cordlessMargin;
+        }
       }
 
       // Calculate unit cost: area × price per m²
@@ -255,6 +353,8 @@ class ExtendedPricingEngine {
         source: 'manufacturer_price',
         manufacturerId: priceRecord.manufacturerId,
         priceRecordId: priceRecord.id,
+        // Include per-fabric margin from admin portal
+        fabricMargin: fabricMargin,
         // Include calculation details for transparency
         calculation: {
           widthInches: width,
@@ -265,7 +365,7 @@ class ExtendedPricingEngine {
           appliedAreaSqMeters: this.round(areaSqMeters * 100) / 100,
           minAreaApplied: widthMeters * heightMeters < minArea,
           pricePerSqMeter,
-          controlType: isCordless ? 'cordless' : 'manual'
+          controlType: controlType
         }
       };
     }
@@ -303,10 +403,28 @@ class ExtendedPricingEngine {
 
   /**
    * Apply margin rules to get customer price
+   * Priority: 1) Per-fabric margin from admin portal, 2) customerPriceRules, 3) Default 40%
    */
   applyMarginRules(params) {
-    const { manufacturerCost, productType, productId, fabricCode, db } = params;
+    const { manufacturerCost, productType, productId, fabricCode, fabricMargin, db } = params;
 
+    // PRIORITY 1: Use per-fabric margin from admin portal if set
+    if (fabricMargin !== undefined && fabricMargin !== null) {
+      const marginAmount = manufacturerCost * (fabricMargin / 100);
+      const customerPrice = manufacturerCost + marginAmount;
+
+      return {
+        marginType: 'percentage',
+        marginValue: fabricMargin,
+        marginAmount,
+        marginPercentage: fabricMargin,
+        customerPrice,
+        ruleId: null,
+        ruleName: 'Per-Fabric Margin (Admin Portal)'
+      };
+    }
+
+    // PRIORITY 2: Use customerPriceRules
     // Get applicable margin rules (sorted by priority)
     const rules = (db.customerPriceRules || [])
       .filter(r => r.status === 'active')
@@ -315,40 +433,40 @@ class ExtendedPricingEngine {
     // Find the most specific matching rule
     let matchedRule = null;
 
-    // Priority 1: Product + Fabric specific
+    // Priority 2a: Product + Fabric specific
     matchedRule = rules.find(r =>
       r.productId === productId && r.fabricCode === fabricCode
     );
 
-    // Priority 2: Product specific
+    // Priority 2b: Product specific
     if (!matchedRule) {
       matchedRule = rules.find(r =>
         r.productId === productId && !r.fabricCode
       );
     }
 
-    // Priority 3: Fabric specific
+    // Priority 2c: Fabric specific
     if (!matchedRule) {
       matchedRule = rules.find(r =>
         r.fabricCode === fabricCode && !r.productId
       );
     }
 
-    // Priority 4: Product type specific
+    // Priority 2d: Product type specific
     if (!matchedRule) {
       matchedRule = rules.find(r =>
         r.productType === productType && !r.productId && !r.fabricCode
       );
     }
 
-    // Priority 5: Default rule (all)
+    // Priority 2e: Default rule (all)
     if (!matchedRule) {
       matchedRule = rules.find(r =>
         r.productType === 'all' && !r.productId && !r.fabricCode
       );
     }
 
-    // If no rule found, use default 40% margin
+    // PRIORITY 3: If no rule found, use default 40% margin
     if (!matchedRule) {
       const defaultMargin = 0.40;
       const marginAmount = manufacturerCost * defaultMargin;
@@ -428,7 +546,15 @@ class ExtendedPricingEngine {
     // Formula: width(inches) × 0.0254 × height(inches) × 0.0254
     const widthMeters = width * 0.0254;
     const heightMeters = height * 0.0254;
-    const areaSqMeters = widthMeters * heightMeters;
+    let areaSqMeters = widthMeters * heightMeters;
+
+    // Minimum area for roller shades: 1.2 m²
+    // If area is less than 1.2 m², charge as if it were 1.2 m²
+    const minArea = 1.2;
+    const minAreaApplied = areaSqMeters < minArea;
+    if (minAreaApplied) {
+      areaSqMeters = minArea;
+    }
 
     // Fabric upgrade cost
     if (options.fabricCode) {
@@ -472,57 +598,39 @@ class ExtendedPricingEngine {
       }
     }
 
-    // Motorized control pricing (synced with customer-config pricingData.ts)
-    // Motor Brand prices from MOTOR_PRICES:
-    // - AOK_NORMAL: $45, AOK_ULTRA_QUIET: $57
-    // - DOOYA: $47
-    // - MATTER: $85, COLLISE: $160, SOMFY: $600, BLISS: $540
+    // Motorized control pricing - prices from database (Admin > Product Pricing > Motor Brands)
     if (options.controlType === 'motorized' || options.controlType === 'motorized-app' || options.controlType === 'cordless-motorized') {
-      // Motor brand selection (default to AOK)
-      // Prices from customer-config pricingData.ts MOTOR_PRICES
       const motorBrand = options.motorBrand || 'aok';
+      const motorType = options.motorType || 'battery';
 
-      // AOK Motor prices (from customer-config)
-      const aokMotorPrices = {
-        'am28': 57.00,              // AOK_ULTRA_QUIET: $57
-        'am28-ultra': 57.00,        // AOK AM28mm Ultra quiet motor
-        '25mm': 45.00,              // AOK_NORMAL: $45
-        '35mm': 57.00,              // AOK 35mm = Ultra quiet price
-        'battery': 45.00,           // Default to 25mm for battery
-        'plugin-wire': 57.00,       // Default to AM28 for plugin
-        'solar-powered': 57.00      // Default to AM28 for solar
-      };
+      // Look up motor brand from database
+      const motorBrands = db?.motorBrands || [];
+      const brand = motorBrands.find(b =>
+        b.id === motorBrand ||
+        b.id === `motor-${motorBrand}` ||
+        b.value === motorBrand ||
+        b.code === motorBrand ||
+        b.name?.toLowerCase().includes(motorBrand.toLowerCase())
+      );
 
-      // Dooya Motor prices (from customer-config DOOYA: $47)
-      const dooyaMotorPrices = {
-        'standard': 47.00,          // DOOYA: $47
-        'battery': 47.00,           // Dooya battery motor
-        'plugin-wire': 47.00,       // Dooya plugin motor (same base price)
-        'solar-powered': 47.00      // Dooya solar motor (same base price)
-      };
+      let motorPrice, motorMfrCost, motorName;
 
-      // Other motor brands (from customer-config)
-      const otherMotorPrices = {
-        'matter': 85.00,            // MATTER: $85
-        'collise': 160.00,          // COLLISE: $160
-        'somfy': 600.00,            // SOMFY: $600
-        'bliss': 540.00             // BLISS: $540
-      };
+      if (brand) {
+        // Use database prices
+        motorPrice = brand.price || 45;
+        motorMfrCost = brand.manufacturerCost || motorPrice * 0.6;
+        motorName = brand.name || `${motorBrand} Motor`;
 
-      // Get motor price based on brand and type
-      const motorType = options.motorType || (motorBrand === 'aok' ? 'battery' : 'standard');
-      let motorPrice, motorName;
-
-      if (motorBrand === 'dooya') {
-        motorPrice = dooyaMotorPrices[motorType] || 47.00;
-        motorName = 'Dooya Motor';
-      } else if (otherMotorPrices[motorBrand]) {
-        motorPrice = otherMotorPrices[motorBrand];
-        motorName = motorBrand.charAt(0).toUpperCase() + motorBrand.slice(1) + ' Motor';
+        // Check for motor type specific pricing
+        if (brand.types && brand.types[motorType]) {
+          motorPrice = brand.types[motorType].price || motorPrice;
+          motorMfrCost = brand.types[motorType].manufacturerCost || motorMfrCost;
+        }
       } else {
-        // Default to AOK
-        motorPrice = aokMotorPrices[motorType] || 45.00;
-        motorName = motorPrice === 45 ? 'AOK 25mm Motor' : 'AOK AM28mm Ultra Quiet Motor';
+        // Fallback defaults
+        motorPrice = 45;
+        motorMfrCost = 27;
+        motorName = 'Motor';
       }
 
       breakdown.push({
@@ -530,35 +638,45 @@ class ExtendedPricingEngine {
         code: options.controlType,
         name: motorName,
         brand: motorBrand,
-        price: motorPrice,
-        manufacturerCost: motorPrice * 0.6
+        price: this.round(motorPrice),
+        manufacturerCost: this.round(motorMfrCost)
       });
       total += motorPrice;
-      manufacturerCost += motorPrice * 0.6;
+      manufacturerCost += motorMfrCost;
 
       // Note: Cordless-motorized combo - no additional cordless fee per customer-config
       // Motor price already includes all necessary components
 
-      // Remote type (prices from customer-config pricingData.ts)
+      // Remote type - prices from database (Admin > Product Pricing)
       if (options.remoteType) {
-        const remoteTypePrices = {
-          'single-channel': 6.00,    // Single Channel Remote
-          '6-channel': 6.60,         // 6 Channel Remote
-          '15-channel': 11.35,       // 15 Channel Remote
-          '16-channel': 11.35        // Alias for 15 channel
-        };
-        const remotePrice = remoteTypePrices[options.remoteType] || 0;
-        if (remotePrice > 0) {
+        const remoteOption = this.getHardwareOptionPrice(db, 'remoteType', options.remoteType, areaSqMeters);
+        if (remoteOption.price > 0) {
           breakdown.push({
             type: 'remote',
             code: options.remoteType,
-            name: options.remoteType.replace(/-/g, ' '),
-            price: remotePrice,
-            manufacturerCost: remotePrice * 0.5
+            name: remoteOption.name,
+            price: remoteOption.price,
+            manufacturerCost: remoteOption.manufacturerCost
           });
-          total += remotePrice;
-          manufacturerCost += remotePrice * 0.5;
+          total += remoteOption.price;
+          manufacturerCost += remoteOption.manufacturerCost;
         }
+      }
+
+      // Solar panel - prices from database (Admin > Product Pricing)
+      if (options.solarType === 'yes') {
+        const solarOption = this.getHardwareOptionPrice(db, 'solarPanel', 'yes', areaSqMeters);
+        const solarPrice = solarOption.price > 0 ? solarOption.price : 20.50;
+        const solarMfrCost = solarOption.manufacturerCost > 0 ? solarOption.manufacturerCost : 15;
+        breakdown.push({
+          type: 'solar',
+          code: 'solar-panel',
+          name: solarOption.name || 'Solar Panel',
+          price: solarPrice,
+          manufacturerCost: solarMfrCost
+        });
+        total += solarPrice;
+        manufacturerCost += solarMfrCost;
       }
     }
 
@@ -566,155 +684,133 @@ class ExtendedPricingEngine {
     // Control system options (manual, cordless, motorized) don't have base prices
     // Motor price is charged separately based on motor brand selection
 
-    // Mount type
+    // Mount type - prices from database (Admin > Product Pricing)
     if (options.mountType) {
-      const mountTypePrices = {
-        'inside': 0,
-        'outside': 10
-      };
-      const mountPrice = mountTypePrices[options.mountType] || 0;
-      if (mountPrice > 0) {
+      const mountOption = this.getHardwareOptionPrice(db, 'mountType', options.mountType, areaSqMeters);
+      if (mountOption.price > 0) {
         breakdown.push({
           type: 'mount_type',
           code: options.mountType,
-          name: options.mountType.replace(/-/g, ' '),
-          price: mountPrice,
-          manufacturerCost: mountPrice * 0.5
+          name: mountOption.name,
+          price: mountOption.price,
+          manufacturerCost: mountOption.manufacturerCost
         });
-        total += mountPrice;
-        manufacturerCost += mountPrice * 0.5;
+        total += mountOption.price;
+        manufacturerCost += mountOption.manufacturerCost;
       }
     }
 
-    // Valance/Cassette type pricing - PER SQUARE METER (from customer-config pricingData.ts)
-    // VALANCE_PRICES: TOP_PLAIN_SQUARE: 0, TOP_FABRIC_WRAPPED: 2.2, TOP_FABRIC_INSERT: 2.2
+    // Valance/Cassette type pricing - prices from database (Admin > Product Pricing)
     const valanceValue = options.valanceType || options.standardCassette;
     if (valanceValue) {
-      // Prices per square meter ($/m²) from customer-config
-      const valanceTypePricesPerSqM = {
-        'square-v1': 0,               // Plain square - free
-        'square-v2': 0,               // Plain square - free
-        'square-v3': 0,               // Plain square - free
-        'fabric-wrapped-v3': 2.20,    // Fabric wrapped = $2.20/m²
-        'fabric-wrapped-sa': 2.20,    // Fabric wrapped = $2.20/m²
-        'fabric-wrapped-s3': 2.20,    // Fabric wrapped = $2.20/m²
-        'fabric-inserted-s1': 2.20,   // Fabric insert = $2.20/m²
-        'curve-white-s2': 2.20,       // Other type = $2.20/m²
-        'simple-rolling': 0,          // Simple rolling - free
-        'burliness': 2.20             // Other type = $2.20/m²
-      };
-      const valancePricePerSqM = valanceTypePricesPerSqM[valanceValue] || 0;
-      if (valancePricePerSqM > 0) {
-        // Calculate total price: rate per m² × area in m²
-        const valancePrice = this.round(valancePricePerSqM * areaSqMeters);
+      const valanceOption = this.getHardwareOptionPrice(db, 'valanceType', valanceValue, areaSqMeters);
+      if (valanceOption.price > 0) {
         breakdown.push({
           type: 'valance_type',
           code: valanceValue,
-          name: valanceValue.replace(/-/g, ' '),
-          price: valancePrice,
-          pricePerSqM: valancePricePerSqM,
-          areaSqMeters: this.round(areaSqMeters * 100) / 100,
-          manufacturerCost: valancePrice * 0.5
+          name: valanceOption.name,
+          price: valanceOption.price,
+          priceType: valanceOption.priceType,
+          areaSqMeters: valanceOption.priceType === 'sqm' ? this.round(areaSqMeters * 100) / 100 : undefined,
+          manufacturerCost: valanceOption.manufacturerCost
         });
-        total += valancePrice;
-        manufacturerCost += valancePrice * 0.5;
+        total += valanceOption.price;
+        manufacturerCost += valanceOption.manufacturerCost;
       }
     }
 
-    // Bottom rail/bar pricing - PER SQUARE METER (from customer-config pricingData.ts)
-    // VALANCE_PRICES: BOTTOM_PLAIN: 0, BOTTOM_OTHER: 2.2
+    // Bottom rail/bar pricing - prices from database (Admin > Product Pricing)
     if (options.bottomRail || options.standardBottomBar) {
       const bottomBarValue = options.bottomRail || options.standardBottomBar;
-      // Prices per square meter ($/m²) from customer-config
-      const bottomRailPricesPerSqM = {
-        // Plain types - free
-        'type-a-waterdrop': 0,        // Streamlined water-drop = free
-        'type-a-white': 0,            // Type A White = free
-        'type-a-gray': 0,             // Type A Gray = free
-        'type-a-black': 0,            // Type A Black = free
-        'standard': 0,                // Standard = free
-        // Other types = $2.20/m²
-        'simple-rolling': 2.20,       // Simple rolling = $2.20/m²
-        'type-b': 2.20,               // Type B = $2.20/m²
-        'type-b-white': 2.20,         // Type B White = $2.20/m²
-        'type-b-gray': 2.20,          // Type B Gray = $2.20/m²
-        'type-b-black': 2.20,         // Type B Black = $2.20/m²
-        'type-c-fabric-wrapped': 2.20, // Type C Fabric Wrapped = $2.20/m²
-        'type-d': 2.20,               // Type D = $2.20/m²
-        'fabric-inserted-z1': 2.20,   // Fabric inserted Z1 = $2.20/m²
-        'end-cap-free-z2': 2.20       // End cap free Z2 = $2.20/m²
-      };
-      const bottomRailPricePerSqM = bottomRailPricesPerSqM[bottomBarValue] || 0;
-      if (bottomRailPricePerSqM > 0) {
-        // Calculate total price: rate per m² × area in m²
-        const bottomRailPrice = this.round(bottomRailPricePerSqM * areaSqMeters);
+      const bottomOption = this.getHardwareOptionPrice(db, 'bottomRail', bottomBarValue, areaSqMeters);
+      if (bottomOption.price > 0) {
         breakdown.push({
           type: 'bottom_rail',
           code: bottomBarValue,
-          name: bottomBarValue.replace(/-/g, ' '),
-          price: bottomRailPrice,
-          pricePerSqM: bottomRailPricePerSqM,
-          areaSqMeters: this.round(areaSqMeters * 100) / 100,
-          manufacturerCost: bottomRailPrice * 0.5
+          name: bottomOption.name,
+          price: bottomOption.price,
+          priceType: bottomOption.priceType,
+          areaSqMeters: bottomOption.priceType === 'sqm' ? this.round(areaSqMeters * 100) / 100 : undefined,
+          manufacturerCost: bottomOption.manufacturerCost
         });
-        total += bottomRailPrice;
-        manufacturerCost += bottomRailPrice * 0.5;
+        total += bottomOption.price;
+        manufacturerCost += bottomOption.manufacturerCost;
       }
     }
 
-    // Accessories - hardcoded prices synced with customer-config
-    const accessoryPrices = {
-      'smartHub': 23.50,
-      'smart-hub': 23.50,
-      'usbCharger': 5.00,
-      'usb-charger': 5.00
+    // Accessories - prices from database (Admin > Product Pricing)
+    const accessories = db?.productContent?.accessories || [];
+
+    // Helper to get accessory price from database
+    const getAccessoryPrice = (accId) => {
+      // Normalize for comparison
+      const normalizedId = accId?.toLowerCase()?.replace(/[-_\s]/g, '');
+
+      const accessory = accessories.find(a => {
+        const aId = a.id?.toLowerCase()?.replace(/[-_\s]/g, '');
+        const aCode = a.code?.toLowerCase()?.replace(/[-_\s]/g, '');
+        const aName = a.name?.toLowerCase()?.replace(/[-_\s]/g, '');
+
+        return aId === normalizedId ||
+               aCode === normalizedId ||
+               aName === normalizedId ||
+               aName?.includes(normalizedId) ||
+               normalizedId?.includes(aName);
+      });
+
+      return accessory ? {
+        price: accessory.price || 0,
+        manufacturerCost: accessory.manufacturerCost || (accessory.price || 0) * 0.5,
+        name: accessory.name || accId
+      } : { price: 0, manufacturerCost: 0, name: accId };
     };
 
     // Handle smartHub quantity
     if (options.smartHubQty && options.smartHubQty > 0) {
-      const smartHubTotal = options.smartHubQty * accessoryPrices.smartHub;
+      const smartHubInfo = getAccessoryPrice('smart-hub');
+      const smartHubTotal = options.smartHubQty * smartHubInfo.price;
+      const smartHubMfrTotal = options.smartHubQty * smartHubInfo.manufacturerCost;
       breakdown.push({
         type: 'accessory',
         code: 'smart-hub',
-        name: `Smart Hub x${options.smartHubQty}`,
+        name: `${smartHubInfo.name} x${options.smartHubQty}`,
         price: smartHubTotal,
-        manufacturerCost: smartHubTotal * 0.5
+        manufacturerCost: smartHubMfrTotal
       });
       total += smartHubTotal;
-      manufacturerCost += smartHubTotal * 0.5;
+      manufacturerCost += smartHubMfrTotal;
     }
 
     // Handle usbCharger quantity
     if (options.usbChargerQty && options.usbChargerQty > 0) {
-      const usbChargerTotal = options.usbChargerQty * accessoryPrices.usbCharger;
+      const usbInfo = getAccessoryPrice('usb-charger');
+      const usbChargerTotal = options.usbChargerQty * usbInfo.price;
+      const usbMfrTotal = options.usbChargerQty * usbInfo.manufacturerCost;
       breakdown.push({
         type: 'accessory',
         code: 'usb-charger',
-        name: `USB Charger x${options.usbChargerQty}`,
+        name: `${usbInfo.name} x${options.usbChargerQty}`,
         price: usbChargerTotal,
-        manufacturerCost: usbChargerTotal * 0.5
+        manufacturerCost: usbMfrTotal
       });
       total += usbChargerTotal;
-      manufacturerCost += usbChargerTotal * 0.5;
+      manufacturerCost += usbMfrTotal;
     }
 
     // Legacy accessories handling from database
     if (options.accessories && Array.isArray(options.accessories)) {
-      const accessories = db.productContent?.accessories || [];
       for (const accId of options.accessories) {
-        const accessory = accessories.find(a => a.id === accId);
-        // Use hardcoded price if available, otherwise use database price
-        const price = accessoryPrices[accId] || accessory?.price || 0;
-        if (price > 0) {
+        const accInfo = getAccessoryPrice(accId);
+        if (accInfo.price > 0) {
           breakdown.push({
             type: 'accessory',
-            code: accessory?.id || accId,
-            name: accessory?.name || accId,
-            price: price,
-            manufacturerCost: price * 0.5
+            code: accId,
+            name: accInfo.name,
+            price: accInfo.price,
+            manufacturerCost: accInfo.manufacturerCost
           });
-          total += price;
-          manufacturerCost += price * 0.5;
+          total += accInfo.price;
+          manufacturerCost += accInfo.manufacturerCost;
         }
       }
     }

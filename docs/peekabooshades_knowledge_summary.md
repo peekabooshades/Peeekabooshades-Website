@@ -215,6 +215,57 @@ refunded / disputed / cancelled
 5. Prices immediately available for calculations
 ```
 
+### Dealer Portal Flow
+
+**URL:** `/dealer/`
+**Test Credentials:** `john@abcwindows.com` / `dealer123`
+
+```
+1. Login → Dashboard (stats, quick actions)
+           ↓
+2. New Order → Full product configurator
+   - Select product
+   - Enter customer details
+   - Configure dimensions & options
+   - Apply dealer discount automatically
+           ↓
+3. Manage Customers (CRUD operations)
+           ↓
+4. Track Commissions
+   - Lifetime earnings
+   - Monthly earnings
+   - Tier progress
+```
+
+**Dealer Pricing Tiers:**
+| Tier | Monthly Orders | Discount |
+|------|----------------|----------|
+| Bronze | 0-10 | 15% off |
+| Silver | 11-50 | 20% off |
+| Gold | 50+ | 25% off |
+
+### Invoice & Ledger Flow
+
+```
+1. Order Completed
+           ↓
+2. Auto-generate Invoice (or manual)
+   - Draft → Sent → Paid/Overdue
+           ↓
+3. Record Payment
+   - Full or partial
+   - Link to invoice
+           ↓
+4. Ledger Entry Created
+   - Double-entry bookkeeping
+   - Debit/Credit balanced
+           ↓
+5. Finance Summary Updated
+   - P&L, Tax, Revenue
+```
+
+**Invoice Statuses:** draft, sent, paid, partial, overdue, cancelled
+
 ---
 
 ## C) UI Principles (Admin-First, Schema-Driven, Dynamic PDP)
@@ -404,14 +455,17 @@ adminUsers, hardwareOptions, productPageLayouts
 | Backend API | http://localhost:3001 |
 | Customer Site | http://localhost:3001/ |
 | Admin Dashboard | http://localhost:3001/admin/ |
+| Dealer Portal | http://localhost:3001/dealer/ |
+| Manufacturer Portal | http://localhost:3001/manufacturer/ |
 | Fabric Extractor | http://localhost:5050 |
 
-### Default Admin Credentials
+### Portal Credentials
 
-```
-Email: admin@peekabooshades.com
-Password: admin123
-```
+| Portal | URL | Email | Password |
+|--------|-----|-------|----------|
+| **Admin** | /admin | admin@peekabooshades.com | admin123 |
+| **Dealer** | /dealer | john@abcwindows.com | dealer123 |
+| **Manufacturer** | /manufacturer | factory@zstarr.com | factory123 |
 
 ### Key API Endpoints
 
@@ -442,7 +496,27 @@ cd fabric-extractor && pip3 install -r requirements.txt && python3 app.py
 1. `/docs/ARCHITECTURE.md` - System architecture, data flows
 2. `/docs/KNOWLEDGE_TRANSFER.md` - Developer onboarding
 3. `/docs/API_DOCUMENTATION.md` - Complete API reference
-4. `/docs/AI_DEVELOPMENT_GUIDE.md` - AI development patterns
-5. `/docs/IMPLEMENTATION_SUMMARY.md` - What was built
-6. `/docs/PRODUCT_PAGE_EDITOR.md` - Visual builder docs
-7. `/CLAUDE.md` - Development instructions
+4. `/docs/API_REFERENCE.md` - Detailed API endpoint reference
+5. `/docs/AI_DEVELOPMENT_GUIDE.md` - AI development patterns
+6. `/docs/IMPLEMENTATION_SUMMARY.md` - What was built
+7. `/docs/PRODUCT_PAGE_EDITOR.md` - Visual builder docs
+8. `/docs/DEALER_PORTAL.md` - Dealer portal documentation
+9. `/docs/FINANCE_ACCOUNTING.md` - Finance & accounting docs
+10. `/docs/admin_guide.md` - Admin user guide
+11. `/CLAUDE.md` - Development instructions
+12. `/README.md` - Project overview & credentials
+
+---
+
+## QA Session Log (2026-01-03)
+
+### Knowledge Bootstrap Complete
+- All 12 markdown files read and analyzed
+- Knowledge summary updated with Dealer Portal and Invoice/Ledger flows
+- Portal credentials documented
+
+### Business Logic Freeze Acknowledged
+- Pricing formulas: LOCKED
+- Database schemas: LOCKED
+- API contracts: LOCKED
+- Status workflows: LOCKED

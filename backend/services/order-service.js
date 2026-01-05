@@ -87,14 +87,54 @@ function createOrderFromCart(sessionId, customerInfo, paymentInfo, userId = 'sys
     throw new Error('Cart is empty');
   }
 
-  // Validate cart items have prices (line_total from cart or calculated_price)
+  // TICKET 010: Validate cart items have frozen price snapshots
+  const priceIssues = [];
   for (const item of cartItems) {
     const price = item.line_total || item.calculated_price || item.unit_price;
     if (!price || price <= 0) {
       throw new Error(`Invalid price for item ${item.id}`);
     }
+
+    // Check for price snapshot (required for Ticket 009+ carts)
+    const snapshot = item.price_snapshot;
+    if (snapshot) {
+      // TICKET 010: Verify snapshot is still valid (check for stale pricing)
+      const snapshotAge = Date.now() - new Date(snapshot.captured_at).getTime();
+      const MAX_SNAPSHOT_AGE = 24 * 60 * 60 * 1000; // 24 hours
+
+      if (snapshotAge > MAX_SNAPSHOT_AGE) {
+        priceIssues.push({
+          itemId: item.id,
+          roomLabel: item.room_label,
+          reason: 'Price snapshot expired (older than 24 hours)',
+          snapshotAge: Math.round(snapshotAge / (60 * 60 * 1000)) + ' hours'
+        });
+      }
+
+      // TICKET 010: Verify stored price matches snapshot
+      const snapshotPrice = snapshot.customer_price?.unit_price;
+      if (snapshotPrice && Math.abs(price - snapshotPrice) > 0.01) {
+        priceIssues.push({
+          itemId: item.id,
+          roomLabel: item.room_label,
+          reason: 'Price mismatch between cart and snapshot',
+          cartPrice: price,
+          snapshotPrice: snapshotPrice,
+          difference: Math.abs(price - snapshotPrice).toFixed(2)
+        });
+      }
+    }
+
     // Normalize to calculated_price for order
     item.calculated_price = price;
+  }
+
+  // TICKET 010: Block checkout if price issues found
+  if (priceIssues.length > 0) {
+    const error = new Error('Cart pricing validation failed. Please refresh your cart.');
+    error.code = 'PRICE_VALIDATION_FAILED';
+    error.issues = priceIssues;
+    throw error;
   }
 
   const orderId = uuidv4();
@@ -105,22 +145,54 @@ function createOrderFromCart(sessionId, customerInfo, paymentInfo, userId = 'sys
   const subtotal = cartItems.reduce((sum, item) => sum + (item.calculated_price * (item.quantity || 1)), 0);
   const taxRate = 0.0725; // CA default
   const tax = Math.round(subtotal * taxRate * 100) / 100;
-  const shippingCost = subtotal >= 499 ? 0 : 14.99;
+  // Shipping is 0 by default - manufacturer will update when shipping the order
+  const shippingCost = 0;
   const total = Math.round((subtotal + tax + shippingCost) * 100) / 100;
 
-  // Build item snapshots with pricing details
+  // TICKET 010: Build item snapshots - USE CART'S FROZEN SNAPSHOT if available
   const itemsWithSnapshots = cartItems.map(item => {
-    // Get manufacturer price from database if available
+    const customerPrice = item.calculated_price;
+
+    // TICKET 010: Use cart's price_snapshot if available (frozen at add-to-cart time)
+    if (item.price_snapshot) {
+      const cartSnapshot = item.price_snapshot;
+      return {
+        ...item,
+        order_id: orderId,
+        snapshot_at: now,
+        // Use the frozen snapshot from cart (Ticket 009+)
+        price_snapshots: {
+          manufacturer_price: {
+            cost: cartSnapshot.manufacturer_price?.unit_cost || cartSnapshot.manufacturer_price?.cost,
+            total_cost: (cartSnapshot.manufacturer_price?.unit_cost || cartSnapshot.manufacturer_price?.cost) * (item.quantity || 1),
+            fabricCode: cartSnapshot.manufacturer_price?.fabric_code,
+            source: cartSnapshot.manufacturer_price?.source || 'cart_snapshot',
+            captured_at: cartSnapshot.captured_at
+          },
+          margin: {
+            type: cartSnapshot.margin?.type,
+            value: cartSnapshot.margin?.value,
+            amount: cartSnapshot.margin?.amount,
+            percent: cartSnapshot.margin?.percentage || cartSnapshot.margin?.percent,
+            captured_at: cartSnapshot.captured_at
+          },
+          customer_price: {
+            unit_price: cartSnapshot.customer_price?.unit_price,
+            line_total: (cartSnapshot.customer_price?.unit_price || customerPrice) * (item.quantity || 1),
+            options_total: cartSnapshot.customer_price?.options_total,
+            options_breakdown: cartSnapshot.customer_price?.options_breakdown,
+            captured_at: cartSnapshot.captured_at
+          }
+        }
+      };
+    }
+
+    // Fallback: Calculate for legacy cart items without snapshot (pre-Ticket 009)
     const fabricCode = item.price_breakdown?.fabricCode || item.fabricCode;
     const manufacturerPrice = (db.manufacturerPrices || []).find(mp => mp.fabricCode === fabricCode);
-
-    // Calculate manufacturer cost (60% of customer price as default)
-    const customerPrice = item.calculated_price;
     const manufacturerCost = manufacturerPrice?.pricePerSqMeter
       ? calculateAreaPrice(item.width, item.height, manufacturerPrice.pricePerSqMeter, manufacturerPrice.minAreaSqMeter)
       : customerPrice * 0.6;
-
-    // Calculate margin
     const margin = customerPrice - manufacturerCost;
     const marginPercent = customerPrice > 0 ? (margin / customerPrice * 100).toFixed(2) : 0;
 
@@ -128,12 +200,11 @@ function createOrderFromCart(sessionId, customerInfo, paymentInfo, userId = 'sys
       ...item,
       order_id: orderId,
       snapshot_at: now,
-      // Price snapshots (immutable record of pricing at order time)
       price_snapshots: {
         manufacturer_price: {
           cost: Math.round(manufacturerCost * 100) / 100,
           fabricCode: fabricCode || null,
-          source: manufacturerPrice ? 'database' : 'calculated',
+          source: manufacturerPrice ? 'database' : 'calculated_legacy',
           captured_at: now
         },
         margin: {
@@ -142,8 +213,8 @@ function createOrderFromCart(sessionId, customerInfo, paymentInfo, userId = 'sys
           captured_at: now
         },
         customer_price: {
-          unit_price: item.unit_price || item.calculated_price,
-          line_total: item.calculated_price * (item.quantity || 1),
+          unit_price: item.unit_price || customerPrice,
+          line_total: customerPrice * (item.quantity || 1),
           captured_at: now
         }
       }
@@ -160,6 +231,11 @@ function createOrderFromCart(sessionId, customerInfo, paymentInfo, userId = 'sys
     id: orderId,
     order_number: orderNumber,
     status: ORDER_STATES.ORDER_PLACED,
+    // Top-level fields for easy access
+    subtotal,
+    tax,
+    shipping: shippingCost,
+    total,
     customer: {
       name: customerInfo.name,
       email: customerInfo.email,
