@@ -13,38 +13,32 @@ const DB_PATH = path.join(__dirname, '../database.json');
 /**
  * Calculate total manufacturer cost for an item from price snapshots
  * Handles both price_snapshot (singular) and price_snapshots (plural)
+ * Includes: Fabric MFR + Options MFR + Accessories MFR
  */
 function calculateItemManufacturerCost(item) {
   const qty = item.quantity || 1;
 
-  // Try price_snapshots (plural) first - from order-service
-  const snapPlural = item.price_snapshots?.manufacturer_price;
-  if (snapPlural?.cost) {
-    return snapPlural.cost * qty;
-  }
-  if (snapPlural?.unit_cost) {
-    return snapPlural.unit_cost * qty;
-  }
-  if (snapPlural?.total_cost) {
-    return snapPlural.total_cost; // Already includes quantity
+  // Try to get snapshot (prefer plural, fallback to singular)
+  const snapshot = item.price_snapshots || item.price_snapshot;
+  if (!snapshot) {
+    // Fallback to manufacturer_cost field or 60% estimate
+    return (item.manufacturer_cost || (item.calculated_price || item.unit_price || 0) * 0.6) * qty;
   }
 
-  // Try price_snapshot (singular) - from cart snapshot
-  const snapSingular = item.price_snapshot?.manufacturer_price;
-  if (snapSingular?.unit_cost) {
-    // Also add options manufacturer costs
-    const optionsCost = (item.price_snapshot?.customer_price?.options_breakdown || [])
-      .reduce((sum, opt) => sum + (opt.manufacturerCost || 0), 0);
-    return (snapSingular.unit_cost + optionsCost) * qty;
-  }
-  if (snapSingular?.total_cost) {
-    const optionsCost = (item.price_snapshot?.customer_price?.options_breakdown || [])
-      .reduce((sum, opt) => sum + (opt.manufacturerCost || 0), 0);
-    return snapSingular.total_cost + (optionsCost * qty);
-  }
+  // 1. Fabric/Base MFR Cost
+  const mfrPrice = snapshot.manufacturer_price;
+  const fabricMfr = mfrPrice?.unit_cost || mfrPrice?.cost || 0;
 
-  // Fallback to manufacturer_cost field or 60% estimate
-  return (item.manufacturer_cost || (item.calculated_price || item.unit_price || 0) * 0.6) * qty;
+  // 2. Options MFR Cost (per unit)
+  const optionsCost = (snapshot.customer_price?.options_breakdown || [])
+    .reduce((sum, opt) => sum + (opt.manufacturerCost || 0), 0);
+
+  // 3. Accessories MFR Cost (per order, NOT multiplied by qty)
+  const accessoriesCost = (snapshot.customer_price?.accessories_breakdown || [])
+    .reduce((sum, acc) => sum + (acc.manufacturerCost || 0), 0);
+
+  // Total = (Fabric + Options) * Quantity + Accessories
+  return ((fabricMfr + optionsCost) * qty) + accessoriesCost;
 }
 
 /**
