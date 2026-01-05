@@ -537,7 +537,9 @@ app.post('/api/cart', (req, res) => {
           unit_price: priceResult.pricing.unitPrice,
           line_total: priceResult.pricing.lineTotal,
           options_total: priceResult.pricing.options.total,
-          options_breakdown: priceResult.pricing.options.breakdown
+          options_breakdown: priceResult.pricing.options.breakdown,
+          accessories_total: priceResult.pricing.accessories?.total || 0,
+          accessories_breakdown: priceResult.pricing.accessories?.breakdown || []
         }
       },
       created_at: now

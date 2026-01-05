@@ -72,6 +72,10 @@ function createInvoiceFromOrder(orderId, type = 'customer', options = {}) {
   let invoice;
 
   if (type === INVOICE_TYPE.CUSTOMER) {
+    // Generate customer number if not present
+    const customerNumber = order.customer?.id ||
+      'CUST-' + Date.now().toString(36).toUpperCase() + Math.random().toString(36).substring(2, 6).toUpperCase();
+
     // Customer invoice - what customer owes us
     invoice = {
       id: uuidv4(),
@@ -81,8 +85,12 @@ function createInvoiceFromOrder(orderId, type = 'customer', options = {}) {
       orderId: order.id,
       orderNumber: order.order_number,
 
-      // Customer info
+      // Customer info with ID/Number
+      customerId: order.customer?.id || customerNumber,
+      customerNumber: customerNumber,
       customer: {
+        id: order.customer?.id || customerNumber,
+        number: customerNumber,
         name: order.customer?.name || 'Unknown',
         email: order.customer?.email || '',
         phone: order.customer?.phone || '',
@@ -93,7 +101,7 @@ function createInvoiceFromOrder(orderId, type = 'customer', options = {}) {
       billingAddress: order.billing_address || order.customer?.address || '',
       shippingAddress: order.shipping_address || order.customer?.address || '',
 
-      // Line items - include full configuration details
+      // Line items - include full configuration details and customer pricing
       items: order.items.map(item => {
         // Parse configuration if it's a string
         let cfg = {};
@@ -105,6 +113,20 @@ function createInvoiceFromOrder(orderId, type = 'customer', options = {}) {
           }
         }
 
+        // Get price snapshot data for detailed breakdown
+        const priceSnapshot = item.price_snapshots || {};
+        const mfrPrice = priceSnapshot.manufacturer_price || {};
+        const margin = priceSnapshot.margin || {};
+        const customerPrice = priceSnapshot.customer_price || {};
+        const optionsBreakdown = customerPrice.options_breakdown || [];
+        const accessoriesBreakdown = customerPrice.accessories_breakdown || [];
+
+        // Build pricing details object for each option type
+        const getOptionPrice = (type) => {
+          const opt = optionsBreakdown.find(o => o.type === type);
+          return opt ? { name: opt.name, price: opt.price, manufacturerCost: opt.manufacturerCost } : null;
+        };
+
         return {
           id: item.id,
           description: item.product_name,
@@ -113,8 +135,45 @@ function createInvoiceFromOrder(orderId, type = 'customer', options = {}) {
           width: item.width,
           height: item.height,
           quantity: item.quantity,
+
+          // Customer Pricing Details
+          pricing: {
+            fabricBasePrice: mfrPrice.cost ? (mfrPrice.cost + (margin.amount || 0)) : item.unit_price,
+            manufacturerCost: mfrPrice.cost || 0,
+            marginPercent: margin.percent || margin.value || 0,
+            marginAmount: margin.amount || 0,
+            optionsTotal: customerPrice.options_total || 0,
+            accessoriesTotal: customerPrice.accessories_total || 0,
+            unitPrice: item.unit_price,
+            lineTotal: item.line_total || (item.unit_price * item.quantity)
+          },
+
+          // Options with Customer Prices
+          optionsPricing: {
+            motor: getOptionPrice('motorization'),
+            remote: getOptionPrice('remote'),
+            solar: getOptionPrice('solar'),
+            valance: getOptionPrice('valance_type'),
+            bottomRail: getOptionPrice('bottom_rail'),
+            roller: getOptionPrice('roller_type')
+          },
+
+          // Accessories with Customer Prices
+          accessoriesPricing: accessoriesBreakdown.map(acc => ({
+            name: acc.name,
+            code: acc.code,
+            price: acc.price,
+            manufacturerCost: acc.manufacturerCost
+          })),
+
+          // Full options breakdown (all options with prices)
+          optionsBreakdown: optionsBreakdown,
+          accessoriesBreakdown: accessoriesBreakdown,
+
+          // Legacy fields for compatibility
           unitPrice: item.unit_price,
           lineTotal: item.line_total || (item.unit_price * item.quantity),
+
           // Configuration columns
           fabricCode: cfg.fabricCode || '',
           fabricColor: cfg.fabricColor || '',
@@ -124,11 +183,14 @@ function createInvoiceFromOrder(orderId, type = 'customer', options = {}) {
           rollerType: cfg.rollerType || '',
           mountType: cfg.mountType || '',
           controlType: cfg.controlType || '',
-          motorType: cfg.motorType || '',
+          motorType: cfg.motorType || cfg.motorBrand || '',
+          motorBrand: cfg.motorBrand || '',
           remoteType: cfg.remoteType || '',
           solarType: cfg.solarType || '',
           chainType: cfg.chainType || '',
           chainSide: cfg.chainSide || '',
+          smartHubQty: cfg.smartHubQty || 0,
+          usbChargerQty: cfg.usbChargerQty || 0,
           configuration: item.configuration || '{}'
         };
       }),
@@ -146,11 +208,20 @@ function createInvoiceFromOrder(orderId, type = 'customer', options = {}) {
       amountPaid: order.payment?.status === 'completed' ? order.pricing?.total : 0,
       amountDue: order.payment?.status === 'completed' ? 0 : order.pricing?.total,
       paymentMethod: order.payment?.method || null,
-      paidAt: order.payment?.paid_at || null,
 
-      // Dates
+      // Important Dates
+      invoiceGeneratedAt: now.toISOString(),    // Invoice generated date/time
+      invoiceGeneratedDate: now.toLocaleDateString('en-US'),
+      invoiceGeneratedTime: now.toLocaleTimeString('en-US'),
+      paymentDate: order.payment?.status === 'completed' ? now.toISOString() : null,  // Payment date/time
+      paymentDateFormatted: order.payment?.status === 'completed' ? now.toLocaleDateString('en-US') : null,
+      paymentTimeFormatted: order.payment?.status === 'completed' ? now.toLocaleTimeString('en-US') : null,
+      orderDate: order.created_at || now.toISOString(),  // Original order date
+
+      // Legacy date fields (kept for compatibility)
       issueDate: now.toISOString(),
       dueDate: dueDate.toISOString(),
+      paidAt: order.payment?.status === 'completed' ? now.toISOString() : null,
       createdAt: now.toISOString(),
       updatedAt: now.toISOString(),
 
@@ -214,7 +285,8 @@ function createInvoiceFromOrder(orderId, type = 'customer', options = {}) {
           rollerType: cfg.rollerType || '',
           mountType: cfg.mountType || '',
           controlType: cfg.controlType || '',
-          motorType: cfg.motorType || '',
+          motorType: cfg.motorType || cfg.motorBrand || '',
+          motorBrand: cfg.motorBrand || '',
           remoteType: cfg.remoteType || '',
           solarType: cfg.solarType || '',
           chainType: cfg.chainType || '',

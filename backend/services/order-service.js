@@ -182,9 +182,11 @@ function createOrderFromCart(sessionId, customerInfo, paymentInfo, userId = 'sys
           },
           customer_price: {
             unit_price: cartSnapshot.customer_price?.unit_price,
-            line_total: (cartSnapshot.customer_price?.unit_price || customerPrice) * (item.quantity || 1),
+            line_total: cartSnapshot.customer_price?.line_total || ((cartSnapshot.customer_price?.unit_price || customerPrice) * (item.quantity || 1)),
             options_total: cartSnapshot.customer_price?.options_total,
             options_breakdown: cartSnapshot.customer_price?.options_breakdown,
+            accessories_total: cartSnapshot.customer_price?.accessories_total || 0,
+            accessories_breakdown: cartSnapshot.customer_price?.accessories_breakdown || [],
             captured_at: cartSnapshot.captured_at
           }
         }
