@@ -41,19 +41,25 @@ function authMiddleware(req, res, next) {
 }
 
 /**
- * Generate JWT token for admin user
+ * Generate JWT token for admin or dealer user
  */
-function generateToken(admin) {
-  return jwt.sign(
-    {
-      id: admin.id,
-      email: admin.email,
-      name: admin.name,
-      role: admin.role
-    },
-    JWT_SECRET,
-    { expiresIn: TOKEN_EXPIRY }
-  );
+function generateToken(user) {
+  const payload = {
+    id: user.id,
+    email: user.email,
+    name: user.name,
+    role: user.role
+  };
+
+  // Add dealer-specific fields if present
+  if (user.dealerId) {
+    payload.dealerId = user.dealerId;
+  }
+  if (user.dealerName) {
+    payload.dealerName = user.dealerName;
+  }
+
+  return jwt.sign(payload, JWT_SECRET, { expiresIn: TOKEN_EXPIRY });
 }
 
 /**

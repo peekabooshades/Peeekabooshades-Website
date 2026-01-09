@@ -5021,6 +5021,16 @@
         motorBrandGroup.style.display = 'block';
         motorBrandGroup.style.animation = 'slideDown 0.3s ease';
         chainLocationGroup.style.display = 'none';
+
+        // BUG-010 FIX: Auto-select accessories for motorized
+        const smartHubInput = document.getElementById('smartHubQty');
+        const usbChargerInput = document.getElementById('usbChargerQty');
+        if (smartHubInput && parseInt(smartHubInput.value) === 0) {
+          smartHubInput.value = 1;
+        }
+        if (usbChargerInput && parseInt(usbChargerInput.value) === 0) {
+          usbChargerInput.value = 1;
+        }
       } else if (selectedValue === 'manual') {
         chainLocationGroup.style.display = 'block';
         chainLocationGroup.style.animation = 'slideDown 0.3s ease';
@@ -5432,7 +5442,7 @@
       }
 
       // Chain Side
-      const chainSideOption = document.querySelector('#chainSideSwatches .chain-side-btn.selected');
+      const chainSideOption = document.querySelector('#chainLocationSwatches .chain-location-btn.selected');
       if (chainSideOption) {
         breakdown.push({ name: `Chain Position: ${chainSideOption.textContent.trim()}`, price: 0, info: true });
       }
@@ -5628,13 +5638,69 @@
       const smartHubQty = parseInt(document.getElementById('smartHubQty')?.value) || 0;
       const usbChargerQty = parseInt(document.getElementById('usbChargerQty')?.value) || 0;
 
+      // ============================================
+      // VALIDATION - BUG-005 FIX
+      // ============================================
+
+      // Validate dimensions
+      const widthNum = parseFloat(width);
+      const heightNum = parseFloat(height);
+
+      if (!width || isNaN(widthNum) || widthNum < 12 || widthNum > 120) {
+        showToast('Please enter a valid width (12-120 inches)', 'error');
+        document.getElementById('widthInput').focus();
+        return;
+      }
+
+      if (!height || isNaN(heightNum) || heightNum < 12 || heightNum > 120) {
+        showToast('Please enter a valid height (12-120 inches)', 'error');
+        document.getElementById('heightInput').focus();
+        return;
+      }
+
+      // Validate fabric selection
+      const selectedFabric = document.querySelector('.fabric-group .fabric-swatch.selected');
+      if (!selectedFabric) {
+        showToast('Please select a fabric', 'error');
+        return;
+      }
+
+      // Validate motorized options
+      const controlType = document.querySelector('#controlTypeSwatches .hardware-option.selected')?.dataset.value || 'manual';
+
+      if (controlType === 'motorized') {
+        const motorBrand = document.querySelector('#motorBrandSwatches .motor-brand-btn.selected')?.dataset.value;
+        const motorType = document.querySelector('#motorTypeSwatches .motor-btn.selected')?.dataset.value;
+
+        if (!motorBrand) {
+          showToast('Please select a motor brand for motorized blinds', 'error');
+          return;
+        }
+
+        if (!motorType) {
+          showToast('Please select a motor type for motorized blinds', 'error');
+          return;
+        }
+      }
+
+      // Validate price is calculated
+      const totalPrice = parseFloat(document.getElementById('totalPrice').textContent);
+      if (isNaN(totalPrice) || totalPrice <= 0) {
+        showToast('Price calculation error. Please refresh and try again.', 'error');
+        return;
+      }
+
+      // ============================================
+      // END VALIDATION
+      // ============================================
+
       const configuration = {
         lightFiltering: document.querySelector('#lightFilteringSwatches .filter-toggle-btn.selected')?.dataset.value || 'blackout',
         fabricCode: document.querySelector('.fabric-group .fabric-swatch.selected')?.dataset.code || '82143A',
         fabricColor: document.querySelector('.fabric-group .fabric-swatch.selected')?.dataset.color || '82143A',
         standardCassette: document.querySelector('#cassetteSwatches .hardware-option.selected')?.dataset.value || 'fabric-insert',
         standardBottomBar: document.querySelector('#bottomBarSwatches .hardware-option.selected')?.dataset.value || 'standard',
-        chainSide: document.querySelector('#chainSideSwatches .chain-side-btn.selected')?.dataset.value || 'left',
+        chainSide: document.querySelector('#chainLocationSwatches .chain-location-btn.selected')?.dataset.value || 'left',
         rollerType: document.querySelector('#rollerTypeSwatches .hardware-option.selected')?.dataset.value || 'standard-roll-back',
         mountType: document.querySelector('#mountTypeSwatches .hardware-option.selected')?.dataset.value || 'inside',
         controlType: document.querySelector('#controlTypeSwatches .hardware-option.selected')?.dataset.value || 'manual',
@@ -5648,7 +5714,7 @@
         usbChargerQty: usbChargerQty
       };
 
-      const totalPrice = parseFloat(document.getElementById('totalPrice').textContent);
+      // totalPrice already validated above
       const unitPrice = totalPrice / parseInt(quantity);
 
       const sessionId = getSessionId();

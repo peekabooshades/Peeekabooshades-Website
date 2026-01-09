@@ -318,16 +318,19 @@
   </div>
 
   <!-- Create/Edit Draft Modal -->
-  <div class="modal" id="draftModal">
-    <div class="modal-overlay" onclick="closeModal()"></div>
-    <div class="modal-content" style="max-width: 800px;">
+  <div class="modal-overlay" id="draftModal" style="display: none;">
+    <div class="modal" style="max-width: 800px;">
       <div class="modal-header">
-        <h2 id="modalTitle">Create Draft Order</h2>
-        <button class="modal-close" onclick="closeModal()">&times;</button>
+        <h3 class="modal-title" id="modalTitle">Create Draft Order</h3>
+        <button class="modal-close" onclick="closeModal()">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
       </div>
       <form id="draftForm" onsubmit="saveDraft(event)">
         <div class="modal-body">
-          <div class="form-row">
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
             <div class="form-group">
               <label class="form-label">Customer</label>
               <select class="form-select" id="customerId">
@@ -343,7 +346,7 @@
             </div>
           </div>
 
-          <div class="form-group">
+          <div class="form-group" style="margin-top: 16px;">
             <label class="form-label">Line Items</label>
             <div id="lineItems">
               <div class="line-item" style="display: flex; gap: 12px; margin-bottom: 12px;">
@@ -356,7 +359,7 @@
             <button type="button" class="btn btn-secondary btn-sm" onclick="addLineItem()">+ Add Item</button>
           </div>
 
-          <div class="form-row">
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; margin-top: 16px;">
             <div class="form-group">
               <label class="form-label">Discount Type</label>
               <select class="form-select" id="discountType">
@@ -371,7 +374,7 @@
             </div>
           </div>
 
-          <div class="form-group">
+          <div class="form-group" style="margin-top: 16px;">
             <label class="form-label">Internal Notes</label>
             <textarea class="form-input" id="internalNotes" rows="3" placeholder="Notes visible only to staff..."></textarea>
           </div>
@@ -568,7 +571,7 @@
           <button type="button" class="btn btn-secondary btn-sm" onclick="this.parentElement.remove()">Remove</button>
         </div>
       `;
-      document.getElementById('draftModal').classList.add('active');
+      document.getElementById('draftModal').style.display = 'flex';
     }
 
     function addLineItem() {
@@ -586,7 +589,7 @@
     }
 
     function closeModal() {
-      document.getElementById('draftModal').classList.remove('active');
+      document.getElementById('draftModal').style.display = 'none';
       editingDraftId = null;
     }
 
@@ -684,7 +687,7 @@
         </div>
       `;
 
-      document.getElementById('draftModal').classList.add('active');
+      document.getElementById('draftModal').style.display = 'flex';
     }
 
     async function sendInvoice(id) {
@@ -742,6 +745,13 @@
         timeout = setTimeout(later, wait);
       };
     }
+
+    // Close modal on background click
+    document.getElementById('draftModal').addEventListener('click', function(e) {
+      if (e.target === this) {
+        closeModal();
+      }
+    });
   </script>
 </body>
 </html>

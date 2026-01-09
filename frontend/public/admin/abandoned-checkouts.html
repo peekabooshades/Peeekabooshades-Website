@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Abandoned Checkouts - Peekaboo Shades Admin</title>
+  <link rel="stylesheet" href="css/admin.css">
+  <link rel="icon" type="image/png" href="/images/favicon.png">
+  <style>
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 4px 10px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 500;
+    }
+    .status-badge.abandoned { background: #FEE9E9; color: #D72C0D; }
+    .status-badge.recovered { background: #E3F1DF; color: #008060; }
+    .status-badge.emailed { background: #E8F4FD; color: #2C6ECB; }
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+    }
+    .empty-state h3 {
+      font-size: 18px;
+      margin-bottom: 8px;
+      color: #202223;
+    }
+    .empty-state p {
+      color: #6D7175;
+    }
+    .stat-card {
+      background: white;
+      border-radius: 12px;
+      padding: 20px;
+      border: 1px solid #e5e7eb;
+    }
+    .stat-value {
+      font-size: 28px;
+      font-weight: 700;
+      color: #1a1a2e;
+    }
+    .stat-label {
+      font-size: 13px;
+      color: #6b7280;
+      margin-top: 4px;
+    }
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+  </style>
+</head>
+<body>
+  <div class="admin-layout">
+    <aside class="admin-sidebar">
+      <div class="sidebar-header">
+        <a href="/admin/" class="sidebar-logo">
+          <img src="/images/logo.png" alt="Logo" onerror="this.style.display='none'">
+          <span>Peekaboo Shades</span>
+        </a>
+      </div>
+      <nav class="sidebar-nav">
+        <div class="nav-section">
+          <a href="/admin/" class="nav-item">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" /></svg>
+            <span>Dashboard</span>
+          </a>
+        </div>
+        <div class="nav-section">
+          <div class="nav-section-title">Sales</div>
+          <a href="/admin/orders.html" class="nav-item"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" /></svg><span>Orders</span></a>
+          <a href="/admin/draft-orders.html" class="nav-item"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" /></svg><span>Draft Orders</span></a>
+          <a href="/admin/abandoned-checkouts.html" class="nav-item active"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" /></svg><span>Abandoned Carts</span></a>
+          <a href="/admin/quotes.html" class="nav-item"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" /></svg><span>Quotes</span></a>
+        </div>
+        <div class="nav-section">
+          <div class="nav-section-title">Catalog</div>
+          <a href="/admin/products.html" class="nav-item"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" /></svg><span>Products</span></a>
+          <a href="/admin/fabrics.html" class="nav-item"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg><span>Fabrics</span></a>
+        </div>
+        <div class="nav-section">
+          <div class="nav-section-title">Customers</div>
+          <a href="/admin/customers.html" class="nav-item"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" /></svg><span>All Customers</span></a>
+        </div>
+        <div class="nav-section">
+          <div class="nav-section-title">Settings</div>
+          <a href="/admin/settings.html" class="nav-item"><svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" /><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /></svg><span>Settings</span></a>
+        </div>
+      </nav>
+    </aside>
+
+    <main class="admin-main">
+      <header class="admin-header">
+        <div class="header-left">
+          <div class="breadcrumb">
+            <a href="/admin/" class="breadcrumb-link">Dashboard</a>
+            <span class="breadcrumb-separator">/</span>
+            <span class="breadcrumb-current">Abandoned Checkouts</span>
+          </div>
+        </div>
+        <div class="header-right">
+          <a href="/" class="header-btn" title="View Store" target="_blank">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 6H6a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2v-4M14 4h6m0 0v6m0-6L10 14" /></svg>
+          </a>
+        </div>
+      </header>
+
+      <div class="admin-content">
+        <div class="page-header">
+          <h1 class="page-title">Abandoned Checkouts</h1>
+        </div>
+
+        <!-- Stats -->
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-value" id="totalAbandoned">0</div>
+            <div class="stat-label">Total Abandoned</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" id="potentialRevenue">$0</div>
+            <div class="stat-label">Potential Revenue</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" id="recovered">0</div>
+            <div class="stat-label">Recovered</div>
+          </div>
+        </div>
+
+        <!-- Table -->
+        <div class="card">
+          <div class="table-container">
+            <table class="admin-table">
+              <thead>
+                <tr>
+                  <th>Checkout</th>
+                  <th>Customer</th>
+                  <th>Email</th>
+                  <th>Items</th>
+                  <th style="text-align: right;">Value</th>
+                  <th>Date</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody id="checkoutsTable">
+                <tr><td colspan="7" style="text-align: center; padding: 40px;">Loading...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="js/admin.js"></script>
+  <script>
+    let checkouts = [];
+
+    document.addEventListener('DOMContentLoaded', () => {
+      Admin.Auth.requireAuth();
+      loadCheckouts();
+    });
+
+    async function loadCheckouts() {
+      try {
+        const response = await fetch('/api/admin/abandoned-checkouts', {
+          headers: { 'Authorization': `Bearer ${Admin.Auth.getToken()}` }
+        });
+        const data = await response.json();
+        if (data.success) {
+          checkouts = data.abandonedCheckouts || [];
+          renderCheckouts();
+          updateStats();
+        }
+      } catch (error) {
+        console.error('Failed to load checkouts:', error);
+        document.getElementById('checkoutsTable').innerHTML = `
+          <tr><td colspan="7" class="empty-state">
+            <h3>No abandoned checkouts</h3>
+            <p>Abandoned checkouts will appear here when customers leave items in their cart</p>
+          </td></tr>
+        `;
+      }
+    }
+
+    function renderCheckouts() {
+      const tbody = document.getElementById('checkoutsTable');
+      if (!checkouts || checkouts.length === 0) {
+        tbody.innerHTML = `
+          <tr><td colspan="7" class="empty-state">
+            <h3>No abandoned checkouts</h3>
+            <p>Abandoned checkouts will appear here when customers leave items in their cart</p>
+          </td></tr>
+        `;
+        return;
+      }
+
+      tbody.innerHTML = checkouts.map(c => `
+        <tr>
+          <td>#${c.id?.slice(0, 8) || 'N/A'}</td>
+          <td>${Admin.Utils.escapeHtml(c.customer_name || c.customerName || 'Guest')}</td>
+          <td>${Admin.Utils.escapeHtml(c.customer_email || c.customerEmail || '-')}</td>
+          <td>${c.items?.length || 0} items</td>
+          <td style="text-align: right;">${Admin.Utils.formatCurrency(c.total || 0)}</td>
+          <td>${Admin.Utils.formatDate(c.created_at || c.createdAt)}</td>
+          <td><span class="status-badge ${c.status || 'abandoned'}">${c.status || 'Abandoned'}</span></td>
+        </tr>
+      `).join('');
+    }
+
+    function updateStats() {
+      const total = checkouts.length;
+      const revenue = checkouts.reduce((sum, c) => sum + (c.total || 0), 0);
+      const recovered = checkouts.filter(c => c.status === 'recovered').length;
+
+      document.getElementById('totalAbandoned').textContent = total;
+      document.getElementById('potentialRevenue').textContent = Admin.Utils.formatCurrency(revenue);
+      document.getElementById('recovered').textContent = recovered;
+    }
+  </script>
+</body>
+</html>

@@ -633,6 +633,37 @@ app.post('/api/orders', (req, res) => {
     // Get cart items
     const cartItems = db.cart.filter(item => item.session_id === sessionId);
 
+    // Calculate manufacturer cost totals from item price_snapshots
+    let totalManufacturerCost = 0;
+    let totalOptionsManufacturerCost = 0;
+    let totalAccessoriesManufacturerCost = 0;
+
+    cartItems.forEach(item => {
+      const ps = item.price_snapshot || {};
+      const mfrPrice = ps.manufacturer_price || {};
+      const customerPrice = ps.customer_price || {};
+      const qty = item.quantity || 1;
+
+      // Fabric manufacturer cost
+      totalManufacturerCost += (mfrPrice.unit_cost || mfrPrice.cost || 0) * qty;
+
+      // Options manufacturer cost
+      const optionsBreakdown = customerPrice.options_breakdown || [];
+      optionsBreakdown.forEach(opt => {
+        totalOptionsManufacturerCost += (opt.manufacturerCost || 0) * qty;
+      });
+
+      // Accessories manufacturer cost
+      const accessoriesBreakdown = customerPrice.accessories_breakdown || [];
+      accessoriesBreakdown.forEach(acc => {
+        totalAccessoriesManufacturerCost += (acc.manufacturerCost || 0);
+      });
+    });
+
+    const totalMfrCost = totalManufacturerCost + totalOptionsManufacturerCost + totalAccessoriesManufacturerCost;
+    const marginTotal = subtotal - totalMfrCost;
+    const marginPercent = subtotal > 0 ? ((marginTotal / subtotal) * 100) : 0;
+
     const order = {
       id: orderId,
       order_number: orderNumber,
@@ -649,6 +680,16 @@ app.post('/api/orders', (req, res) => {
         ...item,
         order_id: orderId
       })),
+      // Add pricing object with manufacturer cost analysis
+      pricing: {
+        subtotal,
+        tax: tax || 0,
+        shipping: shipping || 0,
+        total,
+        manufacturer_cost_total: Math.round(totalMfrCost * 100) / 100,
+        margin_total: Math.round(marginTotal * 100) / 100,
+        margin_percent: Math.round(marginPercent * 100) / 100
+      },
       created_at: new Date().toISOString()
     };
 
@@ -658,11 +699,23 @@ app.post('/api/orders', (req, res) => {
     db.cart = db.cart.filter(item => item.session_id !== sessionId);
     saveDatabase(db);
 
+    // Auto-generate customer invoice
+    let invoice = null;
+    try {
+      invoice = invoiceService.createInvoiceFromOrder(order.id, 'customer', {
+        notes: 'Auto-generated with order'
+      });
+      console.log(`Invoice ${invoice.invoiceNumber} created for order ${order.order_number}`);
+    } catch (invoiceError) {
+      console.error('Invoice creation error (non-fatal):', invoiceError.message);
+    }
+
     res.json({
       success: true,
       message: 'Order created successfully',
       orderId,
-      orderNumber
+      orderNumber,
+      invoice: invoice ? { id: invoice.id, invoiceNumber: invoice.invoiceNumber } : null
     });
   } catch (error) {
     res.status(500).json({ success: false, error: error.message });
@@ -5791,7 +5844,19 @@ app.post('/api/dealer/orders', dealerAuthMiddleware, (req, res) => {
       req.body,
       req.dealer.id
     );
-    res.json({ success: true, data: order });
+
+    // Auto-generate customer invoice for dealer order
+    let invoice = null;
+    try {
+      invoice = invoiceService.createInvoiceFromOrder(order.id, 'customer', {
+        notes: 'Auto-generated from dealer order'
+      });
+      console.log(`Invoice ${invoice.invoiceNumber} created for dealer order ${order.order_number || order.id}`);
+    } catch (invoiceError) {
+      console.error('Invoice creation error (non-fatal):', invoiceError.message);
+    }
+
+    res.json({ success: true, data: order, invoice: invoice ? { id: invoice.id, invoiceNumber: invoice.invoiceNumber } : null });
   } catch (error) {
     res.status(400).json({ success: false, error: error.message });
   }
@@ -5883,6 +5948,10 @@ app.get('/api/dealer/pricing', dealerAuthMiddleware, (req, res) => {
     const pricing = dealerService.getDealerPricing(req.dealer.dealerId);
     res.json({ success: true, data: pricing });
   } catch (error) {
+    // Return 401 for dealer not found (need to re-login)
+    if (error.code === 'DEALER_NOT_FOUND') {
+      return res.status(401).json({ success: false, error: error.message });
+    }
     res.status(500).json({ success: false, error: error.message });
   }
 });
@@ -6291,6 +6360,33 @@ app.post('/api/admin/draft-orders/:id/complete', authMiddleware, (req, res) => {
     const orderCount = db.orders.length + 1;
     const orderNumber = `ORD-${String(orderCount).padStart(6, '0')}`;
 
+    // Calculate manufacturer cost totals from items
+    let totalManufacturerCost = 0;
+    let totalOptionsManufacturerCost = 0;
+    let totalAccessoriesManufacturerCost = 0;
+
+    (draftOrder.items || []).forEach(item => {
+      const ps = item.price_snapshot || {};
+      const mfrPrice = ps.manufacturer_price || {};
+      const customerPrice = ps.customer_price || {};
+      const qty = item.quantity || 1;
+
+      totalManufacturerCost += (mfrPrice.unit_cost || mfrPrice.cost || 0) * qty;
+
+      (customerPrice.options_breakdown || []).forEach(opt => {
+        totalOptionsManufacturerCost += (opt.manufacturerCost || 0) * qty;
+      });
+
+      (customerPrice.accessories_breakdown || []).forEach(acc => {
+        totalAccessoriesManufacturerCost += (acc.manufacturerCost || 0);
+      });
+    });
+
+    const totalMfrCost = totalManufacturerCost + totalOptionsManufacturerCost + totalAccessoriesManufacturerCost;
+    const subtotal = draftOrder.subtotal || 0;
+    const marginTotal = subtotal - totalMfrCost;
+    const marginPercent = subtotal > 0 ? ((marginTotal / subtotal) * 100) : 0;
+
     const order = {
       id: uuidv4(),
       order_number: orderNumber,
@@ -6307,6 +6403,15 @@ app.post('/api/admin/draft-orders/:id/complete', authMiddleware, (req, res) => {
       timeline: [{ action: 'created', timestamp: new Date().toISOString(), user: 'Admin' }],
       internalNotes: draftOrder.internalNotes ? [{ id: uuidv4(), text: draftOrder.internalNotes, createdBy: 'Admin', createdAt: new Date().toISOString() }] : [],
       attachments: draftOrder.attachments || [],
+      pricing: {
+        subtotal: draftOrder.subtotal,
+        tax: draftOrder.tax,
+        shipping: draftOrder.shipping,
+        total: draftOrder.total,
+        manufacturer_cost_total: Math.round(totalMfrCost * 100) / 100,
+        margin_total: Math.round(marginTotal * 100) / 100,
+        margin_percent: Math.round(marginPercent * 100) / 100
+      },
       created_at: new Date().toISOString()
     };
 
@@ -6327,7 +6432,18 @@ app.post('/api/admin/draft-orders/:id/complete', authMiddleware, (req, res) => {
     createNotification(db, 'order', 'New Order Created', `Order ${orderNumber} created from draft`, `/admin/orders.html?id=${order.id}`);
     saveDatabase(db);
 
-    res.json({ success: true, order, draftOrder });
+    // Auto-generate customer invoice
+    let invoice = null;
+    try {
+      invoice = invoiceService.createInvoiceFromOrder(order.id, 'customer', {
+        notes: 'Auto-generated from draft order'
+      });
+      console.log(`Invoice ${invoice.invoiceNumber} created for order ${order.order_number}`);
+    } catch (invoiceError) {
+      console.error('Invoice creation error (non-fatal):', invoiceError.message);
+    }
+
+    res.json({ success: true, order, draftOrder, invoice: invoice ? { id: invoice.id, invoiceNumber: invoice.invoiceNumber } : null });
   } catch (error) {
     res.status(500).json({ success: false, error: error.message });
   }

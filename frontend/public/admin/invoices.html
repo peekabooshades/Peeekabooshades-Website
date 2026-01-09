@@ -252,6 +252,9 @@
                   <option value="cancelled">Cancelled</option>
                   <option value="refunded">Refunded</option>
                 </select>
+                <select id="order-filter" class="filter-select">
+                  <option value="">All Orders</option>
+                </select>
               </div>
             </div>
           </div>
@@ -264,8 +267,9 @@
               <thead>
                 <tr>
                   <th>Invoice #</th>
+                  <th>Invoice Date</th>
                   <th>Type</th>
-                  <th>Order</th>
+                  <th>Order #</th>
                   <th>Customer/Vendor</th>
                   <th>Amount</th>
                   <th>Due</th>
@@ -276,7 +280,7 @@
               </thead>
               <tbody id="invoices-table">
                 <tr>
-                  <td colspan="9" style="text-align: center; padding: 60px;">
+                  <td colspan="10" style="text-align: center; padding: 60px;">
                     <div class="spinner"></div>
                     <p style="margin-top: 16px; color: var(--admin-text-secondary);">Loading invoices...</p>
                   </td>
@@ -447,13 +451,14 @@
         const data = await response.json();
         if (data.success) {
           allInvoices = data.invoices || [];
+          populateOrderFilter(allInvoices);
           renderInvoices(allInvoices);
         }
       } catch (error) {
         Admin.Toast.error('Failed to load invoices');
         document.getElementById('invoices-table').innerHTML = `
           <tr>
-            <td colspan="9" style="text-align: center; padding: 60px; color: var(--admin-text-secondary);">
+            <td colspan="10" style="text-align: center; padding: 60px; color: var(--admin-text-secondary);">
               Failed to load invoices. <a href="#" onclick="loadInvoices(); return false;">Try again</a>
             </td>
           </tr>
@@ -467,7 +472,7 @@
       if (!invoices || invoices.length === 0) {
         tbody.innerHTML = `
           <tr>
-            <td colspan="9" class="empty-state">
+            <td colspan="10" class="empty-state">
               <svg xmlns="http://www.w3.org/2000/svg" class="empty-state-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
               </svg>
@@ -487,11 +492,12 @@
               ${Admin.Utils.escapeHtml(inv.invoiceNumber)}
             </a>
           </td>
+          <td>${Admin.Utils.formatDate(inv.createdAt || inv.invoiceGeneratedAt)}</td>
           <td>
             <span class="badge badge-${inv.type}">${inv.type === 'customer' ? 'Customer' : 'Manufacturer'}</span>
           </td>
           <td>
-            <a href="/admin/orders.html" style="color: var(--admin-primary); text-decoration: none;">
+            <a href="/admin/orders.html?id=${inv.orderId}" style="color: var(--admin-primary); text-decoration: none;">
               ${Admin.Utils.escapeHtml(inv.orderNumber || '-')}
             </a>
           </td>
@@ -557,11 +563,13 @@
     function initFilters() {
       const searchInput = document.getElementById('search-input');
       const statusFilter = document.getElementById('status-filter');
+      const orderFilter = document.getElementById('order-filter');
       const tabButtons = document.querySelectorAll('.tab-btn');
 
       const applyFilters = Admin.Utils.debounce(() => {
         const search = searchInput.value.toLowerCase();
         const status = statusFilter.value;
+        const orderNum = orderFilter.value;
 
         const filtered = allInvoices.filter(i => {
           const matchesSearch = !search ||
@@ -569,8 +577,9 @@
             (i.orderNumber && i.orderNumber.toLowerCase().includes(search)) ||
             (i.customer?.name && i.customer.name.toLowerCase().includes(search));
           const matchesStatus = !status || i.status === status;
+          const matchesOrder = !orderNum || i.orderNumber === orderNum;
 
-          return matchesSearch && matchesStatus;
+          return matchesSearch && matchesStatus && matchesOrder;
         });
 
         renderInvoices(filtered);
@@ -578,6 +587,7 @@
 
       searchInput.addEventListener('input', applyFilters);
       statusFilter.addEventListener('change', applyFilters);
+      orderFilter.addEventListener('change', applyFilters);
 
       tabButtons.forEach(btn => {
         btn.addEventListener('click', () => {
@@ -587,6 +597,14 @@
           loadInvoices();
         });
       });
+    }
+
+    function populateOrderFilter(invoices) {
+      const orderFilter = document.getElementById('order-filter');
+      const uniqueOrders = [...new Set(invoices.map(i => i.orderNumber).filter(Boolean))].sort();
+
+      orderFilter.innerHTML = '<option value="">All Orders</option>' +
+        uniqueOrders.map(order => `<option value="${Admin.Utils.escapeHtml(order)}">${Admin.Utils.escapeHtml(order)}</option>`).join('');
     }
 
     // Parse configuration JSON

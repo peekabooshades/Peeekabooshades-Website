@@ -625,17 +625,21 @@
           </div>
           <div class="card-body">
             <div class="hardware-section">
-              <span class="hardware-label">Light Filtering</span>
+              <span class="hardware-label">Fabric Category</span>
               <div class="filter-buttons" id="filter-buttons">
-                <button type="button" class="filter-btn" data-value="light-filtering" onclick="selectFilter(this)">Light Filtering</button>
                 <button type="button" class="filter-btn selected" data-value="blackout" onclick="selectFilter(this)">Blackout</button>
                 <button type="button" class="filter-btn" data-value="semi-blackout" onclick="selectFilter(this)">Semi-Blackout</button>
+                <button type="button" class="filter-btn" data-value="super-blackout" onclick="selectFilter(this)">Super Blackout</button>
+                <button type="button" class="filter-btn" data-value="transparent" onclick="selectFilter(this)">Transparent</button>
               </div>
             </div>
             <div class="hardware-section">
               <span class="hardware-label">Fabric Color</span>
               <div class="fabric-grid" id="fabric-grid">
-                <p style="color: #6b7280; width: 100%; text-align: center; padding: 20px;">Select a product to see available fabrics</p>
+                <div style="width: 100%; text-align: center; padding: 20px;">
+                  <div class="loading-spinner"></div>
+                  <p style="margin-top: 12px; color: #6b7280;">Loading fabrics...</p>
+                </div>
               </div>
             </div>
           </div>
@@ -682,13 +686,45 @@
             <div class="hardware-section" id="motor-section" style="display: none;">
               <span class="hardware-label">Motor Brand</span>
               <div class="hardware-options" id="motor-options">
-                <div class="hardware-option selected" data-value="aok" data-price="55" onclick="selectHardware(this, 'motor')">
+                <div class="hardware-option selected" data-value="aok" onclick="selectHardware(this, 'motor')">
                   <div class="name">AOK Motor</div>
-                  <div class="price">+$55.00</div>
+                  <div class="price">+$63.00</div>
                 </div>
-                <div class="hardware-option" data-value="dooya" data-price="47" onclick="selectHardware(this, 'motor')">
+                <div class="hardware-option" data-value="dooya" onclick="selectHardware(this, 'motor')">
                   <div class="name">Dooya Motor</div>
-                  <div class="price">+$47.00</div>
+                  <div class="price">+$65.80</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="hardware-section" id="remote-section" style="display: none;">
+              <span class="hardware-label">Remote Type</span>
+              <div class="hardware-options" id="remote-options">
+                <div class="hardware-option selected" data-value="single-channel" onclick="selectHardware(this, 'remote')">
+                  <div class="name">Single Channel</div>
+                  <div class="price">+$8.40</div>
+                </div>
+                <div class="hardware-option" data-value="6-channel" onclick="selectHardware(this, 'remote')">
+                  <div class="name">6 Channel</div>
+                  <div class="price">+$9.24</div>
+                </div>
+                <div class="hardware-option" data-value="15-channel" onclick="selectHardware(this, 'remote')">
+                  <div class="name">15 Channel</div>
+                  <div class="price">+$15.89</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="hardware-section" id="solar-section" style="display: none;">
+              <span class="hardware-label">Solar Panel</span>
+              <div class="hardware-options" id="solar-options">
+                <div class="hardware-option selected" data-value="no" onclick="selectHardware(this, 'solar')">
+                  <div class="name">No Solar</div>
+                  <div class="price">Included</div>
+                </div>
+                <div class="hardware-option" data-value="yes" onclick="selectHardware(this, 'solar')">
+                  <div class="name">Add Solar Panel</div>
+                  <div class="price">+$28.70</div>
                 </div>
               </div>
             </div>
@@ -696,13 +732,13 @@
             <div class="hardware-section">
               <span class="hardware-label">Valance Type</span>
               <div class="hardware-options" id="valance-options">
-                <div class="hardware-option selected" data-value="none" data-price="0" onclick="selectHardware(this, 'valance')">
+                <div class="hardware-option selected" data-value="none" onclick="selectHardware(this, 'valance')">
                   <div class="name">No Valance</div>
                   <div class="price">Included</div>
                 </div>
-                <div class="hardware-option" data-value="fabric" data-price="2.20" data-unit="sqm" onclick="selectHardware(this, 'valance')">
+                <div class="hardware-option" data-value="fabric" onclick="selectHardware(this, 'valance')">
                   <div class="name">Fabric Wrapped</div>
-                  <div class="price">+$2.20/m²</div>
+                  <div class="price">+$3.08/m²</div>
                 </div>
               </div>
             </div>
@@ -710,13 +746,13 @@
             <div class="hardware-section">
               <span class="hardware-label">Bottom Rail</span>
               <div class="hardware-options" id="rail-options">
-                <div class="hardware-option selected" data-value="standard" data-price="0" onclick="selectHardware(this, 'rail')">
+                <div class="hardware-option selected" data-value="standard" onclick="selectHardware(this, 'rail')">
                   <div class="name">Standard</div>
                   <div class="price">Included</div>
                 </div>
-                <div class="hardware-option" data-value="fabric" data-price="2.20" data-unit="sqm" onclick="selectHardware(this, 'rail')">
+                <div class="hardware-option" data-value="fabric" onclick="selectHardware(this, 'rail')">
                   <div class="name">Fabric Wrapped</div>
-                  <div class="price">+$2.20/m²</div>
+                  <div class="price">+$3.08/m²</div>
                 </div>
               </div>
             </div>
@@ -743,29 +779,21 @@
             <h3 class="card-title"><span class="step">6</span> Accessories</h3>
           </div>
           <div class="card-body">
-            <div class="accessory-option" data-value="smart-hub" data-price="23.50" onclick="toggleAccessory(this)">
+            <div class="accessory-option" data-value="smart-hub" data-price="32.90" onclick="toggleAccessory(this)">
               <div class="accessory-checkbox"><i class="fas fa-check" style="display: none;"></i></div>
               <div class="accessory-info">
                 <div class="accessory-name">Smart Hub</div>
                 <div class="accessory-desc">WiFi bridge for app control</div>
               </div>
-              <div class="accessory-price">+$23.50</div>
+              <div class="accessory-price">+$32.90</div>
             </div>
-            <div class="accessory-option" data-value="usb-charger" data-price="5" onclick="toggleAccessory(this)">
+            <div class="accessory-option" data-value="usb-charger" data-price="7" onclick="toggleAccessory(this)">
               <div class="accessory-checkbox"><i class="fas fa-check" style="display: none;"></i></div>
               <div class="accessory-info">
                 <div class="accessory-name">USB Charger</div>
                 <div class="accessory-desc">For rechargeable motors</div>
               </div>
-              <div class="accessory-price">+$5.00</div>
-            </div>
-            <div class="accessory-option" data-value="remote-15" data-price="15" onclick="toggleAccessory(this)">
-              <div class="accessory-checkbox"><i class="fas fa-check" style="display: none;"></i></div>
-              <div class="accessory-info">
-                <div class="accessory-name">15-Channel Remote</div>
-                <div class="accessory-desc">Control multiple blinds</div>
-              </div>
-              <div class="accessory-price">+$15.00</div>
+              <div class="accessory-price">+$7.00</div>
             </div>
           </div>
         </div>
@@ -860,17 +888,20 @@
       window.location.href = '/dealer/login.html';
     }
 
-    // Configuration
+    // Configuration - get tier from user.dealer object
     let discountPercent = 15;
     const discounts = { bronze: 15, silver: 20, gold: 25 };
-    if (user.tier) {
-      discountPercent = discounts[user.tier.toLowerCase()] || 15;
-      document.getElementById('tier-badge').textContent = user.tier.charAt(0).toUpperCase() + user.tier.slice(1);
-      document.getElementById('tier-badge').classList.add(user.tier.toLowerCase());
-      document.getElementById('tier-text').textContent = user.tier.charAt(0).toUpperCase() + user.tier.slice(1);
-      document.getElementById('discount-badge').textContent = discountPercent + '% OFF';
-      document.getElementById('discount-percent').textContent = discountPercent;
-    }
+    const dealerInfo = user.dealer || {};
+    const tier = dealerInfo.tier || 'bronze';
+
+    discountPercent = discounts[tier.toLowerCase()] || dealerInfo.discountPercent || 15;
+    document.getElementById('tier-badge').textContent = tier.charAt(0).toUpperCase() + tier.slice(1);
+    document.getElementById('tier-badge').classList.add(tier.toLowerCase());
+    document.getElementById('tier-text').textContent = tier.charAt(0).toUpperCase() + tier.slice(1);
+    document.getElementById('discount-badge').textContent = discountPercent + '% OFF';
+    document.getElementById('discount-percent').textContent = discountPercent;
+
+    console.log('Dealer portal initialized. User:', user.name, 'Tier:', tier, 'Discount:', discountPercent + '%');
 
     // State
     let products = [];
@@ -878,33 +909,80 @@
     let selectedProduct = null;
     let selectedFabric = null;
     let quantity = 1;
+    let currentPricing = null; // Store current pricing from API
     let selections = {
       mount: 'inside',
       control: 'chain',
       motor: 'aok',
+      remote: 'single-channel',
+      solar: 'no',
       valance: 'none',
       rail: 'standard',
       roller: 'standard'
     };
     let accessories = [];
 
-    // Load products
+    // Map product slugs to product types that have pricing
+    const productTypeMap = {
+      'affordable-custom-roller-blinds': 'roller',
+      'roller-shades': 'roller',
+      'roller-blinds': 'roller',
+      'affordable-zebra-window-blinds': 'zebra',
+      'zebra-shades': 'zebra',
+      'zebra-blinds': 'zebra'
+    };
+
+    // Get product type from slug
+    function getProductType(slug) {
+      // Direct match
+      if (productTypeMap[slug]) return productTypeMap[slug];
+      // Check if slug contains keyword
+      if (slug.includes('roller')) return 'roller';
+      if (slug.includes('zebra')) return 'zebra';
+      return null;
+    }
+
+    // Load products - only show products that have pricing configured
     async function loadProducts() {
       try {
         const response = await fetch('/api/products');
         const result = await response.json();
-        products = result.data || result;
+        const allProducts = result.data || result;
+
+        // Filter to only products with pricing (roller and zebra)
+        products = allProducts.filter(p => {
+          const productType = getProductType(p.slug);
+          return productType !== null; // Only include products we can price
+        });
 
         const grid = document.getElementById('product-grid');
-        grid.innerHTML = products.slice(0, 12).map(p => `
-          <div class="product-card" data-id="${p.id}" onclick="selectProduct('${p.id}')">
-            <img src="${p.images?.[0] || '/images/placeholder.jpg'}" alt="${p.name}" onerror="this.src='/images/placeholder.jpg'">
-            <div class="name">${p.name}</div>
-            <div class="price">From $${(p.basePrice || 40).toFixed(2)}</div>
-          </div>
-        `).join('');
+        if (products.length === 0) {
+          grid.innerHTML = `
+            <div style="grid-column: 1/-1; text-align: center; padding: 40px; color: #6b7280;">
+              <p>No products with pricing available.</p>
+              <p style="font-size: 12px; margin-top: 8px;">Contact admin to configure product pricing.</p>
+            </div>
+          `;
+          return;
+        }
+
+        grid.innerHTML = products.map(p => {
+          const productType = getProductType(p.slug);
+          return `
+            <div class="product-card" data-id="${p.id}" data-type="${productType}" onclick="selectProduct('${p.id}')">
+              <img src="${p.images?.[0] || '/images/placeholder.jpg'}" alt="${p.name}" onerror="this.src='/images/placeholder.jpg'">
+              <div class="name">${p.name}</div>
+              <div class="price">Custom Pricing</div>
+            </div>
+          `;
+        }).join('');
       } catch (error) {
         console.error('Error loading products:', error);
+        document.getElementById('product-grid').innerHTML = `
+          <div style="grid-column: 1/-1; text-align: center; padding: 40px; color: #dc2626;">
+            <p>Failed to load products. Please refresh the page.</p>
+          </div>
+        `;
       }
     }
 
@@ -944,31 +1022,75 @@
       calculatePrice();
     }
 
-    // Load fabrics for product
-    async function loadFabrics(slug) {
+    // All fabrics data (loaded once)
+    let allFabricsData = [];
+
+    // Load all fabrics with pricing from manufacturer prices
+    async function loadAllFabrics() {
+      const grid = document.getElementById('fabric-grid');
+      console.log('loadAllFabrics called. Token exists:', !!token);
+
       try {
-        const response = await fetch(`/api/fabrics?category=blackout`);
+        // Get dealer pricing which includes fabrics with customer prices
+        console.log('Fetching /api/dealer/pricing...');
+        const response = await fetch('/api/dealer/pricing', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+
+        console.log('API response status:', response.status);
+
+        if (!response.ok) {
+          console.error('Dealer pricing API error:', response.status, response.statusText);
+
+          // If 401 error, show re-login link (don't auto-redirect)
+          if (response.status === 401) {
+            grid.innerHTML = `<p style="color: #dc2626; width: 100%; text-align: center; padding: 20px;">Session expired. Please <a href="/dealer/login.html" style="color: #2d5a27; text-decoration: underline;">login again</a>.</p>`;
+            allFabricsData = [];
+            return;
+          }
+
+          grid.innerHTML = `<p style="color: #dc2626; width: 100%; text-align: center; padding: 20px;">Failed to load fabrics. Please refresh the page.</p>`;
+          allFabricsData = [];
+          return;
+        }
+
         const result = await response.json();
-        const fabrics = result.data || result;
+        console.log('Dealer pricing response:', result.success, 'fabrics:', result.data?.fabrics?.length);
 
-        const grid = document.getElementById('fabric-grid');
-        if (fabrics.length > 0) {
-          grid.innerHTML = fabrics.slice(0, 30).map(f => `
-            <div class="fabric-swatch" data-code="${f.code}" data-price="${f.pricePerSqM || 8}" onclick="selectFabric(this)">
-              <img src="${f.image || f.imageUrl || '/images/placeholder.jpg'}" alt="${f.code}" onerror="this.src='/images/placeholder.jpg'">
-              <div class="code">${f.code}</div>
-            </div>
-          `).join('');
-
-          // Select first fabric
-          const first = grid.querySelector('.fabric-swatch');
-          if (first) selectFabric(first);
+        if (result.success && result.data && result.data.fabrics && result.data.fabrics.length > 0) {
+          allFabricsData = result.data.fabrics;
+          console.log('Loaded', allFabricsData.length, 'fabrics with pricing');
+          // Log categories for debugging
+          const cats = {};
+          allFabricsData.forEach(f => { cats[f.category] = (cats[f.category] || 0) + 1; });
+          console.log('Fabric categories:', cats);
+        } else if (result.success && result.fabrics && result.fabrics.length > 0) {
+          allFabricsData = result.fabrics;
+          console.log('Loaded', allFabricsData.length, 'fabrics (direct)');
         } else {
-          grid.innerHTML = '<p style="color: #6b7280; width: 100%; text-align: center; padding: 20px;">No fabrics available</p>';
+          console.warn('No fabrics found in dealer pricing response:', result);
+          grid.innerHTML = `<p style="color: #f59e0b; width: 100%; text-align: center; padding: 20px;">No fabric pricing configured. Please contact admin.</p>`;
+          allFabricsData = [];
         }
       } catch (error) {
         console.error('Error loading fabrics:', error);
+        grid.innerHTML = `<p style="color: #dc2626; width: 100%; text-align: center; padding: 20px;">Error loading fabrics: ${error.message}</p>`;
+        allFabricsData = [];
       }
+    }
+
+    // Load fabrics for product (filter by category)
+    async function loadFabrics(slug) {
+      // Load all fabrics if not loaded yet
+      if (allFabricsData.length === 0) {
+        await loadAllFabrics();
+      }
+
+      // Get selected filter
+      const selectedFilter = document.querySelector('.filter-btn.selected');
+      const filterType = selectedFilter ? selectedFilter.dataset.value : 'blackout';
+
+      loadFabricsForFilter(filterType);
     }
 
     // Select fabric
@@ -976,10 +1098,9 @@
       document.querySelectorAll('.fabric-swatch').forEach(s => s.classList.remove('selected'));
       el.classList.add('selected');
       selectedFabric = {
-        code: el.dataset.code,
-        price: parseFloat(el.dataset.price) || 8
+        code: el.dataset.code
       };
-      calculatePrice();
+      calculatePrice(); // Will use API for pricing
     }
 
     // Select filter
@@ -992,22 +1113,77 @@
     }
 
     async function loadFabricsForFilter(filterType) {
-      try {
-        const response = await fetch(`/api/fabrics?category=${filterType}`);
-        const result = await response.json();
-        const fabrics = result.data || result;
+      const grid = document.getElementById('fabric-grid');
 
-        const grid = document.getElementById('fabric-grid');
-        if (fabrics.length > 0) {
-          grid.innerHTML = fabrics.slice(0, 30).map(f => `
-            <div class="fabric-swatch" data-code="${f.code}" data-price="${f.pricePerSqM || 8}" onclick="selectFabric(this)">
-              <img src="${f.image || f.imageUrl || '/images/placeholder.jpg'}" alt="${f.code}" onerror="this.src='/images/placeholder.jpg'">
+      // Show loading state
+      grid.innerHTML = `
+        <div style="width: 100%; text-align: center; padding: 20px;">
+          <div class="loading-spinner"></div>
+          <p style="margin-top: 12px; color: #6b7280;">Loading ${filterType} fabrics...</p>
+        </div>
+      `;
+
+      // Load all fabrics if not loaded yet
+      if (allFabricsData.length === 0) {
+        await loadAllFabrics();
+      }
+
+      // If still no fabrics (loading failed), the error message is already shown
+      if (allFabricsData.length === 0) {
+        return;
+      }
+
+      // Map filter button values to fabric categories
+      const categoryMap = {
+        'light-filtering': 'transparent',
+        'blackout': 'blackout',
+        'semi-blackout': 'semi-blackout',
+        'super-blackout': 'super-blackout',
+        'transparent': 'transparent'
+      };
+
+      const category = categoryMap[filterType] || filterType;
+
+      // Filter fabrics by category (case-insensitive match)
+      const filteredFabrics = allFabricsData.filter(f => {
+        const fabricCategory = (f.category || '').toLowerCase();
+        const searchCategory = category.toLowerCase();
+        return fabricCategory === searchCategory || fabricCategory.includes(searchCategory);
+      });
+
+      console.log(`Filtering ${filterType} (${category}): found ${filteredFabrics.length} fabrics`);
+
+      if (filteredFabrics.length > 0) {
+        grid.innerHTML = filteredFabrics.slice(0, 50).map(f => {
+          const price = typeof f.customerPrice === 'number' ? f.customerPrice.toFixed(2) : (f.customerPrice || '0.00');
+          return `
+            <div class="fabric-swatch" data-code="${f.code}" data-price="${f.customerPrice || 0}" onclick="selectFabric(this)">
+              <img src="${f.image || '/images/fabrics/' + f.code + '.jpg'}" alt="${f.code}" onerror="this.src='/images/placeholder.jpg'">
               <div class="code">${f.code}</div>
+              <div class="price" style="font-size: 9px; color: #2d5a27; font-weight: 600;">$${price}/m²</div>
             </div>
-          `).join('');
+          `;
+        }).join('');
+
+        // Select first fabric (but don't calculate price yet if no product selected)
+        const first = grid.querySelector('.fabric-swatch');
+        if (first) {
+          first.classList.add('selected');
+          selectedFabric = { code: first.dataset.code };
+          // Only calculate price if product is selected
+          if (selectedProduct) {
+            calculatePrice();
+          }
         }
-      } catch (error) {
-        console.error('Error loading fabrics:', error);
+      } else {
+        // Show which categories have fabrics
+        const categoryCounts = {};
+        allFabricsData.forEach(f => {
+          const cat = f.category || 'unknown';
+          categoryCounts[cat] = (categoryCounts[cat] || 0) + 1;
+        });
+        console.log('Available categories:', categoryCounts);
+        grid.innerHTML = `<p style="color: #6b7280; width: 100%; text-align: center; padding: 20px;">No ${filterType} fabrics available. Try another category.</p>`;
       }
     }
 
@@ -1018,10 +1194,12 @@
       el.classList.add('selected');
       selections[type] = el.dataset.value;
 
-      // Show/hide motor options
+      // Show/hide motorized options (motor brand, remote type, solar panel)
       if (type === 'control') {
-        document.getElementById('motor-section').style.display = 
-          el.dataset.value === 'motorized' ? 'block' : 'none';
+        const isMotorized = el.dataset.value === 'motorized';
+        document.getElementById('motor-section').style.display = isMotorized ? 'block' : 'none';
+        document.getElementById('remote-section').style.display = isMotorized ? 'block' : 'none';
+        document.getElementById('solar-section').style.display = isMotorized ? 'block' : 'none';
       }
 
       calculatePrice();
@@ -1066,60 +1244,140 @@
       calculatePrice();
     }
 
-    // Calculate price
-    function calculatePrice() {
+    // Calculate price using customer pricing API
+    async function calculatePrice() {
+      console.log('calculatePrice called. Product:', selectedProduct?.name, 'Fabric:', selectedFabric?.code);
+
       const width = parseFloat(document.getElementById('width-input').value) || 24;
       const height = parseFloat(document.getElementById('height-input').value) || 36;
 
-      // Area in sq ft and sq m
+      // Area in sq ft
       const sqFt = (width * height) / 144;
-      const sqM = sqFt * 0.0929;
 
       document.getElementById('area-display').textContent = sqFt.toFixed(2);
       document.getElementById('summary-details').textContent = `${width}" x ${height}" | Qty: ${quantity}`;
 
-      // Base price
-      const basePrice = selectedProduct?.basePrice || 40;
+      // If no product or fabric selected, show placeholder
+      if (!selectedProduct || !selectedFabric) {
+        console.log('Skipping price calc - Product selected:', !!selectedProduct, 'Fabric selected:', !!selectedFabric);
+        resetPriceSummary();
+        return;
+      }
 
-      // Fabric price (per sq m)
-      const fabricPricePerSqM = selectedFabric?.price || 8;
-      const fabricPrice = fabricPricePerSqM * sqM;
+      // Get product type from slug
+      const productType = getProductType(selectedProduct.slug);
+      if (!productType) {
+        console.error('Unknown product type for:', selectedProduct.slug);
+        resetPriceSummary();
+        return;
+      }
 
-      // Hardware prices
-      let hardwarePrice = 0;
+      console.log('Calculating price for:', productType, selectedFabric.code, width, 'x', height);
 
-      // Motor
+      // Build options for pricing API
+      const options = {
+        controlType: selections.control === 'motorized' ? 'motorized' : 'manual',
+        mountType: selections.mount,
+        valanceType: selections.valance === 'fabric' ? 'fabric-wrapped-v3' : 'standard',
+        bottomRail: selections.rail === 'fabric' ? 'type-c-fabric-wrapped' : 'standard'
+      };
+
+      // Add motor options if motorized
       if (selections.control === 'motorized') {
-        const motorPrices = { aok: 55, dooya: 47 };
-        hardwarePrice += motorPrices[selections.motor] || 55;
+        options.motorBrand = selections.motor;
+        options.motorType = 'battery';
+        options.remoteType = selections.remote;
+        options.solarType = selections.solar;
       }
 
-      // Valance (per sqm pricing)
-      if (selections.valance === 'fabric') {
-        hardwarePrice += 2.20 * sqM;
+      // Add accessories
+      const smartHubQty = accessories.filter(a => a.value === 'smart-hub').length;
+      const usbChargerQty = accessories.filter(a => a.value === 'usb-charger').length;
+      if (smartHubQty > 0) options.smartHubQty = smartHubQty;
+      if (usbChargerQty > 0) options.usbChargerQty = usbChargerQty;
+
+      try {
+        const response = await fetch('/api/store/price-quote', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            productSlug: selectedProduct.slug,
+            productType: productType,
+            width,
+            height,
+            quantity,
+            fabricCode: selectedFabric.code,
+            options
+          })
+        });
+
+        const result = await response.json();
+        console.log('Price API response:', result);
+
+        if (result.success && result.data) {
+          currentPricing = result.data;
+          console.log('Pricing data:', result.data);
+          updatePriceSummary(result.data);
+        } else {
+          console.error('Price calculation failed:', result.error);
+          resetPriceSummary();
+        }
+      } catch (error) {
+        console.error('Failed to calculate price:', error);
+        resetPriceSummary();
       }
+    }
 
-      // Bottom rail (per sqm pricing)
-      if (selections.rail === 'fabric') {
-        hardwarePrice += 2.20 * sqM;
-      }
+    // Update price summary from API response
+    function updatePriceSummary(pricing) {
+      console.log('updatePriceSummary called with:', pricing);
+      const formatCurrency = (val) => '$' + (val || 0).toFixed(2);
 
-      // Accessories
-      const accessoriesPrice = accessories.reduce((sum, a) => sum + a.price, 0);
+      // API response structure:
+      // pricing.manufacturerPrice = MFR cost per unit
+      // pricing.marginAmount = margin amount per unit
+      // pricing.optionsCost = total options cost
+      // pricing.unitPrice = customer price per unit (MFR + margin + options)
+      // pricing.lineTotal = customer price × quantity
 
-      // Calculate totals
-      const subtotal = (basePrice + fabricPrice + hardwarePrice + accessoriesPrice) * quantity;
-      const discount = subtotal * (discountPercent / 100);
-      const total = subtotal - discount;
+      // Base fabric customer price (MFR cost + margin)
+      const mfrCost = pricing.manufacturerPrice || 0;
+      const marginAmount = pricing.marginAmount || 0;
+      const baseFabricCustomerPrice = mfrCost + marginAmount;
 
-      // Update summary
-      document.getElementById('summary-base').textContent = formatCurrency(basePrice * quantity);
-      document.getElementById('summary-fabric').textContent = formatCurrency(fabricPrice * quantity);
-      document.getElementById('summary-hardware').textContent = formatCurrency(hardwarePrice * quantity);
-      document.getElementById('summary-accessories').textContent = formatCurrency(accessoriesPrice * quantity);
-      document.getElementById('summary-subtotal').textContent = formatCurrency(subtotal);
+      // Options cost (hardware, motor, etc.)
+      const optionsCost = pricing.optionsCost || 0;
+
+      // Accessories cost
+      const accessoriesCost = pricing.accessoriesCost || 0;
+
+      // Customer price (before dealer discount)
+      const lineTotal = pricing.lineTotal || 0;
+
+      // Apply dealer discount on customer price
+      const discount = lineTotal * (discountPercent / 100);
+      const dealerPrice = lineTotal - discount;
+
+      // Update summary - all values are CUSTOMER prices
+      document.getElementById('summary-base').textContent = formatCurrency(baseFabricCustomerPrice * quantity);
+      document.getElementById('summary-fabric').textContent = formatCurrency(0); // Included in base
+      document.getElementById('summary-hardware').textContent = formatCurrency(optionsCost * quantity);
+      document.getElementById('summary-accessories').textContent = formatCurrency(accessoriesCost * quantity);
+      document.getElementById('summary-subtotal').textContent = formatCurrency(lineTotal);
       document.getElementById('summary-discount').textContent = '-' + formatCurrency(discount);
-      document.getElementById('summary-total').textContent = formatCurrency(total);
+      document.getElementById('summary-total').textContent = formatCurrency(dealerPrice);
+    }
+
+    // Reset price summary to zeros
+    function resetPriceSummary() {
+      document.getElementById('summary-base').textContent = '$0.00';
+      document.getElementById('summary-fabric').textContent = '$0.00';
+      document.getElementById('summary-hardware').textContent = '$0.00';
+      document.getElementById('summary-accessories').textContent = '$0.00';
+      document.getElementById('summary-subtotal').textContent = '$0.00';
+      document.getElementById('summary-discount').textContent = '-$0.00';
+      document.getElementById('summary-total').textContent = '$0.00';
+      currentPricing = null;
     }
 
     // Add to cart
@@ -1129,22 +1387,47 @@
         return;
       }
 
+      if (!selectedFabric) {
+        alert('Please select a fabric');
+        return;
+      }
+
       const customerName = document.getElementById('customer-name').value;
       if (!customerName) {
         alert('Please enter customer name');
         return;
       }
 
+      if (!currentPricing) {
+        alert('Please wait for price calculation to complete');
+        return;
+      }
+
       const width = parseFloat(document.getElementById('width-input').value);
       const height = parseFloat(document.getElementById('height-input').value);
+
+      // Calculate dealer price from customer price
+      const customerLineTotal = currentPricing.lineTotal || 0;
+      const customerUnitPrice = currentPricing.unitPrice || 0;
+      const discount = customerLineTotal * (discountPercent / 100);
+      const dealerPrice = customerLineTotal - discount;
 
       const orderData = {
         productId: selectedProduct.id,
         productName: selectedProduct.name,
+        productType: getProductType(selectedProduct.slug),
         width,
         height,
-        fabric: selectedFabric?.code,
-        options: selections,
+        fabric: selectedFabric.code,
+        options: {
+          ...selections,
+          // Include motor details if motorized
+          ...(selections.control === 'motorized' && {
+            motorBrand: selections.motor,
+            remoteType: selections.remote,
+            solarPanel: selections.solar
+          })
+        },
         accessories: accessories.map(a => a.value),
         quantity,
         customer: {
@@ -1153,7 +1436,18 @@
           phone: document.getElementById('customer-phone').value,
           address: document.getElementById('customer-address').value
         },
-        notes: document.getElementById('order-notes').value
+        notes: document.getElementById('order-notes').value,
+        // Include pricing snapshot with customer prices
+        pricing: {
+          manufacturerPrice: currentPricing.manufacturerPrice,
+          marginAmount: currentPricing.marginAmount,
+          optionsCost: currentPricing.optionsCost,
+          customerUnitPrice: customerUnitPrice,
+          customerLineTotal: customerLineTotal,
+          discountPercent: discountPercent,
+          discountAmount: discount,
+          dealerPrice: dealerPrice
+        }
       };
 
       try {
@@ -1197,9 +1491,57 @@
     }
 
     // Initialize
-    loadProducts();
-    loadCustomers();
-    calculatePrice();
+    async function init() {
+      console.log('=== Dealer Portal Initialization Started ===');
+
+      try {
+        // Load products and customers in parallel
+        console.log('Loading products and customers...');
+        await Promise.all([loadProducts(), loadCustomers()]);
+        console.log('Products loaded:', products.length, 'Customers loaded:', customers.length);
+
+        // Pre-load fabrics with pricing
+        console.log('Loading fabrics...');
+        await loadAllFabrics();
+        console.log('Fabrics loaded:', allFabricsData.length);
+
+        // Start with zeroed pricing until product/fabric selected
+        resetPriceSummary();
+
+        // Show fabrics grid with default category (blackout)
+        // If blackout has no fabrics, try other categories
+        if (allFabricsData.length > 0) {
+          const categories = ['blackout', 'semi-blackout', 'super-blackout', 'transparent'];
+          let foundCategory = null;
+
+          for (const cat of categories) {
+            const count = allFabricsData.filter(f =>
+              (f.category || '').toLowerCase() === cat.toLowerCase()
+            ).length;
+            console.log('Category', cat, 'has', count, 'fabrics');
+            if (count > 0 && !foundCategory) {
+              foundCategory = cat;
+            }
+          }
+
+          if (foundCategory) {
+            console.log('Showing category:', foundCategory);
+            // Update the selected filter button
+            document.querySelectorAll('.filter-btn').forEach(btn => {
+              btn.classList.toggle('selected', btn.dataset.value === foundCategory);
+            });
+            await loadFabricsForFilter(foundCategory);
+          }
+
+          console.log('=== Initialization Complete ===');
+        } else {
+          console.warn('=== No fabrics loaded during initialization ===');
+        }
+      } catch (error) {
+        console.error('=== Initialization Error ===', error);
+      }
+    }
+    init();
   </script>
 </body>
 </html>

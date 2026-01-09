@@ -290,8 +290,10 @@ class ExtendedPricingEngine {
         grossProfit: this.round((unitPrice - manufacturerCost.unitCost - optionCosts.manufacturerCost) * validatedQty),
         grossMarginPercent: this.round(((unitPrice - manufacturerCost.unitCost - optionCosts.manufacturerCost) / unitPrice) * 100)
       },
-      // Include warning if margin not defined
-      warning: marginResult.warning || null
+      // Include warning if margin not defined (BUG-003 enhanced)
+      warning: marginResult.warning || null,
+      isCritical: marginResult.isCritical || false,
+      zeroProfit: marginResult.zeroProfit || false
     };
   }
 
@@ -325,11 +327,12 @@ class ExtendedPricingEngine {
     const minArea = MIN_AREA[productType] || 1.2;
     areaSqMeters = Math.max(areaSqMeters, minArea);
 
-    // Look up manufacturer price
+    // Look up manufacturer price (case-insensitive fabric code match - BUG-009 FIX)
     const manufacturerPrices = db.manufacturerPrices || [];
+    const normalizedFabricCode = fabricCode?.toLowerCase();
     const priceRecord = manufacturerPrices.find(p =>
       p.productType === productType &&
-      p.fabricCode === fabricCode &&
+      p.fabricCode?.toLowerCase() === normalizedFabricCode &&
       p.status === 'active'
     );
 
@@ -342,14 +345,28 @@ class ExtendedPricingEngine {
 
       // Use cordless pricing ONLY for cordless control type (includes cordless spring mechanism)
       // Motorized uses standard fabric price + motor brand cost separately
+      // BUG-006 FIX: Track if cordless pricing is missing
+      let cordlessPricingWarning = null;
       if (controlType === 'cordless') {
         if (priceRecord.pricePerSqMeterCordless) {
           pricePerSqMeter = priceRecord.pricePerSqMeterCordless;
+        } else {
+          // BUG-006: Warn when cordless pricing not available
+          cordlessPricingWarning = `Cordless pricing not configured for fabric ${fabricCode}. Using standard manual pricing ($${pricePerSqMeter}/m²). Please set pricePerSqMeterCordless in Admin > Product Pricing.`;
+          console.warn('⚠️ ' + cordlessPricingWarning);
         }
         // Use cordless margin if set
         if (priceRecord.cordlessMargin !== undefined && priceRecord.cordlessMargin !== null) {
           fabricMargin = priceRecord.cordlessMargin;
         }
+      }
+
+      // BUG-007 FIX: Use motorized margin if set for motorized control type
+      if (controlType === 'motorized') {
+        if (priceRecord.motorizedMargin !== undefined && priceRecord.motorizedMargin !== null) {
+          fabricMargin = priceRecord.motorizedMargin;
+        }
+        // Note: Motorized uses standard fabric pricing + motor brand cost added separately
       }
 
       // Calculate unit cost: area × price per m²
@@ -373,7 +390,9 @@ class ExtendedPricingEngine {
           minAreaApplied: widthMeters * heightMeters < minArea,
           pricePerSqMeter,
           controlType: controlType
-        }
+        },
+        // BUG-006 FIX: Include cordless pricing warning if applicable
+        warning: cordlessPricingWarning
       };
     }
 
@@ -483,8 +502,11 @@ class ExtendedPricingEngine {
 
     // WARNING: If no margin rule found, return warning
     // Margin MUST be defined - this is critical for pricing
+    // BUG-003 FIX: Enhanced warning visibility
     if (!matchedRule) {
-      console.warn(`⚠️ WARNING: No margin defined for fabric ${fabricCode}, productType ${productType}. Please set margin in Admin > Product Pricing.`);
+      const warningMsg = `CRITICAL: No margin defined for fabric ${fabricCode}, productType ${productType}. Selling at ZERO PROFIT! Please set margin in Admin > Product Pricing.`;
+      console.error('🚨 ' + warningMsg);
+      console.error('🚨 Manufacturer Cost:', manufacturerCost, '| Customer Price:', manufacturerCost, '| Profit: $0');
 
       return {
         marginType: 'undefined',
@@ -494,7 +516,9 @@ class ExtendedPricingEngine {
         customerPrice: manufacturerCost, // Return at cost (no profit)
         ruleId: null,
         ruleName: 'NO MARGIN DEFINED',
-        warning: `No margin defined for fabric ${fabricCode}. Please configure margin in Admin > Product Pricing.`
+        warning: warningMsg,
+        isCritical: true, // Flag for frontend to show prominent warning
+        zeroProfit: true  // Explicit flag that this order has no profit
       };
     }
 

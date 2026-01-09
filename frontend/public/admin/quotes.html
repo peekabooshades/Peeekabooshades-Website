@@ -112,7 +112,13 @@
       <!-- Page Content -->
       <div class="admin-content">
         <div class="page-header">
-          <h1 class="page-title">Quote Requests</h1>
+          <h1 class="page-title">Quotes</h1>
+          <button class="btn btn-primary" onclick="openCreateQuoteModal()">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+            </svg>
+            Create Quote
+          </button>
         </div>
 
         <!-- Filters -->
@@ -187,6 +193,263 @@
     </div>
   </div>
 
+  <!-- Create Quote Modal -->
+  <div class="modal-overlay" id="create-quote-modal" style="display: none;">
+    <div class="modal" style="max-width: 900px; max-height: 90vh; overflow-y: auto;">
+      <div class="modal-header" style="position: sticky; top: 0; background: white; z-index: 10;">
+        <h3 class="modal-title">Create Quote</h3>
+        <button class="modal-close" onclick="closeCreateQuoteModal()">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form id="create-quote-form" onsubmit="submitQuote(event)">
+          <!-- Customer Information -->
+          <div style="background: #f8fafc; padding: 20px; border-radius: 12px; margin-bottom: 20px;">
+            <h4 style="margin: 0 0 16px 0; font-size: 14px; text-transform: uppercase; color: #64748b; display: flex; align-items: center; gap: 8px;">
+              <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/></svg>
+              Customer Information
+            </h4>
+            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px;">
+              <div class="form-group">
+                <label class="form-label">Customer Name *</label>
+                <input type="text" id="q-customer-name" class="form-input" required placeholder="John Smith">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Email *</label>
+                <input type="email" id="q-customer-email" class="form-input" required placeholder="john@example.com">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Phone</label>
+                <input type="tel" id="q-customer-phone" class="form-input" placeholder="(555) 123-4567">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Company</label>
+                <input type="text" id="q-customer-company" class="form-input" placeholder="Company name (optional)">
+              </div>
+            </div>
+            <div class="form-group" style="margin-top: 16px;">
+              <label class="form-label">Shipping Address</label>
+              <textarea id="q-customer-address" class="form-input" rows="2" placeholder="Street, City, State, ZIP"></textarea>
+            </div>
+          </div>
+
+          <!-- Product Configuration -->
+          <div style="background: #f8fafc; padding: 20px; border-radius: 12px; margin-bottom: 20px;">
+            <h4 style="margin: 0 0 16px 0; font-size: 14px; text-transform: uppercase; color: #64748b; display: flex; align-items: center; gap: 8px;">
+              <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/></svg>
+              Product Configuration
+            </h4>
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px;">
+              <div class="form-group">
+                <label class="form-label">Room Label</label>
+                <input type="text" id="q-room-label" class="form-input" placeholder="e.g., Master Bedroom">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Width (inches) *</label>
+                <input type="number" id="q-width" class="form-input" required min="12" max="120" step="0.125" placeholder="48" onchange="calculateQuotePrice()">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Height (inches) *</label>
+                <input type="number" id="q-height" class="form-input" required min="12" max="120" step="0.125" placeholder="72" onchange="calculateQuotePrice()">
+              </div>
+            </div>
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 16px;">
+              <div class="form-group">
+                <label class="form-label">Quantity *</label>
+                <input type="number" id="q-quantity" class="form-input" required min="1" value="1" onchange="calculateQuotePrice()">
+              </div>
+              <div class="form-group">
+                <label class="form-label">Fabric Code *</label>
+                <select id="q-fabric-code" class="form-select" required onchange="calculateQuotePrice()">
+                  <option value="">Select fabric...</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Light Filtering</label>
+                <select id="q-light-filtering" class="form-select" onchange="calculateQuotePrice()">
+                  <option value="light-filtering">Light Filtering</option>
+                  <option value="blackout">Blackout</option>
+                  <option value="sheer">Sheer</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- Hardware Options -->
+          <div style="background: #f8fafc; padding: 20px; border-radius: 12px; margin-bottom: 20px;">
+            <h4 style="margin: 0 0 16px 0; font-size: 14px; text-transform: uppercase; color: #64748b; display: flex; align-items: center; gap: 8px;">
+              <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z"/><circle cx="12" cy="12" r="3"/></svg>
+              Hardware Options
+            </h4>
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px;">
+              <div class="form-group">
+                <label class="form-label">Cassette Type</label>
+                <select id="q-cassette" class="form-select" onchange="calculateQuotePrice()">
+                  <option value="standard">Standard (Included)</option>
+                  <option value="fabric-wrapped-v3">Fabric Wrapped V3</option>
+                  <option value="fabric-inserted-s1">Fabric Inserted S1</option>
+                  <option value="curve-white-s2">Curve White S2</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Bottom Bar</label>
+                <select id="q-bottom-bar" class="form-select" onchange="calculateQuotePrice()">
+                  <option value="standard">Standard (Included)</option>
+                  <option value="type-c-fabric-wrapped">Type C Fabric Wrapped</option>
+                  <option value="type-b">Type B</option>
+                  <option value="simple-rolling">Simple Rolling</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Roll Type</label>
+                <select id="q-roll-type" class="form-select">
+                  <option value="forward-roll">Forward Roll</option>
+                  <option value="reverse-roll">Reverse Roll</option>
+                </select>
+              </div>
+            </div>
+            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px; margin-top: 16px;">
+              <div class="form-group">
+                <label class="form-label">Mount Type</label>
+                <select id="q-mount-type" class="form-select">
+                  <option value="inside">Inside Mount</option>
+                  <option value="outside">Outside Mount</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label class="form-label">Chain Side</label>
+                <select id="q-chain-side" class="form-select">
+                  <option value="left">Left</option>
+                  <option value="right">Right</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- Control & Motorization -->
+          <div style="background: #fef3c7; padding: 20px; border-radius: 12px; margin-bottom: 20px;">
+            <h4 style="margin: 0 0 16px 0; font-size: 14px; text-transform: uppercase; color: #92400e; display: flex; align-items: center; gap: 8px;">
+              <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+              Control & Motorization
+            </h4>
+            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px;">
+              <div class="form-group">
+                <label class="form-label">Control Type</label>
+                <select id="q-control-type" class="form-select" onchange="toggleMotorOptions(); calculateQuotePrice()">
+                  <option value="chain">Chain/Manual</option>
+                  <option value="motorized">Motorized</option>
+                </select>
+              </div>
+              <div class="form-group" id="motor-brand-group" style="display: none;">
+                <label class="form-label">Motor Brand</label>
+                <select id="q-motor-brand" class="form-select" onchange="calculateQuotePrice()">
+                  <option value="aok">AOK ($63)</option>
+                  <option value="dooya">Dooya ($65.80)</option>
+                </select>
+              </div>
+            </div>
+            <div id="motor-options" style="display: none; margin-top: 16px;">
+              <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px;">
+                <div class="form-group">
+                  <label class="form-label">Motor Type</label>
+                  <select id="q-motor-type" class="form-select">
+                    <option value="battery">Battery</option>
+                    <option value="plugin">Plug-in</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Remote Type</label>
+                  <select id="q-remote-type" class="form-select" onchange="calculateQuotePrice()">
+                    <option value="1-channel">1 Channel ($6.16)</option>
+                    <option value="6-channel">6 Channel ($9.24)</option>
+                    <option value="15-channel">15 Channel ($15.89)</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <label class="form-label">Solar Panel</label>
+                  <select id="q-solar" class="form-select" onchange="calculateQuotePrice()">
+                    <option value="no">No</option>
+                    <option value="yes">Yes ($28.70)</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Accessories -->
+          <div style="background: #dbeafe; padding: 20px; border-radius: 12px; margin-bottom: 20px;">
+            <h4 style="margin: 0 0 16px 0; font-size: 14px; text-transform: uppercase; color: #1e40af; display: flex; align-items: center; gap: 8px;">
+              <svg width="18" height="18" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 14v6m-3-3h6M6 10h2a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v2a2 2 0 002 2zm10 0h2a2 2 0 002-2V6a2 2 0 00-2-2h-2a2 2 0 00-2 2v2a2 2 0 002 2zM6 20h2a2 2 0 002-2v-2a2 2 0 00-2-2H6a2 2 0 00-2 2v2a2 2 0 002 2z"/></svg>
+              Accessories
+            </h4>
+            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px;">
+              <div class="form-group">
+                <label class="form-label">Smart Hub Qty ($32.90 each)</label>
+                <input type="number" id="q-smart-hub" class="form-input" min="0" value="0" onchange="calculateQuotePrice()">
+              </div>
+              <div class="form-group">
+                <label class="form-label">USB Charger Qty ($7.00 each)</label>
+                <input type="number" id="q-usb-charger" class="form-input" min="0" value="0" onchange="calculateQuotePrice()">
+              </div>
+            </div>
+          </div>
+
+          <!-- Pricing Summary -->
+          <div style="background: linear-gradient(135deg, #065f46 0%, #047857 100%); padding: 24px; border-radius: 12px; margin-bottom: 20px; color: white;">
+            <h4 style="margin: 0 0 16px 0; font-size: 14px; text-transform: uppercase; opacity: 0.8;">Price Summary</h4>
+            <div id="price-breakdown" style="font-size: 14px; margin-bottom: 16px;">
+              <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.2);">
+                <span>Base Price (Fabric + Size)</span>
+                <span id="price-base">$0.00</span>
+              </div>
+              <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.2);">
+                <span>Hardware Options</span>
+                <span id="price-hardware">$0.00</span>
+              </div>
+              <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.2);">
+                <span>Motorization</span>
+                <span id="price-motor">$0.00</span>
+              </div>
+              <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid rgba(255,255,255,0.2);">
+                <span>Accessories</span>
+                <span id="price-accessories">$0.00</span>
+              </div>
+            </div>
+            <div style="display: flex; justify-content: space-between; align-items: center;">
+              <div>
+                <div style="font-size: 12px; opacity: 0.7;">Unit Price</div>
+                <div style="font-size: 24px; font-weight: 700;" id="price-unit">$0.00</div>
+              </div>
+              <div style="text-align: right;">
+                <div style="font-size: 12px; opacity: 0.7;">Total (x<span id="price-qty">1</span>)</div>
+                <div style="font-size: 32px; font-weight: 800;" id="price-total">$0.00</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Notes -->
+          <div class="form-group">
+            <label class="form-label">Notes / Special Instructions</label>
+            <textarea id="q-notes" class="form-input" rows="3" placeholder="Any additional notes for this quote..."></textarea>
+          </div>
+
+          <!-- Valid Until -->
+          <div class="form-group">
+            <label class="form-label">Quote Valid Until</label>
+            <input type="date" id="q-valid-until" class="form-input">
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer" style="position: sticky; bottom: 0; background: white; border-top: 1px solid #e5e7eb; padding: 16px 24px;">
+        <button type="button" class="btn btn-secondary" onclick="closeCreateQuoteModal()">Cancel</button>
+        <button type="submit" form="create-quote-form" class="btn btn-primary">Create Quote</button>
+      </div>
+    </div>
+  </div>
+
   <script src="js/admin.js"></script>
   <script>
     // Require authentication
@@ -203,7 +466,8 @@
       try {
         const data = await Admin.QuotesAPI.getAll();
         if (data.success) {
-          allQuotes = data.quotes || [];
+          // API returns 'data' array, not 'quotes'
+          allQuotes = data.data || data.quotes || [];
           renderQuotes(allQuotes);
         }
       } catch (error) {
@@ -386,6 +650,339 @@
         }
       }
     }
+
+    // ============================================
+    // CREATE QUOTE FUNCTIONALITY
+    // ============================================
+
+    let fabricsData = [];
+    let priceCache = {};
+
+    async function openCreateQuoteModal() {
+      // Load fabrics if not already loaded
+      if (fabricsData.length === 0) {
+        await loadFabrics();
+      }
+
+      // Set default valid until date (30 days from now)
+      const validUntil = new Date();
+      validUntil.setDate(validUntil.getDate() + 30);
+      document.getElementById('q-valid-until').value = validUntil.toISOString().split('T')[0];
+
+      // Show the modal
+      document.getElementById('create-quote-modal').style.display = 'flex';
+
+      // Reset form
+      document.getElementById('create-quote-form').reset();
+      document.getElementById('q-valid-until').value = validUntil.toISOString().split('T')[0];
+      toggleMotorOptions();
+      resetPriceSummary();
+    }
+
+    function closeCreateQuoteModal() {
+      document.getElementById('create-quote-modal').style.display = 'none';
+    }
+
+    async function loadFabrics() {
+      try {
+        const response = await fetch('/api/product-content/fabrics');
+        const data = await response.json();
+        if (data.success) {
+          // API returns 'fabrics' not 'data'
+          fabricsData = data.fabrics || data.data || [];
+          populateFabricDropdown();
+        }
+      } catch (error) {
+        console.error('Failed to load fabrics:', error);
+      }
+    }
+
+    function populateFabricDropdown() {
+      const select = document.getElementById('q-fabric-code');
+      select.innerHTML = '<option value="">Select fabric...</option>';
+
+      // Check if fabrics are in flat array format or categorized format
+      if (fabricsData.length > 0) {
+        // Check if it's a flat array (has 'code' property) or categorized (has 'items' property)
+        if (fabricsData[0].code) {
+          // Flat array format - group by filterType
+          const grouped = {};
+          for (const fabric of fabricsData) {
+            const category = fabric.filterType || 'Other';
+            if (!grouped[category]) grouped[category] = [];
+            grouped[category].push(fabric);
+          }
+
+          for (const [category, fabrics] of Object.entries(grouped)) {
+            const optgroup = document.createElement('optgroup');
+            optgroup.label = category.charAt(0).toUpperCase() + category.slice(1);
+
+            for (const fabric of fabrics) {
+              const option = document.createElement('option');
+              option.value = fabric.code;
+              option.textContent = `${fabric.code} - ${fabric.name || fabric.code}`;
+              optgroup.appendChild(option);
+            }
+
+            select.appendChild(optgroup);
+          }
+        } else {
+          // Categorized format with 'items' arrays
+          for (const category of fabricsData) {
+            if (category.items && category.items.length > 0) {
+              const optgroup = document.createElement('optgroup');
+              optgroup.label = category.name || category.category || 'Fabrics';
+
+              for (const fabric of category.items) {
+                const option = document.createElement('option');
+                option.value = fabric.code;
+                option.textContent = `${fabric.code} - ${fabric.name || fabric.code}`;
+                optgroup.appendChild(option);
+              }
+
+              select.appendChild(optgroup);
+            }
+          }
+        }
+      }
+    }
+
+    function toggleMotorOptions() {
+      const controlType = document.getElementById('q-control-type').value;
+      const isMotorized = controlType === 'motorized';
+
+      document.getElementById('motor-brand-group').style.display = isMotorized ? 'block' : 'none';
+      document.getElementById('motor-options').style.display = isMotorized ? 'block' : 'none';
+
+      calculateQuotePrice();
+    }
+
+    function resetPriceSummary() {
+      document.getElementById('price-base').textContent = '$0.00';
+      document.getElementById('price-hardware').textContent = '$0.00';
+      document.getElementById('price-motor').textContent = '$0.00';
+      document.getElementById('price-accessories').textContent = '$0.00';
+      document.getElementById('price-unit').textContent = '$0.00';
+      document.getElementById('price-qty').textContent = '1';
+      document.getElementById('price-total').textContent = '$0.00';
+    }
+
+    async function calculateQuotePrice() {
+      const width = parseFloat(document.getElementById('q-width').value);
+      const height = parseFloat(document.getElementById('q-height').value);
+      const quantity = parseInt(document.getElementById('q-quantity').value) || 1;
+      const fabricCode = document.getElementById('q-fabric-code').value;
+
+      // Validate required fields
+      if (!width || !height || !fabricCode) {
+        resetPriceSummary();
+        return;
+      }
+
+      // Get all options
+      const controlType = document.getElementById('q-control-type').value;
+      const isMotorized = controlType === 'motorized';
+
+      const options = {
+        controlType: controlType === 'motorized' ? 'motorized' : 'manual',
+        valanceType: document.getElementById('q-cassette').value,
+        bottomRail: document.getElementById('q-bottom-bar').value,
+        mountType: document.getElementById('q-mount-type').value
+      };
+
+      if (isMotorized) {
+        options.motorBrand = document.getElementById('q-motor-brand').value;
+        options.motorType = document.getElementById('q-motor-type').value;
+        options.remoteType = document.getElementById('q-remote-type').value;
+        options.solarType = document.getElementById('q-solar').value;
+      }
+
+      // Add accessories
+      const smartHubQty = parseInt(document.getElementById('q-smart-hub').value) || 0;
+      const usbChargerQty = parseInt(document.getElementById('q-usb-charger').value) || 0;
+
+      if (smartHubQty > 0) options.smartHubQty = smartHubQty;
+      if (usbChargerQty > 0) options.usbChargerQty = usbChargerQty;
+
+      try {
+        const response = await fetch('/api/store/price-quote', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            productSlug: 'roller-shades',
+            productType: 'roller',
+            width,
+            height,
+            quantity,
+            fabricCode,
+            options
+          })
+        });
+
+        const data = await response.json();
+
+        if (data.success && data.pricing) {
+          updatePriceSummary(data.pricing, quantity);
+          priceCache = data.pricing;
+        } else {
+          console.error('Price calculation failed:', data.error);
+          resetPriceSummary();
+        }
+      } catch (error) {
+        console.error('Failed to calculate price:', error);
+        resetPriceSummary();
+      }
+    }
+
+    function updatePriceSummary(pricing, quantity) {
+      const formatCurrency = (val) => '$' + (val || 0).toFixed(2);
+
+      // Calculate breakdown
+      const basePrice = pricing.manufacturerCost?.unitCost || 0;
+      const margin = pricing.margin?.amount || 0;
+      const basePlusMargin = basePrice + margin;
+
+      // Get option costs
+      const optionsTotal = pricing.options?.total || 0;
+
+      // Get motor cost (from options breakdown)
+      let motorCost = 0;
+      let hardwareCost = 0;
+      const optionsBreakdown = pricing.options?.breakdown || [];
+      for (const opt of optionsBreakdown) {
+        if (opt.type === 'motorization' || opt.type === 'remote' || opt.type === 'solar') {
+          motorCost += opt.price || 0;
+        } else {
+          hardwareCost += opt.price || 0;
+        }
+      }
+
+      // Get accessories total
+      const accessoriesTotal = pricing.accessories?.total || 0;
+
+      // Update UI
+      document.getElementById('price-base').textContent = formatCurrency(basePlusMargin);
+      document.getElementById('price-hardware').textContent = formatCurrency(hardwareCost);
+      document.getElementById('price-motor').textContent = formatCurrency(motorCost);
+      document.getElementById('price-accessories').textContent = formatCurrency(accessoriesTotal);
+
+      document.getElementById('price-unit').textContent = formatCurrency(pricing.unitPrice);
+      document.getElementById('price-qty').textContent = quantity;
+      document.getElementById('price-total').textContent = formatCurrency(pricing.lineTotal);
+    }
+
+    async function submitQuote(event) {
+      event.preventDefault();
+
+      // Gather form data
+      const customerName = document.getElementById('q-customer-name').value.trim();
+      const customerEmail = document.getElementById('q-customer-email').value.trim();
+      const customerPhone = document.getElementById('q-customer-phone').value.trim();
+      const customerCompany = document.getElementById('q-customer-company').value.trim();
+      const customerAddress = document.getElementById('q-customer-address').value.trim();
+
+      const roomLabel = document.getElementById('q-room-label').value.trim();
+      const width = parseFloat(document.getElementById('q-width').value);
+      const height = parseFloat(document.getElementById('q-height').value);
+      const quantity = parseInt(document.getElementById('q-quantity').value) || 1;
+      const fabricCode = document.getElementById('q-fabric-code').value;
+      const lightFiltering = document.getElementById('q-light-filtering').value;
+
+      const cassetteType = document.getElementById('q-cassette').value;
+      const bottomBar = document.getElementById('q-bottom-bar').value;
+      const rollType = document.getElementById('q-roll-type').value;
+      const mountType = document.getElementById('q-mount-type').value;
+      const chainSide = document.getElementById('q-chain-side').value;
+
+      const controlType = document.getElementById('q-control-type').value;
+      const isMotorized = controlType === 'motorized';
+
+      let motorBrand, motorType, remoteType, solarPanel;
+      if (isMotorized) {
+        motorBrand = document.getElementById('q-motor-brand').value;
+        motorType = document.getElementById('q-motor-type').value;
+        remoteType = document.getElementById('q-remote-type').value;
+        solarPanel = document.getElementById('q-solar').value;
+      }
+
+      const smartHubQty = parseInt(document.getElementById('q-smart-hub').value) || 0;
+      const usbChargerQty = parseInt(document.getElementById('q-usb-charger').value) || 0;
+
+      const notes = document.getElementById('q-notes').value.trim();
+      const validUntil = document.getElementById('q-valid-until').value;
+
+      // Build configuration object
+      const configuration = {
+        roomLabel,
+        fabricCode,
+        lightFiltering,
+        cassetteType,
+        bottomBar,
+        rollType,
+        mountType,
+        chainSide,
+        controlType,
+        ...(isMotorized && {
+          motorBrand,
+          motorType,
+          remoteType,
+          solarPanel
+        }),
+        accessories: {
+          smartHubQty,
+          usbChargerQty
+        },
+        pricing: priceCache,
+        notes,
+        validUntil,
+        customerCompany,
+        customerAddress
+      };
+
+      // Validate required fields
+      if (!customerName || !customerEmail || !fabricCode || !width || !height) {
+        Admin.Toast.error('Please fill in all required fields');
+        return;
+      }
+
+      try {
+        const response = await fetch('/api/quotes', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            customerName,
+            customerEmail,
+            customerPhone,
+            productName: 'Roller Shades',
+            configuration,
+            width,
+            height,
+            quantity,
+            message: notes
+          })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          Admin.Toast.success(`Quote ${data.quoteNumber} created successfully`);
+          closeCreateQuoteModal();
+          loadQuotes(); // Refresh the quotes list
+        } else {
+          Admin.Toast.error(data.error || 'Failed to create quote');
+        }
+      } catch (error) {
+        console.error('Failed to submit quote:', error);
+        Admin.Toast.error('Failed to create quote');
+      }
+    }
+
+    // Close modal on background click
+    document.getElementById('create-quote-modal').addEventListener('click', function(e) {
+      if (e.target === this) {
+        closeCreateQuoteModal();
+      }
+    });
   </script>
 </body>
 </html>

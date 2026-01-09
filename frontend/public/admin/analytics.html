@@ -8,166 +8,216 @@
   <link rel="icon" type="image/png" href="/images/favicon.png">
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <style>
-    .analytics-grid {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 16px;
-      margin-bottom: 24px;
-    }
-    @media (max-width: 1200px) { .analytics-grid { grid-template-columns: repeat(2, 1fr); } }
-    @media (max-width: 600px) { .analytics-grid { grid-template-columns: 1fr; } }
-
-    .stat-card {
-      background: white;
-      border-radius: 8px;
-      padding: 20px;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.08);
-    }
-    .stat-card h4 {
-      font-size: 12px;
-      color: #6D7175;
-      margin-bottom: 8px;
-      text-transform: uppercase;
-    }
-    .stat-card .value {
-      font-size: 28px;
-      font-weight: 600;
-      color: #202223;
-    }
-    .stat-card .value.positive { color: #008060; }
-    .stat-card .value.negative { color: #D72C0D; }
-    .stat-card .subtext {
-      font-size: 12px;
-      color: #6D7175;
-      margin-top: 4px;
-    }
-
-    .chart-row {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 24px;
-      margin-bottom: 24px;
-    }
-    .chart-row-3 {
-      display: grid;
-      grid-template-columns: 1fr 1fr 1fr;
-      gap: 24px;
-      margin-bottom: 24px;
-    }
-    @media (max-width: 1024px) { .chart-row, .chart-row-3 { grid-template-columns: 1fr; } }
-
-    .analytics-card {
-      background: white;
-      border-radius: 8px;
-      padding: 20px;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.08);
-    }
-    .analytics-card-header {
+    /* Page Header */
+    .page-header-row {
       display: flex;
       justify-content: space-between;
       align-items: center;
+      margin-bottom: 24px;
+    }
+    .page-title {
+      font-size: 28px;
+      font-weight: 700;
+      color: #1a1a2e;
+      margin: 0;
+    }
+    .date-filter {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+    }
+    .date-filter select {
+      padding: 10px 16px;
+      border: 1px solid #e0e0e0;
+      border-radius: 8px;
+      font-size: 14px;
+      background: white;
+      cursor: pointer;
+    }
+
+    /* Stats Grid */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 20px;
+      margin-bottom: 28px;
+    }
+    @media (max-width: 1200px) { .stats-grid { grid-template-columns: repeat(2, 1fr); } }
+    @media (max-width: 600px) { .stats-grid { grid-template-columns: 1fr; } }
+
+    .stat-card {
+      background: white;
+      border-radius: 12px;
+      padding: 24px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+      border: 1px solid #f0f0f0;
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+    .stat-card:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+    .stat-card-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
       margin-bottom: 16px;
     }
-    .analytics-card-title {
+    .stat-card-icon.primary { background: linear-gradient(135deg, #8E6545 0%, #B38B6D 100%); }
+    .stat-card-icon.success { background: linear-gradient(135deg, #10b981 0%, #34d399 100%); }
+    .stat-card-icon.warning { background: linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%); }
+    .stat-card-icon.info { background: linear-gradient(135deg, #3b82f6 0%, #60a5fa 100%); }
+    .stat-card-icon svg { width: 24px; height: 24px; color: white; }
+    .stat-card h4 {
+      font-size: 13px;
+      color: #6b7280;
+      margin-bottom: 8px;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .stat-card .value {
+      font-size: 32px;
+      font-weight: 700;
+      color: #1a1a2e;
+      line-height: 1.2;
+    }
+    .stat-card .trend {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      margin-top: 8px;
+      font-size: 13px;
+      font-weight: 500;
+    }
+    .stat-card .trend.up { color: #10b981; }
+    .stat-card .trend.down { color: #ef4444; }
+    .stat-card .subtext {
+      font-size: 13px;
+      color: #9ca3af;
+      margin-top: 4px;
+    }
+
+    /* Tabs */
+    .tabs-container {
+      background: white;
+      border-radius: 12px;
+      padding: 4px;
+      margin-bottom: 24px;
+      display: inline-flex;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    }
+    .tab-btn {
+      padding: 12px 24px;
+      border: none;
+      background: transparent;
+      font-size: 14px;
+      font-weight: 500;
+      color: #6b7280;
+      cursor: pointer;
+      border-radius: 8px;
+      transition: all 0.2s;
+    }
+    .tab-btn:hover { color: #1a1a2e; background: #f9fafb; }
+    .tab-btn.active {
+      background: #8E6545;
+      color: white;
+    }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+
+    /* Chart Cards */
+    .chart-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 24px;
+      margin-bottom: 24px;
+    }
+    .chart-grid-3 {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 24px;
+      margin-bottom: 24px;
+    }
+    @media (max-width: 1024px) {
+      .chart-grid, .chart-grid-3 { grid-template-columns: 1fr; }
+    }
+
+    .chart-card {
+      background: white;
+      border-radius: 12px;
+      padding: 24px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+      border: 1px solid #f0f0f0;
+    }
+    .chart-card.full-width {
+      grid-column: 1 / -1;
+    }
+    .chart-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+    .chart-card-title {
       font-size: 16px;
       font-weight: 600;
-      color: #202223;
+      color: #1a1a2e;
+    }
+    .chart-card-subtitle {
+      font-size: 13px;
+      color: #9ca3af;
+      margin-top: 4px;
     }
     .chart-container {
       height: 280px;
       position: relative;
     }
-    .chart-container.small { height: 200px; }
+    .chart-container.tall { height: 350px; }
+    .chart-container.short { height: 220px; }
 
-    .tabs {
-      display: flex;
-      gap: 4px;
-      border-bottom: 1px solid #E5E5E5;
-      margin-bottom: 24px;
-      overflow-x: auto;
-    }
-    .tab-btn {
-      padding: 12px 20px;
-      border: none;
-      background: none;
-      font-size: 14px;
-      color: #6D7175;
-      cursor: pointer;
-      border-bottom: 2px solid transparent;
-      margin-bottom: -1px;
-      white-space: nowrap;
-    }
-    .tab-btn:hover { color: #202223; }
-    .tab-btn.active {
-      color: #8E6545;
-      border-bottom-color: #8E6545;
-      font-weight: 500;
-    }
-    .tab-content { display: none; }
-    .tab-content.active { display: block; }
-
+    /* Data Tables */
     .data-table {
       width: 100%;
       border-collapse: collapse;
     }
     .data-table th {
       text-align: left;
-      padding: 12px 8px;
+      padding: 12px 16px;
       font-size: 12px;
       font-weight: 600;
-      color: #6D7175;
+      color: #6b7280;
       text-transform: uppercase;
-      border-bottom: 1px solid #E5E5E5;
+      letter-spacing: 0.5px;
+      background: #f9fafb;
+      border-bottom: 1px solid #e5e7eb;
     }
+    .data-table th:first-child { border-radius: 8px 0 0 0; }
+    .data-table th:last-child { border-radius: 0 8px 0 0; }
     .data-table td {
-      padding: 12px 8px;
+      padding: 14px 16px;
       font-size: 14px;
-      color: #202223;
-      border-bottom: 1px solid #F0F0F0;
+      color: #1a1a2e;
+      border-bottom: 1px solid #f3f4f6;
     }
-    .data-table .value { text-align: right; font-weight: 600; }
-    .data-table .rank { width: 40px; color: #6D7175; }
+    .data-table tr:hover td { background: #fafafa; }
+    .data-table .rank {
+      width: 40px;
+      color: #9ca3af;
+      font-weight: 600;
+    }
+    .data-table .value {
+      text-align: right;
+      font-weight: 600;
+      font-variant-numeric: tabular-nums;
+    }
+    .data-table .positive { color: #10b981; }
+    .data-table .negative { color: #ef4444; }
 
-    .progress-bar {
-      background: #F0F0F0;
-      border-radius: 4px;
-      height: 8px;
-      overflow: hidden;
-    }
-    .progress-bar .fill {
-      height: 100%;
-      background: linear-gradient(90deg, #8E6545, #B38B6D);
-      border-radius: 4px;
-    }
-
-    .badge {
-      display: inline-block;
-      padding: 4px 10px;
-      border-radius: 4px;
-      font-size: 12px;
-      font-weight: 500;
-    }
-    .badge-success { background: #E3F1DF; color: #008060; }
-    .badge-warning { background: #FFF3CD; color: #B98900; }
-    .badge-danger { background: #FEE9E9; color: #D72C0D; }
-
-    .loading-spinner {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      padding: 60px;
-    }
-    .loading-spinner::after {
-      content: "";
-      width: 32px;
-      height: 32px;
-      border: 3px solid #E5E5E5;
-      border-top-color: #8E6545;
-      border-radius: 50%;
-      animation: spin 1s linear infinite;
-    }
-    @keyframes spin { to { transform: rotate(360deg); } }
-
+    /* Metric List */
     .metric-list {
       display: flex;
       flex-direction: column;
@@ -177,12 +227,87 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      padding: 12px;
-      background: #F9FAFB;
-      border-radius: 6px;
+      padding: 14px 16px;
+      background: #f9fafb;
+      border-radius: 10px;
+      transition: background 0.2s;
     }
-    .metric-item .label { font-size: 14px; color: #202223; }
-    .metric-item .value { font-size: 16px; font-weight: 600; color: #8E6545; }
+    .metric-item:hover { background: #f3f4f6; }
+    .metric-item .label {
+      font-size: 14px;
+      color: #4b5563;
+      font-weight: 500;
+    }
+    .metric-item .value {
+      font-size: 16px;
+      font-weight: 700;
+      color: #8E6545;
+    }
+    .metric-item .value.success { color: #10b981; }
+    .metric-item .value.danger { color: #ef4444; }
+    .metric-item .value.warning { color: #f59e0b; }
+
+    /* Progress Bar */
+    .progress-bar {
+      background: #e5e7eb;
+      border-radius: 6px;
+      height: 8px;
+      overflow: hidden;
+      margin-top: 8px;
+    }
+    .progress-bar .fill {
+      height: 100%;
+      background: linear-gradient(90deg, #8E6545, #B38B6D);
+      border-radius: 6px;
+      transition: width 0.5s ease;
+    }
+
+    /* Loading */
+    .loading-overlay {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 80px;
+      color: #6b7280;
+    }
+    .loading-spinner {
+      width: 40px;
+      height: 40px;
+      border: 3px solid #e5e7eb;
+      border-top-color: #8E6545;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin-bottom: 16px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* Empty State */
+    .empty-state {
+      text-align: center;
+      padding: 40px;
+      color: #9ca3af;
+    }
+    .empty-state svg {
+      width: 48px;
+      height: 48px;
+      margin-bottom: 16px;
+      opacity: 0.5;
+    }
+
+    /* Badge */
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    .badge-success { background: #d1fae5; color: #059669; }
+    .badge-warning { background: #fef3c7; color: #d97706; }
+    .badge-danger { background: #fee2e2; color: #dc2626; }
+    .badge-info { background: #dbeafe; color: #2563eb; }
   </style>
 </head>
 <body>
@@ -214,21 +339,11 @@
             </svg>
             <span>Orders</span>
           </a>
-          <a href="/admin/invoices.html" class="nav-item">
+          <a href="/admin/quotes.html" class="nav-item">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
             </svg>
-            <span>Invoices</span>
-          </a>
-        </div>
-
-        <div class="nav-section">
-          <div class="nav-section-title">Finance</div>
-          <a href="/admin/accounts.html" class="nav-item">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            <span>Accounts & Profit</span>
+            <span>Quotes</span>
           </a>
         </div>
 
@@ -248,7 +363,7 @@
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
             </svg>
-            <span>Reports</span>
+            <span>Analytics & Reports</span>
           </a>
         </div>
 
@@ -281,44 +396,122 @@
               <div class="profile-avatar">A</div>
               <span class="profile-name">Admin</span>
             </div>
-            <div class="dropdown-menu profile-dropdown">
-              <a href="/admin/settings.html" class="dropdown-item">Profile</a>
-              <div class="dropdown-divider"></div>
-              <a href="#" class="dropdown-item danger" onclick="Admin.AuthAPI.logout(); return false;">Logout</a>
-            </div>
           </div>
         </div>
       </header>
 
       <!-- Page Content -->
       <div class="admin-content">
-        <h1 class="page-title">Analytics & Reports</h1>
+        <div class="page-header-row">
+          <h1 class="page-title">Analytics & Reports</h1>
+          <div class="date-filter">
+            <select id="date-range">
+              <option value="7">Last 7 Days</option>
+              <option value="30" selected>Last 30 Days</option>
+              <option value="90">Last 90 Days</option>
+              <option value="365">Last Year</option>
+            </select>
+          </div>
+        </div>
 
         <!-- Tabs -->
-        <div class="tabs">
-          <button class="tab-btn active" data-tab="products">Products</button>
+        <div class="tabs-container">
+          <button class="tab-btn active" data-tab="overview">Overview</button>
+          <button class="tab-btn" data-tab="products">Products</button>
           <button class="tab-btn" data-tab="customers">Customers</button>
           <button class="tab-btn" data-tab="finance">Finance</button>
-          <button class="tab-btn" data-tab="traffic">Traffic & Sessions</button>
+          <button class="tab-btn" data-tab="traffic">Traffic</button>
+        </div>
+
+        <!-- Overview Tab -->
+        <div id="tab-overview" class="tab-content active">
+          <div id="overview-loading" class="loading-overlay">
+            <div class="loading-spinner"></div>
+            <span>Loading analytics...</span>
+          </div>
+          <div id="overview-content" style="display: none;">
+            <!-- Key Metrics -->
+            <div class="stats-grid" id="overview-stats"></div>
+
+            <!-- Charts Row -->
+            <div class="chart-grid">
+              <div class="chart-card">
+                <div class="chart-card-header">
+                  <div>
+                    <h3 class="chart-card-title">Revenue Trend</h3>
+                    <p class="chart-card-subtitle">Daily revenue over time</p>
+                  </div>
+                </div>
+                <div class="chart-container">
+                  <canvas id="overviewRevenueChart"></canvas>
+                </div>
+              </div>
+              <div class="chart-card">
+                <div class="chart-card-header">
+                  <div>
+                    <h3 class="chart-card-title">Orders by Product</h3>
+                    <p class="chart-card-subtitle">Distribution by product type</p>
+                  </div>
+                </div>
+                <div class="chart-container">
+                  <canvas id="overviewProductsChart"></canvas>
+                </div>
+              </div>
+            </div>
+
+            <!-- Second Row -->
+            <div class="chart-grid">
+              <div class="chart-card">
+                <div class="chart-card-header">
+                  <div>
+                    <h3 class="chart-card-title">Top Customers</h3>
+                    <p class="chart-card-subtitle">By total revenue</p>
+                  </div>
+                </div>
+                <table class="data-table" id="overviewCustomersTable">
+                  <thead>
+                    <tr>
+                      <th class="rank">#</th>
+                      <th>Customer</th>
+                      <th class="value">Orders</th>
+                      <th class="value">Revenue</th>
+                    </tr>
+                  </thead>
+                  <tbody></tbody>
+                </table>
+              </div>
+              <div class="chart-card">
+                <div class="chart-card-header">
+                  <div>
+                    <h3 class="chart-card-title">Quick Stats</h3>
+                    <p class="chart-card-subtitle">Key performance indicators</p>
+                  </div>
+                </div>
+                <div class="metric-list" id="overviewMetricsList"></div>
+              </div>
+            </div>
+          </div>
         </div>
 
         <!-- Products Tab -->
-        <div id="tab-products" class="tab-content active">
-          <div id="products-loading" class="loading-spinner"></div>
+        <div id="tab-products" class="tab-content">
+          <div id="products-loading" class="loading-overlay">
+            <div class="loading-spinner"></div>
+            <span>Loading product analytics...</span>
+          </div>
           <div id="products-content" style="display: none;">
-            <!-- Blinds Type -->
-            <div class="chart-row">
-              <div class="analytics-card">
-                <div class="analytics-card-header">
-                  <h3 class="analytics-card-title">Blinds Type Distribution</h3>
+            <div class="chart-grid">
+              <div class="chart-card">
+                <div class="chart-card-header">
+                  <h3 class="chart-card-title">Blinds Type Distribution</h3>
                 </div>
                 <div class="chart-container">
                   <canvas id="blindsTypeChart"></canvas>
                 </div>
               </div>
-              <div class="analytics-card">
-                <div class="analytics-card-header">
-                  <h3 class="analytics-card-title">Control System Usage</h3>
+              <div class="chart-card">
+                <div class="chart-card-header">
+                  <h3 class="chart-card-title">Control System Usage</h3>
                 </div>
                 <div class="chart-container">
                   <canvas id="controlSystemChart"></canvas>
@@ -326,19 +519,18 @@
               </div>
             </div>
 
-            <!-- Measurements & Sizes -->
-            <div class="chart-row">
-              <div class="analytics-card">
-                <div class="analytics-card-header">
-                  <h3 class="analytics-card-title">Size Range Distribution</h3>
+            <div class="chart-grid">
+              <div class="chart-card">
+                <div class="chart-card-header">
+                  <h3 class="chart-card-title">Size Distribution</h3>
                 </div>
                 <div class="chart-container">
                   <canvas id="sizeRangeChart"></canvas>
                 </div>
               </div>
-              <div class="analytics-card">
-                <div class="analytics-card-header">
-                  <h3 class="analytics-card-title">Top 10 Popular Sizes</h3>
+              <div class="chart-card">
+                <div class="chart-card-header">
+                  <h3 class="chart-card-title">Popular Sizes</h3>
                 </div>
                 <table class="data-table" id="popularSizesTable">
                   <thead>
@@ -353,25 +545,24 @@
               </div>
             </div>
 
-            <!-- Light Filtering & Hardware -->
-            <div class="chart-row-3">
-              <div class="analytics-card">
-                <div class="analytics-card-header">
-                  <h3 class="analytics-card-title">Light Filtering</h3>
+            <div class="chart-grid-3">
+              <div class="chart-card">
+                <div class="chart-card-header">
+                  <h3 class="chart-card-title">Light Filtering</h3>
                 </div>
-                <div class="chart-container small">
+                <div class="chart-container short">
                   <canvas id="lightFilteringChart"></canvas>
                 </div>
               </div>
-              <div class="analytics-card">
-                <div class="analytics-card-header">
-                  <h3 class="analytics-card-title">Valance Types</h3>
+              <div class="chart-card">
+                <div class="chart-card-header">
+                  <h3 class="chart-card-title">Valance Types</h3>
                 </div>
                 <div class="metric-list" id="valanceTypesList"></div>
               </div>
-              <div class="analytics-card">
-                <div class="analytics-card-header">
-                  <h3 class="analytics-card-title">Motor Brands</h3>
+              <div class="chart-card">
+                <div class="chart-card-header">
+                  <h3 class="chart-card-title">Motor Brands</h3>
                 </div>
                 <div class="metric-list" id="motorBrandsList"></div>
               </div>
@@ -381,24 +572,25 @@
 
         <!-- Customers Tab -->
         <div id="tab-customers" class="tab-content">
-          <div id="customers-loading" class="loading-spinner"></div>
+          <div id="customers-loading" class="loading-overlay">
+            <div class="loading-spinner"></div>
+            <span>Loading customer analytics...</span>
+          </div>
           <div id="customers-content" style="display: none;">
-            <!-- Summary Stats -->
-            <div class="analytics-grid" id="customer-stats"></div>
+            <div class="stats-grid" id="customer-stats"></div>
 
-            <!-- Customer Types & Location -->
-            <div class="chart-row">
-              <div class="analytics-card">
-                <div class="analytics-card-header">
-                  <h3 class="analytics-card-title">Customer Types</h3>
+            <div class="chart-grid">
+              <div class="chart-card">
+                <div class="chart-card-header">
+                  <h3 class="chart-card-title">Customer Segments</h3>
                 </div>
                 <div class="chart-container">
                   <canvas id="customerTypesChart"></canvas>
                 </div>
               </div>
-              <div class="analytics-card">
-                <div class="analytics-card-header">
-                  <h3 class="analytics-card-title">Orders by State</h3>
+              <div class="chart-card">
+                <div class="chart-card-header">
+                  <h3 class="chart-card-title">Orders by State</h3>
                 </div>
                 <div class="chart-container">
                   <canvas id="ordersByStateChart"></canvas>
@@ -406,11 +598,10 @@
               </div>
             </div>
 
-            <!-- Top Customers & Cities -->
-            <div class="chart-row">
-              <div class="analytics-card">
-                <div class="analytics-card-header">
-                  <h3 class="analytics-card-title">Top Customers by Revenue</h3>
+            <div class="chart-grid">
+              <div class="chart-card">
+                <div class="chart-card-header">
+                  <h3 class="chart-card-title">Top Customers</h3>
                 </div>
                 <table class="data-table" id="topCustomersTable">
                   <thead>
@@ -424,9 +615,9 @@
                   <tbody></tbody>
                 </table>
               </div>
-              <div class="analytics-card">
-                <div class="analytics-card-header">
-                  <h3 class="analytics-card-title">Top Cities</h3>
+              <div class="chart-card">
+                <div class="chart-card-header">
+                  <h3 class="chart-card-title">Top Cities</h3>
                 </div>
                 <table class="data-table" id="topCitiesTable">
                   <thead>
@@ -442,22 +633,21 @@
               </div>
             </div>
 
-            <!-- Social Login -->
-            <div class="chart-row">
-              <div class="analytics-card">
-                <div class="analytics-card-header">
-                  <h3 class="analytics-card-title">Login Methods</h3>
+            <div class="chart-grid">
+              <div class="chart-card">
+                <div class="chart-card-header">
+                  <h3 class="chart-card-title">Customer Acquisition</h3>
                 </div>
-                <div class="chart-container small">
-                  <canvas id="socialLoginChart"></canvas>
+                <div class="chart-container">
+                  <canvas id="acquisitionTrendChart"></canvas>
                 </div>
               </div>
-              <div class="analytics-card">
-                <div class="analytics-card-header">
-                  <h3 class="analytics-card-title">Customer Acquisition Trend</h3>
+              <div class="chart-card">
+                <div class="chart-card-header">
+                  <h3 class="chart-card-title">Login Methods</h3>
                 </div>
-                <div class="chart-container small">
-                  <canvas id="acquisitionTrendChart"></canvas>
+                <div class="chart-container">
+                  <canvas id="socialLoginChart"></canvas>
                 </div>
               </div>
             </div>
@@ -466,34 +656,34 @@
 
         <!-- Finance Tab -->
         <div id="tab-finance" class="tab-content">
-          <div id="finance-loading" class="loading-spinner"></div>
+          <div id="finance-loading" class="loading-overlay">
+            <div class="loading-spinner"></div>
+            <span>Loading financial data...</span>
+          </div>
           <div id="finance-content" style="display: none;">
-            <!-- Summary Stats -->
-            <div class="analytics-grid" id="finance-stats"></div>
+            <div class="stats-grid" id="finance-stats"></div>
 
-            <!-- Revenue Trend -->
-            <div class="analytics-card" style="margin-bottom: 24px;">
-              <div class="analytics-card-header">
-                <h3 class="analytics-card-title">Revenue & Profit Trend</h3>
+            <div class="chart-card full-width" style="margin-bottom: 24px;">
+              <div class="chart-card-header">
+                <h3 class="chart-card-title">Revenue & Profit Trend</h3>
               </div>
-              <div class="chart-container">
+              <div class="chart-container tall">
                 <canvas id="revenueTrendChart"></canvas>
               </div>
             </div>
 
-            <!-- Revenue by Category & Payment Methods -->
-            <div class="chart-row">
-              <div class="analytics-card">
-                <div class="analytics-card-header">
-                  <h3 class="analytics-card-title">Revenue by Category</h3>
+            <div class="chart-grid">
+              <div class="chart-card">
+                <div class="chart-card-header">
+                  <h3 class="chart-card-title">Revenue by Category</h3>
                 </div>
                 <div class="chart-container">
                   <canvas id="revenueByCategoryChart"></canvas>
                 </div>
               </div>
-              <div class="analytics-card">
-                <div class="analytics-card-header">
-                  <h3 class="analytics-card-title">Payment Methods</h3>
+              <div class="chart-card">
+                <div class="chart-card-header">
+                  <h3 class="chart-card-title">Payment Methods</h3>
                 </div>
                 <div class="chart-container">
                   <canvas id="paymentMethodsChart"></canvas>
@@ -501,19 +691,18 @@
               </div>
             </div>
 
-            <!-- Order Status & Ledger Summary -->
-            <div class="chart-row">
-              <div class="analytics-card">
-                <div class="analytics-card-header">
-                  <h3 class="analytics-card-title">Order Status</h3>
+            <div class="chart-grid">
+              <div class="chart-card">
+                <div class="chart-card-header">
+                  <h3 class="chart-card-title">Order Status</h3>
                 </div>
-                <div class="chart-container small">
+                <div class="chart-container">
                   <canvas id="orderStatusChart"></canvas>
                 </div>
               </div>
-              <div class="analytics-card">
-                <div class="analytics-card-header">
-                  <h3 class="analytics-card-title">Accounts Summary</h3>
+              <div class="chart-card">
+                <div class="chart-card-header">
+                  <h3 class="chart-card-title">Accounts Summary</h3>
                 </div>
                 <div class="metric-list" id="ledgerSummaryList"></div>
               </div>
@@ -523,24 +712,25 @@
 
         <!-- Traffic Tab -->
         <div id="tab-traffic" class="tab-content">
-          <div id="traffic-loading" class="loading-spinner"></div>
+          <div id="traffic-loading" class="loading-overlay">
+            <div class="loading-spinner"></div>
+            <span>Loading traffic data...</span>
+          </div>
           <div id="traffic-content" style="display: none;">
-            <!-- Summary Stats -->
-            <div class="analytics-grid" id="traffic-stats"></div>
+            <div class="stats-grid" id="traffic-stats"></div>
 
-            <!-- Traffic Sources & Geographic -->
-            <div class="chart-row">
-              <div class="analytics-card">
-                <div class="analytics-card-header">
-                  <h3 class="analytics-card-title">Traffic Sources</h3>
+            <div class="chart-grid">
+              <div class="chart-card">
+                <div class="chart-card-header">
+                  <h3 class="chart-card-title">Traffic Sources</h3>
                 </div>
                 <div class="chart-container">
                   <canvas id="trafficSourcesChart"></canvas>
                 </div>
               </div>
-              <div class="analytics-card">
-                <div class="analytics-card-header">
-                  <h3 class="analytics-card-title">Orders by Location</h3>
+              <div class="chart-card">
+                <div class="chart-card-header">
+                  <h3 class="chart-card-title">Geographic Distribution</h3>
                 </div>
                 <div class="chart-container">
                   <canvas id="geoChart"></canvas>
@@ -548,11 +738,10 @@
               </div>
             </div>
 
-            <!-- Top Pages & Social Referrals -->
-            <div class="chart-row">
-              <div class="analytics-card">
-                <div class="analytics-card-header">
-                  <h3 class="analytics-card-title">Top Pages</h3>
+            <div class="chart-grid">
+              <div class="chart-card">
+                <div class="chart-card-header">
+                  <h3 class="chart-card-title">Top Pages</h3>
                 </div>
                 <table class="data-table" id="topPagesTable">
                   <thead>
@@ -566,29 +755,28 @@
                   <tbody></tbody>
                 </table>
               </div>
-              <div class="analytics-card">
-                <div class="analytics-card-header">
-                  <h3 class="analytics-card-title">Social Media Referrals</h3>
+              <div class="chart-card">
+                <div class="chart-card-header">
+                  <h3 class="chart-card-title">Device Types</h3>
                 </div>
-                <div class="chart-container small">
-                  <canvas id="socialReferralsChart"></canvas>
+                <div class="chart-container">
+                  <canvas id="deviceChart"></canvas>
                 </div>
               </div>
             </div>
 
-            <!-- Device & Browser -->
-            <div class="chart-row">
-              <div class="analytics-card">
-                <div class="analytics-card-header">
-                  <h3 class="analytics-card-title">Device Types</h3>
+            <div class="chart-grid">
+              <div class="chart-card">
+                <div class="chart-card-header">
+                  <h3 class="chart-card-title">Social Referrals</h3>
                 </div>
-                <div class="chart-container small">
-                  <canvas id="deviceChart"></canvas>
+                <div class="chart-container">
+                  <canvas id="socialReferralsChart"></canvas>
                 </div>
               </div>
-              <div class="analytics-card">
-                <div class="analytics-card-header">
-                  <h3 class="analytics-card-title">Session Statistics</h3>
+              <div class="chart-card">
+                <div class="chart-card-header">
+                  <h3 class="chart-card-title">Session Statistics</h3>
                 </div>
                 <div class="metric-list" id="sessionStatsList"></div>
               </div>
@@ -601,16 +789,26 @@
 
   <script src="js/admin.js"></script>
   <script>
-    // Chart instances
+    // Chart configuration
     let charts = {};
-    const chartColors = ['#8E6545', '#B38B6D', '#D4B896', '#2C6ECB', '#008060', '#B98900', '#D72C0D', '#6D7175'];
+    const chartColors = {
+      primary: '#8E6545',
+      secondary: '#B38B6D',
+      tertiary: '#D4B896',
+      success: '#10b981',
+      warning: '#f59e0b',
+      danger: '#ef4444',
+      info: '#3b82f6',
+      gray: '#6b7280'
+    };
+    const colorPalette = ['#8E6545', '#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899', '#6b7280'];
 
-    // Require authentication
+    // Check auth
     if (!Admin.Auth.requireAuth()) {
       // Will redirect
     } else {
       initTabs();
-      loadProductsTab();
+      loadOverviewTab();
     }
 
     function initTabs() {
@@ -621,566 +819,798 @@
           this.classList.add('active');
           document.getElementById('tab-' + this.dataset.tab).classList.add('active');
 
-          // Load tab data
-          if (this.dataset.tab === 'products') loadProductsTab();
-          else if (this.dataset.tab === 'customers') loadCustomersTab();
-          else if (this.dataset.tab === 'finance') loadFinanceTab();
-          else if (this.dataset.tab === 'traffic') loadTrafficTab();
+          const tab = this.dataset.tab;
+          if (tab === 'overview') loadOverviewTab();
+          else if (tab === 'products') loadProductsTab();
+          else if (tab === 'customers') loadCustomersTab();
+          else if (tab === 'finance') loadFinanceTab();
+          else if (tab === 'traffic') loadTrafficTab();
         });
       });
+    }
+
+    // Format helpers
+    function formatCurrency(val) {
+      return '$' + (val || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+
+    function formatNumber(val) {
+      return (val || 0).toLocaleString('en-US');
+    }
+
+    function formatOptionName(name) {
+      if (!name) return 'Unknown';
+      return name.replace(/-/g, ' ').replace(/_/g, ' ')
+        .split(' ').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+    }
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    }
+
+    // ===== OVERVIEW TAB =====
+    async function loadOverviewTab() {
+      showLoading('overview');
+      try {
+        const token = Admin.Auth.getToken();
+        if (!token) {
+          console.error('No auth token available');
+          showError('overview', 'Please log in to view analytics');
+          hideLoading('overview');
+          return;
+        }
+
+        const [financeRes, customerRes, productRes] = await Promise.all([
+          fetch('/api/admin/analytics/finance-insights', { headers: { 'Authorization': `Bearer ${token}` } }),
+          fetch('/api/admin/analytics/customer-insights', { headers: { 'Authorization': `Bearer ${token}` } }),
+          fetch('/api/admin/analytics/product-insights', { headers: { 'Authorization': `Bearer ${token}` } })
+        ]);
+
+        // Check for auth failure
+        if (financeRes.status === 401 || customerRes.status === 401 || productRes.status === 401) {
+          Admin.Auth.clear();
+          window.location.href = '/admin/login.html';
+          return;
+        }
+
+        const finance = await financeRes.json();
+        const customers = await customerRes.json();
+        const products = await productRes.json();
+
+        // Check for API errors
+        if (!finance.success || !customers.success || !products.success) {
+          console.error('API error:', { finance, customers, products });
+          showError('overview', 'Failed to load analytics data. Please try again.');
+          hideLoading('overview');
+          return;
+        }
+
+        renderOverviewTab(finance, customers, products);
+      } catch (error) {
+        console.error('Failed to load overview:', error);
+        showError('overview', 'An error occurred while loading analytics.');
+      }
+      hideLoading('overview');
+    }
+
+    function renderOverviewTab(finance, customers, products) {
+      // Stats
+      document.getElementById('overview-stats').innerHTML = `
+        <div class="stat-card">
+          <div class="stat-card-icon primary">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+          <h4>Total Revenue</h4>
+          <div class="value">${formatCurrency(finance.summary?.totalRevenue || 0)}</div>
+          <div class="subtext">${finance.summary?.totalOrders || 0} orders</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-icon success">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+            </svg>
+          </div>
+          <h4>Gross Profit</h4>
+          <div class="value">${formatCurrency(finance.summary?.grossProfit || 0)}</div>
+          <div class="subtext">${finance.summary?.profitMargin || 0}% margin</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-icon info">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+          </div>
+          <h4>Customers</h4>
+          <div class="value">${formatNumber(customers.summary?.totalCustomers || 0)}</div>
+          <div class="subtext">${customers.summary?.newCustomers || 0} new</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-card-icon warning">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+            </svg>
+          </div>
+          <h4>Avg Order Value</h4>
+          <div class="value">${formatCurrency(finance.summary?.avgOrderValue || 0)}</div>
+        </div>
+      `;
+
+      // Revenue Chart
+      if (charts.overviewRevenue) charts.overviewRevenue.destroy();
+      const revenueData = finance.revenueByDate || [];
+      if (revenueData.length > 0) {
+        const ctx = document.getElementById('overviewRevenueChart').getContext('2d');
+        charts.overviewRevenue = new Chart(ctx, {
+          type: 'line',
+          data: {
+            labels: revenueData.slice(-14).map(d => new Date(d.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })),
+            datasets: [{
+              label: 'Revenue',
+              data: revenueData.slice(-14).map(d => d.revenue),
+              borderColor: chartColors.primary,
+              backgroundColor: 'rgba(142, 101, 69, 0.1)',
+              fill: true,
+              tension: 0.4,
+              borderWidth: 2
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+              y: { beginAtZero: true, ticks: { callback: v => '$' + v } },
+              x: { grid: { display: false } }
+            }
+          }
+        });
+      }
+
+      // Products Chart
+      if (charts.overviewProducts) charts.overviewProducts.destroy();
+      const productsData = products.blindsType || [];
+      if (productsData.length > 0) {
+        const ctx = document.getElementById('overviewProductsChart').getContext('2d');
+        charts.overviewProducts = new Chart(ctx, {
+          type: 'doughnut',
+          data: {
+            labels: productsData.map(p => formatOptionName(p.name)),
+            datasets: [{
+              data: productsData.map(p => p.orders),
+              backgroundColor: colorPalette
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { position: 'right' } }
+          }
+        });
+      }
+
+      // Top Customers Table
+      const custBody = document.querySelector('#overviewCustomersTable tbody');
+      const topCust = customers.topCustomers || [];
+      custBody.innerHTML = topCust.slice(0, 5).map((c, i) => `
+        <tr>
+          <td class="rank">${i + 1}</td>
+          <td>${escapeHtml(c.name || c.email)}</td>
+          <td class="value">${c.orders}</td>
+          <td class="value">${formatCurrency(c.revenue)}</td>
+        </tr>
+      `).join('') || '<tr><td colspan="4" class="empty-state">No customer data yet</td></tr>';
+
+      // Metrics List
+      document.getElementById('overviewMetricsList').innerHTML = `
+        <div class="metric-item">
+          <span class="label">Total Orders</span>
+          <span class="value">${formatNumber(finance.summary?.totalOrders || 0)}</span>
+        </div>
+        <div class="metric-item">
+          <span class="label">Returning Customers</span>
+          <span class="value">${formatNumber(customers.summary?.returningCustomers || 0)}</span>
+        </div>
+        <div class="metric-item">
+          <span class="label">Loyal Customers (3+)</span>
+          <span class="value success">${formatNumber(customers.summary?.loyalCustomers || 0)}</span>
+        </div>
+        <div class="metric-item">
+          <span class="label">Manufacturer Cost</span>
+          <span class="value danger">${formatCurrency(finance.summary?.totalMfrCost || 0)}</span>
+        </div>
+      `;
     }
 
     // ===== PRODUCTS TAB =====
     async function loadProductsTab() {
-      document.getElementById('products-loading').style.display = 'flex';
-      document.getElementById('products-content').style.display = 'none';
-
+      showLoading('products');
       try {
-        const response = await fetch('/api/admin/analytics/product-insights', {
-          headers: { 'Authorization': `Bearer ${Admin.Auth.getToken()}` }
-        });
-        const data = await response.json();
-
-        if (data.success) {
-          renderProductsTab(data);
+        const token = Admin.Auth.getToken();
+        if (!token) {
+          showError('products', 'Please log in to view analytics');
+          hideLoading('products');
+          return;
         }
+        const res = await fetch('/api/admin/analytics/product-insights', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (res.status === 401) {
+          Admin.Auth.clear();
+          window.location.href = '/admin/login.html';
+          return;
+        }
+        const data = await res.json();
+        if (data.success === false) {
+          showError('products', data.error || 'Failed to load product analytics');
+          hideLoading('products');
+          return;
+        }
+        renderProductsTab(data);
       } catch (error) {
         console.error('Failed to load products analytics:', error);
+        showError('products', 'An error occurred while loading product analytics.');
       }
-
-      document.getElementById('products-loading').style.display = 'none';
-      document.getElementById('products-content').style.display = 'block';
+      hideLoading('products');
     }
 
     function renderProductsTab(data) {
-      // Blinds Type Chart
+      // Blinds Type
       if (charts.blindsType) charts.blindsType.destroy();
-      const btCtx = document.getElementById('blindsTypeChart').getContext('2d');
-      charts.blindsType = new Chart(btCtx, {
-        type: 'doughnut',
-        data: {
-          labels: data.blindsType.map(b => b.name),
-          datasets: [{
-            data: data.blindsType.map(b => b.orders),
-            backgroundColor: chartColors
-          }]
-        },
-        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
-      });
+      const blindsData = data.blindsType || [];
+      if (blindsData.length > 0) {
+        charts.blindsType = new Chart(document.getElementById('blindsTypeChart'), {
+          type: 'doughnut',
+          data: {
+            labels: blindsData.map(b => formatOptionName(b.name)),
+            datasets: [{ data: blindsData.map(b => b.orders), backgroundColor: colorPalette }]
+          },
+          options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right' } } }
+        });
+      }
 
-      // Control System Chart
+      // Control System
       if (charts.controlSystem) charts.controlSystem.destroy();
-      const csCtx = document.getElementById('controlSystemChart').getContext('2d');
-      charts.controlSystem = new Chart(csCtx, {
-        type: 'bar',
-        data: {
-          labels: data.controlSystem.map(c => c.name),
-          datasets: [{
-            label: 'Orders',
-            data: data.controlSystem.map(c => c.orders),
-            backgroundColor: chartColors
-          }]
-        },
-        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
-      });
+      const controlData = data.controlSystem || [];
+      if (controlData.length > 0) {
+        charts.controlSystem = new Chart(document.getElementById('controlSystemChart'), {
+          type: 'bar',
+          data: {
+            labels: controlData.map(c => formatOptionName(c.name)),
+            datasets: [{ label: 'Orders', data: controlData.map(c => c.orders), backgroundColor: colorPalette }]
+          },
+          options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+        });
+      }
 
-      // Size Range Chart
+      // Size Range
       if (charts.sizeRange) charts.sizeRange.destroy();
-      const srCtx = document.getElementById('sizeRangeChart').getContext('2d');
-      charts.sizeRange = new Chart(srCtx, {
-        type: 'bar',
-        data: {
-          labels: data.measurements.map(m => m.label),
-          datasets: [{
-            label: 'Orders',
-            data: data.measurements.map(m => m.orders),
-            backgroundColor: '#8E6545'
-          }]
-        },
-        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
-      });
+      const sizeData = data.measurements || [];
+      if (sizeData.length > 0) {
+        charts.sizeRange = new Chart(document.getElementById('sizeRangeChart'), {
+          type: 'bar',
+          data: {
+            labels: sizeData.map(m => m.label),
+            datasets: [{ label: 'Orders', data: sizeData.map(m => m.orders), backgroundColor: chartColors.primary }]
+          },
+          options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+        });
+      }
 
-      // Popular Sizes Table
+      // Popular Sizes
       const sizesBody = document.querySelector('#popularSizesTable tbody');
-      sizesBody.innerHTML = data.popularSizes.map((s, i) => `
+      const sizes = data.popularSizes || [];
+      sizesBody.innerHTML = sizes.slice(0, 8).map((s, i) => `
         <tr>
           <td class="rank">${i + 1}</td>
           <td>${s.width}" x ${s.height}"</td>
           <td class="value">${s.orders}</td>
         </tr>
-      `).join('') || '<tr><td colspan="3" style="text-align:center;color:#6D7175;">No data</td></tr>';
+      `).join('') || '<tr><td colspan="3" class="empty-state">No size data yet</td></tr>';
 
-      // Light Filtering Chart
+      // Light Filtering
       if (charts.lightFiltering) charts.lightFiltering.destroy();
-      const lfCtx = document.getElementById('lightFilteringChart').getContext('2d');
-      charts.lightFiltering = new Chart(lfCtx, {
-        type: 'pie',
-        data: {
-          labels: data.lightFiltering.map(l => l.name),
-          datasets: [{
-            data: data.lightFiltering.map(l => l.orders),
-            backgroundColor: ['#1a1a2e', '#6D7175', '#D4B896', '#B38B6D']
-          }]
-        },
-        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
-      });
+      const lightData = data.lightFiltering || [];
+      if (lightData.length > 0) {
+        charts.lightFiltering = new Chart(document.getElementById('lightFilteringChart'), {
+          type: 'pie',
+          data: {
+            labels: lightData.map(l => formatOptionName(l.name)),
+            datasets: [{ data: lightData.map(l => l.orders), backgroundColor: ['#1a1a2e', '#6b7280', '#D4B896', '#B38B6D'] }]
+          },
+          options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
+        });
+      }
 
-      // Valance Types List
-      const valanceList = document.getElementById('valanceTypesList');
-      valanceList.innerHTML = data.valanceTypes.slice(0, 5).map(v => `
+      // Valance Types
+      const valance = data.valanceTypes || [];
+      document.getElementById('valanceTypesList').innerHTML = valance.slice(0, 5).map(v => `
         <div class="metric-item">
           <span class="label">${formatOptionName(v.name)}</span>
           <span class="value">${v.orders}</span>
         </div>
-      `).join('') || '<div style="text-align:center;color:#6D7175;padding:20px;">No data</div>';
+      `).join('') || '<div class="empty-state">No valance data</div>';
 
-      // Motor Brands List
-      const motorList = document.getElementById('motorBrandsList');
-      motorList.innerHTML = data.motorBrands.slice(0, 5).map(m => `
+      // Motor Brands
+      const motors = data.motorBrands || [];
+      document.getElementById('motorBrandsList').innerHTML = motors.slice(0, 5).map(m => `
         <div class="metric-item">
           <span class="label">${formatOptionName(m.name)}</span>
           <span class="value">${m.orders}</span>
         </div>
-      `).join('') || '<div style="text-align:center;color:#6D7175;padding:20px;">No motorized orders</div>';
+      `).join('') || '<div class="empty-state">No motorized orders</div>';
     }
 
     // ===== CUSTOMERS TAB =====
     async function loadCustomersTab() {
-      document.getElementById('customers-loading').style.display = 'flex';
-      document.getElementById('customers-content').style.display = 'none';
-
+      showLoading('customers');
       try {
-        const response = await fetch('/api/admin/analytics/customer-insights', {
-          headers: { 'Authorization': `Bearer ${Admin.Auth.getToken()}` }
-        });
-        const data = await response.json();
-
-        if (data.success) {
-          renderCustomersTab(data);
+        const token = Admin.Auth.getToken();
+        if (!token) {
+          showError('customers', 'Please log in to view analytics');
+          hideLoading('customers');
+          return;
         }
+        const res = await fetch('/api/admin/analytics/customer-insights', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (res.status === 401) {
+          Admin.Auth.clear();
+          window.location.href = '/admin/login.html';
+          return;
+        }
+        const data = await res.json();
+        if (data.success === false) {
+          showError('customers', data.error || 'Failed to load customer analytics');
+          hideLoading('customers');
+          return;
+        }
+        renderCustomersTab(data);
       } catch (error) {
         console.error('Failed to load customer analytics:', error);
+        showError('customers', 'An error occurred while loading customer analytics.');
       }
-
-      document.getElementById('customers-loading').style.display = 'none';
-      document.getElementById('customers-content').style.display = 'block';
+      hideLoading('customers');
     }
 
     function renderCustomersTab(data) {
-      // Stats Grid
+      // Stats
+      const s = data.summary || {};
       document.getElementById('customer-stats').innerHTML = `
         <div class="stat-card">
           <h4>Total Customers</h4>
-          <div class="value">${data.summary.totalCustomers}</div>
+          <div class="value">${formatNumber(s.totalCustomers)}</div>
         </div>
         <div class="stat-card">
           <h4>New Customers</h4>
-          <div class="value">${data.summary.newCustomers}</div>
+          <div class="value">${formatNumber(s.newCustomers)}</div>
           <div class="subtext">First-time buyers</div>
         </div>
         <div class="stat-card">
           <h4>Returning</h4>
-          <div class="value">${data.summary.returningCustomers}</div>
+          <div class="value">${formatNumber(s.returningCustomers)}</div>
           <div class="subtext">2 orders</div>
         </div>
         <div class="stat-card">
           <h4>Loyal Customers</h4>
-          <div class="value positive">${data.summary.loyalCustomers}</div>
+          <div class="value" style="color: #10b981;">${formatNumber(s.loyalCustomers)}</div>
           <div class="subtext">3+ orders</div>
         </div>
       `;
 
-      // Customer Types Chart
+      // Customer Types
       if (charts.customerTypes) charts.customerTypes.destroy();
-      const ctCtx = document.getElementById('customerTypesChart').getContext('2d');
-      charts.customerTypes = new Chart(ctCtx, {
-        type: 'doughnut',
-        data: {
-          labels: data.customerTypes.map(c => c.name),
-          datasets: [{
-            data: data.customerTypes.map(c => c.value),
-            backgroundColor: ['#2C6ECB', '#B98900', '#008060']
-          }]
-        },
-        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
-      });
+      const typeData = data.customerTypes || [];
+      if (typeData.length > 0) {
+        charts.customerTypes = new Chart(document.getElementById('customerTypesChart'), {
+          type: 'doughnut',
+          data: {
+            labels: typeData.map(c => c.name),
+            datasets: [{ data: typeData.map(c => c.value), backgroundColor: ['#3b82f6', '#f59e0b', '#10b981'] }]
+          },
+          options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right' } } }
+        });
+      }
 
-      // Orders by State Chart
+      // Orders by State
       if (charts.ordersByState) charts.ordersByState.destroy();
-      const osCtx = document.getElementById('ordersByStateChart').getContext('2d');
-      charts.ordersByState = new Chart(osCtx, {
-        type: 'bar',
-        data: {
-          labels: data.topStates.map(s => s.name),
-          datasets: [{
-            label: 'Orders',
-            data: data.topStates.map(s => s.orders),
-            backgroundColor: '#8E6545'
-          }]
-        },
-        options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
-      });
+      const stateData = data.topStates || [];
+      if (stateData.length > 0) {
+        charts.ordersByState = new Chart(document.getElementById('ordersByStateChart'), {
+          type: 'bar',
+          data: {
+            labels: stateData.map(s => s.name),
+            datasets: [{ label: 'Orders', data: stateData.map(s => s.orders), backgroundColor: chartColors.primary }]
+          },
+          options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+        });
+      }
 
-      // Top Customers Table
+      // Top Customers
       const custBody = document.querySelector('#topCustomersTable tbody');
-      custBody.innerHTML = data.topCustomers.map((c, i) => `
+      const topCust = data.topCustomers || [];
+      custBody.innerHTML = topCust.slice(0, 8).map((c, i) => `
         <tr>
           <td class="rank">${i + 1}</td>
-          <td>${Admin.Utils.escapeHtml(c.name || c.email)}</td>
+          <td>${escapeHtml(c.name || c.email)}</td>
           <td class="value">${c.orders}</td>
-          <td class="value">${Admin.Utils.formatCurrency(c.revenue)}</td>
+          <td class="value">${formatCurrency(c.revenue)}</td>
         </tr>
-      `).join('') || '<tr><td colspan="4" style="text-align:center;color:#6D7175;">No data</td></tr>';
+      `).join('') || '<tr><td colspan="4" class="empty-state">No customer data</td></tr>';
 
-      // Top Cities Table
+      // Top Cities
       const citiesBody = document.querySelector('#topCitiesTable tbody');
-      citiesBody.innerHTML = data.topCities.map((c, i) => `
+      const topCities = data.topCities || [];
+      citiesBody.innerHTML = topCities.slice(0, 8).map((c, i) => `
         <tr>
           <td class="rank">${i + 1}</td>
-          <td>${Admin.Utils.escapeHtml(c.name)}</td>
+          <td>${escapeHtml(c.name)}</td>
           <td class="value">${c.orders}</td>
-          <td class="value">${Admin.Utils.formatCurrency(c.revenue)}</td>
+          <td class="value">${formatCurrency(c.revenue)}</td>
         </tr>
-      `).join('') || '<tr><td colspan="4" style="text-align:center;color:#6D7175;">No data</td></tr>';
+      `).join('') || '<tr><td colspan="4" class="empty-state">No city data</td></tr>';
 
-      // Social Login Chart
-      if (charts.socialLogin) charts.socialLogin.destroy();
-      const slCtx = document.getElementById('socialLoginChart').getContext('2d');
-      charts.socialLogin = new Chart(slCtx, {
-        type: 'pie',
-        data: {
-          labels: data.socialLogin.map(s => s.name),
-          datasets: [{
-            data: data.socialLogin.map(s => s.count),
-            backgroundColor: ['#6D7175', '#DB4437', '#4267B2', '#000000']
-          }]
-        },
-        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
-      });
-
-      // Acquisition Trend Chart
+      // Acquisition Trend
       if (charts.acquisitionTrend) charts.acquisitionTrend.destroy();
-      const atCtx = document.getElementById('acquisitionTrendChart').getContext('2d');
-      charts.acquisitionTrend = new Chart(atCtx, {
-        type: 'line',
-        data: {
-          labels: data.acquisitionTrend.slice(-14).map(d => new Date(d.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })),
-          datasets: [{
-            label: 'New Customers',
-            data: data.acquisitionTrend.slice(-14).map(d => d.newCustomers),
-            borderColor: '#008060',
-            backgroundColor: 'rgba(0, 128, 96, 0.1)',
-            fill: true,
-            tension: 0.4
-          }]
-        },
-        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
-      });
+      const acqData = data.acquisitionTrend || [];
+      if (acqData.length > 0) {
+        charts.acquisitionTrend = new Chart(document.getElementById('acquisitionTrendChart'), {
+          type: 'line',
+          data: {
+            labels: acqData.slice(-14).map(d => new Date(d.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })),
+            datasets: [{
+              label: 'New Customers',
+              data: acqData.slice(-14).map(d => d.newCustomers),
+              borderColor: chartColors.success,
+              backgroundColor: 'rgba(16, 185, 129, 0.1)',
+              fill: true,
+              tension: 0.4
+            }]
+          },
+          options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+        });
+      }
+
+      // Social Login
+      if (charts.socialLogin) charts.socialLogin.destroy();
+      const socialData = data.socialLogin || [];
+      if (socialData.length > 0) {
+        charts.socialLogin = new Chart(document.getElementById('socialLoginChart'), {
+          type: 'pie',
+          data: {
+            labels: socialData.map(s => s.name),
+            datasets: [{ data: socialData.map(s => s.count), backgroundColor: ['#6b7280', '#DB4437', '#4267B2', '#000000'] }]
+          },
+          options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right' } } }
+        });
+      }
     }
 
     // ===== FINANCE TAB =====
     async function loadFinanceTab() {
-      document.getElementById('finance-loading').style.display = 'flex';
-      document.getElementById('finance-content').style.display = 'none';
-
+      showLoading('finance');
       try {
-        const response = await fetch('/api/admin/analytics/finance-insights', {
-          headers: { 'Authorization': `Bearer ${Admin.Auth.getToken()}` }
-        });
-        const data = await response.json();
-
-        if (data.success) {
-          renderFinanceTab(data);
+        const token = Admin.Auth.getToken();
+        if (!token) {
+          showError('finance', 'Please log in to view analytics');
+          hideLoading('finance');
+          return;
         }
+        const res = await fetch('/api/admin/analytics/finance-insights', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (res.status === 401) {
+          Admin.Auth.clear();
+          window.location.href = '/admin/login.html';
+          return;
+        }
+        const data = await res.json();
+        if (data.success === false) {
+          showError('finance', data.error || 'Failed to load finance analytics');
+          hideLoading('finance');
+          return;
+        }
+        renderFinanceTab(data);
       } catch (error) {
         console.error('Failed to load finance analytics:', error);
+        showError('finance', 'An error occurred while loading finance analytics.');
       }
-
-      document.getElementById('finance-loading').style.display = 'none';
-      document.getElementById('finance-content').style.display = 'block';
+      hideLoading('finance');
     }
 
     function renderFinanceTab(data) {
-      // Stats Grid
+      const s = data.summary || {};
       document.getElementById('finance-stats').innerHTML = `
         <div class="stat-card">
           <h4>Total Revenue</h4>
-          <div class="value">${Admin.Utils.formatCurrency(data.summary.totalRevenue)}</div>
+          <div class="value">${formatCurrency(s.totalRevenue)}</div>
         </div>
         <div class="stat-card">
           <h4>Gross Profit</h4>
-          <div class="value positive">${Admin.Utils.formatCurrency(data.summary.grossProfit)}</div>
-          <div class="subtext">${data.summary.profitMargin}% margin</div>
+          <div class="value" style="color: #10b981;">${formatCurrency(s.grossProfit)}</div>
+          <div class="subtext">${s.profitMargin || 0}% margin</div>
         </div>
         <div class="stat-card">
           <h4>Manufacturer Cost</h4>
-          <div class="value negative">${Admin.Utils.formatCurrency(data.summary.totalMfrCost)}</div>
+          <div class="value" style="color: #ef4444;">${formatCurrency(s.totalMfrCost)}</div>
         </div>
         <div class="stat-card">
           <h4>Avg Order Value</h4>
-          <div class="value">${Admin.Utils.formatCurrency(data.summary.avgOrderValue)}</div>
-          <div class="subtext">${data.summary.totalOrders} orders</div>
+          <div class="value">${formatCurrency(s.avgOrderValue)}</div>
+          <div class="subtext">${s.totalOrders || 0} orders</div>
         </div>
       `;
 
-      // Revenue Trend Chart
+      // Revenue Trend
       if (charts.revenueTrend) charts.revenueTrend.destroy();
-      const rtCtx = document.getElementById('revenueTrendChart').getContext('2d');
-      charts.revenueTrend = new Chart(rtCtx, {
-        type: 'line',
-        data: {
-          labels: data.revenueByDate.map(d => new Date(d.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })),
-          datasets: [
-            {
-              label: 'Revenue',
-              data: data.revenueByDate.map(d => d.revenue),
-              borderColor: '#8E6545',
-              backgroundColor: 'rgba(142, 101, 69, 0.1)',
-              fill: true,
-              tension: 0.4
-            },
-            {
-              label: 'Profit',
-              data: data.revenueByDate.map(d => d.profit),
-              borderColor: '#008060',
-              backgroundColor: 'transparent',
-              borderDash: [5, 5],
-              tension: 0.4
-            }
-          ]
-        },
-        options: {
-          responsive: true, maintainAspectRatio: false,
-          plugins: { legend: { position: 'bottom' } },
-          scales: { y: { beginAtZero: true, ticks: { callback: v => '$' + v } } }
-        }
-      });
+      const revenueData = data.revenueByDate || [];
+      if (revenueData.length > 0) {
+        charts.revenueTrend = new Chart(document.getElementById('revenueTrendChart'), {
+          type: 'line',
+          data: {
+            labels: revenueData.map(d => new Date(d.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })),
+            datasets: [
+              {
+                label: 'Revenue',
+                data: revenueData.map(d => d.revenue),
+                borderColor: chartColors.primary,
+                backgroundColor: 'rgba(142, 101, 69, 0.1)',
+                fill: true,
+                tension: 0.4
+              },
+              {
+                label: 'Profit',
+                data: revenueData.map(d => d.profit),
+                borderColor: chartColors.success,
+                backgroundColor: 'transparent',
+                borderDash: [5, 5],
+                tension: 0.4
+              }
+            ]
+          },
+          options: {
+            responsive: true, maintainAspectRatio: false,
+            plugins: { legend: { position: 'bottom' } },
+            scales: { y: { beginAtZero: true, ticks: { callback: v => '$' + v } } }
+          }
+        });
+      }
 
-      // Revenue by Category Chart
+      // Revenue by Category
       if (charts.revenueByCategory) charts.revenueByCategory.destroy();
-      const rcCtx = document.getElementById('revenueByCategoryChart').getContext('2d');
-      charts.revenueByCategory = new Chart(rcCtx, {
-        type: 'bar',
-        data: {
-          labels: data.revenueByCategory.map(c => formatOptionName(c.name)),
-          datasets: [{
-            label: 'Revenue',
-            data: data.revenueByCategory.map(c => c.revenue),
-            backgroundColor: chartColors
-          }]
-        },
-        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { ticks: { callback: v => '$' + v } } } }
-      });
+      const catData = data.revenueByCategory || [];
+      if (catData.length > 0) {
+        charts.revenueByCategory = new Chart(document.getElementById('revenueByCategoryChart'), {
+          type: 'bar',
+          data: {
+            labels: catData.map(c => formatOptionName(c.name)),
+            datasets: [{ label: 'Revenue', data: catData.map(c => c.revenue), backgroundColor: colorPalette }]
+          },
+          options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { ticks: { callback: v => '$' + v } } } }
+        });
+      }
 
-      // Payment Methods Chart
+      // Payment Methods
       if (charts.paymentMethods) charts.paymentMethods.destroy();
-      const pmCtx = document.getElementById('paymentMethodsChart').getContext('2d');
-      charts.paymentMethods = new Chart(pmCtx, {
-        type: 'doughnut',
-        data: {
-          labels: data.paymentMethods.map(p => formatOptionName(p.name)),
-          datasets: [{
-            data: data.paymentMethods.map(p => p.count),
-            backgroundColor: chartColors
-          }]
-        },
-        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
-      });
+      const payData = data.paymentMethods || [];
+      if (payData.length > 0) {
+        charts.paymentMethods = new Chart(document.getElementById('paymentMethodsChart'), {
+          type: 'doughnut',
+          data: {
+            labels: payData.map(p => formatOptionName(p.name)),
+            datasets: [{ data: payData.map(p => p.count), backgroundColor: colorPalette }]
+          },
+          options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right' } } }
+        });
+      }
 
-      // Order Status Chart
+      // Order Status
       if (charts.orderStatus) charts.orderStatus.destroy();
-      const osCtx = document.getElementById('orderStatusChart').getContext('2d');
-      charts.orderStatus = new Chart(osCtx, {
-        type: 'pie',
-        data: {
-          labels: data.orderStatus.map(s => formatOptionName(s.name)),
-          datasets: [{
-            data: data.orderStatus.map(s => s.count),
-            backgroundColor: ['#008060', '#B98900', '#2C6ECB', '#D72C0D', '#6D7175']
-          }]
-        },
-        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
-      });
+      const statusData = data.orderStatus || [];
+      if (statusData.length > 0) {
+        charts.orderStatus = new Chart(document.getElementById('orderStatusChart'), {
+          type: 'pie',
+          data: {
+            labels: statusData.map(s => formatOptionName(s.name)),
+            datasets: [{ data: statusData.map(s => s.count), backgroundColor: ['#10b981', '#f59e0b', '#3b82f6', '#ef4444', '#6b7280'] }]
+          },
+          options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right' } } }
+        });
+      }
 
       // Ledger Summary
-      const ledgerList = document.getElementById('ledgerSummaryList');
-      ledgerList.innerHTML = `
+      const ledger = data.ledgerSummary || {};
+      document.getElementById('ledgerSummaryList').innerHTML = `
         <div class="metric-item">
           <span class="label">Payments Received</span>
-          <span class="value" style="color:#008060;">${Admin.Utils.formatCurrency(data.ledgerSummary.paymentsReceived)}</span>
+          <span class="value success">${formatCurrency(ledger.paymentsReceived)}</span>
         </div>
         <div class="metric-item">
           <span class="label">Payable to Manufacturer</span>
-          <span class="value" style="color:#D72C0D;">${Admin.Utils.formatCurrency(data.ledgerSummary.payableToManufacturer)}</span>
+          <span class="value danger">${formatCurrency(ledger.payableToManufacturer)}</span>
         </div>
         <div class="metric-item">
           <span class="label">Paid to Manufacturer</span>
-          <span class="value">${Admin.Utils.formatCurrency(data.ledgerSummary.paidToManufacturer)}</span>
+          <span class="value">${formatCurrency(ledger.paidToManufacturer)}</span>
         </div>
         <div class="metric-item">
           <span class="label">Outstanding Payable</span>
-          <span class="value" style="color:#B98900;">${Admin.Utils.formatCurrency(data.ledgerSummary.outstandingPayable)}</span>
+          <span class="value warning">${formatCurrency(ledger.outstandingPayable)}</span>
         </div>
       `;
     }
 
     // ===== TRAFFIC TAB =====
     async function loadTrafficTab() {
-      document.getElementById('traffic-loading').style.display = 'flex';
-      document.getElementById('traffic-content').style.display = 'none';
-
+      showLoading('traffic');
       try {
-        const response = await fetch('/api/admin/analytics/traffic-insights', {
-          headers: { 'Authorization': `Bearer ${Admin.Auth.getToken()}` }
-        });
-        const data = await response.json();
-
-        if (data.success) {
-          renderTrafficTab(data);
+        const token = Admin.Auth.getToken();
+        if (!token) {
+          showError('traffic', 'Please log in to view analytics');
+          hideLoading('traffic');
+          return;
         }
+        const res = await fetch('/api/admin/analytics/traffic-insights', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        if (res.status === 401) {
+          Admin.Auth.clear();
+          window.location.href = '/admin/login.html';
+          return;
+        }
+        const data = await res.json();
+        if (data.success === false) {
+          showError('traffic', data.error || 'Failed to load traffic analytics');
+          hideLoading('traffic');
+          return;
+        }
+        renderTrafficTab(data);
       } catch (error) {
         console.error('Failed to load traffic analytics:', error);
+        showError('traffic', 'An error occurred while loading traffic analytics.');
       }
-
-      document.getElementById('traffic-loading').style.display = 'none';
-      document.getElementById('traffic-content').style.display = 'block';
+      hideLoading('traffic');
     }
 
     function renderTrafficTab(data) {
-      // Stats Grid
+      const s = data.summary || {};
       document.getElementById('traffic-stats').innerHTML = `
         <div class="stat-card">
           <h4>Page Views</h4>
-          <div class="value">${data.summary.totalPageViews}</div>
+          <div class="value">${formatNumber(s.totalPageViews)}</div>
         </div>
         <div class="stat-card">
           <h4>Unique Sessions</h4>
-          <div class="value">${data.summary.uniqueSessions}</div>
+          <div class="value">${formatNumber(s.uniqueSessions)}</div>
         </div>
         <div class="stat-card">
           <h4>Active Sessions</h4>
-          <div class="value positive">${data.summary.activeSessions}</div>
+          <div class="value" style="color: #10b981;">${formatNumber(s.activeSessions)}</div>
           <div class="subtext">Last 15 min</div>
         </div>
         <div class="stat-card">
           <h4>Avg Session Duration</h4>
-          <div class="value">${data.summary.avgSessionDurationFormatted}</div>
+          <div class="value">${s.avgSessionDurationFormatted || '0:00'}</div>
         </div>
       `;
 
-      // Traffic Sources Chart
+      // Traffic Sources
       if (charts.trafficSources) charts.trafficSources.destroy();
-      const tsCtx = document.getElementById('trafficSourcesChart').getContext('2d');
-      charts.trafficSources = new Chart(tsCtx, {
-        type: 'doughnut',
-        data: {
-          labels: data.trafficSources.map(s => formatOptionName(s.name)),
-          datasets: [{
-            data: data.trafficSources.map(s => s.visits),
-            backgroundColor: chartColors
-          }]
-        },
-        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
-      });
+      const sourceData = data.trafficSources || [];
+      if (sourceData.length > 0) {
+        charts.trafficSources = new Chart(document.getElementById('trafficSourcesChart'), {
+          type: 'doughnut',
+          data: {
+            labels: sourceData.map(s => formatOptionName(s.name)),
+            datasets: [{ data: sourceData.map(s => s.visits), backgroundColor: colorPalette }]
+          },
+          options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right' } } }
+        });
+      }
 
-      // Geographic Chart
+      // Geographic
       if (charts.geo) charts.geo.destroy();
-      const geoCtx = document.getElementById('geoChart').getContext('2d');
-      charts.geo = new Chart(geoCtx, {
-        type: 'bar',
-        data: {
-          labels: data.geographic.topStates.map(s => s.name),
-          datasets: [{
-            label: 'Orders',
-            data: data.geographic.topStates.map(s => s.orders),
-            backgroundColor: '#8E6545'
-          }]
-        },
-        options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
-      });
+      const geoData = data.geographic?.topStates || [];
+      if (geoData.length > 0) {
+        charts.geo = new Chart(document.getElementById('geoChart'), {
+          type: 'bar',
+          data: {
+            labels: geoData.map(s => s.name),
+            datasets: [{ label: 'Orders', data: geoData.map(s => s.orders), backgroundColor: chartColors.primary }]
+          },
+          options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+        });
+      }
 
-      // Top Pages Table
+      // Top Pages
       const pagesBody = document.querySelector('#topPagesTable tbody');
-      pagesBody.innerHTML = data.topPages.slice(0, 10).map((p, i) => `
+      const pages = data.topPages || [];
+      pagesBody.innerHTML = pages.slice(0, 8).map((p, i) => `
         <tr>
           <td class="rank">${i + 1}</td>
-          <td>${Admin.Utils.escapeHtml(p.page)}</td>
+          <td>${escapeHtml(p.page)}</td>
           <td class="value">${p.views}</td>
           <td class="value">${p.uniqueVisitors}</td>
         </tr>
-      `).join('') || '<tr><td colspan="4" style="text-align:center;color:#6D7175;">No page view data yet</td></tr>';
+      `).join('') || '<tr><td colspan="4" class="empty-state">No page view data</td></tr>';
 
-      // Social Referrals Chart
-      if (charts.socialReferrals) charts.socialReferrals.destroy();
-      const srCtx = document.getElementById('socialReferralsChart').getContext('2d');
-      const socialData = data.socialReferrals.length > 0 ? data.socialReferrals : [{ name: 'No Data', visits: 1 }];
-      charts.socialReferrals = new Chart(srCtx, {
-        type: 'bar',
-        data: {
-          labels: socialData.map(s => s.name),
-          datasets: [{
-            label: 'Visits',
-            data: socialData.map(s => s.visits),
-            backgroundColor: ['#4267B2', '#E1306C', '#E60023', '#1DA1F2', '#000000', '#FF0000']
-          }]
-        },
-        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
-      });
-
-      // Device Chart
+      // Device Types
       if (charts.device) charts.device.destroy();
-      const dCtx = document.getElementById('deviceChart').getContext('2d');
-      const deviceData = data.devices.filter(d => d.count > 0);
+      const deviceData = (data.devices || []).filter(d => d.count > 0);
       if (deviceData.length > 0) {
-        charts.device = new Chart(dCtx, {
+        charts.device = new Chart(document.getElementById('deviceChart'), {
           type: 'pie',
           data: {
             labels: deviceData.map(d => formatOptionName(d.name)),
-            datasets: [{
-              data: deviceData.map(d => d.count),
-              backgroundColor: ['#2C6ECB', '#008060', '#B98900']
-            }]
+            datasets: [{ data: deviceData.map(d => d.count), backgroundColor: ['#3b82f6', '#10b981', '#f59e0b'] }]
           },
-          options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } }
+          options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right' } } }
         });
-      } else {
-        dCtx.font = '14px Montserrat';
-        dCtx.fillStyle = '#6D7175';
-        dCtx.textAlign = 'center';
-        dCtx.fillText('No device data yet', dCtx.canvas.width / 2, dCtx.canvas.height / 2);
       }
 
-      // Session Stats List
-      const sessionList = document.getElementById('sessionStatsList');
-      sessionList.innerHTML = `
+      // Social Referrals
+      if (charts.socialReferrals) charts.socialReferrals.destroy();
+      const socialData = data.socialReferrals || [];
+      if (socialData.length > 0) {
+        charts.socialReferrals = new Chart(document.getElementById('socialReferralsChart'), {
+          type: 'bar',
+          data: {
+            labels: socialData.map(s => s.name),
+            datasets: [{ label: 'Visits', data: socialData.map(s => s.visits), backgroundColor: ['#4267B2', '#E1306C', '#E60023', '#1DA1F2', '#000000'] }]
+          },
+          options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+        });
+      }
+
+      // Session Stats
+      document.getElementById('sessionStatsList').innerHTML = `
         <div class="metric-item">
           <span class="label">Total Sessions</span>
-          <span class="value">${data.summary.uniqueSessions}</span>
+          <span class="value">${formatNumber(s.uniqueSessions)}</span>
         </div>
         <div class="metric-item">
           <span class="label">Currently Active</span>
-          <span class="value" style="color:#008060;">${data.summary.activeSessions}</span>
+          <span class="value success">${formatNumber(s.activeSessions)}</span>
         </div>
         <div class="metric-item">
           <span class="label">Avg Duration</span>
-          <span class="value">${data.summary.avgSessionDurationFormatted}</span>
+          <span class="value">${s.avgSessionDurationFormatted || '0:00'}</span>
         </div>
         <div class="metric-item">
           <span class="label">Total Page Views</span>
-          <span class="value">${data.summary.totalPageViews}</span>
+          <span class="value">${formatNumber(s.totalPageViews)}</span>
         </div>
       `;
     }
 
-    // Utility function to format option names
-    function formatOptionName(name) {
-      if (!name) return 'Unknown';
-      return name
-        .replace(/-/g, ' ')
-        .replace(/_/g, ' ')
-        .split(' ')
-        .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-        .join(' ');
+    // Helper functions
+    function showLoading(tab) {
+      document.getElementById(tab + '-loading').style.display = 'flex';
+      document.getElementById(tab + '-content').style.display = 'none';
+    }
+
+    function hideLoading(tab) {
+      document.getElementById(tab + '-loading').style.display = 'none';
+      document.getElementById(tab + '-content').style.display = 'block';
+    }
+
+    function showError(tab, message) {
+      const content = document.getElementById(tab + '-content');
+      content.innerHTML = `
+        <div style="text-align: center; padding: 60px 20px; color: #6b7280;">
+          <svg style="width: 64px; height: 64px; margin: 0 auto 16px; color: #ef4444;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+          </svg>
+          <h3 style="font-size: 18px; font-weight: 600; color: #1a1a2e; margin-bottom: 8px;">Unable to Load Data</h3>
+          <p style="font-size: 14px;">${message}</p>
+          <button onclick="location.reload()" style="margin-top: 16px; padding: 10px 20px; background: #8E6545; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 14px;">
+            Try Again
+          </button>
+        </div>
+      `;
+      content.style.display = 'block';
     }
   </script>
 </body>

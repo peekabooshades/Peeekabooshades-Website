@@ -526,11 +526,56 @@ function getDealerPricing(dealerId) {
   const dealer = (db.dealers || []).find(d => d.id === dealerId);
 
   if (!dealer) {
-    throw new Error('Dealer not found');
+    const error = new Error('Dealer not found. Please logout and login again.');
+    error.code = 'DEALER_NOT_FOUND';
+    throw error;
   }
 
   const products = db.products || [];
-  const fabrics = db.fabrics || [];
+
+  // Get fabrics from manufacturerPrices (these have actual pricing)
+  const manufacturerPrices = db.manufacturerPrices || [];
+
+  // Get fabric images from productContent if available
+  const fabricImages = {};
+  const productContentFabrics = db.productContent?.fabrics || [];
+  productContentFabrics.forEach(cat => {
+    if (cat.items) {
+      cat.items.forEach(item => {
+        if (item.code) {
+          fabricImages[item.code] = item.image || item.imageUrl;
+        }
+      });
+    }
+    // Also check if the category itself is a fabric with code
+    if (cat.code) {
+      fabricImages[cat.code] = cat.image || cat.imageUrl;
+    }
+  });
+
+  // Calculate customer prices for fabrics and group by category
+  const fabricsByCategory = {};
+  manufacturerPrices.forEach(mp => {
+    const category = mp.fabricCategory || 'other';
+    if (!fabricsByCategory[category]) {
+      fabricsByCategory[category] = [];
+    }
+
+    // Calculate customer price: MFR cost + margin
+    const margin = mp.manualMargin || 40;
+    const customerPrice = mp.pricePerSqMeter * (1 + margin / 100);
+
+    fabricsByCategory[category].push({
+      id: mp.id,
+      code: mp.fabricCode,
+      name: mp.fabricName || mp.fabricCode,
+      category: category,
+      manufacturerPrice: mp.pricePerSqMeter,
+      margin: margin,
+      customerPrice: Math.round(customerPrice * 100) / 100,
+      image: fabricImages[mp.fabricCode] || `/images/fabrics/${mp.fabricCode}.jpg`
+    });
+  });
 
   return {
     tier: dealer.tier,
@@ -543,13 +588,19 @@ function getDealerPricing(dealerId) {
       basePrice: p.basePrice,
       dealerPrice: p.basePrice * (1 - dealer.discountPercent / 100)
     })),
-    fabrics: fabrics.slice(0, 50).map(f => ({
-      id: f.id,
-      code: f.code,
-      name: f.name,
-      pricePerSqMeter: f.pricePerSqMeter,
-      dealerPricePerSqMeter: f.pricePerSqMeter * (1 - dealer.discountPercent / 100)
-    }))
+    fabrics: manufacturerPrices.map(mp => {
+      const margin = mp.manualMargin || 40;
+      const customerPrice = mp.pricePerSqMeter * (1 + margin / 100);
+      return {
+        id: mp.id,
+        code: mp.fabricCode,
+        name: mp.fabricName || mp.fabricCode,
+        category: mp.fabricCategory || 'other',
+        customerPrice: Math.round(customerPrice * 100) / 100,
+        image: fabricImages[mp.fabricCode] || null
+      };
+    }),
+    fabricsByCategory
   };
 }
 

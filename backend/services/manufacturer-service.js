@@ -234,7 +234,8 @@ function getManufacturerOrderDetail(manufacturerId, orderId) {
       unitPrice: item.unit_price,
       lineTotal: item.line_total,
       price_breakdown: item.price_breakdown,
-      price_snapshots: item.price_snapshots
+      price_snapshot: item.price_snapshot || item.price_snapshots,
+      price_snapshots: item.price_snapshot || item.price_snapshots
     })),
     statusHistory,
     trackingInfo: order.tracking_info,

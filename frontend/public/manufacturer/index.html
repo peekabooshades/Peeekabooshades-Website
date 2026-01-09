@@ -907,27 +907,43 @@
                   const cfg = parseConfig(item.configuration || item.options);
                   const pb = item.price_breakdown || {};
 
-                  // Calculate manufacturer cost from price_breakdown when price_snapshots unavailable
+                  // Get price snapshot data (check both singular and plural property names)
+                  const priceSnapshot = item.price_snapshot || item.price_snapshots || {};
+                  const mfrPrice = priceSnapshot.manufacturer_price || {};
+                  const customerPrice = priceSnapshot.customer_price || {};
+                  const optionsBreakdown = customerPrice.options_breakdown || [];
+                  const accessoriesBreakdown = customerPrice.accessories_breakdown || [];
+
+                  // Calculate manufacturer cost from price snapshot when available
                   const widthM = item.width * 0.0254;
                   const heightM = item.height * 0.0254;
                   const areaSqM = Math.max(widthM * heightM, 1.2);
 
-                  const baseFabricCost = (pb.dimensionAdjustedPrice || pb.basePrice || 40) * 0.5;
+                  // Helper to get manufacturer cost from breakdown
+                  const getOptionMfrCost = (type) => {
+                    const opt = optionsBreakdown.find(o => o.type === type);
+                    return opt ? opt.manufacturerCost : null;
+                  };
+                  const getAccessoryMfrCost = (code) => {
+                    const acc = accessoriesBreakdown.find(a => a.code === code);
+                    return acc ? acc.manufacturerCost : null;
+                  };
+
+                  const baseFabricCost = mfrPrice.unit_cost || mfrPrice.total_cost || mfrPrice.cost || (pb.dimensionAdjustedPrice || pb.basePrice || 40) * 0.5;
                   const motorBrand = cfg.motorBrand || cfg.chainType || '';
                   const motorMfrCosts = { 'motorized-app': 45, 'aok': 45, 'motorized-remote': 47, 'dooya': 47, 'plugin-motor': 55 };
-                  const motorCost = cfg.controlType === 'motorized' ? (motorMfrCosts[motorBrand] || 45) : 0;
+                  const motorCost = getOptionMfrCost('motorization') ?? (cfg.controlType === 'motorized' ? (motorMfrCosts[motorBrand] || 45) : 0);
                   const remoteMfrCosts = { '1-channel': 4.40, '6-channel': 6.60, '15-channel': 11.35, '16-channel': 11.35 };
-                  const remoteCost = cfg.remoteType ? (remoteMfrCosts[cfg.remoteType] || 0) : 0;
-                  const solarCost = (cfg.solarType === 'yes' && cfg.controlType === 'motorized') ? 15 : 0;
-                  const smartHubCost = (parseInt(cfg.smartHubQty) || 0) * 23.50;
-                  const usbChargerCost = (parseInt(cfg.usbChargerQty) || 0) * 5;
+                  const remoteCost = getOptionMfrCost('remote') ?? (cfg.remoteType ? (remoteMfrCosts[cfg.remoteType] || 0) : 0);
+                  const solarCost = getOptionMfrCost('solar') ?? ((cfg.solarType === 'yes' && cfg.controlType === 'motorized') ? 20.5 : 0);
+                  const smartHubCost = getAccessoryMfrCost('smart-hub') ?? ((parseInt(cfg.smartHubQty) || 0) * 23.50);
+                  const usbChargerCost = getAccessoryMfrCost('usb-charger') ?? ((parseInt(cfg.usbChargerQty) || 0) * 5);
                   const fabricCassettes = ['fabric-wrapped-v3', 'fabric-inserted-s1', 'curve-white-s2', 'fabric-wrapped-s3'];
-                  const cassetteCost = fabricCassettes.includes(cfg.standardCassette) ? (2.20 * areaSqM * 0.5) : 0;
+                  const cassetteCost = getOptionMfrCost('valance_type') ?? (fabricCassettes.includes(cfg.standardCassette) ? (2.20 * areaSqM * 0.5) : 0);
                   const fabricBars = ['type-c-fabric-wrapped', 'type-b', 'simple-rolling', 'type-d'];
-                  const barCost = fabricBars.includes(cfg.standardBottomBar) ? (2.20 * areaSqM * 0.5) : 0;
+                  const barCost = getOptionMfrCost('bottom_rail') ?? (fabricBars.includes(cfg.standardBottomBar) ? (2.20 * areaSqM * 0.5) : 0);
 
-                  const calculatedMfrCost = baseFabricCost + motorCost + remoteCost + solarCost + smartHubCost + usbChargerCost + cassetteCost + barCost;
-                  const mfrCost = item.price_snapshots?.manufacturer_price?.cost || calculatedMfrCost;
+                  const mfrCost = baseFabricCost + motorCost + remoteCost + solarCost + smartHubCost + usbChargerCost + cassetteCost + barCost;
                   const lineCost = mfrCost * item.quantity;
                   return `
                 <tr style="${idx % 2 === 0 ? 'background: #ffffff;' : 'background: #f9fafb;'}">
@@ -958,23 +974,38 @@
                   <td colspan="2" style="padding: 10px; text-align: right; font-size: 14px; font-weight: 700; border: 1px solid #374151; background: #065f46;">$${(order.pricing?.manufacturerCost || order.items.reduce((sum, i) => {
                     const cfg = parseConfig(i.configuration || i.options);
                     const pb = i.price_breakdown || {};
+                    // Get price snapshot data (check both singular and plural property names)
+                    const priceSnapshot = i.price_snapshot || i.price_snapshots || {};
+                    const mfrPrice = priceSnapshot.manufacturer_price || {};
+                    const customerPrice = priceSnapshot.customer_price || {};
+                    const optionsBreakdown = customerPrice.options_breakdown || [];
+                    const accessoriesBreakdown = customerPrice.accessories_breakdown || [];
+                    // Helper functions
+                    const getOptionMfrCost = (type) => {
+                      const opt = optionsBreakdown.find(o => o.type === type);
+                      return opt ? opt.manufacturerCost : null;
+                    };
+                    const getAccessoryMfrCost = (code) => {
+                      const acc = accessoriesBreakdown.find(a => a.code === code);
+                      return acc ? acc.manufacturerCost : null;
+                    };
                     const widthM = i.width * 0.0254;
                     const heightM = i.height * 0.0254;
                     const areaSqM = Math.max(widthM * heightM, 1.2);
-                    const baseFabricCost = (pb.dimensionAdjustedPrice || pb.basePrice || 40) * 0.5;
+                    const baseFabricCost = mfrPrice.unit_cost || mfrPrice.total_cost || mfrPrice.cost || (pb.dimensionAdjustedPrice || pb.basePrice || 40) * 0.5;
                     const motorBrand = cfg.motorBrand || cfg.chainType || '';
                     const motorMfrCosts = { 'motorized-app': 45, 'aok': 45, 'motorized-remote': 47, 'dooya': 47, 'plugin-motor': 55 };
-                    const motorCost = cfg.controlType === 'motorized' ? (motorMfrCosts[motorBrand] || 45) : 0;
+                    const motorCost = getOptionMfrCost('motorization') ?? (cfg.controlType === 'motorized' ? (motorMfrCosts[motorBrand] || 45) : 0);
                     const remoteMfrCosts = { '1-channel': 4.40, '6-channel': 6.60, '15-channel': 11.35, '16-channel': 11.35 };
-                    const remoteCost = cfg.remoteType ? (remoteMfrCosts[cfg.remoteType] || 0) : 0;
-                    const solarCost = (cfg.solarType === 'yes' && cfg.controlType === 'motorized') ? 15 : 0;
-                    const smartHubCost = (parseInt(cfg.smartHubQty) || 0) * 23.50;
-                    const usbChargerCost = (parseInt(cfg.usbChargerQty) || 0) * 5;
+                    const remoteCost = getOptionMfrCost('remote') ?? (cfg.remoteType ? (remoteMfrCosts[cfg.remoteType] || 0) : 0);
+                    const solarCost = getOptionMfrCost('solar') ?? ((cfg.solarType === 'yes' && cfg.controlType === 'motorized') ? 20.5 : 0);
+                    const smartHubCost = getAccessoryMfrCost('smart-hub') ?? ((parseInt(cfg.smartHubQty) || 0) * 23.50);
+                    const usbChargerCost = getAccessoryMfrCost('usb-charger') ?? ((parseInt(cfg.usbChargerQty) || 0) * 5);
                     const fabricCassettes = ['fabric-wrapped-v3', 'fabric-inserted-s1', 'curve-white-s2', 'fabric-wrapped-s3'];
-                    const cassetteCost = fabricCassettes.includes(cfg.standardCassette) ? (2.20 * areaSqM * 0.5) : 0;
+                    const cassetteCost = getOptionMfrCost('valance_type') ?? (fabricCassettes.includes(cfg.standardCassette) ? (2.20 * areaSqM * 0.5) : 0);
                     const fabricBars = ['type-c-fabric-wrapped', 'type-b', 'simple-rolling', 'type-d'];
-                    const barCost = fabricBars.includes(cfg.standardBottomBar) ? (2.20 * areaSqM * 0.5) : 0;
-                    const itemMfrCost = i.price_snapshots?.manufacturer_price?.cost || (baseFabricCost + motorCost + remoteCost + solarCost + smartHubCost + usbChargerCost + cassetteCost + barCost);
+                    const barCost = getOptionMfrCost('bottom_rail') ?? (fabricBars.includes(cfg.standardBottomBar) ? (2.20 * areaSqM * 0.5) : 0);
+                    const itemMfrCost = baseFabricCost + motorCost + remoteCost + solarCost + smartHubCost + usbChargerCost + cassetteCost + barCost;
                     return sum + (itemMfrCost * i.quantity);
                   }, 0)).toFixed(2)}</td>
                 </tr>
@@ -983,100 +1014,261 @@
           </div>
 
           <!-- Detailed Price Breakdown Per Item -->
-          <h4 style="margin-top: 24px; margin-bottom: 12px; color: #1a1a2e;">Detailed Price Breakdown by Item</h4>
+          <div style="margin-top: 32px; margin-bottom: 20px; display: flex; align-items: center; gap: 12px;">
+            <div style="width: 4px; height: 28px; background: linear-gradient(180deg, #065f46 0%, #10b981 100%); border-radius: 2px;"></div>
+            <div>
+              <h4 style="margin: 0; font-size: 18px; font-weight: 700; color: #1a1a2e;">Detailed Price Breakdown</h4>
+              <p style="margin: 2px 0 0 0; font-size: 12px; color: #6b7280;">Manufacturing cost breakdown per item</p>
+            </div>
+          </div>
           ${order.items.map((item, idx) => {
             const cfg = parseConfig(item.configuration || item.options);
             const pb = item.price_breakdown || {};
+
+            // Get price snapshot data (check both singular and plural property names)
+            const priceSnapshot = item.price_snapshot || item.price_snapshots || {};
+            const mfrPrice = priceSnapshot.manufacturer_price || {};
+            const customerPrice = priceSnapshot.customer_price || {};
+            const optionsBreakdown = customerPrice.options_breakdown || [];
+            const accessoriesBreakdown = customerPrice.accessories_breakdown || [];
 
             // Calculate individual option costs based on configuration
             const widthM = item.width * 0.0254;
             const heightM = item.height * 0.0254;
             const areaSqM = Math.max(widthM * heightM, 1.2);
 
-            // Base blind cost (fabric + dimensions) - 50% of customer price
-            const baseFabricCost = (pb.dimensionAdjustedPrice || pb.basePrice || 40) * 0.5;
+            // Base fabric cost from price snapshot or fallback
+            const baseFabricCost = mfrPrice.unit_cost || mfrPrice.total_cost || mfrPrice.cost || (pb.dimensionAdjustedPrice || pb.basePrice || 40) * 0.5;
 
-            // Motor costs - these ARE the manufacturer costs (not customer prices)
+            // Get costs from options_breakdown if available, otherwise calculate
+            const getOptionMfrCost = (type) => {
+              const opt = optionsBreakdown.find(o => o.type === type);
+              return opt ? opt.manufacturerCost : null;
+            };
+
+            const getAccessoryMfrCost = (code) => {
+              const acc = accessoriesBreakdown.find(a => a.code === code);
+              return acc ? acc.manufacturerCost : null;
+            };
+
+            // Motor costs - use snapshot data or fallback to defaults
             const motorBrand = cfg.motorBrand || cfg.chainType || '';
             const motorMfrCosts = {
-              'motorized-app': 45, 'aok': 45,       // AOK motor = $45 mfr cost
-              'motorized-remote': 47, 'dooya': 47,  // Dooya motor = $47 mfr cost
-              'plugin-motor': 55,                    // Plugin motor = $55 mfr cost
+              'motorized-app': 45, 'aok': 45,
+              'motorized-remote': 47, 'dooya': 47,
+              'plugin-motor': 55,
               'matter': 85, 'collise': 160, 'somfy': 600, 'bliss': 540
             };
-            const motorCost = cfg.controlType === 'motorized' ? (motorMfrCosts[motorBrand] || 45) : 0;
+            const motorCost = getOptionMfrCost('motorization') ?? (cfg.controlType === 'motorized' ? (motorMfrCosts[motorBrand] || 45) : 0);
 
-            // Remote costs - these ARE the manufacturer costs
+            // Remote costs - use snapshot data or fallback
             const remoteMfrCosts = { 'single-channel': 6, '1-channel': 4.40, '5-channel': 6.60, '6-channel': 6.60, '15-channel': 11.35, '16-channel': 11.35 };
-            const remoteCost = cfg.remoteType ? (remoteMfrCosts[cfg.remoteType] || 0) : 0;
+            const remoteCost = getOptionMfrCost('remote') ?? (cfg.remoteType ? (remoteMfrCosts[cfg.remoteType] || 0) : 0);
 
-            // Solar panel cost - $15 is the manufacturer cost
-            const solarCost = (cfg.solarType === 'yes' && cfg.controlType === 'motorized') ? 15 : 0;
+            // Solar panel cost - use snapshot data or fallback
+            const solarCost = getOptionMfrCost('solar') ?? ((cfg.solarType === 'yes' && cfg.controlType === 'motorized') ? 20.5 : 0);
 
-            // Smart Hub ($23.50) and USB Charger ($5) - these ARE manufacturer costs
+            // Smart Hub and USB Charger - use snapshot data or fallback
             const smartHubQty = parseInt(cfg.smartHubQty) || 0;
             const usbChargerQty = parseInt(cfg.usbChargerQty) || 0;
-            const smartHubCost = smartHubQty * 23.50;
-            const usbChargerCost = usbChargerQty * 5;
+            const smartHubCost = getAccessoryMfrCost('smart-hub') ?? (smartHubQty * 23.50);
+            const usbChargerCost = getAccessoryMfrCost('usb-charger') ?? (usbChargerQty * 5);
 
-            // Cassette costs (per sqm)
-            const fabricCassettes = ['fabric-wrapped-v3', 'fabric-inserted-s1', 'curve-white-s2', 'fabric-wrapped-s3'];
-            const cassetteCustomerPrice = fabricCassettes.includes(cfg.standardCassette) ? (2.20 * areaSqM) : 0;
-            const cassetteCost = cassetteCustomerPrice * 0.5;
+            // Cassette costs - use snapshot data or calculate
+            const cassetteCost = getOptionMfrCost('valance_type') ?? (() => {
+              const fabricCassettes = ['fabric-wrapped-v3', 'fabric-inserted-s1', 'curve-white-s2', 'fabric-wrapped-s3'];
+              return fabricCassettes.includes(cfg.standardCassette) ? (2.20 * areaSqM * 0.5) : 0;
+            })();
 
-            // Bottom bar costs (per sqm)
-            const fabricBars = ['type-c-fabric-wrapped', 'type-b', 'simple-rolling', 'type-d'];
-            const barCustomerPrice = fabricBars.includes(cfg.standardBottomBar) ? (2.20 * areaSqM) : 0;
-            const barCost = barCustomerPrice * 0.5;
+            // Bottom bar costs - use snapshot data or calculate
+            const barCost = getOptionMfrCost('bottom_rail') ?? (() => {
+              const fabricBars = ['type-c-fabric-wrapped', 'type-b', 'simple-rolling', 'type-d'];
+              return fabricBars.includes(cfg.standardBottomBar) ? (2.20 * areaSqM * 0.5) : 0;
+            })();
 
             // Calculate total manufacturer cost
             const totalMfrCost = baseFabricCost + motorCost + remoteCost + solarCost + smartHubCost + usbChargerCost + cassetteCost + barCost;
 
-            // Use price_snapshots if available, otherwise use calculated
-            const mfrCost = item.price_snapshots?.manufacturer_price?.cost || totalMfrCost;
+            // Use calculated total (now based on actual snapshot data)
+            const mfrCost = totalMfrCost;
+
+            // Calculate hardware subtotal
+            const hardwareSubtotal = cassetteCost + barCost;
+            // Calculate motorization subtotal
+            const motorizationSubtotal = motorCost + remoteCost + solarCost;
+            // Calculate accessories subtotal
+            const accessoriesSubtotal = smartHubCost + usbChargerCost;
 
             return `
-          <div style="margin-bottom: 16px; background: white; border: 2px solid #1a1a2e; border-radius: 8px; overflow: hidden;">
-            <div style="background: #1a1a2e; color: white; padding: 10px 16px; font-weight: 600;">
-              Item ${idx + 1}: ${escapeHtml(item.room_label || item.roomLabel || 'Blind')} - ${item.width}" x ${item.height}" (Qty: ${item.quantity})
+          <div style="margin-bottom: 24px; background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%); border-radius: 16px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.08); border: 1px solid #e2e8f0;">
+
+            <!-- Item Header -->
+            <div style="background: linear-gradient(135deg, #1a1a2e 0%, #2d2d44 100%); color: white; padding: 16px 20px; display: flex; justify-content: space-between; align-items: center;">
+              <div>
+                <span style="font-size: 11px; text-transform: uppercase; letter-spacing: 1px; opacity: 0.7;">Item ${idx + 1}</span>
+                <h4 style="margin: 4px 0 0 0; font-size: 16px; font-weight: 600;">${escapeHtml(item.room_label || item.roomLabel || 'Blind')}</h4>
+              </div>
+              <div style="text-align: right;">
+                <div style="font-size: 12px; opacity: 0.7;">${item.width}" x ${item.height}"</div>
+                <div style="font-size: 14px; font-weight: 600; background: rgba(255,255,255,0.15); padding: 4px 12px; border-radius: 20px; margin-top: 4px;">Qty: ${item.quantity}</div>
+              </div>
             </div>
-            <table style="width: 100%; border-collapse: collapse;">
-              <thead>
-                <tr style="background: #f3f4f6;">
-                  <th style="padding: 8px 12px; text-align: left; font-size: 11px; border-bottom: 1px solid #ddd;">OPTION</th>
-                  <th style="padding: 8px 12px; text-align: left; font-size: 11px; border-bottom: 1px solid #ddd;">SELECTED VALUE</th>
-                  <th style="padding: 8px 12px; text-align: right; font-size: 11px; border-bottom: 1px solid #ddd;">MFR COST</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr><td style="padding: 6px 12px; font-size: 11px; border-bottom: 1px solid #eee;">Base Blind (Fabric + Size)</td><td style="padding: 6px 12px; font-size: 11px; border-bottom: 1px solid #eee;">${cfg.fabricCode || '-'} (${(areaSqM).toFixed(2)} m²)</td><td style="padding: 6px 12px; font-size: 11px; text-align: right; border-bottom: 1px solid #eee; font-weight: 600;">$${baseFabricCost.toFixed(2)}</td></tr>
-                <tr><td style="padding: 6px 12px; font-size: 11px; border-bottom: 1px solid #eee;">Light Filtering</td><td style="padding: 6px 12px; font-size: 11px; border-bottom: 1px solid #eee;">${cfg.lightFiltering || '-'}</td><td style="padding: 6px 12px; font-size: 11px; text-align: right; border-bottom: 1px solid #eee;">$0.00</td></tr>
-                <tr><td style="padding: 6px 12px; font-size: 11px; border-bottom: 1px solid #eee;">Cassette Type</td><td style="padding: 6px 12px; font-size: 11px; border-bottom: 1px solid #eee;">${cfg.standardCassette || '-'}</td><td style="padding: 6px 12px; font-size: 11px; text-align: right; border-bottom: 1px solid #eee; ${cassetteCost > 0 ? 'font-weight: 600;' : ''}">$${cassetteCost.toFixed(2)}</td></tr>
-                <tr><td style="padding: 6px 12px; font-size: 11px; border-bottom: 1px solid #eee;">Bottom Bar</td><td style="padding: 6px 12px; font-size: 11px; border-bottom: 1px solid #eee;">${cfg.standardBottomBar || '-'}</td><td style="padding: 6px 12px; font-size: 11px; text-align: right; border-bottom: 1px solid #eee; ${barCost > 0 ? 'font-weight: 600;' : ''}">$${barCost.toFixed(2)}</td></tr>
-                <tr><td style="padding: 6px 12px; font-size: 11px; border-bottom: 1px solid #eee;">Roll Type</td><td style="padding: 6px 12px; font-size: 11px; border-bottom: 1px solid #eee;">${cfg.rollerType || '-'}</td><td style="padding: 6px 12px; font-size: 11px; text-align: right; border-bottom: 1px solid #eee;">$0.00</td></tr>
-                <tr><td style="padding: 6px 12px; font-size: 11px; border-bottom: 1px solid #eee;">Mount Type</td><td style="padding: 6px 12px; font-size: 11px; border-bottom: 1px solid #eee;">${cfg.mountType || '-'}</td><td style="padding: 6px 12px; font-size: 11px; text-align: right; border-bottom: 1px solid #eee;">$0.00</td></tr>
-                <tr><td style="padding: 6px 12px; font-size: 11px; border-bottom: 1px solid #eee;">Control Type</td><td style="padding: 6px 12px; font-size: 11px; border-bottom: 1px solid #eee;">${cfg.controlType || '-'}</td><td style="padding: 6px 12px; font-size: 11px; text-align: right; border-bottom: 1px solid #eee;">$0.00</td></tr>
+
+            <div style="padding: 20px;">
+              <!-- Cost Breakdown Grid -->
+              <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 16px;">
+
+                <!-- Base Product Card -->
+                <div style="background: white; border-radius: 12px; padding: 16px; border: 1px solid #e5e7eb; box-shadow: 0 2px 8px rgba(0,0,0,0.04);">
+                  <div style="display: flex; align-items: center; margin-bottom: 12px;">
+                    <div style="width: 36px; height: 36px; background: linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%); border-radius: 10px; display: flex; align-items: center; justify-content: center; margin-right: 12px;">
+                      <svg width="18" height="18" fill="white" viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V5h14v14z"/></svg>
+                    </div>
+                    <div>
+                      <div style="font-size: 11px; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px;">Base Product</div>
+                      <div style="font-size: 14px; font-weight: 600; color: #1f2937;">${cfg.fabricCode || 'Standard'}</div>
+                    </div>
+                  </div>
+                  <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 12px; background: #f5f3ff; border-radius: 8px;">
+                    <div>
+                      <div style="font-size: 11px; color: #6b7280;">Fabric + Size (${areaSqM.toFixed(2)} m²)</div>
+                      <div style="font-size: 10px; color: #9ca3af;">${cfg.lightFiltering || 'Standard'} | ${cfg.rollerType || 'Standard Roll'} | ${cfg.mountType || 'Standard Mount'}</div>
+                    </div>
+                    <div style="font-size: 18px; font-weight: 700; color: #7c3aed;">$${baseFabricCost.toFixed(2)}</div>
+                  </div>
+                </div>
+
+                <!-- Hardware Card -->
+                <div style="background: white; border-radius: 12px; padding: 16px; border: 1px solid #e5e7eb; box-shadow: 0 2px 8px rgba(0,0,0,0.04);">
+                  <div style="display: flex; align-items: center; margin-bottom: 12px;">
+                    <div style="width: 36px; height: 36px; background: linear-gradient(135deg, #06b6d4 0%, #0891b2 100%); border-radius: 10px; display: flex; align-items: center; justify-content: center; margin-right: 12px;">
+                      <svg width="18" height="18" fill="white" viewBox="0 0 24 24"><path d="M22 9V7h-2V5c0-1.1-.9-2-2-2H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2v-2h2v-2h-2v-2h2v-2h-2V9h2zm-4 10H4V5h14v14z"/></svg>
+                    </div>
+                    <div>
+                      <div style="font-size: 11px; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px;">Hardware</div>
+                      <div style="font-size: 14px; font-weight: 600; color: #1f2937;">Cassette & Bar</div>
+                    </div>
+                  </div>
+                  <div style="space-y: 8px;">
+                    <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px dashed #e5e7eb;">
+                      <span style="font-size: 12px; color: #4b5563;">Cassette: ${cfg.standardCassette || 'Standard'}</span>
+                      <span style="font-size: 13px; font-weight: 600; color: ${cassetteCost > 0 ? '#0891b2' : '#9ca3af'};">$${cassetteCost.toFixed(2)}</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; padding: 8px 0;">
+                      <span style="font-size: 12px; color: #4b5563;">Bottom Bar: ${cfg.standardBottomBar || 'Standard'}</span>
+                      <span style="font-size: 13px; font-weight: 600; color: ${barCost > 0 ? '#0891b2' : '#9ca3af'};">$${barCost.toFixed(2)}</span>
+                    </div>
+                  </div>
+                  <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 12px; background: #ecfeff; border-radius: 8px; margin-top: 8px;">
+                    <span style="font-size: 11px; font-weight: 600; color: #0891b2;">HARDWARE SUBTOTAL</span>
+                    <span style="font-size: 16px; font-weight: 700; color: #0891b2;">$${hardwareSubtotal.toFixed(2)}</span>
+                  </div>
+                </div>
+
                 ${cfg.controlType === 'motorized' ? `
-                <tr style="background: #fef3c7;"><td style="padding: 6px 12px; font-size: 11px; border-bottom: 1px solid #eee; font-weight: 600;">Motor Brand</td><td style="padding: 6px 12px; font-size: 11px; border-bottom: 1px solid #eee; font-weight: 600;">${(motorBrand || 'AOK').replace('motorized-', '').toUpperCase()}</td><td style="padding: 6px 12px; font-size: 11px; text-align: right; border-bottom: 1px solid #eee; font-weight: 700; color: #92400e;">$${motorCost.toFixed(2)}</td></tr>
-                <tr style="background: #fef3c7;"><td style="padding: 6px 12px; font-size: 11px; border-bottom: 1px solid #eee;">Motor Type</td><td style="padding: 6px 12px; font-size: 11px; border-bottom: 1px solid #eee;">${cfg.motorType || '-'}</td><td style="padding: 6px 12px; font-size: 11px; text-align: right; border-bottom: 1px solid #eee;">$0.00</td></tr>
-                <tr style="background: #fef3c7;"><td style="padding: 6px 12px; font-size: 11px; border-bottom: 1px solid #eee;">Remote Type</td><td style="padding: 6px 12px; font-size: 11px; border-bottom: 1px solid #eee;">${cfg.remoteType || '-'}</td><td style="padding: 6px 12px; font-size: 11px; text-align: right; border-bottom: 1px solid #eee; ${remoteCost > 0 ? 'font-weight: 600; color: #92400e;' : ''}">$${remoteCost.toFixed(2)}</td></tr>
-                <tr style="background: #fef3c7;"><td style="padding: 6px 12px; font-size: 11px; border-bottom: 1px solid #eee;">Solar Panel</td><td style="padding: 6px 12px; font-size: 11px; border-bottom: 1px solid #eee;">${cfg.solarType === 'yes' ? 'YES' : '-'}</td><td style="padding: 6px 12px; font-size: 11px; text-align: right; border-bottom: 1px solid #eee; ${solarCost > 0 ? 'font-weight: 600; color: #92400e;' : ''}">$${solarCost.toFixed(2)}</td></tr>
+                <!-- Motorization Card -->
+                <div style="background: white; border-radius: 12px; padding: 16px; border: 1px solid #e5e7eb; box-shadow: 0 2px 8px rgba(0,0,0,0.04);">
+                  <div style="display: flex; align-items: center; margin-bottom: 12px;">
+                    <div style="width: 36px; height: 36px; background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%); border-radius: 10px; display: flex; align-items: center; justify-content: center; margin-right: 12px;">
+                      <svg width="18" height="18" fill="white" viewBox="0 0 24 24"><path d="M7 2v11h3v9l7-12h-4l4-8z"/></svg>
+                    </div>
+                    <div>
+                      <div style="font-size: 11px; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px;">Motorization</div>
+                      <div style="font-size: 14px; font-weight: 600; color: #1f2937;">${(motorBrand || 'AOK').replace('motorized-', '').toUpperCase()} Motor</div>
+                    </div>
+                  </div>
+                  <div style="space-y: 8px;">
+                    <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px dashed #e5e7eb;">
+                      <span style="font-size: 12px; color: #4b5563;">Motor (${cfg.motorType || 'Standard'})</span>
+                      <span style="font-size: 13px; font-weight: 600; color: #d97706;">$${motorCost.toFixed(2)}</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px dashed #e5e7eb;">
+                      <span style="font-size: 12px; color: #4b5563;">Remote: ${cfg.remoteType || 'None'}</span>
+                      <span style="font-size: 13px; font-weight: 600; color: ${remoteCost > 0 ? '#d97706' : '#9ca3af'};">$${remoteCost.toFixed(2)}</span>
+                    </div>
+                    <div style="display: flex; justify-content: space-between; padding: 8px 0;">
+                      <span style="font-size: 12px; color: #4b5563;">Solar Panel</span>
+                      <span style="font-size: 13px; font-weight: 600; color: ${solarCost > 0 ? '#d97706' : '#9ca3af'};">${cfg.solarType === 'yes' ? '$' + solarCost.toFixed(2) : '-'}</span>
+                    </div>
+                  </div>
+                  <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 12px; background: #fffbeb; border-radius: 8px; margin-top: 8px;">
+                    <span style="font-size: 11px; font-weight: 600; color: #d97706;">MOTOR SUBTOTAL</span>
+                    <span style="font-size: 16px; font-weight: 700; color: #d97706;">$${motorizationSubtotal.toFixed(2)}</span>
+                  </div>
+                </div>
                 ` : `
-                <tr><td style="padding: 6px 12px; font-size: 11px; border-bottom: 1px solid #eee;">Chain Type</td><td style="padding: 6px 12px; font-size: 11px; border-bottom: 1px solid #eee;">${cfg.chainType || '-'}</td><td style="padding: 6px 12px; font-size: 11px; text-align: right; border-bottom: 1px solid #eee;">$0.00</td></tr>
-                <tr><td style="padding: 6px 12px; font-size: 11px; border-bottom: 1px solid #eee;">Chain Side</td><td style="padding: 6px 12px; font-size: 11px; border-bottom: 1px solid #eee;">${cfg.chainSide || '-'}</td><td style="padding: 6px 12px; font-size: 11px; text-align: right; border-bottom: 1px solid #eee;">$0.00</td></tr>
+                <!-- Manual Control Card -->
+                <div style="background: white; border-radius: 12px; padding: 16px; border: 1px solid #e5e7eb; box-shadow: 0 2px 8px rgba(0,0,0,0.04);">
+                  <div style="display: flex; align-items: center; margin-bottom: 12px;">
+                    <div style="width: 36px; height: 36px; background: linear-gradient(135deg, #6b7280 0%, #4b5563 100%); border-radius: 10px; display: flex; align-items: center; justify-content: center; margin-right: 12px;">
+                      <svg width="18" height="18" fill="white" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
+                    </div>
+                    <div>
+                      <div style="font-size: 11px; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px;">Control</div>
+                      <div style="font-size: 14px; font-weight: 600; color: #1f2937;">Manual / Chain</div>
+                    </div>
+                  </div>
+                  <div style="padding: 12px; background: #f3f4f6; border-radius: 8px; text-align: center;">
+                    <div style="font-size: 12px; color: #6b7280;">Chain Side: <strong>${cfg.chainSide || 'Standard'}</strong></div>
+                    <div style="font-size: 11px; color: #9ca3af; margin-top: 4px;">No additional cost</div>
+                  </div>
+                </div>
                 `}
-                ${smartHubQty > 0 ? `<tr style="background: #dbeafe;"><td style="padding: 6px 12px; font-size: 11px; border-bottom: 1px solid #eee; font-weight: 600;">Smart Hub</td><td style="padding: 6px 12px; font-size: 11px; border-bottom: 1px solid #eee; font-weight: 600;">x${smartHubQty}</td><td style="padding: 6px 12px; font-size: 11px; text-align: right; border-bottom: 1px solid #eee; font-weight: 700; color: #1e40af;">$${smartHubCost.toFixed(2)}</td></tr>` : ''}
-                ${usbChargerQty > 0 ? `<tr style="background: #fef3c7;"><td style="padding: 6px 12px; font-size: 11px; border-bottom: 1px solid #eee; font-weight: 600;">USB Charger</td><td style="padding: 6px 12px; font-size: 11px; border-bottom: 1px solid #eee; font-weight: 600;">x${usbChargerQty}</td><td style="padding: 6px 12px; font-size: 11px; text-align: right; border-bottom: 1px solid #eee; font-weight: 700; color: #92400e;">$${usbChargerCost.toFixed(2)}</td></tr>` : ''}
-                <tr style="background: #d1fae5;">
-                  <td colspan="2" style="padding: 10px 12px; font-size: 12px; font-weight: 700; text-align: right;">UNIT COST:</td>
-                  <td style="padding: 10px 12px; font-size: 13px; font-weight: 700; text-align: right; color: #065f46;">$${mfrCost.toFixed(2)}</td>
-                </tr>
-                <tr style="background: #065f46; color: white;">
-                  <td colspan="2" style="padding: 10px 12px; font-size: 12px; font-weight: 700; text-align: right;">LINE COST (x${item.quantity}):</td>
-                  <td style="padding: 10px 12px; font-size: 14px; font-weight: 700; text-align: right;">$${(mfrCost * item.quantity).toFixed(2)}</td>
-                </tr>
-              </tbody>
-            </table>
+
+                ${(smartHubQty > 0 || usbChargerQty > 0) ? `
+                <!-- Accessories Card -->
+                <div style="background: white; border-radius: 12px; padding: 16px; border: 1px solid #e5e7eb; box-shadow: 0 2px 8px rgba(0,0,0,0.04);">
+                  <div style="display: flex; align-items: center; margin-bottom: 12px;">
+                    <div style="width: 36px; height: 36px; background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%); border-radius: 10px; display: flex; align-items: center; justify-content: center; margin-right: 12px;">
+                      <svg width="18" height="18" fill="white" viewBox="0 0 24 24"><path d="M20 6h-3V4c0-1.1-.9-2-2-2H9c-1.1 0-2 .9-2 2v2H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2zM9 4h6v2H9V4zm11 16H4V8h16v12z"/></svg>
+                    </div>
+                    <div>
+                      <div style="font-size: 11px; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px;">Accessories</div>
+                      <div style="font-size: 14px; font-weight: 600; color: #1f2937;">Smart Add-ons</div>
+                    </div>
+                  </div>
+                  <div style="space-y: 8px;">
+                    ${smartHubQty > 0 ? `
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 12px; background: #eff6ff; border-radius: 8px; margin-bottom: 8px;">
+                      <div>
+                        <div style="font-size: 12px; font-weight: 600; color: #1e40af;">Smart Hub</div>
+                        <div style="font-size: 10px; color: #6b7280;">Qty: ${smartHubQty}</div>
+                      </div>
+                      <span style="font-size: 15px; font-weight: 700; color: #2563eb;">$${smartHubCost.toFixed(2)}</span>
+                    </div>
+                    ` : ''}
+                    ${usbChargerQty > 0 ? `
+                    <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 12px; background: #eff6ff; border-radius: 8px;">
+                      <div>
+                        <div style="font-size: 12px; font-weight: 600; color: #1e40af;">USB Charger</div>
+                        <div style="font-size: 10px; color: #6b7280;">Qty: ${usbChargerQty}</div>
+                      </div>
+                      <span style="font-size: 15px; font-weight: 700; color: #2563eb;">$${usbChargerCost.toFixed(2)}</span>
+                    </div>
+                    ` : ''}
+                  </div>
+                  <div style="display: flex; justify-content: space-between; align-items: center; padding: 10px 12px; background: #dbeafe; border-radius: 8px; margin-top: 8px;">
+                    <span style="font-size: 11px; font-weight: 600; color: #1e40af;">ACCESSORIES SUBTOTAL</span>
+                    <span style="font-size: 16px; font-weight: 700; color: #2563eb;">$${accessoriesSubtotal.toFixed(2)}</span>
+                  </div>
+                </div>
+                ` : ''}
+
+              </div>
+
+              <!-- Total Section -->
+              <div style="margin-top: 20px; background: linear-gradient(135deg, #065f46 0%, #047857 100%); border-radius: 12px; padding: 20px; display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                  <div style="color: rgba(255,255,255,0.7); font-size: 11px; text-transform: uppercase; letter-spacing: 1px;">Unit Manufacturer Cost</div>
+                  <div style="color: white; font-size: 28px; font-weight: 700; margin-top: 4px;">$${mfrCost.toFixed(2)}</div>
+                </div>
+                <div style="text-align: right;">
+                  <div style="color: rgba(255,255,255,0.7); font-size: 11px; text-transform: uppercase; letter-spacing: 1px;">Line Total (x${item.quantity})</div>
+                  <div style="color: white; font-size: 32px; font-weight: 800; margin-top: 4px;">$${(mfrCost * item.quantity).toFixed(2)}</div>
+                </div>
+              </div>
+
+            </div>
           </div>
           `;
           }).join('')}
@@ -1327,6 +1519,58 @@
       }
     }
 
+    // Calculate manufacturer cost for an item using price snapshot data
+    function calculateItemMfrCost(item, cfg) {
+      const pb = item.price_breakdown || {};
+      // Get price snapshot data (check both singular and plural property names)
+      const priceSnapshot = item.price_snapshot || item.price_snapshots || {};
+      const mfrPrice = priceSnapshot.manufacturer_price || {};
+      const customerPrice = priceSnapshot.customer_price || {};
+      const optionsBreakdown = customerPrice.options_breakdown || [];
+      const accessoriesBreakdown = customerPrice.accessories_breakdown || [];
+
+      // Helper to get manufacturer cost from breakdown
+      const getOptionMfrCost = (type) => {
+        const opt = optionsBreakdown.find(o => o.type === type);
+        return opt ? opt.manufacturerCost : null;
+      };
+      const getAccessoryMfrCost = (code) => {
+        const acc = accessoriesBreakdown.find(a => a.code === code);
+        return acc ? acc.manufacturerCost : null;
+      };
+
+      const widthM = item.width * 0.0254;
+      const heightM = item.height * 0.0254;
+      const areaSqM = Math.max(widthM * heightM, 1.2);
+
+      // Base fabric cost
+      const baseFabricCost = mfrPrice.unit_cost || mfrPrice.total_cost || mfrPrice.cost || (pb.dimensionAdjustedPrice || pb.basePrice || 40) * 0.5;
+
+      // Motor costs
+      const motorBrand = cfg.motorBrand || cfg.chainType || '';
+      const motorMfrCosts = { 'motorized-app': 45, 'aok': 45, 'motorized-remote': 47, 'dooya': 47, 'plugin-motor': 55, 'matter': 85, 'collise': 160, 'somfy': 600, 'bliss': 540 };
+      const motorCost = getOptionMfrCost('motorization') ?? (cfg.controlType === 'motorized' ? (motorMfrCosts[motorBrand] || 45) : 0);
+
+      // Remote costs
+      const remoteMfrCosts = { 'single-channel': 6, '1-channel': 4.40, '5-channel': 6.60, '6-channel': 6.60, '15-channel': 11.35, '16-channel': 11.35 };
+      const remoteCost = getOptionMfrCost('remote') ?? (cfg.remoteType ? (remoteMfrCosts[cfg.remoteType] || 0) : 0);
+
+      // Solar cost
+      const solarCost = getOptionMfrCost('solar') ?? ((cfg.solarType === 'yes' && cfg.controlType === 'motorized') ? 20.5 : 0);
+
+      // Accessories
+      const smartHubCost = getAccessoryMfrCost('smart-hub') ?? ((parseInt(cfg.smartHubQty) || 0) * 23.50);
+      const usbChargerCost = getAccessoryMfrCost('usb-charger') ?? ((parseInt(cfg.usbChargerQty) || 0) * 5);
+
+      // Cassette and bar costs
+      const fabricCassettes = ['fabric-wrapped-v3', 'fabric-inserted-s1', 'curve-white-s2', 'fabric-wrapped-s3'];
+      const cassetteCost = getOptionMfrCost('valance_type') ?? (fabricCassettes.includes(cfg.standardCassette) ? (2.20 * areaSqM * 0.5) : 0);
+      const fabricBars = ['type-c-fabric-wrapped', 'type-b', 'simple-rolling', 'type-d'];
+      const barCost = getOptionMfrCost('bottom_rail') ?? (fabricBars.includes(cfg.standardBottomBar) ? (2.20 * areaSqM * 0.5) : 0);
+
+      return baseFabricCost + motorCost + remoteCost + solarCost + smartHubCost + usbChargerCost + cassetteCost + barCost;
+    }
+
     // Get motor brand + location OR chain side info based on control type
     function getMotorChainInfo(cfg) {
       const motorType = (cfg.motorType || '').toLowerCase();
@@ -1515,7 +1759,7 @@
 
       order.items.forEach((item, idx) => {
         const cfg = parseConfig(item.configuration || item.options);
-        const mfrCost = item.price_snapshots?.manufacturer_price?.cost || 0;
+        const mfrCost = calculateItemMfrCost(item, cfg);
         const lineCost = mfrCost * item.quantity;
 
         csv += `${idx + 1},`;
@@ -1541,8 +1785,10 @@
         csv += `$${lineCost.toFixed(2)}\n`;
       });
 
-      const totalMfrCost = order.items.reduce((sum, i) =>
-        sum + ((i.price_snapshots?.manufacturer_price?.cost || 0) * i.quantity), 0);
+      const totalMfrCost = order.items.reduce((sum, i) => {
+        const cfg = parseConfig(i.configuration || i.options);
+        return sum + (calculateItemMfrCost(i, cfg) * i.quantity);
+      }, 0);
       csv += `\n,,,,,,,,,,,,,,,,,,TOTAL:,$${totalMfrCost.toFixed(2)}\n`;
 
       // Download
@@ -1632,7 +1878,7 @@
             <tbody>
               ${order.items.map((item, idx) => {
                 const cfg = parseConfig(item.configuration || item.options);
-                const mfrCost = item.price_snapshots?.manufacturer_price?.cost || 0;
+                const mfrCost = calculateItemMfrCost(item, cfg);
                 const lineCost = mfrCost * item.quantity;
                 return `
                   <tr>
@@ -1657,8 +1903,10 @@
               }).join('')}
               <tr class="total-row">
                 <td colspan="14" class="text-right">TOTAL MANUFACTURER COST:</td>
-                <td colspan="2" class="text-right">$${order.items.reduce((sum, i) =>
-                  sum + ((i.price_snapshots?.manufacturer_price?.cost || 0) * i.quantity), 0).toFixed(2)}</td>
+                <td colspan="2" class="text-right">$${order.items.reduce((sum, i) => {
+                  const cfg = parseConfig(i.configuration || i.options);
+                  return sum + (calculateItemMfrCost(i, cfg) * i.quantity);
+                }, 0).toFixed(2)}</td>
               </tr>
             </tbody>
           </table>

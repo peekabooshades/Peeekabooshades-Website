@@ -9,58 +9,59 @@ const { v4: uuidv4 } = require('uuid');
 
 const DB_PATH = path.join(__dirname, '../database.json');
 
-// US State Sales Tax Rates (2024 rates - update as needed)
+// US State Sales Tax Rates - Combined State + Average Local (July 2025)
+// Source: Tax Foundation - taxfoundation.org/data/all/state/sales-tax-rates/
 const STATE_TAX_RATES = {
-  'AL': 0.04,    // Alabama
-  'AK': 0,       // Alaska - no state sales tax
-  'AZ': 0.056,   // Arizona
-  'AR': 0.065,   // Arkansas
-  'CA': 0.0725,  // California
-  'CO': 0.029,   // Colorado
+  'AL': 0.0944,  // Alabama
+  'AK': 0.0182,  // Alaska (local only, no state tax)
+  'AZ': 0.0852,  // Arizona
+  'AR': 0.0948,  // Arkansas
+  'CA': 0.0898,  // California
+  'CO': 0.0786,  // Colorado
   'CT': 0.0635,  // Connecticut
-  'DE': 0,       // Delaware - no state sales tax
-  'FL': 0.06,    // Florida
-  'GA': 0.04,    // Georgia
-  'HI': 0.04,    // Hawaii
-  'ID': 0.06,    // Idaho
-  'IL': 0.0625,  // Illinois
+  'DE': 0,       // Delaware - no sales tax
+  'FL': 0.0702,  // Florida
+  'GA': 0.0744,  // Georgia
+  'HI': 0.045,   // Hawaii (GET)
+  'ID': 0.0603,  // Idaho
+  'IL': 0.0892,  // Illinois
   'IN': 0.07,    // Indiana
-  'IA': 0.06,    // Iowa
-  'KS': 0.065,   // Kansas
+  'IA': 0.0694,  // Iowa
+  'KS': 0.0878,  // Kansas
   'KY': 0.06,    // Kentucky
-  'LA': 0.0445,  // Louisiana
+  'LA': 0.1011,  // Louisiana
   'ME': 0.055,   // Maine
   'MD': 0.06,    // Maryland
   'MA': 0.0625,  // Massachusetts
   'MI': 0.06,    // Michigan
-  'MN': 0.06875, // Minnesota
-  'MS': 0.07,    // Mississippi
-  'MO': 0.04225, // Missouri
-  'MT': 0,       // Montana - no state sales tax
-  'NE': 0.055,   // Nebraska
-  'NV': 0.0685,  // Nevada
-  'NH': 0,       // New Hampshire - no state sales tax
-  'NJ': 0.06625, // New Jersey
-  'NM': 0.05125, // New Mexico
-  'NY': 0.04,    // New York
-  'NC': 0.0475,  // North Carolina
-  'ND': 0.05,    // North Dakota
-  'OH': 0.0575,  // Ohio
-  'OK': 0.045,   // Oklahoma
-  'OR': 0,       // Oregon - no state sales tax
-  'PA': 0.06,    // Pennsylvania
+  'MN': 0.0813,  // Minnesota
+  'MS': 0.0706,  // Mississippi
+  'MO': 0.0841,  // Missouri
+  'MT': 0,       // Montana - no sales tax
+  'NE': 0.0698,  // Nebraska
+  'NV': 0.0824,  // Nevada
+  'NH': 0,       // New Hampshire - no sales tax
+  'NJ': 0.066,   // New Jersey
+  'NM': 0.0767,  // New Mexico
+  'NY': 0.0854,  // New York
+  'NC': 0.07,    // North Carolina
+  'ND': 0.0708,  // North Dakota
+  'OH': 0.073,   // Ohio
+  'OK': 0.0905,  // Oklahoma
+  'OR': 0,       // Oregon - no sales tax
+  'PA': 0.0634,  // Pennsylvania
   'RI': 0.07,    // Rhode Island
-  'SC': 0.06,    // South Carolina
-  'SD': 0.045,   // South Dakota
-  'TN': 0.07,    // Tennessee
-  'TX': 0.0625,  // Texas
-  'UT': 0.061,   // Utah
-  'VT': 0.06,    // Vermont
-  'VA': 0.053,   // Virginia
-  'WA': 0.065,   // Washington
-  'WV': 0.06,    // West Virginia
-  'WI': 0.05,    // Wisconsin
-  'WY': 0.04,    // Wyoming
+  'SC': 0.0749,  // South Carolina
+  'SD': 0.0611,  // South Dakota
+  'TN': 0.0961,  // Tennessee
+  'TX': 0.0825,  // Texas (max combined rate)
+  'UT': 0.0742,  // Utah
+  'VT': 0.0639,  // Vermont
+  'VA': 0.0577,  // Virginia
+  'WA': 0.0947,  // Washington
+  'WV': 0.0658,  // West Virginia
+  'WI': 0.0572,  // Wisconsin
+  'WY': 0.0556,  // Wyoming
   'DC': 0.06     // District of Columbia
 };
 
@@ -365,50 +366,50 @@ function createInvoiceFromOrder(orderId, type = 'customer', options = {}) {
         };
       }),
 
-      // Totals - calculate tax based on shipping address
-      // Get subtotal and shipping from order
+      // Totals - USE ORDER'S STORED VALUES (invoice must match what customer was charged)
+      // BUG FIX: Previously recalculated tax instead of using order's stored tax
       subtotal: (() => {
         const orderSubtotal = order.pricing?.subtotal || order.subtotal || 0;
         return orderSubtotal;
       })(),
-      // Calculate sales tax based on shipping address
+      // Use order's stored tax value - DO NOT recalculate
       ...(() => {
         const orderSubtotal = order.pricing?.subtotal || order.subtotal || 0;
-        const shippingAddr = order.shipping_address || customerAddress;
-        const taxCalc = calculateSalesTax(orderSubtotal, shippingAddr);
+        // Use stored tax from order - this is what customer was charged at checkout
+        const orderTax = order.pricing?.tax || order.tax || 0;
         // Ensure shipping is a number (could be an object with tracking info)
         const rawShipping = order.pricing?.shipping || order.shipping || 0;
         const orderShipping = typeof rawShipping === 'number' ? rawShipping : 0;
         const orderDiscount = order.pricing?.discount || order.discount || 0;
-        const calculatedTotal = Math.round((orderSubtotal + taxCalc.taxAmount + orderShipping - orderDiscount) * 100) / 100;
+        // Use order's stored total, or calculate from stored values
+        const orderTotal = order.pricing?.total || order.total ||
+          Math.round((orderSubtotal + orderTax + orderShipping - orderDiscount) * 100) / 100;
+
+        // Extract state for reference only (don't use for tax calculation)
+        const shippingAddr = order.shipping_address || customerAddress;
+        const stateInfo = extractStateFromAddress(shippingAddr);
 
         return {
-          tax: taxCalc.taxAmount,
-          taxRate: taxCalc.taxRate,
-          taxState: taxCalc.state,
-          taxNote: taxCalc.note,
+          tax: orderTax,
+          taxRate: orderSubtotal > 0 ? (orderTax / orderSubtotal) : 0,
+          taxState: stateInfo,
+          taxNote: null,
           shipping: orderShipping,
           shippingInfo: typeof rawShipping === 'object' ? rawShipping : null,
           discount: orderDiscount,
-          total: calculatedTotal
+          total: orderTotal
         };
       })(),
       currency: 'USD',
 
-      // Payment info - use calculated total based on shipping address tax
+      // Payment info - use order's stored total (not recalculated)
       ...(() => {
-        const orderSubtotal = order.pricing?.subtotal || order.subtotal || 0;
-        const shippingAddr = order.shipping_address || customerAddress;
-        const taxCalc = calculateSalesTax(orderSubtotal, shippingAddr);
-        // Ensure shipping is a number (could be an object with tracking info)
-        const rawShipping = order.pricing?.shipping || order.shipping || 0;
-        const orderShipping = typeof rawShipping === 'number' ? rawShipping : 0;
-        const orderDiscount = order.pricing?.discount || order.discount || 0;
-        const calculatedTotal = Math.round((orderSubtotal + taxCalc.taxAmount + orderShipping - orderDiscount) * 100) / 100;
+        // Use the order's stored total - this is what customer was actually charged
+        const orderTotal = order.pricing?.total || order.total || 0;
 
         return {
-          amountPaid: order.payment?.status === 'completed' ? calculatedTotal : 0,
-          amountDue: order.payment?.status === 'completed' ? 0 : calculatedTotal
+          amountPaid: order.payment?.status === 'completed' ? orderTotal : 0,
+          amountDue: order.payment?.status === 'completed' ? 0 : orderTotal
         };
       })(),
       paymentMethod: order.payment?.method || null,

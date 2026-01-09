@@ -227,6 +227,16 @@ const QuotesAPI = {
     return API.get(`/quotes/${id}`);
   },
 
+  // Create a new quote (uses public API endpoint)
+  async create(quoteData) {
+    const response = await fetch('/api/quotes', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(quoteData)
+    });
+    return response.json();
+  },
+
   updateStatus(id, status) {
     return API.put(`/quotes/${id}/status`, { status });
   },

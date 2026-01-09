@@ -633,6 +633,74 @@
 
     let ledgerMfrCostByOrder = {}; // Cache for MFR costs from ledger
 
+    // Helper function to calculate MFR cost from item price snapshot data
+    function calculateItemMfrCost(item) {
+      // Parse configuration
+      let cfg = {};
+      if (item.configuration) {
+        try {
+          cfg = typeof item.configuration === 'string' ? JSON.parse(item.configuration) : item.configuration;
+        } catch (e) { cfg = {}; }
+      }
+
+      // Get price snapshot data (check both singular and plural property names)
+      const priceSnapshot = item.price_snapshot || item.price_snapshots || {};
+      const mfrPrice = priceSnapshot.manufacturer_price || {};
+      const customerPrice = priceSnapshot.customer_price || {};
+      const optionsBreakdown = customerPrice.options_breakdown || [];
+      const accessoriesBreakdown = customerPrice.accessories_breakdown || [];
+
+      // Helper to get manufacturer cost from breakdown
+      const getOptionMfrCost = (type) => {
+        const opt = optionsBreakdown.find(o => o.type === type);
+        return opt ? opt.manufacturerCost : null;
+      };
+      const getAccessoryMfrCost = (code) => {
+        const acc = accessoriesBreakdown.find(a => a.code === code);
+        return acc ? acc.manufacturerCost : null;
+      };
+
+      const widthM = (item.width || 0) * 0.0254;
+      const heightM = (item.height || 0) * 0.0254;
+      const areaSqM = Math.max(widthM * heightM, 1.2);
+
+      // Base fabric cost
+      const baseFabricCost = mfrPrice.unit_cost || mfrPrice.total_cost || mfrPrice.cost || 0;
+
+      // Motor costs
+      const motorBrand = cfg.motorBrand || cfg.chainType || '';
+      const motorMfrCosts = { 'motorized-app': 45, 'aok': 45, 'motorized-remote': 47, 'dooya': 47, 'plugin-motor': 55, 'matter': 85, 'collise': 160, 'somfy': 600, 'bliss': 540 };
+      const motorCost = getOptionMfrCost('motorization') ?? (cfg.controlType === 'motorized' ? (motorMfrCosts[motorBrand] || 45) : 0);
+
+      // Remote costs
+      const remoteMfrCosts = { 'single-channel': 6, '1-channel': 4.40, '5-channel': 6.60, '6-channel': 6.60, '15-channel': 11.35, '16-channel': 11.35 };
+      const remoteCost = getOptionMfrCost('remote') ?? (cfg.remoteType ? (remoteMfrCosts[cfg.remoteType] || 0) : 0);
+
+      // Solar cost
+      const solarCost = getOptionMfrCost('solar') ?? ((cfg.solarType === 'yes' && cfg.controlType === 'motorized') ? 20.5 : 0);
+
+      // Accessories
+      const smartHubCost = getAccessoryMfrCost('smart-hub') ?? ((parseInt(cfg.smartHubQty) || 0) * 23.50);
+      const usbChargerCost = getAccessoryMfrCost('usb-charger') ?? ((parseInt(cfg.usbChargerQty) || 0) * 5);
+
+      // Cassette and bar costs
+      const fabricCassettes = ['fabric-wrapped-v3', 'fabric-inserted-s1', 'curve-white-s2', 'fabric-wrapped-s3'];
+      const cassetteCost = getOptionMfrCost('valance_type') ?? (fabricCassettes.includes(cfg.standardCassette) ? (2.20 * areaSqM * 0.5) : 0);
+      const fabricBars = ['type-c-fabric-wrapped', 'type-b', 'simple-rolling', 'type-d'];
+      const barCost = getOptionMfrCost('bottom_rail') ?? (fabricBars.includes(cfg.standardBottomBar) ? (2.20 * areaSqM * 0.5) : 0);
+
+      return baseFabricCost + motorCost + remoteCost + solarCost + smartHubCost + usbChargerCost + cassetteCost + barCost;
+    }
+
+    // Calculate total MFR cost for an order from its items
+    function calculateOrderMfrCost(order) {
+      if (!order.items || order.items.length === 0) return 0;
+      return order.items.reduce((total, item) => {
+        const itemCost = calculateItemMfrCost(item);
+        return total + (itemCost * (item.quantity || 1));
+      }, 0);
+    }
+
     async function loadOrderProfits() {
       try {
         // Load both orders and ledger entries to get MFR cost data
@@ -688,9 +756,14 @@
         // Get revenue (total with tax)
         const revenue = o.pricing?.total || o.total || 0;
 
-        // Get MFR cost: first try order.pricing, then ledger, then 0
+        // Get MFR cost: first try order.pricing, then calculate from items, then ledger, then 0
         let mfrCost = o.pricing?.manufacturer_cost_total;
-        if (mfrCost === undefined || mfrCost === null) {
+        if (mfrCost === undefined || mfrCost === null || mfrCost === 0) {
+          // Calculate from items' price snapshot data
+          mfrCost = calculateOrderMfrCost(o);
+        }
+        if (mfrCost === 0) {
+          // Fallback to ledger
           mfrCost = ledgerMfrCostByOrder[o.id] || 0;
         }
 
