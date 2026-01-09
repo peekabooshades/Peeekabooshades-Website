@@ -235,6 +235,7 @@ function createDealerOrder(dealerId, orderData, userId) {
   }
 
   if (!db.dealerOrders) db.dealerOrders = [];
+  if (!db.dealerCustomers) db.dealerCustomers = [];
 
   // Generate order number
   const orderCount = db.dealerOrders.length + 1;
@@ -246,13 +247,59 @@ function createDealerOrder(dealerId, orderData, userId) {
   const dealerPrice = subtotal - discountAmount;
   const commission = dealerPrice * (dealer.commissionRate || 0.10);
 
+  // Auto-create or find customer
+  let customerId = orderData.customerId;
+  if (!customerId && orderData.customerEmail) {
+    // Check if customer exists by email
+    let existingCustomer = db.dealerCustomers.find(
+      c => c.dealerId === dealerId && c.email === orderData.customerEmail
+    );
+
+    if (!existingCustomer) {
+      // Create new customer
+      existingCustomer = {
+        id: `dc-${uuidv4().slice(0, 8)}`,
+        dealerId,
+        name: orderData.customerName || 'Unknown',
+        email: orderData.customerEmail,
+        phone: orderData.customerPhone || '',
+        address: orderData.customerAddress || '',
+        notes: '',
+        totalOrders: 0,
+        totalSpent: 0,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      };
+      db.dealerCustomers.push(existingCustomer);
+    }
+    customerId = existingCustomer.id;
+  } else if (!customerId && orderData.customerName) {
+    // Create customer without email
+    const newCustomer = {
+      id: `dc-${uuidv4().slice(0, 8)}`,
+      dealerId,
+      name: orderData.customerName,
+      email: orderData.customerEmail || '',
+      phone: orderData.customerPhone || '',
+      address: orderData.customerAddress || '',
+      notes: '',
+      totalOrders: 0,
+      totalSpent: 0,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    };
+    db.dealerCustomers.push(newCustomer);
+    customerId = newCustomer.id;
+  }
+
   const order = {
     id: uuidv4(),
     dealerId,
     orderNumber,
-    customerId: orderData.customerId,
+    customerId: customerId,
     customerName: orderData.customerName,
     customerEmail: orderData.customerEmail,
+    customerPhone: orderData.customerPhone,
     customerAddress: orderData.customerAddress,
     items: orderData.items.map(item => ({
       id: uuidv4(),
@@ -287,6 +334,17 @@ function createDealerOrder(dealerId, orderData, userId) {
     db.dealers[dealerIndex].totalRevenue = (db.dealers[dealerIndex].totalRevenue || 0) + dealerPrice;
     db.dealers[dealerIndex].monthlyOrderCount = (db.dealers[dealerIndex].monthlyOrderCount || 0) + 1;
     db.dealers[dealerIndex].updatedAt = new Date().toISOString();
+  }
+
+  // Update customer stats
+  if (customerId) {
+    const customerIndex = db.dealerCustomers.findIndex(c => c.id === customerId);
+    if (customerIndex !== -1) {
+      db.dealerCustomers[customerIndex].totalOrders = (db.dealerCustomers[customerIndex].totalOrders || 0) + 1;
+      db.dealerCustomers[customerIndex].totalSpent = (db.dealerCustomers[customerIndex].totalSpent || 0) + dealerPrice;
+      db.dealerCustomers[customerIndex].lastOrderDate = new Date().toISOString();
+      db.dealerCustomers[customerIndex].updatedAt = new Date().toISOString();
+    }
   }
 
   saveDatabase(db);

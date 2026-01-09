@@ -490,10 +490,22 @@
                     <div class="item-name">${item.productName || item.name || 'Product'}</div>
                     <div class="item-details">
                       ${item.width ? `${item.width}" x ${item.height}"` : ''}
-                      ${item.fabric ? ` | ${item.fabric}` : ''}
+                      ${item.fabricCode ? ` | Fabric: ${item.fabricCode}` : ''}
                       | Qty: ${item.quantity || 1}
-                      | ${formatCurrency(item.price || 0)}
+                      | ${formatCurrency(item.retailPrice || item.price || 0)}
                     </div>
+                    ${item.options ? `
+                      <div class="item-options" style="margin-top: 8px; padding-top: 8px; border-top: 1px dashed #e5e7eb; font-size: 12px; color: #6b7280;">
+                        <strong>Options:</strong>
+                        ${item.options.mount ? `<span style="margin-left: 8px;">Mount: ${item.options.mount}</span>` : ''}
+                        ${item.options.control ? `<span style="margin-left: 8px;">Control: ${item.options.control}</span>` : ''}
+                        ${item.options.control === 'motorized' && item.options.motorBrand ? `<span style="margin-left: 8px;">Motor: ${item.options.motorBrand.toUpperCase()}</span>` : ''}
+                        ${item.options.remoteType ? `<span style="margin-left: 8px;">Remote: ${item.options.remoteType}</span>` : ''}
+                        ${item.options.valance && item.options.valance !== 'none' ? `<span style="margin-left: 8px;">Valance: ${item.options.valance}</span>` : ''}
+                        ${item.options.rail && item.options.rail !== 'standard' ? `<span style="margin-left: 8px;">Rail: ${item.options.rail}</span>` : ''}
+                        ${item.options.accessories && item.options.accessories.length ? `<span style="margin-left: 8px;">Accessories: ${item.options.accessories.join(', ')}</span>` : ''}
+                      </div>
+                    ` : ''}
                   </div>
                 `).join('')}
               </div>
