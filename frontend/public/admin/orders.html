@@ -13,7 +13,7 @@
     <aside class="admin-sidebar">
       <div class="sidebar-header">
         <a href="/admin/" class="sidebar-logo">
-          <img src="/images/logo.png" alt="Logo" onerror="this.style.display='none'">
+          <img src="/images/peekabooshades_logo.jpeg" alt="Peekaboo Shades" style="height: 32px; width: auto; border-radius: 6px;">
           <span>Peekaboo Shades</span>
         </a>
       </div>
@@ -371,6 +371,16 @@
     async function viewOrder(id) {
       try {
         const data = await Admin.OrdersAPI.getById(id);
+        // Fetch current pricing data from product pricing page settings
+        const [mfrPricesRes, hardwareRes, motorBrandsRes] = await Promise.all([
+          fetch('/api/admin/manufacturer-prices', { headers: { 'Authorization': 'Bearer ' + Admin.Auth.getToken() } }),
+          fetch('/api/admin/hardware', { headers: { 'Authorization': 'Bearer ' + Admin.Auth.getToken() } }),
+          fetch('/api/admin/motor-brands', { headers: { 'Authorization': 'Bearer ' + Admin.Auth.getToken() } })
+        ]);
+        const currentMfrPrices = (await mfrPricesRes.json()).data || [];
+        const currentHardware = (await hardwareRes.json()).data || {};
+        const currentMotorBrands = (await motorBrandsRes.json()).data || [];
+
         if (data.success) {
           const order = data.order || data.data;
           const customerName = order.customer_name || order.customer?.name || 'Guest';
@@ -488,25 +498,67 @@
               ${order.items && order.items.length > 0 ? order.items.map((item, idx) => {
                 const snapshot = item.price_snapshots || item.price_snapshot || {};
                 const mfrPrice = snapshot.manufacturer_price || {};
-                const margin = snapshot.margin || {};
                 const customerPrice = snapshot.customer_price || {};
                 const optionsBreakdown = customerPrice.options_breakdown || [];
                 const accessoriesBreakdown = customerPrice.accessories_breakdown || [];
                 const unitPrice = item.unit_price || item.unitPrice || 0;
                 const lineTotal = item.line_total || item.lineTotal || (unitPrice * item.quantity);
+                const cfg = parseConfig(item.configuration);
 
-                // Calculate totals from stored price snapshot
+                // Get fabric code from snapshot or configuration
+                const fabricCode = mfrPrice.fabric_code || cfg.fabricCode || '';
+
+                // Get CURRENT margin from product pricing page (not historical)
+                const currentFabricPrice = currentMfrPrices.find(p => p.fabricCode === fabricCode);
+                const currentFabricMargin = currentFabricPrice?.manualMargin || currentFabricPrice?.margin || 40;
+
+                // Calculate totals using CURRENT margins from product pricing
                 const baseMfrCost = mfrPrice.cost || mfrPrice.unit_cost || 0;
-                const baseMarginAmt = margin.amount || 0;
+                const baseMarginAmt = baseMfrCost * (currentFabricMargin / 100);
                 const baseCustPrice = baseMfrCost + baseMarginAmt;
+                const baseMarkupPct = currentFabricMargin;
 
-                const optionsMfrTotal = optionsBreakdown.reduce((sum, opt) => sum + (opt.manufacturerCost || 0), 0);
-                const optionsCustTotal = customerPrice.options_total || 0;
+                // Recalculate options with CURRENT margins from hardware settings
+                let optionsMfrTotal = 0;
+                let optionsCustTotal = 0;
+                optionsBreakdown.forEach(opt => {
+                  const optMfr = opt.manufacturerCost || 0;
+                  optionsMfrTotal += optMfr;
+                  // Find current margin for this option type
+                  let currentOptMargin = 40;
+                  if (opt.type === 'motorization' && opt.brand) {
+                    const motor = currentMotorBrands.find(m => m.id === 'motor-' + opt.brand || m.value === opt.brand);
+                    currentOptMargin = motor?.margin || 40;
+                  } else if (opt.type === 'remote') {
+                    const remote = (currentHardware.remoteType || []).find(r => r.value === opt.code);
+                    currentOptMargin = remote?.margin || 40;
+                  } else if (opt.type === 'solar') {
+                    const solar = (currentHardware.solarPanel || []).find(s => s.value === opt.code || s.value === 'yes');
+                    currentOptMargin = solar?.margin || 40;
+                  } else if (opt.type === 'valance_type') {
+                    const valance = (currentHardware.valanceType || []).find(v => v.value === opt.code);
+                    currentOptMargin = valance?.margin || 40;
+                  } else if (opt.type === 'bottom_rail') {
+                    const rail = (currentHardware.bottomRail || []).find(r => r.value === opt.code);
+                    currentOptMargin = rail?.margin || 40;
+                  }
+                  optionsCustTotal += optMfr * (1 + currentOptMargin / 100);
+                });
 
-                const accMfrTotal = accessoriesBreakdown.reduce((sum, acc) => sum + (acc.manufacturerCost || 0), 0);
-                const accCustTotal = customerPrice.accessories_total || 0;
+                // Recalculate accessories with CURRENT margins
+                let accMfrTotal = 0;
+                let accCustTotal = 0;
+                accessoriesBreakdown.forEach(acc => {
+                  const accMfr = acc.manufacturerCost || 0;
+                  accMfrTotal += accMfr;
+                  const accessory = (currentHardware.accessories || []).find(a => a.value === acc.code || a.id === 'acc-' + acc.code);
+                  const currentAccMargin = accessory?.margin || 40;
+                  accCustTotal += accMfr * (1 + currentAccMargin / 100);
+                });
 
                 const totalMfrCost = baseMfrCost + optionsMfrTotal + accMfrTotal;
+                const totalCustPrice = baseCustPrice + optionsCustTotal + accCustTotal;
+                const totalMarkupPct = totalMfrCost > 0 ? ((totalCustPrice - totalMfrCost) / totalMfrCost * 100) : 0;
 
                 return `
                 <div style="background: #fff; border: 1px solid #e5e7eb; border-radius: 8px; margin-bottom: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); overflow: hidden;">
@@ -523,6 +575,7 @@
                         <th style="padding: 10px 16px; text-align: left; font-size: 11px; font-weight: 600; color: #6b7280; text-transform: uppercase; border-bottom: 2px solid #e5e7eb;">Component</th>
                         <th style="padding: 10px 16px; text-align: right; font-size: 11px; font-weight: 600; color: #dc2626; text-transform: uppercase; border-bottom: 2px solid #e5e7eb; background: #fef2f2;">MFR Cost</th>
                         <th style="padding: 10px 16px; text-align: right; font-size: 11px; font-weight: 600; color: #059669; text-transform: uppercase; border-bottom: 2px solid #e5e7eb; background: #f0fdf4;">Customer Price</th>
+                        <th style="padding: 10px 16px; text-align: center; font-size: 11px; font-weight: 600; color: #1e40af; text-transform: uppercase; border-bottom: 2px solid #e5e7eb; background: #eff6ff; min-width: 90px;">Markup %</th>
                       </tr>
                     </thead>
                     <tbody>
@@ -536,18 +589,21 @@
                         </td>
                         <td style="padding: 10px 16px; border-bottom: 1px solid #e5e7eb; text-align: right; font-weight: 600; color: #dc2626; background: #fef2f2;">$${baseMfrCost.toFixed(2)}</td>
                         <td style="padding: 10px 16px; border-bottom: 1px solid #e5e7eb; text-align: right; font-weight: 600; color: #059669; background: #f0fdf4;">$${baseCustPrice.toFixed(2)}</td>
+                        <td style="padding: 10px 16px; border-bottom: 1px solid #e5e7eb; text-align: center; font-weight: 700; color: #1e40af; background: #eff6ff;">${baseMarkupPct.toFixed(0)}%</td>
                       </tr>
 
                       <!-- Options Section Header -->
-                      ${optionsBreakdown.length > 0 ? '<tr style="background: #fafafa;"><td colspan="3" style="padding: 8px 16px; font-size: 11px; font-weight: 600; color: #6b7280; text-transform: uppercase; border-bottom: 1px solid #e5e7eb;">Options</td></tr>' : ''}
+                      ${optionsBreakdown.length > 0 ? '<tr style="background: #fafafa;"><td colspan="4" style="padding: 8px 16px; font-size: 11px; font-weight: 600; color: #6b7280; text-transform: uppercase; border-bottom: 1px solid #e5e7eb;">Options</td></tr>' : ''}
 
                       <!-- Individual Options -->
                       ${optionsBreakdown.map(opt => {
+                        const optMarkup = (opt.manufacturerCost || 0) > 0 ? ((opt.price - (opt.manufacturerCost || 0)) / (opt.manufacturerCost || 1) * 100) : 0;
                         return `
                         <tr style="background: #fff;">
                           <td style="padding: 8px 16px; padding-left: 32px; border-bottom: 1px solid #f3f4f6; color: #374151; font-size: 13px;">${opt.name}</td>
                           <td style="padding: 8px 16px; border-bottom: 1px solid #f3f4f6; text-align: right; color: #dc2626; background: #fffbfb;">$${(opt.manufacturerCost || 0).toFixed(2)}</td>
                           <td style="padding: 8px 16px; border-bottom: 1px solid #f3f4f6; text-align: right; color: #059669; background: #f8fdf9;">$${opt.price.toFixed(2)}</td>
+                          <td style="padding: 8px 16px; border-bottom: 1px solid #f3f4f6; text-align: center; color: #1e40af; background: #f8faff;">${optMarkup.toFixed(0)}%</td>
                         </tr>`;
                       }).join('')}
 
@@ -557,18 +613,21 @@
                         <td style="padding: 8px 16px; border-bottom: 1px solid #e5e7eb; font-weight: 600; color: #6b7280; font-size: 12px;">Options Subtotal</td>
                         <td style="padding: 8px 16px; border-bottom: 1px solid #e5e7eb; text-align: right; font-weight: 600; color: #dc2626; background: #fef2f2;">$${optionsMfrTotal.toFixed(2)}</td>
                         <td style="padding: 8px 16px; border-bottom: 1px solid #e5e7eb; text-align: right; font-weight: 600; color: #059669; background: #f0fdf4;">$${optionsCustTotal.toFixed(2)}</td>
+                        <td style="padding: 8px 16px; border-bottom: 1px solid #e5e7eb; text-align: center; font-weight: 600; color: #1e40af; background: #eff6ff;">${optionsMfrTotal > 0 ? ((optionsCustTotal - optionsMfrTotal) / optionsMfrTotal * 100).toFixed(0) : 0}%</td>
                       </tr>` : ''}
 
                       <!-- Accessories Section Header -->
-                      ${accessoriesBreakdown.length > 0 ? '<tr style="background: #fafafa;"><td colspan="3" style="padding: 8px 16px; font-size: 11px; font-weight: 600; color: #6b7280; text-transform: uppercase; border-bottom: 1px solid #e5e7eb;">Accessories</td></tr>' : ''}
+                      ${accessoriesBreakdown.length > 0 ? '<tr style="background: #fafafa;"><td colspan="4" style="padding: 8px 16px; font-size: 11px; font-weight: 600; color: #6b7280; text-transform: uppercase; border-bottom: 1px solid #e5e7eb;">Accessories</td></tr>' : ''}
 
                       <!-- Individual Accessories -->
                       ${accessoriesBreakdown.map(acc => {
+                        const accMarkup = (acc.manufacturerCost || 0) > 0 ? ((acc.price - (acc.manufacturerCost || 0)) / (acc.manufacturerCost || 1) * 100) : 0;
                         return `
                         <tr style="background: #fff;">
                           <td style="padding: 8px 16px; padding-left: 32px; border-bottom: 1px solid #f3f4f6; color: #374151; font-size: 13px;">${acc.name}</td>
                           <td style="padding: 8px 16px; border-bottom: 1px solid #f3f4f6; text-align: right; color: #dc2626; background: #fffbfb;">$${(acc.manufacturerCost || 0).toFixed(2)}</td>
                           <td style="padding: 8px 16px; border-bottom: 1px solid #f3f4f6; text-align: right; color: #059669; background: #f8fdf9;">$${acc.price.toFixed(2)}</td>
+                          <td style="padding: 8px 16px; border-bottom: 1px solid #f3f4f6; text-align: center; color: #1e40af; background: #f8faff;">${accMarkup.toFixed(0)}%</td>
                         </tr>`;
                       }).join('')}
 
@@ -578,6 +637,7 @@
                         <td style="padding: 8px 16px; border-bottom: 2px solid #e5e7eb; font-weight: 600; color: #6b7280; font-size: 12px;">Accessories Subtotal</td>
                         <td style="padding: 8px 16px; border-bottom: 2px solid #e5e7eb; text-align: right; font-weight: 600; color: #dc2626; background: #fef2f2;">$${accMfrTotal.toFixed(2)}</td>
                         <td style="padding: 8px 16px; border-bottom: 2px solid #e5e7eb; text-align: right; font-weight: 600; color: #059669; background: #f0fdf4;">$${accCustTotal.toFixed(2)}</td>
+                        <td style="padding: 8px 16px; border-bottom: 2px solid #e5e7eb; text-align: center; font-weight: 600; color: #1e40af; background: #eff6ff;">${accMfrTotal > 0 ? ((accCustTotal - accMfrTotal) / accMfrTotal * 100).toFixed(0) : 0}%</td>
                       </tr>` : ''}
 
                       <!-- ITEM TOTAL -->
@@ -585,6 +645,7 @@
                         <td style="padding: 12px 16px; font-weight: 700; color: #8E6545; font-size: 14px;">ITEM TOTAL</td>
                         <td style="padding: 12px 16px; text-align: right; font-weight: 700; font-size: 14px; color: #dc2626; background: rgba(220, 38, 38, 0.1);">$${totalMfrCost.toFixed(2)}</td>
                         <td style="padding: 12px 16px; text-align: right; font-weight: 700; font-size: 14px; color: #059669; background: rgba(5, 150, 105, 0.1);">$${lineTotal.toFixed(2)}</td>
+                        <td style="padding: 12px 16px; text-align: center; font-weight: 700; font-size: 14px; color: #1e40af; background: rgba(30, 64, 175, 0.1);">${totalMarkupPct.toFixed(0)}%</td>
                       </tr>
                     </tbody>
                   </table>

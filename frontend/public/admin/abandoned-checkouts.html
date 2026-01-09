@@ -14,10 +14,12 @@
       border-radius: 12px;
       font-size: 12px;
       font-weight: 500;
+      text-transform: capitalize;
     }
     .status-badge.abandoned { background: #FEE9E9; color: #D72C0D; }
     .status-badge.recovered { background: #E3F1DF; color: #008060; }
     .status-badge.emailed { background: #E8F4FD; color: #2C6ECB; }
+    .status-badge.expired { background: #F4F4F5; color: #6D7175; }
     .empty-state {
       text-align: center;
       padding: 60px 20px;
@@ -36,10 +38,20 @@
       padding: 20px;
       border: 1px solid #e5e7eb;
     }
+    .stat-card.highlight {
+      background: linear-gradient(135deg, #065f46 0%, #047857 100%);
+      color: white;
+    }
+    .stat-card.highlight .stat-label {
+      color: rgba(255,255,255,0.8);
+    }
     .stat-value {
       font-size: 28px;
       font-weight: 700;
       color: #1a1a2e;
+    }
+    .stat-card.highlight .stat-value {
+      color: white;
     }
     .stat-label {
       font-size: 13px;
@@ -48,9 +60,95 @@
     }
     .stats-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
       gap: 16px;
       margin-bottom: 24px;
+    }
+    .filters-row {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 20px;
+    }
+    .search-box {
+      flex: 1;
+      min-width: 250px;
+      max-width: 400px;
+      position: relative;
+    }
+    .search-box svg {
+      position: absolute;
+      left: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #6D7175;
+    }
+    .search-box input {
+      width: 100%;
+      padding: 10px 12px 10px 40px;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      font-size: 14px;
+    }
+    .action-buttons {
+      display: flex;
+      gap: 4px;
+    }
+    .action-btn {
+      padding: 6px 8px;
+      border: none;
+      background: transparent;
+      border-radius: 6px;
+      cursor: pointer;
+      color: #6D7175;
+      transition: all 0.15s;
+    }
+    .action-btn:hover {
+      background: #F4F4F5;
+      color: #202223;
+    }
+    .action-btn.success:hover {
+      background: #E3F1DF;
+      color: #008060;
+    }
+    .action-btn.primary:hover {
+      background: #E8F4FD;
+      color: #2C6ECB;
+    }
+    .action-btn.danger:hover {
+      background: #FEE9E9;
+      color: #D72C0D;
+    }
+    .pagination {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 20px;
+      padding: 16px 0;
+      border-top: 1px solid #E5E5E5;
+    }
+    .pagination-info {
+      font-size: 14px;
+      color: #6D7175;
+    }
+    .pagination-btns {
+      display: flex;
+      gap: 8px;
+    }
+    .checkout-detail-modal .items-list {
+      background: #f8fafc;
+      border-radius: 8px;
+      padding: 12px;
+      margin-top: 12px;
+    }
+    .checkout-detail-modal .item-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 0;
+      border-bottom: 1px solid #e5e7eb;
+    }
+    .checkout-detail-modal .item-row:last-child {
+      border-bottom: none;
     }
   </style>
 </head>
@@ -59,7 +157,7 @@
     <aside class="admin-sidebar">
       <div class="sidebar-header">
         <a href="/admin/" class="sidebar-logo">
-          <img src="/images/logo.png" alt="Logo" onerror="this.style.display='none'">
+          <img src="/images/peekabooshades_logo.jpeg" alt="Peekaboo Shades" style="height: 32px; width: auto; border-radius: 6px;">
           <span>Peekaboo Shades</span>
         </a>
       </div>
@@ -120,14 +218,35 @@
             <div class="stat-value" id="totalAbandoned">0</div>
             <div class="stat-label">Total Abandoned</div>
           </div>
-          <div class="stat-card">
+          <div class="stat-card highlight">
             <div class="stat-value" id="potentialRevenue">$0</div>
             <div class="stat-label">Potential Revenue</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" id="emailedCount">0</div>
+            <div class="stat-label">Emails Sent</div>
           </div>
           <div class="stat-card">
             <div class="stat-value" id="recovered">0</div>
             <div class="stat-label">Recovered</div>
           </div>
+        </div>
+
+        <!-- Filters -->
+        <div class="filters-row">
+          <div class="search-box">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+            <input type="text" id="searchInput" placeholder="Search by customer name or email...">
+          </div>
+          <select id="statusFilter" class="form-select" style="min-width: 150px;">
+            <option value="">All Status</option>
+            <option value="abandoned">Abandoned</option>
+            <option value="emailed">Emailed</option>
+            <option value="recovered">Recovered</option>
+            <option value="expired">Expired</option>
+          </select>
         </div>
 
         <!-- Table -->
@@ -143,83 +262,401 @@
                   <th style="text-align: right;">Value</th>
                   <th>Date</th>
                   <th>Status</th>
+                  <th style="width: 140px;">Actions</th>
                 </tr>
               </thead>
               <tbody id="checkoutsTable">
-                <tr><td colspan="7" style="text-align: center; padding: 40px;">Loading...</td></tr>
+                <tr><td colspan="8" style="text-align: center; padding: 40px;">Loading...</td></tr>
               </tbody>
             </table>
+          </div>
+
+          <div class="pagination">
+            <div class="pagination-info" id="paginationInfo">Showing 0 checkouts</div>
+            <div class="pagination-btns">
+              <button class="btn btn-secondary btn-sm" id="prevBtn" onclick="prevPage()" disabled>Previous</button>
+              <button class="btn btn-secondary btn-sm" id="nextBtn" onclick="nextPage()" disabled>Next</button>
+            </div>
           </div>
         </div>
       </div>
     </main>
   </div>
 
+  <!-- Checkout Detail Modal -->
+  <div class="modal-overlay" id="checkoutModal" style="display: none;">
+    <div class="modal checkout-detail-modal" style="max-width: 600px;">
+      <div class="modal-header">
+        <h3 class="modal-title">Checkout Details</h3>
+        <button class="modal-close" onclick="closeModal()">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+      <div class="modal-body" id="checkoutModalContent">
+        <!-- Content loaded dynamically -->
+      </div>
+      <div class="modal-footer" id="checkoutModalFooter">
+        <button type="button" class="btn btn-secondary" onclick="closeModal()">Close</button>
+      </div>
+    </div>
+  </div>
+
   <script src="js/admin.js"></script>
   <script>
     let checkouts = [];
+    let stats = {};
+    let currentPage = 1;
+    const perPage = 20;
+    let totalCheckouts = 0;
 
-    document.addEventListener('DOMContentLoaded', () => {
-      Admin.Auth.requireAuth();
+    // Require authentication
+    if (!Admin.Auth.requireAuth()) {
+      // Will redirect to login
+    } else {
       loadCheckouts();
-    });
+    }
+
+    // Event listeners
+    document.getElementById('searchInput').addEventListener('input', debounce(loadCheckouts, 300));
+    document.getElementById('statusFilter').addEventListener('change', loadCheckouts);
 
     async function loadCheckouts() {
+      const search = document.getElementById('searchInput').value;
+      const status = document.getElementById('statusFilter').value;
+
       try {
-        const response = await fetch('/api/admin/abandoned-checkouts', {
+        const params = new URLSearchParams({ page: currentPage, limit: perPage });
+        if (search) params.append('search', search);
+        if (status) params.append('status', status);
+
+        const response = await fetch(`/api/admin/abandoned-checkouts?${params}`, {
           headers: { 'Authorization': `Bearer ${Admin.Auth.getToken()}` }
         });
         const data = await response.json();
+
         if (data.success) {
           checkouts = data.abandonedCheckouts || [];
+          stats = data.stats || {};
+          totalCheckouts = data.total || checkouts.length;
           renderCheckouts();
           updateStats();
+          updatePagination();
         }
       } catch (error) {
         console.error('Failed to load checkouts:', error);
-        document.getElementById('checkoutsTable').innerHTML = `
-          <tr><td colspan="7" class="empty-state">
-            <h3>No abandoned checkouts</h3>
-            <p>Abandoned checkouts will appear here when customers leave items in their cart</p>
-          </td></tr>
-        `;
+        renderEmptyState();
       }
     }
 
     function renderCheckouts() {
       const tbody = document.getElementById('checkoutsTable');
+
       if (!checkouts || checkouts.length === 0) {
-        tbody.innerHTML = `
-          <tr><td colspan="7" class="empty-state">
-            <h3>No abandoned checkouts</h3>
-            <p>Abandoned checkouts will appear here when customers leave items in their cart</p>
-          </td></tr>
-        `;
+        renderEmptyState();
         return;
       }
 
-      tbody.innerHTML = checkouts.map(c => `
-        <tr>
-          <td>#${c.id?.slice(0, 8) || 'N/A'}</td>
-          <td>${Admin.Utils.escapeHtml(c.customer_name || c.customerName || 'Guest')}</td>
-          <td>${Admin.Utils.escapeHtml(c.customer_email || c.customerEmail || '-')}</td>
-          <td>${c.items?.length || 0} items</td>
-          <td style="text-align: right;">${Admin.Utils.formatCurrency(c.total || 0)}</td>
-          <td>${Admin.Utils.formatDate(c.created_at || c.createdAt)}</td>
-          <td><span class="status-badge ${c.status || 'abandoned'}">${c.status || 'Abandoned'}</span></td>
-        </tr>
-      `).join('');
+      tbody.innerHTML = checkouts.map(c => {
+        const email = c.customer_email || c.customerEmail || '';
+        const status = c.status || 'abandoned';
+        const hasEmail = !!email;
+
+        return `
+          <tr>
+            <td>
+              <a href="#" onclick="viewCheckout('${c.id}'); return false;" style="color: var(--admin-primary); font-weight: 500;">
+                #${c.id?.slice(0, 8) || 'N/A'}
+              </a>
+            </td>
+            <td>${Admin.Utils.escapeHtml(c.customer_name || c.customerName || 'Guest')}</td>
+            <td>${Admin.Utils.escapeHtml(email || '-')}</td>
+            <td>${c.items?.length || 0} items</td>
+            <td style="text-align: right; font-weight: 600;">${Admin.Utils.formatCurrency(c.total || 0)}</td>
+            <td>${Admin.Utils.formatDate(c.created_at || c.createdAt)}</td>
+            <td><span class="status-badge ${status}">${status}</span></td>
+            <td>
+              <div class="action-buttons">
+                <button class="action-btn" title="View Details" onclick="viewCheckout('${c.id}')">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                  </svg>
+                </button>
+                ${hasEmail && status !== 'recovered' ? `
+                  <button class="action-btn primary" title="Send Recovery Email" onclick="sendRecoveryEmail('${c.id}')">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                    </svg>
+                  </button>
+                ` : ''}
+                ${status !== 'recovered' ? `
+                  <button class="action-btn success" title="Convert to Draft Order" onclick="convertToDraft('${c.id}')">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                  </button>
+                ` : ''}
+                <button class="action-btn danger" title="Delete" onclick="deleteCheckout('${c.id}')">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                  </svg>
+                </button>
+              </div>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function renderEmptyState() {
+      document.getElementById('checkoutsTable').innerHTML = `
+        <tr><td colspan="8">
+          <div class="empty-state">
+            <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="color: #9CA3AF; margin-bottom: 16px;">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.707.707 1.707H17m0 0a2 2 0 100 4 2 2 0 000-4zm-8 2a2 2 0 11-4 0 2 2 0 014 0z" />
+            </svg>
+            <h3>No abandoned checkouts</h3>
+            <p>Abandoned checkouts will appear here when customers leave items in their cart</p>
+          </div>
+        </td></tr>
+      `;
     }
 
     function updateStats() {
-      const total = checkouts.length;
-      const revenue = checkouts.reduce((sum, c) => sum + (c.total || 0), 0);
-      const recovered = checkouts.filter(c => c.status === 'recovered').length;
-
-      document.getElementById('totalAbandoned').textContent = total;
-      document.getElementById('potentialRevenue').textContent = Admin.Utils.formatCurrency(revenue);
-      document.getElementById('recovered').textContent = recovered;
+      document.getElementById('totalAbandoned').textContent = stats.abandoned || 0;
+      document.getElementById('potentialRevenue').textContent = Admin.Utils.formatCurrency(stats.potentialRevenue || 0);
+      document.getElementById('emailedCount').textContent = stats.emailed || 0;
+      document.getElementById('recovered').textContent = stats.recovered || 0;
     }
+
+    function updatePagination() {
+      const start = totalCheckouts > 0 ? (currentPage - 1) * perPage + 1 : 0;
+      const end = Math.min(currentPage * perPage, totalCheckouts);
+      const totalPages = Math.ceil(totalCheckouts / perPage);
+
+      document.getElementById('paginationInfo').textContent = totalCheckouts > 0
+        ? `Showing ${start}-${end} of ${totalCheckouts} checkouts`
+        : 'Showing 0 checkouts';
+
+      document.getElementById('prevBtn').disabled = currentPage === 1;
+      document.getElementById('nextBtn').disabled = currentPage >= totalPages;
+    }
+
+    function prevPage() {
+      if (currentPage > 1) {
+        currentPage--;
+        loadCheckouts();
+      }
+    }
+
+    function nextPage() {
+      currentPage++;
+      loadCheckouts();
+    }
+
+    function viewCheckout(id) {
+      const checkout = checkouts.find(c => c.id === id);
+      if (!checkout) return;
+
+      const email = checkout.customer_email || checkout.customerEmail || 'N/A';
+      const status = checkout.status || 'abandoned';
+      const items = checkout.items || [];
+
+      let itemsHtml = '';
+      if (items.length > 0) {
+        itemsHtml = `
+          <div class="items-list">
+            ${items.map(item => `
+              <div class="item-row">
+                <div>
+                  <strong>${Admin.Utils.escapeHtml(item.name || item.product_name || 'Product')}</strong>
+                  ${item.quantity > 1 ? `<span style="color: #6D7175;"> x${item.quantity}</span>` : ''}
+                </div>
+                <div>${Admin.Utils.formatCurrency(item.price || item.total || 0)}</div>
+              </div>
+            `).join('')}
+          </div>
+        `;
+      }
+
+      document.getElementById('checkoutModalContent').innerHTML = `
+        <div style="margin-bottom: 20px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+            <h4 style="margin: 0;">Checkout #${checkout.id?.slice(0, 8)}</h4>
+            <span class="status-badge ${status}">${status}</span>
+          </div>
+          <p style="color: #6D7175; font-size: 14px; margin: 0;">
+            Created: ${Admin.Utils.formatDateTime(checkout.created_at || checkout.createdAt)}
+          </p>
+        </div>
+
+        <div style="background: #f8fafc; padding: 16px; border-radius: 8px; margin-bottom: 16px;">
+          <h5 style="margin: 0 0 12px 0; font-size: 14px; text-transform: uppercase; color: #6D7175;">Customer</h5>
+          <p style="margin: 0 0 4px 0;"><strong>${Admin.Utils.escapeHtml(checkout.customer_name || checkout.customerName || 'Guest')}</strong></p>
+          <p style="margin: 0; color: #6D7175;">${Admin.Utils.escapeHtml(email)}</p>
+        </div>
+
+        <div style="background: #f8fafc; padding: 16px; border-radius: 8px; margin-bottom: 16px;">
+          <h5 style="margin: 0 0 12px 0; font-size: 14px; text-transform: uppercase; color: #6D7175;">Cart Contents</h5>
+          <p style="margin: 0;"><strong>${items.length} item(s)</strong></p>
+          ${itemsHtml}
+          <div style="margin-top: 12px; padding-top: 12px; border-top: 2px solid #e5e7eb; display: flex; justify-content: space-between;">
+            <strong>Total Value</strong>
+            <strong style="color: #047857;">${Admin.Utils.formatCurrency(checkout.total || 0)}</strong>
+          </div>
+        </div>
+
+        ${checkout.emailHistory && checkout.emailHistory.length > 0 ? `
+          <div style="background: #E8F4FD; padding: 16px; border-radius: 8px;">
+            <h5 style="margin: 0 0 12px 0; font-size: 14px; text-transform: uppercase; color: #2C6ECB;">Email History</h5>
+            ${checkout.emailHistory.map(e => `
+              <p style="margin: 4px 0; font-size: 13px;">
+                ${e.type} email sent on ${Admin.Utils.formatDateTime(e.sentAt)} by ${e.sentBy}
+              </p>
+            `).join('')}
+          </div>
+        ` : ''}
+      `;
+
+      // Update footer with action buttons
+      const hasEmail = !!(checkout.customer_email || checkout.customerEmail);
+      document.getElementById('checkoutModalFooter').innerHTML = `
+        ${status !== 'recovered' && hasEmail ? `
+          <button class="btn btn-secondary" onclick="sendRecoveryEmail('${id}'); closeModal();">
+            Send Recovery Email
+          </button>
+        ` : ''}
+        ${status !== 'recovered' ? `
+          <button class="btn btn-primary" onclick="convertToDraft('${id}'); closeModal();">
+            Convert to Draft Order
+          </button>
+        ` : ''}
+        <button type="button" class="btn btn-secondary" onclick="closeModal()">Close</button>
+      `;
+
+      document.getElementById('checkoutModal').style.display = 'flex';
+    }
+
+    function closeModal() {
+      document.getElementById('checkoutModal').style.display = 'none';
+    }
+
+    async function sendRecoveryEmail(id) {
+      if (!confirm('Send recovery email to this customer?')) return;
+
+      try {
+        const response = await fetch(`/api/admin/abandoned-checkouts/${id}/send-recovery`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${Admin.Auth.getToken()}`,
+            'Content-Type': 'application/json'
+          }
+        });
+        const data = await response.json();
+
+        if (data.success) {
+          Admin.Toast.success(data.message || 'Recovery email sent');
+          loadCheckouts();
+        } else {
+          Admin.Toast.error(data.error || 'Failed to send email');
+        }
+      } catch (error) {
+        console.error('Error sending recovery email:', error);
+        Admin.Toast.error('Failed to send recovery email');
+      }
+    }
+
+    async function convertToDraft(id) {
+      if (!confirm('Convert this abandoned checkout to a draft order?')) return;
+
+      try {
+        const response = await fetch(`/api/admin/abandoned-checkouts/${id}/convert-to-draft`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${Admin.Auth.getToken()}`,
+            'Content-Type': 'application/json'
+          }
+        });
+        const data = await response.json();
+
+        if (data.success) {
+          Admin.Toast.success(`Converted to draft order ${data.draftOrder.draftNumber}`);
+          loadCheckouts();
+        } else {
+          Admin.Toast.error(data.error || 'Failed to convert');
+        }
+      } catch (error) {
+        console.error('Error converting to draft:', error);
+        Admin.Toast.error('Failed to convert to draft order');
+      }
+    }
+
+    async function updateStatus(id, status) {
+      try {
+        const response = await fetch(`/api/admin/abandoned-checkouts/${id}/status`, {
+          method: 'PUT',
+          headers: {
+            'Authorization': `Bearer ${Admin.Auth.getToken()}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ status })
+        });
+        const data = await response.json();
+
+        if (data.success) {
+          Admin.Toast.success(`Status updated to ${status}`);
+          loadCheckouts();
+        } else {
+          Admin.Toast.error(data.error || 'Failed to update status');
+        }
+      } catch (error) {
+        console.error('Error updating status:', error);
+        Admin.Toast.error('Failed to update status');
+      }
+    }
+
+    async function deleteCheckout(id) {
+      if (!confirm('Are you sure you want to delete this abandoned checkout?')) return;
+
+      try {
+        const response = await fetch(`/api/admin/abandoned-checkouts/${id}`, {
+          method: 'DELETE',
+          headers: { 'Authorization': `Bearer ${Admin.Auth.getToken()}` }
+        });
+        const data = await response.json();
+
+        if (data.success) {
+          Admin.Toast.success('Abandoned checkout deleted');
+          loadCheckouts();
+        } else {
+          Admin.Toast.error(data.error || 'Failed to delete');
+        }
+      } catch (error) {
+        console.error('Error deleting checkout:', error);
+        Admin.Toast.error('Failed to delete checkout');
+      }
+    }
+
+    function debounce(func, wait) {
+      let timeout;
+      return function executedFunction(...args) {
+        const later = () => {
+          clearTimeout(timeout);
+          func(...args);
+        };
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+      };
+    }
+
+    // Close modal on background click
+    document.getElementById('checkoutModal').addEventListener('click', function(e) {
+      if (e.target === this) {
+        closeModal();
+      }
+    });
   </script>
 </body>
 </html>

@@ -40,21 +40,36 @@
     body {
       font-family: 'Montserrat', sans-serif;
       font-size: 14px;
-      line-height: 1.6;
+      line-height: 1.7;
       color: #8E6545;
       background-color: #F6F1EB;
+      font-weight: 400;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      text-rendering: optimizeLegibility;
     }
 
     a {
       text-decoration: none;
       color: inherit;
+      transition: color 0.2s ease;
     }
 
     button {
       cursor: pointer;
       border: none;
       background: none;
-      font-family: inherit;
+      font-family: 'Montserrat', sans-serif;
+    }
+
+    input, select, textarea {
+      font-family: 'Montserrat', sans-serif;
+    }
+
+    h1, h2, h3, h4, h5, h6 {
+      font-family: 'Montserrat', sans-serif;
+      letter-spacing: -0.02em;
+      font-weight: 600;
     }
 
     /* ============================================
@@ -115,7 +130,7 @@
        ============================================ */
     .main-header {
       background-color: #FFFFFF;
-      height: 70px;
+      height: 120px;
       display: flex;
       align-items: center;
       border-bottom: 1px solid var(--border-light);
@@ -134,6 +149,12 @@
       display: flex;
       align-items: center;
       gap: 8px;
+    }
+
+    .logo-img {
+      height: 100px !important;
+      width: auto !important;
+      border-radius: 8px;
     }
 
     .logo-icon {
@@ -175,6 +196,7 @@
       display: flex;
       align-items: center;
       gap: 5px;
+      letter-spacing: 0.02em;
     }
 
     .main-nav a:hover {
@@ -434,24 +456,28 @@
 
     .breadcrumb-label {
       color: var(--golden-brown);
-      font-size: 13px;
+      font-size: 12px;
       font-weight: 500;
-      margin-bottom: 10px;
+      margin-bottom: 12px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
     }
 
     .product-title {
-      font-size: 22px;
+      font-size: 26px;
       font-weight: 600;
       color: var(--text-brown);
-      line-height: 1.4;
-      margin-bottom: 15px;
+      line-height: 1.35;
+      margin-bottom: 16px;
+      letter-spacing: -0.02em;
     }
 
     .product-description {
-      font-size: 13px;
+      font-size: 14px;
       color: var(--text-light);
-      line-height: 1.7;
-      margin-bottom: 20px;
+      line-height: 1.75;
+      margin-bottom: 24px;
+      font-weight: 400;
     }
 
     .product-price-container {
@@ -468,15 +494,17 @@
     }
 
     .price-label {
-      font-size: 14px;
+      font-size: 13px;
       color: #666666;
       font-weight: 500;
+      letter-spacing: 0.01em;
     }
 
     .product-price {
-      font-size: 24px;
+      font-size: 28px;
       font-weight: 700;
       color: var(--text-dark);
+      letter-spacing: -0.02em;
     }
 
     /* Configuration Section */
@@ -490,10 +518,12 @@
       color: var(--text-dark);
       margin-bottom: 10px;
       display: block;
+      letter-spacing: 0.02em;
     }
 
     .config-label .required {
       color: var(--error-red);
+      font-weight: 500;
     }
 
     /* Dimension Inputs */
@@ -601,12 +631,13 @@
       justify-content: space-between;
       align-items: center;
       background: #F5F0EB;
-      font-size: 16px;
-      font-weight: 500;
+      font-size: 15px;
+      font-weight: 600;
       color: #8E6545;
       text-align: left;
       cursor: pointer;
       transition: background 0.3s ease;
+      letter-spacing: 0.01em;
     }
 
     .accordion-header:hover {
@@ -669,11 +700,12 @@
     }
 
     .swatch-label {
-      font-size: 14px;
+      font-size: 13px;
       color: #8E6545;
       margin-bottom: 12px;
       display: block;
-      font-weight: 500;
+      font-weight: 600;
+      letter-spacing: 0.02em;
     }
 
     .color-swatch {
@@ -737,11 +769,12 @@
     }
 
     .hardware-label {
-      font-size: 14px;
+      font-size: 13px;
       color: #8E6545;
       margin-bottom: 12px;
       display: block;
-      font-weight: 500;
+      font-weight: 600;
+      letter-spacing: 0.02em;
     }
 
     .hardware-swatches {
@@ -885,9 +918,10 @@
     }
 
     .sale-price {
-      font-size: 28px;
+      font-size: 32px;
       font-weight: 700;
       color: var(--golden-brown);
+      letter-spacing: -0.02em;
     }
 
     /* Action Buttons */
@@ -899,44 +933,50 @@
 
     .btn-add-cart {
       flex: 1;
-      padding: 15px 25px;
+      padding: 16px 28px;
       background: var(--golden-brown);
       color: white;
-      border-radius: 8px;
-      font-size: 16px;
-      font-weight: 500;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 600;
       display: inline-flex;
       align-items: center;
       justify-content: center;
       gap: 12px;
       transition: all 0.3s ease;
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
     }
 
     .btn-add-cart:hover {
       background: var(--golden-brown-dark);
       transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(142, 101, 69, 0.3);
     }
 
     .btn-quote {
       flex: 1;
-      padding: 15px 25px;
+      padding: 16px 28px;
       border: 2px solid var(--golden-brown);
       color: var(--golden-brown);
-      border-radius: 8px;
-      font-size: 16px;
-      font-weight: 500;
+      border-radius: 10px;
+      font-size: 14px;
+      font-weight: 600;
       background: transparent;
       display: inline-flex;
       align-items: center;
       justify-content: center;
       gap: 12px;
       transition: all 0.3s ease;
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
     }
 
     .btn-quote:hover {
       background: var(--golden-brown);
       color: white;
       transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(142, 101, 69, 0.3);
     }
 
     /* Shop Pay Button */
@@ -1004,11 +1044,12 @@
       justify-content: space-between;
       align-items: center;
       background: #F5F0EB;
-      font-size: 18px;
-      font-weight: 500;
+      font-size: 17px;
+      font-weight: 600;
       color: #8E6545;
       cursor: pointer;
       transition: background 0.3s ease;
+      letter-spacing: 0.01em;
     }
 
     .product-details-header:hover {
@@ -1041,11 +1082,12 @@
     }
 
     .details-content h4 {
-      font-size: 16px;
+      font-size: 15px;
       font-weight: 600;
       color: #8E6545;
-      margin-bottom: 12px;
-      margin-top: 18px;
+      margin-bottom: 14px;
+      margin-top: 22px;
+      letter-spacing: 0.02em;
     }
 
     .details-content h4:first-child {
@@ -1056,14 +1098,16 @@
       list-style: disc;
       margin-left: 20px;
       color: #666666;
-      font-size: 15px;
-      line-height: 1.9;
+      font-size: 14px;
+      line-height: 1.85;
+      font-weight: 400;
     }
 
     .details-content p {
       color: #666666;
-      font-size: 15px;
+      font-size: 14px;
       line-height: 1.8;
+      font-weight: 400;
     }
 
     /* Catalog Content Styles */
@@ -1162,15 +1206,19 @@
 
     .faq-subtitle {
       color: var(--text-muted);
-      font-size: 14px;
-      margin-bottom: 5px;
+      font-size: 12px;
+      margin-bottom: 8px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      font-weight: 500;
     }
 
     .faq-title {
-      font-size: 26px;
+      font-size: 28px;
       font-weight: 600;
       color: var(--text-brown);
-      margin-bottom: 30px;
+      margin-bottom: 32px;
+      letter-spacing: -0.02em;
     }
 
     .faq-item {
@@ -1187,11 +1235,12 @@
       display: flex;
       justify-content: space-between;
       align-items: center;
-      font-size: 14px;
+      font-size: 15px;
       font-weight: 500;
       color: var(--text-brown);
       background: var(--bg-white);
       text-align: left;
+      letter-spacing: 0.01em;
     }
 
     .faq-question:hover {
@@ -1242,15 +1291,19 @@
 
     .trends-subtitle {
       color: var(--text-muted);
-      font-size: 14px;
-      margin-bottom: 5px;
+      font-size: 12px;
+      margin-bottom: 8px;
+      letter-spacing: 0.1em;
+      text-transform: uppercase;
+      font-weight: 500;
     }
 
     .trends-title {
-      font-size: 26px;
+      font-size: 28px;
       font-weight: 600;
       color: var(--text-brown);
-      margin-bottom: 30px;
+      margin-bottom: 32px;
+      letter-spacing: -0.02em;
     }
 
     .trends-grid {
@@ -1299,21 +1352,23 @@
     }
 
     .product-card-title {
-      font-size: 13px;
+      font-size: 14px;
       font-weight: 500;
       color: var(--text-dark);
-      margin-bottom: 8px;
-      line-height: 1.4;
+      margin-bottom: 10px;
+      line-height: 1.45;
       display: -webkit-box;
       -webkit-line-clamp: 2;
       -webkit-box-orient: vertical;
       overflow: hidden;
+      letter-spacing: 0.01em;
     }
 
     .product-card-price {
-      font-size: 15px;
+      font-size: 16px;
       font-weight: 600;
       color: var(--golden-brown);
+      letter-spacing: -0.01em;
     }
 
     /* ============================================
@@ -1346,6 +1401,12 @@
       align-items: center;
       gap: 8px;
       margin-bottom: 15px;
+    }
+
+    .footer-logo .logo-img,
+    .footer-brand .logo-img {
+      height: 80px !important;
+      width: auto !important;
     }
 
     .footer-logo .logo-icon {
@@ -1388,10 +1449,12 @@
     }
 
     .footer-column h4 {
-      font-size: 14px;
+      font-size: 13px;
       font-weight: 600;
       color: var(--text-dark);
-      margin-bottom: 18px;
+      margin-bottom: 20px;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
     }
 
     .footer-column ul {
@@ -1399,12 +1462,14 @@
     }
 
     .footer-column ul li {
-      margin-bottom: 10px;
+      margin-bottom: 12px;
     }
 
     .footer-column ul a {
-      font-size: 13px;
+      font-size: 14px;
       color: var(--text-light);
+      font-weight: 400;
+      letter-spacing: 0.01em;
     }
 
     .footer-column ul a:hover {
@@ -1479,6 +1544,7 @@
       font-size: 18px;
       font-weight: 600;
       color: var(--text-brown);
+      letter-spacing: -0.01em;
     }
 
     .modal-close {
@@ -1509,9 +1575,10 @@
     .form-group label {
       display: block;
       font-size: 13px;
-      font-weight: 500;
+      font-weight: 600;
       color: var(--text-dark);
       margin-bottom: 8px;
+      letter-spacing: 0.02em;
     }
 
     .form-group input,
@@ -1536,17 +1603,20 @@
 
     .submit-btn {
       width: 100%;
-      padding: 15px;
+      padding: 16px;
       background: var(--golden-brown);
       color: white;
-      border-radius: 8px;
+      border-radius: 10px;
       font-size: 14px;
       font-weight: 600;
       transition: all 0.3s ease;
+      letter-spacing: 0.03em;
+      text-transform: uppercase;
     }
 
     .submit-btn:hover {
       background: var(--golden-brown-dark);
+      box-shadow: 0 6px 20px rgba(142, 101, 69, 0.3);
     }
 
     /* Simulator Modal */
@@ -1762,10 +1832,11 @@
 
     .zoom-caption {
       color: #ffffff;
-      font-size: 16px;
+      font-size: 15px;
       font-weight: 500;
       margin-top: 15px;
       text-shadow: 0 2px 4px rgba(0, 0, 0, 0.5);
+      letter-spacing: 0.02em;
     }
 
     .zoom-controls {
@@ -2001,21 +2072,21 @@
       <div class="product-gallery">
         <div class="gallery-wrapper">
           <div class="thumbnail-column">
-            <div class="thumb-item active" onclick="changeImage(this, 'https://images.unsplash.com/photo-1615874959474-d609969a20ed?w=800')">
-              <img src="https://images.unsplash.com/photo-1615874959474-d609969a20ed?w=100" alt="Thumbnail 1">
+            <div class="thumb-item active" onclick="changeImage(this, '/images/products/roller-blinds/gallery-1.jpg')">
+              <img src="/images/products/roller-blinds/gallery-1.jpg" alt="Roller Blinds View 1">
             </div>
-            <div class="thumb-item" onclick="changeImage(this, 'https://images.unsplash.com/photo-1616046229478-9901c5536a45?w=800')">
-              <img src="https://images.unsplash.com/photo-1616046229478-9901c5536a45?w=100" alt="Thumbnail 2">
+            <div class="thumb-item" onclick="changeImage(this, '/images/products/roller-blinds/gallery-2.jpg')">
+              <img src="/images/products/roller-blinds/gallery-2.jpg" alt="Roller Blinds View 2">
             </div>
-            <div class="thumb-item" onclick="changeImage(this, 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=800')">
-              <img src="https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=100" alt="Thumbnail 3">
+            <div class="thumb-item" onclick="changeImage(this, '/images/products/roller-blinds/gallery-3.jpg')">
+              <img src="/images/products/roller-blinds/gallery-3.jpg" alt="Roller Blinds View 3">
             </div>
-            <div class="thumb-item" onclick="changeImage(this, 'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=800')">
-              <img src="https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=100" alt="Thumbnail 4">
+            <div class="thumb-item" onclick="changeImage(this, '/images/products/roller-blinds/gallery-4.jpg')">
+              <img src="/images/products/roller-blinds/gallery-4.jpg" alt="Roller Blinds View 4">
             </div>
           </div>
           <div class="main-image">
-            <img id="mainProductImage" src="https://images.unsplash.com/photo-1615874959474-d609969a20ed?w=800" alt="Product Image">
+            <img id="mainProductImage" src="/images/products/roller-blinds/gallery-1.jpg" alt="Roller Blinds Product Image">
           </div>
         </div>
 

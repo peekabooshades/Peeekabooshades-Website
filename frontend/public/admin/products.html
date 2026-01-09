@@ -6,6 +6,22 @@
   <title>Products - Peekaboo Shades Admin</title>
   <link rel="stylesheet" href="css/admin.css">
   <link rel="icon" type="image/png" href="/images/favicon.png">
+  <style>
+    .loading-spinner {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      border: 3px solid #e5e7eb;
+      border-top-color: #8E6545;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      vertical-align: middle;
+      margin-right: 8px;
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+  </style>
 </head>
 <body>
   <div class="admin-layout">
@@ -13,7 +29,7 @@
     <aside class="admin-sidebar">
       <div class="sidebar-header">
         <a href="/admin/" class="sidebar-logo">
-          <img src="/images/logo.png" alt="Logo" onerror="this.style.display='none'">
+          <img src="/images/peekabooshades_logo.jpeg" alt="Peekaboo Shades" style="height: 32px; width: auto; border-radius: 6px;">
           <span>Peekaboo Shades</span>
         </a>
       </div>
@@ -199,42 +215,66 @@
 
   <script src="js/admin.js"></script>
   <script>
-    // Require authentication
-    if (!Admin.Auth.requireAuth()) {
-      // Will redirect
-    } else {
-      loadProducts();
-      loadCategories();
-      loadMargins();
-      initFilters();
-    }
-
     let allProducts = [];
     let categories = [];
-    let productMargins = {}; // Store margins by product ID
-    let productPrices = {}; // Store manufacturer and customer prices per product
+    let productMargins = {};
+    let productPrices = {};
+
+    // Fast initialization
+    (function init() {
+      if (!Admin.Auth.requireAuth()) return;
+
+      // Show loading state immediately
+      const table = document.getElementById('products-table');
+      if (table) table.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:40px;"><div class="loading-spinner"></div> Loading...</td></tr>';
+
+      // Load in parallel for speed
+      Promise.allSettled([
+        loadProducts(),
+        loadCategories(),
+        loadMargins()
+      ]);
+
+      initFilters();
+    })();
 
     async function loadProducts() {
+      const table = document.getElementById('products-table');
+
       try {
-        // Load margins first if not already loaded
-        if (Object.keys(productMargins).length === 0) {
-          await loadMargins();
+        // Try admin API first
+        let response = await fetch('/api/admin/products', {
+          headers: { 'Authorization': 'Bearer ' + Admin.Auth.getToken() }
+        });
+        let data = await response.json();
+
+        // If auth fails, try public API as fallback
+        if (!data.success && (data.error?.includes('token') || data.error?.includes('auth') || data.error?.includes('login'))) {
+          console.log('Auth failed, trying public API...');
+          response = await fetch('/api/products');
+          data = await response.json();
         }
-        const data = await Admin.ProductsAPI.getAll();
+
         if (data.success) {
-          // API returns data.data array, not data.products
           allProducts = data.data || data.products || [];
           renderProducts(allProducts);
+        } else {
+          throw new Error(data.error || 'API error');
         }
       } catch (error) {
-        Admin.Toast.error('Failed to load products');
-        document.getElementById('products-table').innerHTML = `
-          <tr>
-            <td colspan="8" style="text-align: center; padding: 60px; color: var(--admin-text-secondary);">
-              Failed to load products. <a href="#" onclick="loadProducts(); return false;">Try again</a>
-            </td>
-          </tr>
-        `;
+        console.error('Load products error:', error);
+        if (table) {
+          table.innerHTML = `
+            <tr>
+              <td colspan="8" style="text-align: center; padding: 60px;">
+                <div style="color: #dc2626; margin-bottom: 12px;">Failed to load products</div>
+                <div style="color: #6b7280; font-size: 13px; margin-bottom: 16px;">${error.message || 'Unknown error'}</div>
+                <button onclick="loadProducts()" class="btn btn-primary">Retry</button>
+                <button onclick="Admin.Auth.logout()" class="btn btn-secondary" style="margin-left: 8px;">Re-login</button>
+              </td>
+            </tr>
+          `;
+        }
       }
     }
 

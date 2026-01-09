@@ -507,7 +507,7 @@
 <body>
   <header class="dealer-header">
     <div class="dealer-header-left">
-      <img src="/images/logo-white.png" alt="Peekaboo Shades" onerror="this.src='/images/logo.png'">
+      <img src="/images/peekabooshades_logo.jpeg" alt="Peekaboo Shades" style="height: 36px; width: auto;">
       <h1>Dealer Portal</h1>
       <span id="tier-badge" class="tier-badge">Bronze</span>
     </div>
@@ -1581,14 +1581,124 @@
       window.location.href = '/dealer/login.html';
     }
 
+    // Load hardware options from database to get current prices
+    let hardwareOptions = {};
+    let motorBrands = [];
+
+    async function loadHardwareOptions() {
+      try {
+        const [hardwareRes, motorRes] = await Promise.all([
+          fetch('/api/product-content/hardware'),
+          fetch('/api/motor-brands')
+        ]);
+
+        const hardwareData = await hardwareRes.json();
+        const motorData = await motorRes.json();
+
+        if (hardwareData.success) {
+          hardwareOptions = hardwareData.hardware || {};
+        }
+        if (motorData.success) {
+          motorBrands = motorData.data || [];
+        }
+
+        // Render hardware options with current prices
+        renderHardwareOptions();
+        console.log('Hardware options loaded:', Object.keys(hardwareOptions).length, 'categories');
+      } catch (error) {
+        console.error('Failed to load hardware options:', error);
+      }
+    }
+
+    function renderHardwareOptions() {
+      // Render Motor Brands
+      const motorContainer = document.getElementById('motor-options');
+      if (motorContainer && motorBrands.length > 0) {
+        const relevantMotors = motorBrands.filter(m =>
+          m.id === 'motor-aok' || m.id === 'motor-aok-remote' || m.id === 'motor-dooya'
+        );
+        if (relevantMotors.length > 0) {
+          motorContainer.innerHTML = relevantMotors.map((m, i) => `
+            <div class="hardware-option ${i === 0 ? 'selected' : ''}" data-value="${m.id.replace('motor-', '')}" onclick="selectHardware(this, 'motor')">
+              <div class="name">${m.name || m.id}</div>
+              <div class="price">+$${(m.price || 0).toFixed(2)}</div>
+            </div>
+          `).join('');
+        }
+      }
+
+      // Render Remote Types
+      const remoteContainer = document.getElementById('remote-options');
+      const remoteTypes = hardwareOptions.remoteType || [];
+      if (remoteContainer && remoteTypes.length > 0) {
+        remoteContainer.innerHTML = remoteTypes.filter(r => r.isActive !== false).map((r, i) => `
+          <div class="hardware-option ${i === 0 ? 'selected' : ''}" data-value="${r.value}" onclick="selectHardware(this, 'remote')">
+            <div class="name">${r.label || r.value}</div>
+            <div class="price">+$${(r.price || 0).toFixed(2)}</div>
+          </div>
+        `).join('');
+      }
+
+      // Render Solar Panel
+      const solarContainer = document.getElementById('solar-options');
+      const solarOptions = hardwareOptions.solarPanel || [];
+      if (solarContainer && solarOptions.length > 0) {
+        solarContainer.innerHTML = solarOptions.filter(s => s.isActive !== false).map((s, i) => `
+          <div class="hardware-option ${i === 0 ? 'selected' : ''}" data-value="${s.value}" onclick="selectHardware(this, 'solar')">
+            <div class="name">${s.value === 'yes' ? 'Add Solar Panel' : 'No Solar'}</div>
+            <div class="price">${s.price > 0 ? '+$' + s.price.toFixed(2) : 'Included'}</div>
+          </div>
+        `).join('');
+      }
+
+      // Render Valance Types
+      const valanceContainer = document.getElementById('valance-options');
+      const valanceTypes = hardwareOptions.valanceType || [];
+      if (valanceContainer && valanceTypes.length > 0) {
+        const activeValances = valanceTypes.filter(v => v.isActive !== false);
+        valanceContainer.innerHTML = `
+          <div class="hardware-option selected" data-value="none" onclick="selectHardware(this, 'valance')">
+            <div class="name">No Valance</div>
+            <div class="price">Included</div>
+          </div>
+        ` + activeValances.filter(v => v.price > 0).slice(0, 2).map(v => `
+          <div class="hardware-option" data-value="${v.value}" onclick="selectHardware(this, 'valance')">
+            <div class="name">${v.label || v.value}</div>
+            <div class="price">+$${v.price.toFixed(2)}${v.priceType === 'sqm' ? '/m²' : ''}</div>
+          </div>
+        `).join('');
+      }
+
+      // Render Bottom Rails
+      const railContainer = document.getElementById('rail-options');
+      const bottomRails = hardwareOptions.bottomRail || [];
+      if (railContainer && bottomRails.length > 0) {
+        const activeRails = bottomRails.filter(r => r.isActive !== false);
+        const freeRail = activeRails.find(r => r.price === 0) || activeRails[0];
+        const paidRails = activeRails.filter(r => r.price > 0).slice(0, 2);
+
+        railContainer.innerHTML = `
+          <div class="hardware-option selected" data-value="${freeRail?.value || 'standard'}" onclick="selectHardware(this, 'rail')">
+            <div class="name">${freeRail?.label || 'Standard'}</div>
+            <div class="price">Included</div>
+          </div>
+        ` + paidRails.map(r => `
+          <div class="hardware-option" data-value="${r.value}" onclick="selectHardware(this, 'rail')">
+            <div class="name">${r.label || r.value}</div>
+            <div class="price">+$${r.price.toFixed(2)}${r.priceType === 'sqm' ? '/m²' : ''}</div>
+          </div>
+        `).join('');
+      }
+    }
+
     // Initialize
     async function init() {
       console.log('=== Dealer Portal Initialization Started ===');
 
       try {
-        // Load products and customers in parallel
-        console.log('Loading products and customers...');
-        await Promise.all([loadProducts(), loadCustomers()]);
+        // Load products, customers, and hardware options in parallel
+        console.log('Loading products, customers, and hardware options...');
+        await Promise.all([loadProducts(), loadCustomers(), loadHardwareOptions()]);
         console.log('Products loaded:', products.length, 'Customers loaded:', customers.length);
 
         // Pre-load fabrics with pricing

@@ -5,31 +5,59 @@
 
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap');
 
-/* CSS Variables */
+/* CSS Variables - Professional Peekaboo Shades Theme */
 :root {
+  /* Brand Colors */
   --primary-brown: #8E6545;
   --primary-brown-dark: #7A5639;
-  --secondary-brown: #8E6545;
+  --primary-brown-light: #A67C52;
+  --secondary-brown: #6B4D35;
   --golden-brown: #8E6545;
-  --text-dark: #8E6545;
+  --accent-gold: #C4A882;
+
+  /* Text Colors - Proper contrast for readability */
+  --text-dark: #1a1a2e;
   --text-brown: #8E6545;
-  --text-light: #8E6545;
-  --text-muted: #8E6545;
+  --text-body: #333333;
+  --text-light: #555555;
+  --text-muted: #777777;
+  --text-subtle: #999999;
+
+  /* Background Colors */
   --bg-cream: #FAF8F5;
-  --bg-light: #F5F5F5;
+  --bg-light: #F8F6F3;
   --bg-white: #FFFFFF;
-  --border-light: #E0E0E0;
-  --border-medium: #CCCCCC;
-  --success-green: #28a745;
-  --error-red: #dc3545;
-  --shadow-sm: 0 1px 3px rgba(0,0,0,0.1);
-  --shadow-md: 0 4px 6px rgba(0,0,0,0.1);
-  --shadow-lg: 0 10px 25px rgba(0,0,0,0.15);
+  --bg-overlay: rgba(0, 0, 0, 0.5);
+
+  /* Border Colors */
+  --border-light: #E8E4E0;
+  --border-medium: #D4CEC6;
+  --border-dark: #B8AFA3;
+
+  /* Status Colors */
+  --success-green: #008060;
+  --error-red: #D72C0D;
+  --warning-yellow: #B98900;
+  --info-blue: #2C6ECB;
+
+  /* Shadows - Elegant depth */
+  --shadow-sm: 0 1px 3px rgba(0,0,0,0.08);
+  --shadow-md: 0 4px 12px rgba(0,0,0,0.1);
+  --shadow-lg: 0 10px 30px rgba(0,0,0,0.12);
+  --shadow-xl: 0 20px 50px rgba(0,0,0,0.15);
+  --shadow-hover: 0 8px 25px rgba(142, 101, 69, 0.2);
+
+  /* Border Radius - Refined corners */
   --radius-sm: 4px;
   --radius-md: 8px;
   --radius-lg: 12px;
   --radius-xl: 20px;
-  --transition: all 0.3s ease;
+  --radius-full: 9999px;
+
+  /* Transitions - Smooth animations */
+  --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  --transition-fast: all 0.15s ease;
+  --transition-slow: all 0.5s ease;
 }
 
 /* Reset & Base */
@@ -47,8 +75,10 @@ body {
   font-family: 'Montserrat', sans-serif;
   font-size: 14px;
   line-height: 1.6;
-  color: #8E6545;
+  color: var(--text-body);
   background-color: var(--bg-white);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 a {
@@ -176,7 +206,7 @@ input, select, textarea {
 .main-nav a {
   font-size: 13px;
   font-weight: 500;
-  color: #8E6545;
+  color: var(--text-dark);
   padding: 8px 0;
   position: relative;
 }
@@ -375,7 +405,7 @@ input, select, textarea {
   border-right: none;
   border-radius: 0;
   background-color: var(--bg-white);
-  color: #8E6545;
+  color: var(--text-body);
   font-size: 12px;
   font-weight: 500;
   cursor: pointer;
@@ -473,7 +503,7 @@ input, select, textarea {
   border-radius: var(--radius-md);
   background-color: var(--bg-white);
   font-size: 13px;
-  color: #8E6545;
+  color: var(--text-body);
 }
 
 .filter-btn:hover {
@@ -491,7 +521,7 @@ input, select, textarea {
   background-color: var(--bg-white);
   font-size: 12px;
   font-weight: 500;
-  color: #8E6545;
+  color: var(--text-body);
   cursor: pointer;
   transition: var(--transition);
 }
@@ -512,11 +542,11 @@ input, select, textarea {
   background-color: var(--bg-white);
   font-size: 12px;
   outline: none;
-  color: #8E6545;
+  color: var(--text-body);
 }
 
 .filter-select option {
-  color: #8E6545;
+  color: var(--text-body);
 }
 
 .filter-select:focus {
@@ -530,7 +560,7 @@ input, select, textarea {
 }
 
 .products-count {
-  color: #8E6545;
+  color: var(--text-muted);
   font-size: 12px;
   font-weight: 500;
 }
@@ -542,10 +572,10 @@ input, select, textarea {
   background-color: var(--bg-white);
   font-size: 12px;
   font-weight: 500;
-  color: #8E6545;
+  color: var(--text-body);
   cursor: pointer;
   appearance: none;
-  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%238E6545' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23333333' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
   background-repeat: no-repeat;
   background-position: right 10px center;
   outline: none;
@@ -649,7 +679,7 @@ input, select, textarea {
 .product-title {
   font-size: 14px;
   font-weight: 500;
-  color: #8E6545;
+  color: var(--text-dark);
   margin-bottom: 10px;
   line-height: 1.4;
   display: -webkit-box;

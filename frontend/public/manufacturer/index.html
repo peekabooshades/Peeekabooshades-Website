@@ -531,7 +531,7 @@
   <!-- Header -->
   <header class="mfr-header">
     <div class="mfr-header-left">
-      <img src="/images/logo.png" alt="Logo" onerror="this.style.display='none'">
+      <img src="/images/peekabooshades_logo.jpeg" alt="Peekaboo Shades" style="height: 32px; width: auto; border-radius: 6px;">
       <h1>Manufacturer Portal</h1>
     </div>
     <div class="mfr-header-right">
@@ -939,9 +939,9 @@
                   const smartHubCost = getAccessoryMfrCost('smart-hub') ?? ((parseInt(cfg.smartHubQty) || 0) * 23.50);
                   const usbChargerCost = getAccessoryMfrCost('usb-charger') ?? ((parseInt(cfg.usbChargerQty) || 0) * 5);
                   const fabricCassettes = ['fabric-wrapped-v3', 'fabric-inserted-s1', 'curve-white-s2', 'fabric-wrapped-s3'];
-                  const cassetteCost = getOptionMfrCost('valance_type') ?? (fabricCassettes.includes(cfg.standardCassette) ? (2.20 * areaSqM * 0.5) : 0);
+                  const cassetteCost = getOptionMfrCost('valance_type') ?? (fabricCassettes.includes(cfg.valanceType || cfg.standardCassette) ? (2.20 * areaSqM) : 0);
                   const fabricBars = ['type-c-fabric-wrapped', 'type-b', 'simple-rolling', 'type-d'];
-                  const barCost = getOptionMfrCost('bottom_rail') ?? (fabricBars.includes(cfg.standardBottomBar) ? (2.20 * areaSqM * 0.5) : 0);
+                  const barCost = getOptionMfrCost('bottom_rail') ?? (fabricBars.includes(cfg.bottomRail || cfg.standardBottomBar) ? (2.20 * areaSqM) : 0);
 
                   const mfrCost = baseFabricCost + motorCost + remoteCost + solarCost + smartHubCost + usbChargerCost + cassetteCost + barCost;
                   const lineCost = mfrCost * item.quantity;
@@ -953,8 +953,8 @@
                   <td style="padding: 8px 5px; text-align: center; font-size: 10px; font-weight: 600; border: 1px solid #d1d5db;">${item.width}" x ${item.height}"</td>
                   <td style="padding: 8px 5px; text-align: left; font-size: 10px; font-weight: 600; border: 1px solid #d1d5db; color: #1a1a2e;">${cfg.fabricCode || '-'}</td>
                   <td style="padding: 8px 5px; text-align: left; font-size: 10px; font-weight: 500; border: 1px solid #d1d5db;">${cfg.lightFiltering || '-'}</td>
-                  <td style="padding: 8px 5px; text-align: left; font-size: 10px; font-weight: 500; border: 1px solid #d1d5db;">${cfg.standardCassette || '-'}</td>
-                  <td style="padding: 8px 5px; text-align: left; font-size: 10px; font-weight: 500; border: 1px solid #d1d5db;">${cfg.standardBottomBar || '-'}</td>
+                  <td style="padding: 8px 5px; text-align: left; font-size: 10px; font-weight: 500; border: 1px solid #d1d5db;">${cfg.valanceType || cfg.standardCassette || '-'}</td>
+                  <td style="padding: 8px 5px; text-align: left; font-size: 10px; font-weight: 500; border: 1px solid #d1d5db;">${cfg.bottomRail || cfg.standardBottomBar || '-'}</td>
                   <td style="padding: 8px 5px; text-align: left; font-size: 10px; font-weight: 500; border: 1px solid #d1d5db;">${cfg.rollerType || '-'}</td>
                   <td style="padding: 8px 5px; text-align: left; font-size: 10px; font-weight: 500; border: 1px solid #d1d5db;">${cfg.mountType || '-'}</td>
                   <td style="padding: 8px 5px; text-align: left; font-size: 10px; font-weight: 500; border: 1px solid #d1d5db;">${cfg.chainSide || '-'}</td>
@@ -1002,9 +1002,9 @@
                     const smartHubCost = getAccessoryMfrCost('smart-hub') ?? ((parseInt(cfg.smartHubQty) || 0) * 23.50);
                     const usbChargerCost = getAccessoryMfrCost('usb-charger') ?? ((parseInt(cfg.usbChargerQty) || 0) * 5);
                     const fabricCassettes = ['fabric-wrapped-v3', 'fabric-inserted-s1', 'curve-white-s2', 'fabric-wrapped-s3'];
-                    const cassetteCost = getOptionMfrCost('valance_type') ?? (fabricCassettes.includes(cfg.standardCassette) ? (2.20 * areaSqM * 0.5) : 0);
+                    const cassetteCost = getOptionMfrCost('valance_type') ?? (fabricCassettes.includes(cfg.valanceType || cfg.standardCassette) ? (2.20 * areaSqM) : 0);
                     const fabricBars = ['type-c-fabric-wrapped', 'type-b', 'simple-rolling', 'type-d'];
-                    const barCost = getOptionMfrCost('bottom_rail') ?? (fabricBars.includes(cfg.standardBottomBar) ? (2.20 * areaSqM * 0.5) : 0);
+                    const barCost = getOptionMfrCost('bottom_rail') ?? (fabricBars.includes(cfg.bottomRail || cfg.standardBottomBar) ? (2.20 * areaSqM) : 0);
                     const itemMfrCost = baseFabricCost + motorCost + remoteCost + solarCost + smartHubCost + usbChargerCost + cassetteCost + barCost;
                     return sum + (itemMfrCost * i.quantity);
                   }, 0)).toFixed(2)}</td>
@@ -1075,15 +1075,19 @@
             const usbChargerCost = getAccessoryMfrCost('usb-charger') ?? (usbChargerQty * 5);
 
             // Cassette costs - use snapshot data or calculate
+            // BUG-010 FIX: Check both valanceType and standardCassette field names
             const cassetteCost = getOptionMfrCost('valance_type') ?? (() => {
               const fabricCassettes = ['fabric-wrapped-v3', 'fabric-inserted-s1', 'curve-white-s2', 'fabric-wrapped-s3'];
-              return fabricCassettes.includes(cfg.standardCassette) ? (2.20 * areaSqM * 0.5) : 0;
+              const cassetteValue = cfg.valanceType || cfg.standardCassette;
+              return fabricCassettes.includes(cassetteValue) ? (2.20 * areaSqM) : 0;
             })();
 
             // Bottom bar costs - use snapshot data or calculate
+            // BUG-010 FIX: Check both bottomRail and standardBottomBar field names
             const barCost = getOptionMfrCost('bottom_rail') ?? (() => {
               const fabricBars = ['type-c-fabric-wrapped', 'type-b', 'simple-rolling', 'type-d'];
-              return fabricBars.includes(cfg.standardBottomBar) ? (2.20 * areaSqM * 0.5) : 0;
+              const barValue = cfg.bottomRail || cfg.standardBottomBar;
+              return fabricBars.includes(barValue) ? (2.20 * areaSqM) : 0;
             })();
 
             // Calculate total manufacturer cost
@@ -1151,11 +1155,11 @@
                   </div>
                   <div style="space-y: 8px;">
                     <div style="display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px dashed #e5e7eb;">
-                      <span style="font-size: 12px; color: #4b5563;">Cassette: ${cfg.standardCassette || 'Standard'}</span>
+                      <span style="font-size: 12px; color: #4b5563;">Cassette: ${cfg.valanceType || cfg.standardCassette || 'Standard'}</span>
                       <span style="font-size: 13px; font-weight: 600; color: ${cassetteCost > 0 ? '#0891b2' : '#9ca3af'};">$${cassetteCost.toFixed(2)}</span>
                     </div>
                     <div style="display: flex; justify-content: space-between; padding: 8px 0;">
-                      <span style="font-size: 12px; color: #4b5563;">Bottom Bar: ${cfg.standardBottomBar || 'Standard'}</span>
+                      <span style="font-size: 12px; color: #4b5563;">Bottom Bar: ${cfg.bottomRail || cfg.standardBottomBar || 'Standard'}</span>
                       <span style="font-size: 13px; font-weight: 600; color: ${barCost > 0 ? '#0891b2' : '#9ca3af'};">$${barCost.toFixed(2)}</span>
                     </div>
                   </div>
@@ -1562,11 +1566,11 @@
       const smartHubCost = getAccessoryMfrCost('smart-hub') ?? ((parseInt(cfg.smartHubQty) || 0) * 23.50);
       const usbChargerCost = getAccessoryMfrCost('usb-charger') ?? ((parseInt(cfg.usbChargerQty) || 0) * 5);
 
-      // Cassette and bar costs
+      // Cassette and bar costs - BUG-010 FIX: Check both field names
       const fabricCassettes = ['fabric-wrapped-v3', 'fabric-inserted-s1', 'curve-white-s2', 'fabric-wrapped-s3'];
-      const cassetteCost = getOptionMfrCost('valance_type') ?? (fabricCassettes.includes(cfg.standardCassette) ? (2.20 * areaSqM * 0.5) : 0);
+      const cassetteCost = getOptionMfrCost('valance_type') ?? (fabricCassettes.includes(cfg.valanceType || cfg.standardCassette) ? (2.20 * areaSqM) : 0);
       const fabricBars = ['type-c-fabric-wrapped', 'type-b', 'simple-rolling', 'type-d'];
-      const barCost = getOptionMfrCost('bottom_rail') ?? (fabricBars.includes(cfg.standardBottomBar) ? (2.20 * areaSqM * 0.5) : 0);
+      const barCost = getOptionMfrCost('bottom_rail') ?? (fabricBars.includes(cfg.bottomRail || cfg.standardBottomBar) ? (2.20 * areaSqM) : 0);
 
       return baseFabricCost + motorCost + remoteCost + solarCost + smartHubCost + usbChargerCost + cassetteCost + barCost;
     }
@@ -1769,8 +1773,8 @@
         csv += `${item.height},`;
         csv += `${cfg.fabricCode || '-'},`;
         csv += `${cfg.lightFiltering || '-'},`;
-        csv += `${cfg.standardCassette || '-'},`;
-        csv += `${cfg.standardBottomBar || '-'},`;
+        csv += `${cfg.valanceType || cfg.standardCassette || '-'},`;
+        csv += `${cfg.bottomRail || cfg.standardBottomBar || '-'},`;
         csv += `${cfg.rollerType || '-'},`;
         csv += `${cfg.mountType || '-'},`;
         csv += `${cfg.chainSide || '-'},`;
@@ -1888,8 +1892,8 @@
                     <td>${item.width}" x ${item.height}"</td>
                     <td><strong>${cfg.fabricCode || '-'}</strong></td>
                     <td>${cfg.lightFiltering || '-'}</td>
-                    <td>${cfg.standardCassette || '-'}</td>
-                    <td>${cfg.standardBottomBar || '-'}</td>
+                    <td>${cfg.valanceType || cfg.standardCassette || '-'}</td>
+                    <td>${cfg.bottomRail || cfg.standardBottomBar || '-'}</td>
                     <td>${cfg.rollerType || '-'}</td>
                     <td>${cfg.mountType || '-'}</td>
                     <td>${cfg.controlType || '-'}</td>

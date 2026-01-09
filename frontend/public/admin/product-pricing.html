@@ -33,11 +33,14 @@
     .pricing-table {
       width: 100%;
       border-collapse: collapse;
+      table-layout: fixed;
     }
     .pricing-table th, .pricing-table td {
       padding: 10px 12px;
       text-align: left;
       border-bottom: 1px solid #eee;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
     .pricing-table th {
       background: #f8f9fa;
@@ -45,6 +48,25 @@
       font-size: 12px;
       color: #666;
       text-transform: uppercase;
+      position: relative;
+      user-select: none;
+    }
+    .pricing-table th.resizable {
+      cursor: default;
+    }
+    .pricing-table th .resize-handle {
+      position: absolute;
+      right: 0;
+      top: 0;
+      bottom: 0;
+      width: 5px;
+      cursor: col-resize;
+      background: transparent;
+      transition: background 0.2s;
+    }
+    .pricing-table th .resize-handle:hover,
+    .pricing-table th .resize-handle.dragging {
+      background: #8E6545;
     }
     .pricing-table td {
       font-size: 14px;
@@ -168,7 +190,7 @@
     <aside class="admin-sidebar">
       <div class="sidebar-header">
         <a href="/admin/" class="sidebar-logo">
-          <img src="/images/logo.png" alt="Logo" onerror="this.style.display='none'">
+          <img src="/images/peekabooshades_logo.jpeg" alt="Peekaboo Shades" style="height: 32px; width: auto; border-radius: 6px;">
           <span>Peekaboo Shades</span>
         </a>
       </div>
@@ -465,7 +487,7 @@
       document.getElementById('summary-product-name').textContent = product.name;
       document.getElementById('summary-box').style.display = 'block';
 
-      // Load motor brands, hardware options, and fabric prices in parallel
+      // Load motor brands, hardware options (includes accessories), and fabric prices in parallel
       try {
         const [motorRes, hardwareRes, fabricRes] = await Promise.all([
           fetch('/api/admin/motor-brands', {
@@ -485,7 +507,8 @@
           motorBrands = motorData.data || [];
         }
         if (hardwareData.success) {
-          hardwareOptions = hardwareData.hardware;
+          // Hardware options includes accessories (hardwareOptions.accessories)
+          hardwareOptions = hardwareData.hardware || {};
         }
         if (fabricData.success) {
           fabricPrices = fabricData.data || [];
@@ -544,6 +567,101 @@
       }
     }
 
+    // Make table columns resizable
+    function makeColumnsResizable(tableId) {
+      const table = document.getElementById(tableId);
+      if (!table) return;
+
+      const headers = table.querySelectorAll('th');
+      headers.forEach((th, index) => {
+        // Skip last column
+        if (index === headers.length - 1) return;
+
+        th.classList.add('resizable');
+
+        // Add resize handle
+        const handle = document.createElement('div');
+        handle.className = 'resize-handle';
+        th.appendChild(handle);
+
+        let startX, startWidth;
+
+        handle.addEventListener('mousedown', (e) => {
+          e.preventDefault();
+          startX = e.pageX;
+          startWidth = th.offsetWidth;
+          handle.classList.add('dragging');
+
+          const onMouseMove = (e) => {
+            const diff = e.pageX - startX;
+            const newWidth = Math.max(50, startWidth + diff);
+            th.style.width = newWidth + 'px';
+          };
+
+          const onMouseUp = () => {
+            handle.classList.remove('dragging');
+            document.removeEventListener('mousemove', onMouseMove);
+            document.removeEventListener('mouseup', onMouseUp);
+            // Save column widths to localStorage
+            saveColumnWidths(tableId);
+          };
+
+          document.addEventListener('mousemove', onMouseMove);
+          document.addEventListener('mouseup', onMouseUp);
+        });
+      });
+
+      // Restore saved column widths
+      restoreColumnWidths(tableId);
+    }
+
+    // Save column widths to localStorage
+    function saveColumnWidths(tableId) {
+      const table = document.getElementById(tableId);
+      if (!table) return;
+
+      const widths = [];
+      table.querySelectorAll('th').forEach(th => {
+        widths.push(th.offsetWidth);
+      });
+      localStorage.setItem(`columnWidths_${tableId}`, JSON.stringify(widths));
+    }
+
+    // Restore column widths from localStorage
+    function restoreColumnWidths(tableId) {
+      const saved = localStorage.getItem(`columnWidths_${tableId}`);
+      if (!saved) return;
+
+      try {
+        const widths = JSON.parse(saved);
+        const table = document.getElementById(tableId);
+        if (!table) return;
+
+        table.querySelectorAll('th').forEach((th, index) => {
+          if (widths[index]) {
+            th.style.width = widths[index] + 'px';
+          }
+        });
+      } catch (e) {
+        console.error('Error restoring column widths:', e);
+      }
+    }
+
+    // Reset column widths to default
+    function resetColumnWidths(tableId) {
+      localStorage.removeItem(`columnWidths_${tableId}`);
+      const table = document.getElementById(tableId);
+      if (!table) return;
+
+      // Remove inline width styles
+      table.querySelectorAll('th').forEach(th => {
+        th.style.width = '';
+      });
+
+      // Re-render to apply default widths
+      renderPricingTables();
+    }
+
     function renderPricingTables() {
       const container = document.getElementById('pricing-content');
       let html = '';
@@ -580,6 +698,11 @@
       container.innerHTML = html;
       updateSummary();
       updateSqmCalc();
+
+      // Make fabric prices table columns resizable
+      setTimeout(() => {
+        makeColumnsResizable('fabric-prices-table');
+      }, 100);
     }
 
     // Render Fabric Prices Section
@@ -588,11 +711,17 @@
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
           <div>
             <h3 style="margin:0;">Fabric Prices <span class="badge" style="background:#1565c0;">Per m²</span></h3>
-            <p style="color:#666;font-size:12px;margin:4px 0 0 0;">Base fabric cost per square meter - changes here reflect on customer product page</p>
+            <p style="color:#666;font-size:12px;margin:4px 0 0 0;">Base fabric cost per square meter - changes here reflect on customer product page <span style="color:#8E6545;font-style:italic;">(Drag column edges to resize)</span></p>
           </div>
-          <input type="text" id="fabric-search" placeholder="Search fabric code..."
-                 onkeyup="filterFabricPrices(this.value)"
-                 style="padding:8px 12px;border:1px solid #ddd;border-radius:4px;width:200px;">
+          <div style="display:flex;gap:8px;align-items:center;">
+            <input type="text" id="fabric-search" placeholder="Search fabric code..."
+                   onkeyup="filterFabricPrices(this.value)"
+                   style="padding:8px 12px;border:1px solid #ddd;border-radius:4px;width:200px;">
+            <button onclick="resetColumnWidths('fabric-prices-table')" title="Reset column widths"
+                    style="padding:8px 12px;border:1px solid #ddd;border-radius:4px;background:#f8f9fa;cursor:pointer;font-size:12px;">
+              Reset Widths
+            </button>
+          </div>
         </div>
         <div style="background:linear-gradient(135deg,#e3f2fd 0%,#bbdefb 100%);border-radius:8px;padding:12px;margin-bottom:16px;border-left:4px solid #1565c0;">
           <p style="margin:0;font-size:13px;color:#0d47a1;">
@@ -610,9 +739,9 @@
             <th style="width:90px;">Fabric Code</th>
             <th>Name</th>
             <th style="width:80px;">Manual MFR $/m²</th>
-            <th style="width:55px;">Margin</th>
+            <th style="width:70px;">Margin</th>
             <th style="width:80px;">Cordless MFR $/m²</th>
-            <th style="width:55px;">Margin</th>
+            <th style="width:70px;">Margin</th>
             <th style="width:100px;" id="fabric-calc-header-manual">Manual (${calcW}"x${calcH}")</th>
             <th style="width:100px;" id="fabric-calc-header-cordless">Cordless (${calcW}"x${calcH}")</th>
           </tr>
@@ -654,7 +783,7 @@
           </td>
           <td>
             <input type="number" step="1" min="0" max="500" value="${manualMargin}"
-                   class="price-input" style="width:40px;font-size:12px;"
+                   class="price-input" style="width:55px;font-size:12px;"
                    onchange="updateFabricPrice('${fp.fabricCode}', 'manualMargin', this.value)">%
           </td>
           <td>
@@ -666,7 +795,7 @@
           </td>
           <td>
             <input type="number" step="1" min="0" max="500" value="${cordlessMargin}"
-                   class="price-input" style="width:40px;font-size:12px;"
+                   class="price-input" style="width:55px;font-size:12px;"
                    onchange="updateFabricPrice('${fp.fabricCode}', 'cordlessMargin', this.value)">%
           </td>
           <td class="calculated-price" style="color:#28a745;" id="fabric-calc-manual-${fabricId}">$${manualTotal.toFixed(2)}</td>
@@ -785,7 +914,7 @@
                   onchange="updateMotorBrand('${motor.id}', 'manufacturerCost', this.value)">
               </td>
               <td>
-                <input type="number" class="price-input" value="${margin}" min="0" max="500" step="1" style="width:50px;"
+                <input type="number" class="price-input" value="${margin}" min="0" max="500" step="1" style="width:60px;"
                   onchange="updateMotorBrand('${motor.id}', 'margin', this.value)">%
               </td>
               <td class="calculated-price" id="price-${motor.id}">$${custPrice.toFixed(2)}</td>
@@ -1032,7 +1161,7 @@
                 <span style="font-size:10px;color:#999;">${unit}</span>
               </td>
               <td>
-                <input type="number" class="price-input" value="${margin}" min="0" max="500" step="1" style="width:50px;"
+                <input type="number" class="price-input" value="${margin}" min="0" max="500" step="1" style="width:60px;"
                   onchange="updatePricing('${category}', '${opt.id}', 'margin', this.value)">%
               </td>
               <td class="calculated-price" id="price-${opt.id}">$${custPrice.toFixed(2)}${unit}</td>
@@ -1046,18 +1175,19 @@
     }
 
     function renderAccessoriesSection() {
-      // Load accessories from hardwareOptions (database) or use defaults
+      // Load accessories from hardwareOptions.accessories (loaded from /api/product-content/hardware)
       const dbAccessories = hardwareOptions.accessories || [];
       const accessories = dbAccessories.length > 0 ? dbAccessories.map(acc => ({
-        id: acc.id || acc.value,
-        label: acc.name || acc.label,
-        value: acc.value || acc.id,
+        id: acc.id,
+        label: acc.name || acc.label || acc.id,
+        value: acc.id,
         mfrCost: acc.manufacturerCost || 0,
-        margin: acc.margin || 40
+        margin: acc.margin || 40,
+        currentPrice: acc.price || 0
       })) : [
-        // Fallback defaults if not in database
-        { id: 'smart-hub', label: 'Smart Hub', value: 'smartHub', mfrCost: 23.50, margin: 40 },
-        { id: 'usb-charger', label: 'USB Charger', value: 'usbCharger', mfrCost: 5, margin: 40 },
+        // Fallback defaults if not in database (IDs match hardwareOptions.accessories)
+        { id: 'acc-smart-hub', label: 'Smart Hub', value: 'acc-smart-hub', mfrCost: 23.50, margin: 40 },
+        { id: 'acc-usb-charger', label: 'USB Charger', value: 'acc-usb-charger', mfrCost: 5, margin: 40 },
       ];
 
       let html = `<div class="pricing-card"><h3>Accessories</h3>`;
@@ -1193,63 +1323,112 @@
       saveBtn.disabled = true;
       saveBtn.textContent = 'Saving...';
 
+      let errors = [];
+      let successCount = 0;
+
       try {
+        console.log('Saving changes:', pendingChanges);
+
         for (const key of Object.keys(pendingChanges)) {
           const { category, optionId, changes } = pendingChanges[key];
+          console.log(`Saving ${category}/${optionId}:`, changes);
 
-          if (category === 'fabric') {
-            // Save fabric price per m² with margins to manufacturerPrices collection
-            await fetch(`/api/admin/manufacturer-prices/${encodeURIComponent(optionId)}`, {
-              method: 'PUT',
-              headers: {
-                'Content-Type': 'application/json',
-                'Authorization': 'Bearer ' + Admin.Auth.getToken()
-              },
-              body: JSON.stringify({
-                pricePerSqMeter: changes.pricePerSqMeter,
-                manualMargin: changes.manualMargin,
-                pricePerSqMeterCordless: changes.pricePerSqMeterCordless,
-                cordlessMargin: changes.cordlessMargin
-              })
-            });
-          } else if (category === 'accessories') {
-            // Save to manufacturerPrices collection
-            await fetch('/api/admin/manufacturer-prices', {
-              method: 'POST',
-              headers: {
-                'Content-Type': 'application/json',
-                'Authorization': 'Bearer ' + Admin.Auth.getToken()
-              },
-              body: JSON.stringify({
-                optionType: 'accessory',
-                optionId: optionId,
-                manufacturerCost: changes.mfrCost || 0,
-                margin: changes.margin || 40
-              })
-            });
-          } else {
-            // Get current option values
-            const options = hardwareOptions[category] || [];
-            const opt = options.find(o => o.id === optionId) || {};
-            const mfrCost = changes.manufacturerCost !== undefined ? changes.manufacturerCost : (opt.manufacturerCost || 0);
-            const margin = changes.margin !== undefined ? changes.margin : (opt.margin || 40);
-            const priceType = changes.priceType !== undefined ? changes.priceType : (opt.priceType || 'flat');
+          try {
+            if (category === 'fabric') {
+              // Save fabric price per m² with margins to manufacturerPrices collection
+              const response = await fetch(`/api/admin/manufacturer-prices/${encodeURIComponent(optionId)}`, {
+                method: 'PUT',
+                headers: {
+                  'Content-Type': 'application/json',
+                  'Authorization': 'Bearer ' + Admin.Auth.getToken()
+                },
+                body: JSON.stringify({
+                  pricePerSqMeter: changes.pricePerSqMeter,
+                  manualMargin: changes.manualMargin,
+                  pricePerSqMeterCordless: changes.pricePerSqMeterCordless,
+                  cordlessMargin: changes.cordlessMargin
+                })
+              });
+              const data = await response.json();
+              if (!response.ok || !data.success) {
+                throw new Error(data.error || `Failed to save fabric ${optionId}`);
+              }
+              successCount++;
+            } else if (category === 'accessories') {
+              // Save to hardwareOptions.accessories using the hardware API
+              const mfrCost = changes.mfrCost !== undefined ? changes.mfrCost : 0;
+              const margin = changes.margin !== undefined ? changes.margin : 40;
+              const custPrice = mfrCost * (1 + margin / 100);
 
-            // Update hardware option
-            await Admin.HardwareAPI.updateOption(category, optionId, {
-              manufacturerCost: mfrCost,
-              margin: margin,
-              priceType: priceType,
-              price: mfrCost * (1 + margin / 100)
-            });
+              // Use the hardware API which updates productContent.hardwareOptions.accessories
+              await Admin.HardwareAPI.updateOption('accessories', optionId, {
+                manufacturerCost: mfrCost,
+                margin: margin,
+                price: custPrice
+              });
+              successCount++;
+            } else if (category === 'motorBrands') {
+              // Save motor brands using the motor-brands API
+              const motor = motorBrands.find(m => m.id === optionId) || {};
+              const mfrCost = changes.manufacturerCost !== undefined ? changes.manufacturerCost : (motor.manufacturerCost || 0);
+              const margin = changes.margin !== undefined ? changes.margin : (motor.margin || 40);
+              const custPrice = mfrCost * (1 + margin / 100);
+
+              const response = await fetch(`/api/admin/motor-brands/${encodeURIComponent(optionId)}`, {
+                method: 'PUT',
+                headers: {
+                  'Content-Type': 'application/json',
+                  'Authorization': 'Bearer ' + Admin.Auth.getToken()
+                },
+                body: JSON.stringify({
+                  manufacturerCost: mfrCost,
+                  margin: margin,
+                  price: custPrice
+                })
+              });
+              const data = await response.json();
+              if (!response.ok || !data.success) {
+                throw new Error(data.error || `Failed to save motor brand ${optionId}`);
+              }
+              successCount++;
+            } else {
+              // Get current option values for hardware options
+              const options = hardwareOptions[category] || [];
+              const opt = options.find(o => o.id === optionId) || {};
+              const mfrCost = changes.manufacturerCost !== undefined ? changes.manufacturerCost : (opt.manufacturerCost || 0);
+              const margin = changes.margin !== undefined ? changes.margin : (opt.margin || 40);
+              const priceType = changes.priceType !== undefined ? changes.priceType : (opt.priceType || 'flat');
+
+              // Update hardware option
+              await Admin.HardwareAPI.updateOption(category, optionId, {
+                manufacturerCost: mfrCost,
+                margin: margin,
+                priceType: priceType,
+                price: mfrCost * (1 + margin / 100)
+              });
+              successCount++;
+            }
+          } catch (itemError) {
+            console.error(`Error saving ${category}/${optionId}:`, itemError);
+            errors.push(`${category}/${optionId}: ${itemError.message}`);
           }
         }
 
-        Admin.Toast.success('All changes saved successfully');
-        pendingChanges = {};
-        document.getElementById('save-bar').classList.remove('visible');
+        console.log(`Save complete: ${successCount} succeeded, ${errors.length} failed`);
+
+        if (errors.length === 0) {
+          Admin.Toast.success('All changes saved successfully');
+          pendingChanges = {};
+          document.getElementById('save-bar').classList.remove('visible');
+        } else if (successCount > 0) {
+          Admin.Toast.warning(`Saved ${successCount} items. ${errors.length} failed: ${errors.join(', ')}`);
+          console.error('Save errors:', errors);
+        } else {
+          Admin.Toast.error(`Failed to save: ${errors.join(', ')}`);
+          console.error('Save errors:', errors);
+        }
       } catch (error) {
-        Admin.Toast.error('Failed to save some changes');
+        Admin.Toast.error('Failed to save changes: ' + error.message);
         console.error(error);
       } finally {
         saveBtn.disabled = false;

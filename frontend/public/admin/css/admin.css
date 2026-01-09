@@ -1,21 +1,55 @@
-/* Admin Panel Styles - Shopify-like Design */
+/* Admin Panel Styles - Premium Window Treatment Design */
+/* Inspired by Hunter Douglas, Coulisse, and Lutron interfaces */
+
+@import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap');
 
 :root {
+  /* Brand Colors - Peekaboo Shades */
   --admin-primary: #8E6545;
   --admin-primary-hover: #7A5639;
-  --admin-sidebar-bg: #1A1A1A;
-  --admin-sidebar-hover: #2D2D2D;
-  --admin-sidebar-active: #3D3D3D;
-  --admin-body-bg: #F6F6F7;
+  --admin-primary-light: #A67C52;
+  --admin-primary-subtle: rgba(142, 101, 69, 0.1);
+
+  /* Sidebar - Elegant dark theme */
+  --admin-sidebar-bg: #1a1a2e;
+  --admin-sidebar-hover: #2a2a3e;
+  --admin-sidebar-active: #3a3a4e;
+  --admin-sidebar-border: rgba(255, 255, 255, 0.08);
+
+  /* Background Colors */
+  --admin-body-bg: #F8F6F3;
   --admin-card-bg: #FFFFFF;
-  --admin-text-primary: #202223;
-  --admin-text-secondary: #6D7175;
-  --admin-text-light: #8C9196;
-  --admin-border: #E1E3E5;
+  --admin-card-hover: #FAFAFA;
+
+  /* Text Colors - Proper contrast */
+  --admin-text-primary: #1a1a2e;
+  --admin-text-secondary: #555555;
+  --admin-text-light: #777777;
+  --admin-text-muted: #999999;
+
+  /* Border Colors */
+  --admin-border: #E8E4E0;
+  --admin-border-dark: #D4CEC6;
+
+  /* Status Colors */
   --admin-success: #008060;
+  --admin-success-bg: rgba(0, 128, 96, 0.1);
   --admin-warning: #B98900;
+  --admin-warning-bg: rgba(185, 137, 0, 0.1);
   --admin-error: #D72C0D;
+  --admin-error-bg: rgba(215, 44, 13, 0.1);
   --admin-info: #2C6ECB;
+  --admin-info-bg: rgba(44, 110, 203, 0.1);
+
+  /* Shadows - Elegant depth */
+  --admin-shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.08);
+  --admin-shadow-md: 0 4px 12px rgba(0, 0, 0, 0.1);
+  --admin-shadow-lg: 0 10px 30px rgba(0, 0, 0, 0.12);
+  --admin-shadow-hover: 0 8px 25px rgba(142, 101, 69, 0.15);
+
+  /* Transitions */
+  --admin-transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  --admin-transition-fast: all 0.15s ease;
 }
 
 * {
@@ -25,10 +59,12 @@
 }
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+  font-family: 'Montserrat', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
   background-color: var(--admin-body-bg);
   color: var(--admin-text-primary);
   line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 /* Layout */
@@ -1141,4 +1177,231 @@ body {
     flex: 1;
     min-width: 120px;
   }
+}
+
+/* ============================================
+   PREMIUM ENHANCEMENTS
+   Hunter Douglas / Lutron Inspired
+   ============================================ */
+
+/* Enhanced Cards with subtle hover effects */
+.card {
+  box-shadow: var(--admin-shadow-sm);
+  transition: var(--admin-transition);
+}
+
+.card:hover {
+  box-shadow: var(--admin-shadow-md);
+}
+
+/* Premium Buttons */
+.btn {
+  font-weight: 500;
+  letter-spacing: 0.3px;
+  transition: var(--admin-transition);
+}
+
+.btn-primary {
+  box-shadow: 0 2px 4px rgba(142, 101, 69, 0.2);
+}
+
+.btn-primary:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(142, 101, 69, 0.3);
+}
+
+/* Enhanced Form Inputs */
+.form-input,
+.form-select,
+.form-textarea {
+  transition: var(--admin-transition);
+}
+
+.form-input:hover,
+.form-select:hover,
+.form-textarea:hover {
+  border-color: var(--admin-border-dark);
+}
+
+/* Data Tables Enhancement */
+.admin-table {
+  border-spacing: 0;
+}
+
+.admin-table tbody tr {
+  transition: var(--admin-transition-fast);
+}
+
+.admin-table tbody tr:hover {
+  background-color: var(--admin-primary-subtle);
+}
+
+/* Status Badge Enhancements */
+.badge {
+  font-weight: 500;
+  letter-spacing: 0.2px;
+}
+
+/* Premium Header */
+.admin-header {
+  box-shadow: var(--admin-shadow-sm);
+}
+
+/* Sidebar Branding */
+.sidebar-logo {
+  padding: 8px 0;
+}
+
+.sidebar-logo img {
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+/* Navigation Items */
+.nav-item {
+  font-weight: 500;
+  letter-spacing: 0.2px;
+}
+
+/* Stat Cards Enhancement */
+.stat-card {
+  transition: var(--admin-transition);
+}
+
+.stat-card:hover {
+  transform: translateY(-2px);
+  box-shadow: var(--admin-shadow-md);
+}
+
+/* Page Title Enhancement */
+.page-title {
+  letter-spacing: -0.5px;
+}
+
+/* Modal Enhancement */
+.modal {
+  box-shadow: var(--admin-shadow-lg);
+}
+
+/* Toast Enhancement */
+.toast {
+  backdrop-filter: blur(10px);
+}
+
+/* Action Buttons Enhancement */
+.action-btn {
+  transition: var(--admin-transition);
+}
+
+.action-btn:hover {
+  transform: scale(1.05);
+}
+
+/* Quick Actions Panel */
+.quick-actions {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin-bottom: 24px;
+}
+
+.quick-action-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  background: var(--admin-card-bg);
+  border: 1px solid var(--admin-border);
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--admin-text-primary);
+  cursor: pointer;
+  transition: var(--admin-transition);
+}
+
+.quick-action-btn:hover {
+  border-color: var(--admin-primary);
+  color: var(--admin-primary);
+  background: var(--admin-primary-subtle);
+}
+
+.quick-action-btn svg {
+  width: 16px;
+  height: 16px;
+}
+
+/* Section Dividers */
+.section-divider {
+  height: 1px;
+  background: linear-gradient(to right, transparent, var(--admin-border), transparent);
+  margin: 32px 0;
+}
+
+/* Empty State Enhancement */
+.empty-state {
+  background: linear-gradient(135deg, var(--admin-body-bg) 0%, var(--admin-card-bg) 100%);
+  border-radius: 16px;
+  border: 2px dashed var(--admin-border);
+}
+
+/* Print Styles */
+@media print {
+  .admin-sidebar,
+  .admin-header,
+  .btn,
+  .action-buttons {
+    display: none !important;
+  }
+
+  .admin-main {
+    margin-left: 0 !important;
+  }
+
+  .card {
+    box-shadow: none;
+    border: 1px solid #ddd;
+  }
+}
+
+/* Premium Focus States */
+.btn:focus,
+.form-input:focus,
+.form-select:focus,
+.form-textarea:focus,
+.action-btn:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px var(--admin-primary-subtle);
+}
+
+/* Skeleton Loading States */
+.skeleton {
+  background: linear-gradient(90deg, var(--admin-border) 25%, var(--admin-body-bg) 50%, var(--admin-border) 75%);
+  background-size: 200% 100%;
+  animation: skeleton-loading 1.5s infinite;
+  border-radius: 4px;
+}
+
+@keyframes skeleton-loading {
+  0% { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
+/* Scrollbar Styling */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--admin-body-bg);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--admin-border-dark);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--admin-text-muted);
 }

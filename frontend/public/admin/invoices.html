@@ -90,7 +90,7 @@
     <aside class="admin-sidebar">
       <div class="sidebar-header">
         <a href="/admin/" class="sidebar-logo">
-          <img src="/images/logo.png" alt="Logo" onerror="this.style.display='none'">
+          <img src="/images/peekabooshades_logo.jpeg" alt="Peekaboo Shades" style="height: 32px; width: auto; border-radius: 6px;">
           <span>Peekaboo Shades</span>
         </a>
       </div>
@@ -734,6 +734,69 @@
                 </tbody>
               </table>
             </div>
+
+            <!-- Price Breakdown - CUSTOMER PRICES ONLY -->
+            <h5 style="margin-bottom: 12px; font-size: 13px; text-transform: uppercase; color: #8E6545; font-weight: 600;">
+              Price Breakdown
+            </h5>
+            ${(inv.items || []).filter(item => !item.isAccessory).map((item, idx) => {
+              const pricing = item.pricing || {};
+              const optionsBreakdown = item.optionsBreakdown || [];
+              const accessoriesBreakdown = item.accessoriesBreakdown || [];
+
+              // Customer prices only
+              const baseCustPrice = pricing.fabricBasePrice || pricing.basePrice || 0;
+              const optionsCustTotal = pricing.optionsTotal || optionsBreakdown.reduce((sum, opt) => sum + (opt.price || 0), 0);
+              const accCustTotal = pricing.accessoriesTotal || accessoriesBreakdown.reduce((sum, acc) => sum + (acc.price || 0), 0);
+              const totalCustPrice = baseCustPrice + optionsCustTotal + accCustTotal;
+
+              return '<div style="background: #fff; border: 1px solid #e5e7eb; border-radius: 8px; margin-bottom: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); overflow: hidden;">' +
+                '<div style="display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; background: linear-gradient(135deg, #8E6545 0%, #A67C5B 100%); color: white;">' +
+                  '<span style="font-weight: 600; font-size: 14px;">Item ' + (idx + 1) + ': ' + Admin.Utils.escapeHtml(item.roomLabel || 'Blind') + ' (' + item.width + '" × ' + item.height + '")</span>' +
+                  '<span style="font-size: 12px; background: rgba(255,255,255,0.2); padding: 4px 12px; border-radius: 12px;">Qty: ' + item.quantity + '</span>' +
+                '</div>' +
+                '<table style="width: 100%; border-collapse: collapse;">' +
+                  '<thead>' +
+                    '<tr style="background: #f8f9fa;">' +
+                      '<th style="padding: 10px 16px; text-align: left; font-size: 11px; font-weight: 600; color: #6b7280; text-transform: uppercase; border-bottom: 2px solid #e5e7eb;">Component</th>' +
+                      '<th style="padding: 10px 16px; text-align: right; font-size: 11px; font-weight: 600; color: #059669; text-transform: uppercase; border-bottom: 2px solid #e5e7eb; background: #f0fdf4;">Price</th>' +
+                    '</tr>' +
+                  '</thead>' +
+                  '<tbody>' +
+                    '<tr style="background: #fff;">' +
+                      '<td style="padding: 10px 16px; border-bottom: 1px solid #e5e7eb; font-weight: 600; color: #374151;">Base Fabric</td>' +
+                      '<td style="padding: 10px 16px; border-bottom: 1px solid #e5e7eb; text-align: right; font-weight: 600; color: #059669; background: #f0fdf4;">$' + baseCustPrice.toFixed(2) + '</td>' +
+                    '</tr>' +
+                    (optionsBreakdown.length > 0 ? '<tr style="background: #fafafa;"><td colspan="2" style="padding: 8px 16px; font-size: 11px; font-weight: 600; color: #6b7280; text-transform: uppercase; border-bottom: 1px solid #e5e7eb;">Options</td></tr>' : '') +
+                    optionsBreakdown.map(opt => {
+                      return '<tr style="background: #fff;">' +
+                        '<td style="padding: 8px 16px; padding-left: 32px; border-bottom: 1px solid #f3f4f6; color: #374151; font-size: 13px;">' + Admin.Utils.escapeHtml(opt.name) + '</td>' +
+                        '<td style="padding: 8px 16px; border-bottom: 1px solid #f3f4f6; text-align: right; color: #059669; background: #f8fdf9;">$' + (opt.price || 0).toFixed(2) + '</td>' +
+                      '</tr>';
+                    }).join('') +
+                    (optionsBreakdown.length > 0 ? '<tr style="background: #f9fafb;">' +
+                      '<td style="padding: 8px 16px; border-bottom: 1px solid #e5e7eb; font-weight: 600; color: #6b7280; font-size: 12px;">Options Subtotal</td>' +
+                      '<td style="padding: 8px 16px; border-bottom: 1px solid #e5e7eb; text-align: right; font-weight: 600; color: #059669; background: #f0fdf4;">$' + optionsCustTotal.toFixed(2) + '</td>' +
+                    '</tr>' : '') +
+                    (accessoriesBreakdown.length > 0 ? '<tr style="background: #fafafa;"><td colspan="2" style="padding: 8px 16px; font-size: 11px; font-weight: 600; color: #6b7280; text-transform: uppercase; border-bottom: 1px solid #e5e7eb;">Accessories</td></tr>' : '') +
+                    accessoriesBreakdown.map(acc => {
+                      return '<tr style="background: #fff;">' +
+                        '<td style="padding: 8px 16px; padding-left: 32px; border-bottom: 1px solid #f3f4f6; color: #374151; font-size: 13px;">' + Admin.Utils.escapeHtml(acc.name) + '</td>' +
+                        '<td style="padding: 8px 16px; border-bottom: 1px solid #f3f4f6; text-align: right; color: #059669; background: #f8fdf9;">$' + (acc.price || 0).toFixed(2) + '</td>' +
+                      '</tr>';
+                    }).join('') +
+                    (accessoriesBreakdown.length > 0 ? '<tr style="background: #f9fafb;">' +
+                      '<td style="padding: 8px 16px; border-bottom: 2px solid #e5e7eb; font-weight: 600; color: #6b7280; font-size: 12px;">Accessories Subtotal</td>' +
+                      '<td style="padding: 8px 16px; border-bottom: 2px solid #e5e7eb; text-align: right; font-weight: 600; color: #059669; background: #f0fdf4;">$' + accCustTotal.toFixed(2) + '</td>' +
+                    '</tr>' : '') +
+                    '<tr style="background: linear-gradient(135deg, #fdf8f5 0%, #fff 100%);">' +
+                      '<td style="padding: 12px 16px; font-weight: 700; color: #8E6545; font-size: 14px;">ITEM TOTAL</td>' +
+                      '<td style="padding: 12px 16px; text-align: right; font-weight: 700; font-size: 14px; color: #059669; background: rgba(5, 150, 105, 0.1);">$' + (item.lineTotal || totalCustPrice).toFixed(2) + '</td>' +
+                    '</tr>' +
+                  '</tbody>' +
+                '</table>' +
+              '</div>';
+            }).join('')}
 
             <!-- Accessories Breakdown - Match Orders Page Format -->
             ${(() => {

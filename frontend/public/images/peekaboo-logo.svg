@@ -1,0 +1,49 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 280 60">
+  <defs>
+    <linearGradient id="brandGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#A67C52"/>
+      <stop offset="50%" style="stop-color:#8E6545"/>
+      <stop offset="100%" style="stop-color:#6B4D35"/>
+    </linearGradient>
+    <linearGradient id="blindsGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" style="stop-color:#C4A882"/>
+      <stop offset="100%" style="stop-color:#8E6545"/>
+    </linearGradient>
+  </defs>
+
+  <!-- Window Frame Icon -->
+  <g transform="translate(8, 8)">
+    <!-- Outer frame -->
+    <rect x="0" y="0" width="44" height="44" rx="3" ry="3" fill="none" stroke="url(#brandGradient)" stroke-width="2.5"/>
+
+    <!-- Window panes divider -->
+    <line x1="22" y1="0" x2="22" y2="44" stroke="url(#brandGradient)" stroke-width="2"/>
+    <line x1="0" y1="22" x2="44" y2="22" stroke="url(#brandGradient)" stroke-width="2"/>
+
+    <!-- Elegant blinds/shades lines - left top pane -->
+    <line x1="4" y1="6" x2="20" y2="6" stroke="url(#blindsGradient)" stroke-width="1.5" stroke-linecap="round"/>
+    <line x1="4" y1="10" x2="20" y2="10" stroke="url(#blindsGradient)" stroke-width="1.5" stroke-linecap="round"/>
+    <line x1="4" y1="14" x2="20" y2="14" stroke="url(#blindsGradient)" stroke-width="1.5" stroke-linecap="round"/>
+    <line x1="4" y1="18" x2="20" y2="18" stroke="url(#blindsGradient)" stroke-width="1.5" stroke-linecap="round"/>
+
+    <!-- Elegant blinds/shades lines - right top pane -->
+    <line x1="24" y1="6" x2="40" y2="6" stroke="url(#blindsGradient)" stroke-width="1.5" stroke-linecap="round"/>
+    <line x1="24" y1="10" x2="40" y2="10" stroke="url(#blindsGradient)" stroke-width="1.5" stroke-linecap="round"/>
+    <line x1="24" y1="14" x2="40" y2="14" stroke="url(#blindsGradient)" stroke-width="1.5" stroke-linecap="round"/>
+    <line x1="24" y1="18" x2="40" y2="18" stroke="url(#blindsGradient)" stroke-width="1.5" stroke-linecap="round"/>
+
+    <!-- Subtle light effect on bottom panes -->
+    <rect x="3" y="25" width="17" height="16" rx="1" fill="#F5F0EB" opacity="0.4"/>
+    <rect x="24" y="25" width="17" height="16" rx="1" fill="#F5F0EB" opacity="0.4"/>
+  </g>
+
+  <!-- Brand Name -->
+  <text x="68" y="38" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="28" font-weight="300" letter-spacing="3" fill="#1a1a2e">
+    <tspan fill="url(#brandGradient)" font-weight="500">PEEKABOO</tspan>
+  </text>
+
+  <!-- Tagline -->
+  <text x="68" y="52" font-family="'Helvetica Neue', Helvetica, Arial, sans-serif" font-size="10" font-weight="400" letter-spacing="4" fill="#8E6545" text-transform="uppercase">
+    SHADES
+  </text>
+</svg>

@@ -134,7 +134,7 @@
     <aside class="admin-sidebar">
       <div class="sidebar-header">
         <a href="/admin/" class="sidebar-logo">
-          <img src="/images/logo.png" alt="Logo" onerror="this.style.display='none'">
+          <img src="/images/peekabooshades_logo.jpeg" alt="Peekaboo Shades" style="height: 32px; width: auto; border-radius: 6px;">
           <span>Peekaboo Shades</span>
         </a>
       </div>
@@ -751,35 +751,53 @@
       // Calculate totals for summary
       let totalRevenue = 0;
       let totalMfrCost = 0;
+      let ordersWithMfrCost = 0;
 
       const rows = orders.map(o => {
         // Get revenue (total with tax)
         const revenue = o.pricing?.total || o.total || 0;
 
-        // Get MFR cost: first try order.pricing, then calculate from items, then ledger, then 0
-        let mfrCost = o.pricing?.manufacturer_cost_total;
-        if (mfrCost === undefined || mfrCost === null || mfrCost === 0) {
-          // Calculate from items' price snapshot data
+        // SINGLE SOURCE OF TRUTH: Use order.pricing.manufacturer_cost_total
+        // This is calculated and stored at order creation time
+        let mfrCost = null;
+        let mfrCostSource = 'none';
+
+        // Priority 1: Use stored manufacturer_cost_total from order.pricing (SOURCE OF TRUTH)
+        if (o.pricing?.manufacturer_cost_total !== undefined && o.pricing?.manufacturer_cost_total !== null) {
+          mfrCost = o.pricing.manufacturer_cost_total;
+          mfrCostSource = 'order';
+        }
+        // Priority 2: Calculate from price_snapshot in items (for older orders missing pricing data)
+        else if (o.items && o.items.length > 0) {
           mfrCost = calculateOrderMfrCost(o);
-        }
-        if (mfrCost === 0) {
-          // Fallback to ledger
-          mfrCost = ledgerMfrCostByOrder[o.id] || 0;
+          mfrCostSource = mfrCost > 0 ? 'calculated' : 'none';
         }
 
-        // Calculate margin and profit
-        const subtotal = o.pricing?.subtotal || (revenue / 1.09); // Approximate subtotal without tax
-        const profit = subtotal - mfrCost;
-        const margin = subtotal > 0 ? ((profit / subtotal) * 100).toFixed(1) : 0;
+        // Get subtotal (use stored value, not approximation)
+        const subtotal = o.pricing?.subtotal || o.subtotal || 0;
 
-        // Accumulate totals
+        // Calculate margin and profit only if we have valid MFR cost
+        const hasMfrCost = mfrCost !== null && mfrCost >= 0 && mfrCostSource !== 'none';
+        const profit = hasMfrCost ? (subtotal - mfrCost) : 0;
+        const margin = (hasMfrCost && subtotal > 0) ? ((profit / subtotal) * 100).toFixed(1) : 0;
+
+        // Accumulate totals only for orders with valid MFR cost
         totalRevenue += revenue;
-        totalMfrCost += mfrCost;
+        if (hasMfrCost) {
+          totalMfrCost += mfrCost;
+          ordersWithMfrCost++;
+        }
 
-        // Show indicator if MFR cost is missing
-        const mfrCostDisplay = mfrCost > 0
-          ? Admin.Utils.formatCurrency(mfrCost)
-          : '<span style="color: #d97706;">N/A</span>';
+        // Display MFR cost with source indicator
+        let mfrCostDisplay;
+        if (hasMfrCost) {
+          mfrCostDisplay = Admin.Utils.formatCurrency(mfrCost);
+          if (mfrCostSource === 'calculated') {
+            mfrCostDisplay += ' <span title="Calculated from item snapshots" style="color:#d97706;cursor:help;">*</span>';
+          }
+        } else {
+          mfrCostDisplay = '<span style="color: #dc2626;" title="MFR cost not available">N/A</span>';
+        }
 
         return `
           <tr>
@@ -788,8 +806,8 @@
             <td>${Admin.Utils.escapeHtml(o.customer_name || o.customer?.name || 'Guest')}</td>
             <td>${Admin.Utils.formatCurrency(revenue)}</td>
             <td>${mfrCostDisplay}</td>
-            <td>${mfrCost > 0 ? margin + '%' : '-'}</td>
-            <td class="ledger-amount ${profit >= 0 ? 'credit' : 'debit'}">${mfrCost > 0 ? Admin.Utils.formatCurrency(profit) : '-'}</td>
+            <td>${hasMfrCost ? margin + '%' : '-'}</td>
+            <td class="ledger-amount ${profit >= 0 ? 'credit' : 'debit'}">${hasMfrCost ? Admin.Utils.formatCurrency(profit) : '-'}</td>
           </tr>
         `;
       });
@@ -801,6 +819,12 @@
       document.getElementById('total-revenue').textContent = Admin.Utils.formatCurrency(totalRevenue);
       document.getElementById('total-costs').textContent = Admin.Utils.formatCurrency(totalMfrCost);
       document.getElementById('gross-profit').textContent = Admin.Utils.formatCurrency(totalProfit);
+
+      // Show warning if some orders missing MFR cost
+      if (ordersWithMfrCost < orders.length) {
+        const missing = orders.length - ordersWithMfrCost;
+        console.warn(`${missing} order(s) missing MFR cost data. Profit calculations may be incomplete.`);
+      }
     }
   </script>
 </body>

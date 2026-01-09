@@ -309,9 +309,9 @@ function createInvoiceFromOrder(orderId, type = 'customer', options = {}) {
 
           // Customer Pricing Details
           pricing: {
-            fabricBasePrice: mfrPrice.cost ? (mfrPrice.cost + (margin.amount || 0)) : item.unit_price,
-            manufacturerCost: mfrPrice.cost || 0,
-            marginPercent: margin.percent || margin.value || 0,
+            fabricBasePrice: (mfrPrice.cost || mfrPrice.unit_cost) ? ((mfrPrice.cost || mfrPrice.unit_cost) + (margin.amount || 0)) : item.unit_price,
+            manufacturerCost: mfrPrice.cost || mfrPrice.unit_cost || 0,
+            marginPercent: margin.percentage || margin.percent || margin.value || 0,
             marginAmount: margin.amount || 0,
             optionsTotal: customerPrice.options_total || 0,
             accessoriesTotal: customerPrice.accessories_total || 0,

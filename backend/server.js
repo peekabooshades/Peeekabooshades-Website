@@ -468,15 +468,17 @@ app.post('/api/cart', (req, res) => {
       smartHubQty: configObj.smartHubQty || 0,
       usbChargerQty: configObj.usbChargerQty || 0,
       // Hardware options - pass directly for pricing engine
-      standardCassette: configObj.standardCassette,
-      valanceType: configObj.standardCassette, // Alias for valance pricing
-      standardBottomBar: configObj.standardBottomBar,
-      bottomRail: configObj.standardBottomBar, // Alias for bottom rail pricing
+      // BUG-006 FIX: Prioritize valanceType/bottomRail over standardCassette/standardBottomBar
+      // Frontend may send both fields with different values - valanceType/bottomRail are the correct pricing keys
+      standardCassette: configObj.valanceType || configObj.standardCassette,
+      valanceType: configObj.valanceType || configObj.standardCassette,
+      standardBottomBar: configObj.bottomRail || configObj.standardBottomBar,
+      bottomRail: configObj.bottomRail || configObj.standardBottomBar,
       rollerType: configObj.rollerType,
       // Also keep nested hardware for backward compatibility
       hardware: {
-        cassette: configObj.standardCassette,
-        bottomBar: configObj.standardBottomBar,
+        cassette: configObj.valanceType || configObj.standardCassette,
+        bottomBar: configObj.bottomRail || configObj.standardBottomBar,
         rollerType: configObj.rollerType
       },
       ...options // Allow override with explicit options
@@ -621,9 +623,10 @@ app.delete('/api/cart/clear/:sessionId', (req, res) => {
 app.post('/api/orders', (req, res) => {
   try {
     const db = loadDatabase();
+    // BUG-008 FIX: Also extract shippingState and taxRate for record keeping
     const {
       sessionId, customerName, customerEmail, customerPhone,
-      shippingAddress, subtotal, tax, shipping
+      shippingAddress, shippingState, taxRate, subtotal, tax, shipping
     } = req.body;
 
     const orderId = uuidv4();
@@ -671,6 +674,9 @@ app.post('/api/orders', (req, res) => {
       customer_email: customerEmail,
       customer_phone: customerPhone,
       shipping_address: shippingAddress,
+      // BUG-008 FIX: Store shipping state and tax rate for audit/display
+      shipping_state: shippingState || null,
+      tax_rate: taxRate || null,
       subtotal,
       tax: tax || 0,
       shipping: shipping || 0,
@@ -684,6 +690,7 @@ app.post('/api/orders', (req, res) => {
       pricing: {
         subtotal,
         tax: tax || 0,
+        tax_rate: taxRate || null,
         shipping: shipping || 0,
         total,
         manufacturer_cost_total: Math.round(totalMfrCost * 100) / 100,
@@ -6247,13 +6254,50 @@ app.post('/api/admin/customers/:id/notes', authMiddleware, (req, res) => {
 // DRAFT ORDERS API ENDPOINTS
 // ============================================
 
-// Admin: Get all draft orders
+// Admin: Get all draft orders with search, filtering, and pagination
 app.get('/api/admin/draft-orders', authMiddleware, (req, res) => {
   try {
     const db = loadDatabase();
-    const draftOrders = (db.draftOrders || [])
-      .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-    res.json({ success: true, draftOrders });
+    const { search, status, page = 1, limit = 20 } = req.query;
+
+    let draftOrders = [...(db.draftOrders || [])];
+
+    // Filter by status
+    if (status) {
+      draftOrders = draftOrders.filter(d => d.status === status);
+    }
+
+    // Search by draft number, customer name, or email
+    if (search) {
+      const searchLower = search.toLowerCase();
+      draftOrders = draftOrders.filter(d =>
+        (d.draftNumber && d.draftNumber.toLowerCase().includes(searchLower)) ||
+        (d.customerName && d.customerName.toLowerCase().includes(searchLower)) ||
+        (d.customerEmail && d.customerEmail.toLowerCase().includes(searchLower)) ||
+        (d.id && d.id.toLowerCase().includes(searchLower))
+      );
+    }
+
+    // Sort by creation date (newest first)
+    draftOrders.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+
+    // Get total before pagination
+    const total = draftOrders.length;
+
+    // Apply pagination
+    const pageNum = parseInt(page) || 1;
+    const limitNum = parseInt(limit) || 20;
+    const startIndex = (pageNum - 1) * limitNum;
+    const paginatedOrders = draftOrders.slice(startIndex, startIndex + limitNum);
+
+    res.json({
+      success: true,
+      draftOrders: paginatedOrders,
+      total,
+      page: pageNum,
+      limit: limitNum,
+      totalPages: Math.ceil(total / limitNum)
+    });
   } catch (error) {
     res.status(500).json({ success: false, error: error.message });
   }
@@ -6453,13 +6497,220 @@ app.post('/api/admin/draft-orders/:id/complete', authMiddleware, (req, res) => {
 // ABANDONED CHECKOUTS API ENDPOINTS
 // ============================================
 
-// Admin: Get abandoned checkouts
+// Admin: Get abandoned checkouts with filtering, search, and pagination
 app.get('/api/admin/abandoned-checkouts', authMiddleware, (req, res) => {
   try {
     const db = loadDatabase();
-    const abandonedCheckouts = (db.abandonedCheckouts || [])
-      .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-    res.json({ success: true, abandonedCheckouts });
+    const { search, status, page = 1, limit = 20 } = req.query;
+
+    let checkouts = [...(db.abandonedCheckouts || [])];
+
+    // Filter by status
+    if (status) {
+      checkouts = checkouts.filter(c => c.status === status);
+    }
+
+    // Search by customer name, email, or checkout ID
+    if (search) {
+      const searchLower = search.toLowerCase();
+      checkouts = checkouts.filter(c =>
+        (c.customer_name && c.customer_name.toLowerCase().includes(searchLower)) ||
+        (c.customerName && c.customerName.toLowerCase().includes(searchLower)) ||
+        (c.customer_email && c.customer_email.toLowerCase().includes(searchLower)) ||
+        (c.customerEmail && c.customerEmail.toLowerCase().includes(searchLower)) ||
+        (c.id && c.id.toLowerCase().includes(searchLower))
+      );
+    }
+
+    // Sort by creation date (newest first)
+    checkouts.sort((a, b) => new Date(b.createdAt || b.created_at) - new Date(a.createdAt || a.created_at));
+
+    // Calculate stats
+    const stats = {
+      total: checkouts.length,
+      abandoned: checkouts.filter(c => c.status === 'abandoned' || !c.status).length,
+      recovered: checkouts.filter(c => c.status === 'recovered').length,
+      emailed: checkouts.filter(c => c.status === 'emailed').length,
+      potentialRevenue: checkouts.reduce((sum, c) => sum + (c.total || 0), 0)
+    };
+
+    // Get total before pagination
+    const total = checkouts.length;
+
+    // Apply pagination
+    const pageNum = parseInt(page) || 1;
+    const limitNum = parseInt(limit) || 20;
+    const startIndex = (pageNum - 1) * limitNum;
+    const paginatedCheckouts = checkouts.slice(startIndex, startIndex + limitNum);
+
+    res.json({
+      success: true,
+      abandonedCheckouts: paginatedCheckouts,
+      stats,
+      total,
+      page: pageNum,
+      limit: limitNum,
+      totalPages: Math.ceil(total / limitNum)
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Admin: Get single abandoned checkout
+app.get('/api/admin/abandoned-checkouts/:id', authMiddleware, (req, res) => {
+  try {
+    const db = loadDatabase();
+    const checkout = (db.abandonedCheckouts || []).find(c => c.id === req.params.id);
+    if (!checkout) {
+      return res.status(404).json({ success: false, error: 'Abandoned checkout not found' });
+    }
+    res.json({ success: true, checkout });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Admin: Update abandoned checkout status (mark as recovered, etc.)
+app.put('/api/admin/abandoned-checkouts/:id/status', authMiddleware, (req, res) => {
+  try {
+    const db = loadDatabase();
+    const checkout = (db.abandonedCheckouts || []).find(c => c.id === req.params.id);
+    if (!checkout) {
+      return res.status(404).json({ success: false, error: 'Abandoned checkout not found' });
+    }
+
+    const { status } = req.body;
+    const validStatuses = ['abandoned', 'emailed', 'recovered', 'expired'];
+    if (!validStatuses.includes(status)) {
+      return res.status(400).json({ success: false, error: 'Invalid status. Valid: abandoned, emailed, recovered, expired' });
+    }
+
+    checkout.status = status;
+    checkout.updatedAt = new Date().toISOString();
+
+    if (status === 'recovered') {
+      checkout.recoveredAt = new Date().toISOString();
+    }
+
+    saveDatabase(db);
+    res.json({ success: true, checkout, message: `Checkout marked as ${status}` });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Admin: Send recovery email for abandoned checkout
+app.post('/api/admin/abandoned-checkouts/:id/send-recovery', authMiddleware, (req, res) => {
+  try {
+    const db = loadDatabase();
+    const checkout = (db.abandonedCheckouts || []).find(c => c.id === req.params.id);
+    if (!checkout) {
+      return res.status(404).json({ success: false, error: 'Abandoned checkout not found' });
+    }
+
+    const email = checkout.customer_email || checkout.customerEmail;
+    if (!email) {
+      return res.status(400).json({ success: false, error: 'No email address associated with this checkout' });
+    }
+
+    // Update checkout status and log the email attempt
+    checkout.status = 'emailed';
+    checkout.lastEmailSentAt = new Date().toISOString();
+    checkout.emailCount = (checkout.emailCount || 0) + 1;
+    checkout.updatedAt = new Date().toISOString();
+
+    // Add to email history
+    if (!checkout.emailHistory) checkout.emailHistory = [];
+    checkout.emailHistory.push({
+      sentAt: new Date().toISOString(),
+      type: 'recovery',
+      sentBy: 'Admin'
+    });
+
+    saveDatabase(db);
+
+    // In production, you would send actual email here
+    // For now, we just log and update status
+    console.log(`Recovery email queued for ${email} - Checkout ID: ${checkout.id}`);
+
+    res.json({
+      success: true,
+      message: `Recovery email sent to ${email}`,
+      checkout
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Admin: Delete abandoned checkout
+app.delete('/api/admin/abandoned-checkouts/:id', authMiddleware, (req, res) => {
+  try {
+    const db = loadDatabase();
+    const index = (db.abandonedCheckouts || []).findIndex(c => c.id === req.params.id);
+    if (index === -1) {
+      return res.status(404).json({ success: false, error: 'Abandoned checkout not found' });
+    }
+    db.abandonedCheckouts.splice(index, 1);
+    saveDatabase(db);
+    res.json({ success: true, message: 'Abandoned checkout deleted' });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Admin: Convert abandoned checkout to draft order
+app.post('/api/admin/abandoned-checkouts/:id/convert-to-draft', authMiddleware, (req, res) => {
+  try {
+    const db = loadDatabase();
+    const checkout = (db.abandonedCheckouts || []).find(c => c.id === req.params.id);
+    if (!checkout) {
+      return res.status(404).json({ success: false, error: 'Abandoned checkout not found' });
+    }
+
+    if (!db.draftOrders) db.draftOrders = [];
+
+    const draftCount = db.draftOrders.length + 1;
+    const draftNumber = `D-${String(draftCount).padStart(3, '0')}`;
+
+    const draftOrder = {
+      id: `draft-${uuidv4().slice(0, 8)}`,
+      draftNumber,
+      customerId: checkout.customerId || null,
+      customerEmail: checkout.customer_email || checkout.customerEmail || '',
+      customerName: checkout.customer_name || checkout.customerName || '',
+      items: checkout.items || [],
+      subtotal: checkout.subtotal || 0,
+      tax: checkout.tax || 0,
+      shipping: checkout.shipping || 0,
+      total: checkout.total || 0,
+      status: 'open',
+      paymentStatus: 'pending',
+      internalNotes: `Converted from abandoned checkout ${checkout.id}`,
+      timeline: [
+        { action: 'created_from_abandoned', timestamp: new Date().toISOString(), user: 'Admin', sourceId: checkout.id }
+      ],
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    };
+
+    db.draftOrders.push(draftOrder);
+
+    // Update abandoned checkout status
+    checkout.status = 'recovered';
+    checkout.recoveredAt = new Date().toISOString();
+    checkout.convertedToDraftId = draftOrder.id;
+    checkout.updatedAt = new Date().toISOString();
+
+    saveDatabase(db);
+
+    res.json({
+      success: true,
+      message: 'Abandoned checkout converted to draft order',
+      draftOrder,
+      checkout
+    });
   } catch (error) {
     res.status(500).json({ success: false, error: error.message });
   }

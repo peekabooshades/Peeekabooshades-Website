@@ -27,7 +27,7 @@
   <header class="main-header">
     <div class="header-container">
       <a href="/" class="logo">
-        <div class="logo-text">PEEKABOO<span> SHADES</span></div>
+        <img src="/images/peekabooshades_logo.jpeg" alt="Peekaboo Shades" class="logo-img" style="height: 50px; width: auto;">
       </a>
 
       <nav class="main-nav">
@@ -82,7 +82,7 @@
       <div class="footer-grid">
         <div class="footer-brand">
           <div class="footer-logo">
-            <div class="logo-text">PEEKABOO<span> SHADES</span></div>
+            <img src="/images/peekabooshades_logo.jpeg" alt="Peekaboo Shades" style="height: 40px; width: auto;">
           </div>
           <p class="footer-description">
             Custom window blinds and shades designed to transform your space.
@@ -185,7 +185,60 @@
             </div>
             <div class="form-group">
               <label>State *</label>
-              <input type="text" id="state" required>
+              <select id="state" required onchange="updateCheckoutTax()">
+                <option value="">Select State</option>
+                <option value="AL">Alabama</option>
+                <option value="AK">Alaska</option>
+                <option value="AZ">Arizona</option>
+                <option value="AR">Arkansas</option>
+                <option value="CA">California</option>
+                <option value="CO">Colorado</option>
+                <option value="CT">Connecticut</option>
+                <option value="DE">Delaware</option>
+                <option value="FL">Florida</option>
+                <option value="GA">Georgia</option>
+                <option value="HI">Hawaii</option>
+                <option value="ID">Idaho</option>
+                <option value="IL">Illinois</option>
+                <option value="IN">Indiana</option>
+                <option value="IA">Iowa</option>
+                <option value="KS">Kansas</option>
+                <option value="KY">Kentucky</option>
+                <option value="LA">Louisiana</option>
+                <option value="ME">Maine</option>
+                <option value="MD">Maryland</option>
+                <option value="MA">Massachusetts</option>
+                <option value="MI">Michigan</option>
+                <option value="MN">Minnesota</option>
+                <option value="MS">Mississippi</option>
+                <option value="MO">Missouri</option>
+                <option value="MT">Montana</option>
+                <option value="NE">Nebraska</option>
+                <option value="NV">Nevada</option>
+                <option value="NH">New Hampshire</option>
+                <option value="NJ">New Jersey</option>
+                <option value="NM">New Mexico</option>
+                <option value="NY">New York</option>
+                <option value="NC">North Carolina</option>
+                <option value="ND">North Dakota</option>
+                <option value="OH">Ohio</option>
+                <option value="OK">Oklahoma</option>
+                <option value="OR">Oregon</option>
+                <option value="PA">Pennsylvania</option>
+                <option value="RI">Rhode Island</option>
+                <option value="SC">South Carolina</option>
+                <option value="SD">South Dakota</option>
+                <option value="TN">Tennessee</option>
+                <option value="TX">Texas</option>
+                <option value="UT">Utah</option>
+                <option value="VT">Vermont</option>
+                <option value="VA">Virginia</option>
+                <option value="WA">Washington</option>
+                <option value="WV">West Virginia</option>
+                <option value="WI">Wisconsin</option>
+                <option value="WY">Wyoming</option>
+                <option value="DC">Washington D.C.</option>
+              </select>
             </div>
           </div>
           <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
@@ -234,6 +287,69 @@
 
   <script src="/js/app.js"></script>
   <script>
+    // US State Sales Tax Rates - Combined State + Average Local (July 2025)
+    // Source: Tax Foundation - https://taxfoundation.org/data/all/state/2024-sales-taxes/
+    const STATE_TAX_RATES = {
+      'AL': 0.0944,  // Alabama
+      'AK': 0.0182,  // Alaska (local only, no state tax)
+      'AZ': 0.0842,  // Arizona
+      'AR': 0.0951,  // Arkansas
+      'CA': 0.0898,  // California
+      'CO': 0.0779,  // Colorado
+      'CT': 0.0635,  // Connecticut
+      'DE': 0.0000,  // Delaware (no sales tax)
+      'FL': 0.0702,  // Florida
+      'GA': 0.0744,  // Georgia
+      'HI': 0.0444,  // Hawaii
+      'ID': 0.0603,  // Idaho
+      'IL': 0.0882,  // Illinois
+      'IN': 0.0700,  // Indiana
+      'IA': 0.0694,  // Iowa
+      'KS': 0.0875,  // Kansas
+      'KY': 0.0600,  // Kentucky
+      'LA': 0.0955,  // Louisiana
+      'ME': 0.0550,  // Maine
+      'MD': 0.0600,  // Maryland
+      'MA': 0.0625,  // Massachusetts
+      'MI': 0.0600,  // Michigan
+      'MN': 0.0783,  // Minnesota
+      'MS': 0.0707,  // Mississippi
+      'MO': 0.0829,  // Missouri
+      'MT': 0.0000,  // Montana (no sales tax)
+      'NE': 0.0702,  // Nebraska
+      'NV': 0.0823,  // Nevada
+      'NH': 0.0000,  // New Hampshire (no sales tax)
+      'NJ': 0.0664,  // New Jersey
+      'NM': 0.0729,  // New Mexico
+      'NY': 0.0852,  // New York
+      'NC': 0.0700,  // North Carolina
+      'ND': 0.0696,  // North Dakota
+      'OH': 0.0724,  // Ohio
+      'OK': 0.0898,  // Oklahoma
+      'OR': 0.0000,  // Oregon (no sales tax)
+      'PA': 0.0634,  // Pennsylvania
+      'RI': 0.0700,  // Rhode Island
+      'SC': 0.0746,  // South Carolina
+      'SD': 0.0640,  // South Dakota
+      'TN': 0.0955,  // Tennessee
+      'TX': 0.0825,  // Texas
+      'UT': 0.0719,  // Utah
+      'VT': 0.0624,  // Vermont
+      'VA': 0.0575,  // Virginia
+      'WA': 0.0938,  // Washington
+      'WV': 0.0655,  // West Virginia
+      'WI': 0.0543,  // Wisconsin
+      'WY': 0.0536,  // Wyoming
+      'DC': 0.0600,  // District of Columbia
+      'PR': 0.1150,  // Puerto Rico
+    };
+
+    // Get tax rate for a state code
+    function getTaxRateForState(stateCode) {
+      const code = (stateCode || '').toUpperCase().trim();
+      return STATE_TAX_RATES[code] || 0.0700; // Default 7% if state not found
+    }
+
     // Product images for display
     const productImages = {
       'affordable-custom-roller-blinds': 'https://images.unsplash.com/photo-1615874959474-d609969a20ed?w=200',
@@ -518,16 +634,63 @@
 
     // Open checkout
     function openCheckout() {
-      const tax = subtotal * 0.08;
+      // BUG-008 FIX: Get selected state, show estimated if none selected
+      const stateSelect = document.getElementById('state');
+      const stateCode = stateSelect.value;
+
+      // Calculate values
+      const taxRate = stateCode ? getTaxRateForState(stateCode) : 0;
+      const tax = subtotal * taxRate;
       const shipping = subtotal > 99 ? 0 : 9.99;
       const total = subtotal + tax + shipping;
 
+      // Update display values
       document.getElementById('checkoutSubtotal').textContent = subtotal.toFixed(2);
       document.getElementById('checkoutShipping').textContent = shipping.toFixed(2);
       document.getElementById('checkoutTax').textContent = tax.toFixed(2);
       document.getElementById('checkoutTotal').textContent = total.toFixed(2);
 
+      // BUG-008 FIX: Update tax label correctly - iterate all price rows like updateCheckoutTax does
+      const taxRows = document.querySelectorAll('.price-row');
+      taxRows.forEach(row => {
+        const label = row.querySelector('span:first-child');
+        if (label && (label.textContent.includes('Tax') || label.textContent.includes('estimated'))) {
+          if (stateCode) {
+            label.innerHTML = `Tax (${(taxRate * 100).toFixed(2)}%)`;
+          } else {
+            label.innerHTML = `Tax (select state)`;
+          }
+        }
+      });
+
       document.getElementById('checkoutModal').classList.add('active');
+    }
+
+    // Update tax when state changes
+    function updateCheckoutTax() {
+      const stateCode = document.getElementById('state').value;
+
+      // BUG-008 FIX: Handle both selected and unselected state
+      const taxRate = stateCode ? getTaxRateForState(stateCode) : 0;
+      const tax = subtotal * taxRate;
+      const shipping = subtotal > 99 ? 0 : 9.99;
+      const total = subtotal + tax + shipping;
+
+      document.getElementById('checkoutTax').textContent = tax.toFixed(2);
+      document.getElementById('checkoutTotal').textContent = total.toFixed(2);
+
+      // Update tax label with rate or prompt to select state
+      const taxRows = document.querySelectorAll('.price-row');
+      taxRows.forEach(row => {
+        const label = row.querySelector('span:first-child');
+        if (label && (label.textContent.includes('Tax') || label.textContent.includes('select state'))) {
+          if (stateCode) {
+            label.innerHTML = `Tax (${(taxRate * 100).toFixed(2)}%)`;
+          } else {
+            label.innerHTML = `Tax (select state)`;
+          }
+        }
+      });
     }
 
     // Close checkout
@@ -540,7 +703,17 @@
       e.preventDefault();
 
       const sessionId = getSessionId();
-      const tax = subtotal * 0.08;
+      const stateCode = document.getElementById('state').value;
+
+      // BUG-008 FIX: Validate state is selected before submission
+      if (!stateCode) {
+        showToast('Please select your state for accurate tax calculation', 'error');
+        document.getElementById('state').focus();
+        return;
+      }
+
+      const taxRate = getTaxRateForState(stateCode);
+      const tax = subtotal * taxRate;
       const shipping = subtotal > 99 ? 0 : 9.99;
 
       const orderData = {
@@ -548,7 +721,9 @@
         customerName: document.getElementById('customerName').value,
         customerEmail: document.getElementById('customerEmail').value,
         customerPhone: document.getElementById('customerPhone').value,
-        shippingAddress: `${document.getElementById('streetAddress').value}, ${document.getElementById('city').value}, ${document.getElementById('state').value} ${document.getElementById('zipCode').value}, ${document.getElementById('country').value}`,
+        shippingAddress: `${document.getElementById('streetAddress').value}, ${document.getElementById('city').value}, ${stateCode} ${document.getElementById('zipCode').value}, ${document.getElementById('country').value}`,
+        shippingState: stateCode,
+        taxRate: taxRate,
         subtotal,
         tax,
         shipping
