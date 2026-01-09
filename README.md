@@ -519,6 +519,7 @@ Detailed documentation is available in the `/docs` folder:
 |----------|-------------|
 | [API_REFERENCE.md](docs/API_REFERENCE.md) | Complete API endpoint documentation |
 | [DEALER_PORTAL.md](docs/DEALER_PORTAL.md) | Dealer portal user guide |
+| [DEALER_PORTAL_DATA_FLOW.md](docs/DEALER_PORTAL_DATA_FLOW.md) | Data flow diagrams & architecture |
 | [FINANCE_ACCOUNTING.md](docs/FINANCE_ACCOUNTING.md) | Invoices, ledger, margins, profitability |
 | [ARCHITECTURE.md](docs/ARCHITECTURE.md) | System architecture overview |
 | [KNOWLEDGE_TRANSFER.md](docs/KNOWLEDGE_TRANSFER.md) | Developer onboarding guide |
