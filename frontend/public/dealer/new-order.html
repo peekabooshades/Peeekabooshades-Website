@@ -1409,46 +1409,50 @@
       // Calculate dealer price from customer price
       const customerLineTotal = currentPricing.lineTotal || 0;
       const customerUnitPrice = currentPricing.unitPrice || 0;
-      const discount = customerLineTotal * (discountPercent / 100);
-      const dealerPrice = customerLineTotal - discount;
 
+      // Build order data in format backend expects
       const orderData = {
-        productId: selectedProduct.id,
-        productName: selectedProduct.name,
-        productType: getProductType(selectedProduct.slug),
-        width,
-        height,
-        fabric: selectedFabric.code,
-        options: {
-          ...selections,
-          // Include motor details if motorized
-          ...(selections.control === 'motorized' && {
-            motorBrand: selections.motor,
-            remoteType: selections.remote,
-            solarPanel: selections.solar
-          })
-        },
-        accessories: accessories.map(a => a.value),
-        quantity,
-        customer: {
-          name: customerName,
-          email: document.getElementById('customer-email').value,
-          phone: document.getElementById('customer-phone').value,
-          address: document.getElementById('customer-address').value
-        },
+        // Customer info at root level
+        customerName: customerName,
+        customerEmail: document.getElementById('customer-email').value,
+        customerPhone: document.getElementById('customer-phone').value,
+        customerAddress: document.getElementById('customer-address').value,
+        // Items array
+        items: [{
+          productId: selectedProduct.id,
+          productName: selectedProduct.name,
+          fabricCode: selectedFabric.code,
+          width: width,
+          height: height,
+          quantity: quantity,
+          price: customerUnitPrice, // Customer unit price
+          options: {
+            ...selections,
+            productType: getProductType(selectedProduct.slug),
+            // Include motor details if motorized
+            ...(selections.control === 'motorized' && {
+              motorBrand: selections.motor,
+              remoteType: selections.remote,
+              solarPanel: selections.solar
+            }),
+            // Include accessories
+            accessories: accessories.map(a => a.value)
+          },
+          // Include pricing snapshot for reference
+          pricingSnapshot: {
+            manufacturerPrice: currentPricing.manufacturerPrice,
+            marginAmount: currentPricing.marginAmount,
+            optionsCost: currentPricing.optionsCost,
+            accessoriesCost: currentPricing.accessoriesCost || 0,
+            customerUnitPrice: customerUnitPrice,
+            customerLineTotal: customerLineTotal
+          }
+        }],
         notes: document.getElementById('order-notes').value,
-        // Include pricing snapshot with customer prices
-        pricing: {
-          manufacturerPrice: currentPricing.manufacturerPrice,
-          marginAmount: currentPricing.marginAmount,
-          optionsCost: currentPricing.optionsCost,
-          customerUnitPrice: customerUnitPrice,
-          customerLineTotal: customerLineTotal,
-          discountPercent: discountPercent,
-          discountAmount: discount,
-          dealerPrice: dealerPrice
-        }
+        status: 'pending'
       };
+
+      console.log('Creating dealer order:', orderData);
 
       try {
         const response = await fetch('/api/dealer/orders', {
@@ -1461,9 +1465,10 @@
         });
 
         const result = await response.json();
+        console.log('Order creation response:', result);
 
         if (result.success) {
-          alert('Order created successfully!');
+          alert('Order created successfully! Order #: ' + (result.data.orderNumber || result.data.id));
           window.location.href = '/dealer/orders.html';
         } else {
           alert(result.error || 'Failed to create order');
@@ -1475,8 +1480,94 @@
     }
 
     // Save as quote
-    function saveQuote() {
-      alert('Quote functionality coming soon!');
+    async function saveQuote() {
+      if (!selectedProduct) {
+        alert('Please select a product');
+        return;
+      }
+
+      if (!selectedFabric) {
+        alert('Please select a fabric');
+        return;
+      }
+
+      const customerName = document.getElementById('customer-name').value;
+      if (!customerName) {
+        alert('Please enter customer name');
+        return;
+      }
+
+      if (!currentPricing) {
+        alert('Please wait for price calculation to complete');
+        return;
+      }
+
+      const width = parseFloat(document.getElementById('width-input').value);
+      const height = parseFloat(document.getElementById('height-input').value);
+      const customerUnitPrice = currentPricing.unitPrice || 0;
+      const customerLineTotal = currentPricing.lineTotal || 0;
+
+      // Build quote data
+      const quoteData = {
+        customer: {
+          name: customerName,
+          email: document.getElementById('customer-email').value,
+          phone: document.getElementById('customer-phone').value,
+          address: document.getElementById('customer-address').value
+        },
+        items: [{
+          productId: selectedProduct.id,
+          productName: selectedProduct.name,
+          fabricCode: selectedFabric.code,
+          width: width,
+          height: height,
+          quantity: quantity,
+          unitPrice: customerUnitPrice,
+          lineTotal: customerLineTotal,
+          configuration: JSON.stringify({
+            ...selections,
+            productType: getProductType(selectedProduct.slug),
+            ...(selections.control === 'motorized' && {
+              motorBrand: selections.motor,
+              remoteType: selections.remote,
+              solarPanel: selections.solar
+            }),
+            accessories: accessories.map(a => a.value)
+          })
+        }],
+        notes: document.getElementById('order-notes').value,
+        source: 'dealer_portal',
+        dealerId: user.dealer?.id || user.dealerId
+      };
+
+      console.log('Creating quote:', quoteData);
+
+      try {
+        const response = await fetch('/api/quotes', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(quoteData)
+        });
+
+        const result = await response.json();
+        console.log('Quote creation response:', result);
+
+        if (result.success) {
+          alert('Quote saved successfully! Quote #: ' + (result.data.quoteNumber || result.data.id));
+          // Optionally redirect or stay on page
+          if (confirm('View quote details?')) {
+            window.location.href = '/dealer/orders.html?tab=quotes';
+          }
+        } else {
+          alert(result.error || 'Failed to save quote');
+        }
+      } catch (error) {
+        console.error('Error saving quote:', error);
+        alert('Unable to save quote. Please try again.');
+      }
     }
 
     // Helper
