@@ -571,16 +571,65 @@ class ContentManager {
 
   /**
    * Get all content for frontend (combined payload)
+   * Merges both cmsContent and siteContent for backward compatibility
    */
   getFrontendBundle() {
     const db = this.getDB();
     this.initializeContent();
 
+    // Merge siteContent (legacy) with cmsContent (new)
+    const siteContent = db.siteContent || {};
+    const cmsContent = db.cmsContent || {};
+
+    // Build global settings - prefer siteContent (admin theme settings)
+    const global = {
+      ...cmsContent.globalSettings,
+      siteName: siteContent.header?.siteName || cmsContent.globalSettings?.siteName || 'Peekaboo Shades',
+      contactPhone: siteContent.topBar?.phone || cmsContent.globalSettings?.contactPhone,
+      contactEmail: siteContent.topBar?.email || cmsContent.globalSettings?.contactEmail,
+      header: {
+        ...cmsContent.globalSettings?.header,
+        showTopBar: siteContent.topBar?.enabled !== false,
+        topBarText: siteContent.topBar?.text || cmsContent.globalSettings?.header?.topBarText,
+        topBarLink: siteContent.topBar?.link || cmsContent.globalSettings?.header?.topBarLink,
+        logoUrl: siteContent.header?.logo || siteContent.theme?.logoUrl || cmsContent.globalSettings?.logo
+      },
+      socialMedia: siteContent.footer?.socialMedia || cmsContent.globalSettings?.socialMedia
+    };
+
+    // Build navigation - prefer siteContent
+    const navigation = {
+      mainMenu: siteContent.navigation?.mainMenu || cmsContent.navigation?.mainMenu || [],
+      footerLinks: siteContent.navigation?.footerLinks || siteContent.footer?.links || cmsContent.navigation?.footerLinks || [],
+      socialLinks: siteContent.navigation?.socialLinks || cmsContent.navigation?.socialLinks || []
+    };
+
+    // Build theme - from siteContent.theme (admin theme settings)
+    const theme = siteContent.theme || db.themeSettings || {};
+
+    // Build banners from heroSlides
+    const banners = (siteContent.heroSlides || []).filter(s => s.active !== false).map(slide => ({
+      id: slide.id,
+      title: slide.title,
+      subtitle: slide.subtitle,
+      image: slide.image,
+      buttonText: slide.buttonText,
+      buttonLink: slide.buttonLink,
+      active: slide.active !== false
+    }));
+
     return {
-      global: db.cmsContent.globalSettings,
-      navigation: db.cmsContent.navigation,
-      banners: this.getBanners(),
-      theme: db.themeSettings || {}
+      global,
+      navigation,
+      banners: banners.length > 0 ? banners : this.getBanners(),
+      theme,
+      // Also include raw siteContent for legacy support
+      siteContent: {
+        topBar: siteContent.topBar,
+        header: siteContent.header,
+        footer: siteContent.footer,
+        homepage: siteContent.homepage
+      }
     };
   }
 }
