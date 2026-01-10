@@ -340,32 +340,6 @@
       object-fit: cover;
     }
 
-    /* Shade Simulator Button */
-    .shade-simulator-btn {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 15px 20px;
-      border: 1px solid var(--border-medium);
-      border-radius: 12px;
-      background: var(--bg-white);
-      font-size: 14px;
-      color: var(--text-brown);
-      margin-top: 15px;
-      width: 100%;
-      transition: all 0.3s ease;
-    }
-
-    .shade-simulator-btn:hover {
-      border-color: var(--golden-brown);
-    }
-
-    .shade-simulator-btn svg {
-      color: var(--golden-brown);
-      width: 20px;
-      height: 20px;
-    }
-
     /* Product Info */
     .product-info {
       padding-top: 10px;
@@ -1619,100 +1593,6 @@
       box-shadow: 0 6px 20px rgba(142, 101, 69, 0.3);
     }
 
-    /* Simulator Modal */
-    .simulator-modal .modal-content {
-      max-width: 700px;
-    }
-
-    .simulator-preview {
-      background: var(--bg-light);
-      border-radius: 10px;
-      height: 280px;
-      margin-bottom: 20px;
-      overflow: hidden;
-    }
-
-    .simulator-preview img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-
-    .simulator-controls {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 25px;
-    }
-
-    .control-group {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .control-group label {
-      font-size: 13px;
-      font-weight: 500;
-      color: var(--text-dark);
-    }
-
-    .view-toggle {
-      display: flex;
-      gap: 5px;
-    }
-
-    .view-btn {
-      padding: 8px 18px;
-      border: 1px solid var(--border-medium);
-      border-radius: 20px;
-      font-size: 12px;
-      color: var(--text-dark);
-      background: var(--bg-white);
-      transition: all 0.3s ease;
-    }
-
-    .view-btn.active {
-      background: var(--golden-brown);
-      border-color: var(--golden-brown);
-      color: white;
-    }
-
-    .lighting-toggle {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .toggle-switch {
-      width: 50px;
-      height: 26px;
-      background: var(--border-medium);
-      border-radius: 13px;
-      cursor: pointer;
-      position: relative;
-      transition: all 0.3s ease;
-    }
-
-    .toggle-switch.active {
-      background: var(--golden-brown);
-    }
-
-    .toggle-switch::after {
-      content: '';
-      position: absolute;
-      top: 3px;
-      left: 3px;
-      width: 20px;
-      height: 20px;
-      background: white;
-      border-radius: 50%;
-      transition: all 0.3s ease;
-    }
-
-    .toggle-switch.active::after {
-      left: 27px;
-    }
-
     /* Toast */
     .toast-container {
       position: fixed;
@@ -2089,13 +1969,6 @@
             <img id="mainProductImage" src="/images/products/roller-blinds/gallery-1.jpg" alt="Roller Blinds Product Image">
           </div>
         </div>
-
-        <button class="shade-simulator-btn" onclick="openSimulator()">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
-          </svg>
-          Shade Simulator
-        </button>
       </div><!-- END product-gallery -->
 
       <!-- Product Info - RIGHT COLUMN -->
@@ -3626,52 +3499,6 @@
             <path d="M3 3v5h5"/>
           </svg>
         </button>
-      </div>
-    </div>
-  </div>
-
-  <!-- Simulator Modal -->
-  <div class="modal simulator-modal" id="simulatorModal">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h3>
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="width: 20px; height: 20px; margin-right: 8px;">
-            <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3"></polygon>
-          </svg>
-          Shade Simulator
-        </h3>
-        <button class="modal-close" onclick="closeSimulator()">&times;</button>
-      </div>
-      <div class="modal-body">
-        <div class="simulator-preview">
-          <img id="simulatorPreviewImage" src="https://images.unsplash.com/photo-1615874959474-d609969a20ed?w=800" alt="Preview">
-        </div>
-        <div class="simulator-controls">
-          <div class="control-group">
-            <label>View</label>
-            <div class="view-toggle">
-              <button class="view-btn active" onclick="setView(this, 'front')">Front</button>
-              <button class="view-btn" onclick="setView(this, 'side')">Side</button>
-              <button class="view-btn" onclick="setView(this, 'outside')">Outside</button>
-            </div>
-          </div>
-          <div class="control-group">
-            <label>Ambient Lighting</label>
-            <div class="lighting-toggle">
-              <i class="fas fa-sun" style="color: #F59E0B;"></i>
-              <div class="toggle-switch" id="ambientToggle" onclick="toggleSwitch(this)"></div>
-              <i class="fas fa-cloud" style="color: #60A5FA;"></i>
-            </div>
-          </div>
-          <div class="control-group">
-            <label>Indoor Lighting</label>
-            <div class="lighting-toggle">
-              <span style="font-size: 12px;">Off</span>
-              <div class="toggle-switch active" id="indoorToggle" onclick="toggleSwitch(this)"></div>
-              <span style="font-size: 12px;">On</span>
-            </div>
-          </div>
-        </div>
       </div>
     </div>
   </div>
@@ -6019,16 +5846,6 @@
       }
     });
 
-    // Open simulator
-    function openSimulator() {
-      document.getElementById('simulatorModal').classList.add('active');
-    }
-
-    // Close simulator
-    function closeSimulator() {
-      document.getElementById('simulatorModal').classList.remove('active');
-    }
-
     // Image Zoom Modal Functions
     let currentZoom = 1;
     const zoomStep = 0.25;
@@ -6082,17 +5899,6 @@
       }
     });
 
-    // Set view
-    function setView(btn, view) {
-      document.querySelectorAll('.view-btn').forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-    }
-
-    // Toggle switch
-    function toggleSwitch(toggle) {
-      toggle.classList.toggle('active');
-    }
-
     // Share product
     function shareProduct() {
       if (navigator.share) {
@@ -6139,10 +5945,6 @@
     // Close modals on outside click
     document.getElementById('quoteModal').addEventListener('click', function(e) {
       if (e.target === this) closeQuoteModal();
-    });
-
-    document.getElementById('simulatorModal').addEventListener('click', function(e) {
-      if (e.target === this) closeSimulator();
     });
 
     // ============================================
