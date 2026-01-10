@@ -275,6 +275,43 @@ function createOrderFromCart(sessionId, customerInfo, paymentInfo, userId = 'sys
   // Initialize collections if needed
   if (!db.orders) db.orders = [];
   if (!db.orderStatusHistory) db.orderStatusHistory = [];
+  if (!db.customers) db.customers = [];
+
+  // CUSTOMER DATABASE FIX: Create or update customer from checkout
+  const existingCustomerIndex = db.customers.findIndex(c =>
+    c.email && c.email.toLowerCase() === customerInfo.email.toLowerCase()
+  );
+
+  if (existingCustomerIndex >= 0) {
+    // Update existing customer
+    const existingCustomer = db.customers[existingCustomerIndex];
+    existingCustomer.ordersCount = (existingCustomer.ordersCount || 0) + 1;
+    existingCustomer.totalSpent = (existingCustomer.totalSpent || 0) + total;
+    existingCustomer.lastOrderAt = now;
+    existingCustomer.updatedAt = now;
+    // Update phone/address if provided
+    if (customerInfo.phone) existingCustomer.phone = customerInfo.phone;
+    if (customerInfo.address) existingCustomer.address = customerInfo.address;
+  } else {
+    // Create new customer
+    const newCustomer = {
+      id: uuidv4(),
+      name: customerInfo.name,
+      email: customerInfo.email,
+      phone: customerInfo.phone || null,
+      address: customerInfo.address || null,
+      source: 'checkout',
+      ordersCount: 1,
+      totalSpent: total,
+      firstOrderAt: now,
+      lastOrderAt: now,
+      createdAt: now,
+      updatedAt: now,
+      notes: [],
+      tags: []
+    };
+    db.customers.push(newCustomer);
+  }
 
   // Save order
   db.orders.push(order);

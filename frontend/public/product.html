@@ -2108,8 +2108,8 @@
           </button>
           <div class="select-shades-menu">
             <a href="/product/affordable-custom-roller-blinds" class="active">Roller Shades</a>
+            <a href="/product/affordable-custom-zebra-shades">Zebra Shades</a>
             <a href="/product/energy-efficient-roman-shades">Roman Shades</a>
-            <a href="/product/affordable-zebra-window-blinds">Natural Woven Shades</a>
             <a href="/product/natural-woven-timeless">Honeycomb Shades</a>
             <a href="/product/custom-blackout-drapes">Drapes</a>
           </div>
@@ -2963,8 +2963,8 @@
               </p>
             </div>
 
-            <!-- Motor Type -->
-            <div class="hardware-group" id="motorTypeGroup" style="margin-bottom: 24px;">
+            <!-- Motor Type (hidden by default - shown only for Motorized) -->
+            <div class="hardware-group" id="motorTypeGroup" style="margin-bottom: 24px; display: none;">
               <span class="hardware-label" style="font-size: 15px; color: #333333; font-weight: 500; display: block; margin-bottom: 12px;">Motor Type</span>
               <div class="motor-type-buttons" id="motorTypeSwatches" style="display: flex; gap: 12px; flex-wrap: wrap;">
                 <button type="button" class="motor-btn selected" data-value="battery" onclick="selectMotorType(this)" style="padding: 12px 24px; border: 2px solid #8E6545; border-radius: 8px; background: #8E6545; color: #FFFFFF; font-size: 14px; font-weight: 500; cursor: pointer; transition: all 0.3s ease;">Battery</button>
@@ -2973,8 +2973,8 @@
               </div>
             </div>
 
-            <!-- Remote Type - Dynamically loaded from API -->
-            <div class="hardware-group" id="remoteTypeGroup" style="margin-bottom: 24px;">
+            <!-- Remote Type (hidden by default - shown only for Motorized) -->
+            <div class="hardware-group" id="remoteTypeGroup" style="margin-bottom: 24px; display: none;">
               <span class="hardware-label" style="font-size: 15px; color: #333333; font-weight: 500; display: block; margin-bottom: 12px;">Remote Type</span>
               <div class="remote-type-buttons" id="remoteTypeSwatches" style="display: flex; gap: 12px; flex-wrap: wrap;">
                 <!-- Remote types loaded dynamically from /api/products/:slug/options -->
@@ -2982,8 +2982,8 @@
               </div>
             </div>
 
-            <!-- Solar Panel -->
-            <div class="hardware-group" id="solarPanelGroup" style="margin-bottom: 24px;">
+            <!-- Solar Panel (hidden by default - shown only for Motorized) -->
+            <div class="hardware-group" id="solarPanelGroup" style="margin-bottom: 24px; display: none;">
               <span class="hardware-label" style="font-size: 15px; color: #333333; font-weight: 500; display: block; margin-bottom: 12px;">Solar Panel</span>
               <div class="solar-type-buttons" id="solarTypeSwatches" style="display: flex; gap: 12px;">
                 <!-- Solar options loaded dynamically from API -->
@@ -4530,6 +4530,68 @@
 
       // Recalculate price after options are rendered
       calculatePrice();
+
+      // Apply initial Control Type state (Manual is default - hide motorized options)
+      applyControlTypeRules();
+    }
+
+    // Apply Control Type rules - call on page load and when control type changes
+    function applyControlTypeRules() {
+      const selectedControlType = document.querySelector('#controlTypeSwatches .hardware-option.selected');
+      if (!selectedControlType) return;
+
+      const controlType = selectedControlType.getAttribute('data-value') || 'manual';
+
+      const chainLocationGroup = document.getElementById('chainLocationGroup');
+      const motorBrandGroup = document.getElementById('motorBrandGroup');
+      const motorizedLocationGroup = document.getElementById('motorizedLocationGroup');
+      const motorTypeGroup = document.getElementById('motorTypeGroup');
+      const remoteTypeGroup = document.getElementById('remoteTypeGroup');
+      const solarPanelGroup = document.getElementById('solarPanelGroup');
+
+      // Helper to show group
+      function showGroup(group) {
+        if (group) {
+          group.style.display = 'block';
+          group.style.opacity = '1';
+          group.style.pointerEvents = 'auto';
+        }
+      }
+
+      // Helper to hide group
+      function hideGroup(group) {
+        if (group) {
+          group.style.display = 'none';
+          group.style.opacity = '0.5';
+          group.style.pointerEvents = 'none';
+        }
+      }
+
+      if (controlType === 'motorized') {
+        // MOTORIZED: Show motor options, hide chain
+        showGroup(motorBrandGroup);
+        showGroup(motorizedLocationGroup);
+        showGroup(motorTypeGroup);
+        showGroup(remoteTypeGroup);
+        showGroup(solarPanelGroup);
+        hideGroup(chainLocationGroup);
+      } else if (controlType === 'manual') {
+        // MANUAL: Show chain, hide all motor options
+        showGroup(chainLocationGroup);
+        hideGroup(motorBrandGroup);
+        hideGroup(motorizedLocationGroup);
+        hideGroup(motorTypeGroup);
+        hideGroup(remoteTypeGroup);
+        hideGroup(solarPanelGroup);
+      } else {
+        // CORDLESS: Hide ALL options
+        hideGroup(chainLocationGroup);
+        hideGroup(motorBrandGroup);
+        hideGroup(motorizedLocationGroup);
+        hideGroup(motorTypeGroup);
+        hideGroup(remoteTypeGroup);
+        hideGroup(solarPanelGroup);
+      }
     }
 
     // Render Motor Brands dynamically from API
@@ -5068,12 +5130,39 @@
       option.classList.add('selected');
       option.querySelector('div').style.border = '3px solid #8E6545';
 
-      // Show/hide location options based on selection
-      const motorizedLocationGroup = document.getElementById('motorizedLocationGroup');
+      // CONTROL TYPE → OPTIONS ENGINE
+      // Strict rules for showing/hiding options based on control type:
+      // Manual: Enable Chain Location, Hide Motor Type/Brand/Remote/Solar
+      // Cordless: Hide ALL (Chain, Motor, Remote, Solar)
+      // Motorized: Enable Motor Type/Brand/Remote/Solar, Hide Chain
+
       const chainLocationGroup = document.getElementById('chainLocationGroup');
       const motorBrandGroup = document.getElementById('motorBrandGroup');
+      const motorizedLocationGroup = document.getElementById('motorizedLocationGroup');
+      const motorTypeGroup = document.getElementById('motorTypeGroup');
+      const remoteTypeGroup = document.getElementById('remoteTypeGroup');
+      const solarPanelGroup = document.getElementById('solarPanelGroup');
       const priceNote = document.getElementById('controlTypePriceNote');
       const selectedValue = option.getAttribute('data-value');
+
+      // Helper function to show a group with animation
+      function showGroup(group) {
+        if (group) {
+          group.style.display = 'block';
+          group.style.animation = 'slideDown 0.3s ease';
+          group.style.opacity = '1';
+          group.style.pointerEvents = 'auto';
+        }
+      }
+
+      // Helper function to hide and disable a group
+      function hideGroup(group) {
+        if (group) {
+          group.style.display = 'none';
+          group.style.opacity = '0.5';
+          group.style.pointerEvents = 'none';
+        }
+      }
 
       // Update price note based on control type
       if (priceNote) {
@@ -5087,13 +5176,15 @@
       }
 
       if (selectedValue === 'motorized') {
-        motorizedLocationGroup.style.display = 'block';
-        motorizedLocationGroup.style.animation = 'slideDown 0.3s ease';
-        motorBrandGroup.style.display = 'block';
-        motorBrandGroup.style.animation = 'slideDown 0.3s ease';
-        chainLocationGroup.style.display = 'none';
+        // MOTORIZED: Show motor options, hide chain
+        showGroup(motorBrandGroup);
+        showGroup(motorizedLocationGroup);
+        showGroup(motorTypeGroup);
+        showGroup(remoteTypeGroup);
+        showGroup(solarPanelGroup);
+        hideGroup(chainLocationGroup);
 
-        // BUG-010 FIX: Auto-select accessories for motorized
+        // Auto-select accessories for motorized
         const smartHubInput = document.getElementById('smartHubQty');
         const usbChargerInput = document.getElementById('usbChargerQty');
         if (smartHubInput && parseInt(smartHubInput.value) === 0) {
@@ -5103,15 +5194,21 @@
           usbChargerInput.value = 1;
         }
       } else if (selectedValue === 'manual') {
-        chainLocationGroup.style.display = 'block';
-        chainLocationGroup.style.animation = 'slideDown 0.3s ease';
-        motorizedLocationGroup.style.display = 'none';
-        motorBrandGroup.style.display = 'none';
+        // MANUAL: Show chain, hide all motor options
+        showGroup(chainLocationGroup);
+        hideGroup(motorBrandGroup);
+        hideGroup(motorizedLocationGroup);
+        hideGroup(motorTypeGroup);
+        hideGroup(remoteTypeGroup);
+        hideGroup(solarPanelGroup);
       } else {
-        // Cordless - hide all motor/chain options
-        motorizedLocationGroup.style.display = 'none';
-        chainLocationGroup.style.display = 'none';
-        motorBrandGroup.style.display = 'none';
+        // CORDLESS: Hide ALL options (chain, motor, remote, solar)
+        hideGroup(chainLocationGroup);
+        hideGroup(motorBrandGroup);
+        hideGroup(motorizedLocationGroup);
+        hideGroup(motorTypeGroup);
+        hideGroup(remoteTypeGroup);
+        hideGroup(solarPanelGroup);
       }
 
       calculatePrice();
