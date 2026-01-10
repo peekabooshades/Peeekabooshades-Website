@@ -2043,6 +2043,53 @@ app.put('/api/admin/settings', authMiddleware, (req, res) => {
   }
 });
 
+// ============================================
+// SYSTEM INTEGRITY API
+// Cross-portal validation and data consistency
+// ============================================
+const systemIntegrity = require('./services/system-integrity');
+
+// Run full system integrity check
+app.get('/api/admin/system-integrity', authMiddleware, (req, res) => {
+  try {
+    const result = systemIntegrity.runFullIntegrityCheck();
+    res.json({ success: true, data: result });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Validate pricing integrity only
+app.get('/api/admin/system-integrity/pricing', authMiddleware, (req, res) => {
+  try {
+    const result = systemIntegrity.validatePricingIntegrity();
+    res.json({ success: true, data: result });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Validate order integrity
+app.get('/api/admin/system-integrity/orders', authMiddleware, (req, res) => {
+  try {
+    const orderId = req.query.orderId;
+    const result = systemIntegrity.validateOrderIntegrity(orderId);
+    res.json({ success: true, data: result });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Validate customer integrity
+app.get('/api/admin/system-integrity/customers', authMiddleware, (req, res) => {
+  try {
+    const result = systemIntegrity.validateCustomerIntegrity();
+    res.json({ success: true, data: result });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
 // Change admin password
 app.put('/api/admin/password', authMiddleware, (req, res) => {
   try {
@@ -2630,6 +2677,89 @@ app.put('/api/admin/fabrics/:id/toggle', authMiddleware, (req, res) => {
   }
 });
 
+// Bulk import fabrics from PDF extraction
+app.post('/api/admin/fabrics/bulk-import', authMiddleware, (req, res) => {
+  try {
+    const { fabrics } = req.body;
+    if (!fabrics || !Array.isArray(fabrics)) {
+      return res.status(400).json({ success: false, error: 'Fabrics array required' });
+    }
+
+    const db = loadDatabase();
+    if (!db.productContent) db.productContent = {};
+    if (!db.productContent.fabrics) db.productContent.fabrics = [];
+    if (!db.manufacturerPrices) db.manufacturerPrices = [];
+
+    let imported = 0;
+    let updated = 0;
+    let skipped = 0;
+
+    for (const fabric of fabrics) {
+      if (!fabric.code) {
+        skipped++;
+        continue;
+      }
+
+      // Check if fabric already exists
+      const existingIndex = db.productContent.fabrics.findIndex(f => f.code === fabric.code);
+
+      const fabricData = {
+        id: fabric.id || uuidv4(),
+        code: fabric.code,
+        name: fabric.name || fabric.code,
+        category: fabric.category || 'Blackout',
+        filterType: fabric.filterType || 'blackout',
+        image: fabric.image || `/images/fabrics/${fabric.code}.jpg`,
+        color: fabric.color || '#FFFFFF',
+        isActive: fabric.isActive !== false,
+        sortOrder: fabric.sortOrder || 0,
+        updatedAt: new Date().toISOString()
+      };
+
+      if (existingIndex >= 0) {
+        // Update existing
+        db.productContent.fabrics[existingIndex] = { ...db.productContent.fabrics[existingIndex], ...fabricData };
+        updated++;
+      } else {
+        // Add new
+        fabricData.createdAt = new Date().toISOString();
+        db.productContent.fabrics.push(fabricData);
+        imported++;
+      }
+
+      // Also add/update manufacturer price if provided
+      if (fabric.pricePerSqMeter !== undefined) {
+        const priceIndex = db.manufacturerPrices.findIndex(p => p.fabricCode === fabric.code);
+        const priceData = {
+          fabricCode: fabric.code,
+          fabricName: fabric.name || fabric.code,
+          pricePerSqMeter: parseFloat(fabric.pricePerSqMeter) || 0,
+          pricePerSqMeterCordless: parseFloat(fabric.pricePerSqMeterCordless) || parseFloat(fabric.pricePerSqMeter) || 0,
+          manualMargin: parseFloat(fabric.margin) || 40,
+          cordlessMargin: parseFloat(fabric.cordlessMargin) || 40,
+          updatedAt: new Date().toISOString()
+        };
+
+        if (priceIndex >= 0) {
+          db.manufacturerPrices[priceIndex] = { ...db.manufacturerPrices[priceIndex], ...priceData };
+        } else {
+          priceData.createdAt = new Date().toISOString();
+          db.manufacturerPrices.push(priceData);
+        }
+      }
+    }
+
+    saveDatabase(db);
+    res.json({
+      success: true,
+      message: `Imported ${imported}, updated ${updated}, skipped ${skipped}`,
+      stats: { imported, updated, skipped, total: fabrics.length }
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
 // --- MOTOR BRANDS ---
 // Get all motor brands (public - for product page)
 app.get('/api/motor-brands', (req, res) => {
@@ -2708,6 +2838,21 @@ app.put('/api/admin/manufacturer-prices/:fabricCode', authMiddleware, (req, res)
     }
 
     const { pricePerSqMeter, pricePerSqMeterCordless, margin, manualMargin, cordlessMargin } = req.body;
+
+    // BUG-013 FIX: Validate margins are not negative
+    const marginFields = [
+      { name: 'margin', value: margin },
+      { name: 'manualMargin', value: manualMargin },
+      { name: 'cordlessMargin', value: cordlessMargin }
+    ];
+    for (const field of marginFields) {
+      if (field.value !== undefined) {
+        const val = parseFloat(field.value);
+        if (isNaN(val) || val < 0 || val > 500) {
+          return res.status(400).json({ success: false, error: `${field.name} must be between 0% and 500%` });
+        }
+      }
+    }
 
     // Update only provided fields
     if (pricePerSqMeter !== undefined) {
@@ -2837,6 +2982,11 @@ app.post('/api/admin/motor-brands', authMiddleware, (req, res) => {
     const mfrCost = parseFloat(req.body.manufacturerCost) || 0;
     const margin = parseFloat(req.body.margin) || 40;
 
+    // BUG-013 FIX: Validate margin is not negative
+    if (margin < 0 || margin > 500) {
+      return res.status(400).json({ success: false, error: 'Margin must be between 0% and 500%' });
+    }
+
     const newBrand = {
       id: `motor-${Date.now()}`,
       value: req.body.value || req.body.label.toLowerCase().replace(/\s+/g, '-'),
@@ -2866,6 +3016,11 @@ app.put('/api/admin/motor-brands/:id', authMiddleware, (req, res) => {
 
     const mfrCost = parseFloat(req.body.manufacturerCost) || db.motorBrands[index].manufacturerCost;
     const margin = parseFloat(req.body.margin) || db.motorBrands[index].margin;
+
+    // BUG-013 FIX: Validate margin is not negative
+    if (margin < 0 || margin > 500) {
+      return res.status(400).json({ success: false, error: 'Margin must be between 0% and 500%' });
+    }
 
     db.motorBrands[index] = {
       ...db.motorBrands[index],
@@ -2910,6 +3065,12 @@ app.get('/api/admin/hardware/:category', authMiddleware, (req, res) => {
 
 app.post('/api/admin/hardware/:category', authMiddleware, (req, res) => {
   try {
+    // BUG-013 FIX: Validate margin is not negative
+    const margin = parseFloat(req.body.margin);
+    if (!isNaN(margin) && (margin < 0 || margin > 500)) {
+      return res.status(400).json({ success: false, error: 'Margin must be between 0% and 500%' });
+    }
+
     const db = loadDatabase();
     if (!db.productContent) db.productContent = {};
     if (!db.productContent.hardwareOptions) db.productContent.hardwareOptions = {};
@@ -2929,6 +3090,12 @@ app.post('/api/admin/hardware/:category', authMiddleware, (req, res) => {
 
 app.put('/api/admin/hardware/:category/:id', authMiddleware, (req, res) => {
   try {
+    // BUG-013 FIX: Validate margin is not negative
+    const margin = parseFloat(req.body.margin);
+    if (!isNaN(margin) && (margin < 0 || margin > 500)) {
+      return res.status(400).json({ success: false, error: 'Margin must be between 0% and 500%' });
+    }
+
     const db = loadDatabase();
     const options = db.productContent?.hardwareOptions?.[req.params.category];
     if (!options) return res.status(404).json({ success: false, error: 'Category not found' });
@@ -3152,8 +3319,18 @@ app.get('/category/:slug', (req, res) => {
   res.sendFile(path.join(__dirname, '../frontend/public/shop.html'));
 });
 
-// Product detail page
+// Product detail page - Route to appropriate page based on product type
 app.get('/product/:slug', (req, res) => {
+  const slug = req.params.slug;
+  const db = loadDatabase();
+  const product = db.products.find(p => p.slug === slug);
+
+  // If product found and is zebra category, serve zebra page
+  if (product && (product.category_slug === 'zebra-shades' || slug.includes('zebra'))) {
+    return res.sendFile(path.join(__dirname, '../frontend/public/zebra-product.html'));
+  }
+
+  // Default to roller blinds product page
   res.sendFile(path.join(__dirname, '../frontend/public/product.html'));
 });
 
@@ -4564,7 +4741,10 @@ app.get('/api/admin/analytics/finance-insights', authMiddleware, (req, res) => {
       }
     });
 
-    grossProfit = totalRevenue - totalMfrCost - totalTax;
+    // BUG-012 FIX: Subtract shipping from gross profit calculation
+    // Gross profit should be: Revenue - MFR Cost - Tax - Shipping
+    // This makes it consistent with daily profit calculation (subtotal - mfrCost)
+    grossProfit = totalRevenue - totalMfrCost - totalTax - totalShipping;
     const profitMargin = totalRevenue > 0 ? ((grossProfit / totalRevenue) * 100).toFixed(1) : 0;
 
     res.json({
