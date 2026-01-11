@@ -459,6 +459,17 @@
               </div>
             </div>
 
+            <!-- Product Type Breakdown -->
+            <div class="chart-card full-width" style="margin-bottom: 24px;">
+              <div class="chart-card-header">
+                <div>
+                  <h3 class="chart-card-title">Product Type Performance</h3>
+                  <p class="chart-card-subtitle">Revenue and orders by product type</p>
+                </div>
+              </div>
+              <div class="stats-grid" id="product-type-stats" style="margin-bottom: 0;"></div>
+            </div>
+
             <!-- Second Row -->
             <div class="chart-grid">
               <div class="chart-card">
@@ -500,6 +511,30 @@
             <span>Loading product analytics...</span>
           </div>
           <div id="products-content" style="display: none;">
+            <!-- Product Type Stats Grid -->
+            <div class="stats-grid" id="products-type-stats"></div>
+
+            <div class="chart-grid">
+              <div class="chart-card">
+                <div class="chart-card-header">
+                  <h3 class="chart-card-title">Product Type Distribution</h3>
+                  <p class="chart-card-subtitle">Roller vs Zebra vs Honeycomb vs Roman</p>
+                </div>
+                <div class="chart-container">
+                  <canvas id="productTypeDistChart"></canvas>
+                </div>
+              </div>
+              <div class="chart-card">
+                <div class="chart-card-header">
+                  <h3 class="chart-card-title">Product Type Revenue</h3>
+                  <p class="chart-card-subtitle">Revenue contribution by type</p>
+                </div>
+                <div class="chart-container">
+                  <canvas id="productTypeRevenueChart"></canvas>
+                </div>
+              </div>
+            </div>
+
             <div class="chart-grid">
               <div class="chart-card">
                 <div class="chart-card-header">
@@ -669,6 +704,23 @@
               </div>
               <div class="chart-container tall">
                 <canvas id="revenueTrendChart"></canvas>
+              </div>
+            </div>
+
+            <div class="chart-grid">
+              <div class="chart-card">
+                <div class="chart-card-header">
+                  <h3 class="chart-card-title">Revenue by Product Type</h3>
+                </div>
+                <div class="chart-container">
+                  <canvas id="revenueByProductTypeChart"></canvas>
+                </div>
+              </div>
+              <div class="chart-card">
+                <div class="chart-card-header">
+                  <h3 class="chart-card-title">Product Type Comparison</h3>
+                </div>
+                <div class="metric-list" id="productTypeComparisonList"></div>
               </div>
             </div>
 
@@ -1022,6 +1074,54 @@
           <span class="value danger">${formatCurrency(finance.summary?.totalMfrCost || 0)}</span>
         </div>
       `;
+
+      // Product Type Stats
+      const productTypes = products.productTypes || [];
+      const productTypeStats = document.getElementById('product-type-stats');
+      if (productTypes.length > 0) {
+        const typeColors = {
+          roller: { bg: '#dbeafe', color: '#1e40af', icon: '🌀' },
+          zebra: { bg: '#fef3c7', color: '#92400e', icon: '🦓' },
+          honeycomb: { bg: '#d1fae5', color: '#065f46', icon: '🐝' },
+          roman: { bg: '#fce7f3', color: '#9d174d', icon: '🏛️' }
+        };
+        productTypeStats.innerHTML = productTypes.map(pt => {
+          const tc = typeColors[pt.type] || { bg: '#f3f4f6', color: '#374151', icon: '📦' };
+          return `
+            <div class="stat-card" style="border-left: 4px solid ${tc.color};">
+              <h4 style="display: flex; align-items: center; gap: 8px;">
+                <span style="font-size: 20px;">${tc.icon}</span>
+                ${formatOptionName(pt.type)} Shades
+              </h4>
+              <div class="value">${formatCurrency(pt.revenue || 0)}</div>
+              <div class="subtext">${pt.orders || 0} orders (${pt.percentage || 0}%)</div>
+            </div>
+          `;
+        }).join('');
+      } else {
+        productTypeStats.innerHTML = `
+          <div class="stat-card">
+            <h4>Roller Shades</h4>
+            <div class="value">$0.00</div>
+            <div class="subtext">0 orders</div>
+          </div>
+          <div class="stat-card">
+            <h4>Zebra Shades</h4>
+            <div class="value">$0.00</div>
+            <div class="subtext">0 orders</div>
+          </div>
+          <div class="stat-card">
+            <h4>Honeycomb Shades</h4>
+            <div class="value">$0.00</div>
+            <div class="subtext">0 orders</div>
+          </div>
+          <div class="stat-card">
+            <h4>Roman Shades</h4>
+            <div class="value">$0.00</div>
+            <div class="subtext">0 orders</div>
+          </div>
+        `;
+      }
     }
 
     // ===== PRODUCTS TAB =====
@@ -1057,6 +1157,77 @@
     }
 
     function renderProductsTab(data) {
+      // Product Type Stats Grid
+      const productTypes = data.productTypes || [];
+      const productsTypeStats = document.getElementById('products-type-stats');
+      const typeColors = {
+        roller: { bg: '#dbeafe', color: '#1e40af', icon: '🌀' },
+        zebra: { bg: '#fef3c7', color: '#92400e', icon: '🦓' },
+        honeycomb: { bg: '#d1fae5', color: '#065f46', icon: '🐝' },
+        roman: { bg: '#fce7f3', color: '#9d174d', icon: '🏛️' }
+      };
+      if (productTypes.length > 0) {
+        productsTypeStats.innerHTML = productTypes.map(pt => {
+          const tc = typeColors[pt.type] || { bg: '#f3f4f6', color: '#374151', icon: '📦' };
+          return `
+            <div class="stat-card" style="border-left: 4px solid ${tc.color};">
+              <h4 style="display: flex; align-items: center; gap: 8px;">
+                <span style="font-size: 20px;">${tc.icon}</span>
+                ${formatOptionName(pt.type)} Shades
+              </h4>
+              <div class="value">${pt.orders || 0}</div>
+              <div class="subtext">orders (${formatCurrency(pt.revenue || 0)})</div>
+            </div>
+          `;
+        }).join('');
+      } else {
+        productsTypeStats.innerHTML = `
+          <div class="stat-card"><h4>Roller Shades</h4><div class="value">0</div><div class="subtext">orders</div></div>
+          <div class="stat-card"><h4>Zebra Shades</h4><div class="value">0</div><div class="subtext">orders</div></div>
+          <div class="stat-card"><h4>Honeycomb Shades</h4><div class="value">0</div><div class="subtext">orders</div></div>
+          <div class="stat-card"><h4>Roman Shades</h4><div class="value">0</div><div class="subtext">orders</div></div>
+        `;
+      }
+
+      // Product Type Distribution Chart
+      if (charts.productTypeDist) charts.productTypeDist.destroy();
+      if (productTypes.length > 0) {
+        const productTypeColors = ['#1e40af', '#92400e', '#065f46', '#9d174d'];
+        charts.productTypeDist = new Chart(document.getElementById('productTypeDistChart'), {
+          type: 'doughnut',
+          data: {
+            labels: productTypes.map(pt => formatOptionName(pt.type) + ' Shades'),
+            datasets: [{
+              data: productTypes.map(pt => pt.orders),
+              backgroundColor: productTypes.map(pt => typeColors[pt.type]?.color || '#6b7280')
+            }]
+          },
+          options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right' } } }
+        });
+      }
+
+      // Product Type Revenue Chart
+      if (charts.productTypeRevenue) charts.productTypeRevenue.destroy();
+      if (productTypes.length > 0) {
+        charts.productTypeRevenue = new Chart(document.getElementById('productTypeRevenueChart'), {
+          type: 'bar',
+          data: {
+            labels: productTypes.map(pt => formatOptionName(pt.type)),
+            datasets: [{
+              label: 'Revenue',
+              data: productTypes.map(pt => pt.revenue),
+              backgroundColor: productTypes.map(pt => typeColors[pt.type]?.color || '#6b7280')
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: { y: { beginAtZero: true, ticks: { callback: v => '$' + v.toLocaleString() } } }
+          }
+        });
+      }
+
       // Blinds Type
       if (charts.blindsType) charts.blindsType.destroy();
       const blindsData = data.blindsType || [];
@@ -1342,6 +1513,75 @@
           <div class="subtext">${s.totalOrders || 0} orders</div>
         </div>
       `;
+
+      // Revenue by Product Type Chart
+      if (charts.revenueByProductType) charts.revenueByProductType.destroy();
+      const productTypeRevenue = data.productTypeRevenue || [];
+      const typeColors = {
+        roller: '#1e40af',
+        zebra: '#92400e',
+        honeycomb: '#065f46',
+        roman: '#9d174d'
+      };
+      if (productTypeRevenue.length > 0) {
+        charts.revenueByProductType = new Chart(document.getElementById('revenueByProductTypeChart'), {
+          type: 'doughnut',
+          data: {
+            labels: productTypeRevenue.map(pt => formatOptionName(pt.type) + ' Shades'),
+            datasets: [{
+              data: productTypeRevenue.map(pt => pt.revenue),
+              backgroundColor: productTypeRevenue.map(pt => typeColors[pt.type] || '#6b7280')
+            }]
+          },
+          options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+              legend: { position: 'right' },
+              tooltip: {
+                callbacks: {
+                  label: function(context) {
+                    const value = context.parsed;
+                    const total = context.dataset.data.reduce((a, b) => a + b, 0);
+                    const pct = total > 0 ? Math.round(value / total * 100) : 0;
+                    return `${context.label}: ${formatCurrency(value)} (${pct}%)`;
+                  }
+                }
+              }
+            }
+          }
+        });
+      }
+
+      // Product Type Comparison List
+      const compList = document.getElementById('productTypeComparisonList');
+      if (productTypeRevenue.length > 0) {
+        const totalRevenue = productTypeRevenue.reduce((sum, pt) => sum + (pt.revenue || 0), 0);
+        compList.innerHTML = productTypeRevenue.map(pt => {
+          const pct = totalRevenue > 0 ? Math.round((pt.revenue || 0) / totalRevenue * 100) : 0;
+          const color = typeColors[pt.type] || '#6b7280';
+          return `
+            <div class="metric-item">
+              <div>
+                <span class="label" style="color: ${color}; font-weight: 600;">${formatOptionName(pt.type)} Shades</span>
+                <div class="progress-bar" style="width: 150px; margin-top: 4px;">
+                  <div class="fill" style="width: ${pct}%; background: ${color};"></div>
+                </div>
+              </div>
+              <div style="text-align: right;">
+                <span class="value">${formatCurrency(pt.revenue)}</span>
+                <div style="font-size: 12px; color: #6b7280;">${pt.orders || 0} orders (${pct}%)</div>
+              </div>
+            </div>
+          `;
+        }).join('');
+      } else {
+        compList.innerHTML = `
+          <div class="metric-item">
+            <span class="label">No product type data available</span>
+          </div>
+        `;
+      }
 
       // Revenue Trend
       if (charts.revenueTrend) charts.revenueTrend.destroy();

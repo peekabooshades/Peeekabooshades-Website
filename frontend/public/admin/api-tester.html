@@ -773,7 +773,7 @@ limit=10</textarea>
         // Load webhooks
         async function loadWebhooks() {
             try {
-                const token = localStorage.getItem('adminToken');
+                const token = localStorage.getItem('admin_token') || localStorage.getItem('adminToken');
                 if (!token) return;
 
                 const response = await fetch('/api/admin/webhooks', {
@@ -807,7 +807,7 @@ limit=10</textarea>
         // Test webhook
         async function testWebhook(id) {
             try {
-                const token = localStorage.getItem('adminToken');
+                const token = localStorage.getItem('admin_token') || localStorage.getItem('adminToken');
                 const response = await fetch(`/api/admin/webhooks/${id}/test`, {
                     method: 'POST',
                     headers: { 'Authorization': `Bearer ${token}` }

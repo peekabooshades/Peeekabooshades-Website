@@ -1629,7 +1629,7 @@
           <ul>
             <li><a href="/shop?category=roller-shades">Roller Shades</a></li>
             <li><a href="/shop?category=roman-shades">Roman Shades</a></li>
-            <li><a href="/shop?category=natural-woven-shades">Natural Woven</a></li>
+            <li><a href="/shop?category=zebra-shades">Zebra Shades</a></li>
             <li><a href="/shop?category=honeycomb-shades">Honeycomb</a></li>
             <li><a href="/shop?category=drapes">Drapes</a></li>
           </ul>
@@ -2004,21 +2004,30 @@
 
     function applyTheme(theme) {
       const root = document.documentElement;
+      // Primary brand color
       if (theme.primaryColor) {
         root.style.setProperty('--golden-brown', theme.primaryColor);
         root.style.setProperty('--golden-brown-light', theme.primaryColor);
         root.style.setProperty('--dark-brown', theme.primaryColor);
         root.style.setProperty('--text-brown', theme.primaryColor);
       }
-      if (theme.secondaryColor) {
-        root.style.setProperty('--text-dark', theme.secondaryColor);
+      // Text color (from theme.textColor or colors.textDark)
+      if (theme.textColor || theme.colors?.textDark) {
+        root.style.setProperty('--text-dark', theme.textColor || theme.colors.textDark);
       }
-      if (theme.backgroundColor) {
-        root.style.setProperty('--bg-cream', theme.backgroundColor);
+      // Background color
+      if (theme.backgroundColor || theme.colors?.bgCream) {
+        root.style.setProperty('--bg-cream', theme.backgroundColor || theme.colors.bgCream);
       }
+      // Accent color
+      if (theme.accentColor || theme.colors?.accent) {
+        root.style.setProperty('--accent-color', theme.accentColor || theme.colors.accent);
+      }
+      // Font
       if (theme.fontFamily) {
-        document.body.style.fontFamily = theme.fontFamily;
+        document.body.style.fontFamily = theme.fontFamily + ', sans-serif';
       }
+      console.log('Theme applied:', theme.primaryColor);
     }
 
     function applyNavigation(navigation) {

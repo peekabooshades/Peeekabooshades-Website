@@ -961,7 +961,7 @@
 
   <script>
     // State
-    let authToken = localStorage.getItem('adminToken');
+    let authToken = localStorage.getItem('admin_token') || localStorage.getItem('adminToken');
     let currentPage = 1;
     let totalPages = 1;
     let selectedAssets = new Set();

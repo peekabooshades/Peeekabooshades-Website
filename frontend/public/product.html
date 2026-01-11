@@ -2812,6 +2812,38 @@
               </p>
             </div>
 
+            <!-- Chain Type (shows only when Manual is selected) -->
+            <div class="hardware-group" id="chainTypeGroup" style="margin-bottom: 24px; display: block; padding: 15px; background: #f9f7f4; border-radius: 10px; border-left: 4px solid #8E6545;">
+              <span class="hardware-label" style="font-size: 14px; color: #333333; font-weight: 500; display: block; margin-bottom: 12px;">
+                <i class="fas fa-circle-notch" style="color: #8E6545; margin-right: 8px;"></i>Chain Type
+              </span>
+              <div class="chain-type-swatches" id="chainTypeSwatches" style="display: flex; gap: 20px; flex-wrap: wrap;">
+                <div class="chain-type-option selected" data-value="bead-chain-plastic" data-price="0" onclick="selectChainType(this)" style="cursor: pointer; text-align: center; transition: all 0.3s ease;">
+                  <div class="chain-type-img" style="width: 100px; height: 100px; border: 3px solid #8E6545; border-radius: 12px; overflow: hidden; background: #fff; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease; position: relative;">
+                    <img src="/images/control-system/bead-chain.png" alt="Plastic Chain" style="width: 90%; height: 90%; object-fit: contain;" onclick="event.stopPropagation(); openChainZoom('/images/control-system/bead-chain.png', 'Plastic Bead Chain')">
+                    <div style="position: absolute; top: 5px; right: 5px; background: rgba(142,101,69,0.9); color: white; font-size: 9px; padding: 2px 6px; border-radius: 4px;">
+                      <i class="fas fa-search-plus"></i>
+                    </div>
+                  </div>
+                  <span style="display: block; margin-top: 8px; font-size: 12px; font-weight: 600; color: #333;">Plastic Chain</span>
+                  <span style="display: block; font-size: 11px; color: #28a745; font-weight: 500;">Included</span>
+                </div>
+                <div class="chain-type-option" data-value="bead-chain-metal" data-price="5" onclick="selectChainType(this)" style="cursor: pointer; text-align: center; transition: all 0.3s ease;">
+                  <div class="chain-type-img" style="width: 100px; height: 100px; border: 2px solid #D4D4D4; border-radius: 12px; overflow: hidden; background: #fff; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease; position: relative;">
+                    <img src="/images/control-system/bead-chain-2.png" alt="Steel Chain" style="width: 90%; height: 90%; object-fit: contain;" onclick="event.stopPropagation(); openChainZoom('/images/control-system/bead-chain-2.png', 'Steel Bead Chain')">
+                    <div style="position: absolute; top: 5px; right: 5px; background: rgba(142,101,69,0.9); color: white; font-size: 9px; padding: 2px 6px; border-radius: 4px;">
+                      <i class="fas fa-search-plus"></i>
+                    </div>
+                  </div>
+                  <span style="display: block; margin-top: 8px; font-size: 12px; font-weight: 600; color: #333;">Steel Chain</span>
+                  <span style="display: block; font-size: 11px; color: #8E6545; font-weight: 500;">+$5.00</span>
+                </div>
+              </div>
+              <p style="font-size: 11px; color: #888; margin-top: 12px; margin-bottom: 0;">
+                <i class="fas fa-info-circle" style="margin-right: 5px;"></i>Steel chain is more durable and has a premium look. Click image to zoom.
+              </p>
+            </div>
+
             <!-- Motorized Location (shows only when Motorized is selected) -->
             <div class="hardware-group" id="motorizedLocationGroup" style="margin-bottom: 24px; display: none; padding: 15px; background: #f9f7f4; border-radius: 10px; border-left: 4px solid #8E6545;">
               <span class="hardware-label" style="font-size: 14px; color: #333333; font-weight: 500; display: block; margin-bottom: 12px;">
@@ -4370,6 +4402,7 @@
       const controlType = selectedControlType.getAttribute('data-value') || 'manual';
 
       const chainLocationGroup = document.getElementById('chainLocationGroup');
+      const chainTypeGroup = document.getElementById('chainTypeGroup');
       const motorBrandGroup = document.getElementById('motorBrandGroup');
       const motorizedLocationGroup = document.getElementById('motorizedLocationGroup');
       const motorTypeGroup = document.getElementById('motorTypeGroup');
@@ -4402,9 +4435,11 @@
         showGroup(remoteTypeGroup);
         showGroup(solarPanelGroup);
         hideGroup(chainLocationGroup);
+        hideGroup(chainTypeGroup);
       } else if (controlType === 'manual') {
         // MANUAL: Show chain, hide all motor options
         showGroup(chainLocationGroup);
+        showGroup(chainTypeGroup);
         hideGroup(motorBrandGroup);
         hideGroup(motorizedLocationGroup);
         hideGroup(motorTypeGroup);
@@ -4413,6 +4448,7 @@
       } else {
         // CORDLESS: Hide ALL options
         hideGroup(chainLocationGroup);
+        hideGroup(chainTypeGroup);
         hideGroup(motorBrandGroup);
         hideGroup(motorizedLocationGroup);
         hideGroup(motorTypeGroup);
@@ -4959,11 +4995,12 @@
 
       // CONTROL TYPE → OPTIONS ENGINE
       // Strict rules for showing/hiding options based on control type:
-      // Manual: Enable Chain Location, Hide Motor Type/Brand/Remote/Solar
+      // Manual: Enable Chain Location, Chain Type, Hide Motor Type/Brand/Remote/Solar
       // Cordless: Hide ALL (Chain, Motor, Remote, Solar)
       // Motorized: Enable Motor Type/Brand/Remote/Solar, Hide Chain
 
       const chainLocationGroup = document.getElementById('chainLocationGroup');
+      const chainTypeGroup = document.getElementById('chainTypeGroup');
       const motorBrandGroup = document.getElementById('motorBrandGroup');
       const motorizedLocationGroup = document.getElementById('motorizedLocationGroup');
       const motorTypeGroup = document.getElementById('motorTypeGroup');
@@ -5010,6 +5047,7 @@
         showGroup(remoteTypeGroup);
         showGroup(solarPanelGroup);
         hideGroup(chainLocationGroup);
+        hideGroup(chainTypeGroup);
 
         // Auto-select accessories for motorized
         const smartHubInput = document.getElementById('smartHubQty');
@@ -5023,6 +5061,7 @@
       } else if (selectedValue === 'manual') {
         // MANUAL: Show chain, hide all motor options
         showGroup(chainLocationGroup);
+        showGroup(chainTypeGroup);
         hideGroup(motorBrandGroup);
         hideGroup(motorizedLocationGroup);
         hideGroup(motorTypeGroup);
@@ -5031,6 +5070,7 @@
       } else {
         // CORDLESS: Hide ALL options (chain, motor, remote, solar)
         hideGroup(chainLocationGroup);
+        hideGroup(chainTypeGroup);
         hideGroup(motorBrandGroup);
         hideGroup(motorizedLocationGroup);
         hideGroup(motorTypeGroup);
@@ -5055,6 +5095,44 @@
       btn.style.color = '#FFFFFF';
       btn.style.border = '2px solid #8E6545';
       btn.classList.add('selected');
+    }
+
+    // Select chain type (Plastic/Steel)
+    let selectedChainType = 'bead-chain-plastic';
+    let chainTypePrice = 0;
+
+    function selectChainType(option) {
+      const container = option.parentElement;
+      container.querySelectorAll('.chain-type-option').forEach(opt => {
+        opt.classList.remove('selected');
+        opt.querySelector('.chain-type-img').style.border = '2px solid #D4D4D4';
+      });
+      option.classList.add('selected');
+      option.querySelector('.chain-type-img').style.border = '3px solid #8E6545';
+      selectedChainType = option.dataset.value;
+      chainTypePrice = parseFloat(option.dataset.price) || 0;
+      calculatePrice();
+    }
+
+    // Open chain image zoom modal
+    function openChainZoom(imageSrc, title) {
+      // Create modal overlay
+      const modal = document.createElement('div');
+      modal.id = 'chainZoomModal';
+      modal.style.cssText = 'position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); display: flex; align-items: center; justify-content: center; z-index: 10000; cursor: pointer;';
+      modal.onclick = () => modal.remove();
+
+      // Create modal content
+      modal.innerHTML = `
+        <div style="position: relative; max-width: 90%; max-height: 90%; text-align: center;" onclick="event.stopPropagation();">
+          <button onclick="document.getElementById('chainZoomModal').remove()" style="position: absolute; top: -40px; right: 0; background: none; border: none; color: white; font-size: 24px; cursor: pointer;">
+            <i class="fas fa-times"></i>
+          </button>
+          <img src="${imageSrc}" alt="${title}" style="max-width: 100%; max-height: 80vh; border-radius: 12px; box-shadow: 0 10px 40px rgba(0,0,0,0.3);">
+          <p style="color: white; font-size: 18px; margin-top: 15px; font-weight: 600;">${title}</p>
+        </div>
+      `;
+      document.body.appendChild(modal);
     }
 
     // Select motor location (Right/Left)
@@ -5421,6 +5499,12 @@
         }
       }
 
+      // Chain Type (Steel chain adds extra cost)
+      const controlType = controlTypeOption?.getAttribute('data-value') || 'manual';
+      if (controlType === 'manual' && chainTypePrice > 0) {
+        additionalOptionsTotal += chainTypePrice;
+      }
+
       // Motor Type and Remote Type are already included in API breakdown with prices
       // Only add them as info if they weren't in the API response
       const hasMotorInBreakdown = pricing.options?.breakdown?.some(o => o.type === 'motor_type' || o.type === 'motorization');
@@ -5440,6 +5524,18 @@
       const chainSideOption = document.querySelector('#chainLocationSwatches .chain-location-btn.selected');
       if (chainSideOption) {
         breakdown.push({ name: `Chain Position: ${chainSideOption.textContent.trim()}`, price: 0, info: true });
+      }
+
+      // Chain Type
+      const chainTypeOption = document.querySelector('#chainTypeSwatches .chain-type-option.selected');
+      if (chainTypeOption && controlType === 'manual') {
+        const chainTypeName = chainTypeOption.dataset.value === 'bead-chain-metal' ? 'Steel Chain' : 'Plastic Chain';
+        const chainPrice = parseFloat(chainTypeOption.dataset.price) || 0;
+        if (chainPrice > 0) {
+          breakdown.push({ name: chainTypeName, price: chainPrice });
+        } else {
+          breakdown.push({ name: chainTypeName, price: 0, info: true });
+        }
       }
 
       // Warranty
@@ -5696,6 +5792,7 @@
         standardCassette: document.querySelector('#cassetteSwatches .hardware-option.selected')?.dataset.value || 'fabric-insert',
         standardBottomBar: document.querySelector('#bottomBarSwatches .hardware-option.selected')?.dataset.value || 'standard',
         chainSide: document.querySelector('#chainLocationSwatches .chain-location-btn.selected')?.dataset.value || 'left',
+        chainType: document.querySelector('#chainTypeSwatches .chain-type-option.selected')?.dataset.value || 'bead-chain-plastic',
         rollerType: document.querySelector('#rollerTypeSwatches .hardware-option.selected')?.dataset.value || 'standard-roll-back',
         mountType: document.querySelector('#mountTypeSwatches .hardware-option.selected')?.dataset.value || 'inside',
         controlType: document.querySelector('#controlTypeSwatches .hardware-option.selected')?.dataset.value || 'manual',

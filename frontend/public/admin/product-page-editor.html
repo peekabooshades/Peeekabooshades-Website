@@ -1318,7 +1318,16 @@
       </a>
       <div class="editor-title">
         <i class="fas fa-file-alt"></i>
-        <span class="page-name">Product Page</span>
+        <span class="page-name">Page Editor</span>
+      </div>
+      <!-- Product Selector - Dynamically loaded -->
+      <div style="display: flex; align-items: center; gap: 8px; margin-left: 16px; padding: 6px 12px; background: linear-gradient(135deg, #8b5cf6 0%, #a855f7 100%); border-radius: 8px;">
+        <label style="color: white; font-size: 12px; font-weight: 600; white-space: nowrap;">
+          <i class="fas fa-blinds" style="margin-right: 4px;"></i>Select Shade:
+        </label>
+        <select id="productSelector" onchange="switchProduct(this.value)" style="background: white; color: #333; border: none; border-radius: 6px; padding: 8px 12px; font-size: 13px; cursor: pointer; min-width: 220px; font-weight: 500;">
+          <option value="">Loading products...</option>
+        </select>
       </div>
     </div>
 
@@ -1519,6 +1528,77 @@
     function getProductSlug() {
       const urlParams = new URLSearchParams(window.location.search);
       return urlParams.get('slug') || 'affordable-custom-roller-blinds';
+    }
+
+    // Switch to a different product
+    function switchProduct(slug) {
+      window.location.href = `/admin/product-page-editor.html?slug=${slug}`;
+    }
+
+    // Initialize product selector
+    // Load all products dynamically from API
+    async function loadProductsForSelector() {
+      try {
+        const response = await fetch('/api/products');
+        const data = await response.json();
+
+        if (data.success && data.data) {
+          const selector = document.getElementById('productSelector');
+          const currentSlug = getProductSlug();
+
+          // Clear and populate dropdown
+          selector.innerHTML = '';
+
+          // Group products by category for better organization
+          const productsByCategory = {};
+          data.data.forEach(product => {
+            const category = product.category_name || 'Other';
+            if (!productsByCategory[category]) {
+              productsByCategory[category] = [];
+            }
+            productsByCategory[category].push(product);
+          });
+
+          // Add products grouped by category
+          Object.keys(productsByCategory).sort().forEach(category => {
+            const optgroup = document.createElement('optgroup');
+            optgroup.label = category;
+
+            productsByCategory[category].forEach(product => {
+              const option = document.createElement('option');
+              option.value = product.slug;
+              option.textContent = product.name;
+              if (product.slug === currentSlug) {
+                option.selected = true;
+              }
+              optgroup.appendChild(option);
+            });
+
+            selector.appendChild(optgroup);
+          });
+
+          // If no product matches current slug, select first one
+          if (!selector.value && selector.options.length > 0) {
+            selector.value = selector.options[0].value;
+          }
+        }
+      } catch (error) {
+        console.error('Failed to load products:', error);
+        // Fallback to hardcoded options
+        const selector = document.getElementById('productSelector');
+        selector.innerHTML = `
+          <option value="affordable-custom-roller-blinds">Roller Blinds</option>
+          <option value="affordable-custom-zebra-shades">Zebra Shades</option>
+          <option value="energy-efficient-roman-shades">Roman Shades</option>
+          <option value="natural-woven-timeless">Honeycomb/Woven Shades</option>
+          <option value="custom-blackout-drapes">Drapes</option>
+        `;
+        selector.value = getProductSlug();
+      }
+    }
+
+    function initProductSelector() {
+      loadProductsForSelector();
     }
 
     // Page State
@@ -1854,9 +1934,50 @@
         'productCatalogs', 'productTypeSpecs', 'sizeChart', 'faqSection', 'exploreTrends'
       ],
 
-      // Per-slug overrides
+      // Per-slug overrides - All shade types use the same elements
+      // New products added to the database will automatically use defaultEnabled
       slugOverrides: {
         'affordable-custom-roller-blinds': {
+          enabled: [
+            'gallery', 'selectShades', 'productTitle', 'price', 'dimensions',
+            'roomLabel', 'shadeStyle', 'mountType', 'controlType', 'powerType',
+            'hardwareType', 'accessories', 'addToCart', 'requestQuote',
+            'buyWithShopPay', 'quantity', 'deliveryInfo', 'productDetails',
+            'productCatalogs', 'productTypeSpecs', 'sizeChart', 'faqSection', 'exploreTrends'
+          ],
+          disabled: ['features', 'trustBadges', 'reviews', 'specifications']
+        },
+        'affordable-custom-zebra-shades': {
+          enabled: [
+            'gallery', 'selectShades', 'productTitle', 'price', 'dimensions',
+            'roomLabel', 'shadeStyle', 'mountType', 'controlType', 'powerType',
+            'hardwareType', 'accessories', 'addToCart', 'requestQuote',
+            'buyWithShopPay', 'quantity', 'deliveryInfo', 'productDetails',
+            'productCatalogs', 'productTypeSpecs', 'sizeChart', 'faqSection', 'exploreTrends'
+          ],
+          disabled: ['features', 'trustBadges', 'reviews', 'specifications']
+        },
+        'energy-efficient-roman-shades': {
+          enabled: [
+            'gallery', 'selectShades', 'productTitle', 'price', 'dimensions',
+            'roomLabel', 'shadeStyle', 'mountType', 'controlType', 'powerType',
+            'hardwareType', 'accessories', 'addToCart', 'requestQuote',
+            'buyWithShopPay', 'quantity', 'deliveryInfo', 'productDetails',
+            'productCatalogs', 'productTypeSpecs', 'sizeChart', 'faqSection', 'exploreTrends'
+          ],
+          disabled: ['features', 'trustBadges', 'reviews', 'specifications']
+        },
+        'natural-woven-timeless': {
+          enabled: [
+            'gallery', 'selectShades', 'productTitle', 'price', 'dimensions',
+            'roomLabel', 'shadeStyle', 'mountType', 'controlType', 'powerType',
+            'hardwareType', 'accessories', 'addToCart', 'requestQuote',
+            'buyWithShopPay', 'quantity', 'deliveryInfo', 'productDetails',
+            'productCatalogs', 'productTypeSpecs', 'sizeChart', 'faqSection', 'exploreTrends'
+          ],
+          disabled: ['features', 'trustBadges', 'reviews', 'specifications']
+        },
+        'custom-blackout-drapes': {
           enabled: [
             'gallery', 'selectShades', 'productTitle', 'price', 'dimensions',
             'roomLabel', 'shadeStyle', 'mountType', 'controlType', 'powerType',
@@ -2732,6 +2853,7 @@
     // Initialize
     document.addEventListener('DOMContentLoaded', () => {
       Admin.Auth.requireAuth();
+      initProductSelector();
       loadPageData();
       renderSectionTemplates();
       setupKeyboardShortcuts();
@@ -2791,22 +2913,32 @@
 
     // Save product options to the API
     async function saveProductOptions() {
-      if (!productOptions) return;
+      if (!productOptions) {
+        console.error('No productOptions to save');
+        showToast('No options to save', 'error');
+        return;
+      }
       try {
+        console.log('Saving product options for:', pageData.slug);
+        console.log('Options data:', productOptions);
+
         // Use admin endpoint for saving (requires authentication)
         const response = await Admin.API.put(`/admin/products/${pageData.slug}/options`, {
           options: productOptions
         });
-        if (response.success) {
+
+        console.log('Save response:', response);
+
+        if (response && response.success) {
           console.log('Product options saved successfully');
-          Admin.showNotification('Product options saved!', 'success');
+          showToast('Product options saved!', 'success');
         } else {
-          console.error('Save failed:', response.error);
-          Admin.showNotification('Failed to save: ' + (response.error || 'Unknown error'), 'error');
+          console.error('Save failed:', response?.error);
+          showToast('Failed to save: ' + (response?.error || 'Unknown error'), 'error');
         }
       } catch (error) {
         console.error('Failed to save product options:', error);
-        Admin.showNotification('Failed to save product options', 'error');
+        showToast('Failed to save: ' + error.message, 'error');
       }
     }
 
@@ -3069,19 +3201,30 @@
 
     // Save options from the editor modal
     async function saveOptionsFromEditor(optionType) {
+      console.log('saveOptionsFromEditor called with:', optionType);
+      showToast('Saving options...', 'info');
+
       const rows = document.querySelectorAll('#optionsEditorList .option-edit-row');
+      console.log('Found rows:', rows.length);
       const newOptions = [];
 
       rows.forEach((row, index) => {
-        // Get the original option to preserve additional fields
-        const originalOpt = productOptions[optionType].options[index] || {};
+        // Get the original option - use row's data-index if available, otherwise use loop index
+        const originalIndex = parseInt(row.dataset.index) || index;
+        const originalOpt = productOptions[optionType]?.options?.[originalIndex] || {};
+
+        const nameInput = row.querySelector('.opt-name');
+        const priceInput = row.querySelector('.opt-price');
+        const defaultInput = row.querySelector('.opt-default');
 
         const opt = {
           value: originalOpt.value || 'opt-' + Date.now() + '-' + index,
-          name: row.querySelector('.opt-name')?.value || 'Option',
-          price: parseFloat(row.querySelector('.opt-price')?.value) || 0,
-          isDefault: row.querySelector('.opt-default')?.checked || false
+          name: nameInput?.value || 'Option',
+          price: parseFloat(priceInput?.value) || 0,
+          isDefault: defaultInput?.checked || false
         };
+
+        console.log('Option ' + index + ':', opt);
 
         // Preserve maxQty for accessories
         if (originalOpt.maxQty !== undefined) {
@@ -3106,10 +3249,13 @@
       }
 
       // Update productOptions
+      console.log('Updating productOptions[' + optionType + '].options with:', newOptions);
       productOptions[optionType].options = newOptions;
 
       // Save to database
+      console.log('Calling saveProductOptions...');
       await saveProductOptions();
+      console.log('saveProductOptions completed');
 
       // Close modal
       closeOptionsEditor();
@@ -3462,6 +3608,38 @@
 
       const container = document.getElementById('propertiesContent');
       container.innerHTML = `
+        <!-- Quick Access Toolbar -->
+        <div style="background: linear-gradient(135deg, #8b5cf6 0%, #a855f7 100%); border-radius: 8px; padding: 16px; margin-bottom: 16px;">
+          <div style="color: white; font-size: 14px; font-weight: 600; margin-bottom: 12px;">
+            <i class="fas fa-magic"></i> Quick Styling Access
+          </div>
+          <div style="display: flex; flex-wrap: wrap; gap: 8px;">
+            <button onclick="document.querySelector('#cssStylingSection')?.scrollIntoView({behavior: 'smooth'})"
+                    style="background: rgba(255,255,255,0.9); color: #8b5cf6; border: none; padding: 8px 12px; border-radius: 6px; font-size: 12px; cursor: pointer; font-weight: 500;">
+              <i class="fas fa-paint-brush"></i> Colors
+            </button>
+            <button onclick="document.querySelector('#typographySection')?.scrollIntoView({behavior: 'smooth'})"
+                    style="background: rgba(255,255,255,0.9); color: #8b5cf6; border: none; padding: 8px 12px; border-radius: 6px; font-size: 12px; cursor: pointer; font-weight: 500;">
+              <i class="fas fa-font"></i> Fonts
+            </button>
+            <button onclick="document.querySelector('#spacingSection')?.scrollIntoView({behavior: 'smooth'})"
+                    style="background: rgba(255,255,255,0.9); color: #8b5cf6; border: none; padding: 8px 12px; border-radius: 6px; font-size: 12px; cursor: pointer; font-weight: 500;">
+              <i class="fas fa-arrows-alt-v"></i> Spacing
+            </button>
+            <button onclick="document.querySelector('#buttonSection')?.scrollIntoView({behavior: 'smooth'})"
+                    style="background: rgba(255,255,255,0.9); color: #8b5cf6; border: none; padding: 8px 12px; border-radius: 6px; font-size: 12px; cursor: pointer; font-weight: 500;">
+              <i class="fas fa-square"></i> Buttons
+            </button>
+            <button onclick="document.querySelector('#accentSection')?.scrollIntoView({behavior: 'smooth'})"
+                    style="background: rgba(255,255,255,0.9); color: #8b5cf6; border: none; padding: 8px 12px; border-radius: 6px; font-size: 12px; cursor: pointer; font-weight: 500;">
+              <i class="fas fa-tint"></i> Accents
+            </button>
+          </div>
+          <div style="font-size: 11px; color: rgba(255,255,255,0.8); margin-top: 10px;">
+            Click buttons above to jump to styling sections, or scroll down to explore all options.
+          </div>
+        </div>
+
         <!-- Layout Settings -->
         <div class="property-section">
           <div class="property-section-title">
@@ -3619,7 +3797,7 @@
         </div>
 
         <!-- CSS STYLING SECTION -->
-        <div class="property-section" style="border-top: 2px solid #8b5cf6; padding-top: 16px; margin-top: 16px;">
+        <div id="cssStylingSection" class="property-section" style="border-top: 2px solid #8b5cf6; padding-top: 16px; margin-top: 16px;">
           <div class="property-section-title" style="color: #8b5cf6;">
             <i class="fas fa-paint-brush" style="margin-right: 6px;"></i>
             CSS Styling
@@ -3635,10 +3813,56 @@
                      onchange="updateStyle('pageBackground', this.value)">
             </div>
           </div>
+
+          <!-- Background Pattern/Texture -->
+          <div class="property-field">
+            <label class="property-label">Background Pattern</label>
+            <select class="property-input" onchange="updateStyle('backgroundPattern', this.value)">
+              <option value="none" ${pageData.styles?.backgroundPattern === 'none' || !pageData.styles?.backgroundPattern ? 'selected' : ''}>None (Solid Color)</option>
+              <option value="subtle-dots" ${pageData.styles?.backgroundPattern === 'subtle-dots' ? 'selected' : ''}>Subtle Dots</option>
+              <option value="diagonal-lines" ${pageData.styles?.backgroundPattern === 'diagonal-lines' ? 'selected' : ''}>Diagonal Lines</option>
+              <option value="grid" ${pageData.styles?.backgroundPattern === 'grid' ? 'selected' : ''}>Grid Pattern</option>
+              <option value="noise" ${pageData.styles?.backgroundPattern === 'noise' ? 'selected' : ''}>Noise Texture</option>
+              <option value="paper" ${pageData.styles?.backgroundPattern === 'paper' ? 'selected' : ''}>Paper Texture</option>
+              <option value="fabric" ${pageData.styles?.backgroundPattern === 'fabric' ? 'selected' : ''}>Fabric Texture</option>
+              <option value="gradient-subtle" ${pageData.styles?.backgroundPattern === 'gradient-subtle' ? 'selected' : ''}>Subtle Gradient</option>
+            </select>
+          </div>
+
+          <div class="property-field">
+            <label class="property-label">Pattern Opacity</label>
+            <div style="display: flex; gap: 8px;">
+              <input type="range" min="5" max="50" value="${parseInt(pageData.styles?.patternOpacity) || 10}"
+                     style="flex: 1;" onchange="updateStyle('patternOpacity', this.value)">
+              <input type="text" class="property-input" style="width: 60px;" value="${pageData.styles?.patternOpacity || '10'}%"
+                     onchange="updateStyle('patternOpacity', this.value.replace('%', ''))">
+            </div>
+          </div>
+
+          <!-- Secondary Background (for sections) -->
+          <div class="property-field">
+            <label class="property-label">Section Background Color</label>
+            <div class="color-picker-wrapper">
+              <input type="color" value="${pageData.styles?.sectionBackground || '#FFFFFF'}"
+                     onchange="updateStyle('sectionBackground', this.value)">
+              <input type="text" class="property-input" value="${pageData.styles?.sectionBackground || '#FFFFFF'}"
+                     onchange="updateStyle('sectionBackground', this.value)">
+            </div>
+          </div>
+
+          <div class="property-field">
+            <label class="property-label">Section Shadow</label>
+            <select class="property-input" onchange="updateStyle('sectionShadow', this.value)">
+              <option value="none" ${pageData.styles?.sectionShadow === 'none' ? 'selected' : ''}>None</option>
+              <option value="subtle" ${pageData.styles?.sectionShadow === 'subtle' || !pageData.styles?.sectionShadow ? 'selected' : ''}>Subtle</option>
+              <option value="medium" ${pageData.styles?.sectionShadow === 'medium' ? 'selected' : ''}>Medium</option>
+              <option value="strong" ${pageData.styles?.sectionShadow === 'strong' ? 'selected' : ''}>Strong</option>
+            </select>
+          </div>
         </div>
 
         <!-- Typography -->
-        <div class="property-section">
+        <div id="typographySection" class="property-section">
           <div class="property-section-title">
             <i class="fas fa-font" style="margin-right: 6px;"></i>
             Typography
@@ -3717,6 +3941,49 @@
                      onchange="updateStyle('bodyColor', this.value)">
             </div>
           </div>
+
+          <div class="property-field">
+            <label class="property-label">Letter Spacing</label>
+            <select class="property-input" onchange="updateStyle('letterSpacing', this.value)">
+              <option value="normal" ${pageData.styles?.letterSpacing === 'normal' || !pageData.styles?.letterSpacing ? 'selected' : ''}>Normal</option>
+              <option value="-0.5px" ${pageData.styles?.letterSpacing === '-0.5px' ? 'selected' : ''}>Tight (-0.5px)</option>
+              <option value="0.5px" ${pageData.styles?.letterSpacing === '0.5px' ? 'selected' : ''}>Wide (0.5px)</option>
+              <option value="1px" ${pageData.styles?.letterSpacing === '1px' ? 'selected' : ''}>Wider (1px)</option>
+              <option value="2px" ${pageData.styles?.letterSpacing === '2px' ? 'selected' : ''}>Widest (2px)</option>
+            </select>
+          </div>
+
+          <div class="property-field">
+            <label class="property-label">Line Height</label>
+            <select class="property-input" onchange="updateStyle('lineHeight', this.value)">
+              <option value="1.2" ${pageData.styles?.lineHeight === '1.2' ? 'selected' : ''}>Compact (1.2)</option>
+              <option value="1.4" ${pageData.styles?.lineHeight === '1.4' ? 'selected' : ''}>Tight (1.4)</option>
+              <option value="1.6" ${pageData.styles?.lineHeight === '1.6' || !pageData.styles?.lineHeight ? 'selected' : ''}>Normal (1.6)</option>
+              <option value="1.8" ${pageData.styles?.lineHeight === '1.8' ? 'selected' : ''}>Relaxed (1.8)</option>
+              <option value="2" ${pageData.styles?.lineHeight === '2' ? 'selected' : ''}>Loose (2)</option>
+            </select>
+          </div>
+
+          <div class="property-field">
+            <label class="property-label">Default Text Alignment</label>
+            <div style="display: flex; gap: 4px;">
+              <button class="property-input" type="button"
+                      style="flex: 1; cursor: pointer; ${pageData.styles?.textAlign === 'left' || !pageData.styles?.textAlign ? 'background: #8b5cf6; color: white;' : ''}"
+                      onclick="updateStyle('textAlign', 'left')">
+                <i class="fas fa-align-left"></i>
+              </button>
+              <button class="property-input" type="button"
+                      style="flex: 1; cursor: pointer; ${pageData.styles?.textAlign === 'center' ? 'background: #8b5cf6; color: white;' : ''}"
+                      onclick="updateStyle('textAlign', 'center')">
+                <i class="fas fa-align-center"></i>
+              </button>
+              <button class="property-input" type="button"
+                      style="flex: 1; cursor: pointer; ${pageData.styles?.textAlign === 'right' ? 'background: #8b5cf6; color: white;' : ''}"
+                      onclick="updateStyle('textAlign', 'right')">
+                <i class="fas fa-align-right"></i>
+              </button>
+            </div>
+          </div>
         </div>
 
         <!-- Price Styling -->
@@ -3748,7 +4015,7 @@
         </div>
 
         <!-- Button Styling -->
-        <div class="property-section">
+        <div id="buttonSection" class="property-section">
           <div class="property-section-title">
             <i class="fas fa-square" style="margin-right: 6px;"></i>
             Button Styling
@@ -3781,6 +4048,74 @@
                      style="flex: 1;" onchange="updateStyle('buttonBorderRadius', this.value + 'px')">
               <input type="text" class="property-input" style="width: 70px;" value="${pageData.styles?.buttonBorderRadius || '6px'}"
                      onchange="updateStyle('buttonBorderRadius', this.value)">
+            </div>
+          </div>
+
+          <div class="property-field">
+            <label class="property-label">Button Hover Color</label>
+            <div class="color-picker-wrapper">
+              <input type="color" value="${pageData.styles?.buttonHoverBackground || '#7a5639'}"
+                     onchange="updateStyle('buttonHoverBackground', this.value)">
+              <input type="text" class="property-input" value="${pageData.styles?.buttonHoverBackground || '#7a5639'}"
+                     onchange="updateStyle('buttonHoverBackground', this.value)">
+            </div>
+          </div>
+        </div>
+
+        <!-- Accent & Border Colors -->
+        <div id="accentSection" class="property-section">
+          <div class="property-section-title">
+            <i class="fas fa-tint" style="margin-right: 6px;"></i>
+            Accent & Borders
+          </div>
+
+          <div class="property-field">
+            <label class="property-label">Accent Color (Selected Items)</label>
+            <div class="color-picker-wrapper">
+              <input type="color" value="${pageData.styles?.accentColor || '#8E6545'}"
+                     onchange="updateStyle('accentColor', this.value)">
+              <input type="text" class="property-input" value="${pageData.styles?.accentColor || '#8E6545'}"
+                     onchange="updateStyle('accentColor', this.value)">
+            </div>
+          </div>
+
+          <div class="property-field">
+            <label class="property-label">Border Color</label>
+            <div class="color-picker-wrapper">
+              <input type="color" value="${pageData.styles?.borderColor || '#E0D5C7'}"
+                     onchange="updateStyle('borderColor', this.value)">
+              <input type="text" class="property-input" value="${pageData.styles?.borderColor || '#E0D5C7'}"
+                     onchange="updateStyle('borderColor', this.value)">
+            </div>
+          </div>
+
+          <div class="property-field">
+            <label class="property-label">Border Width</label>
+            <select class="property-input" onchange="updateStyle('borderWidth', this.value)">
+              <option value="0px" ${pageData.styles?.borderWidth === '0px' ? 'selected' : ''}>None</option>
+              <option value="1px" ${pageData.styles?.borderWidth === '1px' || !pageData.styles?.borderWidth ? 'selected' : ''}>1px - Thin</option>
+              <option value="2px" ${pageData.styles?.borderWidth === '2px' ? 'selected' : ''}>2px - Medium</option>
+              <option value="3px" ${pageData.styles?.borderWidth === '3px' ? 'selected' : ''}>3px - Thick</option>
+            </select>
+          </div>
+
+          <div class="property-field">
+            <label class="property-label">Border Style</label>
+            <select class="property-input" onchange="updateStyle('borderStyle', this.value)">
+              <option value="solid" ${pageData.styles?.borderStyle === 'solid' || !pageData.styles?.borderStyle ? 'selected' : ''}>Solid</option>
+              <option value="dashed" ${pageData.styles?.borderStyle === 'dashed' ? 'selected' : ''}>Dashed</option>
+              <option value="dotted" ${pageData.styles?.borderStyle === 'dotted' ? 'selected' : ''}>Dotted</option>
+              <option value="double" ${pageData.styles?.borderStyle === 'double' ? 'selected' : ''}>Double</option>
+            </select>
+          </div>
+
+          <div class="property-field">
+            <label class="property-label">Focus/Hover Highlight Color</label>
+            <div class="color-picker-wrapper">
+              <input type="color" value="${pageData.styles?.hoverHighlight || '#f5f0eb'}"
+                     onchange="updateStyle('hoverHighlight', this.value)">
+              <input type="text" class="property-input" value="${pageData.styles?.hoverHighlight || '#f5f0eb'}"
+                     onchange="updateStyle('hoverHighlight', this.value)">
             </div>
           </div>
         </div>
@@ -3830,7 +4165,7 @@
         </div>
 
         <!-- Spacing -->
-        <div class="property-section">
+        <div id="spacingSection" class="property-section">
           <div class="property-section-title">
             <i class="fas fa-arrows-alt-v" style="margin-right: 6px;"></i>
             Spacing
@@ -3909,8 +4244,11 @@
     function updateStyle(key, value) {
       if (!pageData.styles) pageData.styles = {};
       pageData.styles[key] = value;
+      console.log(`Style updated: ${key} = ${value}`, pageData.styles);
       markUnsaved();
       updatePreview();
+      // Re-render the properties panel to show updated values
+      renderDefaultProperties();
     }
 
     // Render element order list for drag and drop
@@ -4336,10 +4674,18 @@
     function updatePreview() {
       const iframe = document.getElementById('previewIframe');
       try {
-        // Send section data to the preview iframe
+        // Send section data and styles to the preview iframe
         iframe.contentWindow.postMessage({
           type: 'UPDATE_PAGE_SECTIONS',
-          sections: pageData.sections
+          sections: pageData.sections,
+          layout: pageData.layout,
+          styles: pageData.styles
+        }, '*');
+
+        // Also send a separate styles update message for immediate CSS application
+        iframe.contentWindow.postMessage({
+          type: 'UPDATE_PAGE_STYLES',
+          styles: pageData.styles
         }, '*');
       } catch (e) {
         console.log('Could not update preview:', e);
@@ -4376,11 +4722,20 @@
       status.className = 'save-status saving';
 
       try {
+        console.log('Saving page data:', {
+          slug: pageData.slug,
+          sectionsCount: pageData.sections.length,
+          layout: pageData.layout,
+          styles: pageData.styles
+        });
+
         const response = await Admin.API.put(`/product-page-sections/${pageData.slug}`, {
           sections: pageData.sections,
           layout: pageData.layout,
           styles: pageData.styles
         });
+
+        console.log('Save response:', response);
 
         if (response.success) {
           hasUnsavedChanges = false;
@@ -5607,6 +5962,20 @@
               </div>
               <div id="accessoriesOptionsPreview" style="margin-top: 8px;">
                 ${renderOptionsPreview('accessories')}
+              </div>
+            </div>
+
+            <!-- Go to Page Styling Link -->
+            <div style="padding: 16px; background: linear-gradient(135deg, #8b5cf6 0%, #a855f7 100%); border-radius: 8px; margin-top: 16px; text-align: center;">
+              <div style="font-size: 13px; color: white; font-weight: 500; margin-bottom: 10px;">
+                <i class="fas fa-paint-brush"></i> Need more styling options?
+              </div>
+              <button onclick="closeEditPanel(); renderDefaultProperties();"
+                      style="background: white; color: #8b5cf6; border: none; padding: 10px 24px; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 13px;">
+                <i class="fas fa-arrow-right"></i> Go to Page Styling
+              </button>
+              <div style="font-size: 11px; color: rgba(255,255,255,0.8); margin-top: 8px;">
+                Fonts • Colors • Backgrounds • Patterns • Spacing • Layout
               </div>
             </div>
           `;
@@ -7461,8 +7830,20 @@
           return `
             <div class="empty-state">
               <div class="empty-state-icon"><i class="fas fa-info-circle"></i></div>
-              <div class="empty-state-title">No editable settings</div>
-              <div class="empty-state-text">This element uses default settings from the CSS Styling panel.</div>
+              <div class="empty-state-title">No element-specific settings</div>
+              <div class="empty-state-text">This element uses the global page styling settings.</div>
+            </div>
+            <div style="padding: 16px; background: linear-gradient(135deg, #8b5cf6 0%, #a855f7 100%); border-radius: 8px; margin-top: 16px; text-align: center;">
+              <div style="font-size: 13px; color: white; font-weight: 500; margin-bottom: 12px;">
+                <i class="fas fa-paint-brush"></i> Want to customize fonts, colors & layout?
+              </div>
+              <button onclick="closeEditPanel(); renderDefaultProperties();"
+                      style="background: white; color: #8b5cf6; border: none; padding: 10px 24px; border-radius: 6px; font-weight: 600; cursor: pointer; font-size: 13px; transition: all 0.2s;">
+                <i class="fas fa-arrow-right"></i> Go to Page Styling
+              </button>
+              <div style="font-size: 11px; color: rgba(255,255,255,0.8); margin-top: 8px;">
+                Customize: Fonts • Colors • Backgrounds • Patterns • Spacing
+              </div>
             </div>
           `;
       }

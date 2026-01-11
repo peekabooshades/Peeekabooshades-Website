@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Zebra Shades Pricing - Peekaboo Shades Admin</title>
+  <link rel="stylesheet" href="css/admin.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="icon" type="image/png" href="/images/favicon.png">
+  <style>
+    .pricing-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+    }
+    .pricing-header h1 {
+      margin: 0;
+      font-size: 24px;
+    }
+    .pricing-header .actions {
+      display: flex;
+      gap: 12px;
+    }
+
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+    .stat-card {
+      background: white;
+      border-radius: 12px;
+      padding: 20px;
+      border: 1px solid #e5e7eb;
+    }
+    .stat-card .label {
+      font-size: 12px;
+      color: #6b7280;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .stat-card .value {
+      font-size: 28px;
+      font-weight: 600;
+      color: #1a1a1a;
+      margin-top: 4px;
+    }
+    .stat-card .sub {
+      font-size: 12px;
+      color: #9ca3af;
+      margin-top: 4px;
+    }
+
+    .filters-row {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 20px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    .filter-group {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .filter-group label {
+      font-size: 13px;
+      color: #6b7280;
+    }
+    .filter-group select, .filter-group input {
+      padding: 8px 12px;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      font-size: 13px;
+    }
+
+    .bulk-margin {
+      background: #f0f9ff;
+      border: 1px solid #bae6fd;
+      border-radius: 8px;
+      padding: 12px 16px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .bulk-margin input {
+      width: 80px;
+      padding: 6px 10px;
+      border: 1px solid #e5e7eb;
+      border-radius: 6px;
+    }
+
+    .pricing-card {
+      background: white;
+      border-radius: 12px;
+      padding: 24px;
+      border: 1px solid #e5e7eb;
+    }
+
+    .table-container {
+      width: 100%;
+      overflow-x: auto;
+      max-height: 600px;
+      overflow-y: auto;
+    }
+
+    .pricing-table {
+      width: 100%;
+      min-width: 1200px;
+      border-collapse: collapse;
+    }
+    .pricing-table th, .pricing-table td {
+      padding: 10px 12px;
+      text-align: left;
+      border-bottom: 1px solid #f0f0f0;
+      font-size: 13px;
+    }
+    .pricing-table th {
+      background: #f8f9fa;
+      font-weight: 600;
+      font-size: 11px;
+      color: #555;
+      text-transform: uppercase;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+    .pricing-table tbody tr:hover {
+      background: #fafbfc;
+    }
+
+    .fabric-thumb {
+      width: 40px;
+      height: 40px;
+      border-radius: 6px;
+      object-fit: cover;
+      border: 1px solid #e5e7eb;
+    }
+    .fabric-thumb.no-image {
+      background: #f3f4f6;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #9ca3af;
+      font-size: 14px;
+    }
+
+    .badge {
+      padding: 3px 8px;
+      border-radius: 12px;
+      font-size: 11px;
+      font-weight: 500;
+    }
+    .badge-blackout { background: #1f2937; color: white; }
+    .badge-semi-blackout { background: #6b7280; color: white; }
+    .badge-super-blackout { background: #7c2d12; color: white; }
+
+    .price-cell {
+      font-family: 'Monaco', 'Consolas', monospace;
+      font-size: 12px;
+    }
+    .price-cell.mfr { color: #dc2626; }
+    .price-cell.customer { color: #059669; font-weight: 600; }
+    .price-cell.profit { color: #2563eb; }
+
+    .margin-input {
+      width: 60px;
+      padding: 4px 8px;
+      border: 1px solid #e5e7eb;
+      border-radius: 4px;
+      text-align: center;
+      font-size: 12px;
+    }
+    .margin-input:focus {
+      border-color: #8E6545;
+      outline: none;
+    }
+
+    .btn {
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      transition: all 0.2s;
+    }
+    .btn-primary {
+      background: #8E6545;
+      color: white;
+      border: none;
+    }
+    .btn-primary:hover {
+      background: #7a5539;
+    }
+    .btn-secondary {
+      background: white;
+      color: #374151;
+      border: 1px solid #d1d5db;
+    }
+
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      padding: 12px 20px;
+      background: #1a1a1a;
+      color: white;
+      border-radius: 8px;
+      display: none;
+      z-index: 1000;
+    }
+    .toast.show { display: flex; align-items: center; gap: 8px; }
+    .toast.success { background: #059669; }
+    .toast.error { background: #dc2626; }
+  </style>
+</head>
+<body>
+  <div class="admin-layout">
+    <!-- Sidebar -->
+    <aside class="admin-sidebar">
+      <div class="sidebar-header">
+        <a href="/admin/" class="sidebar-logo">
+          <img src="/images/peekabooshades_logo.jpeg" alt="Peekaboo Shades" style="height: 32px; border-radius: 6px;">
+          <span>Peekaboo Shades</span>
+        </a>
+      </div>
+      <nav class="sidebar-nav">
+        <div class="nav-section">
+          <a href="/admin/" class="nav-item">
+            <i class="fas fa-home"></i> <span>Dashboard</span>
+          </a>
+        </div>
+        <div class="nav-section">
+          <div class="nav-section-title">Catalog</div>
+          <a href="/admin/products.html" class="nav-item">
+            <i class="fas fa-box"></i> <span>Products</span>
+          </a>
+          <a href="/admin/fabrics.html" class="nav-item">
+            <i class="fas fa-swatchbook"></i> <span>Fabrics</span>
+          </a>
+        </div>
+        <div class="nav-section">
+          <div class="nav-section-title">Pricing</div>
+          <a href="/admin/product-pricing.html" class="nav-item">
+            <i class="fas fa-tags"></i> <span>Roller Blinds</span>
+          </a>
+          <a href="/admin/zebra-pricing.html" class="nav-item active">
+            <i class="fas fa-tags"></i> <span>Zebra Shades</span>
+          </a>
+        </div>
+      </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="admin-main">
+      <header class="admin-header">
+        <div class="header-left">
+          <div class="breadcrumb">
+            <a href="/admin/">Dashboard</a>
+            <span class="breadcrumb-separator">/</span>
+            <span class="breadcrumb-current">Zebra Shades Pricing</span>
+          </div>
+        </div>
+      </header>
+
+      <div class="admin-content">
+        <div class="pricing-header">
+          <div>
+            <h1>Affordable Custom Zebra Shades - Pricing</h1>
+            <p style="color: #6b7280; margin-top: 4px;">Manage manufacturer costs, margins, and customer prices</p>
+          </div>
+          <div class="actions">
+            <button class="btn btn-secondary" onclick="exportPricing()">
+              <i class="fas fa-download"></i> Export CSV
+            </button>
+            <button class="btn btn-primary" onclick="saveAllChanges()">
+              <i class="fas fa-save"></i> Save All Changes
+            </button>
+          </div>
+        </div>
+
+        <!-- Minimum Area Notice -->
+        <div style="background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); border: 1px solid #f59e0b; border-radius: 8px; padding: 12px 16px; margin-bottom: 16px; display: flex; align-items: center; gap: 12px;">
+          <i class="fas fa-info-circle" style="color: #d97706; font-size: 20px;"></i>
+          <div>
+            <strong style="color: #92400e;">Zebra Shades Minimum Area: 1.5 sqm</strong>
+            <span style="color: #78350f; font-size: 13px;"> - Orders below this will be charged at 1.5 sqm rate (vs 1.2 sqm for Roller Shades)</span>
+          </div>
+        </div>
+
+        <!-- Stats Row -->
+        <div class="stats-row" style="grid-template-columns: repeat(5, 1fr);">
+          <div class="stat-card">
+            <div class="label">Total Fabrics</div>
+            <div class="value" id="statTotal">-</div>
+            <div class="sub">From Excel import</div>
+          </div>
+          <div class="stat-card">
+            <div class="label">Semi-Blackout</div>
+            <div class="value" id="statSemiBlackout">-</div>
+            <div class="sub">Light filtering</div>
+          </div>
+          <div class="stat-card">
+            <div class="label">Blackout</div>
+            <div class="value" id="statBlackout">-</div>
+            <div class="sub">Full blackout</div>
+          </div>
+          <div class="stat-card">
+            <div class="label">Super Blackout</div>
+            <div class="value" id="statSuperBlackout">-</div>
+            <div class="sub">Maximum darkness</div>
+          </div>
+          <div class="stat-card">
+            <div class="label">Avg Margin</div>
+            <div class="value" id="statAvgMargin">-</div>
+            <div class="sub">Across all fabrics</div>
+          </div>
+        </div>
+
+        <!-- Filters -->
+        <div class="filters-row">
+          <div class="filter-group">
+            <label>Category:</label>
+            <select id="filterCategory" onchange="filterTable()">
+              <option value="">All Categories</option>
+              <option value="semi-blackout">Semi-Blackout (111)</option>
+              <option value="blackout">Blackout (50)</option>
+              <option value="super-blackout">Super Blackout (15)</option>
+            </select>
+          </div>
+          <div class="filter-group">
+            <label>Search:</label>
+            <input type="text" id="filterSearch" placeholder="Fabric code..." oninput="filterTable()">
+          </div>
+          <div class="filter-group">
+            <label>Has Image:</label>
+            <select id="filterImage" onchange="filterTable()">
+              <option value="">All</option>
+              <option value="yes">With Image</option>
+              <option value="no">Missing Image</option>
+            </select>
+          </div>
+
+          <div class="bulk-margin" style="margin-left: auto;">
+            <label>Bulk Set Margin:</label>
+            <input type="number" id="bulkMargin" value="40" min="0" max="500">
+            <span>%</span>
+            <button class="btn btn-primary" onclick="applyBulkMargin()">Apply to All</button>
+          </div>
+        </div>
+
+        <!-- Pricing Table -->
+        <div class="pricing-card">
+          <div class="table-container">
+            <table class="pricing-table">
+              <thead>
+                <tr>
+                  <th>Image</th>
+                  <th>Fabric Code</th>
+                  <th>Type</th>
+                  <th>Composition</th>
+                  <th style="color: #dc2626;">Mfr Manual<br>($/sqm)</th>
+                  <th style="color: #dc2626;">Mfr Cordless<br>($/sqm)</th>
+                  <th style="color: #8E6545;">Margin %</th>
+                  <th style="color: #059669;">Customer Manual<br>($/sqm)</th>
+                  <th style="color: #059669;">Customer Cordless<br>($/sqm)</th>
+                  <th style="color: #2563eb;">Profit Manual</th>
+                  <th style="color: #2563eb;">Profit Cordless</th>
+                </tr>
+              </thead>
+              <tbody id="pricingTableBody">
+                <tr>
+                  <td colspan="11" style="text-align: center; padding: 40px; color: #9ca3af;">
+                    <i class="fas fa-spinner fa-spin"></i> Loading pricing data...
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Toast -->
+  <div class="toast" id="toast">
+    <i class="fas fa-check-circle"></i>
+    <span id="toastMessage">Saved!</span>
+  </div>
+
+  <script src="js/admin.js"></script>
+  <script>
+    if (!Admin.Auth.requireAuth()) { /* redirects */ }
+    const token = Admin.Auth.getToken();
+
+    let allPricingData = [];
+    let pendingChanges = {};
+
+    // API helper
+    async function api(endpoint, method = 'GET', body = null) {
+      const options = {
+        method,
+        headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }
+      };
+      if (body) options.body = JSON.stringify(body);
+      const res = await fetch(endpoint, options);
+      return res.json();
+    }
+
+    // Toast
+    function showToast(message, type = 'success') {
+      const toast = document.getElementById('toast');
+      document.getElementById('toastMessage').textContent = message;
+      toast.className = `toast ${type} show`;
+      setTimeout(() => toast.classList.remove('show'), 3000);
+    }
+
+    // Load pricing data
+    async function loadPricing() {
+      try {
+        const result = await api('/api/admin/zebra/pricing');
+        if (result.success) {
+          allPricingData = result.data;
+          updateStats(result.summary);
+          renderTable();
+        }
+      } catch (error) {
+        console.error('Error loading pricing:', error);
+      }
+    }
+
+    // Update stats
+    function updateStats(summary) {
+      document.getElementById('statTotal').textContent = summary.totalFabrics || allPricingData.length;
+
+      // Count by category
+      const semiBlackout = allPricingData.filter(p => p.category === 'semi-blackout').length;
+      const blackout = allPricingData.filter(p => p.category === 'blackout').length;
+      const superBlackout = allPricingData.filter(p => p.category === 'super-blackout').length;
+
+      document.getElementById('statSemiBlackout').textContent = semiBlackout;
+      document.getElementById('statBlackout').textContent = blackout;
+      document.getElementById('statSuperBlackout').textContent = superBlackout;
+
+      // Calculate average margin from data
+      if (allPricingData.length > 0) {
+        const avgMargin = allPricingData.reduce((sum, p) => sum + (p.margin || 40), 0) / allPricingData.length;
+        document.getElementById('statAvgMargin').textContent = avgMargin.toFixed(1) + '%';
+      } else {
+        document.getElementById('statAvgMargin').textContent = '-';
+      }
+    }
+
+    // Render table
+    function renderTable() {
+      const tbody = document.getElementById('pricingTableBody');
+      const category = document.getElementById('filterCategory').value;
+      const search = document.getElementById('filterSearch').value.toLowerCase();
+      const imageFilter = document.getElementById('filterImage').value;
+
+      let filtered = allPricingData;
+
+      if (category) {
+        filtered = filtered.filter(p => p.category === category);
+      }
+      if (search) {
+        filtered = filtered.filter(p => p.fabricCode.toLowerCase().includes(search));
+      }
+      if (imageFilter === 'yes') {
+        filtered = filtered.filter(p => p.hasImage);
+      } else if (imageFilter === 'no') {
+        filtered = filtered.filter(p => !p.hasImage);
+      }
+
+      if (filtered.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="11" style="text-align: center; padding: 40px; color: #9ca3af;">No fabrics found</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = filtered.map(p => {
+        let badgeClass = 'badge-semi-blackout';
+        if (p.category === 'blackout') badgeClass = 'badge-blackout';
+        else if (p.category === 'super-blackout') badgeClass = 'badge-super-blackout';
+        return `
+          <tr data-code="${p.fabricCode}">
+            <td>
+              ${p.hasImage
+                ? `<img src="${p.image}" class="fabric-thumb" alt="${p.fabricCode}">`
+                : `<div class="fabric-thumb no-image"><i class="fas fa-image"></i></div>`
+              }
+            </td>
+            <td><strong>${p.fabricCode}</strong></td>
+            <td><span class="badge ${badgeClass}">${p.shadingType}</span></td>
+            <td style="font-size: 11px; color: #6b7280;">${p.composition}</td>
+            <td class="price-cell mfr">$${p.manufacturerPriceManual.toFixed(2)}</td>
+            <td class="price-cell mfr">$${p.manufacturerPriceCordless.toFixed(2)}</td>
+            <td>
+              <input type="number" class="margin-input" value="${p.margin}" min="0" max="500"
+                onchange="updateMargin('${p.fabricCode}', this.value)">
+            </td>
+            <td class="price-cell customer">$${p.customerPriceManual.toFixed(2)}</td>
+            <td class="price-cell customer">$${p.customerPriceCordless.toFixed(2)}</td>
+            <td class="price-cell profit">$${p.profitManual.toFixed(2)}</td>
+            <td class="price-cell profit">$${p.profitCordless.toFixed(2)}</td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    // Filter table
+    function filterTable() {
+      renderTable();
+    }
+
+    // Update margin for single fabric
+    function updateMargin(fabricCode, marginValue) {
+      const margin = parseFloat(marginValue) || 40;
+      pendingChanges[fabricCode] = { margin };
+
+      // Update display
+      const row = document.querySelector(`tr[data-code="${fabricCode}"]`);
+      if (row) {
+        const item = allPricingData.find(p => p.fabricCode === fabricCode);
+        if (item) {
+          const customerManual = item.manufacturerPriceManual * (1 + margin / 100);
+          const customerCordless = item.manufacturerPriceCordless * (1 + margin / 100);
+          const profitManual = customerManual - item.manufacturerPriceManual;
+          const profitCordless = customerCordless - item.manufacturerPriceCordless;
+
+          row.querySelectorAll('.price-cell.customer')[0].textContent = `$${customerManual.toFixed(2)}`;
+          row.querySelectorAll('.price-cell.customer')[1].textContent = `$${customerCordless.toFixed(2)}`;
+          row.querySelectorAll('.price-cell.profit')[0].textContent = `$${profitManual.toFixed(2)}`;
+          row.querySelectorAll('.price-cell.profit')[1].textContent = `$${profitCordless.toFixed(2)}`;
+        }
+      }
+    }
+
+    // Apply bulk margin
+    async function applyBulkMargin() {
+      const margin = parseFloat(document.getElementById('bulkMargin').value);
+      const category = document.getElementById('filterCategory').value || null;
+
+      if (isNaN(margin) || margin < 0 || margin > 500) {
+        showToast('Invalid margin value', 'error');
+        return;
+      }
+
+      try {
+        const result = await api('/api/admin/zebra/pricing/bulk-margin', 'PUT', { margin, category });
+        if (result.success) {
+          showToast(`Updated ${result.updated} fabrics`);
+          loadPricing();
+        }
+      } catch (error) {
+        showToast('Error applying bulk margin', 'error');
+      }
+    }
+
+    // Save all pending changes
+    async function saveAllChanges() {
+      const codes = Object.keys(pendingChanges);
+      if (codes.length === 0) {
+        showToast('No changes to save');
+        return;
+      }
+
+      let saved = 0;
+      for (const code of codes) {
+        try {
+          await api(`/api/admin/zebra/pricing/${code}`, 'PUT', pendingChanges[code]);
+          saved++;
+        } catch (e) {
+          console.error('Error saving', code, e);
+        }
+      }
+
+      pendingChanges = {};
+      showToast(`Saved ${saved} changes`);
+      loadPricing();
+    }
+
+    // Export to CSV
+    function exportPricing() {
+      const headers = ['Fabric Code', 'Type', 'Composition', 'Mfr Manual', 'Mfr Cordless', 'Margin %', 'Customer Manual', 'Customer Cordless', 'Has Image'];
+      const rows = allPricingData.map(p => [
+        p.fabricCode,
+        p.shadingType,
+        p.composition,
+        p.manufacturerPriceManual,
+        p.manufacturerPriceCordless,
+        p.margin,
+        p.customerPriceManual,
+        p.customerPriceCordless,
+        p.hasImage ? 'Yes' : 'No'
+      ]);
+
+      const csv = [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
+      const blob = new Blob([csv], { type: 'text/csv' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'zebra-shades-pricing.csv';
+      a.click();
+    }
+
+    // Initialize
+    loadPricing();
+  </script>
+</body>
+</html>

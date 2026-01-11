@@ -40,7 +40,7 @@ const Auth = {
   // Check auth and redirect if not logged in
   requireAuth() {
     if (!this.isLoggedIn()) {
-      window.location.href = '/admin/login.html';
+      window.location.href = '/admin/login.html?redirect=' + encodeURIComponent(window.location.pathname);
       return false;
     }
     return true;
@@ -123,6 +123,7 @@ const API = {
 // Auth API
 const AuthAPI = {
   async login(email, password) {
+    console.log('[AuthAPI.login] Starting login for:', email);
     const response = await fetch(`${API_BASE}/login`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -130,14 +131,18 @@ const AuthAPI = {
     });
 
     const data = await response.json();
+    console.log('[AuthAPI.login] Response:', { success: data.success, hasToken: !!data.token });
 
     if (!response.ok) {
+      console.error('[AuthAPI.login] Login failed:', data.error);
       throw new Error(data.error || 'Login failed');
     }
 
     if (data.success) {
+      console.log('[AuthAPI.login] Storing token...');
       Auth.setToken(data.token);
       Auth.setUser(data.admin);
+      console.log('[AuthAPI.login] Token stored. Verifying:', !!Auth.getToken());
     }
 
     return data;
@@ -308,6 +313,29 @@ const HardwareAPI = {
 
   deleteOption(category, id) {
     return API.delete(`/hardware/${category}/${id}`);
+  }
+};
+
+// Zebra Hardware Options API
+const ZebraHardwareAPI = {
+  getAll() {
+    return API.get('/zebra/hardware');
+  },
+
+  getCategory(category) {
+    return API.get(`/zebra/hardware/${category}`);
+  },
+
+  createOption(category, option) {
+    return API.post(`/zebra/hardware/${category}`, option);
+  },
+
+  updateOption(category, id, option) {
+    return API.put(`/zebra/hardware/${category}/${id}`, option);
+  },
+
+  deleteOption(category, id) {
+    return API.delete(`/zebra/hardware/${category}/${id}`);
   }
 };
 
@@ -782,6 +810,7 @@ window.Admin = {
   CategoriesAPI,
   FabricsAPI,
   HardwareAPI,
+  ZebraHardwareAPI,
   AccessoriesAPI,
   ProductContentAPI,
   ProductCatalogAPI,

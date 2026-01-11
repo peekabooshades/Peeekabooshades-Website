@@ -773,9 +773,10 @@
     <span id="toastMessage">Success!</span>
   </div>
 
+  <script src="js/admin.js"></script>
   <script>
-    const token = localStorage.getItem('adminToken');
-    if (!token) window.location.href = '/admin/login.html';
+    if (!Admin.Auth.requireAuth()) { /* redirects to login */ }
+    const token = Admin.Auth.getToken();
 
     let allImages = [];
     let selectedImages = new Set();

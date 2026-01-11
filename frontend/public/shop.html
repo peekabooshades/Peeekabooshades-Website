@@ -995,19 +995,15 @@
           </svg>
           Roman Shades
         </button>
-        <button class="tab-btn" data-category="natural-woven-shades">
+        <button class="tab-btn" data-category="zebra-shades">
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
             <rect x="3" y="3" width="18" height="18" rx="1"/>
-            <line x1="3" y1="6" x2="21" y2="6"/>
-            <line x1="3" y1="9" x2="21" y2="9"/>
-            <line x1="3" y1="12" x2="21" y2="12"/>
+            <line x1="3" y1="7" x2="21" y2="7"/>
+            <line x1="3" y1="11" x2="21" y2="11"/>
             <line x1="3" y1="15" x2="21" y2="15"/>
-            <line x1="3" y1="18" x2="21" y2="18"/>
-            <line x1="6" y1="3" x2="6" y2="21"/>
-            <line x1="12" y1="3" x2="12" y2="21"/>
-            <line x1="18" y1="3" x2="18" y2="21"/>
+            <line x1="3" y1="19" x2="21" y2="19"/>
           </svg>
-          Natural Woven Shades
+          Zebra Shades
         </button>
         <button class="tab-btn" data-category="honeycomb-shades">
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
@@ -1132,7 +1128,7 @@
           <ul>
             <li><a href="/shop?category=roller-shades">Roller Shades</a></li>
             <li><a href="/shop?category=roman-shades">Roman Shades</a></li>
-            <li><a href="/shop?category=natural-woven-shades">Natural Woven</a></li>
+            <li><a href="/shop?category=zebra-shades">Zebra Shades</a></li>
             <li><a href="/shop?category=honeycomb-shades">Honeycomb Shades</a></li>
             <li><a href="/shop?category=drapes">Drapes</a></li>
           </ul>
@@ -1209,10 +1205,9 @@
     const categoryImages = {
       'roller-shades': '/images/products/roller-blinds/gallery-1.jpg',
       'roman-shades': '/images/roman-shades.png',
-      'natural-woven-shades': '/images/products/roller-blinds/gallery-3.jpg',
+      'zebra-shades': '/images/zebra-shades.png',
       'honeycomb-shades': '/images/honeycomb-shades.png',
-      'drapes': '/images/products/roller-blinds/gallery-5.jpg',
-      'zebra-shades': '/images/products/roller-blinds/gallery-2.jpg'
+      'drapes': '/images/products/roller-blinds/gallery-5.jpg'
     };
 
     // Initialize
@@ -1273,7 +1268,6 @@
         'roller-shades': `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="1"/><rect x="3" y="3" width="18" height="6" fill="currentColor" opacity="0.3"/><line x1="12" y1="9" x2="12" y2="21"/></svg>`,
         'zebra-shades': `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="1"/><line x1="3" y1="7" x2="21" y2="7"/><line x1="3" y1="11" x2="21" y2="11"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="3" y1="19" x2="21" y2="19"/></svg>`,
         'roman-shades': `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="1"/><path d="M3 8 Q12 12 21 8"/><path d="M3 13 Q12 17 21 13"/><path d="M3 18 Q12 22 21 18"/></svg>`,
-        'natural-woven-shades': `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="1"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="6" y1="3" x2="6" y2="21"/><line x1="12" y1="3" x2="12" y2="21"/><line x1="18" y1="3" x2="18" y2="21"/></svg>`,
         'honeycomb-shades': `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="1"/><path d="M6 6 L9 3 L12 6 L9 9 Z"/><path d="M12 6 L15 3 L18 6 L15 9 Z"/><path d="M6 12 L9 9 L12 12 L9 15 Z"/><path d="M12 12 L15 9 L18 12 L15 15 Z"/></svg>`,
         'drapes': `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="3"/><path d="M5 6 Q3 12 5 21"/><path d="M9 6 Q7 12 9 21"/><path d="M15 6 Q17 12 15 21"/><path d="M19 6 Q21 12 19 21"/></svg>`
       };
@@ -1339,13 +1333,13 @@
         },
         {
           id: '3',
-          slug: 'affordable-zebra-window-blinds',
-          name: 'Affordable Custom Zebra Window Blinds',
-          category_name: 'Natural Woven Shades',
-          category_slug: 'natural-woven-shades',
-          base_price: 50.00,
+          slug: 'affordable-custom-zebra-shades',
+          name: 'Affordable Custom Zebra Shades',
+          category_name: 'Zebra Shades',
+          category_slug: 'zebra-shades',
+          base_price: 45.00,
           sale_price: null,
-          image_url: '/images/products/roller-blinds/gallery-3.jpg'
+          image_url: '/images/zebra-shades.png'
         },
         {
           id: '4',
@@ -1380,12 +1374,12 @@
         {
           id: '7',
           slug: 'zebra-blinds-premium',
-          name: 'Affordable Custom Zebra Window Blinds',
-          category_name: 'Natural Woven Shades',
-          category_slug: 'natural-woven-shades',
-          base_price: 50.00,
+          name: 'Premium Zebra Shades',
+          category_name: 'Zebra Shades',
+          category_slug: 'zebra-shades',
+          base_price: 55.00,
           sale_price: null,
-          image_url: '/images/products/roller-blinds/gallery-4.jpg'
+          image_url: '/images/zebra-shades.png'
         },
         {
           id: '8',

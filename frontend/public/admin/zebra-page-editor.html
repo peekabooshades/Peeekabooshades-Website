@@ -1,0 +1,789 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Zebra Page Editor - Admin</title>
+  <link rel="stylesheet" href="css/admin.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    .editor-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 20px;
+    }
+    .editor-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 30px;
+      padding-bottom: 20px;
+      border-bottom: 1px solid #e5e7eb;
+    }
+    .editor-title {
+      font-size: 24px;
+      font-weight: 600;
+      color: #1a1a1a;
+    }
+    .editor-actions {
+      display: flex;
+      gap: 10px;
+    }
+    .btn {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 14px;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.2s;
+    }
+    .btn-primary {
+      background: #8E6545;
+      color: white;
+    }
+    .btn-primary:hover {
+      background: #7a5539;
+    }
+    .btn-secondary {
+      background: #f3f4f6;
+      color: #374151;
+    }
+    .btn-secondary:hover {
+      background: #e5e7eb;
+    }
+    .section-card {
+      background: white;
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 20px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+      cursor: pointer;
+    }
+    .section-title {
+      font-size: 18px;
+      font-weight: 600;
+      color: #1a1a1a;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .section-title i {
+      color: #8E6545;
+    }
+    .section-content {
+      display: block;
+    }
+    .section-content.collapsed {
+      display: none;
+    }
+    .form-group {
+      margin-bottom: 20px;
+    }
+    .form-group label {
+      display: block;
+      font-weight: 500;
+      margin-bottom: 8px;
+      color: #374151;
+    }
+    .form-group input,
+    .form-group textarea,
+    .form-group select {
+      width: 100%;
+      padding: 12px;
+      border: 1px solid #d1d5db;
+      border-radius: 8px;
+      font-size: 14px;
+      transition: border-color 0.2s;
+    }
+    .form-group input:focus,
+    .form-group textarea:focus,
+    .form-group select:focus {
+      outline: none;
+      border-color: #8E6545;
+    }
+    .form-group textarea {
+      min-height: 100px;
+      resize: vertical;
+    }
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+    }
+    .feature-list {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .feature-item {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+    .feature-item input {
+      flex: 1;
+    }
+    .feature-item .remove-btn {
+      background: #fee2e2;
+      color: #dc2626;
+      border: none;
+      padding: 8px 12px;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    .add-btn {
+      background: #f0fdf4;
+      color: #16a34a;
+      border: 1px dashed #16a34a;
+      padding: 10px 16px;
+      border-radius: 8px;
+      cursor: pointer;
+      width: 100%;
+      margin-top: 10px;
+    }
+    .faq-item {
+      background: #f9fafb;
+      padding: 16px;
+      border-radius: 8px;
+      margin-bottom: 10px;
+    }
+    .faq-item .form-group {
+      margin-bottom: 10px;
+    }
+    .faq-item .form-group:last-child {
+      margin-bottom: 0;
+    }
+    .preview-btn {
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      background: #1a1a1a;
+      color: white;
+      padding: 15px 25px;
+      border-radius: 50px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    }
+    .image-upload {
+      border: 2px dashed #d1d5db;
+      border-radius: 8px;
+      padding: 30px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .image-upload:hover {
+      border-color: #8E6545;
+      background: #faf5f0;
+    }
+    .image-preview {
+      max-width: 200px;
+      margin-top: 10px;
+      border-radius: 8px;
+    }
+    .toast {
+      position: fixed;
+      bottom: 30px;
+      left: 50%;
+      transform: translateX(-50%);
+      background: #1a1a1a;
+      color: white;
+      padding: 15px 30px;
+      border-radius: 8px;
+      display: none;
+      z-index: 1000;
+    }
+    .toast.show {
+      display: block;
+      animation: slideUp 0.3s ease;
+    }
+    @keyframes slideUp {
+      from { opacity: 0; transform: translate(-50%, 20px); }
+      to { opacity: 1; transform: translate(-50%, 0); }
+    }
+    .fabric-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+      gap: 15px;
+      max-height: 400px;
+      overflow-y: auto;
+      padding: 10px;
+      background: #f9fafb;
+      border-radius: 8px;
+    }
+    .fabric-item {
+      text-align: center;
+      padding: 10px;
+      background: white;
+      border-radius: 8px;
+      border: 2px solid transparent;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .fabric-item:hover {
+      border-color: #8E6545;
+    }
+    .fabric-item.selected {
+      border-color: #8E6545;
+      background: #faf5f0;
+    }
+    .fabric-item img {
+      width: 80px;
+      height: 80px;
+      object-fit: cover;
+      border-radius: 6px;
+      margin-bottom: 8px;
+    }
+    .fabric-item .code {
+      font-size: 12px;
+      font-weight: 600;
+      color: #374151;
+    }
+    .fabric-item .category {
+      font-size: 10px;
+      color: #6b7280;
+    }
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+    .stat-card {
+      background: linear-gradient(135deg, #8E6545 0%, #C49B6C 100%);
+      color: white;
+      padding: 20px;
+      border-radius: 12px;
+      text-align: center;
+    }
+    .stat-card .number {
+      font-size: 32px;
+      font-weight: 700;
+    }
+    .stat-card .label {
+      font-size: 12px;
+      opacity: 0.9;
+    }
+  </style>
+</head>
+<body>
+  <div class="admin-layout">
+    <!-- Sidebar -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <a href="/admin/" class="logo">Peekaboo Admin</a>
+      </div>
+      <nav class="sidebar-nav">
+        <a href="/admin/" class="nav-item"><i class="fas fa-home"></i> Dashboard</a>
+        <a href="/admin/products.html" class="nav-item"><i class="fas fa-box"></i> Products</a>
+        <a href="/admin/zebra-pricing.html" class="nav-item"><i class="fas fa-dollar-sign"></i> Zebra Pricing</a>
+        <a href="/admin/zebra-page-editor.html" class="nav-item active"><i class="fas fa-edit"></i> Zebra Page Editor</a>
+        <a href="/admin/fabrics.html" class="nav-item"><i class="fas fa-palette"></i> Fabrics</a>
+        <a href="/admin/orders.html" class="nav-item"><i class="fas fa-shopping-cart"></i> Orders</a>
+        <a href="/admin/settings.html" class="nav-item"><i class="fas fa-cog"></i> Settings</a>
+      </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <div class="editor-container">
+        <div class="editor-header">
+          <div>
+            <h1 class="editor-title">Zebra Shades Page Editor</h1>
+            <p style="color: #6b7280; margin-top: 5px;">Edit content for the Zebra Shades product page</p>
+          </div>
+          <div class="editor-actions">
+            <a href="/product/affordable-custom-zebra-shades" target="_blank" class="btn btn-secondary">
+              <i class="fas fa-eye"></i> Preview Page
+            </a>
+            <button class="btn btn-primary" onclick="saveAll()">
+              <i class="fas fa-save"></i> Save Changes
+            </button>
+          </div>
+        </div>
+
+        <!-- Stats -->
+        <div class="stats-row">
+          <div class="stat-card">
+            <div class="number" id="totalFabrics">67</div>
+            <div class="label">Total Fabrics</div>
+          </div>
+          <div class="stat-card">
+            <div class="number" id="blackoutCount">11</div>
+            <div class="label">Blackout</div>
+          </div>
+          <div class="stat-card">
+            <div class="number" id="semiBlackoutCount">56</div>
+            <div class="label">Semi-Blackout</div>
+          </div>
+          <div class="stat-card">
+            <div class="number" id="withImages">67</div>
+            <div class="label">With Images</div>
+          </div>
+        </div>
+
+        <!-- Page Title & Description -->
+        <div class="section-card">
+          <div class="section-header" onclick="toggleSection(this)">
+            <h2 class="section-title"><i class="fas fa-heading"></i> Page Title & Description</h2>
+            <i class="fas fa-chevron-down"></i>
+          </div>
+          <div class="section-content">
+            <div class="form-group">
+              <label>Page Title</label>
+              <input type="text" id="pageTitle" value="Affordable Custom Zebra Shades">
+            </div>
+            <div class="form-group">
+              <label>Subtitle</label>
+              <input type="text" id="pageSubtitle" value="Dual-Layer Light Control Blinds">
+            </div>
+            <div class="form-group">
+              <label>Description</label>
+              <textarea id="pageDescription">Experience the perfect balance of privacy and natural light with our premium Zebra Shades. These innovative dual-layer blinds feature alternating sheer and solid fabric bands that let you control light with precision.</textarea>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Meta Title (SEO)</label>
+                <input type="text" id="metaTitle" value="Custom Zebra Shades | Dual Layer Blinds | Peekaboo Shades">
+              </div>
+              <div class="form-group">
+                <label>Meta Description (SEO)</label>
+                <input type="text" id="metaDescription" value="Shop affordable custom zebra shades with dual-layer light control. Choose from 67 premium fabrics. Free shipping on orders over $199.">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Hero Image -->
+        <div class="section-card">
+          <div class="section-header" onclick="toggleSection(this)">
+            <h2 class="section-title"><i class="fas fa-image"></i> Hero Image</h2>
+            <i class="fas fa-chevron-down"></i>
+          </div>
+          <div class="section-content">
+            <div class="form-group">
+              <label>Main Product Image URL</label>
+              <input type="text" id="heroImage" value="/images/products/zebra-shades-hero.jpg">
+            </div>
+            <div class="form-group">
+              <label>Alt Text</label>
+              <input type="text" id="heroImageAlt" value="Custom Zebra Shades with dual-layer fabric">
+            </div>
+          </div>
+        </div>
+
+        <!-- Features -->
+        <div class="section-card">
+          <div class="section-header" onclick="toggleSection(this)">
+            <h2 class="section-title"><i class="fas fa-star"></i> Key Features</h2>
+            <i class="fas fa-chevron-down"></i>
+          </div>
+          <div class="section-content">
+            <div class="feature-list" id="featuresList">
+              <div class="feature-item">
+                <input type="text" value="Dual-layer fabric for precise light control">
+                <button class="remove-btn" onclick="removeFeature(this)"><i class="fas fa-times"></i></button>
+              </div>
+              <div class="feature-item">
+                <input type="text" value="67 premium fabric options">
+                <button class="remove-btn" onclick="removeFeature(this)"><i class="fas fa-times"></i></button>
+              </div>
+              <div class="feature-item">
+                <input type="text" value="Blackout and Semi-Blackout options">
+                <button class="remove-btn" onclick="removeFeature(this)"><i class="fas fa-times"></i></button>
+              </div>
+              <div class="feature-item">
+                <input type="text" value="Easy cordless or motorized operation">
+                <button class="remove-btn" onclick="removeFeature(this)"><i class="fas fa-times"></i></button>
+              </div>
+              <div class="feature-item">
+                <input type="text" value="Custom sizes up to 90\" wide">
+                <button class="remove-btn" onclick="removeFeature(this)"><i class="fas fa-times"></i></button>
+              </div>
+            </div>
+            <button class="add-btn" onclick="addFeature()"><i class="fas fa-plus"></i> Add Feature</button>
+          </div>
+        </div>
+
+        <!-- Pricing Display -->
+        <div class="section-card">
+          <div class="section-header" onclick="toggleSection(this)">
+            <h2 class="section-title"><i class="fas fa-tag"></i> Pricing Display</h2>
+            <i class="fas fa-chevron-down"></i>
+          </div>
+          <div class="section-content">
+            <div class="form-row">
+              <div class="form-group">
+                <label>Starting Price Text</label>
+                <input type="text" id="startingPriceText" value="Starting at">
+              </div>
+              <div class="form-group">
+                <label>Starting Price</label>
+                <input type="text" id="startingPrice" value="$89">
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Free Shipping Threshold</label>
+                <input type="text" id="freeShippingThreshold" value="$199">
+              </div>
+              <div class="form-group">
+                <label>Promo Badge Text</label>
+                <input type="text" id="promoBadge" value="Free Shipping Over $199">
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Fabric Categories -->
+        <div class="section-card">
+          <div class="section-header" onclick="toggleSection(this)">
+            <h2 class="section-title"><i class="fas fa-palette"></i> Fabric Categories</h2>
+            <i class="fas fa-chevron-down"></i>
+          </div>
+          <div class="section-content">
+            <div class="form-group">
+              <label>Blackout Description</label>
+              <textarea id="blackoutDesc">Complete light blocking for bedrooms and media rooms. Our blackout zebra fabrics provide 100% light control when closed.</textarea>
+            </div>
+            <div class="form-group">
+              <label>Semi-Blackout Description</label>
+              <textarea id="semiBlackoutDesc">Perfect balance of light filtering and privacy. Semi-blackout fabrics allow soft diffused light while maintaining privacy.</textarea>
+            </div>
+          </div>
+        </div>
+
+        <!-- Available Fabrics Preview -->
+        <div class="section-card">
+          <div class="section-header" onclick="toggleSection(this)">
+            <h2 class="section-title"><i class="fas fa-th"></i> Available Fabrics (67)</h2>
+            <i class="fas fa-chevron-down"></i>
+          </div>
+          <div class="section-content">
+            <p style="color: #6b7280; margin-bottom: 15px;">These fabrics are displayed on the product page. Manage pricing in <a href="/admin/zebra-pricing.html">Zebra Pricing</a>.</p>
+            <div class="fabric-grid" id="fabricGrid">
+              <!-- Populated by JavaScript -->
+            </div>
+          </div>
+        </div>
+
+        <!-- FAQ Section -->
+        <div class="section-card">
+          <div class="section-header" onclick="toggleSection(this)">
+            <h2 class="section-title"><i class="fas fa-question-circle"></i> FAQ Section</h2>
+            <i class="fas fa-chevron-down"></i>
+          </div>
+          <div class="section-content">
+            <div id="faqList">
+              <div class="faq-item">
+                <div class="form-group">
+                  <label>Question</label>
+                  <input type="text" value="What are Zebra Shades?">
+                </div>
+                <div class="form-group">
+                  <label>Answer</label>
+                  <textarea>Zebra shades, also known as dual or transitional shades, feature alternating bands of sheer and solid fabric. By adjusting the alignment of these bands, you can control light and privacy with precision.</textarea>
+                </div>
+                <button class="remove-btn" onclick="removeFaq(this)"><i class="fas fa-times"></i> Remove</button>
+              </div>
+              <div class="faq-item">
+                <div class="form-group">
+                  <label>Question</label>
+                  <input type="text" value="How do I measure for Zebra Shades?">
+                </div>
+                <div class="form-group">
+                  <label>Answer</label>
+                  <textarea>For inside mount, measure the width at the top, middle, and bottom of the window opening. Use the smallest measurement. For height, measure from the top of the opening to the sill.</textarea>
+                </div>
+                <button class="remove-btn" onclick="removeFaq(this)"><i class="fas fa-times"></i> Remove</button>
+              </div>
+              <div class="faq-item">
+                <div class="form-group">
+                  <label>Question</label>
+                  <input type="text" value="What's the difference between Blackout and Semi-Blackout?">
+                </div>
+                <div class="form-group">
+                  <label>Answer</label>
+                  <textarea>Blackout fabrics block 100% of light when the solid bands are aligned, perfect for bedrooms. Semi-blackout fabrics filter light while providing privacy, ideal for living rooms and offices.</textarea>
+                </div>
+                <button class="remove-btn" onclick="removeFaq(this)"><i class="fas fa-times"></i> Remove</button>
+              </div>
+            </div>
+            <button class="add-btn" onclick="addFaq()"><i class="fas fa-plus"></i> Add FAQ</button>
+          </div>
+        </div>
+
+        <!-- Call to Action -->
+        <div class="section-card">
+          <div class="section-header" onclick="toggleSection(this)">
+            <h2 class="section-title"><i class="fas fa-bullhorn"></i> Call to Action</h2>
+            <i class="fas fa-chevron-down"></i>
+          </div>
+          <div class="section-content">
+            <div class="form-row">
+              <div class="form-group">
+                <label>CTA Heading</label>
+                <input type="text" id="ctaHeading" value="Ready to Transform Your Windows?">
+              </div>
+              <div class="form-group">
+                <label>CTA Subheading</label>
+                <input type="text" id="ctaSubheading" value="Get a free quote in minutes">
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Primary Button Text</label>
+                <input type="text" id="ctaPrimaryBtn" value="Get Free Quote">
+              </div>
+              <div class="form-group">
+                <label>Secondary Button Text</label>
+                <input type="text" id="ctaSecondaryBtn" value="Order Free Samples">
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </main>
+  </div>
+
+  <div class="toast" id="toast">Changes saved successfully!</div>
+
+  <script src="js/admin.js"></script>
+  <script>
+    // Auth check
+    if (!Admin.Auth.requireAuth()) {
+      // Will redirect to login
+    }
+    const token = Admin.Auth.getToken();
+
+    // Toggle section collapse
+    function toggleSection(header) {
+      const content = header.nextElementSibling;
+      const icon = header.querySelector('.fa-chevron-down, .fa-chevron-up');
+      content.classList.toggle('collapsed');
+      icon.classList.toggle('fa-chevron-down');
+      icon.classList.toggle('fa-chevron-up');
+    }
+
+    // Add feature
+    function addFeature() {
+      const list = document.getElementById('featuresList');
+      const item = document.createElement('div');
+      item.className = 'feature-item';
+      item.innerHTML = `
+        <input type="text" placeholder="Enter feature...">
+        <button class="remove-btn" onclick="removeFeature(this)"><i class="fas fa-times"></i></button>
+      `;
+      list.appendChild(item);
+    }
+
+    // Remove feature
+    function removeFeature(btn) {
+      btn.parentElement.remove();
+    }
+
+    // Add FAQ
+    function addFaq() {
+      const list = document.getElementById('faqList');
+      const item = document.createElement('div');
+      item.className = 'faq-item';
+      item.innerHTML = `
+        <div class="form-group">
+          <label>Question</label>
+          <input type="text" placeholder="Enter question...">
+        </div>
+        <div class="form-group">
+          <label>Answer</label>
+          <textarea placeholder="Enter answer..."></textarea>
+        </div>
+        <button class="remove-btn" onclick="removeFaq(this)"><i class="fas fa-times"></i> Remove</button>
+      `;
+      list.appendChild(item);
+    }
+
+    // Remove FAQ
+    function removeFaq(btn) {
+      btn.parentElement.remove();
+    }
+
+    // Load fabrics
+    async function loadFabrics() {
+      try {
+        const response = await fetch('/api/admin/zebra/fabrics', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const data = await response.json();
+
+        if (data.success) {
+          const fabrics = data.data;
+          const grid = document.getElementById('fabricGrid');
+
+          // Update stats
+          document.getElementById('totalFabrics').textContent = fabrics.length;
+          document.getElementById('blackoutCount').textContent = fabrics.filter(f => f.category === 'blackout').length;
+          document.getElementById('semiBlackoutCount').textContent = fabrics.filter(f => f.category === 'semi-blackout').length;
+          document.getElementById('withImages').textContent = fabrics.filter(f => f.hasImage).length;
+
+          // Render fabric grid
+          grid.innerHTML = fabrics.map(f => `
+            <div class="fabric-item">
+              <img src="${f.image || '/images/placeholder.png'}" alt="${f.code}" onerror="this.src='/images/placeholder.png'">
+              <div class="code">${f.code}</div>
+              <div class="category">${f.category}</div>
+            </div>
+          `).join('');
+        }
+      } catch (error) {
+        console.error('Error loading fabrics:', error);
+      }
+    }
+
+    // Load page content
+    async function loadPageContent() {
+      try {
+        const response = await fetch('/api/admin/zebra/page-content', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const data = await response.json();
+
+        if (data.success && data.data) {
+          const content = data.data;
+
+          // Populate fields
+          if (content.pageTitle) document.getElementById('pageTitle').value = content.pageTitle;
+          if (content.pageSubtitle) document.getElementById('pageSubtitle').value = content.pageSubtitle;
+          if (content.pageDescription) document.getElementById('pageDescription').value = content.pageDescription;
+          if (content.metaTitle) document.getElementById('metaTitle').value = content.metaTitle;
+          if (content.metaDescription) document.getElementById('metaDescription').value = content.metaDescription;
+          if (content.heroImage) document.getElementById('heroImage').value = content.heroImage;
+          if (content.heroImageAlt) document.getElementById('heroImageAlt').value = content.heroImageAlt;
+          if (content.startingPriceText) document.getElementById('startingPriceText').value = content.startingPriceText;
+          if (content.startingPrice) document.getElementById('startingPrice').value = content.startingPrice;
+          if (content.freeShippingThreshold) document.getElementById('freeShippingThreshold').value = content.freeShippingThreshold;
+          if (content.promoBadge) document.getElementById('promoBadge').value = content.promoBadge;
+          if (content.blackoutDesc) document.getElementById('blackoutDesc').value = content.blackoutDesc;
+          if (content.semiBlackoutDesc) document.getElementById('semiBlackoutDesc').value = content.semiBlackoutDesc;
+          if (content.ctaHeading) document.getElementById('ctaHeading').value = content.ctaHeading;
+          if (content.ctaSubheading) document.getElementById('ctaSubheading').value = content.ctaSubheading;
+          if (content.ctaPrimaryBtn) document.getElementById('ctaPrimaryBtn').value = content.ctaPrimaryBtn;
+          if (content.ctaSecondaryBtn) document.getElementById('ctaSecondaryBtn').value = content.ctaSecondaryBtn;
+
+          // Load features
+          if (content.features && content.features.length > 0) {
+            const featuresList = document.getElementById('featuresList');
+            featuresList.innerHTML = content.features.map(f => `
+              <div class="feature-item">
+                <input type="text" value="${f}">
+                <button class="remove-btn" onclick="removeFeature(this)"><i class="fas fa-times"></i></button>
+              </div>
+            `).join('');
+          }
+
+          // Load FAQs
+          if (content.faqs && content.faqs.length > 0) {
+            const faqList = document.getElementById('faqList');
+            faqList.innerHTML = content.faqs.map(faq => `
+              <div class="faq-item">
+                <div class="form-group">
+                  <label>Question</label>
+                  <input type="text" value="${faq.question}">
+                </div>
+                <div class="form-group">
+                  <label>Answer</label>
+                  <textarea>${faq.answer}</textarea>
+                </div>
+                <button class="remove-btn" onclick="removeFaq(this)"><i class="fas fa-times"></i> Remove</button>
+              </div>
+            `).join('');
+          }
+        }
+      } catch (error) {
+        console.error('Error loading page content:', error);
+      }
+    }
+
+    // Save all changes
+    async function saveAll() {
+      // Collect features
+      const features = [];
+      document.querySelectorAll('#featuresList .feature-item input').forEach(input => {
+        if (input.value.trim()) features.push(input.value.trim());
+      });
+
+      // Collect FAQs
+      const faqs = [];
+      document.querySelectorAll('#faqList .faq-item').forEach(item => {
+        const question = item.querySelector('input').value.trim();
+        const answer = item.querySelector('textarea').value.trim();
+        if (question && answer) faqs.push({ question, answer });
+      });
+
+      const content = {
+        pageTitle: document.getElementById('pageTitle').value,
+        pageSubtitle: document.getElementById('pageSubtitle').value,
+        pageDescription: document.getElementById('pageDescription').value,
+        metaTitle: document.getElementById('metaTitle').value,
+        metaDescription: document.getElementById('metaDescription').value,
+        heroImage: document.getElementById('heroImage').value,
+        heroImageAlt: document.getElementById('heroImageAlt').value,
+        startingPriceText: document.getElementById('startingPriceText').value,
+        startingPrice: document.getElementById('startingPrice').value,
+        freeShippingThreshold: document.getElementById('freeShippingThreshold').value,
+        promoBadge: document.getElementById('promoBadge').value,
+        blackoutDesc: document.getElementById('blackoutDesc').value,
+        semiBlackoutDesc: document.getElementById('semiBlackoutDesc').value,
+        ctaHeading: document.getElementById('ctaHeading').value,
+        ctaSubheading: document.getElementById('ctaSubheading').value,
+        ctaPrimaryBtn: document.getElementById('ctaPrimaryBtn').value,
+        ctaSecondaryBtn: document.getElementById('ctaSecondaryBtn').value,
+        features,
+        faqs,
+        updatedAt: new Date().toISOString()
+      };
+
+      try {
+        const response = await fetch('/api/admin/zebra/page-content', {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify(content)
+        });
+
+        const data = await response.json();
+        if (data.success) {
+          showToast('Changes saved successfully!');
+        } else {
+          showToast('Error saving changes: ' + data.error);
+        }
+      } catch (error) {
+        console.error('Error saving:', error);
+        showToast('Error saving changes');
+      }
+    }
+
+    // Show toast notification
+    function showToast(message) {
+      const toast = document.getElementById('toast');
+      toast.textContent = message;
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), 3000);
+    }
+
+    // Initialize
+    loadFabrics();
+    loadPageContent();
+  </script>
+</body>
+</html>

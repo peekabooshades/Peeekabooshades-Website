@@ -1017,12 +1017,13 @@
     <span id="toastMessage">Saved successfully!</span>
   </div>
 
+  <script src="js/admin.js"></script>
   <script>
-    // Auth token
-    const token = localStorage.getItem('adminToken');
-    if (!token) {
-      window.location.href = '/admin/login.html';
+    // Auth check - same as dashboard
+    if (!Admin.Auth.requireAuth()) {
+      // Will redirect to login
     }
+    const token = Admin.Auth.getToken();
 
     // API helper
     async function api(endpoint, method = 'GET', body = null) {

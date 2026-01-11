@@ -252,6 +252,13 @@
                   <option value="responded">Responded</option>
                   <option value="closed">Closed</option>
                 </select>
+                <select id="product-type-filter" class="filter-select">
+                  <option value="">All Products</option>
+                  <option value="roller">Roller Shades</option>
+                  <option value="zebra">Zebra Shades</option>
+                  <option value="honeycomb">Honeycomb Shades</option>
+                  <option value="roman">Roman Shades</option>
+                </select>
               </div>
             </div>
           </div>
@@ -266,6 +273,7 @@
                   <th>Quote #</th>
                   <th>Date</th>
                   <th>Customer</th>
+                  <th>Type</th>
                   <th>Product</th>
                   <th>Dimensions</th>
                   <th>Status</th>
@@ -274,7 +282,7 @@
               </thead>
               <tbody id="quotes-table">
                 <tr>
-                  <td colspan="7" style="text-align: center; padding: 60px;">
+                  <td colspan="8" style="text-align: center; padding: 60px;">
                     <div class="spinner"></div>
                     <p style="margin-top: 16px; color: var(--admin-text-secondary);">Loading quotes...</p>
                   </td>
@@ -796,13 +804,36 @@
       }
     }
 
+    // Get product type from quote
+    function getQuoteProductType(quote) {
+      if (quote.product_type) return quote.product_type;
+      const productName = (quote.product_name || '').toLowerCase();
+      const productSlug = (quote.product_slug || '').toLowerCase();
+      if (productName.includes('zebra') || productSlug.includes('zebra')) return 'zebra';
+      if (productName.includes('honeycomb') || productName.includes('cellular') || productSlug.includes('honeycomb')) return 'honeycomb';
+      if (productName.includes('roman') || productSlug.includes('roman')) return 'roman';
+      return 'roller';
+    }
+
+    // Get badge HTML for product type
+    function getProductTypeBadge(type) {
+      const styles = {
+        roller: { bg: '#dbeafe', color: '#1e40af', label: 'Roller' },
+        zebra: { bg: '#fef3c7', color: '#92400e', label: 'Zebra' },
+        honeycomb: { bg: '#d1fae5', color: '#065f46', label: 'Honeycomb' },
+        roman: { bg: '#fce7f3', color: '#9d174d', label: 'Roman' }
+      };
+      const style = styles[type] || styles.roller;
+      return `<span style="display: inline-block; padding: 4px 10px; background: ${style.bg}; color: ${style.color}; border-radius: 12px; font-size: 11px; font-weight: 600;">${style.label}</span>`;
+    }
+
     function renderQuotes(quotes) {
       const tbody = document.getElementById('quotes-table');
 
       if (!quotes || quotes.length === 0) {
         tbody.innerHTML = `
           <tr>
-            <td colspan="7" class="empty-state">
+            <td colspan="8" class="empty-state">
               <svg xmlns="http://www.w3.org/2000/svg" class="empty-state-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
               </svg>
@@ -814,7 +845,9 @@
         return;
       }
 
-      tbody.innerHTML = quotes.map(quote => `
+      tbody.innerHTML = quotes.map(quote => {
+        const productType = getQuoteProductType(quote);
+        return `
         <tr data-id="${quote.id}">
           <td>
             <a href="#" onclick="viewQuote('${quote.id}'); return false;" style="color: var(--admin-primary); text-decoration: none; font-weight: 500;">
@@ -826,6 +859,7 @@
             <div>${Admin.Utils.escapeHtml(quote.customer_name)}</div>
             <div style="font-size: 12px; color: var(--admin-text-secondary);">${Admin.Utils.escapeHtml(quote.customer_email || '')}</div>
           </td>
+          <td>${getProductTypeBadge(productType)}</td>
           <td>${Admin.Utils.escapeHtml(quote.product_name || 'Not specified')}</td>
           <td>${quote.width}" x ${quote.height}" (x${quote.quantity || 1})</td>
           <td>
@@ -862,10 +896,12 @@
     function initFilters() {
       const searchInput = document.getElementById('search-input');
       const statusFilter = document.getElementById('status-filter');
+      const productTypeFilter = document.getElementById('product-type-filter');
 
       const applyFilters = Admin.Utils.debounce(() => {
         const search = searchInput.value.toLowerCase();
         const status = statusFilter.value;
+        const productType = productTypeFilter.value;
 
         const filtered = allQuotes.filter(q => {
           const matchesSearch = !search ||
@@ -873,8 +909,10 @@
             q.customer_name.toLowerCase().includes(search) ||
             (q.customer_email && q.customer_email.toLowerCase().includes(search));
           const matchesStatus = !status || q.status === status;
+          const quoteProductType = getQuoteProductType(q);
+          const matchesProductType = !productType || quoteProductType === productType;
 
-          return matchesSearch && matchesStatus;
+          return matchesSearch && matchesStatus && matchesProductType;
         });
 
         renderQuotes(filtered);
@@ -882,6 +920,7 @@
 
       searchInput.addEventListener('input', applyFilters);
       statusFilter.addEventListener('change', applyFilters);
+      productTypeFilter.addEventListener('change', applyFilters);
     }
 
     async function updateStatus(id, status) {

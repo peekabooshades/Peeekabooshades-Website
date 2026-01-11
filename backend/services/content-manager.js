@@ -604,8 +604,22 @@ class ContentManager {
       socialLinks: siteContent.navigation?.socialLinks || cmsContent.navigation?.socialLinks || []
     };
 
-    // Build theme - from siteContent.theme (admin theme settings)
-    const theme = siteContent.theme || db.themeSettings || {};
+    // Build theme - map themeSettings to frontend expected format
+    const themeSettings = db.themeSettings || {};
+    const theme = {
+      // Map colors to frontend expected property names
+      primaryColor: themeSettings.colors?.primary || siteContent.theme?.primaryColor || '#8E6545',
+      secondaryColor: themeSettings.colors?.secondary || siteContent.theme?.secondaryColor || '#333333',
+      backgroundColor: themeSettings.colors?.bgCream || themeSettings.colors?.bgLight || siteContent.theme?.backgroundColor || '#F6F1EB',
+      accentColor: themeSettings.colors?.accent || siteContent.theme?.accentColor || '#C49B6C',
+      textColor: themeSettings.colors?.textDark || siteContent.theme?.textColor || '#1a1a1a',
+      // Map fonts
+      fontFamily: themeSettings.fonts?.primary?.family || siteContent.theme?.fontFamily || 'Montserrat',
+      fontUrl: themeSettings.fonts?.primary?.url || siteContent.theme?.fontUrl,
+      // Include raw for admin reference
+      colors: themeSettings.colors || {},
+      fonts: themeSettings.fonts || {}
+    };
 
     // Build banners from heroSlides
     const banners = (siteContent.heroSlides || []).filter(s => s.active !== false).map(slide => ({

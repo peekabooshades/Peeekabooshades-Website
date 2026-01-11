@@ -1,0 +1,3202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Zebra Shades - Peekaboo Shades</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    /* ============================================
+       PEEKABOO SHADES - Zebra Product Page
+       ============================================ */
+
+    :root {
+      --golden-brown: #8E6545;
+      --golden-brown-dark: #8E6545;
+      --dark-brown: #8E6545;
+      --text-dark: #333333;
+      --text-brown: #8E6545;
+      --text-light: #666666;
+      --text-muted: #999999;
+      --bg-cream: #F8F6F3;
+      --bg-light: #FAFAFA;
+      --bg-white: #FFFFFF;
+      --border-light: #E8E8E8;
+      --border-medium: #D4D4D4;
+      --success-green: #28a745;
+      --error-red: #dc3545;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 14px;
+      line-height: 1.7;
+      color: #8E6545;
+      background-color: #F6F1EB;
+      font-weight: 400;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+      text-rendering: optimizeLegibility;
+    }
+
+    a {
+      text-decoration: none;
+      color: inherit;
+      transition: color 0.2s ease;
+    }
+
+    button {
+      cursor: pointer;
+      border: none;
+      background: none;
+      font-family: 'Montserrat', sans-serif;
+    }
+
+    input, select, textarea {
+      font-family: 'Montserrat', sans-serif;
+    }
+
+    h1, h2, h3, h4, h5, h6 {
+      font-family: 'Montserrat', sans-serif;
+      letter-spacing: -0.02em;
+      font-weight: 600;
+    }
+
+    /* ============================================
+       TOP BAR
+       ============================================ */
+    .top-bar {
+      background-color: var(--dark-brown);
+      color: white;
+      padding: 8px 0;
+      font-size: 12px;
+    }
+
+    .top-bar-container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 0 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .top-bar-left {
+      display: flex;
+      gap: 25px;
+    }
+
+    .top-bar-left span {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .top-bar-center {
+      display: flex;
+      gap: 20px;
+    }
+
+    .top-bar-center a {
+      color: white;
+      font-weight: 500;
+    }
+
+    .top-bar-right {
+      display: flex;
+      gap: 15px;
+      align-items: center;
+    }
+
+    .top-bar-right a {
+      color: white;
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+
+    /* ============================================
+       MAIN HEADER
+       ============================================ */
+    .main-header {
+      background-color: #FFFFFF;
+      height: 120px;
+      display: flex;
+      align-items: center;
+      border-bottom: 1px solid var(--border-light);
+    }
+
+    .header-container {
+      max-width: 1400px;
+      width: 100%;
+      margin: 0 auto;
+      padding: 0 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .logo-img {
+      height: 100px !important;
+      width: auto !important;
+      border-radius: 8px;
+    }
+
+    .main-nav ul {
+      display: flex;
+      gap: 30px;
+      list-style: none;
+    }
+
+    .main-nav a {
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--text-dark);
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      letter-spacing: 0.02em;
+    }
+
+    .main-nav a:hover {
+      color: var(--golden-brown);
+    }
+
+    .nav-dropdown {
+      position: relative;
+    }
+
+    .nav-dropdown-menu {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      background: #FFFFFF;
+      min-width: 220px;
+      border-radius: 8px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(10px);
+      transition: all 0.3s ease;
+      z-index: 100;
+      padding: 10px 0;
+    }
+
+    .nav-dropdown:hover .nav-dropdown-menu {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+    }
+
+    .nav-dropdown-menu a {
+      display: block;
+      padding: 10px 18px;
+      color: #333333 !important;
+      font-size: 13px;
+      font-weight: 500;
+    }
+
+    .nav-dropdown-menu a:hover {
+      background: #F8F6F3;
+      color: #8E6545 !important;
+    }
+
+    .header-right {
+      display: flex;
+      align-items: center;
+      gap: 20px;
+    }
+
+    .search-box {
+      display: flex;
+      align-items: center;
+      background: var(--bg-light);
+      border: 1px solid var(--border-light);
+      border-radius: 25px;
+      padding: 8px 15px;
+      width: 200px;
+    }
+
+    .search-box input {
+      border: none;
+      background: none;
+      outline: none;
+      flex: 1;
+      font-size: 13px;
+    }
+
+    .search-box i {
+      color: var(--text-muted);
+    }
+
+    .header-icons {
+      display: flex;
+      gap: 15px;
+    }
+
+    .header-icon {
+      position: relative;
+      color: var(--text-dark);
+      font-size: 18px;
+    }
+
+    .cart-count {
+      position: absolute;
+      top: -8px;
+      right: -8px;
+      background: var(--golden-brown);
+      color: white;
+      font-size: 10px;
+      width: 18px;
+      height: 18px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+    }
+
+    /* ============================================
+       PRODUCT DETAIL SECTION
+       ============================================ */
+    .product-detail-section {
+      padding: 30px 0 50px;
+      background: #F6F1EB;
+    }
+
+    .product-detail-container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 0 40px;
+      display: grid;
+      grid-template-columns: 500px 1fr;
+      gap: 50px;
+    }
+
+    /* Product Gallery */
+    .product-gallery {
+      position: sticky;
+      top: 30px;
+      height: fit-content;
+    }
+
+    .main-image-container {
+      width: 100%;
+      aspect-ratio: 1;
+      border-radius: 18px;
+      overflow: hidden;
+      background: #FFFFFF;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.1);
+      border: 1px solid #E8E4E0;
+    }
+
+    .main-image-container img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    /* Product Info */
+    .product-info {
+      padding: 5px 0;
+    }
+
+    .product-info h1 {
+      font-size: 28px;
+      font-weight: 700;
+      color: #5C4A3A;
+      margin-bottom: 14px;
+      line-height: 1.3;
+      letter-spacing: -0.02em;
+    }
+
+    .product-description {
+      font-size: 14px;
+      color: #666666;
+      line-height: 1.8;
+      margin-bottom: 20px;
+      font-weight: 400;
+    }
+
+    .product-price-container {
+      display: flex;
+      align-items: baseline;
+      gap: 10px;
+      margin-bottom: 28px;
+      flex-wrap: wrap;
+      padding: 16px 20px;
+      background: #f9f7f4;
+      border-radius: 12px;
+      border: 1px solid #E8E4E0;
+    }
+
+    .price-label {
+      font-size: 13px;
+      color: #666666;
+      font-weight: 500;
+      letter-spacing: 0.01em;
+    }
+
+    .product-price {
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--text-dark);
+      letter-spacing: -0.02em;
+    }
+
+    /* Accordion Sections */
+    .accordion-section {
+      background: #FFFFFF;
+      border-radius: 14px;
+      margin-bottom: 16px;
+      box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+      overflow: hidden;
+      border: 1px solid #E8E4E0;
+    }
+
+    .accordion-header {
+      width: 100%;
+      min-height: 72px;
+      padding: 22px 28px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      background: #F8F5F1;
+      font-size: 15px;
+      font-weight: 600;
+      color: #5C4A3A;
+      border: none;
+      cursor: pointer;
+      transition: background 0.2s ease;
+      letter-spacing: 0.01em;
+    }
+
+    .accordion-header:hover {
+      background: #F0EBE5;
+    }
+
+    .accordion-section.active .accordion-header {
+      background: #EDE8E2;
+    }
+
+    .accordion-header-left {
+      display: flex;
+      align-items: center;
+      gap: 14px;
+    }
+
+    .accordion-header-left span:first-child {
+      font-size: 15px;
+      font-weight: 600;
+      color: #5C4A3A;
+    }
+
+    .accordion-selected {
+      font-size: 13px;
+      color: #8E6545;
+      font-weight: 500;
+      background: rgba(142,101,69,0.1);
+      padding: 4px 12px;
+      border-radius: 20px;
+    }
+
+    .accordion-icon {
+      width: 28px;
+      height: 28px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: transform 0.3s;
+      background: rgba(142,101,69,0.1);
+      border-radius: 50%;
+    }
+
+    .accordion-icon::after {
+      content: '+';
+      font-size: 18px;
+      font-weight: 500;
+      color: var(--golden-brown);
+    }
+
+    .accordion-section.active .accordion-icon::after {
+      content: '−';
+    }
+
+    .accordion-body {
+      padding: 24px 28px 28px;
+      display: none;
+      background: #FFFFFF;
+    }
+
+    .accordion-section.active .accordion-body {
+      display: block;
+    }
+
+    /* Dimension Inputs */
+    .dimension-group {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 20px;
+      margin-bottom: 24px;
+    }
+
+    .dimension-input {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .dimension-input label {
+      font-size: 13px;
+      font-weight: 600;
+      color: #5C4A3A;
+      letter-spacing: 0.01em;
+    }
+
+    .dimension-input input {
+      padding: 14px 16px;
+      border: 2px solid #E8E4E0;
+      border-radius: 10px;
+      font-size: 15px;
+      font-weight: 500;
+      color: #333;
+      background: #FFFFFF;
+      transition: all 0.2s ease;
+    }
+
+    .dimension-input input:focus {
+      outline: none;
+      border-color: var(--golden-brown);
+      box-shadow: 0 0 0 3px rgba(142,101,69,0.1);
+    }
+
+    .dimension-input input::placeholder {
+      color: #999;
+    }
+
+    /* Fabric Selection */
+    .fabric-category-tabs {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 18px;
+      flex-wrap: wrap;
+    }
+
+    .fabric-tab {
+      padding: 10px 22px;
+      border: 2px solid #E8E4E0;
+      border-radius: 25px;
+      background: #FFFFFF;
+      font-size: 13px;
+      font-weight: 600;
+      color: #5C4A3A;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      letter-spacing: 0.01em;
+    }
+
+    .fabric-tab:hover {
+      border-color: var(--golden-brown);
+      background: #f9f7f4;
+    }
+
+    .fabric-tab.active {
+      background: var(--golden-brown);
+      color: #fff;
+      border-color: var(--golden-brown);
+      box-shadow: 0 2px 8px rgba(142,101,69,0.2);
+    }
+
+    .fabric-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 80px);
+      gap: 10px;
+      max-height: 320px;
+      overflow-y: auto;
+      padding: 12px;
+      border: 1px solid #E8E4E0;
+      border-radius: 12px;
+      background: #FAFAFA;
+    }
+
+    .fabric-grid::-webkit-scrollbar {
+      width: 6px;
+    }
+
+    .fabric-grid::-webkit-scrollbar-track {
+      background: #f1f1f1;
+      border-radius: 3px;
+    }
+
+    .fabric-grid::-webkit-scrollbar-thumb {
+      background: #ccc;
+      border-radius: 3px;
+    }
+
+    .fabric-swatch {
+      width: 80px;
+      text-align: center;
+      cursor: pointer;
+      padding: 4px;
+      border-radius: 8px;
+      transition: all 0.2s ease;
+    }
+
+    .fabric-swatch:hover {
+      background: #f0ebe5;
+    }
+
+    .fabric-swatch img {
+      width: 60px;
+      height: 60px;
+      border-radius: 6px;
+      object-fit: cover;
+      border: 2px solid #E8E4E0;
+      transition: all 0.2s ease;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+    }
+
+    .fabric-swatch.selected img {
+      border-color: var(--golden-brown);
+      border-width: 3px;
+      box-shadow: 0 4px 12px rgba(142, 101, 69, 0.2);
+    }
+
+    .fabric-swatch span {
+      font-size: 10px;
+      color: #5C4A3A;
+      display: block;
+      margin-top: 6px;
+      font-weight: 500;
+      line-height: 1.3;
+    }
+
+    /* Control Type Options */
+    .control-options {
+      display: flex;
+      gap: 15px;
+      flex-wrap: wrap;
+    }
+
+    .control-option {
+      padding: 15px 30px;
+      border: 2px solid var(--border-light);
+      border-radius: 10px;
+      background: #fff;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-align: center;
+    }
+
+    .control-option:hover {
+      border-color: var(--golden-brown);
+    }
+
+    .control-option.selected {
+      border-color: var(--golden-brown);
+      background: var(--golden-brown);
+      color: #fff;
+    }
+
+    .control-option .option-name {
+      font-size: 14px;
+      font-weight: 600;
+      display: block;
+      margin-bottom: 4px;
+    }
+
+    .control-option .option-price {
+      font-size: 12px;
+      opacity: 0.8;
+    }
+
+    /* Hardware Options */
+    .hardware-group {
+      margin-bottom: 24px;
+      padding-bottom: 20px;
+      border-bottom: 1px solid #E8E4E0;
+    }
+
+    .hardware-group:last-child {
+      border-bottom: none;
+      margin-bottom: 0;
+      padding-bottom: 0;
+    }
+
+    .hardware-label {
+      font-size: 14px;
+      color: #5C4A3A;
+      font-weight: 600;
+      display: block;
+      margin-bottom: 14px;
+      letter-spacing: 0.01em;
+    }
+
+    .hardware-options {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+      align-items: flex-start;
+    }
+
+    .hardware-option {
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      padding: 8px;
+      border-radius: 10px;
+      background: transparent;
+    }
+
+    .hardware-option:hover {
+      transform: translateY(-3px);
+      background: #f9f7f4;
+    }
+
+    .hardware-option.selected {
+      background: #f5f0eb;
+    }
+
+    .hardware-option-img {
+      width: 110px;
+      height: 90px;
+      border-radius: 10px;
+      overflow: hidden;
+      border: 2px solid #E8E4E0;
+      background: #FFFFFF;
+      margin-bottom: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    }
+
+    .hardware-option.selected .hardware-option-img {
+      border-color: var(--golden-brown);
+      border-width: 3px;
+      box-shadow: 0 4px 12px rgba(142,101,69,0.15);
+    }
+
+    .hardware-option-img img {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: contain;
+    }
+
+    .hardware-option span {
+      font-size: 11px;
+      color: #5C4A3A;
+      font-weight: 500;
+      display: block;
+      line-height: 1.3;
+      max-width: 110px;
+    }
+
+    .hardware-option.selected span {
+      color: var(--golden-brown);
+      font-weight: 600;
+    }
+
+    /* Select Shades Dropdown */
+    .select-shades-dropdown {
+      position: relative;
+      display: inline-block;
+      margin-bottom: 15px;
+    }
+
+    .select-shades-btn {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 18px;
+      background: var(--bg-white);
+      border: 1px solid var(--border-medium);
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 500;
+      color: var(--golden-brown);
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .select-shades-btn:hover {
+      border-color: var(--golden-brown);
+      background: var(--bg-light);
+      transform: translateY(-2px);
+    }
+
+    .select-shades-btn i {
+      transition: transform 0.3s;
+    }
+
+    .select-shades-dropdown.open .select-shades-btn i {
+      transform: rotate(180deg);
+    }
+
+    .select-shades-menu {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      margin-top: 5px;
+      background: var(--bg-white);
+      border: 1px solid var(--border-light);
+      border-radius: 10px;
+      box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+      min-width: 220px;
+      z-index: 100;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(-10px);
+      transition: all 0.3s ease;
+    }
+
+    .select-shades-dropdown.open .select-shades-menu {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+    }
+
+    .select-shades-menu a {
+      display: block;
+      padding: 12px 18px;
+      font-size: 13px;
+      color: var(--text-dark);
+      border-bottom: 1px solid var(--border-light);
+      transition: all 0.3s ease;
+    }
+
+    .select-shades-menu a:last-child {
+      border-bottom: none;
+    }
+
+    .select-shades-menu a:hover {
+      background: var(--bg-light);
+      color: var(--golden-brown);
+    }
+
+    .select-shades-menu a.active {
+      background: var(--golden-brown);
+      color: #fff;
+    }
+
+    /* Room Label */
+    .room-label-input {
+      width: 100%;
+      padding: 12px 15px;
+      border: 2px solid var(--border-light);
+      border-radius: 8px;
+      font-size: 14px;
+    }
+
+    .room-label-input:focus {
+      outline: none;
+      border-color: var(--golden-brown);
+    }
+
+    /* Price Summary */
+    .price-summary {
+      background: linear-gradient(135deg, #f9f7f4 0%, #f5f0eb 100%);
+      border-radius: 14px;
+      padding: 28px;
+      margin-top: 24px;
+      border: 1px solid #E8E4E0;
+    }
+
+    .price-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 14px;
+      font-size: 14px;
+      color: #5C4A3A;
+    }
+
+    .price-row:last-of-type:not(.total) {
+      margin-bottom: 0;
+    }
+
+    .price-row.total {
+      border-top: 2px solid #E8E4E0;
+      padding-top: 18px;
+      margin-top: 18px;
+      margin-bottom: 0;
+      font-size: 22px;
+      font-weight: 700;
+      color: var(--golden-brown);
+    }
+
+    /* Action Buttons */
+    .action-buttons {
+      display: flex;
+      gap: 14px;
+      margin-top: 28px;
+    }
+
+    .btn-add-cart {
+      flex: 2;
+      padding: 18px 32px;
+      background: linear-gradient(135deg, #8E6545 0%, #7a5639 100%);
+      color: #fff;
+      border: none;
+      border-radius: 12px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      box-shadow: 0 4px 14px rgba(142,101,69,0.25);
+      letter-spacing: 0.02em;
+    }
+
+    .btn-add-cart:hover {
+      background: linear-gradient(135deg, #7a5639 0%, #6a4830 100%);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(142,101,69,0.35);
+    }
+
+    .btn-save-quote {
+      flex: 1;
+      padding: 18px 28px;
+      background: #FFFFFF;
+      color: var(--golden-brown);
+      border: 2px solid var(--golden-brown);
+      border-radius: 12px;
+      font-size: 15px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      letter-spacing: 0.02em;
+    }
+
+    .btn-save-quote:hover {
+      background: var(--golden-brown);
+      color: #fff;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 14px rgba(142,101,69,0.2);
+    }
+
+    /* Footer */
+    .site-footer {
+      background: #2C2C2C;
+      color: #fff;
+      padding: 50px 0 30px;
+      margin-top: 50px;
+    }
+
+    .footer-container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 0 40px;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 40px;
+    }
+
+    .footer-column h4 {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 20px;
+      color: #fff;
+    }
+
+    .footer-column ul {
+      list-style: none;
+    }
+
+    .footer-column ul li {
+      margin-bottom: 10px;
+    }
+
+    .footer-column ul li a {
+      color: #aaa;
+      font-size: 13px;
+      transition: color 0.2s;
+    }
+
+    .footer-column ul li a:hover {
+      color: #fff;
+    }
+
+    .footer-logo {
+      height: 80px;
+      margin-bottom: 15px;
+    }
+
+    .footer-bottom {
+      border-top: 1px solid #444;
+      margin-top: 40px;
+      padding-top: 20px;
+      text-align: center;
+      font-size: 12px;
+      color: #888;
+    }
+
+    /* Toast Notification */
+    .toast {
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      padding: 15px 25px;
+      background: var(--golden-brown);
+      color: #fff;
+      border-radius: 8px;
+      box-shadow: 0 5px 20px rgba(0,0,0,0.2);
+      transform: translateY(100px);
+      opacity: 0;
+      transition: all 0.3s;
+      z-index: 1000;
+    }
+
+    .toast.show {
+      transform: translateY(0);
+      opacity: 1;
+    }
+
+    .toast.error {
+      background: var(--error-red);
+    }
+
+    .toast.success {
+      background: var(--success-green);
+    }
+
+    /* Responsive */
+    @media (max-width: 1024px) {
+      .product-detail-container {
+        grid-template-columns: 1fr;
+        gap: 30px;
+      }
+
+      .product-gallery {
+        position: relative;
+        top: 0;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .header-container {
+        padding: 0 20px;
+      }
+
+      .main-nav {
+        display: none;
+      }
+
+      .product-detail-container {
+        padding: 0 20px;
+      }
+
+      .footer-container {
+        grid-template-columns: 1fr 1fr;
+      }
+
+      .action-buttons {
+        flex-direction: column;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Top Bar -->
+  <div class="top-bar">
+    <div class="top-bar-container">
+      <div class="top-bar-left">
+        <span><i class="fas fa-phone"></i> 1-800-PEEKABOO</span>
+        <span><i class="fas fa-envelope"></i> support@peekabooshades.com</span>
+      </div>
+      <div class="top-bar-center">
+        <a href="#">Free Shipping on Orders $99+</a>
+      </div>
+      <div class="top-bar-right">
+        <a href="/cart"><i class="fas fa-shopping-cart"></i> Cart</a>
+        <a href="#"><i class="fas fa-user"></i> Account</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Main Header -->
+  <header class="main-header">
+    <div class="header-container">
+      <a href="/" class="logo">
+        <img src="/images/peekabooshades_logo.jpeg" alt="Peekaboo Shades" class="logo-img">
+      </a>
+      <nav class="main-nav">
+        <ul>
+          <li class="nav-dropdown">
+            <a href="/shop">Windows Blinds & Shades <i class="fas fa-chevron-down"></i></a>
+            <div class="nav-dropdown-menu">
+              <a href="/shop?category=roller-shades">Roller Shades</a>
+              <a href="/shop?category=zebra-shades">Zebra Shades</a>
+              <a href="/shop?category=roman-shades">Roman Shades</a>
+              <a href="/shop?category=honeycomb-shades">Honeycomb Shades</a>
+            </div>
+          </li>
+          <li><a href="#">Curtains</a></li>
+          <li><a href="#">How to Measure</a></li>
+          <li><a href="#">Contact</a></li>
+        </ul>
+      </nav>
+      <div class="header-right">
+        <div class="search-box">
+          <input type="text" placeholder="Search...">
+          <i class="fas fa-search"></i>
+        </div>
+        <div class="header-icons">
+          <a href="#" class="header-icon"><i class="fas fa-heart"></i></a>
+          <a href="/cart" class="header-icon">
+            <i class="fas fa-shopping-cart"></i>
+            <span class="cart-count" id="cartCount">0</span>
+          </a>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- Product Detail Section -->
+  <section class="product-detail-section">
+    <div class="product-detail-container">
+      <!-- Product Gallery -->
+      <div class="product-gallery">
+        <div class="main-image-container">
+          <img src="/images/zebra-shades.png" alt="Zebra Shades" id="mainProductImage">
+        </div>
+      </div>
+
+      <!-- Product Info & Configurator -->
+      <div class="product-info">
+        <!-- Select Shades Dropdown -->
+        <div class="select-shades-dropdown" id="selectShadesDropdown">
+          <button class="select-shades-btn" onclick="toggleShadesDropdown()">
+            Select your shades
+            <i class="fas fa-chevron-down"></i>
+          </button>
+          <div class="select-shades-menu">
+            <a href="/product/affordable-custom-roller-blinds">Roller Shades</a>
+            <a href="/product/affordable-custom-zebra-shades" class="active">Zebra Shades</a>
+            <a href="/product/energy-efficient-roman-shades">Roman Shades</a>
+            <a href="/product/natural-woven-timeless">Honeycomb Shades</a>
+            <a href="/product/custom-blackout-drapes">Drapes</a>
+          </div>
+        </div>
+
+        <h1 id="productTitle">Affordable Custom Zebra Shades</h1>
+        <p class="product-description" id="productDescription">
+          Discover our elegant Zebra Shades collection! Featuring alternating sheer and solid fabric bands,
+          these versatile window treatments let you control light and privacy with a simple adjustment.
+          Perfect for any room style.
+        </p>
+        <div class="product-price-container" id="priceContainer">
+          <span class="price-label" id="priceLabel">Base Price:</span>
+          <span class="product-price">$<span id="basePrice">45.00</span></span>
+        </div>
+
+        <!-- Dimensions Section -->
+        <div class="accordion-section active" data-name="dimensions">
+          <button class="accordion-header" onclick="toggleAccordion(this.parentElement)">
+            <div class="accordion-header-left">
+              <span>Width X Height <span style="color: #dc3545;">*</span></span>
+              <span class="accordion-selected" id="dimensionValue"></span>
+            </div>
+            <span class="accordion-icon"></span>
+          </button>
+          <div class="accordion-body">
+            <!-- Unit Toggle -->
+            <div style="margin-bottom: 15px;">
+              <span style="font-size: 13px; color: #666; margin-right: 10px;">Unit:</span>
+              <div style="display: inline-flex; gap: 5px;">
+                <button type="button" class="unit-btn active" data-unit="in" onclick="changeUnit('in')" style="padding: 6px 14px; border: 1px solid #E8E4E0; border-radius: 20px; font-size: 12px; background: #8E6545; color: white; cursor: pointer;">Inches</button>
+                <button type="button" class="unit-btn" data-unit="cm" onclick="changeUnit('cm')" style="padding: 6px 14px; border: 1px solid #E8E4E0; border-radius: 20px; font-size: 12px; background: #fff; color: #333; cursor: pointer;">Cm</button>
+                <button type="button" class="unit-btn" data-unit="mm" onclick="changeUnit('mm')" style="padding: 6px 14px; border: 1px solid #E8E4E0; border-radius: 20px; font-size: 12px; background: #fff; color: #333; cursor: pointer;">Mm</button>
+              </div>
+            </div>
+            <div class="dimension-group">
+              <div class="dimension-input">
+                <label for="widthInput">Width</label>
+                <div style="display: flex; border: 2px solid #E8E4E0; border-radius: 8px; overflow: hidden;">
+                  <input type="number" id="widthInput" min="12" max="118" value="36" onchange="calculatePrice(); updateDimensionsValue()" style="flex: 1; padding: 12px 15px; border: none; font-size: 16px;">
+                  <span id="widthUnit" style="padding: 12px 15px; background: #F5F0EB; color: #8E6545; font-size: 14px; font-weight: 500;">in</span>
+                </div>
+                <small style="color: #888; font-size: 11px;">Min: 12" | Max: 118"</small>
+              </div>
+              <div class="dimension-input">
+                <label for="heightInput">Height</label>
+                <div style="display: flex; border: 2px solid #E8E4E0; border-radius: 8px; overflow: hidden;">
+                  <input type="number" id="heightInput" min="12" max="98" value="48" onchange="calculatePrice(); updateDimensionsValue()" style="flex: 1; padding: 12px 15px; border: none; font-size: 16px;">
+                  <span id="heightUnit" style="padding: 12px 15px; background: #F5F0EB; color: #8E6545; font-size: 14px; font-weight: 500;">in</span>
+                </div>
+                <small style="color: #888; font-size: 11px;">Min: 12" | Max: 98"</small>
+              </div>
+            </div>
+            <!-- Conversion Display -->
+            <div id="conversionDisplay" style="margin-top: 10px; padding: 10px; background: #F5F0EB; border-radius: 8px; font-size: 12px; color: #666;">
+              <div style="display: flex; gap: 20px; flex-wrap: wrap;">
+                <span id="convInches"><strong>Inches:</strong> 36 x 48 in</span>
+                <span id="convCm"><strong>Cm:</strong> 91.44 x 121.92 cm</span>
+                <span id="convMm"><strong>Mm:</strong> 914.4 x 1219.2 mm</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Room Label -->
+        <div class="accordion-section" data-name="roomLabel">
+          <button class="accordion-header" onclick="toggleAccordion(this.parentElement)">
+            <div class="accordion-header-left">
+              <span>Room Label</span>
+              <span class="accordion-selected" id="roomLabelValue"></span>
+            </div>
+            <span class="accordion-icon"></span>
+          </button>
+          <div class="accordion-body">
+            <select id="roomLabel" onchange="updateSelectedValue('roomLabel')" style="width: 100%; padding: 16px 18px; border: 1px solid #E8E4E0; border-radius: 10px; font-size: 15px; color: #333; background: #fff; cursor: pointer; appearance: none; background-image: url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%238E6545' d='M6 8L1 3h10z'/%3E%3C/svg%3E\"); background-repeat: no-repeat; background-position: right 18px center;">
+              <option value="master-bedroom">Master Bedroom</option>
+              <option value="guest-bedroom">Guest Bedroom</option>
+              <option value="living-room">Living Room</option>
+              <option value="dining-room">Dining Room</option>
+              <option value="kitchen">Kitchen</option>
+              <option value="bathroom">Bathroom</option>
+              <option value="office">Office</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Shade Style -->
+        <div class="accordion-section" data-name="shadeStyle">
+          <button class="accordion-header" onclick="toggleAccordion(this.parentElement)">
+            <div class="accordion-header-left">
+              <span>Shade Style</span>
+              <span class="accordion-selected" id="fabricValue"></span>
+            </div>
+            <span class="accordion-icon"></span>
+          </button>
+          <div class="accordion-body">
+            <span class="swatch-label" style="font-size: 13px; color: #8E6545; font-weight: 500; display: block; margin-bottom: 12px;">Fabric Type</span>
+            <div class="light-filter-buttons" id="fabricTypeButtons" style="display: flex; gap: 12px; margin-bottom: 24px; flex-wrap: wrap;">
+              <button type="button" class="filter-toggle-btn selected" data-category="semi-blackout" onclick="selectFabricCategory(this, 'semi-blackout')" style="padding: 12px 24px; border: 2px solid #8E6545; border-radius: 8px; background: #8E6545; color: #FFFFFF; font-size: 14px; font-weight: 500; cursor: pointer; transition: all 0.3s ease;">Semi-Blackout</button>
+              <button type="button" class="filter-toggle-btn" data-category="blackout" onclick="selectFabricCategory(this, 'blackout')" style="padding: 12px 24px; border: 2px solid #D4D4D4; border-radius: 8px; background: transparent; color: #333333; font-size: 14px; font-weight: 500; cursor: pointer; transition: all 0.3s ease;">Blackout</button>
+              <button type="button" class="filter-toggle-btn" data-category="super-blackout" onclick="selectFabricCategory(this, 'super-blackout')" style="padding: 12px 24px; border: 2px solid #D4D4D4; border-radius: 8px; background: transparent; color: #333333; font-size: 14px; font-weight: 500; cursor: pointer; transition: all 0.3s ease;">Super Blackout</button>
+            </div>
+
+            <span class="swatch-label" style="font-size: 13px; color: #8E6545; font-weight: 500; display: block; margin-bottom: 16px;">Fabric Color</span>
+
+            <!-- Loading indicator -->
+            <div id="fabricsLoading" style="text-align: center; padding: 30px;">
+              <div style="color: #8E6545;">Loading fabrics...</div>
+            </div>
+
+            <!-- Semi-Blackout Fabrics -->
+            <div class="fabric-grid" id="semiBlackoutFabrics" style="display: none;"></div>
+
+            <!-- Blackout Fabrics -->
+            <div class="fabric-grid" id="blackoutFabrics" style="display: none;"></div>
+
+            <!-- Super-Blackout Fabrics -->
+            <div class="fabric-grid" id="superBlackoutFabrics" style="display: none;"></div>
+          </div>
+        </div>
+
+        <!-- Mount, Control and Solar Type -->
+        <div class="accordion-section" data-name="mountType">
+          <button class="accordion-header" onclick="toggleAccordion(this.parentElement)">
+            <div class="accordion-header-left">
+              <span>Mount, Control and Solar Type</span>
+              <span class="accordion-selected" id="controlValue"></span>
+            </div>
+            <span class="accordion-icon"></span>
+          </button>
+          <div class="accordion-body">
+            <!-- Mount Type -->
+            <div class="hardware-group" style="margin-bottom: 24px;">
+              <span class="hardware-label" style="font-size: 13px; color: #8E6545; font-weight: 500; display: block; margin-bottom: 12px;">Mount Type</span>
+              <div class="hardware-options" id="mountTypeSwatches">
+                <div class="hardware-option selected" data-value="inside" data-price="0" onclick="selectMountType(this)">
+                  <div class="hardware-option-img" style="width: 100px; height: 80px; background: #fff; display: flex; align-items: center; justify-content: center;">
+                    <img src="/images/mount-control/inside-mount.svg" alt="Inside Mount" style="width: 90%; height: 90%; object-fit: contain;">
+                  </div>
+                  <span>Inside Mount</span>
+                </div>
+                <div class="hardware-option" data-value="outside" data-price="0" onclick="selectMountType(this)">
+                  <div class="hardware-option-img" style="width: 100px; height: 80px; background: #fff; display: flex; align-items: center; justify-content: center;">
+                    <img src="/images/mount-control/outside-mount.svg" alt="Outside Mount" style="width: 90%; height: 90%; object-fit: contain;">
+                  </div>
+                  <span>Outside Mount</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Control Type -->
+            <div class="hardware-group" style="margin-bottom: 24px;">
+              <span class="hardware-label" style="font-size: 13px; color: #8E6545; font-weight: 500; display: block; margin-bottom: 8px;">Control Type</span>
+              <p id="controlTypePriceNote" style="font-size: 11px; color: #666; margin: 0 0 12px 0; padding: 8px 12px; background: #f5f5f5; border-radius: 6px; display: inline-block;">
+                <span style="color: #28a745; font-weight: 600;">Manual: Standard fabric rate</span>
+              </p>
+              <div class="hardware-options" id="controlTypeSwatches">
+                <div class="hardware-option selected" data-value="manual" data-price="0" onclick="selectControlType(this)">
+                  <div class="hardware-option-img" style="width: 110px; height: 90px; background: #f8f8f8; display: flex; align-items: center; justify-content: center; position: relative; cursor: pointer;">
+                    <img src="/images/control-system/zebra/manual-bead-chain.jpeg" alt="Manual" style="width: 95%; height: 95%; object-fit: cover; border-radius: 6px;">
+                    <div style="position: absolute; top: 3px; right: 3px; background: rgba(142,101,69,0.9); color: white; font-size: 8px; padding: 2px 4px; border-radius: 3px; cursor: pointer;" onclick="event.stopPropagation(); openControlZoom('/images/control-system/zebra/manual-bead-chain.jpeg', 'Manual Bead Chain Control')">
+                      <i class="fas fa-search-plus"></i>
+                    </div>
+                  </div>
+                  <span>Manual</span>
+                </div>
+                <div class="hardware-option" data-value="cordless" data-price="0" onclick="selectControlType(this)">
+                  <div class="hardware-option-img" style="width: 110px; height: 90px; background: #f8f8f8; display: flex; align-items: center; justify-content: center; position: relative; cursor: pointer;">
+                    <img src="/images/control-system/zebra/page13_control_img2_711x978.jpeg" alt="Cordless" style="width: 95%; height: 95%; object-fit: cover; border-radius: 6px;">
+                    <div style="position: absolute; top: 3px; right: 3px; background: rgba(142,101,69,0.9); color: white; font-size: 8px; padding: 2px 4px; border-radius: 3px; cursor: pointer;" onclick="event.stopPropagation(); openControlZoom('/images/control-system/zebra/page13_control_img2_711x978.jpeg', 'Cordless Control')">
+                      <i class="fas fa-search-plus"></i>
+                    </div>
+                  </div>
+                  <span>Cordless</span>
+                </div>
+                <div class="hardware-option" data-value="motorized" data-price="0" onclick="selectControlType(this)">
+                  <div class="hardware-option-img" style="width: 110px; height: 90px; background: #f8f8f8; display: flex; align-items: center; justify-content: center; position: relative; cursor: pointer;">
+                    <img src="/images/control-system/zebra/motorized-remote.jpeg" alt="Motorized" style="width: 95%; height: 95%; object-fit: cover; border-radius: 6px;">
+                    <div style="position: absolute; top: 3px; right: 3px; background: rgba(142,101,69,0.9); color: white; font-size: 8px; padding: 2px 4px; border-radius: 3px; cursor: pointer;" onclick="event.stopPropagation(); openControlZoom('/images/control-system/zebra/motorized-remote.jpeg', 'Motorized with Remote Control')">
+                      <i class="fas fa-search-plus"></i>
+                    </div>
+                  </div>
+                  <span>Motorized</span>
+                </div>
+              </div>
+              <p style="font-size: 11px; color: #888; margin-top: 10px;">Click image to zoom</p>
+            </div>
+
+            <!-- Chain Location (shows only for manual) -->
+            <div class="hardware-group" id="chainSideGroup" style="margin-bottom: 24px; display: block; padding: 15px; background: #f9f7f4; border-radius: 10px; border-left: 4px solid #8E6545;">
+              <span class="hardware-label" style="font-size: 13px; color: #8E6545; font-weight: 500; display: block; margin-bottom: 12px;">
+                <i class="fas fa-link" style="color: #8E6545; margin-right: 8px;"></i>Chain Location
+              </span>
+              <div class="control-options" style="display: flex; gap: 15px;">
+                <button type="button" class="chain-location-btn selected" data-value="left" onclick="selectChainSide(this)" style="padding: 14px 35px; border: 2px solid #8E6545; border-radius: 8px; background: #8E6545; color: #FFFFFF; font-size: 14px; font-weight: 600; cursor: pointer;">Left</button>
+                <button type="button" class="chain-location-btn" data-value="right" onclick="selectChainSide(this)" style="padding: 14px 35px; border: 2px solid #D4D4D4; border-radius: 8px; background: transparent; color: #333; font-size: 14px; font-weight: 600; cursor: pointer;">Right</button>
+              </div>
+            </div>
+
+            <!-- Chain Type (shows only for manual) -->
+            <div class="hardware-group" id="chainTypeGroup" style="margin-bottom: 24px; display: block; padding: 15px; background: #f9f7f4; border-radius: 10px; border-left: 4px solid #8E6545;">
+              <span class="hardware-label" style="font-size: 13px; color: #8E6545; font-weight: 500; display: block; margin-bottom: 12px;">
+                <i class="fas fa-circle-notch" style="color: #8E6545; margin-right: 8px;"></i>Chain Type
+              </span>
+              <div class="chain-type-swatches" id="chainTypeSwatches" style="display: flex; gap: 20px; flex-wrap: wrap;">
+                <div class="chain-type-option selected" data-value="bead-chain-plastic" data-price="0" onclick="selectChainType(this)" style="cursor: pointer; text-align: center; transition: all 0.3s ease;">
+                  <div class="chain-type-img" style="width: 100px; height: 100px; border: 3px solid #8E6545; border-radius: 12px; overflow: hidden; background: #fff; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease; position: relative;">
+                    <img src="/images/control-system/bead-chain.png" alt="Plastic Chain" style="width: 90%; height: 90%; object-fit: contain;">
+                    <div style="position: absolute; top: 5px; right: 5px; background: rgba(142,101,69,0.9); color: white; font-size: 9px; padding: 2px 6px; border-radius: 4px; cursor: pointer;" onclick="event.stopPropagation(); openChainZoom('/images/control-system/bead-chain.png', 'Plastic Bead Chain')">
+                      <i class="fas fa-search-plus"></i>
+                    </div>
+                  </div>
+                  <span style="display: block; margin-top: 8px; font-size: 12px; font-weight: 600; color: #333;">Plastic Chain</span>
+                  <span style="display: block; font-size: 11px; color: #28a745; font-weight: 500;">Included</span>
+                </div>
+                <div class="chain-type-option" data-value="bead-chain-metal" data-price="5" onclick="selectChainType(this)" style="cursor: pointer; text-align: center; transition: all 0.3s ease;">
+                  <div class="chain-type-img" style="width: 100px; height: 100px; border: 2px solid #D4D4D4; border-radius: 12px; overflow: hidden; background: #fff; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease; position: relative;">
+                    <img src="/images/control-system/bead-chain-2.png" alt="Steel Chain" style="width: 90%; height: 90%; object-fit: contain;">
+                    <div style="position: absolute; top: 5px; right: 5px; background: rgba(142,101,69,0.9); color: white; font-size: 9px; padding: 2px 6px; border-radius: 4px; cursor: pointer;" onclick="event.stopPropagation(); openChainZoom('/images/control-system/bead-chain-2.png', 'Steel Bead Chain')">
+                      <i class="fas fa-search-plus"></i>
+                    </div>
+                  </div>
+                  <span style="display: block; margin-top: 8px; font-size: 12px; font-weight: 600; color: #333;">Steel Chain</span>
+                  <span style="display: block; font-size: 11px; color: #8E6545; font-weight: 500;">+$5.00</span>
+                </div>
+              </div>
+              <p style="font-size: 11px; color: #888; margin-top: 12px; margin-bottom: 0;">
+                <i class="fas fa-info-circle" style="margin-right: 5px;"></i>Steel chain is more durable and has a premium look. Click image to zoom.
+              </p>
+            </div>
+
+            <!-- Motor Brand (shows only for motorized) - Dynamically loaded from API -->
+            <div class="hardware-group" id="motorBrandGroup" style="margin-bottom: 24px; display: none; padding: 15px; background: #f9f7f4; border-radius: 10px; border-left: 4px solid #8E6545;">
+              <span class="hardware-label" style="font-size: 13px; color: #8E6545; font-weight: 500; display: block; margin-bottom: 12px;">
+                <i class="fas fa-cog" style="color: #8E6545; margin-right: 8px;"></i>Motor Brand
+              </span>
+              <div class="motor-brand-buttons" id="motorBrandSwatches" style="display: flex; gap: 12px; flex-wrap: wrap;">
+                <!-- Motor brands loaded dynamically from /api/products:slug/options -->
+                <span style="color: #666; font-size: 13px;">Loading motor brands...</span>
+              </div>
+            </div>
+
+            <!-- Motor Location (shows only for motorized) -->
+            <div class="hardware-group" id="motorLocationGroup" style="margin-bottom: 24px; display: none; padding: 15px; background: #f9f7f4; border-radius: 10px; border-left: 4px solid #8E6545;">
+              <span class="hardware-label" style="font-size: 13px; color: #8E6545; font-weight: 500; display: block; margin-bottom: 12px;">
+                <i class="fas fa-arrows-alt-h" style="color: #8E6545; margin-right: 8px;"></i>Motor Location
+              </span>
+              <div class="control-options" style="display: flex; gap: 15px;">
+                <button type="button" class="motor-location-btn selected" data-value="right" onclick="selectMotorLocation(this)" style="padding: 14px 35px; border: 2px solid #8E6545; border-radius: 8px; background: #8E6545; color: #FFFFFF; font-size: 14px; font-weight: 600; cursor: pointer;">Right</button>
+                <button type="button" class="motor-location-btn" data-value="left" onclick="selectMotorLocation(this)" style="padding: 14px 35px; border: 2px solid #D4D4D4; border-radius: 8px; background: transparent; color: #333; font-size: 14px; font-weight: 600; cursor: pointer;">Left</button>
+              </div>
+            </div>
+
+            <!-- Motor Type (shows only for motorized) -->
+            <div class="hardware-group" id="motorTypeGroup" style="margin-bottom: 24px; display: none; padding: 15px; background: #f9f7f4; border-radius: 10px; border-left: 4px solid #8E6545;">
+              <span class="hardware-label" style="font-size: 13px; color: #8E6545; font-weight: 500; display: block; margin-bottom: 12px;">
+                <i class="fas fa-bolt" style="color: #8E6545; margin-right: 8px;"></i>Motor Type
+              </span>
+              <div class="motor-type-buttons" id="motorTypeSwatches" style="display: flex; gap: 12px; flex-wrap: wrap;">
+                <button type="button" class="motor-type-btn selected" data-value="battery" onclick="selectMotorType(this)" style="padding: 12px 24px; border: 2px solid #8E6545; border-radius: 8px; background: #8E6545; color: #FFFFFF; font-size: 14px; font-weight: 500; cursor: pointer;">Battery</button>
+                <button type="button" class="motor-type-btn" data-value="plugin-wire" onclick="selectMotorType(this)" style="padding: 12px 24px; border: 2px solid #D4D4D4; border-radius: 8px; background: transparent; color: #333; font-size: 14px; font-weight: 500; cursor: pointer;">Plugin Wire</button>
+                <button type="button" class="motor-type-btn" data-value="solar-powered" onclick="selectMotorType(this)" style="padding: 12px 24px; border: 2px solid #D4D4D4; border-radius: 8px; background: transparent; color: #333; font-size: 14px; font-weight: 500; cursor: pointer;">Solar Powered</button>
+              </div>
+            </div>
+
+            <!-- Remote Type (shows only for motorized) -->
+            <div class="hardware-group" id="remoteTypeGroup" style="margin-bottom: 24px; display: none; padding: 15px; background: #f9f7f4; border-radius: 10px; border-left: 4px solid #8E6545;">
+              <span class="hardware-label" style="font-size: 13px; color: #8E6545; font-weight: 500; display: block; margin-bottom: 12px;">
+                <i class="fas fa-gamepad" style="color: #8E6545; margin-right: 8px;"></i>Remote Type
+              </span>
+              <div class="remote-type-buttons" id="remoteTypeSwatches" style="display: flex; gap: 12px; flex-wrap: wrap;">
+                <!-- Remote types loaded dynamically from API -->
+                <span style="color: #666; font-size: 13px;">Loading remote types...</span>
+              </div>
+            </div>
+
+            <!-- Solar Panel (shows only for motorized) -->
+            <div class="hardware-group" id="solarPanelGroup" style="margin-bottom: 24px; display: none; padding: 15px; background: #f9f7f4; border-radius: 10px; border-left: 4px solid #8E6545;">
+              <span class="hardware-label" style="font-size: 13px; color: #8E6545; font-weight: 500; display: block; margin-bottom: 12px;">
+                <i class="fas fa-sun" style="color: #8E6545; margin-right: 8px;"></i>Solar Panel
+              </span>
+              <div class="solar-panel-buttons" id="solarPanelSwatches" style="display: flex; gap: 12px; flex-wrap: wrap;">
+                <!-- Solar panel options loaded dynamically from API -->
+                <span style="color: #666; font-size: 13px;">Loading solar options...</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Hardware Options -->
+        <div class="accordion-section" data-name="hardware">
+          <button class="accordion-header" onclick="toggleAccordion(this.parentElement)">
+            <div class="accordion-header-left">
+              <span>Hardware Type</span>
+              <span class="accordion-selected" id="hardwareValue"></span>
+            </div>
+            <span class="accordion-icon"></span>
+          </button>
+          <div class="accordion-body">
+            <!-- Valance Type (38mm Tube) - Loaded dynamically from database -->
+            <div class="hardware-group" style="margin-bottom: 24px;">
+              <span class="hardware-label" style="font-size: 13px; color: #8E6545; font-weight: 500; display: block; margin-bottom: 12px;">Valance Type (38mm Tube)</span>
+              <div id="valanceTypeSwatches" class="hardware-options" style="display: flex; flex-wrap: wrap; gap: 16px;">
+                <!-- Dynamically loaded from API -->
+                <div style="color: #888; font-size: 12px; padding: 20px;"><i class="fas fa-spinner fa-spin"></i> Loading valance options...</div>
+              </div>
+              <p style="font-size: 11px; color: #888; margin-top: 10px;">Click zoom icon to enlarge</p>
+            </div>
+
+            <!-- Bottom Rail - Loaded dynamically from database -->
+            <div class="hardware-group" style="margin-bottom: 24px;">
+              <span class="hardware-label" style="font-size: 13px; color: #8E6545; font-weight: 500; display: block; margin-bottom: 12px;">Bottom Rail</span>
+              <div id="bottomRailSwatches" class="hardware-options" style="display: flex; flex-wrap: wrap; gap: 16px;">
+                <!-- Dynamically loaded from API -->
+                <div style="color: #888; font-size: 12px; padding: 20px;"><i class="fas fa-spinner fa-spin"></i> Loading bottom rail options...</div>
+              </div>
+              <p style="font-size: 11px; color: #888; margin-top: 10px;">Click zoom icon to enlarge</p>
+            </div>
+
+            <!-- Roller Type -->
+            <div class="hardware-group" style="margin-bottom: 24px;">
+              <span class="hardware-label" style="font-size: 13px; color: #8E6545; font-weight: 500; display: block; margin-bottom: 12px;">Roller Type</span>
+              <div class="hardware-options" style="display: flex; flex-wrap: wrap; gap: 16px;">
+                <div class="hardware-option selected" data-value="forward-roll" data-price="0" onclick="selectHardware(this, 'rollerType')">
+                  <div class="hardware-option-img" style="width: 110px; height: 90px; background: #fff; display: flex; align-items: center; justify-content: center; padding: 6px;">
+                    <img src="/images/mount-control/forward-roll.svg" alt="Forward Roll" style="width: 100%; height: 100%; object-fit: contain;">
+                  </div>
+                  <span style="font-size: 11px; font-weight: 600;">Forward Roll</span><br>
+                  <span style="font-size: 9px; color: #888;">Close to window</span>
+                </div>
+                <div class="hardware-option" data-value="reverse-roll" data-price="0" onclick="selectHardware(this, 'rollerType')">
+                  <div class="hardware-option-img" style="width: 110px; height: 90px; background: #fff; display: flex; align-items: center; justify-content: center; padding: 6px;">
+                    <img src="/images/mount-control/reverse-roll.svg" alt="Reverse Roll" style="width: 100%; height: 100%; object-fit: contain;">
+                  </div>
+                  <span style="font-size: 11px; font-weight: 600;">Reverse Roll</span><br>
+                  <span style="font-size: 9px; color: #888;">Extra clearance</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Side Cover Color -->
+            <div class="hardware-group" style="margin-bottom: 24px;">
+              <span class="hardware-label" style="font-size: 13px; color: #8E6545; font-weight: 500; display: block; margin-bottom: 12px;">Side Cover Color</span>
+              <div class="hardware-options" style="display: flex; flex-wrap: wrap; gap: 16px;">
+                <div class="hardware-option selected" data-value="white" data-price="0" onclick="selectHardware(this, 'sideCover')">
+                  <div class="hardware-option-img" style="width: 60px; height: 45px; background: #FFFFFF; border: 2px solid #e5e5e5;">
+                  </div>
+                  <span style="font-size: 11px;">White</span>
+                </div>
+                <div class="hardware-option" data-value="gray" data-price="0" onclick="selectHardware(this, 'sideCover')">
+                  <div class="hardware-option-img" style="width: 60px; height: 45px; background: #808080;">
+                  </div>
+                  <span style="font-size: 11px;">Gray</span>
+                </div>
+                <div class="hardware-option" data-value="black" data-price="0" onclick="selectHardware(this, 'sideCover')">
+                  <div class="hardware-option-img" style="width: 60px; height: 45px; background: #333333;">
+                  </div>
+                  <span style="font-size: 11px;">Black</span>
+                </div>
+                <div class="hardware-option" data-value="brown" data-price="0" onclick="selectHardware(this, 'sideCover')">
+                  <div class="hardware-option-img" style="width: 60px; height: 45px; background: #8B4513;">
+                  </div>
+                  <span style="font-size: 11px;">Brown</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Accessories -->
+        <div class="accordion-section" data-name="accessories">
+          <button class="accordion-header" onclick="toggleAccordion(this.parentElement)">
+            <div class="accordion-header-left">
+              <span>Accessories</span>
+              <span class="accordion-selected" id="accessoriesValue"></span>
+            </div>
+            <span class="accordion-icon"></span>
+          </button>
+          <div class="accordion-body">
+            <p style="font-size: 13px; color: #666; margin-bottom: 20px; display: flex; align-items: center; gap: 8px;">
+              <i class="fas fa-info-circle" style="color: #8E6545;"></i>
+              Enhance your motorized blinds with these optional accessories
+            </p>
+
+            <div class="accessories-grid" style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px;">
+              <!-- Smart Hub -->
+              <div class="accessory-item" style="display: flex; align-items: center; justify-content: space-between; padding: 16px 18px; background: #fff; border-radius: 12px; border: 1px solid #e5e5e5; box-shadow: 0 2px 8px rgba(0,0,0,0.04);">
+                <div style="display: flex; align-items: center; gap: 14px;">
+                  <div style="width: 48px; height: 48px; background: linear-gradient(135deg, #f5ebe0 0%, #e8ddd0 100%); border-radius: 10px; display: flex; align-items: center; justify-content: center;">
+                    <i class="fas fa-wifi" style="color: #8E6545; font-size: 20px;"></i>
+                  </div>
+                  <div>
+                    <span style="font-size: 14px; font-weight: 600; color: #333; display: block;">Smart Hub</span>
+                    <span id="smartHubPrice" style="font-size: 12px; color: #8E6545; font-weight: 600;">$32.90</span>
+                  </div>
+                </div>
+                <div class="accessory-qty" style="display: flex; align-items: center; gap: 8px;">
+                  <button onclick="changeAccessoryQty('smartHub', -1)" style="width: 32px; height: 32px; border: 1px solid #8E6545; border-radius: 8px; background: #fff; cursor: pointer; font-size: 18px; color: #8E6545;">−</button>
+                  <input type="number" id="smartHubQty" value="0" min="0" max="10" onchange="calculatePrice()" style="width: 45px; height: 32px; border: 1px solid #8E6545; border-radius: 8px; text-align: center; font-size: 14px; font-weight: 600; color: #8E6545;">
+                  <button onclick="changeAccessoryQty('smartHub', 1)" style="width: 32px; height: 32px; border: 1px solid #8E6545; border-radius: 8px; background: #fff; cursor: pointer; font-size: 18px; color: #8E6545;">+</button>
+                </div>
+              </div>
+
+              <!-- USB Charger -->
+              <div class="accessory-item" style="display: flex; align-items: center; justify-content: space-between; padding: 16px 18px; background: #fff; border-radius: 12px; border: 1px solid #e5e5e5; box-shadow: 0 2px 8px rgba(0,0,0,0.04);">
+                <div style="display: flex; align-items: center; gap: 14px;">
+                  <div style="width: 48px; height: 48px; background: linear-gradient(135deg, #f5ebe0 0%, #e8ddd0 100%); border-radius: 10px; display: flex; align-items: center; justify-content: center;">
+                    <i class="fas fa-plug" style="color: #8E6545; font-size: 20px;"></i>
+                  </div>
+                  <div>
+                    <span style="font-size: 14px; font-weight: 600; color: #333; display: block;">USB Charger</span>
+                    <span id="usbChargerPrice" style="font-size: 12px; color: #8E6545; font-weight: 600;">$7.00</span>
+                  </div>
+                </div>
+                <div class="accessory-qty" style="display: flex; align-items: center; gap: 8px;">
+                  <button onclick="changeAccessoryQty('usbCharger', -1)" style="width: 32px; height: 32px; border: 1px solid #8E6545; border-radius: 8px; background: #fff; cursor: pointer; font-size: 18px; color: #8E6545;">−</button>
+                  <input type="number" id="usbChargerQty" value="0" min="0" max="10" onchange="calculatePrice()" style="width: 45px; height: 32px; border: 1px solid #8E6545; border-radius: 8px; text-align: center; font-size: 14px; font-weight: 600; color: #8E6545;">
+                  <button onclick="changeAccessoryQty('usbCharger', 1)" style="width: 32px; height: 32px; border: 1px solid #8E6545; border-radius: 8px; background: #fff; cursor: pointer; font-size: 18px; color: #8E6545;">+</button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Price Summary -->
+        <div class="price-summary">
+          <div class="price-row">
+            <span>Fabric Cost</span>
+            <span id="fabricCost">$0.00</span>
+          </div>
+          <div class="price-row">
+            <span>Hardware & Extras</span>
+            <span id="hardwareCost">$0.00</span>
+          </div>
+          <div class="price-row total">
+            <span>Total Price</span>
+            <span>$<span id="totalPrice">0.00</span></span>
+          </div>
+        </div>
+
+        <!-- Price Breakdown -->
+        <div class="price-breakdown" id="priceBreakdown" style="background: #f8f6f3; border-radius: 12px; padding: 16px; margin-bottom: 16px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; cursor: pointer;" onclick="togglePriceBreakdown()">
+            <span style="font-weight: 600; color: #333; font-size: 14px;">
+              <i class="fas fa-receipt" style="margin-right: 8px; color: #8E6545;"></i>Price Breakdown
+            </span>
+            <i class="fas fa-chevron-down" id="breakdownToggleIcon" style="color: #8E6545; transition: transform 0.3s;"></i>
+          </div>
+          <div id="breakdownDetails" style="border-top: 1px solid #e0ddd8; padding-top: 12px;">
+            <div id="breakdownItems" style="font-size: 13px; color: #555;">
+              <!-- Breakdown items will be populated by JavaScript -->
+            </div>
+          </div>
+        </div>
+
+        <!-- Action Buttons -->
+        <div class="action-buttons">
+          <button class="btn-add-cart" onclick="addToCart()">
+            <i class="fas fa-shopping-cart"></i> Add to Cart
+          </button>
+          <button class="btn-save-quote" onclick="saveQuote()">
+            <i class="fas fa-bookmark"></i> Save Quote
+          </button>
+        </div>
+
+        <!-- Product Features -->
+        <div style="margin-top: 30px; padding: 20px; background: #fff; border-radius: 12px;">
+          <h3 style="font-size: 16px; margin-bottom: 15px; color: var(--text-dark);">Features & Benefits</h3>
+          <ul style="list-style: none; font-size: 13px; color: var(--text-light);">
+            <li style="margin-bottom: 10px; display: flex; align-items: center; gap: 10px;">
+              <i class="fas fa-check" style="color: var(--golden-brown);"></i>
+              Alternating sheer and solid bands for versatile light control
+            </li>
+            <li style="margin-bottom: 10px; display: flex; align-items: center; gap: 10px;">
+              <i class="fas fa-check" style="color: var(--golden-brown);"></i>
+              100% Polyester fabric - easy to clean
+            </li>
+            <li style="margin-bottom: 10px; display: flex; align-items: center; gap: 10px;">
+              <i class="fas fa-check" style="color: var(--golden-brown);"></i>
+              38mm tube with cassette and hem bar included
+            </li>
+            <li style="margin-bottom: 10px; display: flex; align-items: center; gap: 10px;">
+              <i class="fas fa-check" style="color: var(--golden-brown);"></i>
+              5 Year Warranty on Cordless | 1 Year on Manual
+            </li>
+            <li style="display: flex; align-items: center; gap: 10px;">
+              <i class="fas fa-check" style="color: var(--golden-brown);"></i>
+              Free shipping on orders over $99
+            </li>
+          </ul>
+        </div>
+      </div>
+    </div>
+
+    <!-- Product Catalogs Section -->
+    <div style="max-width: 1200px; margin: 30px auto; padding: 0 20px;">
+      <div class="product-catalogs-accordion" style="background: #fff; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.08);">
+        <button onclick="toggleProductCatalog(this)" style="width: 100%; padding: 20px 25px; display: flex; justify-content: space-between; align-items: center; background: #fff; border: none; cursor: pointer; font-size: 16px; font-weight: 600; color: #333;">
+          <span><i class="fas fa-book-open" style="color: #8E6545; margin-right: 10px;"></i>Product Catalogs</span>
+          <span class="catalog-toggle-icon" style="font-size: 20px; color: #8E6545; transition: transform 0.3s;">+</span>
+        </button>
+        <div class="product-catalog-body" style="display: none; padding: 0 25px 25px; border-top: 1px solid #eee;">
+
+          <!-- Product Features -->
+          <div style="margin-top: 20px;">
+            <h4 style="font-size: 15px; color: #8E6545; margin-bottom: 12px; border-bottom: 2px solid #8E6545; padding-bottom: 8px; display: inline-block;">Product Features</h4>
+            <p style="font-size: 13px; color: #666; line-height: 1.7;">
+              The eco-friendly and durable fabric is made into a variety of shading effects: <strong>semi-blackout, blackout, and super-blackout</strong>, with unique design and functions of insulation, dust-proof, shading and light filtering. Zebra blinds feature alternating sheer and opaque stripes that can be aligned for privacy or staggered for natural light.
+            </p>
+          </div>
+
+          <!-- Control Systems - From Page 13 -->
+          <div style="margin-top: 25px;">
+            <h4 style="font-size: 15px; color: #8E6545; margin-bottom: 12px; border-bottom: 2px solid #8E6545; padding-bottom: 8px; display: inline-block;">Control Systems</h4>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+              <div style="background: #f9f7f4; padding: 15px; border-radius: 8px; cursor: pointer;" onclick="openHardwareZoom('/images/control-system/zebra/manual-bead-chain.jpeg', 'Manual Bead Chain')">
+                <img src="/images/control-system/zebra/manual-bead-chain.jpeg" alt="Bead Chain" style="width: 100%; height: 120px; object-fit: cover; border-radius: 6px; margin-bottom: 10px;">
+                <strong style="font-size: 13px; color: #333;">Bead Chain Manual</strong>
+                <p style="font-size: 11px; color: #888; margin-top: 5px;">Standard manual operation with plastic or steel chain</p>
+              </div>
+              <div style="background: #f9f7f4; padding: 15px; border-radius: 8px; cursor: pointer;" onclick="openHardwareZoom('/images/control-system/zebra/page13_control_img10_660x988.jpeg', 'Cordless-Motorized 2-in-1')">
+                <img src="/images/control-system/zebra/page13_control_img10_660x988.jpeg" alt="Cordless-Motorized" style="width: 100%; height: 120px; object-fit: cover; border-radius: 6px; margin-bottom: 10px;">
+                <strong style="font-size: 13px; color: #333;">Cordless-Motorized 2 in 1</strong>
+                <p style="font-size: 11px; color: #888; margin-top: 5px;">Dual operation with hand pull or remote control</p>
+              </div>
+              <div style="background: #f9f7f4; padding: 15px; border-radius: 8px; cursor: pointer;" onclick="openHardwareZoom('/images/control-system/zebra/motorized-remote.jpeg', 'Motorized with Remote')">
+                <img src="/images/control-system/zebra/motorized-remote.jpeg" alt="Motorized" style="width: 100%; height: 120px; object-fit: cover; border-radius: 6px; margin-bottom: 10px;">
+                <strong style="font-size: 13px; color: #333;">Motorized</strong>
+                <p style="font-size: 11px; color: #888; margin-top: 5px;">Full motorized operation with remote control</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Bottom Rail Options - From Page 13 -->
+          <div style="margin-top: 25px;">
+            <h4 style="font-size: 15px; color: #8E6545; margin-bottom: 12px; border-bottom: 2px solid #8E6545; padding-bottom: 8px; display: inline-block;">Bottom Rail Options</h4>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px;">
+              <div style="text-align: center; cursor: pointer;" onclick="openHardwareZoom('/images/zebra-hardware/bottom-rail-type-a-white.png', 'Type A - White')">
+                <img src="/images/zebra-hardware/bottom-rail-type-a-white.png" alt="Type A White" style="width: 100%; height: 100px; object-fit: contain; background: #f5f5f5; border-radius: 6px; padding: 10px;">
+                <span style="display: block; font-size: 12px; color: #333; margin-top: 8px; font-weight: 500;">Type A - White</span>
+              </div>
+              <div style="text-align: center; cursor: pointer;" onclick="openHardwareZoom('/images/zebra-hardware/bottom-rail-type-a-gray.png', 'Type A - Gray')">
+                <img src="/images/zebra-hardware/bottom-rail-type-a-gray.png" alt="Type A Gray" style="width: 100%; height: 100px; object-fit: contain; background: #f5f5f5; border-radius: 6px; padding: 10px;">
+                <span style="display: block; font-size: 12px; color: #333; margin-top: 8px; font-weight: 500;">Type A - Gray</span>
+              </div>
+              <div style="text-align: center; cursor: pointer;" onclick="openHardwareZoom('/images/zebra-hardware/bottom-rail-type-a-black.png', 'Type A - Black')">
+                <img src="/images/zebra-hardware/bottom-rail-type-a-black.png" alt="Type A Black" style="width: 100%; height: 100px; object-fit: contain; background: #f5f5f5; border-radius: 6px; padding: 10px;">
+                <span style="display: block; font-size: 12px; color: #333; margin-top: 8px; font-weight: 500;">Type A - Black</span>
+              </div>
+              <div style="text-align: center; cursor: pointer;" onclick="openHardwareZoom('/images/zebra-hardware/bottom-rail-fabric-wrapped.png', 'Type C - Fabric Wrapped')">
+                <img src="/images/zebra-hardware/bottom-rail-fabric-wrapped.png" alt="Type C Fabric" style="width: 100%; height: 100px; object-fit: contain; background: #f5f5f5; border-radius: 6px; padding: 10px;">
+                <span style="display: block; font-size: 12px; color: #333; margin-top: 8px; font-weight: 500;">Type C - Fabric Wrapped</span>
+              </div>
+            </div>
+            <p style="font-size: 11px; color: #888; margin-top: 12px;"><strong>Side Cover Colors:</strong> White, Gray, Black</p>
+          </div>
+
+          <!-- Product Type Specifications - From Page 14 -->
+          <div style="margin-top: 25px;">
+            <h4 style="font-size: 15px; color: #8E6545; margin-bottom: 12px; border-bottom: 2px solid #8E6545; padding-bottom: 8px; display: inline-block;">Product Type Specifications</h4>
+            <div style="overflow-x: auto;">
+              <table style="width: 100%; border-collapse: collapse; font-size: 13px;">
+                <thead>
+                  <tr style="background: #f9f7f4;">
+                    <th style="padding: 12px; text-align: left; border-bottom: 2px solid #8E6545; color: #333;">Type</th>
+                    <th style="padding: 12px; text-align: left; border-bottom: 2px solid #8E6545; color: #333;">Products</th>
+                    <th style="padding: 12px; text-align: left; border-bottom: 2px solid #8E6545; color: #333;">Width</th>
+                    <th style="padding: 12px; text-align: left; border-bottom: 2px solid #8E6545; color: #333;">Light Gap</th>
+                    <th style="padding: 12px; text-align: left; border-bottom: 2px solid #8E6545; color: #333;">Installation</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td style="padding: 12px; border-bottom: 1px solid #eee;">Curved Plus</td>
+                    <td style="padding: 12px; border-bottom: 1px solid #eee;">Roller Blinds, Zebra Blinds, Shangri-la Blinds</td>
+                    <td style="padding: 12px; border-bottom: 1px solid #eee;">0.3~1.8m</td>
+                    <td style="padding: 12px; border-bottom: 1px solid #eee;">~4.5cm</td>
+                    <td style="padding: 12px; border-bottom: 1px solid #eee;">All walls</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Customizable Size Chart - From Page 15 -->
+          <div style="margin-top: 25px;">
+            <h4 style="font-size: 15px; color: #8E6545; margin-bottom: 12px; border-bottom: 2px solid #8E6545; padding-bottom: 8px; display: inline-block;">38 Tube Zebra Blinds Customized Size</h4>
+            <div style="overflow-x: auto;">
+              <table style="width: 100%; border-collapse: collapse; font-size: 13px;">
+                <thead>
+                  <tr style="background: #f9f7f4;">
+                    <th style="padding: 12px; text-align: left; border-bottom: 2px solid #8E6545; color: #333;">Control System</th>
+                    <th style="padding: 12px; text-align: left; border-bottom: 2px solid #8E6545; color: #333;">Customized Size</th>
+                    <th style="padding: 12px; text-align: left; border-bottom: 2px solid #8E6545; color: #333;">Remark</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td style="padding: 12px; border-bottom: 1px solid #eee;">Bead Chain</td>
+                    <td style="padding: 12px; border-bottom: 1px solid #eee;">L24</td>
+                    <td style="padding: 12px; border-bottom: 1px solid #eee;">Standard manual</td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 12px; border-bottom: 1px solid #eee;">Cordless</td>
+                    <td style="padding: 12px; border-bottom: 1px solid #eee;">L24</td>
+                    <td style="padding: 12px; border-bottom: 1px solid #eee;">Spring system</td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 12px; border-bottom: 1px solid #eee;">Motorized</td>
+                    <td style="padding: 12px; border-bottom: 1px solid #eee;">L24</td>
+                    <td style="padding: 12px; border-bottom: 1px solid #eee;">Remote control</td>
+                  </tr>
+                  <tr>
+                    <td style="padding: 12px; border-bottom: 1px solid #eee;">Manual-Automatic 2 in 1</td>
+                    <td style="padding: 12px; border-bottom: 1px solid #eee;">Customized size</td>
+                    <td style="padding: 12px; border-bottom: 1px solid #eee;">Dual operation</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- Configuration Features -->
+          <div style="margin-top: 25px;">
+            <h4 style="font-size: 15px; color: #8E6545; margin-bottom: 12px; border-bottom: 2px solid #8E6545; padding-bottom: 8px; display: inline-block;">Configuration Features</h4>
+            <ul style="list-style: none; padding: 0; font-size: 13px; color: #666;">
+              <li style="padding: 8px 0; border-bottom: 1px solid #eee;"><strong>Forward Roll:</strong> Fabric rolls off the back, closest to glazing</li>
+              <li style="padding: 8px 0; border-bottom: 1px solid #eee;"><strong>Reverse Roll:</strong> Fabric rolls off the front, extra clearance for window handles</li>
+              <li style="padding: 8px 0; border-bottom: 1px solid #eee;"><strong>Inside Mount:</strong> Fits inside the window frame for a clean look</li>
+              <li style="padding: 8px 0;"><strong>Outside Mount:</strong> Mounts above or outside the window frame</li>
+            </ul>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="site-footer">
+    <div class="footer-container">
+      <div class="footer-column">
+        <img src="/images/peekabooshades_logo.jpeg" alt="Peekaboo Shades" class="footer-logo">
+        <p style="font-size: 13px; color: #aaa; line-height: 1.6;">
+          Custom window treatments made simple. Quality blinds and shades at affordable prices.
+        </p>
+      </div>
+      <div class="footer-column">
+        <h4>Products</h4>
+        <ul>
+          <li><a href="/shop?category=roller-shades">Roller Shades</a></li>
+          <li><a href="/shop?category=zebra-shades">Zebra Shades</a></li>
+          <li><a href="/shop?category=roman-shades">Roman Shades</a></li>
+          <li><a href="/shop?category=honeycomb-shades">Honeycomb Shades</a></li>
+        </ul>
+      </div>
+      <div class="footer-column">
+        <h4>Help</h4>
+        <ul>
+          <li><a href="#">How to Measure</a></li>
+          <li><a href="#">Installation Guide</a></li>
+          <li><a href="#">FAQs</a></li>
+          <li><a href="#">Contact Us</a></li>
+        </ul>
+      </div>
+      <div class="footer-column">
+        <h4>Contact</h4>
+        <ul>
+          <li><i class="fas fa-phone" style="width: 20px;"></i> 1-800-PEEKABOO</li>
+          <li><i class="fas fa-envelope" style="width: 20px;"></i> support@peekabooshades.com</li>
+          <li><i class="fas fa-clock" style="width: 20px;"></i> Mon-Fri 9AM-5PM EST</li>
+        </ul>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <p>&copy; 2025 Peekaboo Shades. All rights reserved.</p>
+    </div>
+  </footer>
+
+  <!-- Toast Container -->
+  <div id="toast" class="toast"></div>
+
+  <script>
+    // ============================================
+    // ZEBRA SHADES CONFIGURATOR
+    // ============================================
+
+    // State
+    let product = null;
+    let selectedFabric = '';
+    let selectedMountType = 'inside';
+    let selectedControl = 'manual';
+    let selectedChainSide = 'left';
+    let selectedMotorBrand = 'aok';
+    let selectedMotorLocation = 'right';
+    let selectedMotorType = 'battery';
+    let selectedRemoteType = '1-channel';
+    let selectedSolarPanel = 'none';
+    let selectedValance = 'V2';
+    let selectedBottomRail = 'type-a-white';
+    let selectedRollerType = 'forward-roll';
+    let selectedSideCover = 'white';
+    let valancePrice = 0;
+    let bottomRailPrice = 0;
+    let motorBrandPrice = 66.15;
+    let remoteTypePrice = 14.58;
+    let solarPanelPrice = 0;
+    let currentUnit = 'in';
+
+    // Accessory prices (will be updated from API)
+    const accessoryPrices = {
+      smartHub: 32.90,
+      usbCharger: 7.00
+    };
+
+    // Fabric pricing data (will be populated from API)
+    let fabricPricing = {};
+
+    // All fabrics loaded from API
+    let allFabrics = [];
+
+    // Product options from API (with customer prices)
+    let productOptions = null;
+
+    // Min area in sqm (Zebra minimum is 1.5 sqm per manufacturer spec)
+    // BUG-015 FIX: Zebra default min area is 1.5 (was 1.0)
+    const MIN_AREA_SQM = 1.5;
+
+    // Margin percentage for customer prices (40% markup on MFR cost)
+    const MARGIN_PERCENTAGE = 40;
+
+    // ============================================
+    // FABRIC & OPTIONS LOADING
+    // ============================================
+
+    // Helper to apply margin to MFR cost
+    function applyMargin(mfrCost) {
+      return mfrCost * (1 + MARGIN_PERCENTAGE / 100);
+    }
+
+    // Load product options from API (contains customer prices)
+    async function loadProductOptions() {
+      try {
+        const response = await fetch('/api/products/affordable-custom-zebra-shades/options');
+        const result = await response.json();
+        if (result.success && result.options) {
+          productOptions = result.options;
+
+          // Render motor brands dynamically from API
+          if (result.motorBrands && result.motorBrands.length > 0) {
+            renderMotorBrandsOptions('motorBrandSwatches', result.motorBrands);
+            // Update default motor brand price
+            const defaultBrand = result.motorBrands.find(b => b.isDefault) || result.motorBrands[0];
+            if (defaultBrand) {
+              selectedMotorBrand = defaultBrand.value;
+              motorBrandPrice = defaultBrand.price;
+            }
+          }
+
+          // Render remote type options dynamically from API
+          if (result.options.remoteType?.options) {
+            renderRemoteTypeOptions('remoteTypeSwatches', result.options.remoteType.options);
+            // Update default remote type price
+            const defaultRemote = result.options.remoteType.options.find(r => r.isDefault) || result.options.remoteType.options[0];
+            if (defaultRemote) {
+              selectedRemoteType = defaultRemote.value;
+              remoteTypePrice = defaultRemote.price || 0;
+            }
+          }
+
+          // Render solar panel options dynamically from API
+          if (result.options.solarPanel?.options) {
+            renderSolarPanelOptions('solarPanelSwatches', result.options.solarPanel.options);
+          }
+
+          // Update accessory prices from API
+          if (result.options.accessories?.options) {
+            result.options.accessories.options.forEach(acc => {
+              if (acc.value === 'smartHub') {
+                accessoryPrices.smartHub = acc.price;
+                const priceEl = document.getElementById('smartHubPrice');
+                if (priceEl) priceEl.textContent = '$' + acc.price.toFixed(2);
+              }
+              if (acc.value === 'usbCharger') {
+                accessoryPrices.usbCharger = acc.price;
+                const priceEl = document.getElementById('usbChargerPrice');
+                if (priceEl) priceEl.textContent = '$' + acc.price.toFixed(2);
+              }
+            });
+          }
+        }
+
+        // Load zebra hardware options from database
+        await loadZebraHardwareOptions();
+
+      } catch (error) {
+        console.error('Error loading product options:', error);
+      }
+    }
+
+    // Load zebra hardware options from API
+    async function loadZebraHardwareOptions() {
+      try {
+        const response = await fetch('/api/zebra/hardware');
+        const result = await response.json();
+
+        if (result.success && result.data) {
+          // Render valance type options
+          if (result.data.valanceType && result.data.valanceType.length > 0) {
+            renderValanceTypeOptions('valanceTypeSwatches', result.data.valanceType);
+            // Set default selection
+            const defaultValance = result.data.valanceType.find(v => v.isDefault) || result.data.valanceType[0];
+            if (defaultValance) {
+              selectedValance = defaultValance.value;
+              valancePrice = defaultValance.price || 0;
+            }
+          }
+
+          // Render bottom rail options
+          if (result.data.bottomRail && result.data.bottomRail.length > 0) {
+            renderBottomRailOptions('bottomRailSwatches', result.data.bottomRail);
+            // Set default selection
+            const defaultRail = result.data.bottomRail.find(r => r.isDefault) || result.data.bottomRail[0];
+            if (defaultRail) {
+              selectedBottomRail = defaultRail.value;
+              bottomRailPrice = defaultRail.price || 0;
+            }
+          }
+        }
+      } catch (error) {
+        console.error('Error loading zebra hardware options:', error);
+        // Show error messages in containers
+        const valanceContainer = document.getElementById('valanceTypeSwatches');
+        const railContainer = document.getElementById('bottomRailSwatches');
+        if (valanceContainer) valanceContainer.innerHTML = '<div style="color: #c00; font-size: 12px;">Error loading options</div>';
+        if (railContainer) railContainer.innerHTML = '<div style="color: #c00; font-size: 12px;">Error loading options</div>';
+      }
+    }
+
+    // Render valance type options from API
+    function renderValanceTypeOptions(containerId, options) {
+      const container = document.getElementById(containerId);
+      if (!container) return;
+
+      // Sort by sortOrder
+      options.sort((a, b) => (a.sortOrder || 999) - (b.sortOrder || 999));
+
+      // Filter only active options
+      const activeOptions = options.filter(opt => opt.isActive !== false);
+
+      container.innerHTML = activeOptions.map((opt, index) => {
+        const isDefault = opt.isDefault || index === 0;
+        const priceLabel = opt.price > 0 ? ` (+$${opt.price.toFixed(2)}/m²)` : '';
+        const imgSrc = opt.imageUrl || '/images/placeholder.png';
+
+        return `
+          <div class="hardware-option ${isDefault ? 'selected' : ''}" data-value="${opt.value}" data-price="${opt.price || 0}" onclick="selectHardware(this, 'valance')">
+            <div class="hardware-option-img" style="width: 100px; height: 80px; position: relative; cursor: pointer;">
+              <img src="${imgSrc}" alt="${opt.label}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 6px;" onerror="this.src='/images/placeholder.png'">
+              <div style="position: absolute; top: 3px; right: 3px; background: rgba(142,101,69,0.9); color: white; font-size: 8px; padding: 2px 4px; border-radius: 3px; cursor: pointer;" onclick="event.stopPropagation(); openHardwareZoom('${imgSrc}', '${opt.label} Valance')">
+                <i class="fas fa-search-plus"></i>
+              </div>
+            </div>
+            <span style="font-size: 11px;">${opt.label}${priceLabel}</span>
+          </div>
+        `;
+      }).join('');
+
+      // Set default selection
+      if (activeOptions.length > 0) {
+        const defaultOpt = activeOptions.find(o => o.isDefault) || activeOptions[0];
+        selectedValance = defaultOpt.value;
+        valancePrice = defaultOpt.price || 0;
+      }
+    }
+
+    // Render bottom rail options from API
+    function renderBottomRailOptions(containerId, options) {
+      const container = document.getElementById(containerId);
+      if (!container) return;
+
+      // Sort by sortOrder
+      options.sort((a, b) => (a.sortOrder || 999) - (b.sortOrder || 999));
+
+      // Filter only active options
+      const activeOptions = options.filter(opt => opt.isActive !== false);
+
+      container.innerHTML = activeOptions.map((opt, index) => {
+        const isDefault = opt.isDefault || index === 0;
+        const priceLabel = opt.price > 0 ? ` (+$${opt.price.toFixed(2)}/m²)` : '';
+        const imgSrc = opt.imageUrl || '/images/placeholder.png';
+
+        return `
+          <div class="hardware-option ${isDefault ? 'selected' : ''}" data-value="${opt.value}" data-price="${opt.price || 0}" onclick="selectHardware(this, 'bottomRail')">
+            <div class="hardware-option-img" style="width: 100px; height: 80px; background: #f8f8f8; border: 2px solid #e5e5e5; display: flex; align-items: center; justify-content: center; position: relative; cursor: pointer;">
+              <img src="${imgSrc}" alt="${opt.label}" style="max-width: 95%; max-height: 95%; object-fit: contain;" onerror="this.src='/images/placeholder.png'">
+              <div style="position: absolute; top: 3px; right: 3px; background: rgba(142,101,69,0.9); color: white; font-size: 8px; padding: 2px 4px; border-radius: 3px; cursor: pointer;" onclick="event.stopPropagation(); openHardwareZoom('${imgSrc}', '${opt.label} Bottom Rail')">
+                <i class="fas fa-search-plus"></i>
+              </div>
+            </div>
+            <span style="font-size: 11px;">${opt.label}${priceLabel}</span>
+          </div>
+        `;
+      }).join('');
+
+      // Set default selection
+      if (activeOptions.length > 0) {
+        const defaultOpt = activeOptions.find(o => o.isDefault) || activeOptions[0];
+        selectedBottomRail = defaultOpt.value;
+        bottomRailPrice = defaultOpt.price || 0;
+      }
+    }
+
+    // Load fabrics from API
+    async function loadFabrics() {
+      try {
+        // Load product options first (for customer prices)
+        await loadProductOptions();
+
+        const response = await fetch('/api/fabrics/zebra');
+        const result = await response.json();
+
+        if (result.success && result.fabrics) {
+          allFabrics = result.fabrics;
+
+          // Build pricing lookup with CUSTOMER prices
+          // BUG-012/013 FIX: API /api/fabrics/zebra returns CUSTOMER prices (margin already applied)
+          // Field names from API: pricePerSqMeterManual, pricePerSqMeterCordless
+          result.fabrics.forEach(fabric => {
+            fabricPricing[fabric.code] = {
+              // Customer prices - ready to display (NO margin calculation needed)
+              pricePerSqMeter: fabric.pricePerSqMeterManual || 0,
+              cordlessPrice: fabric.pricePerSqMeterCordless || 0,
+              category: fabric.category,
+              image: fabric.image,
+              hasImage: fabric.hasImage,
+              name: fabric.name,
+              minAreaSqMeter: fabric.minAreaSqMeter || 1.5
+            };
+          });
+
+          // Populate fabric grids by category (only show fabrics with images)
+          const semiBlackout = result.fabrics.filter(f => f.category === 'semi-blackout' && f.hasImage);
+          const blackout = result.fabrics.filter(f => f.category === 'blackout' && f.hasImage);
+          const superBlackout = result.fabrics.filter(f => f.category === 'super-blackout' && f.hasImage);
+
+          document.getElementById('semiBlackoutFabrics').innerHTML = createFabricSwatches(semiBlackout);
+          document.getElementById('blackoutFabrics').innerHTML = createFabricSwatches(blackout);
+          document.getElementById('superBlackoutFabrics').innerHTML = createFabricSwatches(superBlackout);
+
+          // Update button counts
+          const buttons = document.querySelectorAll('.filter-toggle-btn');
+          if (buttons[0]) buttons[0].textContent = `Semi-Blackout (${semiBlackout.length})`;
+          if (buttons[1]) buttons[1].textContent = `Blackout (${blackout.length})`;
+          if (buttons[2]) buttons[2].textContent = `Super Blackout (${superBlackout.length})`;
+
+          // Hide loading, show default category (semi-blackout)
+          document.getElementById('fabricsLoading').style.display = 'none';
+          document.getElementById('semiBlackoutFabrics').style.display = 'flex';
+
+          // Select default fabric (first with image in semi-blackout, or just first)
+          const defaultFabric = result.fabrics.find(f => f.hasImage && f.category === 'semi-blackout') ||
+                               result.fabrics.find(f => f.category === 'semi-blackout') ||
+                               result.fabrics[0];
+
+          if (defaultFabric) {
+            selectedFabric = defaultFabric.code;
+
+            // Select the swatch visually
+            const swatch = document.querySelector(`.fabric-swatch[data-code="${selectedFabric}"]`);
+            if (swatch) {
+              swatch.classList.add('selected');
+            }
+
+            calculatePrice();
+          }
+        }
+      } catch (error) {
+        console.error('Error loading fabrics:', error);
+        document.getElementById('fabricsLoading').innerHTML = '<div style="color: #c00;">Error loading fabrics. Please refresh the page.</div>';
+      }
+    }
+
+    // Create fabric swatch HTML with zoom button
+    function createFabricSwatches(fabrics) {
+      return fabrics.map(fabric => {
+        const imgSrc = fabric.hasImage && fabric.image ? fabric.image : '/images/zebra-shades.png';
+        return `
+          <div class="fabric-swatch" data-code="${fabric.code}" onclick="selectFabric(this)">
+            <div class="fabric-swatch-img-container">
+              <img src="${imgSrc}" alt="${fabric.code}" onerror="this.src='/images/zebra-shades.png'">
+              <button class="zoom-btn" onclick="event.stopPropagation(); openZoomModal('${imgSrc}', '${fabric.code}')" title="Zoom">
+                <i class="fas fa-search-plus"></i>
+              </button>
+            </div>
+            <span>${fabric.code}</span>
+          </div>
+        `;
+      }).join('');
+    }
+
+    // Open zoom modal
+    function openZoomModal(imgSrc, fabricCode) {
+      const modal = document.getElementById('zoomModal');
+      const modalImg = document.getElementById('zoomModalImg');
+      const modalCode = document.getElementById('zoomModalCode');
+
+      modalImg.src = imgSrc;
+      modalCode.textContent = fabricCode;
+      modal.style.display = 'flex';
+
+      // Close on escape key
+      document.addEventListener('keydown', function closeOnEscape(e) {
+        if (e.key === 'Escape') {
+          closeZoomModal();
+          document.removeEventListener('keydown', closeOnEscape);
+        }
+      });
+    }
+
+    // Close zoom modal
+    function closeZoomModal() {
+      document.getElementById('zoomModal').style.display = 'none';
+    }
+
+    // Initialize on page load
+    document.addEventListener('DOMContentLoaded', function() {
+      loadFabrics();
+    });
+
+    // Toggle accordion
+    function toggleAccordion(section) {
+      const isActive = section.classList.contains('active');
+
+      // Close all sections
+      document.querySelectorAll('.accordion-section').forEach(s => {
+        s.classList.remove('active');
+      });
+
+      // Open clicked section if it was closed
+      if (!isActive) {
+        section.classList.add('active');
+      }
+    }
+
+    // Select fabric category (filter buttons)
+    function selectFabricCategory(btn, category) {
+      // Update button styles
+      document.querySelectorAll('.filter-toggle-btn').forEach(b => {
+        b.style.background = 'transparent';
+        b.style.color = '#333333';
+        b.style.borderColor = '#D4D4D4';
+        b.classList.remove('selected');
+      });
+      btn.classList.add('selected');
+      btn.style.background = '#8E6545';
+      btn.style.color = '#FFFFFF';
+      btn.style.borderColor = '#8E6545';
+
+      // Show/hide fabric grids
+      document.getElementById('semiBlackoutFabrics').style.display = category === 'semi-blackout' ? 'flex' : 'none';
+      document.getElementById('blackoutFabrics').style.display = category === 'blackout' ? 'flex' : 'none';
+      document.getElementById('superBlackoutFabrics').style.display = category === 'super-blackout' ? 'flex' : 'none';
+    }
+
+    // Select fabric
+    function selectFabric(swatch) {
+      // Remove selected from all
+      document.querySelectorAll('.fabric-swatch').forEach(s => s.classList.remove('selected'));
+
+      // Add selected to clicked
+      swatch.classList.add('selected');
+      selectedFabric = swatch.dataset.code;
+
+      calculatePrice();
+    }
+
+    // Unit conversion
+    function changeUnit(unit) {
+      currentUnit = unit;
+      document.querySelectorAll('.unit-btn').forEach(btn => {
+        btn.style.background = btn.dataset.unit === unit ? '#8E6545' : '#fff';
+        btn.style.color = btn.dataset.unit === unit ? 'white' : '#333';
+      });
+      document.getElementById('widthUnit').textContent = unit;
+      document.getElementById('heightUnit').textContent = unit;
+      updateDimensionsValue();
+    }
+
+    // Update dimensions display
+    function updateDimensionsValue() {
+      const width = parseFloat(document.getElementById('widthInput').value) || 36;
+      const height = parseFloat(document.getElementById('heightInput').value) || 48;
+
+      // Update dimension value in accordion
+      document.getElementById('dimensionValue').textContent = `${width}" W x ${height}" H`;
+
+      // Update conversion display
+      const widthIn = currentUnit === 'in' ? width : (currentUnit === 'cm' ? width / 2.54 : width / 25.4);
+      const heightIn = currentUnit === 'in' ? height : (currentUnit === 'cm' ? height / 2.54 : height / 25.4);
+
+      document.getElementById('convInches').innerHTML = `<strong>Inches:</strong> ${widthIn.toFixed(2)} x ${heightIn.toFixed(2)} in`;
+      document.getElementById('convCm').innerHTML = `<strong>Cm:</strong> ${(widthIn * 2.54).toFixed(2)} x ${(heightIn * 2.54).toFixed(2)} cm`;
+      document.getElementById('convMm').innerHTML = `<strong>Mm:</strong> ${(widthIn * 25.4).toFixed(1)} x ${(heightIn * 25.4).toFixed(1)} mm`;
+    }
+
+    // Update selected value for dropdowns
+    function updateSelectedValue(type) {
+      if (type === 'roomLabel') {
+        const select = document.getElementById('roomLabel');
+        document.getElementById('roomLabelValue').textContent = select.options[select.selectedIndex].text;
+      }
+    }
+
+    // Select mount type
+    function selectMountType(option) {
+      const container = option.parentElement;
+      container.querySelectorAll('.hardware-option').forEach(o => {
+        o.classList.remove('selected');
+        o.querySelector('.hardware-option-img').style.borderColor = '#E5E5E5';
+        o.querySelector('.hardware-option-img').style.borderWidth = '2px';
+      });
+      option.classList.add('selected');
+      option.querySelector('.hardware-option-img').style.borderColor = '#8E6545';
+      option.querySelector('.hardware-option-img').style.borderWidth = '3px';
+      selectedMountType = option.dataset.value;
+      updateControlValueDisplay();
+    }
+
+    // Select control type (including motorized)
+    function selectControlType(option) {
+      const container = option.parentElement;
+      container.querySelectorAll('.hardware-option').forEach(o => {
+        o.classList.remove('selected');
+        o.querySelector('.hardware-option-img').style.borderColor = '#E5E5E5';
+        o.querySelector('.hardware-option-img').style.borderWidth = '2px';
+      });
+      option.classList.add('selected');
+      option.querySelector('.hardware-option-img').style.borderColor = '#8E6545';
+      option.querySelector('.hardware-option-img').style.borderWidth = '3px';
+      selectedControl = option.dataset.value;
+
+      // Update price note
+      const priceNote = document.getElementById('controlTypePriceNote');
+      if (selectedControl === 'manual') {
+        priceNote.innerHTML = '<span style="color: #28a745; font-weight: 600;">Manual: Standard fabric rate</span>';
+      } else if (selectedControl === 'cordless') {
+        priceNote.innerHTML = '<span style="color: #28a745; font-weight: 600;">Cordless: Uses cordless pricing</span>';
+      } else {
+        priceNote.innerHTML = '<span style="color: #8E6545; font-weight: 600;">Motorized: Motor pricing applies</span>';
+      }
+
+      // Show/hide options based on control type
+      document.getElementById('chainSideGroup').style.display = selectedControl === 'manual' ? 'block' : 'none';
+      document.getElementById('chainTypeGroup').style.display = selectedControl === 'manual' ? 'block' : 'none';
+      document.getElementById('motorBrandGroup').style.display = selectedControl === 'motorized' ? 'block' : 'none';
+      document.getElementById('motorLocationGroup').style.display = selectedControl === 'motorized' ? 'block' : 'none';
+      document.getElementById('motorTypeGroup').style.display = selectedControl === 'motorized' ? 'block' : 'none';
+      document.getElementById('remoteTypeGroup').style.display = selectedControl === 'motorized' ? 'block' : 'none';
+      document.getElementById('solarPanelGroup').style.display = selectedControl === 'motorized' ? 'block' : 'none';
+
+      updateControlValueDisplay();
+      calculatePrice();
+    }
+
+    // Update control value display (disabled - not showing in header)
+    function updateControlValueDisplay() {
+      // Do nothing - we don't want to show selected value in header
+    }
+
+    // Select chain side
+    function selectChainSide(btn) {
+      const container = btn.parentElement;
+      container.querySelectorAll('.chain-location-btn').forEach(b => {
+        b.style.background = 'transparent';
+        b.style.color = '#333';
+        b.style.borderColor = '#D4D4D4';
+        b.classList.remove('selected');
+      });
+      btn.classList.add('selected');
+      btn.style.background = '#8E6545';
+      btn.style.color = '#FFFFFF';
+      btn.style.borderColor = '#8E6545';
+      selectedChainSide = btn.dataset.value;
+    }
+
+    // Select chain type (Plastic/Steel)
+    let selectedChainType = 'bead-chain-plastic';
+    let chainTypePrice = 0;
+
+    function selectChainType(option) {
+      const container = option.parentElement;
+      container.querySelectorAll('.chain-type-option').forEach(opt => {
+        opt.classList.remove('selected');
+        opt.querySelector('.chain-type-img').style.border = '2px solid #D4D4D4';
+      });
+      option.classList.add('selected');
+      option.querySelector('.chain-type-img').style.border = '3px solid #8E6545';
+      selectedChainType = option.dataset.value;
+      chainTypePrice = parseFloat(option.dataset.price) || 0;
+      calculatePrice();
+    }
+
+    // Open chain image zoom modal
+    function openChainZoom(imageSrc, title) {
+      openImageZoomModal(imageSrc, title, 'chainZoomModal');
+    }
+
+    // Open hardware image zoom modal
+    function openHardwareZoom(imageSrc, title) {
+      openImageZoomModal(imageSrc, title, 'hardwareZoomModal');
+    }
+
+    // Open control system image zoom modal
+    function openControlZoom(imageSrc, title) {
+      openImageZoomModal(imageSrc, title, 'controlZoomModal');
+    }
+
+    // Toggle Product Catalog accordion
+    function toggleProductCatalog(btn) {
+      const body = btn.nextElementSibling;
+      const icon = btn.querySelector('.catalog-toggle-icon');
+      if (body.style.display === 'none') {
+        body.style.display = 'block';
+        icon.textContent = '−';
+      } else {
+        body.style.display = 'none';
+        icon.textContent = '+';
+      }
+    }
+
+    // Generic image zoom modal function
+    function openImageZoomModal(imageSrc, title, modalId) {
+      // Remove existing modal if any
+      const existingModal = document.getElementById(modalId);
+      if (existingModal) existingModal.remove();
+
+      // Create modal overlay
+      const modal = document.createElement('div');
+      modal.id = modalId;
+      modal.style.cssText = 'position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); display: flex; align-items: center; justify-content: center; z-index: 10000; cursor: pointer;';
+      modal.onclick = () => modal.remove();
+
+      // Create modal content
+      modal.innerHTML = `
+        <div style="position: relative; max-width: 90%; max-height: 90%; text-align: center;" onclick="event.stopPropagation();">
+          <button onclick="document.getElementById('${modalId}').remove()" style="position: absolute; top: -40px; right: 0; background: none; border: none; color: white; font-size: 24px; cursor: pointer;">
+            <i class="fas fa-times"></i>
+          </button>
+          <img src="${imageSrc}" alt="${title}" style="max-width: 100%; max-height: 80vh; border-radius: 12px; box-shadow: 0 10px 40px rgba(0,0,0,0.3);">
+          <p style="color: white; font-size: 18px; margin-top: 15px; font-weight: 600;">${title}</p>
+        </div>
+      `;
+      document.body.appendChild(modal);
+    }
+
+    // Select motor brand
+    function selectMotorBrand(btn) {
+      const container = btn.parentElement;
+      container.querySelectorAll('.motor-brand-btn').forEach(b => {
+        b.style.background = 'transparent';
+        b.style.color = '#333';
+        b.style.borderColor = '#D4D4D4';
+        b.classList.remove('selected');
+      });
+      btn.classList.add('selected');
+      btn.style.background = '#8E6545';
+      btn.style.color = '#FFFFFF';
+      btn.style.borderColor = '#8E6545';
+      selectedMotorBrand = btn.dataset.value;
+      motorBrandPrice = parseFloat(btn.dataset.price) || 0;
+      calculatePrice();
+    }
+
+    // Select motor location
+    function selectMotorLocation(btn) {
+      const container = btn.parentElement;
+      container.querySelectorAll('.motor-location-btn').forEach(b => {
+        b.style.background = 'transparent';
+        b.style.color = '#333';
+        b.style.borderColor = '#D4D4D4';
+        b.classList.remove('selected');
+      });
+      btn.classList.add('selected');
+      btn.style.background = '#8E6545';
+      btn.style.color = '#FFFFFF';
+      btn.style.borderColor = '#8E6545';
+      selectedMotorLocation = btn.dataset.value;
+    }
+
+    // Select motor type
+    function selectMotorType(btn) {
+      const container = btn.parentElement;
+      container.querySelectorAll('.motor-type-btn').forEach(b => {
+        b.style.background = 'transparent';
+        b.style.color = '#333';
+        b.style.borderColor = '#D4D4D4';
+        b.classList.remove('selected');
+      });
+      btn.classList.add('selected');
+      btn.style.background = '#8E6545';
+      btn.style.color = '#FFFFFF';
+      btn.style.borderColor = '#8E6545';
+      selectedMotorType = btn.dataset.value;
+    }
+
+    // Render Motor Brands dynamically from API
+    function renderMotorBrandsOptions(containerId, brands) {
+      const container = document.getElementById(containerId);
+      if (!container || !brands || brands.length === 0) return;
+
+      container.innerHTML = brands.map((brand, index) => {
+        const isSelected = brand.isDefault || index === 0 ? 'selected' : '';
+        const bgColor = brand.isDefault || index === 0 ? '#8E6545' : 'transparent';
+        const textColor = brand.isDefault || index === 0 ? '#FFFFFF' : '#333';
+        const borderColor = brand.isDefault || index === 0 ? '#8E6545' : '#D4D4D4';
+        const priceDisplay = brand.priceType === 'sqm' ? `$${brand.price.toFixed(2)}/m²` : `$${brand.price.toFixed(0)}`;
+
+        return `
+          <button type="button" class="motor-brand-btn ${isSelected}" data-value="${brand.value}" data-price="${brand.price}" data-price-type="${brand.priceType || 'flat'}" onclick="selectMotorBrand(this)" style="padding: 12px 24px; border: 2px solid ${borderColor}; border-radius: 8px; background: ${bgColor}; color: ${textColor}; font-size: 14px; font-weight: 500; cursor: pointer; transition: all 0.3s ease;">
+            ${brand.label} (${priceDisplay})
+          </button>
+        `;
+      }).join('');
+    }
+
+    // Render Remote Type options dynamically from API
+    function renderRemoteTypeOptions(containerId, options) {
+      const container = document.getElementById(containerId);
+      if (!container || !options || options.length === 0) return;
+
+      container.innerHTML = options.map((opt, index) => {
+        const isSelected = index === 0 ? 'selected' : '';
+        const borderColor = index === 0 ? '#8E6545' : '#D4D4D4';
+        const bgColor = index === 0 ? '#8E6545' : 'transparent';
+        const textColor = index === 0 ? '#FFFFFF' : '#333';
+        const priceDisplay = opt.price ? ` ($${opt.price.toFixed(0)})` : '';
+
+        return `
+          <button type="button" class="remote-btn ${isSelected}" data-value="${opt.value}" data-price="${opt.price || 0}" onclick="selectRemoteType(this)" style="padding: 12px 24px; border: 2px solid ${borderColor}; border-radius: 8px; background: ${bgColor}; color: ${textColor}; font-size: 14px; font-weight: 500; cursor: pointer; transition: all 0.3s ease;">
+            ${opt.name}${priceDisplay}
+          </button>
+        `;
+      }).join('');
+    }
+
+    // Render Solar Panel options dynamically from API
+    function renderSolarPanelOptions(containerId, options) {
+      const container = document.getElementById(containerId);
+      if (!container || !options || options.length === 0) return;
+
+      container.innerHTML = options.map((opt, index) => {
+        const isDefault = opt.isDefault || index === 0;
+        const isSelected = isDefault ? 'selected' : '';
+        const borderColor = isDefault ? '#8E6545' : '#D4D4D4';
+        const bgColor = isDefault ? '#8E6545' : 'transparent';
+        const textColor = isDefault ? '#FFFFFF' : '#333';
+        const priceDisplay = opt.price ? ` ($${opt.price.toFixed(0)})` : '';
+
+        return `
+          <button type="button" class="solar-btn ${isSelected}" data-value="${opt.value}" data-price="${opt.price || 0}" onclick="selectSolarPanel(this)" style="padding: 12px 24px; border: 2px solid ${borderColor}; border-radius: 8px; background: ${bgColor}; color: ${textColor}; font-size: 14px; font-weight: 500; cursor: pointer; transition: all 0.3s ease;">
+            ${opt.name}${priceDisplay}
+          </button>
+        `;
+      }).join('');
+    }
+
+    // Select remote type
+    function selectRemoteType(btn) {
+      const container = btn.parentElement;
+      container.querySelectorAll('.remote-btn').forEach(b => {
+        b.style.background = 'transparent';
+        b.style.color = '#333';
+        b.style.borderColor = '#D4D4D4';
+        b.classList.remove('selected');
+      });
+      btn.classList.add('selected');
+      btn.style.background = '#8E6545';
+      btn.style.color = '#FFFFFF';
+      btn.style.borderColor = '#8E6545';
+      selectedRemoteType = btn.dataset.value;
+      remoteTypePrice = parseFloat(btn.dataset.price) || 0;
+      calculatePrice();
+    }
+
+    // Select solar panel
+    function selectSolarPanel(btn) {
+      const container = btn.parentElement;
+      container.querySelectorAll('.solar-btn').forEach(b => {
+        b.style.background = 'transparent';
+        b.style.color = '#333';
+        b.style.borderColor = '#D4D4D4';
+        b.classList.remove('selected');
+      });
+      btn.classList.add('selected');
+      btn.style.background = '#8E6545';
+      btn.style.color = '#FFFFFF';
+      btn.style.borderColor = '#8E6545';
+      selectedSolarPanel = btn.dataset.value;
+      solarPanelPrice = parseFloat(btn.dataset.price) || 0;
+      calculatePrice();
+    }
+
+    // Change accessory quantity
+    function changeAccessoryQty(accessory, delta) {
+      const input = document.getElementById(accessory + 'Qty');
+      let qty = parseInt(input.value) || 0;
+      qty = Math.max(0, Math.min(10, qty + delta));
+      input.value = qty;
+      calculatePrice();
+    }
+
+    // Select hardware option
+    function selectHardware(option, type) {
+      const container = option.parentElement;
+      container.querySelectorAll('.hardware-option').forEach(o => {
+        o.classList.remove('selected');
+        const imgDiv = o.querySelector('.hardware-option-img');
+        if (imgDiv) {
+          imgDiv.style.borderColor = '#E5E5E5';
+          imgDiv.style.borderWidth = '2px';
+        }
+      });
+      option.classList.add('selected');
+      const imgDiv = option.querySelector('.hardware-option-img');
+      if (imgDiv) {
+        imgDiv.style.borderColor = '#8E6545';
+        imgDiv.style.borderWidth = '3px';
+      }
+
+      if (type === 'valance') {
+        selectedValance = option.dataset.value;
+        valancePrice = parseFloat(option.dataset.price) || 0;
+      } else if (type === 'bottomRail') {
+        selectedBottomRail = option.dataset.value;
+        bottomRailPrice = parseFloat(option.dataset.price) || 0;
+      } else if (type === 'rollerType') {
+        selectedRollerType = option.dataset.value;
+      } else if (type === 'sideCover') {
+        selectedSideCover = option.dataset.value;
+      }
+
+      calculatePrice();
+    }
+
+    // Debounce timer for API calls
+    let priceCalculationTimeout = null;
+    let lastPricingResponse = null;
+
+    // Calculate price by calling backend pricing API
+    function calculatePrice() {
+      // Debounce API calls (wait 300ms after last input)
+      if (priceCalculationTimeout) {
+        clearTimeout(priceCalculationTimeout);
+      }
+
+      priceCalculationTimeout = setTimeout(() => {
+        calculatePriceFromAPI();
+      }, 300);
+    }
+
+    // Actually call the pricing API
+    async function calculatePriceFromAPI() {
+      const width = parseFloat(document.getElementById('widthInput').value) || 36;
+      const height = parseFloat(document.getElementById('heightInput').value) || 48;
+
+      // Update dimension display
+      document.getElementById('dimensionValue').textContent = `${width}" W x ${height}" H`;
+
+      // Get accessory quantities
+      const smartHubQty = parseInt(document.getElementById('smartHubQty')?.value || 0);
+      const usbChargerQty = parseInt(document.getElementById('usbChargerQty')?.value || 0);
+
+      // Update accessory display
+      let accessoryText = '';
+      if (smartHubQty > 0) accessoryText += `${smartHubQty}x Smart Hub`;
+      if (usbChargerQty > 0) {
+        if (accessoryText) accessoryText += ', ';
+        accessoryText += `${usbChargerQty}x USB Charger`;
+      }
+      const accessoriesValueEl = document.getElementById('accessoriesValue');
+      if (accessoriesValueEl) {
+        accessoriesValueEl.textContent = accessoryText || '';
+      }
+
+      // Get selected hardware values
+      const valanceOption = document.querySelector('.hardware-option.selected[data-value]');
+      const bottomRailOption = document.querySelector('#bottomRailSwatches .hardware-option.selected');
+
+      // Build options object for API
+      const options = {
+        controlType: selectedControl,
+        mountType: selectedMountType,
+        valanceType: selectedValance,
+        bottomRail: selectedBottomRail,
+        rollerType: selectedRollerType,
+        chainSide: selectedChainSide,
+        chainType: selectedChainType,
+        smartHubQty,
+        usbChargerQty
+      };
+
+      // Add motor options if motorized
+      if (selectedControl === 'motorized') {
+        options.motorBrand = selectedMotorBrand;
+        options.motorLocation = selectedMotorLocation;
+        options.motorType = selectedMotorType;
+        options.remoteType = selectedRemoteType;
+        options.solarPanel = selectedSolarPanel;
+      }
+
+      // Build API request
+      const pricingRequest = {
+        productSlug: 'affordable-custom-zebra-shades',
+        productType: 'zebra',
+        width,
+        height,
+        quantity: 1,
+        fabricCode: selectedFabric,
+        options,
+        includeShipping: false,
+        includeTax: false
+      };
+
+      try {
+        const response = await fetch('/api/v1/pricing/calculate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(pricingRequest)
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+          lastPricingResponse = result;
+          displayPricingResult(result);
+        } else {
+          console.error('Pricing API error:', result.error);
+          fallbackPriceCalculation(width, height);
+        }
+      } catch (error) {
+        console.error('Failed to fetch pricing:', error);
+        fallbackPriceCalculation(width, height);
+      }
+    }
+
+    // Display pricing result from API
+    function displayPricingResult(result) {
+      const pricing = result.pricing;
+      // API returns unitPrice/lineTotal, not totalPrice/customerPrice
+      const totalPrice = pricing.unitPrice || pricing.lineTotal || pricing.totalPrice || pricing.customerPrice || pricing.grandTotal || 0;
+
+      // Update price displays
+      const basePriceEl = document.getElementById('basePrice');
+      const totalPriceEl = document.getElementById('totalPrice');
+
+      if (basePriceEl) basePriceEl.textContent = totalPrice.toFixed(2);
+      if (totalPriceEl) totalPriceEl.textContent = totalPrice.toFixed(2);
+
+      // Build comprehensive breakdown using local state variables
+      const breakdown = [];
+
+      // Dimensions
+      if (result.dimensions) {
+        const areaInfo = result.dimensions.minAreaApplied
+          ? `Area: ${result.dimensions.squareMeters} m² (min applied)`
+          : `Area: ${result.dimensions.squareMeters} m²`;
+        breakdown.push({ name: areaInfo, price: 0, info: true });
+      }
+
+      // Fabric
+      if (selectedFabric) {
+        const fabricPrice = pricing.manufacturerCost ? (pricing.manufacturerCost.unitCost + (pricing.margin?.amount || 0)) : 0;
+        breakdown.push({ name: `Fabric: ${selectedFabric}`, price: fabricPrice });
+      }
+
+      // Mount Type
+      const mountLabel = selectedMountType === 'inside' ? 'Inside Mount' : 'Outside Mount';
+      breakdown.push({ name: `Mount: ${mountLabel}`, price: 0, info: true });
+
+      // Control Type
+      const controlLabels = {
+        'manual': 'Manual (Chain)',
+        'cordless': 'Cordless',
+        'motorized': 'Motorized'
+      };
+      breakdown.push({ name: `Control: ${controlLabels[selectedControl] || selectedControl}`, price: 0, info: true });
+
+      // Roller Type
+      const rollerLabel = selectedRollerType === 'forward-roll' ? 'Forward Roll' : 'Reverse Roll';
+      breakdown.push({ name: `Roll Direction: ${rollerLabel}`, price: 0, info: true });
+
+      // Hardware - Valance
+      if (selectedValance) {
+        const valanceLabel = selectedValance.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+        breakdown.push({ name: `Valance: ${valanceLabel}`, price: valancePrice || 0 });
+      }
+
+      // Hardware - Bottom Rail
+      if (selectedBottomRail) {
+        const bottomRailLabel = selectedBottomRail.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+        breakdown.push({ name: `Bottom Rail: ${bottomRailLabel}`, price: bottomRailPrice || 0 });
+      }
+
+      // Motorized options
+      if (selectedControl === 'motorized') {
+        // Motor Brand
+        const motorBrandLabels = {
+          'aok': 'AOK Motor',
+          'dooya': 'Dooya Motor'
+        };
+        breakdown.push({ name: `Motor: ${motorBrandLabels[selectedMotorBrand] || selectedMotorBrand}`, price: motorBrandPrice || 0 });
+
+        // Motor Location
+        const motorLocLabel = selectedMotorLocation === 'left' ? 'Left Side' : 'Right Side';
+        breakdown.push({ name: `Motor Location: ${motorLocLabel}`, price: 0, info: true });
+
+        // Motor Type
+        const motorTypeLabel = selectedMotorType === 'battery' ? 'Battery Powered' : 'Hardwired';
+        breakdown.push({ name: `Motor Type: ${motorTypeLabel}`, price: 0, info: true });
+
+        // Remote Type
+        if (selectedRemoteType) {
+          const remoteLabels = {
+            '1-channel': '1-Channel Remote',
+            '5-channel': '5-Channel Remote',
+            '15-channel': '15-Channel Remote'
+          };
+          breakdown.push({ name: `Remote: ${remoteLabels[selectedRemoteType] || selectedRemoteType}`, price: remoteTypePrice || 0 });
+        }
+
+        // Solar Panel
+        if (selectedSolarPanel && selectedSolarPanel !== 'none') {
+          const solarLabels = {
+            '3w': '3W Solar Panel',
+            '5w': '5W Solar Panel'
+          };
+          breakdown.push({ name: `Solar Panel: ${solarLabels[selectedSolarPanel] || selectedSolarPanel}`, price: solarPanelPrice || 0 });
+        }
+      }
+
+      // Manual options
+      if (selectedControl === 'manual') {
+        // Chain Side
+        const chainSideLabel = selectedChainSide === 'left' ? 'Left Side' : 'Right Side';
+        breakdown.push({ name: `Chain Position: ${chainSideLabel}`, price: 0, info: true });
+
+        // Chain Type
+        if (selectedChainType) {
+          const chainLabels = {
+            'bead-chain-plastic': 'Plastic Bead Chain',
+            'bead-chain-metal': 'Steel Bead Chain'
+          };
+          breakdown.push({ name: `Chain Type: ${chainLabels[selectedChainType] || selectedChainType}`, price: chainTypePrice || 0 });
+        }
+      }
+
+      // Accessories
+      const smartHubQty = parseInt(document.getElementById('smartHubQty')?.value || 0);
+      const usbChargerQty = parseInt(document.getElementById('usbChargerQty')?.value || 0);
+
+      if (smartHubQty > 0) {
+        breakdown.push({ name: `Smart Hub x${smartHubQty}`, price: smartHubQty * (accessoryPrices?.smartHub || 65) });
+      }
+      if (usbChargerQty > 0) {
+        breakdown.push({ name: `USB Charger x${usbChargerQty}`, price: usbChargerQty * (accessoryPrices?.usbCharger || 15) });
+      }
+
+      updatePriceBreakdown(breakdown, totalPrice);
+    }
+
+    // Fallback local calculation if API fails
+    function fallbackPriceCalculation(width, height) {
+      const widthM = width * 0.0254;
+      const heightM = height * 0.0254;
+
+      const pricing = fabricPricing[selectedFabric];
+      // BUG-015 FIX: Use fabric-specific minAreaSqMeter, fallback to constant
+      const fabricMinArea = pricing?.minAreaSqMeter || MIN_AREA_SQM;
+      let areaSqM = Math.max(widthM * heightM, fabricMinArea);
+      if (!pricing) {
+        document.getElementById('totalPrice').textContent = '--';
+        return 0;
+      }
+
+      let pricePerSqM = selectedControl === 'cordless' || selectedControl === 'motorized'
+        ? pricing.cordlessPrice
+        : pricing.pricePerSqMeter;
+
+      const fabricCost = areaSqM * pricePerSqM;
+      const hardwareCost = areaSqM * (valancePrice + bottomRailPrice);
+
+      let extras = 0;
+      if (selectedControl === 'motorized') {
+        extras = (motorBrandPrice || 66) + remoteTypePrice + solarPanelPrice;
+      } else if (selectedControl === 'manual') {
+        extras = chainTypePrice;
+      }
+
+      const smartHubQty = parseInt(document.getElementById('smartHubQty')?.value || 0);
+      const usbChargerQty = parseInt(document.getElementById('usbChargerQty')?.value || 0);
+      const accessoryCost = (smartHubQty * accessoryPrices.smartHub) + (usbChargerQty * accessoryPrices.usbCharger);
+
+      const total = fabricCost + hardwareCost + extras + accessoryCost;
+
+      document.getElementById('basePrice').textContent = total.toFixed(2);
+      document.getElementById('totalPrice').textContent = total.toFixed(2);
+
+      // Build comprehensive breakdown for fallback
+      const breakdown = [];
+
+      // Dimensions
+      breakdown.push({ name: `Area: ${areaSqM.toFixed(2)} m²`, price: 0, info: true });
+
+      // Fabric
+      if (selectedFabric) {
+        breakdown.push({ name: `Fabric: ${selectedFabric}`, price: fabricCost });
+      }
+
+      // Mount Type
+      const mountLabel = selectedMountType === 'inside' ? 'Inside Mount' : 'Outside Mount';
+      breakdown.push({ name: `Mount: ${mountLabel}`, price: 0, info: true });
+
+      // Control Type
+      const controlLabels = {
+        'manual': 'Manual (Chain)',
+        'cordless': 'Cordless',
+        'motorized': 'Motorized'
+      };
+      breakdown.push({ name: `Control: ${controlLabels[selectedControl] || selectedControl}`, price: 0, info: true });
+
+      // Roller Type
+      const rollerLabel = selectedRollerType === 'forward-roll' ? 'Forward Roll' : 'Reverse Roll';
+      breakdown.push({ name: `Roll Direction: ${rollerLabel}`, price: 0, info: true });
+
+      // Hardware - Valance
+      if (selectedValance) {
+        const valanceLabel = selectedValance.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+        breakdown.push({ name: `Valance: ${valanceLabel}`, price: areaSqM * (valancePrice || 0) });
+      }
+
+      // Hardware - Bottom Rail
+      if (selectedBottomRail) {
+        const bottomRailLabel = selectedBottomRail.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+        breakdown.push({ name: `Bottom Rail: ${bottomRailLabel}`, price: areaSqM * (bottomRailPrice || 0) });
+      }
+
+      // Motorized options
+      if (selectedControl === 'motorized') {
+        const motorBrandLabels = { 'aok': 'AOK Motor', 'dooya': 'Dooya Motor' };
+        breakdown.push({ name: `Motor: ${motorBrandLabels[selectedMotorBrand] || selectedMotorBrand}`, price: motorBrandPrice || 66 });
+
+        const motorLocLabel = selectedMotorLocation === 'left' ? 'Left Side' : 'Right Side';
+        breakdown.push({ name: `Motor Location: ${motorLocLabel}`, price: 0, info: true });
+
+        const motorTypeLabel = selectedMotorType === 'battery' ? 'Battery Powered' : 'Hardwired';
+        breakdown.push({ name: `Motor Type: ${motorTypeLabel}`, price: 0, info: true });
+
+        if (selectedRemoteType) {
+          const remoteLabels = { '1-channel': '1-Channel Remote', '5-channel': '5-Channel Remote', '15-channel': '15-Channel Remote' };
+          breakdown.push({ name: `Remote: ${remoteLabels[selectedRemoteType] || selectedRemoteType}`, price: remoteTypePrice || 0 });
+        }
+
+        if (selectedSolarPanel && selectedSolarPanel !== 'none') {
+          const solarLabels = { '3w': '3W Solar Panel', '5w': '5W Solar Panel' };
+          breakdown.push({ name: `Solar Panel: ${solarLabels[selectedSolarPanel] || selectedSolarPanel}`, price: solarPanelPrice || 0 });
+        }
+      }
+
+      // Manual options
+      if (selectedControl === 'manual') {
+        const chainSideLabel = selectedChainSide === 'left' ? 'Left Side' : 'Right Side';
+        breakdown.push({ name: `Chain Position: ${chainSideLabel}`, price: 0, info: true });
+
+        if (selectedChainType) {
+          const chainLabels = { 'bead-chain-plastic': 'Plastic Bead Chain', 'bead-chain-metal': 'Steel Bead Chain' };
+          breakdown.push({ name: `Chain Type: ${chainLabels[selectedChainType] || selectedChainType}`, price: chainTypePrice || 0 });
+        }
+      }
+
+      // Accessories
+      if (smartHubQty > 0) {
+        breakdown.push({ name: `Smart Hub x${smartHubQty}`, price: smartHubQty * accessoryPrices.smartHub });
+      }
+      if (usbChargerQty > 0) {
+        breakdown.push({ name: `USB Charger x${usbChargerQty}`, price: usbChargerQty * accessoryPrices.usbCharger });
+      }
+
+      updatePriceBreakdown(breakdown, total);
+
+      return total;
+    }
+
+    // Toggle price breakdown visibility
+    function togglePriceBreakdown() {
+      const details = document.getElementById('breakdownDetails');
+      const icon = document.getElementById('breakdownToggleIcon');
+      if (details.style.display === 'none') {
+        details.style.display = 'block';
+        icon.style.transform = 'rotate(0deg)';
+      } else {
+        details.style.display = 'none';
+        icon.style.transform = 'rotate(-90deg)';
+      }
+    }
+
+    // Update price breakdown display
+    function updatePriceBreakdown(breakdown, total) {
+      const container = document.getElementById('breakdownItems');
+      if (!container) return;
+
+      let html = '';
+      breakdown.forEach(item => {
+        if (item.info) {
+          html += `<div style="display: flex; justify-content: space-between; padding: 6px 0; color: #888;">
+            <span>${item.name}</span>
+            <span>-</span>
+          </div>`;
+        } else if (item.price > 0) {
+          html += `<div style="display: flex; justify-content: space-between; padding: 6px 0;">
+            <span>${item.name}</span>
+            <span style="color: #28a745; font-weight: 500;">+$${item.price.toFixed(2)}</span>
+          </div>`;
+        } else {
+          html += `<div style="display: flex; justify-content: space-between; padding: 6px 0;">
+            <span>${item.name}</span>
+            <span>Included</span>
+          </div>`;
+        }
+      });
+
+      // Total
+      html += `<div style="display: flex; justify-content: space-between; padding: 12px 0; margin-top: 8px; border-top: 2px solid #8E6545; font-weight: 700; font-size: 16px; color: #8E6545;">
+        <span>Total</span>
+        <span>$${total.toFixed(2)}</span>
+      </div>`;
+
+      container.innerHTML = html;
+    }
+
+    // Add to cart
+    async function addToCart() {
+      const width = parseFloat(document.getElementById('widthInput').value);
+      const height = parseFloat(document.getElementById('heightInput').value);
+      const roomLabel = document.getElementById('roomLabel').value;
+
+      // Validate dimensions
+      if (width < 12 || width > 118) {
+        showToast('Width must be between 12" and 118"', 'error');
+        return;
+      }
+      if (height < 12 || height > 98) {
+        showToast('Height must be between 12" and 98"', 'error');
+        return;
+      }
+
+      // Validate fabric selection
+      if (!selectedFabric) {
+        showToast('Please select a fabric', 'error');
+        return;
+      }
+
+      // Get the total price from DOM (already calculated by pricing API)
+      const totalPrice = parseFloat(document.getElementById('totalPrice').textContent);
+      if (isNaN(totalPrice) || totalPrice <= 0) {
+        showToast('Price calculation error. Please refresh and try again.', 'error');
+        return;
+      }
+
+      // Get or create session ID
+      let sessionId = localStorage.getItem('sessionId');
+      if (!sessionId) {
+        sessionId = 'session_' + Date.now() + '_' + Math.random().toString(36).substr(2, 9);
+        localStorage.setItem('sessionId', sessionId);
+      }
+
+      // Get accessory quantities
+      const smartHubQty = parseInt(document.getElementById('smartHubQty')?.value || 0);
+      const usbChargerQty = parseInt(document.getElementById('usbChargerQty')?.value || 0);
+
+      // BUG-016 FIX: Use camelCase field names to match server expectations
+      // Server extracts sessionId, productId (not snake_case)
+      // BUG-019 FIX: Include productSlug and productType for proper product type identification
+      const cartItem = {
+        sessionId: sessionId,
+        productId: '07595ff8-fab4-4e0e-b53b-7b7165cbe69c', // Zebra product ID
+        productSlug: 'affordable-custom-zebra-shades',
+        productType: 'zebra',
+        quantity: 1,
+        width: width,
+        height: height,
+        roomLabel: roomLabel,
+        configuration: {
+          fabricCode: selectedFabric,
+          mountType: selectedMountType,
+          controlType: selectedControl,
+          chainSide: selectedControl === 'manual' ? selectedChainSide : null,
+          chainType: selectedControl === 'manual' ? selectedChainType : null,
+          motorBrand: selectedControl === 'motorized' ? selectedMotorBrand : null,
+          motorLocation: selectedControl === 'motorized' ? selectedMotorLocation : null,
+          remoteType: selectedControl === 'motorized' ? selectedRemoteType : null,
+          solarPanel: selectedControl === 'motorized' ? selectedSolarPanel : null,
+          valanceType: selectedValance,
+          bottomRail: selectedBottomRail,
+          rollerType: selectedRollerType,
+          sideCoverColor: selectedSideCover,
+          smartHubQty: smartHubQty,
+          usbChargerQty: usbChargerQty
+        }
+        // Note: unit_price and line_total removed - server calculates price
+      };
+
+      try {
+        const response = await fetch('/api/cart', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(cartItem)
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+          showToast('Added to cart successfully!', 'success');
+          updateCartCount();
+        } else {
+          showToast(result.error || 'Failed to add to cart', 'error');
+        }
+      } catch (error) {
+        console.error('Error adding to cart:', error);
+        showToast('Failed to add to cart. Please try again.', 'error');
+      }
+    }
+
+    // Save quote
+    async function saveQuote() {
+      const width = parseFloat(document.getElementById('widthInput').value);
+      const height = parseFloat(document.getElementById('heightInput').value);
+      const roomLabel = document.getElementById('roomLabel').value;
+
+      // Get the total price from DOM (already calculated by pricing API)
+      const totalPrice = parseFloat(document.getElementById('totalPrice').textContent);
+      if (isNaN(totalPrice) || totalPrice <= 0) {
+        showToast('Price calculation error. Please refresh and try again.', 'error');
+        return;
+      }
+
+      // Prompt for customer info
+      const email = prompt('Enter your email to save this quote:');
+      if (!email) return;
+
+      // Get accessory quantities
+      const smartHubQty = parseInt(document.getElementById('smartHubQty')?.value || 0);
+      const usbChargerQty = parseInt(document.getElementById('usbChargerQty')?.value || 0);
+
+      // BUG-017 FIX: Use camelCase field names to match server expectations
+      const quoteItem = {
+        customerEmail: email,
+        productId: '07595ff8-fab4-4e0e-b53b-7b7165cbe69c', // Zebra product ID
+        productName: 'Affordable Custom Zebra Shades',
+        width: width,
+        height: height,
+        quantity: 1,
+        configuration: {
+          fabricCode: selectedFabric,
+          mountType: selectedMountType,
+          controlType: selectedControl,
+          chainSide: selectedControl === 'manual' ? selectedChainSide : null,
+          chainType: selectedControl === 'manual' ? selectedChainType : null,
+          motorBrand: selectedControl === 'motorized' ? selectedMotorBrand : null,
+          motorLocation: selectedControl === 'motorized' ? selectedMotorLocation : null,
+          remoteType: selectedControl === 'motorized' ? selectedRemoteType : null,
+          solarPanel: selectedControl === 'motorized' ? selectedSolarPanel : null,
+          valanceType: selectedValance,
+          bottomRail: selectedBottomRail,
+          rollerType: selectedRollerType,
+          sideCoverColor: selectedSideCover,
+          roomLabel: roomLabel,
+          accessories: {
+            smartHub: smartHubQty,
+            usbCharger: usbChargerQty
+          }
+        }
+      };
+
+      try {
+        const response = await fetch('/api/quotes', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(quoteItem)
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+          showToast('Quote saved! Check your email for details.', 'success');
+        } else {
+          showToast(result.error || 'Failed to save quote', 'error');
+        }
+      } catch (error) {
+        console.error('Error saving quote:', error);
+        showToast('Failed to save quote. Please try again.', 'error');
+      }
+    }
+
+    // Update cart count
+    async function updateCartCount() {
+      try {
+        const sessionId = localStorage.getItem('sessionId');
+        if (!sessionId) {
+          document.getElementById('cartCount').textContent = '0';
+          return;
+        }
+
+        // BUG-018 FIX: Use path parameter not query parameter
+        const response = await fetch(`/api/cart/${sessionId}`);
+        const result = await response.json();
+
+        if (result.success && result.data) {
+          const count = result.data.reduce((sum, item) => sum + (item.quantity || 1), 0);
+          document.getElementById('cartCount').textContent = count;
+        }
+      } catch (error) {
+        console.error('Error updating cart count:', error);
+      }
+    }
+
+    // Show toast notification
+    function showToast(message, type = 'success') {
+      const toast = document.getElementById('toast');
+      toast.textContent = message;
+      toast.className = 'toast ' + type + ' show';
+
+      setTimeout(() => {
+        toast.classList.remove('show');
+      }, 3000);
+    }
+
+    // Toggle shades dropdown
+    function toggleShadesDropdown() {
+      const dropdown = document.getElementById('selectShadesDropdown');
+      dropdown.classList.toggle('open');
+    }
+
+    // Close dropdown when clicking outside
+    document.addEventListener('click', function(e) {
+      const dropdown = document.getElementById('selectShadesDropdown');
+      if (dropdown && !dropdown.contains(e.target)) {
+        dropdown.classList.remove('open');
+      }
+    });
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', function() {
+      calculatePrice();
+      updateCartCount();
+
+      // Set initial fabric display with category name (not code)
+      // The loadFabrics function will set the proper display name when fabrics load
+      // Don't overwrite here - let loadFabrics handle it
+    });
+  </script>
+
+  <!-- Zoom Modal -->
+  <div id="zoomModal" onclick="closeZoomModal()" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); z-index: 10000; justify-content: center; align-items: center; flex-direction: column;">
+    <button onclick="closeZoomModal()" style="position: absolute; top: 20px; right: 30px; font-size: 40px; color: #fff; background: none; border: none; cursor: pointer; z-index: 10001;">&times;</button>
+    <div id="zoomModalCode" style="color: #fff; font-size: 24px; font-weight: 600; margin-bottom: 20px;"></div>
+    <img id="zoomModalImg" onclick="event.stopPropagation()" style="max-width: 90%; max-height: 80%; object-fit: contain; border-radius: 8px; box-shadow: 0 4px 30px rgba(0,0,0,0.5);">
+    <p style="color: #aaa; margin-top: 15px; font-size: 14px;">Click outside or press ESC to close</p>
+  </div>
+
+  <style>
+    /* Zoom button styles */
+    .fabric-swatch-img-container {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 1;
+      overflow: hidden;
+      border-radius: 6px;
+    }
+    .fabric-swatch-img-container img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .zoom-btn {
+      position: absolute;
+      top: 5px;
+      right: 5px;
+      width: 28px;
+      height: 28px;
+      background: rgba(142, 101, 69, 0.9);
+      border: none;
+      border-radius: 50%;
+      color: #fff;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      transition: opacity 0.2s;
+      font-size: 12px;
+    }
+    .fabric-swatch:hover .zoom-btn {
+      opacity: 1;
+    }
+    .zoom-btn:hover {
+      background: rgba(142, 101, 69, 1);
+      transform: scale(1.1);
+    }
+  </style>
+</body>
+</html>

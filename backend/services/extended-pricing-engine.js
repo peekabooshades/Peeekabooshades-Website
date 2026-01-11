@@ -51,29 +51,35 @@ class ExtendedPricingEngine {
    * @returns {Object} - { price, manufacturerCost, priceType, name }
    */
   getHardwareOptionPrice(db, category, optionId, areaSqMeters = 1) {
+    // BUG-011 FIX: Check both roller and zebra hardware options
     const hardwareOptions = db?.productContent?.hardwareOptions || {};
-    const categoryOptions = hardwareOptions[category] || [];
+    const zebraHardwareOptions = db?.productContent?.zebraHardwareOptions || {};
 
     // Normalize optionId for comparison
     const normalizedId = optionId?.toLowerCase()?.replace(/[-_\s]/g, '');
 
-    // Find the option by id, code, value, or label (handle various naming conventions)
-    const option = categoryOptions.find(opt => {
-      const optId = opt.id?.toLowerCase()?.replace(/[-_\s]/g, '');
-      const optCode = opt.code?.toLowerCase()?.replace(/[-_\s]/g, '');
-      const optValue = opt.value?.toLowerCase()?.replace(/[-_\s]/g, '');
-      const optLabel = opt.label?.toLowerCase()?.replace(/[-_\s]/g, '');
-      const optName = opt.name?.toLowerCase()?.replace(/[-_\s]/g, '');
+    // Helper function to find option in a category array
+    const findOption = (options) => {
+      if (!options || options.length === 0) return null;
+      return options.find(opt => {
+        const optId = opt.id?.toLowerCase()?.replace(/[-_\s]/g, '');
+        const optCode = opt.code?.toLowerCase()?.replace(/[-_\s]/g, '');
+        const optValue = opt.value?.toLowerCase()?.replace(/[-_\s]/g, '');
+        const optLabel = opt.label?.toLowerCase()?.replace(/[-_\s]/g, '');
+        const optName = opt.name?.toLowerCase()?.replace(/[-_\s]/g, '');
 
-      return optId === normalizedId ||
-             optCode === normalizedId ||
-             optValue === normalizedId ||
-             optLabel === normalizedId ||
-             optName === normalizedId ||
-             // Also match partial label/name (e.g., "inside" matches "Inside Mount")
-             optLabel?.includes(normalizedId) ||
-             optName?.includes(normalizedId);
-    });
+        return optId === normalizedId ||
+               optCode === normalizedId ||
+               optValue === normalizedId ||
+               optLabel === normalizedId ||
+               optName === normalizedId ||
+               optLabel?.includes(normalizedId) ||
+               optName?.includes(normalizedId);
+      });
+    };
+
+    // Try zebra hardware first, then roller hardware
+    const option = findOption(zebraHardwareOptions[category]) || findOption(hardwareOptions[category]);
 
     if (!option) {
       return { price: 0, manufacturerCost: 0, priceType: 'flat', name: optionId };
@@ -328,13 +334,34 @@ class ExtendedPricingEngine {
     areaSqMeters = Math.max(areaSqMeters, minArea);
 
     // Look up manufacturer price (case-insensitive fabric code match - BUG-009 FIX)
-    const manufacturerPrices = db.manufacturerPrices || [];
+    // BUG-010 FIX: Use zebraManufacturerPrices for zebra products
     const normalizedFabricCode = fabricCode?.toLowerCase();
-    const priceRecord = manufacturerPrices.find(p =>
-      p.productType === productType &&
-      p.fabricCode?.toLowerCase() === normalizedFabricCode &&
-      p.status === 'active'
-    );
+    let priceRecord = null;
+
+    if (productType === 'zebra') {
+      // Zebra uses separate zebraManufacturerPrices collection
+      const zebraPrices = db.zebraManufacturerPrices || [];
+      priceRecord = zebraPrices.find(p =>
+        p.fabricCode?.toLowerCase() === normalizedFabricCode &&
+        p.status === 'active'
+      );
+      // Map zebra field names to standard names if found
+      if (priceRecord) {
+        priceRecord = {
+          ...priceRecord,
+          pricePerSqMeter: priceRecord.pricePerSqMeterManual || priceRecord.pricePerSqMeter,
+          minAreaSqMeter: priceRecord.minAreaSqMeter || 1.5
+        };
+      }
+    } else {
+      // Roller and other products use manufacturerPrices
+      const manufacturerPrices = db.manufacturerPrices || [];
+      priceRecord = manufacturerPrices.find(p =>
+        p.productType === productType &&
+        p.fabricCode?.toLowerCase() === normalizedFabricCode &&
+        p.status === 'active'
+      );
+    }
 
     if (priceRecord) {
       // Use pricePerSqMeter for m² pricing (from imported customer-config data)

@@ -9,10 +9,11 @@
   <style>
     .pricing-card {
       background: white;
-      border-radius: 8px;
-      padding: 20px;
-      margin-bottom: 20px;
-      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 24px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      border: 1px solid #eee;
     }
     .pricing-card h3 {
       margin: 0 0 16px 0;
@@ -20,46 +21,59 @@
       color: #333;
       display: flex;
       align-items: center;
-      gap: 8px;
+      gap: 10px;
     }
     .pricing-card h3 .badge {
       background: #8E6545;
       color: white;
-      padding: 2px 8px;
-      border-radius: 4px;
+      padding: 3px 10px;
+      border-radius: 12px;
       font-size: 11px;
       font-weight: 500;
     }
+
+    /* Table Container with horizontal scroll */
+    .table-container {
+      width: 100%;
+      overflow-x: auto;
+      border-radius: 8px;
+      border: 1px solid #e5e7eb;
+    }
+
     .pricing-table {
       width: 100%;
+      min-width: 800px;
       border-collapse: collapse;
-      table-layout: fixed;
+      table-layout: auto;
     }
     .pricing-table th, .pricing-table td {
-      padding: 10px 12px;
+      padding: 12px 16px;
       text-align: left;
-      border-bottom: 1px solid #eee;
-      overflow: hidden;
-      text-overflow: ellipsis;
+      border-bottom: 1px solid #f0f0f0;
+      white-space: nowrap;
     }
     .pricing-table th {
-      background: #f8f9fa;
+      background: linear-gradient(to bottom, #f8f9fa, #f1f3f4);
       font-weight: 600;
-      font-size: 12px;
-      color: #666;
+      font-size: 11px;
+      color: #555;
       text-transform: uppercase;
-      position: relative;
-      user-select: none;
+      letter-spacing: 0.5px;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+      border-bottom: 2px solid #e0e0e0;
     }
     .pricing-table th.resizable {
       cursor: default;
+      position: relative;
     }
     .pricing-table th .resize-handle {
       position: absolute;
       right: 0;
       top: 0;
       bottom: 0;
-      width: 5px;
+      width: 4px;
       cursor: col-resize;
       background: transparent;
       transition: background 0.2s;
@@ -69,31 +83,61 @@
       background: #8E6545;
     }
     .pricing-table td {
-      font-size: 14px;
+      font-size: 13px;
+      color: #333;
     }
-    .pricing-table tr:hover {
-      background: #f8f9fa;
+    .pricing-table tbody tr {
+      transition: background 0.15s;
     }
+    .pricing-table tbody tr:hover {
+      background: #fafbfc;
+    }
+    .pricing-table tbody tr:nth-child(even) {
+      background: #fcfcfc;
+    }
+    .pricing-table tbody tr:nth-child(even):hover {
+      background: #f5f6f7;
+    }
+
+    /* Compact price inputs */
     .price-input {
-      width: 80px;
-      padding: 6px 8px;
+      width: 70px;
+      padding: 8px 10px;
       border: 1px solid #ddd;
-      border-radius: 4px;
+      border-radius: 6px;
       text-align: right;
       font-size: 13px;
+      font-weight: 500;
+      background: #fff;
+      transition: all 0.2s;
     }
     .price-input:focus {
       border-color: #8E6545;
       outline: none;
+      box-shadow: 0 0 0 3px rgba(142, 101, 69, 0.1);
     }
     .price-input.modified {
       border-color: #8E6545;
       background: #fffaf5;
     }
+
+    /* Price display cells */
     .calculated-price {
       font-weight: 600;
-      color: #28a745;
+      font-size: 13px;
+      padding: 6px 10px;
+      border-radius: 6px;
+      display: inline-block;
     }
+    .calculated-price.manual {
+      background: #e8f5e9;
+      color: #2e7d32;
+    }
+    .calculated-price.cordless {
+      background: #fff3e0;
+      color: #e65100;
+    }
+
     .mfr-cost {
       color: #666;
     }
@@ -110,12 +154,27 @@
       color: #999;
       font-family: monospace;
     }
+
+    /* Fabric code badge */
+    .fabric-code-badge {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 4px 10px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      font-family: 'Monaco', 'Menlo', monospace;
+      letter-spacing: 0.5px;
+    }
+
+    /* Summary box */
     .summary-box {
       background: linear-gradient(135deg, #8E6545 0%, #a5785d 100%);
       color: white;
-      border-radius: 8px;
-      padding: 20px;
-      margin-bottom: 20px;
+      border-radius: 12px;
+      padding: 24px;
+      margin-bottom: 24px;
+      box-shadow: 0 4px 12px rgba(142, 101, 69, 0.3);
     }
     .summary-box h2 {
       margin: 0 0 16px 0;
@@ -124,42 +183,56 @@
     .summary-stats {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
-      gap: 16px;
+      gap: 20px;
     }
     .summary-stat {
       text-align: center;
+      padding: 12px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 8px;
     }
     .summary-stat .value {
-      font-size: 24px;
+      font-size: 28px;
       font-weight: 700;
     }
     .summary-stat .label {
       font-size: 12px;
-      opacity: 0.8;
+      opacity: 0.85;
+      margin-top: 4px;
     }
+
+    /* Section tabs */
     .section-tabs {
       display: flex;
       gap: 8px;
-      margin-bottom: 20px;
+      margin-bottom: 24px;
       flex-wrap: wrap;
+      background: #f8f9fa;
+      padding: 8px;
+      border-radius: 10px;
     }
     .section-tab {
-      padding: 8px 16px;
-      border: 1px solid #ddd;
-      background: white;
-      border-radius: 6px;
+      padding: 10px 20px;
+      border: none;
+      background: transparent;
+      border-radius: 8px;
       cursor: pointer;
       font-size: 13px;
+      font-weight: 500;
+      color: #666;
       transition: all 0.2s;
     }
     .section-tab:hover {
-      border-color: #8E6545;
+      background: white;
+      color: #333;
     }
     .section-tab.active {
       background: #8E6545;
       color: white;
-      border-color: #8E6545;
+      box-shadow: 0 2px 8px rgba(142, 101, 69, 0.3);
     }
+
+    /* Save bar */
     .save-bar {
       position: fixed;
       bottom: 0;
@@ -167,12 +240,14 @@
       right: 0;
       background: white;
       border-top: 1px solid #ddd;
-      padding: 12px 24px;
+      padding: 16px 24px;
       display: flex;
       justify-content: flex-end;
-      gap: 12px;
+      align-items: center;
+      gap: 16px;
       z-index: 100;
       display: none;
+      box-shadow: 0 -4px 12px rgba(0,0,0,0.1);
     }
     .save-bar.visible {
       display: flex;
@@ -181,6 +256,29 @@
       font-size: 12px;
       color: #666;
       margin-top: 8px;
+    }
+
+    /* Input group styling */
+    .input-group {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .input-group .prefix {
+      color: #666;
+      font-size: 13px;
+      font-weight: 500;
+    }
+    .input-group .suffix {
+      color: #666;
+      font-size: 12px;
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 1400px) {
+      .summary-stats {
+        grid-template-columns: repeat(2, 1fr);
+      }
     }
   </style>
 </head>
@@ -487,6 +585,12 @@
       document.getElementById('summary-product-name').textContent = product.name;
       document.getElementById('summary-box').style.display = 'block';
 
+      // Determine product type based on slug or category
+      let productType = 'roller';
+      if (productSlug.includes('zebra') || product.category_slug === 'zebra-shades') {
+        productType = 'zebra';
+      }
+
       // Load motor brands, hardware options (includes accessories), and fabric prices in parallel
       try {
         const [motorRes, hardwareRes, fabricRes] = await Promise.all([
@@ -494,7 +598,7 @@
             headers: { 'Authorization': 'Bearer ' + Admin.Auth.getToken() }
           }),
           fetch('/api/product-content/hardware'),
-          fetch('/api/admin/manufacturer-prices?productType=roller', {
+          fetch(`/api/admin/manufacturer-prices?productType=${productType}`, {
             headers: { 'Authorization': 'Bearer ' + Admin.Auth.getToken() }
           })
         ]);
@@ -708,42 +812,51 @@
     // Render Fabric Prices Section
     function renderFabricPricesSection() {
       let html = `<div class="pricing-card">
-        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:12px;">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px;flex-wrap:wrap;gap:16px;">
           <div>
-            <h3 style="margin:0;">Fabric Prices <span class="badge" style="background:#1565c0;">Per m²</span></h3>
-            <p style="color:#666;font-size:12px;margin:4px 0 0 0;">Base fabric cost per square meter - changes here reflect on customer product page <span style="color:#8E6545;font-style:italic;">(Drag column edges to resize)</span></p>
+            <h3 style="margin:0 0 8px 0;font-size:18px;">Fabric Prices <span class="badge" style="background:#1565c0;">Per m²</span></h3>
+            <p style="color:#666;font-size:13px;margin:0;">MFR cost per square meter from wholesale pricing sheet</p>
           </div>
-          <div style="display:flex;gap:8px;align-items:center;">
-            <input type="text" id="fabric-search" placeholder="Search fabric code..."
-                   onkeyup="filterFabricPrices(this.value)"
-                   style="padding:8px 12px;border:1px solid #ddd;border-radius:4px;width:200px;">
+          <div style="display:flex;gap:12px;align-items:center;">
+            <div style="position:relative;">
+              <input type="text" id="fabric-search" placeholder="Search fabric code..."
+                     onkeyup="filterFabricPrices(this.value)"
+                     style="padding:10px 16px 10px 40px;border:1px solid #ddd;border-radius:8px;width:220px;font-size:13px;">
+              <svg style="position:absolute;left:12px;top:50%;transform:translateY(-50%);color:#999;" width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+              </svg>
+            </div>
             <button onclick="resetColumnWidths('fabric-prices-table')" title="Reset column widths"
-                    style="padding:8px 12px;border:1px solid #ddd;border-radius:4px;background:#f8f9fa;cursor:pointer;font-size:12px;">
-              Reset Widths
+                    style="padding:10px 16px;border:1px solid #ddd;border-radius:8px;background:#fff;cursor:pointer;font-size:13px;color:#666;transition:all 0.2s;"
+                    onmouseover="this.style.borderColor='#8E6545';this.style.color='#8E6545'"
+                    onmouseout="this.style.borderColor='#ddd';this.style.color='#666'">
+              ↻ Reset Widths
             </button>
           </div>
         </div>
-        <div style="background:linear-gradient(135deg,#e3f2fd 0%,#bbdefb 100%);border-radius:8px;padding:12px;margin-bottom:16px;border-left:4px solid #1565c0;">
-          <p style="margin:0;font-size:13px;color:#0d47a1;">
-            <strong>📊 Dynamic Pricing:</strong> Each fabric has separate Manual and Cordless/Motorized prices per m².
-            Customer sees price based on their control type selection.
+        <div style="background:linear-gradient(135deg,#f0f7ff 0%,#e6f0fa 100%);border-radius:10px;padding:14px 18px;margin-bottom:20px;border-left:4px solid #1565c0;display:flex;align-items:center;gap:12px;">
+          <span style="font-size:20px;">📊</span>
+          <p style="margin:0;font-size:13px;color:#1a56a8;line-height:1.5;">
+            <strong>Dynamic Pricing:</strong> Each fabric has separate Bead Chain and Cordless prices per m².
+            Customer price = MFR cost × (1 + margin%).
           </p>
         </div>`;
 
       const calcW = document.getElementById('calc-width')?.value || 40;
       const calcH = document.getElementById('calc-height')?.value || 30;
 
-      html += `<table class="pricing-table" id="fabric-prices-table">
+      html += `<div class="table-container">
+      <table class="pricing-table" id="fabric-prices-table">
         <thead>
           <tr>
-            <th style="width:90px;">Fabric Code</th>
-            <th>Name</th>
-            <th style="width:80px;">Manual MFR $/m²</th>
-            <th style="width:70px;">Margin</th>
-            <th style="width:80px;">Cordless MFR $/m²</th>
-            <th style="width:70px;">Margin</th>
-            <th style="width:100px;" id="fabric-calc-header-manual">Manual (${calcW}"x${calcH}")</th>
-            <th style="width:100px;" id="fabric-calc-header-cordless">Cordless (${calcW}"x${calcH}")</th>
+            <th style="min-width:100px;">Fabric Code</th>
+            <th style="min-width:180px;">Name</th>
+            <th style="min-width:110px;">Bead Chain $/m²</th>
+            <th style="min-width:80px;">Margin</th>
+            <th style="min-width:110px;">Cordless $/m²</th>
+            <th style="min-width:80px;">Margin</th>
+            <th style="min-width:120px;" id="fabric-calc-header-manual">Bead Chain (${calcW}"×${calcH}")</th>
+            <th style="min-width:120px;" id="fabric-calc-header-cordless">Cordless (${calcW}"×${calcH}")</th>
           </tr>
         </thead>
         <tbody>`;
@@ -772,34 +885,42 @@
         const fabricId = (fp.fabricCode || '').replace(/[^a-zA-Z0-9]/g, '');
 
         html += `<tr data-fabric="${fp.fabricCode}">
-          <td><code style="background:#f5f5f5;padding:2px 6px;border-radius:3px;font-size:11px;">${fp.fabricCode || 'N/A'}</code></td>
-          <td style="font-size:11px;">${fp.fabricName || fp.fabricCode || 'Unknown'}</td>
+          <td><span class="fabric-code-badge">${fp.fabricCode || 'N/A'}</span></td>
+          <td style="font-size:12px;color:#555;">${fp.fabricName || fp.fabricCode || 'Unknown'}</td>
           <td>
-            <div style="display:flex;align-items:center;gap:2px;">
-              $<input type="number" step="0.01" min="0" value="${manualMfr.toFixed(2)}"
-                     class="price-input" style="width:55px;font-size:12px;"
+            <div class="input-group">
+              <span class="prefix">$</span>
+              <input type="number" step="0.01" min="0" value="${manualMfr.toFixed(2)}"
+                     class="price-input"
                      onchange="updateFabricPrice('${fp.fabricCode}', 'pricePerSqMeter', this.value)">
             </div>
           </td>
           <td>
-            <input type="number" step="1" min="0" max="500" value="${manualMargin}"
-                   class="price-input" style="width:55px;font-size:12px;"
-                   onchange="updateFabricPrice('${fp.fabricCode}', 'manualMargin', this.value)">%
+            <div class="input-group">
+              <input type="number" step="1" min="0" max="500" value="${manualMargin}"
+                     class="price-input" style="width:60px;"
+                     onchange="updateFabricPrice('${fp.fabricCode}', 'manualMargin', this.value)">
+              <span class="suffix">%</span>
+            </div>
           </td>
           <td>
-            <div style="display:flex;align-items:center;gap:2px;">
-              $<input type="number" step="0.01" min="0" value="${cordlessMfr.toFixed(2)}"
-                     class="price-input" style="width:55px;font-size:12px;"
+            <div class="input-group">
+              <span class="prefix">$</span>
+              <input type="number" step="0.01" min="0" value="${cordlessMfr.toFixed(2)}"
+                     class="price-input"
                      onchange="updateFabricPrice('${fp.fabricCode}', 'pricePerSqMeterCordless', this.value)">
             </div>
           </td>
           <td>
-            <input type="number" step="1" min="0" max="500" value="${cordlessMargin}"
-                   class="price-input" style="width:55px;font-size:12px;"
-                   onchange="updateFabricPrice('${fp.fabricCode}', 'cordlessMargin', this.value)">%
+            <div class="input-group">
+              <input type="number" step="1" min="0" max="500" value="${cordlessMargin}"
+                     class="price-input" style="width:60px;"
+                     onchange="updateFabricPrice('${fp.fabricCode}', 'cordlessMargin', this.value)">
+              <span class="suffix">%</span>
+            </div>
           </td>
-          <td class="calculated-price" style="color:#28a745;" id="fabric-calc-manual-${fabricId}">$${manualTotal.toFixed(2)}</td>
-          <td class="calculated-price" style="color:#e65100;" id="fabric-calc-cordless-${fabricId}">$${cordlessTotal.toFixed(2)}</td>
+          <td><span class="calculated-price manual" id="fabric-calc-manual-${fabricId}">$${manualTotal.toFixed(2)}</span></td>
+          <td><span class="calculated-price cordless" id="fabric-calc-cordless-${fabricId}">$${cordlessTotal.toFixed(2)}</span></td>
         </tr>`;
       });
 
@@ -809,7 +930,7 @@
         </td></tr>`;
       }
 
-      html += `</tbody></table></div>`;
+      html += `</tbody></table></div></div>`;
       return html;
     }
 

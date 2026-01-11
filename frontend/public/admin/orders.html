@@ -140,6 +140,15 @@
                   <option value="cancelled">Cancelled</option>
                 </select>
               </div>
+              <div class="filter-group">
+                <select id="product-type-filter" class="filter-select">
+                  <option value="">All Products</option>
+                  <option value="roller">Roller Shades</option>
+                  <option value="zebra">Zebra Shades</option>
+                  <option value="honeycomb">Honeycomb Shades</option>
+                  <option value="roman">Roman Shades</option>
+                </select>
+              </div>
               <!-- TICKET 013: Add date range filters -->
               <div class="filter-group">
                 <input type="date" id="date-from" class="form-input" placeholder="From" title="From Date">
@@ -160,6 +169,7 @@
                   <th>Order</th>
                   <th>Date</th>
                   <th>Customer</th>
+                  <th>Type</th>
                   <th>Items</th>
                   <th>Total</th>
                   <th>Status</th>
@@ -168,7 +178,7 @@
               </thead>
               <tbody id="orders-table">
                 <tr>
-                  <td colspan="7" style="text-align: center; padding: 60px;">
+                  <td colspan="8" style="text-align: center; padding: 60px;">
                     <div class="spinner"></div>
                     <p style="margin-top: 16px; color: var(--admin-text-secondary);">Loading orders...</p>
                   </td>
@@ -232,13 +242,52 @@
       }
     }
 
+    // Helper function to get product type from order items
+    function getOrderProductType(order) {
+      if (!order.items || order.items.length === 0) return 'unknown';
+      const types = new Set();
+      order.items.forEach(item => {
+        // Check product_type field first
+        if (item.product_type) {
+          types.add(item.product_type);
+        } else if (item.product_slug) {
+          // Derive from slug
+          if (item.product_slug.includes('zebra')) types.add('zebra');
+          else if (item.product_slug.includes('honeycomb') || item.product_slug.includes('cellular')) types.add('honeycomb');
+          else if (item.product_slug.includes('roman')) types.add('roman');
+          else types.add('roller');
+        } else if (item.configuration) {
+          // Check configuration for hints
+          const cfg = typeof item.configuration === 'string' ? JSON.parse(item.configuration) : item.configuration;
+          if (cfg.productType) types.add(cfg.productType);
+        }
+      });
+      if (types.size === 0) return 'roller'; // default
+      if (types.size === 1) return [...types][0];
+      return 'mixed'; // Multiple product types in one order
+    }
+
+    // Get badge style for product type
+    function getProductTypeBadge(type) {
+      const styles = {
+        roller: { bg: '#dbeafe', color: '#1e40af', label: 'Roller' },
+        zebra: { bg: '#fef3c7', color: '#92400e', label: 'Zebra' },
+        honeycomb: { bg: '#d1fae5', color: '#065f46', label: 'Honeycomb' },
+        roman: { bg: '#fce7f3', color: '#9d174d', label: 'Roman' },
+        mixed: { bg: '#e5e7eb', color: '#374151', label: 'Mixed' },
+        unknown: { bg: '#f3f4f6', color: '#6b7280', label: 'Unknown' }
+      };
+      const style = styles[type] || styles.unknown;
+      return `<span style="display: inline-block; padding: 4px 10px; background: ${style.bg}; color: ${style.color}; border-radius: 12px; font-size: 11px; font-weight: 600;">${style.label}</span>`;
+    }
+
     function renderOrders(orders) {
       const tbody = document.getElementById('orders-table');
 
       if (!orders || orders.length === 0) {
         tbody.innerHTML = `
           <tr>
-            <td colspan="7" class="empty-state">
+            <td colspan="8" class="empty-state">
               <svg xmlns="http://www.w3.org/2000/svg" class="empty-state-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
               </svg>
@@ -254,8 +303,9 @@
         const customerName = order.customer_name || order.customer?.name || 'Guest';
         const customerEmail = order.customer_email || order.customer?.email || '';
         const total = order.total || order.pricing?.total || 0;
+        const productType = getOrderProductType(order);
         return `
-        <tr data-id="${order.id}">
+        <tr data-id="${order.id}" data-product-type="${productType}">
           <td>
             <a href="#" onclick="viewOrder('${order.id}'); return false;" style="color: var(--admin-primary); text-decoration: none; font-weight: 500;">
               #${order.order_number || order.id.slice(0, 8).toUpperCase()}
@@ -266,6 +316,7 @@
             <div>${Admin.Utils.escapeHtml(customerName)}</div>
             <div style="font-size: 12px; color: var(--admin-text-secondary);">${Admin.Utils.escapeHtml(customerEmail)}</div>
           </td>
+          <td>${getProductTypeBadge(productType)}</td>
           <td>${order.items ? order.items.length : 0} items</td>
           <td style="font-weight: 500;">${Admin.Utils.formatCurrency(total)}</td>
           <td>
@@ -309,6 +360,7 @@
     function initFilters() {
       const searchInput = document.getElementById('search-input');
       const statusFilter = document.getElementById('status-filter');
+      const productTypeFilter = document.getElementById('product-type-filter');
       // TICKET 013: Date range filters
       const dateFrom = document.getElementById('date-from');
       const dateTo = document.getElementById('date-to');
@@ -316,6 +368,7 @@
       const applyFilters = Admin.Utils.debounce(() => {
         const search = searchInput.value.toLowerCase();
         const status = statusFilter.value;
+        const productType = productTypeFilter.value;
         const fromDate = dateFrom.value ? new Date(dateFrom.value) : null;
         const toDate = dateTo.value ? new Date(dateTo.value + 'T23:59:59') : null;
 
@@ -326,6 +379,13 @@
             (o.customer_email && o.customer_email.toLowerCase().includes(search));
           const matchesStatus = !status || o.status === status;
 
+          // Product type filtering
+          let matchesProductType = true;
+          if (productType) {
+            const orderType = getOrderProductType(o);
+            matchesProductType = orderType === productType || (productType === 'mixed' && orderType === 'mixed');
+          }
+
           // TICKET 013: Date range filtering
           let matchesDate = true;
           if (fromDate || toDate) {
@@ -334,7 +394,7 @@
             if (toDate && orderDate > toDate) matchesDate = false;
           }
 
-          return matchesSearch && matchesStatus && matchesDate;
+          return matchesSearch && matchesStatus && matchesProductType && matchesDate;
         });
 
         renderOrders(filtered);
@@ -342,6 +402,7 @@
 
       searchInput.addEventListener('input', applyFilters);
       statusFilter.addEventListener('change', applyFilters);
+      productTypeFilter.addEventListener('change', applyFilters);
       dateFrom.addEventListener('change', applyFilters);
       dateTo.addEventListener('change', applyFilters);
     }
@@ -518,42 +579,22 @@
                 const baseCustPrice = baseMfrCost + baseMarginAmt;
                 const baseMarkupPct = currentFabricMargin;
 
-                // Recalculate options with CURRENT margins from hardware settings
+                // Calculate options totals - use manufacturerCost if available, else estimate from price with 40% margin
                 let optionsMfrTotal = 0;
                 let optionsCustTotal = 0;
                 optionsBreakdown.forEach(opt => {
-                  const optMfr = opt.manufacturerCost || 0;
+                  const optMfr = opt.manufacturerCost !== undefined ? opt.manufacturerCost : (opt.price / 1.4);
                   optionsMfrTotal += optMfr;
-                  // Find current margin for this option type
-                  let currentOptMargin = 40;
-                  if (opt.type === 'motorization' && opt.brand) {
-                    const motor = currentMotorBrands.find(m => m.id === 'motor-' + opt.brand || m.value === opt.brand);
-                    currentOptMargin = motor?.margin || 40;
-                  } else if (opt.type === 'remote') {
-                    const remote = (currentHardware.remoteType || []).find(r => r.value === opt.code);
-                    currentOptMargin = remote?.margin || 40;
-                  } else if (opt.type === 'solar') {
-                    const solar = (currentHardware.solarPanel || []).find(s => s.value === opt.code || s.value === 'yes');
-                    currentOptMargin = solar?.margin || 40;
-                  } else if (opt.type === 'valance_type') {
-                    const valance = (currentHardware.valanceType || []).find(v => v.value === opt.code);
-                    currentOptMargin = valance?.margin || 40;
-                  } else if (opt.type === 'bottom_rail') {
-                    const rail = (currentHardware.bottomRail || []).find(r => r.value === opt.code);
-                    currentOptMargin = rail?.margin || 40;
-                  }
-                  optionsCustTotal += optMfr * (1 + currentOptMargin / 100);
+                  optionsCustTotal += opt.price || 0;
                 });
 
-                // Recalculate accessories with CURRENT margins
+                // Calculate accessories totals - use manufacturerCost if available, else estimate from price with 40% margin
                 let accMfrTotal = 0;
                 let accCustTotal = 0;
                 accessoriesBreakdown.forEach(acc => {
-                  const accMfr = acc.manufacturerCost || 0;
+                  const accMfr = acc.manufacturerCost !== undefined ? acc.manufacturerCost : (acc.price / 1.4);
                   accMfrTotal += accMfr;
-                  const accessory = (currentHardware.accessories || []).find(a => a.value === acc.code || a.id === 'acc-' + acc.code);
-                  const currentAccMargin = accessory?.margin || 40;
-                  accCustTotal += accMfr * (1 + currentAccMargin / 100);
+                  accCustTotal += acc.price || 0;
                 });
 
                 const totalMfrCost = baseMfrCost + optionsMfrTotal + accMfrTotal;
@@ -597,11 +638,13 @@
 
                       <!-- Individual Options -->
                       ${optionsBreakdown.map(opt => {
-                        const optMarkup = (opt.manufacturerCost || 0) > 0 ? ((opt.price - (opt.manufacturerCost || 0)) / (opt.manufacturerCost || 1) * 100) : 0;
+                        // Calculate MFR cost: if manufacturerCost exists use it, otherwise estimate from price with assumed 40% margin
+                        const optMfr = opt.manufacturerCost !== undefined ? opt.manufacturerCost : (opt.price / 1.4);
+                        const optMarkup = optMfr > 0 ? ((opt.price - optMfr) / optMfr * 100) : 0;
                         return `
                         <tr style="background: #fff;">
                           <td style="padding: 8px 16px; padding-left: 32px; border-bottom: 1px solid #f3f4f6; color: #374151; font-size: 13px;">${opt.name}</td>
-                          <td style="padding: 8px 16px; border-bottom: 1px solid #f3f4f6; text-align: right; color: #dc2626; background: #fffbfb;">$${(opt.manufacturerCost || 0).toFixed(2)}</td>
+                          <td style="padding: 8px 16px; border-bottom: 1px solid #f3f4f6; text-align: right; color: #dc2626; background: #fffbfb;">$${optMfr.toFixed(2)}</td>
                           <td style="padding: 8px 16px; border-bottom: 1px solid #f3f4f6; text-align: right; color: #059669; background: #f8fdf9;">$${opt.price.toFixed(2)}</td>
                           <td style="padding: 8px 16px; border-bottom: 1px solid #f3f4f6; text-align: center; color: #1e40af; background: #f8faff;">${optMarkup.toFixed(0)}%</td>
                         </tr>`;
@@ -621,11 +664,13 @@
 
                       <!-- Individual Accessories -->
                       ${accessoriesBreakdown.map(acc => {
-                        const accMarkup = (acc.manufacturerCost || 0) > 0 ? ((acc.price - (acc.manufacturerCost || 0)) / (acc.manufacturerCost || 1) * 100) : 0;
+                        // Calculate MFR cost: if manufacturerCost exists use it, otherwise estimate from price with assumed 40% margin
+                        const accMfr = acc.manufacturerCost !== undefined ? acc.manufacturerCost : (acc.price / 1.4);
+                        const accMarkup = accMfr > 0 ? ((acc.price - accMfr) / accMfr * 100) : 0;
                         return `
                         <tr style="background: #fff;">
                           <td style="padding: 8px 16px; padding-left: 32px; border-bottom: 1px solid #f3f4f6; color: #374151; font-size: 13px;">${acc.name}</td>
-                          <td style="padding: 8px 16px; border-bottom: 1px solid #f3f4f6; text-align: right; color: #dc2626; background: #fffbfb;">$${(acc.manufacturerCost || 0).toFixed(2)}</td>
+                          <td style="padding: 8px 16px; border-bottom: 1px solid #f3f4f6; text-align: right; color: #dc2626; background: #fffbfb;">$${accMfr.toFixed(2)}</td>
                           <td style="padding: 8px 16px; border-bottom: 1px solid #f3f4f6; text-align: right; color: #059669; background: #f8fdf9;">$${acc.price.toFixed(2)}</td>
                           <td style="padding: 8px 16px; border-bottom: 1px solid #f3f4f6; text-align: center; color: #1e40af; background: #f8faff;">${accMarkup.toFixed(0)}%</td>
                         </tr>`;

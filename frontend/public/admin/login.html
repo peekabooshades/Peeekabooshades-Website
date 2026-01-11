@@ -59,9 +59,13 @@
 
   <script src="js/admin.js"></script>
   <script>
+    // Get redirect URL from query params
+    const urlParams = new URLSearchParams(window.location.search);
+    const redirectUrl = urlParams.get('redirect') || '/admin/';
+
     // Redirect if already logged in
     if (Admin.Auth.isLoggedIn()) {
-      window.location.href = '/admin/';
+      window.location.href = redirectUrl;
     }
 
     const form = document.getElementById('login-form');
@@ -84,7 +88,7 @@
 
       try {
         await Admin.AuthAPI.login(email, password);
-        window.location.href = '/admin/';
+        window.location.href = redirectUrl;
       } catch (error) {
         errorDiv.textContent = error.message || 'Invalid email or password';
         errorDiv.classList.add('show');
