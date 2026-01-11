@@ -572,6 +572,7 @@
                   <thead>
                     <tr style="background: linear-gradient(135deg, #8E6545 0%, #A67C5B 100%);">
                       <th style="padding: 10px 8px; text-align: center; font-size: 11px; color: white; font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px;">#</th>
+                      <th style="padding: 10px 8px; text-align: center; font-size: 11px; color: white; font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px;">Product</th>
                       <th style="padding: 10px 8px; text-align: left; font-size: 11px; color: white; font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px;">Room</th>
                       <th style="padding: 10px 8px; text-align: center; font-size: 11px; color: white; font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px;">Qty</th>
                       <th style="padding: 10px 8px; text-align: center; font-size: 11px; color: white; font-weight: 600; text-transform: uppercase; letter-spacing: 0.3px;">Size</th>
@@ -598,30 +599,38 @@
                       const cfg = parseConfig(item.configuration || item.options);
                       const unitPrice = item.unit_price || item.unitPrice || 0;
                       const lineTotal = item.line_total || item.lineTotal || (unitPrice * item.quantity);
+                      // Detect product type from product name or fabric code
+                      const productType = item.product_name?.toLowerCase().includes('zebra') ? 'zebra' :
+                                         item.product_name?.toLowerCase().includes('roller') ? 'roller' :
+                                         (cfg.fabricCode?.startsWith('83') ? 'zebra' : 'roller');
+                      const productBadge = productType === 'zebra'
+                        ? '<span style="background:#fef3c7;color:#92400e;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:600;">ZEBRA</span>'
+                        : '<span style="background:#dbeafe;color:#1e40af;padding:2px 8px;border-radius:10px;font-size:10px;font-weight:600;">ROLLER</span>';
                       return `
                       <tr style="background: ${idx % 2 === 0 ? '#fff' : '#faf7f5'}; transition: background 0.2s;" onmouseover="this.style.background='#f5ebe4'" onmouseout="this.style.background='${idx % 2 === 0 ? '#fff' : '#faf7f5'}'">
                         <td style="padding: 10px 8px; text-align: center; font-size: 12px; border-bottom: 1px solid #e5e7eb; font-weight: 700; color: #8E6545;">${idx + 1}</td>
+                        <td style="padding: 10px 8px; text-align: center; font-size: 11px; border-bottom: 1px solid #e5e7eb;">${productBadge}</td>
                         <td style="padding: 10px 8px; font-size: 11px; border-bottom: 1px solid #e5e7eb; color: #8E6545; font-weight: 600;">${Admin.Utils.escapeHtml(item.room_label || '-')}</td>
                         <td style="padding: 10px 8px; text-align: center; font-size: 12px; border-bottom: 1px solid #e5e7eb; font-weight: 700; background: rgba(142,101,69,0.1); color: #8E6545;">${item.quantity}</td>
                         <td style="padding: 10px 8px; text-align: center; font-size: 11px; border-bottom: 1px solid #e5e7eb; color: #374151;">${item.width}" x ${item.height}"</td>
                         <td style="padding: 10px 8px; font-size: 11px; border-bottom: 1px solid #e5e7eb; font-weight: 600; color: #1f2937;">${cfg.fabricCode || '-'}</td>
                         <td style="padding: 10px 8px; font-size: 11px; border-bottom: 1px solid #e5e7eb; color: #374151;">${cfg.lightFiltering || '-'}</td>
-                        <td style="padding: 10px 8px; font-size: 11px; border-bottom: 1px solid #e5e7eb; color: #374151;">${cfg.standardCassette || '-'}</td>
-                        <td style="padding: 10px 8px; font-size: 11px; border-bottom: 1px solid #e5e7eb; color: #374151;">${cfg.standardBottomBar || '-'}</td>
+                        <td style="padding: 10px 8px; font-size: 11px; border-bottom: 1px solid #e5e7eb; color: #374151;">${cfg.standardCassette || cfg.valanceType || '-'}</td>
+                        <td style="padding: 10px 8px; font-size: 11px; border-bottom: 1px solid #e5e7eb; color: #374151;">${cfg.standardBottomBar || cfg.bottomRail || '-'}</td>
                         <td style="padding: 10px 8px; font-size: 11px; border-bottom: 1px solid #e5e7eb; color: #374151;">${cfg.rollerType || '-'}</td>
                         <td style="padding: 10px 8px; font-size: 11px; border-bottom: 1px solid #e5e7eb; color: #374151;">${cfg.mountType || '-'}</td>
                         <td style="padding: 10px 8px; font-size: 11px; border-bottom: 1px solid #e5e7eb; color: #374151;">${cfg.chainSide || '-'}</td>
                         <td style="padding: 10px 8px; font-size: 11px; border-bottom: 1px solid #e5e7eb; color: #374151;">${cfg.controlType || '-'}</td>
                         <td style="padding: 10px 8px; font-size: 11px; border-bottom: 1px solid #e5e7eb; color: #374151;">${cfg.motorBrand || cfg.chainType || '-'}</td>
-                        <td style="padding: 10px 8px; font-size: 11px; border-bottom: 1px solid #e5e7eb; color: #374151;">${cfg.motorType || '-'}</td>
+                        <td style="padding: 10px 8px; font-size: 11px; border-bottom: 1px solid #e5e7eb; color: #374151;">${cfg.motorType || cfg.motorLocation || '-'}</td>
                         <td style="padding: 10px 8px; font-size: 11px; border-bottom: 1px solid #e5e7eb; color: #374151;">${cfg.remoteType || '-'}</td>
-                        <td style="padding: 10px 8px; text-align: center; font-size: 11px; border-bottom: 1px solid #e5e7eb; ${cfg.solarType === 'yes' ? 'background: #d1fae5; color: #065f46; font-weight: 600; border-radius: 4px;' : 'color: #9ca3af;'}">${cfg.solarType === 'yes' ? 'YES' : '-'}</td>
+                        <td style="padding: 10px 8px; text-align: center; font-size: 11px; border-bottom: 1px solid #e5e7eb; ${(cfg.solarType === 'yes' || cfg.solarPanel === 'yes') ? 'background: #d1fae5; color: #065f46; font-weight: 600; border-radius: 4px;' : 'color: #9ca3af;'}">${(cfg.solarType === 'yes' || cfg.solarPanel === 'yes') ? 'YES' : '-'}</td>
                         <td style="padding: 10px 8px; text-align: center; font-size: 11px; border-bottom: 1px solid #e5e7eb; ${(cfg.smartHubQty > 0 || cfg.smartHub === 'yes') ? 'background: #dbeafe; color: #1e40af; font-weight: 600; border-radius: 4px;' : 'color: #9ca3af;'}">${cfg.smartHubQty > 0 ? cfg.smartHubQty : (cfg.smartHub === 'yes' ? 'YES' : '-')}</td>
                         <td style="padding: 10px 8px; text-align: center; font-size: 11px; border-bottom: 1px solid #e5e7eb; ${(cfg.usbChargerQty > 0 || cfg.usbCharger === 'yes') ? 'background: #fef3c7; color: #92400e; font-weight: 600; border-radius: 4px;' : 'color: #9ca3af;'}">${cfg.usbChargerQty > 0 ? cfg.usbChargerQty : (cfg.usbCharger === 'yes' ? 'YES' : '-')}</td>
                         <td style="padding: 10px 8px; text-align: right; font-size: 12px; border-bottom: 1px solid #e5e7eb; font-weight: 600; color: #374151;">${Admin.Utils.formatCurrency(unitPrice)}</td>
                         <td style="padding: 10px 8px; text-align: right; font-size: 12px; border-bottom: 1px solid #e5e7eb; font-weight: 700; color: #065f46;">${Admin.Utils.formatCurrency(lineTotal)}</td>
                       </tr>`;
-                    }).join('') : '<tr><td colspan="20" style="padding: 40px; text-align: center; color: #9ca3af;">No items in this order</td></tr>'}
+                    }).join('') : '<tr><td colspan="21" style="padding: 40px; text-align: center; color: #9ca3af;">No items in this order</td></tr>'}
                   </tbody>
                 </table>
               </div>
