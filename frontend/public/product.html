@@ -662,7 +662,8 @@
 
     .accordion-section.open .accordion-body {
       max-height: 2000px;
-      padding: 20px 25px 25px;
+      padding: 18px 22px 22px;
+      max-width: 420px;
     }
 
     /* Color/Material Swatches */
@@ -2111,15 +2112,15 @@
             <span class="accordion-icon"></span>
           </button>
           <div class="accordion-body">
-            <span class="swatch-label" style="font-size: 15px; color: #333333; font-weight: 500;">Light Filtering</span>
-            <div class="light-filter-buttons" id="lightFilteringSwatches" style="display: flex; gap: 12px; margin-bottom: 24px; flex-wrap: wrap;">
-              <button type="button" class="filter-toggle-btn" data-value="transparent" onclick="selectFilterBtn(this)" style="padding: 12px 24px; border: 2px solid #D4D4D4; border-radius: 8px; background: transparent; color: #333333; font-size: 14px; font-weight: 500; cursor: pointer; transition: all 0.3s ease;">Light Filtering</button>
-              <button type="button" class="filter-toggle-btn selected" data-value="blackout" onclick="selectFilterBtn(this)" style="padding: 12px 24px; border: 2px solid #8E6545; border-radius: 8px; background: #8E6545; color: #FFFFFF; font-size: 14px; font-weight: 500; cursor: pointer; transition: all 0.3s ease;">Blackout</button>
-              <button type="button" class="filter-toggle-btn" data-value="semi-blackout" onclick="selectFilterBtn(this)" style="padding: 12px 24px; border: 2px solid #D4D4D4; border-radius: 8px; background: transparent; color: #333333; font-size: 14px; font-weight: 500; cursor: pointer; transition: all 0.3s ease;">Semi-Blackout</button>
-              <button type="button" class="filter-toggle-btn" data-value="super-blackout" onclick="selectFilterBtn(this)" style="padding: 12px 24px; border: 2px solid #D4D4D4; border-radius: 8px; background: transparent; color: #333333; font-size: 14px; font-weight: 500; cursor: pointer; transition: all 0.3s ease;">Super Blackout</button>
+            <span class="swatch-label" style="font-size: 12px; color: #8E6545; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Light Filtering</span>
+            <div class="light-filter-buttons" id="lightFilteringSwatches" style="display: flex; gap: 8px; margin-bottom: 18px; flex-wrap: wrap;">
+              <button type="button" class="filter-toggle-btn" data-value="transparent" onclick="selectFilterBtn(this)" style="padding: 8px 16px; border: 1.5px solid #D4D4D4; border-radius: 6px; background: transparent; color: #333333; font-size: 12px; font-weight: 500; cursor: pointer; transition: all 0.2s ease;">Light Filtering</button>
+              <button type="button" class="filter-toggle-btn selected" data-value="blackout" onclick="selectFilterBtn(this)" style="padding: 8px 16px; border: 1.5px solid #8E6545; border-radius: 6px; background: #8E6545; color: #FFFFFF; font-size: 12px; font-weight: 500; cursor: pointer; transition: all 0.2s ease;">Blackout</button>
+              <button type="button" class="filter-toggle-btn" data-value="semi-blackout" onclick="selectFilterBtn(this)" style="padding: 8px 16px; border: 1.5px solid #D4D4D4; border-radius: 6px; background: transparent; color: #333333; font-size: 12px; font-weight: 500; cursor: pointer; transition: all 0.2s ease;">Semi-Blackout</button>
+              <button type="button" class="filter-toggle-btn" data-value="super-blackout" onclick="selectFilterBtn(this)" style="padding: 8px 16px; border: 1.5px solid #D4D4D4; border-radius: 6px; background: transparent; color: #333333; font-size: 12px; font-weight: 500; cursor: pointer; transition: all 0.2s ease;">Super Blackout</button>
             </div>
 
-            <span class="swatch-label" style="font-size: 15px; color: #333333; font-weight: 500;">Fabric Color</span>
+            <span class="swatch-label" style="font-size: 12px; color: #8E6545; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Fabric Color</span>
 
             <!-- Blackout Fabrics - shown by default -->
             <div class="swatch-row fabric-group" id="blackoutFabrics" style="display: flex; flex-wrap: wrap; gap: 10px; max-height: 450px; overflow-y: auto; padding: 10px; border: 1px solid #E8E4E0; border-radius: 8px; scrollbar-width: thin; scrollbar-color: #8E6545 #F5F0EB;">
