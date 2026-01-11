@@ -2524,6 +2524,55 @@ app.get('/api/product-content/accessories', (req, res) => {
 });
 
 // ============================================
+// ZEBRA SHADES API
+// ============================================
+
+// Get zebra hardware options (valance types, bottom rails)
+app.get('/api/zebra/hardware', (req, res) => {
+  try {
+    const db = loadDatabase();
+    const zebraHardware = db.productContent?.zebraHardwareOptions || {};
+    res.json({
+      success: true,
+      data: {
+        valanceType: zebraHardware.valanceType || [],
+        bottomRail: zebraHardware.bottomRail || []
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Get zebra fabrics with customer pricing
+app.get('/api/fabrics/zebra', (req, res) => {
+  try {
+    const db = loadDatabase();
+    const fabrics = db.zebraFabrics || [];
+    const margin = db.zebraMargin || 40;
+
+    // Apply margin to fabric prices for customer display
+    const fabricsWithPricing = fabrics.map(fabric => {
+      const mfrPrice = fabric.pricePerSqMeter || 0;
+      const cordlessMfrPrice = fabric.cordlessPricePerSqMeter || mfrPrice;
+
+      // Apply margin: customerPrice = mfrPrice / (1 - margin/100)
+      const marginMultiplier = 1 / (1 - margin / 100);
+
+      return {
+        ...fabric,
+        pricePerSqMeterManual: parseFloat((mfrPrice * marginMultiplier).toFixed(2)),
+        pricePerSqMeterCordless: parseFloat((cordlessMfrPrice * marginMultiplier).toFixed(2))
+      };
+    });
+
+    res.json({ success: true, fabrics: fabricsWithPricing });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// ============================================
 // PRODUCT CONTENT ADMIN API (Protected)
 // ============================================
 
@@ -3143,6 +3192,11 @@ app.get('/products', (req, res) => {
 // Category page (shows products filtered by category)
 app.get('/category/:slug', (req, res) => {
   res.sendFile(path.join(__dirname, '../frontend/public/shop.html'));
+});
+
+// Zebra product page (specific route before generic product route)
+app.get('/product/affordable-custom-zebra-shades', (req, res) => {
+  res.sendFile(path.join(__dirname, '../frontend/public/zebra-product.html'));
 });
 
 // Product detail page
