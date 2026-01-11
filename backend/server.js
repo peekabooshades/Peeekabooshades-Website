@@ -272,6 +272,47 @@ app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// ============================================
+// TICKET-013: API Response Time Monitoring
+// ============================================
+const SLOW_THRESHOLD_MS = 500;
+app.use((req, res, next) => {
+  // Only monitor API endpoints
+  if (!req.path.startsWith('/api/')) {
+    return next();
+  }
+
+  const startTime = Date.now();
+
+  // Override res.end to capture response time
+  const originalEnd = res.end;
+  res.end = function(...args) {
+    const duration = Date.now() - startTime;
+    const logLevel = duration > SLOW_THRESHOLD_MS ? 'SLOW' : 'OK';
+
+    // Log format: [TIMESTAMP] [LEVEL] METHOD /path - STATUS - DURATIONms
+    const timestamp = new Date().toISOString();
+    const logMessage = `[${timestamp}] [${logLevel}] ${req.method} ${req.path} - ${res.statusCode} - ${duration}ms`;
+
+    if (duration > SLOW_THRESHOLD_MS) {
+      console.warn('\x1b[33m%s\x1b[0m', logMessage); // Yellow for slow
+    } else if (res.statusCode >= 400) {
+      console.error('\x1b[31m%s\x1b[0m', logMessage); // Red for errors
+    }
+    // Only log non-GET requests or slow requests to reduce noise
+    else if (req.method !== 'GET' || duration > 100) {
+      console.log(logMessage);
+    }
+
+    // Add response time header
+    res.setHeader('X-Response-Time', `${duration}ms`);
+
+    return originalEnd.apply(this, args);
+  };
+
+  next();
+});
+
 // Static files with cache headers
 app.use(express.static(path.join(__dirname, '../frontend/public'), {
   maxAge: '1d', // Cache static files for 1 day

@@ -1859,19 +1859,99 @@
     // Load page configuration from admin settings
     async function loadPageConfig() {
       try {
-        const response = await fetch('/api/product-page-content/affordable-custom-zebra-shades');
-        const result = await response.json();
+        // Load from product page sections API (where admin saves)
+        const sectionsResponse = await fetch('/api/product-page-sections/affordable-custom-zebra-shades');
+        const sectionsResult = await sectionsResponse.json();
 
-        if (result.success && result.data) {
-          pageConfig = result.data;
-          applyThemeColors(result.data.theme?.colors);
-          applyFonts(result.data.theme?.fonts);
-          applyProductInfo(result.data.product);
-          applyContentSections(result.data.content);
+        // Load theme and product info
+        const contentResponse = await fetch('/api/product-page-content/affordable-custom-zebra-shades');
+        const contentResult = await contentResponse.json();
+
+        if (contentResult.success && contentResult.data) {
+          pageConfig = contentResult.data;
+          applyThemeColors(contentResult.data.theme?.colors);
+          applyFonts(contentResult.data.theme?.fonts);
+          applyProductInfo(contentResult.data.product);
+          applyContentSections(contentResult.data.content);
+        }
+
+        // Apply sections data (gallery, styles from admin editor)
+        if (sectionsResult.success) {
+          // Elements can be in sections array or in layout.elements
+          const elements = sectionsResult.sections?.length > 0
+            ? sectionsResult.sections
+            : sectionsResult.layout?.elements || [];
+          applyPageSections(elements, sectionsResult.styles);
         }
       } catch (error) {
         console.error('Failed to load page config:', error);
       }
+    }
+
+    // Apply page sections from admin editor
+    function applyPageSections(sections, styles) {
+      if (!sections) return;
+
+      // Find gallery element and apply images
+      const galleryElement = sections.find(s => s.id === 'gallery');
+      if (galleryElement?.settings?.images?.length > 0) {
+        const images = galleryElement.settings.images.filter(img => img);
+        if (images.length > 0) {
+          // Update main product image
+          const mainImg = document.getElementById('mainProductImage');
+          if (mainImg) mainImg.src = images[0];
+
+          // Create thumbnail gallery if multiple images
+          if (images.length > 1) {
+            const galleryContainer = document.querySelector('.product-gallery');
+            if (galleryContainer) {
+              let thumbnailsHtml = '<div class="gallery-thumbnails" style="display: flex; gap: 8px; margin-top: 12px; flex-wrap: wrap;">';
+              images.forEach((img, i) => {
+                thumbnailsHtml += `
+                  <div class="gallery-thumb ${i === 0 ? 'active' : ''}"
+                       style="width: 60px; height: 60px; border: 2px solid ${i === 0 ? '#8E6545' : '#ddd'}; border-radius: 6px; overflow: hidden; cursor: pointer;"
+                       onclick="changeMainImage('${img}', this)">
+                    <img src="${img}" style="width: 100%; height: 100%; object-fit: cover;">
+                  </div>
+                `;
+              });
+              thumbnailsHtml += '</div>';
+
+              // Remove existing thumbnails and add new
+              const existingThumbs = galleryContainer.querySelector('.gallery-thumbnails');
+              if (existingThumbs) existingThumbs.remove();
+              galleryContainer.insertAdjacentHTML('beforeend', thumbnailsHtml);
+            }
+          }
+        }
+      }
+
+      // Apply custom styles from admin
+      if (styles) {
+        const root = document.documentElement;
+        if (styles.primaryColor) {
+          root.style.setProperty('--golden-brown', styles.primaryColor);
+          root.style.setProperty('--dark-brown', styles.primaryColor);
+        }
+        if (styles.backgroundColor) {
+          document.body.style.backgroundColor = styles.backgroundColor;
+        }
+        if (styles.fontFamily) {
+          document.body.style.fontFamily = styles.fontFamily;
+        }
+      }
+    }
+
+    // Change main gallery image
+    function changeMainImage(src, thumb) {
+      const mainImg = document.getElementById('mainProductImage');
+      if (mainImg) mainImg.src = src;
+
+      // Update active state
+      document.querySelectorAll('.gallery-thumb').forEach(t => {
+        t.style.borderColor = '#ddd';
+      });
+      if (thumb) thumb.style.borderColor = '#8E6545';
     }
 
     // Apply theme colors to CSS variables
