@@ -281,17 +281,9 @@ app.use(express.static(path.join(__dirname, '../frontend/public'), {
     if (filePath.endsWith('.jpg') || filePath.endsWith('.png') || filePath.endsWith('.svg') || filePath.endsWith('.webp')) {
       res.setHeader('Cache-Control', 'public, max-age=604800'); // 7 days
     }
-    // No cache for JS/CSS during development
-    else if (filePath.endsWith('.css') || filePath.endsWith('.js')) {
-      res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
-      res.setHeader('Pragma', 'no-cache');
-      res.setHeader('Expires', '0');
-    }
-    // NO CACHE for HTML files - always serve fresh during development
-    else if (filePath.endsWith('.html')) {
-      res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
-      res.setHeader('Pragma', 'no-cache');
-      res.setHeader('Expires', '0');
+    // Shorter cache for CSS/JS
+    if (filePath.endsWith('.css') || filePath.endsWith('.js')) {
+      res.setHeader('Cache-Control', 'public, max-age=86400'); // 1 day
     }
   }
 }));
@@ -476,17 +468,15 @@ app.post('/api/cart', (req, res) => {
       smartHubQty: configObj.smartHubQty || 0,
       usbChargerQty: configObj.usbChargerQty || 0,
       // Hardware options - pass directly for pricing engine
-      // BUG-006 FIX: Prioritize valanceType/bottomRail over standardCassette/standardBottomBar
-      // Frontend may send both fields with different values - valanceType/bottomRail are the correct pricing keys
-      standardCassette: configObj.valanceType || configObj.standardCassette,
-      valanceType: configObj.valanceType || configObj.standardCassette,
-      standardBottomBar: configObj.bottomRail || configObj.standardBottomBar,
-      bottomRail: configObj.bottomRail || configObj.standardBottomBar,
+      standardCassette: configObj.standardCassette,
+      valanceType: configObj.standardCassette, // Alias for valance pricing
+      standardBottomBar: configObj.standardBottomBar,
+      bottomRail: configObj.standardBottomBar, // Alias for bottom rail pricing
       rollerType: configObj.rollerType,
       // Also keep nested hardware for backward compatibility
       hardware: {
-        cassette: configObj.valanceType || configObj.standardCassette,
-        bottomBar: configObj.bottomRail || configObj.standardBottomBar,
+        cassette: configObj.standardCassette,
+        bottomBar: configObj.standardBottomBar,
         rollerType: configObj.rollerType
       },
       ...options // Allow override with explicit options
@@ -514,15 +504,11 @@ app.post('/api/cart', (req, res) => {
     }
 
     const now = new Date().toISOString();
-    // BUG-019 FIX: Include product_slug and product_type for proper product type identification
-    const productType = product.category_slug?.replace('-shades', '') || 'roller';
     const cartItem = {
       id: uuidv4(),
       session_id: sessionId,
       product_id: productId,
       product_name: product.name,
-      product_slug: product.slug,
-      product_type: productType,
       quantity: quantity || 1,
       width: priceResult.dimensions.width,
       height: priceResult.dimensions.height,
@@ -635,10 +621,9 @@ app.delete('/api/cart/clear/:sessionId', (req, res) => {
 app.post('/api/orders', (req, res) => {
   try {
     const db = loadDatabase();
-    // BUG-008 FIX: Also extract shippingState and taxRate for record keeping
     const {
       sessionId, customerName, customerEmail, customerPhone,
-      shippingAddress, shippingState, taxRate, subtotal, tax, shipping
+      shippingAddress, subtotal, tax, shipping
     } = req.body;
 
     const orderId = uuidv4();
@@ -686,9 +671,6 @@ app.post('/api/orders', (req, res) => {
       customer_email: customerEmail,
       customer_phone: customerPhone,
       shipping_address: shippingAddress,
-      // BUG-008 FIX: Store shipping state and tax rate for audit/display
-      shipping_state: shippingState || null,
-      tax_rate: taxRate || null,
       subtotal,
       tax: tax || 0,
       shipping: shipping || 0,
@@ -702,7 +684,6 @@ app.post('/api/orders', (req, res) => {
       pricing: {
         subtotal,
         tax: tax || 0,
-        tax_rate: taxRate || null,
         shipping: shipping || 0,
         total,
         manufacturer_cost_total: Math.round(totalMfrCost * 100) / 100,
@@ -1236,16 +1217,6 @@ app.get('/api/admin/dashboard', authMiddleware, (req, res) => {
     const totalQuotes = db.quotes.length;
     const pendingQuotes = db.quotes.filter(q => q.status === 'pending').length;
 
-    // Invoice stats
-    const invoices = db.invoices || [];
-    const totalInvoices = invoices.length;
-    const paidInvoices = invoices.filter(i => i.status === 'paid').length;
-    const pendingInvoices = invoices.filter(i => i.status === 'draft' || i.status === 'sent').length;
-    const overdueInvoices = invoices.filter(i => i.status === 'overdue').length;
-    const totalInvoiceValue = invoices.reduce((sum, i) => sum + (i.total || 0), 0);
-    const totalPaid = invoices.reduce((sum, i) => sum + (i.amountPaid || 0), 0);
-    const totalDue = invoices.reduce((sum, i) => sum + (i.amountDue || 0), 0);
-
     // Recent orders (last 5)
     const recentOrders = db.orders
       .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
@@ -1254,11 +1225,6 @@ app.get('/api/admin/dashboard', authMiddleware, (req, res) => {
     // Recent quotes (last 5)
     const recentQuotes = db.quotes
       .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
-      .slice(0, 5);
-
-    // Recent invoices (last 5)
-    const recentInvoices = invoices
-      .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt))
       .slice(0, 5);
 
     res.json({
@@ -1271,18 +1237,10 @@ app.get('/api/admin/dashboard', authMiddleware, (req, res) => {
           totalProducts,
           activeProducts,
           totalQuotes,
-          pendingQuotes,
-          totalInvoices,
-          paidInvoices,
-          pendingInvoices,
-          overdueInvoices,
-          totalInvoiceValue,
-          totalPaid,
-          totalDue
+          pendingQuotes
         },
         recentOrders,
-        recentQuotes,
-        recentInvoices
+        recentQuotes
       }
     });
   } catch (error) {
@@ -2078,53 +2036,6 @@ app.put('/api/admin/settings', authMiddleware, (req, res) => {
   }
 });
 
-// ============================================
-// SYSTEM INTEGRITY API
-// Cross-portal validation and data consistency
-// ============================================
-const systemIntegrity = require('./services/system-integrity');
-
-// Run full system integrity check
-app.get('/api/admin/system-integrity', authMiddleware, (req, res) => {
-  try {
-    const result = systemIntegrity.runFullIntegrityCheck();
-    res.json({ success: true, data: result });
-  } catch (error) {
-    res.status(500).json({ success: false, error: error.message });
-  }
-});
-
-// Validate pricing integrity only
-app.get('/api/admin/system-integrity/pricing', authMiddleware, (req, res) => {
-  try {
-    const result = systemIntegrity.validatePricingIntegrity();
-    res.json({ success: true, data: result });
-  } catch (error) {
-    res.status(500).json({ success: false, error: error.message });
-  }
-});
-
-// Validate order integrity
-app.get('/api/admin/system-integrity/orders', authMiddleware, (req, res) => {
-  try {
-    const orderId = req.query.orderId;
-    const result = systemIntegrity.validateOrderIntegrity(orderId);
-    res.json({ success: true, data: result });
-  } catch (error) {
-    res.status(500).json({ success: false, error: error.message });
-  }
-});
-
-// Validate customer integrity
-app.get('/api/admin/system-integrity/customers', authMiddleware, (req, res) => {
-  try {
-    const result = systemIntegrity.validateCustomerIntegrity();
-    res.json({ success: true, data: result });
-  } catch (error) {
-    res.status(500).json({ success: false, error: error.message });
-  }
-});
-
 // Change admin password
 app.put('/api/admin/password', authMiddleware, (req, res) => {
   try {
@@ -2612,89 +2523,6 @@ app.get('/api/product-content/accessories', (req, res) => {
   }
 });
 
-// Get fabrics by product type (roller, zebra, etc.) from manufacturerPrices
-app.get('/api/fabrics/:productType', (req, res) => {
-  try {
-    const { productType } = req.params;
-    const db = loadDatabase();
-
-    let fabrics = [];
-
-    // For zebra products, use dedicated zebraFabrics data
-    if (productType === 'zebra') {
-      const zebraFabrics = (db.zebraFabrics || []).filter(f => f.enabled !== false);
-      const zebraPrices = db.zebraManufacturerPrices || [];
-
-      fabrics = zebraFabrics.map(fabric => {
-        const price = zebraPrices.find(p => p.fabricCode === fabric.code) || {};
-        const margin = price.manualMargin || 40;
-
-        return {
-          code: fabric.code,
-          name: fabric.name,
-          category: fabric.category,
-          shadingType: fabric.shadingType,
-          series: fabric.code.replace(/[A-Z]$/, ''),
-          pricePerSqMeter: Math.round((price.pricePerSqMeterManual || 0) * (1 + margin / 100) * 100) / 100,
-          pricePerSqMeterCordless: Math.round((price.pricePerSqMeterCordless || 0) * (1 + margin / 100) * 100) / 100,
-          pricePerSqMeterManual: Math.round((price.pricePerSqMeterManual || 0) * (1 + margin / 100) * 100) / 100,
-          image: fabric.image || `/images/fabrics/zebra/${fabric.code}.png`,
-          thumbnail: fabric.image || `/images/fabrics/zebra/${fabric.code}.png`,
-          hasImage: fabric.hasImage || false,
-          weight: fabric.weight || '',
-          repeat: fabric.repeat || '',
-          thickness: fabric.thickness || '',
-          composition: fabric.composition || '100% Polyester',
-          waterResistant: fabric.waterResistant || false,
-          fireResistant: fabric.fireResistant || false,
-          features: [],
-          minArea: price.minAreaSqMeter || 1.5,
-          minAreaSqMeter: price.minAreaSqMeter || 1.5,
-          widthMin: 12,
-          widthMax: 118,
-          heightMin: 12,
-          heightMax: 98
-        };
-      }).sort((a, b) => a.code.localeCompare(b.code));
-    } else {
-      // Get fabrics from manufacturerPrices for other product types
-      fabrics = (db.manufacturerPrices || [])
-        .filter(p => p.productType === productType && p.status === 'active')
-        .map(p => ({
-          code: p.fabricCode,
-          name: p.fabricName,
-          category: p.fabricCategory,
-          series: p.series || '',
-          pricePerSqMeter: p.pricePerSqMeter,
-          pricePerSqMeterCordless: p.pricePerSqMeterCordless,
-          image: p.image || '',
-          thumbnail: p.thumbnail || p.image || '',
-          hasImage: p.hasImage || false,
-          weight: p.weight || '',
-          repeat: p.repeat || '',
-          composition: p.composition || '100% Polyester',
-          features: p.features || [],
-          minArea: p.minAreaSqMeter || 1,
-          widthMin: p.widthMin || 50,
-          widthMax: p.widthMax || 230,
-          heightMin: p.heightMin || 50,
-          heightMax: p.heightMax || 330
-        }))
-        .sort((a, b) => a.code.localeCompare(b.code));
-    }
-
-    res.setHeader('Cache-Control', 'public, max-age=300');
-    res.json({
-      success: true,
-      fabrics,
-      total: fabrics.length,
-      productType
-    });
-  } catch (error) {
-    res.status(500).json({ success: false, error: error.message });
-  }
-});
-
 // ============================================
 // PRODUCT CONTENT ADMIN API (Protected)
 // ============================================
@@ -2795,89 +2623,6 @@ app.put('/api/admin/fabrics/:id/toggle', authMiddleware, (req, res) => {
   }
 });
 
-// Bulk import fabrics from PDF extraction
-app.post('/api/admin/fabrics/bulk-import', authMiddleware, (req, res) => {
-  try {
-    const { fabrics } = req.body;
-    if (!fabrics || !Array.isArray(fabrics)) {
-      return res.status(400).json({ success: false, error: 'Fabrics array required' });
-    }
-
-    const db = loadDatabase();
-    if (!db.productContent) db.productContent = {};
-    if (!db.productContent.fabrics) db.productContent.fabrics = [];
-    if (!db.manufacturerPrices) db.manufacturerPrices = [];
-
-    let imported = 0;
-    let updated = 0;
-    let skipped = 0;
-
-    for (const fabric of fabrics) {
-      if (!fabric.code) {
-        skipped++;
-        continue;
-      }
-
-      // Check if fabric already exists
-      const existingIndex = db.productContent.fabrics.findIndex(f => f.code === fabric.code);
-
-      const fabricData = {
-        id: fabric.id || uuidv4(),
-        code: fabric.code,
-        name: fabric.name || fabric.code,
-        category: fabric.category || 'Blackout',
-        filterType: fabric.filterType || 'blackout',
-        image: fabric.image || `/images/fabrics/${fabric.code}.jpg`,
-        color: fabric.color || '#FFFFFF',
-        isActive: fabric.isActive !== false,
-        sortOrder: fabric.sortOrder || 0,
-        updatedAt: new Date().toISOString()
-      };
-
-      if (existingIndex >= 0) {
-        // Update existing
-        db.productContent.fabrics[existingIndex] = { ...db.productContent.fabrics[existingIndex], ...fabricData };
-        updated++;
-      } else {
-        // Add new
-        fabricData.createdAt = new Date().toISOString();
-        db.productContent.fabrics.push(fabricData);
-        imported++;
-      }
-
-      // Also add/update manufacturer price if provided
-      if (fabric.pricePerSqMeter !== undefined) {
-        const priceIndex = db.manufacturerPrices.findIndex(p => p.fabricCode === fabric.code);
-        const priceData = {
-          fabricCode: fabric.code,
-          fabricName: fabric.name || fabric.code,
-          pricePerSqMeter: parseFloat(fabric.pricePerSqMeter) || 0,
-          pricePerSqMeterCordless: parseFloat(fabric.pricePerSqMeterCordless) || parseFloat(fabric.pricePerSqMeter) || 0,
-          manualMargin: parseFloat(fabric.margin) || 40,
-          cordlessMargin: parseFloat(fabric.cordlessMargin) || 40,
-          updatedAt: new Date().toISOString()
-        };
-
-        if (priceIndex >= 0) {
-          db.manufacturerPrices[priceIndex] = { ...db.manufacturerPrices[priceIndex], ...priceData };
-        } else {
-          priceData.createdAt = new Date().toISOString();
-          db.manufacturerPrices.push(priceData);
-        }
-      }
-    }
-
-    saveDatabase(db);
-    res.json({
-      success: true,
-      message: `Imported ${imported}, updated ${updated}, skipped ${skipped}`,
-      stats: { imported, updated, skipped, total: fabrics.length }
-    });
-  } catch (error) {
-    res.status(500).json({ success: false, error: error.message });
-  }
-});
-
 // --- MOTOR BRANDS ---
 // Get all motor brands (public - for product page)
 app.get('/api/motor-brands', (req, res) => {
@@ -2901,41 +2646,11 @@ app.get('/api/admin/manufacturer-prices', authMiddleware, (req, res) => {
     const db = loadDatabase();
     const { productType, fabricCode, search } = req.query;
 
-    let prices = [];
+    let prices = db.manufacturerPrices || [];
 
-    // For zebra products, use zebraManufacturerPrices joined with zebraFabrics
-    if (productType === 'zebra') {
-      const zebraPrices = db.zebraManufacturerPrices || [];
-      const zebraFabrics = db.zebraFabrics || [];
-
-      prices = zebraPrices.map(price => {
-        const fabric = zebraFabrics.find(f => f.code === price.fabricCode) || {};
-        return {
-          id: `zmp-${price.fabricCode}`,
-          manufacturerId: 'zebra-mfr',
-          productType: 'zebra',
-          fabricCode: price.fabricCode,
-          fabricName: fabric.name || `Zebra ${price.fabricCode}`,
-          category: fabric.category,
-          shadingType: fabric.shadingType,
-          pricePerSqMeter: price.pricePerSqMeterManual,
-          pricePerSqMeterCordless: price.pricePerSqMeterCordless,
-          basePrice: price.pricePerSqMeterManual,
-          manualMargin: price.manualMargin || 40,
-          cordlessMargin: price.manualMargin || 40,
-          minAreaSqMeter: price.minAreaSqMeter || 1.5,
-          status: price.status || 'active',
-          updatedAt: price.updatedAt
-        };
-      });
-    } else {
-      // Default: use manufacturerPrices for roller and other products
-      prices = db.manufacturerPrices || [];
-      if (productType) {
-        prices = prices.filter(p => p.productType === productType);
-      }
+    if (productType) {
+      prices = prices.filter(p => p.productType === productType);
     }
-
     if (fabricCode) {
       prices = prices.filter(p => p.fabricCode === fabricCode);
     }
@@ -2975,48 +2690,10 @@ app.get('/api/admin/manufacturer-prices/:fabricCode', authMiddleware, (req, res)
 app.put('/api/admin/manufacturer-prices/:fabricCode', authMiddleware, (req, res) => {
   try {
     const db = loadDatabase();
-    const paramFabricCode = req.params.fabricCode;
-
-    // Check if it's a zebra fabric (id starts with zmp- or productType is zebra)
-    const isZebra = paramFabricCode.startsWith('zmp-') || req.body.productType === 'zebra';
-    const actualFabricCode = paramFabricCode.replace('zmp-', '');
-
-    if (isZebra) {
-      // Update zebra fabric pricing
-      if (!db.zebraManufacturerPrices) db.zebraManufacturerPrices = [];
-
-      const index = db.zebraManufacturerPrices.findIndex(p => p.fabricCode === actualFabricCode);
-      if (index === -1) {
-        return res.status(404).json({ success: false, error: 'Zebra fabric price not found' });
-      }
-
-      const { pricePerSqMeter, pricePerSqMeterCordless, manualMargin } = req.body;
-
-      if (pricePerSqMeter !== undefined) {
-        db.zebraManufacturerPrices[index].pricePerSqMeterManual = parseFloat(pricePerSqMeter);
-        db.zebraManufacturerPrices[index].pricePerSqMeter = parseFloat(pricePerSqMeter);
-      }
-      if (pricePerSqMeterCordless !== undefined) {
-        db.zebraManufacturerPrices[index].pricePerSqMeterCordless = parseFloat(pricePerSqMeterCordless);
-      }
-      if (manualMargin !== undefined) {
-        const val = parseFloat(manualMargin);
-        if (isNaN(val) || val < 0 || val > 500) {
-          return res.status(400).json({ success: false, error: 'manualMargin must be between 0% and 500%' });
-        }
-        db.zebraManufacturerPrices[index].manualMargin = val;
-      }
-      db.zebraManufacturerPrices[index].updatedAt = new Date().toISOString();
-
-      saveDatabase(db);
-      return res.json({ success: true, data: db.zebraManufacturerPrices[index] });
-    }
-
-    // Regular (roller) fabric pricing update
     if (!db.manufacturerPrices) db.manufacturerPrices = [];
 
     const index = db.manufacturerPrices.findIndex(p =>
-      p.fabricCode === paramFabricCode || p.id === paramFabricCode
+      p.fabricCode === req.params.fabricCode || p.id === req.params.fabricCode
     );
 
     if (index === -1) {
@@ -3024,21 +2701,6 @@ app.put('/api/admin/manufacturer-prices/:fabricCode', authMiddleware, (req, res)
     }
 
     const { pricePerSqMeter, pricePerSqMeterCordless, margin, manualMargin, cordlessMargin } = req.body;
-
-    // BUG-013 FIX: Validate margins are not negative
-    const marginFields = [
-      { name: 'margin', value: margin },
-      { name: 'manualMargin', value: manualMargin },
-      { name: 'cordlessMargin', value: cordlessMargin }
-    ];
-    for (const field of marginFields) {
-      if (field.value !== undefined) {
-        const val = parseFloat(field.value);
-        if (isNaN(val) || val < 0 || val > 500) {
-          return res.status(400).json({ success: false, error: `${field.name} must be between 0% and 500%` });
-        }
-      }
-    }
 
     // Update only provided fields
     if (pricePerSqMeter !== undefined) {
@@ -3168,11 +2830,6 @@ app.post('/api/admin/motor-brands', authMiddleware, (req, res) => {
     const mfrCost = parseFloat(req.body.manufacturerCost) || 0;
     const margin = parseFloat(req.body.margin) || 40;
 
-    // BUG-013 FIX: Validate margin is not negative
-    if (margin < 0 || margin > 500) {
-      return res.status(400).json({ success: false, error: 'Margin must be between 0% and 500%' });
-    }
-
     const newBrand = {
       id: `motor-${Date.now()}`,
       value: req.body.value || req.body.label.toLowerCase().replace(/\s+/g, '-'),
@@ -3202,11 +2859,6 @@ app.put('/api/admin/motor-brands/:id', authMiddleware, (req, res) => {
 
     const mfrCost = parseFloat(req.body.manufacturerCost) || db.motorBrands[index].manufacturerCost;
     const margin = parseFloat(req.body.margin) || db.motorBrands[index].margin;
-
-    // BUG-013 FIX: Validate margin is not negative
-    if (margin < 0 || margin > 500) {
-      return res.status(400).json({ success: false, error: 'Margin must be between 0% and 500%' });
-    }
 
     db.motorBrands[index] = {
       ...db.motorBrands[index],
@@ -3239,19 +2891,6 @@ app.delete('/api/admin/motor-brands/:id', authMiddleware, (req, res) => {
 });
 
 // --- HARDWARE OPTIONS ---
-
-// Get ALL hardware options (used by admin orders page)
-app.get('/api/admin/hardware', authMiddleware, (req, res) => {
-  try {
-    const db = loadDatabase();
-    const hardwareOptions = db.productContent?.hardwareOptions || {};
-    res.json({ success: true, data: hardwareOptions });
-  } catch (error) {
-    res.status(500).json({ success: false, error: error.message });
-  }
-});
-
-// Get hardware options by category
 app.get('/api/admin/hardware/:category', authMiddleware, (req, res) => {
   try {
     const db = loadDatabase();
@@ -3264,12 +2903,6 @@ app.get('/api/admin/hardware/:category', authMiddleware, (req, res) => {
 
 app.post('/api/admin/hardware/:category', authMiddleware, (req, res) => {
   try {
-    // BUG-013 FIX: Validate margin is not negative
-    const margin = parseFloat(req.body.margin);
-    if (!isNaN(margin) && (margin < 0 || margin > 500)) {
-      return res.status(400).json({ success: false, error: 'Margin must be between 0% and 500%' });
-    }
-
     const db = loadDatabase();
     if (!db.productContent) db.productContent = {};
     if (!db.productContent.hardwareOptions) db.productContent.hardwareOptions = {};
@@ -3289,12 +2922,6 @@ app.post('/api/admin/hardware/:category', authMiddleware, (req, res) => {
 
 app.put('/api/admin/hardware/:category/:id', authMiddleware, (req, res) => {
   try {
-    // BUG-013 FIX: Validate margin is not negative
-    const margin = parseFloat(req.body.margin);
-    if (!isNaN(margin) && (margin < 0 || margin > 500)) {
-      return res.status(400).json({ success: false, error: 'Margin must be between 0% and 500%' });
-    }
-
     const db = loadDatabase();
     const options = db.productContent?.hardwareOptions?.[req.params.category];
     if (!options) return res.status(404).json({ success: false, error: 'Category not found' });
@@ -3318,102 +2945,6 @@ app.delete('/api/admin/hardware/:category/:id', authMiddleware, (req, res) => {
     options.splice(index, 1);
     saveDatabase(db);
     res.json({ success: true });
-  } catch (error) {
-    res.status(500).json({ success: false, error: error.message });
-  }
-});
-
-// ============================================
-// ZEBRA HARDWARE OPTIONS API
-// ============================================
-
-// Get all zebra hardware options
-app.get('/api/admin/zebra/hardware', authMiddleware, (req, res) => {
-  try {
-    const db = loadDatabase();
-    res.json({ success: true, data: db.productContent?.zebraHardwareOptions || {} });
-  } catch (error) {
-    res.status(500).json({ success: false, error: error.message });
-  }
-});
-
-// Get zebra hardware by category (valanceType, bottomRail, chainSide)
-app.get('/api/admin/zebra/hardware/:category', authMiddleware, (req, res) => {
-  try {
-    const db = loadDatabase();
-    const options = db.productContent?.zebraHardwareOptions?.[req.params.category];
-    if (!options) return res.status(404).json({ success: false, error: 'Category not found' });
-    res.json({ success: true, options });
-  } catch (error) {
-    res.status(500).json({ success: false, error: error.message });
-  }
-});
-
-// Add new zebra hardware option
-app.post('/api/admin/zebra/hardware/:category', authMiddleware, (req, res) => {
-  try {
-    const db = loadDatabase();
-    if (!db.productContent) db.productContent = {};
-    if (!db.productContent.zebraHardwareOptions) db.productContent.zebraHardwareOptions = {};
-    if (!db.productContent.zebraHardwareOptions[req.params.category]) {
-      db.productContent.zebraHardwareOptions[req.params.category] = [];
-    }
-    const newOption = {
-      id: `z${req.params.category.charAt(0)}-${Date.now()}`,
-      ...req.body,
-      isActive: req.body.isActive !== false
-    };
-    db.productContent.zebraHardwareOptions[req.params.category].push(newOption);
-    saveDatabase(db);
-    res.json({ success: true, option: newOption });
-  } catch (error) {
-    res.status(500).json({ success: false, error: error.message });
-  }
-});
-
-// Update zebra hardware option
-app.put('/api/admin/zebra/hardware/:category/:id', authMiddleware, (req, res) => {
-  try {
-    const db = loadDatabase();
-    const options = db.productContent?.zebraHardwareOptions?.[req.params.category];
-    if (!options) return res.status(404).json({ success: false, error: 'Category not found' });
-    const index = options.findIndex(o => o.id === req.params.id);
-    if (index === -1) return res.status(404).json({ success: false, error: 'Option not found' });
-    options[index] = { ...options[index], ...req.body, id: req.params.id };
-    saveDatabase(db);
-    res.json({ success: true, option: options[index] });
-  } catch (error) {
-    res.status(500).json({ success: false, error: error.message });
-  }
-});
-
-// Delete zebra hardware option
-app.delete('/api/admin/zebra/hardware/:category/:id', authMiddleware, (req, res) => {
-  try {
-    const db = loadDatabase();
-    const options = db.productContent?.zebraHardwareOptions?.[req.params.category];
-    if (!options) return res.status(404).json({ success: false, error: 'Category not found' });
-    const index = options.findIndex(o => o.id === req.params.id);
-    if (index === -1) return res.status(404).json({ success: false, error: 'Option not found' });
-    options.splice(index, 1);
-    saveDatabase(db);
-    res.json({ success: true });
-  } catch (error) {
-    res.status(500).json({ success: false, error: error.message });
-  }
-});
-
-// Public API for zebra hardware options (frontend use)
-app.get('/api/zebra/hardware', (req, res) => {
-  try {
-    const db = loadDatabase();
-    const zebraHardware = db.productContent?.zebraHardwareOptions || {};
-    // Filter to only active options
-    const filteredHardware = {};
-    for (const [category, options] of Object.entries(zebraHardware)) {
-      filteredHardware[category] = options.filter(opt => opt.isActive !== false);
-    }
-    res.json({ success: true, data: filteredHardware });
   } catch (error) {
     res.status(500).json({ success: false, error: error.message });
   }
@@ -3614,110 +3145,8 @@ app.get('/category/:slug', (req, res) => {
   res.sendFile(path.join(__dirname, '../frontend/public/shop.html'));
 });
 
-// ============================================
-// SEO LANDING PAGES
-// ============================================
-
-// Product category landing pages
-app.get('/roller-shades', (req, res) => {
-  res.sendFile(path.join(__dirname, '../frontend/public/landing/roller-shades.html'));
-});
-
-app.get('/zebra-shades', (req, res) => {
-  res.sendFile(path.join(__dirname, '../frontend/public/landing/zebra-shades.html'));
-});
-
-app.get('/blackout-roller-shades', (req, res) => {
-  res.sendFile(path.join(__dirname, '../frontend/public/landing/blackout-roller-shades.html'));
-});
-
-app.get('/blackout-zebra-shades', (req, res) => {
-  res.sendFile(path.join(__dirname, '../frontend/public/landing/blackout-zebra-shades.html'));
-});
-
-app.get('/motorized-roller-shades', (req, res) => {
-  res.sendFile(path.join(__dirname, '../frontend/public/landing/motorized-roller-shades.html'));
-});
-
-app.get('/cordless-shades', (req, res) => {
-  res.sendFile(path.join(__dirname, '../frontend/public/landing/cordless-shades.html'));
-});
-
-app.get('/light-filtering-roller-shades', (req, res) => {
-  res.sendFile(path.join(__dirname, '../frontend/public/landing/light-filtering-roller-shades.html'));
-});
-
-// Room-specific landing pages
-app.get('/window-shades-for-bedroom', (req, res) => {
-  res.sendFile(path.join(__dirname, '../frontend/public/landing/window-shades-bedroom.html'));
-});
-
-app.get('/window-shades-for-living-room', (req, res) => {
-  res.sendFile(path.join(__dirname, '../frontend/public/landing/window-shades-living-room.html'));
-});
-
-// ============================================
-// GUIDES & RESOURCES
-// ============================================
-
-// Guides hub page
-app.get('/guides', (req, res) => {
-  res.sendFile(path.join(__dirname, '../frontend/public/guides/index.html'));
-});
-
-// Individual guide articles
-app.get('/guides/how-to-measure-for-blinds', (req, res) => {
-  res.sendFile(path.join(__dirname, '../frontend/public/guides/how-to-measure-for-blinds.html'));
-});
-
-app.get('/guides/zebra-vs-roller-shades', (req, res) => {
-  res.sendFile(path.join(__dirname, '../frontend/public/guides/zebra-vs-roller-shades.html'));
-});
-
-app.get('/guides/blackout-shades-what-to-know', (req, res) => {
-  res.sendFile(path.join(__dirname, '../frontend/public/guides/blackout-shades-what-to-know.html'));
-});
-
-app.get('/guides/cordless-vs-motorized', (req, res) => {
-  res.sendFile(path.join(__dirname, '../frontend/public/guides/cordless-vs-motorized.html'));
-});
-
-// ============================================
-// POLICY & TRUST PAGES
-// ============================================
-
-app.get('/shipping', (req, res) => {
-  res.sendFile(path.join(__dirname, '../frontend/public/shipping.html'));
-});
-
-app.get('/returns', (req, res) => {
-  res.sendFile(path.join(__dirname, '../frontend/public/returns.html'));
-});
-
-app.get('/warranty', (req, res) => {
-  res.sendFile(path.join(__dirname, '../frontend/public/warranty.html'));
-});
-
-app.get('/child-safety', (req, res) => {
-  res.sendFile(path.join(__dirname, '../frontend/public/child-safety.html'));
-});
-
-app.get('/contact', (req, res) => {
-  res.sendFile(path.join(__dirname, '../frontend/public/contact.html'));
-});
-
-// Product detail page - Route to appropriate page based on product type
+// Product detail page
 app.get('/product/:slug', (req, res) => {
-  const slug = req.params.slug;
-  const db = loadDatabase();
-  const product = db.products.find(p => p.slug === slug);
-
-  // If product found and is zebra category, serve zebra page
-  if (product && (product.category_slug === 'zebra-shades' || slug.includes('zebra'))) {
-    return res.sendFile(path.join(__dirname, '../frontend/public/zebra-product.html'));
-  }
-
-  // Default to roller blinds product page
   res.sendFile(path.join(__dirname, '../frontend/public/product.html'));
 });
 
@@ -4742,14 +4171,6 @@ app.get('/api/admin/analytics/product-insights', authMiddleware, (req, res) => {
       blindsTypeStats[cat.slug] = { name: cat.name, orders: 0, revenue: 0, items: 0 };
     });
 
-    // Product Type Analytics (roller, zebra, honeycomb, roman)
-    const productTypeStats = {
-      roller: { type: 'roller', orders: 0, revenue: 0, items: 0 },
-      zebra: { type: 'zebra', orders: 0, revenue: 0, items: 0 },
-      honeycomb: { type: 'honeycomb', orders: 0, revenue: 0, items: 0 },
-      roman: { type: 'roman', orders: 0, revenue: 0, items: 0 }
-    };
-
     // Control System Analytics
     const controlSystemStats = {
       manual: { name: 'Manual', orders: 0, revenue: 0 },
@@ -4807,28 +4228,6 @@ app.get('/api/admin/analytics/product-insights', authMiddleware, (req, res) => {
           blindsTypeStats[product.category_slug].orders++;
           blindsTypeStats[product.category_slug].revenue += revenue;
           blindsTypeStats[product.category_slug].items += qty;
-        }
-
-        // Determine product type (roller, zebra, honeycomb, roman)
-        let productType = item.product_type || 'roller';
-        if (!item.product_type) {
-          // Try to infer from product slug or name
-          const slug = item.product_slug || (product && product.slug) || '';
-          const name = (item.product_name || (product && product.name) || '').toLowerCase();
-          if (slug.includes('zebra') || name.includes('zebra')) {
-            productType = 'zebra';
-          } else if (slug.includes('honeycomb') || slug.includes('cellular') || name.includes('honeycomb') || name.includes('cellular')) {
-            productType = 'honeycomb';
-          } else if (slug.includes('roman') || name.includes('roman')) {
-            productType = 'roman';
-          } else {
-            productType = 'roller';
-          }
-        }
-        if (productTypeStats[productType]) {
-          productTypeStats[productType].orders++;
-          productTypeStats[productType].revenue += revenue;
-          productTypeStats[productType].items += qty;
         }
 
         // Control System
@@ -4903,16 +4302,8 @@ app.get('/api/admin/analytics/product-insights', authMiddleware, (req, res) => {
       .sort((a, b) => b.orders - a.orders)
       .slice(0, 10);
 
-    // Calculate product type percentages
-    const totalProductTypeOrders = Object.values(productTypeStats).reduce((sum, pt) => sum + pt.orders, 0);
-    const productTypesWithPercentage = Object.values(productTypeStats).map(pt => ({
-      ...pt,
-      percentage: totalProductTypeOrders > 0 ? Math.round(pt.orders / totalProductTypeOrders * 100) : 0
-    })).sort((a, b) => b.orders - a.orders);
-
     res.json({
       success: true,
-      productTypes: productTypesWithPercentage,
       blindsType: Object.values(blindsTypeStats).filter(s => s.orders > 0).sort((a, b) => b.orders - a.orders),
       controlSystem: Object.values(controlSystemStats).sort((a, b) => b.orders - a.orders),
       motorBrands: Object.values(motorBrandStats).sort((a, b) => b.orders - a.orders),
@@ -5086,14 +4477,6 @@ app.get('/api/admin/analytics/finance-insights', authMiddleware, (req, res) => {
     // Revenue by product category
     const revenueByCategory = {};
 
-    // Revenue by product type (roller, zebra, honeycomb, roman)
-    const productTypeRevenue = {
-      roller: { type: 'roller', revenue: 0, orders: 0, mfrCost: 0 },
-      zebra: { type: 'zebra', revenue: 0, orders: 0, mfrCost: 0 },
-      honeycomb: { type: 'honeycomb', revenue: 0, orders: 0, mfrCost: 0 },
-      roman: { type: 'roman', revenue: 0, orders: 0, mfrCost: 0 }
-    };
-
     // Profit margin trend
     const profitByDate = {};
 
@@ -5128,38 +4511,15 @@ app.get('/api/admin/analytics/finance-insights', authMiddleware, (req, res) => {
       revenueByDate[date].mfrCost += mfrCost;
       revenueByDate[date].profit += (subtotal - mfrCost);
 
-      // By product category and product type
+      // By product category
       (order.items || []).forEach(item => {
         const product = (db.products || []).find(p => p.id === (item.productId || item.product_id));
         const category = product?.category_slug || 'other';
         if (!revenueByCategory[category]) {
           revenueByCategory[category] = { name: category, revenue: 0, orders: 0 };
         }
-        const itemRevenue = item.lineTotal || item.price || 0;
-        const itemMfrCost = item.manufacturer_cost || item.mfrCost || 0;
-        revenueByCategory[category].revenue += itemRevenue;
+        revenueByCategory[category].revenue += item.lineTotal || item.price || 0;
         revenueByCategory[category].orders++;
-
-        // Determine product type (roller, zebra, honeycomb, roman)
-        let productType = item.product_type || 'roller';
-        if (!item.product_type) {
-          const slug = item.product_slug || (product && product.slug) || '';
-          const name = (item.product_name || (product && product.name) || '').toLowerCase();
-          if (slug.includes('zebra') || name.includes('zebra')) {
-            productType = 'zebra';
-          } else if (slug.includes('honeycomb') || slug.includes('cellular') || name.includes('honeycomb') || name.includes('cellular')) {
-            productType = 'honeycomb';
-          } else if (slug.includes('roman') || name.includes('roman')) {
-            productType = 'roman';
-          } else {
-            productType = 'roller';
-          }
-        }
-        if (productTypeRevenue[productType]) {
-          productTypeRevenue[productType].revenue += itemRevenue;
-          productTypeRevenue[productType].orders++;
-          productTypeRevenue[productType].mfrCost += itemMfrCost;
-        }
       });
 
       // Order status
@@ -5197,16 +4557,8 @@ app.get('/api/admin/analytics/finance-insights', authMiddleware, (req, res) => {
       }
     });
 
-    // BUG-012 FIX: Subtract shipping from gross profit calculation
-    // Gross profit should be: Revenue - MFR Cost - Tax - Shipping
-    // This makes it consistent with daily profit calculation (subtotal - mfrCost)
-    grossProfit = totalRevenue - totalMfrCost - totalTax - totalShipping;
+    grossProfit = totalRevenue - totalMfrCost - totalTax;
     const profitMargin = totalRevenue > 0 ? ((grossProfit / totalRevenue) * 100).toFixed(1) : 0;
-
-    // Sort product type revenue
-    const sortedProductTypeRevenue = Object.values(productTypeRevenue)
-      .filter(pt => pt.orders > 0 || pt.revenue > 0)
-      .sort((a, b) => b.revenue - a.revenue);
 
     res.json({
       success: true,
@@ -5220,7 +4572,6 @@ app.get('/api/admin/analytics/finance-insights', authMiddleware, (req, res) => {
         totalOrders: orders.length,
         avgOrderValue: orders.length > 0 ? (totalRevenue / orders.length).toFixed(2) : 0
       },
-      productTypeRevenue: sortedProductTypeRevenue,
       revenueByDate: Object.values(revenueByDate).sort((a, b) => a.date.localeCompare(b.date)),
       revenueByCategory: Object.values(revenueByCategory).sort((a, b) => b.revenue - a.revenue),
       orderStatus: Object.values(orderStatusStats),
@@ -5394,178 +4745,6 @@ app.get('/api/admin/analytics/traffic-insights', authMiddleware, (req, res) => {
     });
   } catch (error) {
     console.error('Traffic insights error:', error);
-    res.status(500).json({ success: false, error: error.message });
-  }
-});
-
-// Product Type Comparison API for Reports
-app.get('/api/admin/analytics/product-comparison', authMiddleware, (req, res) => {
-  try {
-    const db = loadDatabase();
-    const orders = (db.orders || []).filter(o => o.created_at && !isNaN(new Date(o.created_at).getTime()));
-    const products = db.products || [];
-
-    // Initialize product type stats
-    const productTypeStats = {
-      roller: { type: 'roller', orders: 0, items: 0, revenue: 0, mfrCost: 0, profit: 0, avgOrderValue: 0, avgItemValue: 0 },
-      zebra: { type: 'zebra', orders: 0, items: 0, revenue: 0, mfrCost: 0, profit: 0, avgOrderValue: 0, avgItemValue: 0 },
-      honeycomb: { type: 'honeycomb', orders: 0, items: 0, revenue: 0, mfrCost: 0, profit: 0, avgOrderValue: 0, avgItemValue: 0 },
-      roman: { type: 'roman', orders: 0, items: 0, revenue: 0, mfrCost: 0, profit: 0, avgOrderValue: 0, avgItemValue: 0 }
-    };
-
-    // Configuration preferences by type
-    const configByType = {
-      roller: { controlTypes: {}, mountTypes: {}, lightFiltering: {}, motorBrands: {} },
-      zebra: { controlTypes: {}, mountTypes: {}, lightFiltering: {}, motorBrands: {} },
-      honeycomb: { controlTypes: {}, mountTypes: {}, lightFiltering: {}, motorBrands: {} },
-      roman: { controlTypes: {}, mountTypes: {}, lightFiltering: {}, motorBrands: {} }
-    };
-
-    // Size ranges by type
-    const sizeByType = {
-      roller: { avgWidth: 0, avgHeight: 0, totalItems: 0 },
-      zebra: { avgWidth: 0, avgHeight: 0, totalItems: 0 },
-      honeycomb: { avgWidth: 0, avgHeight: 0, totalItems: 0 },
-      roman: { avgWidth: 0, avgHeight: 0, totalItems: 0 }
-    };
-
-    // Track unique orders containing each product type
-    const ordersByType = {
-      roller: new Set(),
-      zebra: new Set(),
-      honeycomb: new Set(),
-      roman: new Set()
-    };
-
-    orders.forEach(order => {
-      (order.items || []).forEach(item => {
-        const revenue = item.lineTotal || item.price || 0;
-        const mfrCost = item.manufacturer_cost || item.mfrCost || 0;
-        const qty = item.quantity || 1;
-
-        // Determine product type
-        let productType = item.product_type || 'roller';
-        if (!item.product_type) {
-          const product = products.find(p => p.id === (item.productId || item.product_id));
-          const slug = item.product_slug || (product && product.slug) || '';
-          const name = (item.product_name || (product && product.name) || '').toLowerCase();
-          if (slug.includes('zebra') || name.includes('zebra')) {
-            productType = 'zebra';
-          } else if (slug.includes('honeycomb') || slug.includes('cellular') || name.includes('honeycomb') || name.includes('cellular')) {
-            productType = 'honeycomb';
-          } else if (slug.includes('roman') || name.includes('roman')) {
-            productType = 'roman';
-          }
-        }
-
-        if (productTypeStats[productType]) {
-          productTypeStats[productType].items += qty;
-          productTypeStats[productType].revenue += revenue;
-          productTypeStats[productType].mfrCost += mfrCost;
-          productTypeStats[productType].profit += (revenue - mfrCost);
-          ordersByType[productType].add(order.id);
-
-          // Parse configuration
-          let config = {};
-          if (item.configuration) {
-            try {
-              config = typeof item.configuration === 'string' ? JSON.parse(item.configuration) : item.configuration;
-            } catch (e) {}
-          }
-
-          // Track configuration preferences
-          const controlType = config.controlType || item.controlType || 'manual';
-          const mountType = config.mountType || 'inside';
-          const lightFiltering = config.lightFiltering || 'blackout';
-          const motorBrand = config.motorBrand || (controlType === 'motorized' ? 'unknown' : null);
-
-          if (!configByType[productType].controlTypes[controlType]) configByType[productType].controlTypes[controlType] = 0;
-          configByType[productType].controlTypes[controlType]++;
-
-          if (!configByType[productType].mountTypes[mountType]) configByType[productType].mountTypes[mountType] = 0;
-          configByType[productType].mountTypes[mountType]++;
-
-          if (!configByType[productType].lightFiltering[lightFiltering]) configByType[productType].lightFiltering[lightFiltering] = 0;
-          configByType[productType].lightFiltering[lightFiltering]++;
-
-          if (motorBrand) {
-            if (!configByType[productType].motorBrands[motorBrand]) configByType[productType].motorBrands[motorBrand] = 0;
-            configByType[productType].motorBrands[motorBrand]++;
-          }
-
-          // Track sizes
-          const width = item.width || config.width || 0;
-          const height = item.height || config.height || 0;
-          if (width > 0 && height > 0) {
-            sizeByType[productType].avgWidth += width * qty;
-            sizeByType[productType].avgHeight += height * qty;
-            sizeByType[productType].totalItems += qty;
-          }
-        }
-      });
-    });
-
-    // Calculate averages and order counts
-    Object.keys(productTypeStats).forEach(type => {
-      productTypeStats[type].orders = ordersByType[type].size;
-      if (productTypeStats[type].orders > 0) {
-        productTypeStats[type].avgOrderValue = productTypeStats[type].revenue / productTypeStats[type].orders;
-      }
-      if (productTypeStats[type].items > 0) {
-        productTypeStats[type].avgItemValue = productTypeStats[type].revenue / productTypeStats[type].items;
-      }
-      // Calculate profit margin
-      if (productTypeStats[type].revenue > 0) {
-        productTypeStats[type].profitMargin = ((productTypeStats[type].profit / productTypeStats[type].revenue) * 100).toFixed(1);
-      } else {
-        productTypeStats[type].profitMargin = '0.0';
-      }
-
-      // Calculate average sizes
-      if (sizeByType[type].totalItems > 0) {
-        sizeByType[type].avgWidth = (sizeByType[type].avgWidth / sizeByType[type].totalItems).toFixed(1);
-        sizeByType[type].avgHeight = (sizeByType[type].avgHeight / sizeByType[type].totalItems).toFixed(1);
-      }
-    });
-
-    // Format configuration preferences
-    const formattedConfig = {};
-    Object.keys(configByType).forEach(type => {
-      formattedConfig[type] = {
-        topControlType: Object.entries(configByType[type].controlTypes).sort((a, b) => b[1] - a[1])[0]?.[0] || 'N/A',
-        topMountType: Object.entries(configByType[type].mountTypes).sort((a, b) => b[1] - a[1])[0]?.[0] || 'N/A',
-        topLightFiltering: Object.entries(configByType[type].lightFiltering).sort((a, b) => b[1] - a[1])[0]?.[0] || 'N/A',
-        topMotorBrand: Object.entries(configByType[type].motorBrands).sort((a, b) => b[1] - a[1])[0]?.[0] || 'N/A',
-        controlTypes: Object.entries(configByType[type].controlTypes).map(([name, count]) => ({ name, count })),
-        mountTypes: Object.entries(configByType[type].mountTypes).map(([name, count]) => ({ name, count })),
-        lightFiltering: Object.entries(configByType[type].lightFiltering).map(([name, count]) => ({ name, count }))
-      };
-    });
-
-    // Calculate totals
-    const totals = Object.values(productTypeStats).reduce((acc, type) => ({
-      orders: acc.orders + type.orders,
-      items: acc.items + type.items,
-      revenue: acc.revenue + type.revenue,
-      mfrCost: acc.mfrCost + type.mfrCost,
-      profit: acc.profit + type.profit
-    }), { orders: 0, items: 0, revenue: 0, mfrCost: 0, profit: 0 });
-
-    // Calculate percentages
-    Object.keys(productTypeStats).forEach(type => {
-      productTypeStats[type].revenuePercentage = totals.revenue > 0 ? ((productTypeStats[type].revenue / totals.revenue) * 100).toFixed(1) : '0.0';
-      productTypeStats[type].ordersPercentage = totals.orders > 0 ? ((productTypeStats[type].orders / totals.orders) * 100).toFixed(1) : '0.0';
-    });
-
-    res.json({
-      success: true,
-      comparison: Object.values(productTypeStats).sort((a, b) => b.revenue - a.revenue),
-      totals,
-      configPreferences: formattedConfig,
-      avgSizes: sizeByType
-    });
-  } catch (error) {
-    console.error('Product comparison error:', error);
     res.status(500).json({ success: false, error: error.message });
   }
 });
@@ -5985,307 +5164,6 @@ app.delete('/api/admin/margins/product/:productId', authMiddleware, (req, res) =
     }
 
     res.json({ success: true, message: 'Product margin removed, will use type default' });
-  } catch (error) {
-    res.status(500).json({ success: false, error: error.message });
-  }
-});
-
-// ============================================
-// ZEBRA SHADES FABRIC & PRICING API
-// ============================================
-
-// Get all zebra fabrics
-app.get('/api/admin/zebra/fabrics', authMiddleware, (req, res) => {
-  try {
-    const db = loadDatabase();
-    const fabrics = db.zebraFabrics || [];
-    const prices = db.zebraManufacturerPrices || [];
-
-    // Merge fabric info with pricing
-    const enrichedFabrics = fabrics.map(fabric => {
-      const price = prices.find(p => p.fabricCode === fabric.code) || {};
-      return {
-        ...fabric,
-        pricePerSqMeterManual: price.pricePerSqMeterManual || 0,
-        pricePerSqMeterCordless: price.pricePerSqMeterCordless || 0
-      };
-    });
-
-    res.json({ success: true, fabrics: enrichedFabrics, total: enrichedFabrics.length });
-  } catch (error) {
-    res.status(500).json({ success: false, error: error.message });
-  }
-});
-
-// Get zebra fabric by code
-app.get('/api/admin/zebra/fabrics/:code', authMiddleware, (req, res) => {
-  try {
-    const db = loadDatabase();
-    const fabric = (db.zebraFabrics || []).find(f => f.code === req.params.code);
-    if (!fabric) {
-      return res.status(404).json({ success: false, error: 'Fabric not found' });
-    }
-    res.json({ success: true, data: fabric });
-  } catch (error) {
-    res.status(500).json({ success: false, error: error.message });
-  }
-});
-
-// Update zebra fabric
-app.put('/api/admin/zebra/fabrics/:code', authMiddleware, (req, res) => {
-  try {
-    const db = loadDatabase();
-    const { code } = req.params;
-    const fabricIndex = (db.zebraFabrics || []).findIndex(f => f.code === code);
-
-    if (fabricIndex === -1) {
-      return res.status(404).json({ success: false, error: 'Fabric not found' });
-    }
-
-    // Update allowed fields
-    const allowedFields = ['enabled', 'name', 'image', 'hasImage', 'status'];
-    allowedFields.forEach(field => {
-      if (req.body[field] !== undefined) {
-        db.zebraFabrics[fabricIndex][field] = req.body[field];
-      }
-    });
-    db.zebraFabrics[fabricIndex].updatedAt = new Date().toISOString();
-
-    saveDatabase(db);
-    res.json({ success: true, data: db.zebraFabrics[fabricIndex] });
-  } catch (error) {
-    res.status(500).json({ success: false, error: error.message });
-  }
-});
-
-// Upload zebra fabric image
-app.post('/api/admin/zebra/fabrics/upload-image', authMiddleware, upload.single('image'), (req, res) => {
-  try {
-    const db = loadDatabase();
-    const { fabricCode } = req.body;
-
-    if (!req.file) {
-      return res.status(400).json({ success: false, error: 'No image provided' });
-    }
-
-    const fabricIndex = (db.zebraFabrics || []).findIndex(f => f.code === fabricCode);
-    if (fabricIndex === -1) {
-      return res.status(404).json({ success: false, error: 'Fabric not found' });
-    }
-
-    // Move file to zebra fabrics folder
-    const fs = require('fs');
-    const path = require('path');
-    const uploadDir = path.join(__dirname, '../frontend/public/images/fabrics/zebra');
-
-    // Create directory if it doesn't exist
-    if (!fs.existsSync(uploadDir)) {
-      fs.mkdirSync(uploadDir, { recursive: true });
-    }
-
-    const ext = path.extname(req.file.originalname).toLowerCase();
-    const newFilename = `${fabricCode}${ext}`;
-    const newPath = path.join(uploadDir, newFilename);
-
-    // Move file from temp uploads
-    fs.renameSync(req.file.path, newPath);
-
-    // Update fabric record
-    db.zebraFabrics[fabricIndex].image = `/images/fabrics/zebra/${newFilename}`;
-    db.zebraFabrics[fabricIndex].hasImage = true;
-    db.zebraFabrics[fabricIndex].updatedAt = new Date().toISOString();
-
-    saveDatabase(db);
-
-    res.json({
-      success: true,
-      data: {
-        fabricCode,
-        image: db.zebraFabrics[fabricIndex].image
-      }
-    });
-  } catch (error) {
-    res.status(500).json({ success: false, error: error.message });
-  }
-});
-
-// Get all zebra pricing with margins
-app.get('/api/admin/zebra/pricing', authMiddleware, (req, res) => {
-  try {
-    const db = loadDatabase();
-    const fabrics = db.zebraFabrics || [];
-    const prices = db.zebraManufacturerPrices || [];
-
-    // Merge fabric info with pricing
-    const pricingData = prices.map(price => {
-      const fabric = fabrics.find(f => f.code === price.fabricCode) || {};
-      const margin = price.manualMargin || 40;
-      const customerPriceManual = price.pricePerSqMeterManual * (1 + margin / 100);
-      const customerPriceCordless = price.pricePerSqMeterCordless * (1 + margin / 100);
-
-      return {
-        fabricCode: price.fabricCode,
-        shadingType: fabric.shadingType || 'Unknown',
-        category: fabric.category || 'unknown',
-        composition: fabric.composition || '',
-        image: fabric.image,
-        hasImage: fabric.hasImage || false,
-        // Manufacturer costs
-        manufacturerPriceManual: price.pricePerSqMeterManual,
-        manufacturerPriceCordless: price.pricePerSqMeterCordless,
-        // Margin
-        margin: margin,
-        marginType: 'percentage',
-        // Customer prices (calculated)
-        customerPriceManual: Math.round(customerPriceManual * 100) / 100,
-        customerPriceCordless: Math.round(customerPriceCordless * 100) / 100,
-        // Profit
-        profitManual: Math.round((customerPriceManual - price.pricePerSqMeterManual) * 100) / 100,
-        profitCordless: Math.round((customerPriceCordless - price.pricePerSqMeterCordless) * 100) / 100,
-        minAreaSqMeter: price.minAreaSqMeter || 1.2,
-        notes: price.notes,
-        updatedAt: price.updatedAt
-      };
-    });
-
-    res.json({
-      success: true,
-      data: pricingData,
-      total: pricingData.length,
-      summary: {
-        totalFabrics: pricingData.length,
-        withImages: pricingData.filter(p => p.hasImage).length,
-        blackout: pricingData.filter(p => p.category === 'blackout').length,
-        semiBlackout: pricingData.filter(p => p.category === 'semi-blackout').length,
-        superBlackout: pricingData.filter(p => p.category === 'super-blackout').length
-      }
-    });
-  } catch (error) {
-    res.status(500).json({ success: false, error: error.message });
-  }
-});
-
-// Update zebra fabric pricing/margin
-app.put('/api/admin/zebra/pricing/:fabricCode', authMiddleware, (req, res) => {
-  try {
-    const db = loadDatabase();
-    const { fabricCode } = req.params;
-    const { margin, pricePerSqMeterManual, pricePerSqMeterCordless } = req.body;
-
-    const priceIndex = (db.zebraManufacturerPrices || []).findIndex(p => p.fabricCode === fabricCode);
-    if (priceIndex === -1) {
-      return res.status(404).json({ success: false, error: 'Pricing entry not found' });
-    }
-
-    if (margin !== undefined) {
-      db.zebraManufacturerPrices[priceIndex].manualMargin = parseFloat(margin);
-    }
-    if (pricePerSqMeterManual !== undefined) {
-      db.zebraManufacturerPrices[priceIndex].pricePerSqMeterManual = parseFloat(pricePerSqMeterManual);
-      db.zebraManufacturerPrices[priceIndex].pricePerSqMeter = parseFloat(pricePerSqMeterManual);
-    }
-    if (pricePerSqMeterCordless !== undefined) {
-      db.zebraManufacturerPrices[priceIndex].pricePerSqMeterCordless = parseFloat(pricePerSqMeterCordless);
-    }
-    db.zebraManufacturerPrices[priceIndex].updatedAt = new Date().toISOString();
-
-    saveDatabase(db);
-    res.json({ success: true, message: 'Pricing updated', data: db.zebraManufacturerPrices[priceIndex] });
-  } catch (error) {
-    res.status(500).json({ success: false, error: error.message });
-  }
-});
-
-// Bulk update zebra margins
-app.put('/api/admin/zebra/pricing/bulk-margin', authMiddleware, (req, res) => {
-  try {
-    const db = loadDatabase();
-    const { margin, category } = req.body;
-
-    if (margin === undefined || margin < 0 || margin > 500) {
-      return res.status(400).json({ success: false, error: 'Invalid margin value' });
-    }
-
-    let updated = 0;
-    const fabrics = db.zebraFabrics || [];
-
-    (db.zebraManufacturerPrices || []).forEach(price => {
-      const fabric = fabrics.find(f => f.code === price.fabricCode);
-      if (!category || (fabric && fabric.category === category)) {
-        price.manualMargin = parseFloat(margin);
-        price.updatedAt = new Date().toISOString();
-        updated++;
-      }
-    });
-
-    saveDatabase(db);
-    res.json({ success: true, message: `Updated margin for ${updated} fabrics`, updated });
-  } catch (error) {
-    res.status(500).json({ success: false, error: error.message });
-  }
-});
-
-// Public API: Get zebra fabrics for frontend configurator
-// Also aliased as /api/fabrics/zebra for zebra-product.html
-const zebraFabricsHandler = (req, res) => {
-  try {
-    const db = loadDatabase();
-    const fabrics = (db.zebraFabrics || []).filter(f => f.enabled !== false);
-    const prices = db.zebraManufacturerPrices || [];
-
-    // Merge with customer pricing
-    const result = fabrics.map(fabric => {
-      const price = prices.find(p => p.fabricCode === fabric.code) || {};
-      const margin = price.manualMargin || 40;
-
-      return {
-        code: fabric.code,
-        name: fabric.name,
-        category: fabric.category,
-        shadingType: fabric.shadingType,
-        image: fabric.image,
-        composition: fabric.composition,
-        width: fabric.width,
-        weight: fabric.weight,
-        thickness: fabric.thickness,
-        waterResistant: fabric.waterResistant,
-        fireResistant: fabric.fireResistant,
-        // Customer prices only (not manufacturer cost)
-        pricePerSqMeterManual: Math.round(price.pricePerSqMeterManual * (1 + margin / 100) * 100) / 100,
-        pricePerSqMeterCordless: Math.round(price.pricePerSqMeterCordless * (1 + margin / 100) * 100) / 100,
-        // BUG-014 FIX: Zebra default min area is 1.5 sq meter (not 1.2 like roller)
-        minAreaSqMeter: price.minAreaSqMeter || 1.5
-      };
-    });
-
-    res.json({ success: true, fabrics: result, total: result.length });
-  } catch (error) {
-    res.status(500).json({ success: false, error: error.message });
-  }
-};
-app.get('/api/zebra/fabrics', zebraFabricsHandler);
-app.get('/api/fabrics/zebra', zebraFabricsHandler);
-
-// Get zebra page content
-app.get('/api/admin/zebra/page-content', authMiddleware, (req, res) => {
-  try {
-    const content = db.zebraPageContent || {};
-    res.json({ success: true, data: content });
-  } catch (error) {
-    res.status(500).json({ success: false, error: error.message });
-  }
-});
-
-// Update zebra page content
-app.put('/api/admin/zebra/page-content', authMiddleware, (req, res) => {
-  try {
-    db.zebraPageContent = {
-      ...db.zebraPageContent,
-      ...req.body,
-      updatedAt: new Date().toISOString()
-    };
-    saveDatabase();
-    res.json({ success: true, message: 'Page content updated', data: db.zebraPageContent });
   } catch (error) {
     res.status(500).json({ success: false, error: error.message });
   }
@@ -7369,50 +6247,13 @@ app.post('/api/admin/customers/:id/notes', authMiddleware, (req, res) => {
 // DRAFT ORDERS API ENDPOINTS
 // ============================================
 
-// Admin: Get all draft orders with search, filtering, and pagination
+// Admin: Get all draft orders
 app.get('/api/admin/draft-orders', authMiddleware, (req, res) => {
   try {
     const db = loadDatabase();
-    const { search, status, page = 1, limit = 20 } = req.query;
-
-    let draftOrders = [...(db.draftOrders || [])];
-
-    // Filter by status
-    if (status) {
-      draftOrders = draftOrders.filter(d => d.status === status);
-    }
-
-    // Search by draft number, customer name, or email
-    if (search) {
-      const searchLower = search.toLowerCase();
-      draftOrders = draftOrders.filter(d =>
-        (d.draftNumber && d.draftNumber.toLowerCase().includes(searchLower)) ||
-        (d.customerName && d.customerName.toLowerCase().includes(searchLower)) ||
-        (d.customerEmail && d.customerEmail.toLowerCase().includes(searchLower)) ||
-        (d.id && d.id.toLowerCase().includes(searchLower))
-      );
-    }
-
-    // Sort by creation date (newest first)
-    draftOrders.sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-
-    // Get total before pagination
-    const total = draftOrders.length;
-
-    // Apply pagination
-    const pageNum = parseInt(page) || 1;
-    const limitNum = parseInt(limit) || 20;
-    const startIndex = (pageNum - 1) * limitNum;
-    const paginatedOrders = draftOrders.slice(startIndex, startIndex + limitNum);
-
-    res.json({
-      success: true,
-      draftOrders: paginatedOrders,
-      total,
-      page: pageNum,
-      limit: limitNum,
-      totalPages: Math.ceil(total / limitNum)
-    });
+    const draftOrders = (db.draftOrders || [])
+      .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+    res.json({ success: true, draftOrders });
   } catch (error) {
     res.status(500).json({ success: false, error: error.message });
   }
@@ -7612,220 +6453,13 @@ app.post('/api/admin/draft-orders/:id/complete', authMiddleware, (req, res) => {
 // ABANDONED CHECKOUTS API ENDPOINTS
 // ============================================
 
-// Admin: Get abandoned checkouts with filtering, search, and pagination
+// Admin: Get abandoned checkouts
 app.get('/api/admin/abandoned-checkouts', authMiddleware, (req, res) => {
   try {
     const db = loadDatabase();
-    const { search, status, page = 1, limit = 20 } = req.query;
-
-    let checkouts = [...(db.abandonedCheckouts || [])];
-
-    // Filter by status
-    if (status) {
-      checkouts = checkouts.filter(c => c.status === status);
-    }
-
-    // Search by customer name, email, or checkout ID
-    if (search) {
-      const searchLower = search.toLowerCase();
-      checkouts = checkouts.filter(c =>
-        (c.customer_name && c.customer_name.toLowerCase().includes(searchLower)) ||
-        (c.customerName && c.customerName.toLowerCase().includes(searchLower)) ||
-        (c.customer_email && c.customer_email.toLowerCase().includes(searchLower)) ||
-        (c.customerEmail && c.customerEmail.toLowerCase().includes(searchLower)) ||
-        (c.id && c.id.toLowerCase().includes(searchLower))
-      );
-    }
-
-    // Sort by creation date (newest first)
-    checkouts.sort((a, b) => new Date(b.createdAt || b.created_at) - new Date(a.createdAt || a.created_at));
-
-    // Calculate stats
-    const stats = {
-      total: checkouts.length,
-      abandoned: checkouts.filter(c => c.status === 'abandoned' || !c.status).length,
-      recovered: checkouts.filter(c => c.status === 'recovered').length,
-      emailed: checkouts.filter(c => c.status === 'emailed').length,
-      potentialRevenue: checkouts.reduce((sum, c) => sum + (c.total || 0), 0)
-    };
-
-    // Get total before pagination
-    const total = checkouts.length;
-
-    // Apply pagination
-    const pageNum = parseInt(page) || 1;
-    const limitNum = parseInt(limit) || 20;
-    const startIndex = (pageNum - 1) * limitNum;
-    const paginatedCheckouts = checkouts.slice(startIndex, startIndex + limitNum);
-
-    res.json({
-      success: true,
-      abandonedCheckouts: paginatedCheckouts,
-      stats,
-      total,
-      page: pageNum,
-      limit: limitNum,
-      totalPages: Math.ceil(total / limitNum)
-    });
-  } catch (error) {
-    res.status(500).json({ success: false, error: error.message });
-  }
-});
-
-// Admin: Get single abandoned checkout
-app.get('/api/admin/abandoned-checkouts/:id', authMiddleware, (req, res) => {
-  try {
-    const db = loadDatabase();
-    const checkout = (db.abandonedCheckouts || []).find(c => c.id === req.params.id);
-    if (!checkout) {
-      return res.status(404).json({ success: false, error: 'Abandoned checkout not found' });
-    }
-    res.json({ success: true, checkout });
-  } catch (error) {
-    res.status(500).json({ success: false, error: error.message });
-  }
-});
-
-// Admin: Update abandoned checkout status (mark as recovered, etc.)
-app.put('/api/admin/abandoned-checkouts/:id/status', authMiddleware, (req, res) => {
-  try {
-    const db = loadDatabase();
-    const checkout = (db.abandonedCheckouts || []).find(c => c.id === req.params.id);
-    if (!checkout) {
-      return res.status(404).json({ success: false, error: 'Abandoned checkout not found' });
-    }
-
-    const { status } = req.body;
-    const validStatuses = ['abandoned', 'emailed', 'recovered', 'expired'];
-    if (!validStatuses.includes(status)) {
-      return res.status(400).json({ success: false, error: 'Invalid status. Valid: abandoned, emailed, recovered, expired' });
-    }
-
-    checkout.status = status;
-    checkout.updatedAt = new Date().toISOString();
-
-    if (status === 'recovered') {
-      checkout.recoveredAt = new Date().toISOString();
-    }
-
-    saveDatabase(db);
-    res.json({ success: true, checkout, message: `Checkout marked as ${status}` });
-  } catch (error) {
-    res.status(500).json({ success: false, error: error.message });
-  }
-});
-
-// Admin: Send recovery email for abandoned checkout
-app.post('/api/admin/abandoned-checkouts/:id/send-recovery', authMiddleware, (req, res) => {
-  try {
-    const db = loadDatabase();
-    const checkout = (db.abandonedCheckouts || []).find(c => c.id === req.params.id);
-    if (!checkout) {
-      return res.status(404).json({ success: false, error: 'Abandoned checkout not found' });
-    }
-
-    const email = checkout.customer_email || checkout.customerEmail;
-    if (!email) {
-      return res.status(400).json({ success: false, error: 'No email address associated with this checkout' });
-    }
-
-    // Update checkout status and log the email attempt
-    checkout.status = 'emailed';
-    checkout.lastEmailSentAt = new Date().toISOString();
-    checkout.emailCount = (checkout.emailCount || 0) + 1;
-    checkout.updatedAt = new Date().toISOString();
-
-    // Add to email history
-    if (!checkout.emailHistory) checkout.emailHistory = [];
-    checkout.emailHistory.push({
-      sentAt: new Date().toISOString(),
-      type: 'recovery',
-      sentBy: 'Admin'
-    });
-
-    saveDatabase(db);
-
-    // In production, you would send actual email here
-    // For now, we just log and update status
-    console.log(`Recovery email queued for ${email} - Checkout ID: ${checkout.id}`);
-
-    res.json({
-      success: true,
-      message: `Recovery email sent to ${email}`,
-      checkout
-    });
-  } catch (error) {
-    res.status(500).json({ success: false, error: error.message });
-  }
-});
-
-// Admin: Delete abandoned checkout
-app.delete('/api/admin/abandoned-checkouts/:id', authMiddleware, (req, res) => {
-  try {
-    const db = loadDatabase();
-    const index = (db.abandonedCheckouts || []).findIndex(c => c.id === req.params.id);
-    if (index === -1) {
-      return res.status(404).json({ success: false, error: 'Abandoned checkout not found' });
-    }
-    db.abandonedCheckouts.splice(index, 1);
-    saveDatabase(db);
-    res.json({ success: true, message: 'Abandoned checkout deleted' });
-  } catch (error) {
-    res.status(500).json({ success: false, error: error.message });
-  }
-});
-
-// Admin: Convert abandoned checkout to draft order
-app.post('/api/admin/abandoned-checkouts/:id/convert-to-draft', authMiddleware, (req, res) => {
-  try {
-    const db = loadDatabase();
-    const checkout = (db.abandonedCheckouts || []).find(c => c.id === req.params.id);
-    if (!checkout) {
-      return res.status(404).json({ success: false, error: 'Abandoned checkout not found' });
-    }
-
-    if (!db.draftOrders) db.draftOrders = [];
-
-    const draftCount = db.draftOrders.length + 1;
-    const draftNumber = `D-${String(draftCount).padStart(3, '0')}`;
-
-    const draftOrder = {
-      id: `draft-${uuidv4().slice(0, 8)}`,
-      draftNumber,
-      customerId: checkout.customerId || null,
-      customerEmail: checkout.customer_email || checkout.customerEmail || '',
-      customerName: checkout.customer_name || checkout.customerName || '',
-      items: checkout.items || [],
-      subtotal: checkout.subtotal || 0,
-      tax: checkout.tax || 0,
-      shipping: checkout.shipping || 0,
-      total: checkout.total || 0,
-      status: 'open',
-      paymentStatus: 'pending',
-      internalNotes: `Converted from abandoned checkout ${checkout.id}`,
-      timeline: [
-        { action: 'created_from_abandoned', timestamp: new Date().toISOString(), user: 'Admin', sourceId: checkout.id }
-      ],
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString()
-    };
-
-    db.draftOrders.push(draftOrder);
-
-    // Update abandoned checkout status
-    checkout.status = 'recovered';
-    checkout.recoveredAt = new Date().toISOString();
-    checkout.convertedToDraftId = draftOrder.id;
-    checkout.updatedAt = new Date().toISOString();
-
-    saveDatabase(db);
-
-    res.json({
-      success: true,
-      message: 'Abandoned checkout converted to draft order',
-      draftOrder,
-      checkout
-    });
+    const abandonedCheckouts = (db.abandonedCheckouts || [])
+      .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
+    res.json({ success: true, abandonedCheckouts });
   } catch (error) {
     res.status(500).json({ success: false, error: error.message });
   }
@@ -9724,60 +8358,14 @@ app.get('/api/admin/theme', authMiddleware, (req, res) => {
     const db = loadDatabase();
     if (!db.themeSettings) {
       db.themeSettings = {
-        colors: {
-          primary: '#8E6545',
-          primaryDark: '#7a5539',
-          secondary: '#333333',
-          accent: '#C49B6C',
-          textDark: '#1a1a1a',
-          textLight: '#ffffff',
-          textMuted: '#6b7280',
-          bgCream: '#F6F1EB',
-          bgLight: '#f9fafb',
-          bgWhite: '#ffffff',
-          borderLight: '#e5e7eb',
-          borderMedium: '#d1d5db',
-          success: '#28a745',
-          error: '#dc3545',
-          warning: '#ffc107'
-        },
-        fonts: {
-          primary: { family: 'Montserrat', url: '' },
-          secondary: { family: 'Open Sans', url: '' },
-          sizes: {
-            xs: '11px',
-            sm: '13px',
-            base: '14px',
-            md: '16px',
-            lg: '18px',
-            xl: '22px'
-          }
-        },
+        colors: { primary: '#8E6545', secondary: '#F6F1EB' },
+        fonts: { primary: { family: 'Montserrat' } },
         spacing: {},
         borderRadius: {},
         shadows: {}
       };
       saveDatabase(db);
     }
-    // Ensure all color keys exist (for existing databases missing some colors)
-    const defaultColors = {
-      primary: '#8E6545',
-      primaryDark: '#7a5539',
-      secondary: '#333333',
-      accent: '#C49B6C',
-      textDark: '#1a1a1a',
-      textLight: '#ffffff',
-      textMuted: '#6b7280',
-      bgCream: '#F6F1EB',
-      bgLight: '#f9fafb',
-      bgWhite: '#ffffff',
-      borderLight: '#e5e7eb',
-      borderMedium: '#d1d5db',
-      success: '#28a745',
-      error: '#dc3545',
-      warning: '#ffc107'
-    };
-    db.themeSettings.colors = { ...defaultColors, ...db.themeSettings.colors };
     res.json({ success: true, data: db.themeSettings });
   } catch (error) {
     res.status(500).json({ success: false, error: error.message });
@@ -11883,64 +10471,6 @@ app.get('/api/admin/realtime/stats', authMiddleware, (req, res) => {
   try {
     const stats = realtimeSync.getStats();
     res.json({ success: true, stats });
-  } catch (error) {
-    res.status(500).json({ success: false, error: error.message });
-  }
-});
-
-// ============================================
-// SEO ENDPOINTS - Sitemap & Robots.txt
-// ============================================
-const seoService = require('./services/seo-service');
-
-// Sitemap.xml endpoint
-app.get('/sitemap.xml', (req, res) => {
-  try {
-    const db = loadDatabase();
-    const products = db.products || [];
-    const categories = db.categories || [];
-    const urls = [
-      { url: '/', priority: '1.0', changefreq: 'daily' },
-      { url: '/shop', priority: '0.9', changefreq: 'daily' },
-      { url: '/about', priority: '0.6', changefreq: 'monthly' },
-      { url: '/contact', priority: '0.6', changefreq: 'monthly' },
-      { url: '/faq', priority: '0.7', changefreq: 'weekly' }
-    ];
-    categories.forEach(cat => urls.push({ url: `/category/${cat.slug}`, priority: '0.8', changefreq: 'weekly' }));
-    products.filter(p => p.status === 'active').forEach(prod => urls.push({ url: `/product/${prod.slug}`, priority: '0.8', changefreq: 'weekly' }));
-    ['/roller-shades', '/zebra-shades', '/blackout-roller-shades', '/motorized-roller-shades', '/cordless-shades'].forEach(p => urls.push({ url: p, priority: '0.9', changefreq: 'weekly' }));
-    ['/texas', '/dallas-custom-blinds', '/austin-window-shades', '/houston-custom-shades', '/san-antonio-window-blinds', '/fort-worth-custom-blinds'].forEach(p => urls.push({ url: p, priority: '0.8', changefreq: 'monthly' }));
-    res.set('Content-Type', 'application/xml');
-    res.send(seoService.generateSitemapXML(urls));
-  } catch (error) {
-    console.error('Sitemap error:', error);
-    res.status(500).send('Error generating sitemap');
-  }
-});
-
-// Robots.txt endpoint
-app.get('/robots.txt', (req, res) => {
-  res.set('Content-Type', 'text/plain');
-  res.send(seoService.generateRobotsTxt());
-});
-
-// SEO metadata API
-app.get('/api/seo/page-meta', (req, res) => {
-  try {
-    const { page, slug, city } = req.query;
-    const db = loadDatabase();
-    let seoData = {};
-    if (page === 'product' && slug) {
-      const product = (db.products || []).find(p => p.slug === slug);
-      if (product) {
-        seoData = { title: `${product.name} - Custom Window Shades | Peekaboo Shades`, description: product.description?.substring(0, 155) || `Shop ${product.name}. Free shipping in Texas.`, canonical: `${seoService.BASE_URL}/product/${slug}` };
-      }
-    } else if (page === 'local' && city) {
-      const cityNames = { dallas: 'Dallas', austin: 'Austin', houston: 'Houston', 'san-antonio': 'San Antonio', 'fort-worth': 'Fort Worth' };
-      const cityName = cityNames[city] || city;
-      seoData = { title: `Custom Blinds & Shades in ${cityName}, TX | Peekaboo Shades`, description: `Affordable custom window blinds and shades serving ${cityName}, Texas. Free shipping!`, includeLocalBusiness: true, city: cityName };
-    }
-    res.json({ success: true, data: seoData });
   } catch (error) {
     res.status(500).json({ success: false, error: error.message });
   }

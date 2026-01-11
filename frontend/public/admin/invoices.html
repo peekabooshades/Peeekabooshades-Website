@@ -90,7 +90,7 @@
     <aside class="admin-sidebar">
       <div class="sidebar-header">
         <a href="/admin/" class="sidebar-logo">
-          <img src="/images/peekabooshades_logo.jpeg" alt="Peekaboo Shades" style="height: 32px; width: auto; border-radius: 6px;">
+          <img src="/images/logo.png" alt="Logo" onerror="this.style.display='none'">
           <span>Peekaboo Shades</span>
         </a>
       </div>
@@ -202,7 +202,6 @@
       <div class="admin-content">
         <div class="page-header">
           <h1 class="page-title">Invoices</h1>
-          <button onclick="alert('JavaScript is working!')" style="margin-left: 20px; padding: 8px 16px; background: #8E6545; color: white; border: none; border-radius: 4px; cursor: pointer;">Test JS</button>
         </div>
 
         <!-- Stats -->
@@ -270,7 +269,6 @@
                   <th>Invoice #</th>
                   <th>Invoice Date</th>
                   <th>Type</th>
-                  <th>Products</th>
                   <th>Order #</th>
                   <th>Customer/Vendor</th>
                   <th>Amount</th>
@@ -282,7 +280,7 @@
               </thead>
               <tbody id="invoices-table">
                 <tr>
-                  <td colspan="11" style="text-align: center; padding: 60px;">
+                  <td colspan="10" style="text-align: center; padding: 60px;">
                     <div class="spinner"></div>
                     <p style="margin-top: 16px; color: var(--admin-text-secondary);">Loading invoices...</p>
                   </td>
@@ -412,76 +410,13 @@
 
   <script src="js/admin.js"></script>
   <script>
-    // Global error handler to catch any JavaScript errors
-    window.onerror = function(msg, url, lineNo, columnNo, error) {
-      console.error('[Global Error]', msg, 'at', url, 'line:', lineNo);
-      return false;
-    };
-
-    // Verify functions are accessible
-    window.addEventListener('load', function() {
-      console.log('[Init] Page loaded. Functions available:', {
-        viewInvoice: typeof viewInvoice,
-        showPaymentModal: typeof showPaymentModal,
-        markAsSent: typeof markAsSent,
-        printInvoiceDirect: typeof printInvoiceDirect
-      });
-    });
-
-    // Debug helper - shows status on page
-    function debugLog(msg, isError = false) {
-      console.log('[Invoices]', msg);
-      const table = document.getElementById('invoices-table');
-      if (table && isError) {
-        table.innerHTML = `<tr><td colspan="11" style="text-align:center;padding:40px;color:${isError ? 'red' : '#666'};">${msg}</td></tr>`;
-      }
-    }
-
-    // Check if Admin object loaded
-    if (typeof Admin === 'undefined') {
-      debugLog('ERROR: Admin.js failed to load!', true);
-      alert('ERROR: Admin.js failed to load. Please refresh the page.');
+    // Require authentication
+    if (!Admin.Auth.requireAuth()) {
+      // Will redirect
     } else {
-      debugLog('Admin.js loaded OK');
-
-      // Check token
-      const token = Admin.Auth.getToken();
-      debugLog('Token exists: ' + (token ? 'YES (' + token.substring(0,20) + '...)' : 'NO'));
-
-      if (!token) {
-        debugLog('No auth token - redirecting to login...', true);
-        alert('You are not logged in. Redirecting to login page...');
-        window.location.href = '/admin/login.html';
-      } else {
-        // Load data with timeout protection
-        debugLog('Starting data load...');
-
-        // Add timeout to prevent infinite loading
-        const loadTimeout = setTimeout(() => {
-          debugLog('TIMEOUT: Data load took too long (>15s). Check console for errors.', true);
-        }, 15000);
-
-        Promise.all([loadInvoices(), loadSummary()])
-          .then(() => {
-            clearTimeout(loadTimeout);
-            debugLog('Data loaded successfully!');
-            initFilters();
-          })
-          .catch(err => {
-            clearTimeout(loadTimeout);
-            console.error('[Invoices] Promise.all error:', err);
-            const errorMsg = err.message || String(err);
-            debugLog('Load failed: ' + errorMsg, true);
-
-            // Determine if it's an auth issue
-            if (errorMsg.includes('Authentication') || errorMsg.includes('token') || errorMsg.includes('401')) {
-              alert('SESSION EXPIRED\n\nYour login session has expired.\nPlease login again.');
-              window.location.href = '/admin/login.html';
-            } else {
-              alert('Failed to load invoices:\n\n' + errorMsg + '\n\nPlease check the browser console (F12) for more details.');
-            }
-          });
-      }
+      loadInvoices();
+      loadSummary();
+      initFilters();
     }
 
     let allInvoices = [];
@@ -489,132 +424,46 @@
     let currentInvoice = null;
 
     async function loadSummary() {
-      console.log('[loadSummary] Starting...');
       try {
-        const token = Admin.Auth.getToken();
-        console.log('[loadSummary] Token:', token ? 'exists' : 'MISSING');
-
-        if (!token) {
-          throw new Error('No authentication token available');
-        }
-
         const response = await fetch('/api/admin/invoices/summary', {
-          headers: { 'Authorization': `Bearer ${token}` }
+          headers: { 'Authorization': `Bearer ${Admin.Auth.getToken()}` }
         });
-        console.log('[loadSummary] Response status:', response.status);
-
-        if (!response.ok) {
-          const errorText = await response.text();
-          console.error('[loadSummary] HTTP error:', response.status, errorText);
-          throw new Error(`HTTP ${response.status}: ${errorText.substring(0, 100)}`);
-        }
-
-        const result = await response.json();
-        console.log('[loadSummary] Result:', result.success ? 'success' : 'failed', result);
-
-        if (result.success) {
-          const summary = result.data || result.summary || {};
-          document.getElementById('stat-total').textContent = summary.total || 0;
-          document.getElementById('stat-amount').textContent = Admin.Utils.formatCurrency(summary.totalAmount || 0);
-          document.getElementById('stat-paid').textContent = Admin.Utils.formatCurrency(summary.totalPaid || 0);
-          document.getElementById('stat-due').textContent = Admin.Utils.formatCurrency(summary.totalDue || 0);
-          console.log('[loadSummary] Summary updated successfully');
-        } else {
-          console.error('[loadSummary] API error:', result.error);
-          throw new Error(result.error || 'Summary API failed');
+        const data = await response.json();
+        if (data.success) {
+          document.getElementById('stat-total').textContent = data.summary.total;
+          document.getElementById('stat-amount').textContent = Admin.Utils.formatCurrency(data.summary.totalAmount);
+          document.getElementById('stat-paid').textContent = Admin.Utils.formatCurrency(data.summary.totalPaid);
+          document.getElementById('stat-due').textContent = Admin.Utils.formatCurrency(data.summary.totalDue);
         }
       } catch (error) {
-        console.error('[loadSummary] Exception:', error);
-        document.getElementById('stat-total').textContent = 'ERR';
-        document.getElementById('stat-amount').textContent = 'ERR';
-        document.getElementById('stat-paid').textContent = 'ERR';
-        document.getElementById('stat-due').textContent = 'ERR';
-        throw error; // Re-throw to be caught by Promise.all
+        console.error('Failed to load summary:', error);
       }
     }
 
     async function loadInvoices() {
-      console.log('[loadInvoices] Starting...');
       try {
         const params = new URLSearchParams();
         if (currentTypeFilter) params.append('type', currentTypeFilter);
-        params.append('limit', '100');
-
-        const token = Admin.Auth.getToken();
-        console.log('[loadInvoices] Token:', token ? 'exists' : 'MISSING');
-
-        if (!token) {
-          throw new Error('No authentication token available');
-        }
-
-        console.log('[loadInvoices] Fetching /api/admin/invoices...');
 
         const response = await fetch(`/api/admin/invoices?${params}`, {
-          headers: { 'Authorization': `Bearer ${token}` }
+          headers: { 'Authorization': `Bearer ${Admin.Auth.getToken()}` }
         });
-        console.log('[loadInvoices] Response status:', response.status);
-
-        if (!response.ok) {
-          const errorText = await response.text();
-          console.error('[loadInvoices] HTTP error:', response.status, errorText);
-          throw new Error(`HTTP ${response.status}: ${errorText.substring(0, 100)}`);
-        }
-
         const data = await response.json();
-        console.log('[loadInvoices] Got', data.invoices?.length || 0, 'invoices, success:', data.success);
-
         if (data.success) {
           allInvoices = data.invoices || [];
-          console.log('[loadInvoices] Calling populateOrderFilter...');
           populateOrderFilter(allInvoices);
-          console.log('[loadInvoices] Calling renderInvoices...');
           renderInvoices(allInvoices);
-          console.log('[loadInvoices] Done!');
-        } else {
-          console.error('[loadInvoices] API error:', data.error);
-          if (data.error && data.error.includes('Authentication')) {
-            Admin.Auth.logout();
-            window.location.href = '/admin/login.html';
-            return;
-          }
-          throw new Error(data.error || 'Failed to load invoices');
         }
       } catch (error) {
-        console.error('[loadInvoices] Exception:', error);
-        const errorMsg = error.message || 'Unknown error';
-        // Check if it's an auth error
-        const isAuthError = errorMsg.includes('Authentication') || errorMsg.includes('token') || errorMsg.includes('401') || errorMsg.includes('login');
+        Admin.Toast.error('Failed to load invoices');
         document.getElementById('invoices-table').innerHTML = `
           <tr>
-            <td colspan="11" style="text-align: center; padding: 60px; color: red;">
-              <strong>ERROR:</strong> ${errorMsg}
-              <br><br>
-              ${isAuthError ? '<strong>You need to login again.</strong><br>' : ''}
-              <a href="/admin/login.html" style="color: blue; font-weight: bold;">Go to Login</a>
-              &nbsp;|&nbsp;
-              <a href="#" onclick="location.reload()" style="color: blue;">Reload Page</a>
+            <td colspan="10" style="text-align: center; padding: 60px; color: var(--admin-text-secondary);">
+              Failed to load invoices. <a href="#" onclick="loadInvoices(); return false;">Try again</a>
             </td>
           </tr>
         `;
-        throw error;
       }
-    }
-
-    // Get product types from invoice items
-    function getInvoiceProductTypes(invoice) {
-      const types = new Set();
-      (invoice.items || []).forEach(item => {
-        if (item.isAccessory) return;
-        const pt = getItemProductType(item);
-        types.add(pt);
-      });
-      return [...types];
-    }
-
-    // Get product types badges for list view
-    function getProductTypesBadges(types) {
-      if (!types || types.length === 0) return '-';
-      return types.map(type => getProductTypeBadge(type)).join(' ');
     }
 
     function renderInvoices(invoices) {
@@ -623,7 +472,7 @@
       if (!invoices || invoices.length === 0) {
         tbody.innerHTML = `
           <tr>
-            <td colspan="11" class="empty-state">
+            <td colspan="10" class="empty-state">
               <svg xmlns="http://www.w3.org/2000/svg" class="empty-state-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
               </svg>
@@ -636,9 +485,7 @@
         return;
       }
 
-      tbody.innerHTML = invoices.map(inv => {
-        const productTypes = getInvoiceProductTypes(inv);
-        return `
+      tbody.innerHTML = invoices.map(inv => `
         <tr data-id="${inv.id}">
           <td>
             <a href="#" onclick="viewInvoice('${inv.id}'); return false;" class="invoice-number">
@@ -649,7 +496,6 @@
           <td>
             <span class="badge badge-${inv.type}">${inv.type === 'customer' ? 'Customer' : 'Manufacturer'}</span>
           </td>
-          <td>${getProductTypesBadges(productTypes)}</td>
           <td>
             <a href="/admin/orders.html?id=${inv.orderId}" style="color: var(--admin-primary); text-decoration: none;">
               ${Admin.Utils.escapeHtml(inv.orderNumber || '-')}
@@ -768,46 +614,12 @@
       try { return JSON.parse(configStr); } catch (e) { return {}; }
     }
 
-    // Get product type from item
-    function getItemProductType(item) {
-      if (item.product_type) return item.product_type;
-      const slug = item.product_slug || '';
-      const name = (item.product_name || '').toLowerCase();
-      if (slug.includes('zebra') || name.includes('zebra')) return 'zebra';
-      if (slug.includes('honeycomb') || slug.includes('cellular') || name.includes('honeycomb') || name.includes('cellular')) return 'honeycomb';
-      if (slug.includes('roman') || name.includes('roman')) return 'roman';
-      return 'roller';
-    }
-
-    // Get badge HTML for product type
-    function getProductTypeBadge(type) {
-      const styles = {
-        roller: { bg: '#dbeafe', color: '#1e40af', label: 'Roller' },
-        zebra: { bg: '#fef3c7', color: '#92400e', label: 'Zebra' },
-        honeycomb: { bg: '#d1fae5', color: '#065f46', label: 'Honeycomb' },
-        roman: { bg: '#fce7f3', color: '#9d174d', label: 'Roman' }
-      };
-      const style = styles[type] || styles.roller;
-      return '<span style="display: inline-block; padding: 2px 6px; background: ' + style.bg + '; color: ' + style.color + '; border-radius: 4px; font-size: 9px; font-weight: 600;">' + style.label + '</span>';
-    }
-
     async function viewInvoice(id) {
-      console.log('[viewInvoice] Called with id:', id);
-      // Show visual feedback that button was clicked
-      Admin.Toast.info('Loading invoice details...');
       try {
-        const token = Admin.Auth.getToken();
-        console.log('[viewInvoice] Token:', token ? 'exists' : 'MISSING');
-        if (!token) {
-          Admin.Toast.error('Not authenticated. Please login again.');
-          return;
-        }
         const response = await fetch(`/api/admin/invoices/${id}`, {
-          headers: { 'Authorization': `Bearer ${token}` }
+          headers: { 'Authorization': `Bearer ${Admin.Auth.getToken()}` }
         });
-        console.log('[viewInvoice] Response status:', response.status);
         const data = await response.json();
-        console.log('[viewInvoice] Data success:', data.success);
         if (data.success) {
           currentInvoice = data.invoice;
           const inv = data.invoice;
@@ -851,11 +663,10 @@
             <!-- Order Items Table with Customer Selections -->
             <h5 style="margin-bottom: 12px; font-size: 13px; text-transform: uppercase; color: var(--admin-text-secondary);">Order Items (${inv.items?.length || 0} items)</h5>
             <div style="overflow-x: auto; margin-bottom: 24px;">
-              <table style="width: 100%; border-collapse: collapse; border: 2px solid #1a1a2e; min-width: 1800px;">
+              <table style="width: 100%; border-collapse: collapse; border: 2px solid #1a1a2e; min-width: 1700px;">
                 <thead>
                   <tr style="background: #1a1a2e; color: white;">
                     <th style="padding: 8px 5px; text-align: center; font-size: 10px; border: 1px solid #374151;">#</th>
-                    <th style="padding: 8px 5px; text-align: center; font-size: 10px; border: 1px solid #374151;">TYPE</th>
                     <th style="padding: 8px 5px; text-align: left; font-size: 10px; border: 1px solid #374151;">ROOM</th>
                     <th style="padding: 8px 5px; text-align: center; font-size: 10px; border: 1px solid #374151;">QTY</th>
                     <th style="padding: 8px 5px; text-align: center; font-size: 10px; border: 1px solid #374151;">W x H</th>
@@ -886,7 +697,6 @@
                       <tr style="background: #eff6ff;">
                         <td style="padding: 6px 5px; text-align: center; font-size: 11px; border: 1px solid #ddd; font-weight: 700;">${idx + 1}</td>
                         <td style="padding: 6px 5px; font-size: 10px; border: 1px solid #ddd; color: #9ca3af;">-</td>
-                        <td style="padding: 6px 5px; font-size: 10px; border: 1px solid #ddd; color: #9ca3af;">-</td>
                         <td style="padding: 6px 5px; text-align: center; font-size: 11px; border: 1px solid #ddd; font-weight: 700; background: #dbeafe;">${item.quantity || 1}</td>
                         <td colspan="15" style="padding: 6px 5px; font-size: 11px; border: 1px solid #ddd; color: #1e40af; font-weight: 600;">
                           <span style="background: #1e40af; color: white; padding: 2px 8px; border-radius: 4px; font-size: 9px; margin-right: 8px;">ACCESSORY</span>
@@ -896,14 +706,10 @@
                         <td style="padding: 6px 5px; text-align: right; font-size: 11px; border: 1px solid #ddd; font-weight: 700; color: #1e40af;">${Admin.Utils.formatCurrency(item.lineTotal || 0)}</td>
                       </tr>`;
                     }
-                    // Determine product type
-                    const productType = getItemProductType(item);
-                    const typeBadge = getProductTypeBadge(productType);
                     // Regular blind item
                     return `
                     <tr style="background: ${idx % 2 === 0 ? '#fff' : '#f9fafb'};">
                       <td style="padding: 6px 5px; text-align: center; font-size: 11px; border: 1px solid #ddd; font-weight: 700;">${idx + 1}</td>
-                      <td style="padding: 6px 5px; text-align: center; font-size: 10px; border: 1px solid #ddd;">${typeBadge}</td>
                       <td style="padding: 6px 5px; font-size: 10px; border: 1px solid #ddd; color: #3b82f6; font-weight: 600;">${Admin.Utils.escapeHtml(item.roomLabel || item.room_label || '-')}</td>
                       <td style="padding: 6px 5px; text-align: center; font-size: 11px; border: 1px solid #ddd; font-weight: 700; background: #fef3c7;">${item.quantity}</td>
                       <td style="padding: 6px 5px; text-align: center; font-size: 10px; border: 1px solid #ddd;">${item.width || '-'}" x ${item.height || '-'}"</td>
@@ -928,69 +734,6 @@
                 </tbody>
               </table>
             </div>
-
-            <!-- Price Breakdown - CUSTOMER PRICES ONLY -->
-            <h5 style="margin-bottom: 12px; font-size: 13px; text-transform: uppercase; color: #8E6545; font-weight: 600;">
-              Price Breakdown
-            </h5>
-            ${(inv.items || []).filter(item => !item.isAccessory).map((item, idx) => {
-              const pricing = item.pricing || {};
-              const optionsBreakdown = item.optionsBreakdown || [];
-              const accessoriesBreakdown = item.accessoriesBreakdown || [];
-
-              // Customer prices only
-              const baseCustPrice = pricing.fabricBasePrice || pricing.basePrice || 0;
-              const optionsCustTotal = pricing.optionsTotal || optionsBreakdown.reduce((sum, opt) => sum + (opt.price || 0), 0);
-              const accCustTotal = pricing.accessoriesTotal || accessoriesBreakdown.reduce((sum, acc) => sum + (acc.price || 0), 0);
-              const totalCustPrice = baseCustPrice + optionsCustTotal + accCustTotal;
-
-              return '<div style="background: #fff; border: 1px solid #e5e7eb; border-radius: 8px; margin-bottom: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.05); overflow: hidden;">' +
-                '<div style="display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; background: linear-gradient(135deg, #8E6545 0%, #A67C5B 100%); color: white;">' +
-                  '<span style="font-weight: 600; font-size: 14px;">Item ' + (idx + 1) + ': ' + Admin.Utils.escapeHtml(item.roomLabel || 'Blind') + ' (' + item.width + '" × ' + item.height + '")</span>' +
-                  '<span style="font-size: 12px; background: rgba(255,255,255,0.2); padding: 4px 12px; border-radius: 12px;">Qty: ' + item.quantity + '</span>' +
-                '</div>' +
-                '<table style="width: 100%; border-collapse: collapse;">' +
-                  '<thead>' +
-                    '<tr style="background: #f8f9fa;">' +
-                      '<th style="padding: 10px 16px; text-align: left; font-size: 11px; font-weight: 600; color: #6b7280; text-transform: uppercase; border-bottom: 2px solid #e5e7eb;">Component</th>' +
-                      '<th style="padding: 10px 16px; text-align: right; font-size: 11px; font-weight: 600; color: #059669; text-transform: uppercase; border-bottom: 2px solid #e5e7eb; background: #f0fdf4;">Price</th>' +
-                    '</tr>' +
-                  '</thead>' +
-                  '<tbody>' +
-                    '<tr style="background: #fff;">' +
-                      '<td style="padding: 10px 16px; border-bottom: 1px solid #e5e7eb; font-weight: 600; color: #374151;">Base Fabric</td>' +
-                      '<td style="padding: 10px 16px; border-bottom: 1px solid #e5e7eb; text-align: right; font-weight: 600; color: #059669; background: #f0fdf4;">$' + baseCustPrice.toFixed(2) + '</td>' +
-                    '</tr>' +
-                    (optionsBreakdown.length > 0 ? '<tr style="background: #fafafa;"><td colspan="2" style="padding: 8px 16px; font-size: 11px; font-weight: 600; color: #6b7280; text-transform: uppercase; border-bottom: 1px solid #e5e7eb;">Options</td></tr>' : '') +
-                    optionsBreakdown.map(opt => {
-                      return '<tr style="background: #fff;">' +
-                        '<td style="padding: 8px 16px; padding-left: 32px; border-bottom: 1px solid #f3f4f6; color: #374151; font-size: 13px;">' + Admin.Utils.escapeHtml(opt.name) + '</td>' +
-                        '<td style="padding: 8px 16px; border-bottom: 1px solid #f3f4f6; text-align: right; color: #059669; background: #f8fdf9;">$' + (opt.price || 0).toFixed(2) + '</td>' +
-                      '</tr>';
-                    }).join('') +
-                    (optionsBreakdown.length > 0 ? '<tr style="background: #f9fafb;">' +
-                      '<td style="padding: 8px 16px; border-bottom: 1px solid #e5e7eb; font-weight: 600; color: #6b7280; font-size: 12px;">Options Subtotal</td>' +
-                      '<td style="padding: 8px 16px; border-bottom: 1px solid #e5e7eb; text-align: right; font-weight: 600; color: #059669; background: #f0fdf4;">$' + optionsCustTotal.toFixed(2) + '</td>' +
-                    '</tr>' : '') +
-                    (accessoriesBreakdown.length > 0 ? '<tr style="background: #fafafa;"><td colspan="2" style="padding: 8px 16px; font-size: 11px; font-weight: 600; color: #6b7280; text-transform: uppercase; border-bottom: 1px solid #e5e7eb;">Accessories</td></tr>' : '') +
-                    accessoriesBreakdown.map(acc => {
-                      return '<tr style="background: #fff;">' +
-                        '<td style="padding: 8px 16px; padding-left: 32px; border-bottom: 1px solid #f3f4f6; color: #374151; font-size: 13px;">' + Admin.Utils.escapeHtml(acc.name) + '</td>' +
-                        '<td style="padding: 8px 16px; border-bottom: 1px solid #f3f4f6; text-align: right; color: #059669; background: #f8fdf9;">$' + (acc.price || 0).toFixed(2) + '</td>' +
-                      '</tr>';
-                    }).join('') +
-                    (accessoriesBreakdown.length > 0 ? '<tr style="background: #f9fafb;">' +
-                      '<td style="padding: 8px 16px; border-bottom: 2px solid #e5e7eb; font-weight: 600; color: #6b7280; font-size: 12px;">Accessories Subtotal</td>' +
-                      '<td style="padding: 8px 16px; border-bottom: 2px solid #e5e7eb; text-align: right; font-weight: 600; color: #059669; background: #f0fdf4;">$' + accCustTotal.toFixed(2) + '</td>' +
-                    '</tr>' : '') +
-                    '<tr style="background: linear-gradient(135deg, #fdf8f5 0%, #fff 100%);">' +
-                      '<td style="padding: 12px 16px; font-weight: 700; color: #8E6545; font-size: 14px;">ITEM TOTAL</td>' +
-                      '<td style="padding: 12px 16px; text-align: right; font-weight: 700; font-size: 14px; color: #059669; background: rgba(5, 150, 105, 0.1);">$' + (item.lineTotal || totalCustPrice).toFixed(2) + '</td>' +
-                    '</tr>' +
-                  '</tbody>' +
-                '</table>' +
-              '</div>';
-            }).join('')}
 
             <!-- Accessories Breakdown - Match Orders Page Format -->
             ${(() => {
@@ -1127,14 +870,8 @@
     }
 
     function showPaymentModal(id) {
-      console.log('[showPaymentModal] Called with id:', id);
       const inv = allInvoices.find(i => i.id === id);
-      console.log('[showPaymentModal] Invoice found:', inv ? 'yes' : 'no');
-      if (!inv) {
-        console.error('[showPaymentModal] Invoice not found in allInvoices array');
-        Admin.Toast.error('Invoice not found');
-        return;
-      }
+      if (!inv) return;
 
       document.getElementById('payment-invoice-id').value = id;
       document.getElementById('payment-invoice-info').textContent = inv.invoiceNumber;
@@ -1185,13 +922,11 @@
     }
 
     async function markAsSent(id) {
-      console.log('[markAsSent] Called with id:', id);
       try {
         const response = await fetch(`/api/admin/invoices/${id}/send`, {
           method: 'POST',
           headers: { 'Authorization': `Bearer ${Admin.Auth.getToken()}` }
         });
-        console.log('[markAsSent] Response status:', response.status);
 
         const data = await response.json();
         if (data.success) {
