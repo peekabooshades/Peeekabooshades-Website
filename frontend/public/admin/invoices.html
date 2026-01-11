@@ -184,6 +184,9 @@
             </svg>
             Generate Missing
           </button>
+          <button onclick="Admin.AuthAPI.logout();" class="btn btn-logout" style="background: #dc3545; color: white; padding: 8px 16px; border: none; border-radius: 6px; cursor: pointer; font-size: 14px; margin-left: 10px;">
+            Logout
+          </button>
           <div class="dropdown" style="margin-left: 16px;">
             <div class="header-profile">
               <div class="profile-avatar">A</div>
@@ -660,79 +663,82 @@
               </tbody>
             </table>
 
-            <!-- Order Items Table with Customer Selections -->
+            <!-- Order Items - Card Layout -->
             <h5 style="margin-bottom: 12px; font-size: 13px; text-transform: uppercase; color: var(--admin-text-secondary);">Order Items (${inv.items?.length || 0} items)</h5>
-            <div style="overflow-x: auto; margin-bottom: 24px;">
-              <table style="width: 100%; border-collapse: collapse; border: 2px solid #1a1a2e; min-width: 1700px;">
-                <thead>
-                  <tr style="background: #1a1a2e; color: white;">
-                    <th style="padding: 8px 5px; text-align: center; font-size: 10px; border: 1px solid #374151;">#</th>
-                    <th style="padding: 8px 5px; text-align: left; font-size: 10px; border: 1px solid #374151;">ROOM</th>
-                    <th style="padding: 8px 5px; text-align: center; font-size: 10px; border: 1px solid #374151;">QTY</th>
-                    <th style="padding: 8px 5px; text-align: center; font-size: 10px; border: 1px solid #374151;">W x H</th>
-                    <th style="padding: 8px 5px; text-align: left; font-size: 10px; border: 1px solid #374151;">FABRIC</th>
-                    <th style="padding: 8px 5px; text-align: left; font-size: 10px; border: 1px solid #374151;">LIGHT</th>
-                    <th style="padding: 8px 5px; text-align: left; font-size: 10px; border: 1px solid #374151;">CASSETTE</th>
-                    <th style="padding: 8px 5px; text-align: left; font-size: 10px; border: 1px solid #374151;">BOTTOM BAR</th>
-                    <th style="padding: 8px 5px; text-align: left; font-size: 10px; border: 1px solid #374151;">ROLL</th>
-                    <th style="padding: 8px 5px; text-align: left; font-size: 10px; border: 1px solid #374151;">MOUNT</th>
-                    <th style="padding: 8px 5px; text-align: left; font-size: 10px; border: 1px solid #374151;">CHAIN SIDE</th>
-                    <th style="padding: 8px 5px; text-align: left; font-size: 10px; border: 1px solid #374151;">CONTROL</th>
-                    <th style="padding: 8px 5px; text-align: left; font-size: 10px; border: 1px solid #374151;">MOTOR BRAND</th>
-                    <th style="padding: 8px 5px; text-align: left; font-size: 10px; border: 1px solid #374151;">MOTOR TYPE</th>
-                    <th style="padding: 8px 5px; text-align: left; font-size: 10px; border: 1px solid #374151;">REMOTE</th>
-                    <th style="padding: 8px 5px; text-align: center; font-size: 10px; border: 1px solid #374151;">SOLAR</th>
-                    <th style="padding: 8px 5px; text-align: center; font-size: 10px; border: 1px solid #374151;">SMART HUB</th>
-                    <th style="padding: 8px 5px; text-align: center; font-size: 10px; border: 1px solid #374151;">USB</th>
-                    <th style="padding: 8px 5px; text-align: right; font-size: 10px; border: 1px solid #374151;">UNIT</th>
-                    <th style="padding: 8px 5px; text-align: right; font-size: 10px; border: 1px solid #374151;">TOTAL</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  ${(inv.items || []).map((item, idx) => {
-                    const cfg = parseConfig(item.configuration || item.options);
-                    // Check if this is an accessory item
-                    if (item.isAccessory) {
-                      return `
-                      <tr style="background: #eff6ff;">
-                        <td style="padding: 6px 5px; text-align: center; font-size: 11px; border: 1px solid #ddd; font-weight: 700;">${idx + 1}</td>
-                        <td style="padding: 6px 5px; font-size: 10px; border: 1px solid #ddd; color: #9ca3af;">-</td>
-                        <td style="padding: 6px 5px; text-align: center; font-size: 11px; border: 1px solid #ddd; font-weight: 700; background: #dbeafe;">${item.quantity || 1}</td>
-                        <td colspan="15" style="padding: 6px 5px; font-size: 11px; border: 1px solid #ddd; color: #1e40af; font-weight: 600;">
-                          <span style="background: #1e40af; color: white; padding: 2px 8px; border-radius: 4px; font-size: 9px; margin-right: 8px;">ACCESSORY</span>
-                          ${Admin.Utils.escapeHtml(item.description || 'Accessory')} ${item.details ? '(' + Admin.Utils.escapeHtml(item.details) + ')' : ''}
-                        </td>
-                        <td style="padding: 6px 5px; text-align: right; font-size: 11px; border: 1px solid #ddd;">${Admin.Utils.formatCurrency(item.unitPrice || 0)}</td>
-                        <td style="padding: 6px 5px; text-align: right; font-size: 11px; border: 1px solid #ddd; font-weight: 700; color: #1e40af;">${Admin.Utils.formatCurrency(item.lineTotal || 0)}</td>
-                      </tr>`;
-                    }
-                    // Regular blind item
-                    return `
-                    <tr style="background: ${idx % 2 === 0 ? '#fff' : '#f9fafb'};">
-                      <td style="padding: 6px 5px; text-align: center; font-size: 11px; border: 1px solid #ddd; font-weight: 700;">${idx + 1}</td>
-                      <td style="padding: 6px 5px; font-size: 10px; border: 1px solid #ddd; color: #3b82f6; font-weight: 600;">${Admin.Utils.escapeHtml(item.roomLabel || item.room_label || '-')}</td>
-                      <td style="padding: 6px 5px; text-align: center; font-size: 11px; border: 1px solid #ddd; font-weight: 700; background: #fef3c7;">${item.quantity}</td>
-                      <td style="padding: 6px 5px; text-align: center; font-size: 10px; border: 1px solid #ddd;">${item.width || '-'}" x ${item.height || '-'}"</td>
-                      <td style="padding: 6px 5px; font-size: 10px; border: 1px solid #ddd; font-weight: 600;">${cfg.fabricCode || '-'}</td>
-                      <td style="padding: 6px 5px; font-size: 10px; border: 1px solid #ddd;">${cfg.lightFiltering || '-'}</td>
-                      <td style="padding: 6px 5px; font-size: 10px; border: 1px solid #ddd;">${cfg.standardCassette || '-'}</td>
-                      <td style="padding: 6px 5px; font-size: 10px; border: 1px solid #ddd;">${cfg.standardBottomBar || '-'}</td>
-                      <td style="padding: 6px 5px; font-size: 10px; border: 1px solid #ddd;">${cfg.rollerType || '-'}</td>
-                      <td style="padding: 6px 5px; font-size: 10px; border: 1px solid #ddd;">${cfg.mountType || '-'}</td>
-                      <td style="padding: 6px 5px; font-size: 10px; border: 1px solid #ddd;">${cfg.chainSide || '-'}</td>
-                      <td style="padding: 6px 5px; font-size: 10px; border: 1px solid #ddd;">${cfg.controlType || '-'}</td>
-                      <td style="padding: 6px 5px; font-size: 10px; border: 1px solid #ddd;">${cfg.motorBrand || cfg.chainType || '-'}</td>
-                      <td style="padding: 6px 5px; font-size: 10px; border: 1px solid #ddd;">${cfg.motorType || '-'}</td>
-                      <td style="padding: 6px 5px; font-size: 10px; border: 1px solid #ddd;">${cfg.remoteType || '-'}</td>
-                      <td style="padding: 6px 5px; text-align: center; font-size: 10px; border: 1px solid #ddd; ${cfg.solarType === 'yes' ? 'background: #d1fae5; color: #065f46; font-weight: 600;' : ''}">${cfg.solarType === 'yes' ? 'YES' : '-'}</td>
-                      <td style="padding: 6px 5px; text-align: center; font-size: 10px; border: 1px solid #ddd;">-</td>
-                      <td style="padding: 6px 5px; text-align: center; font-size: 10px; border: 1px solid #ddd;">-</td>
-                      <td style="padding: 6px 5px; text-align: right; font-size: 11px; border: 1px solid #ddd;">${Admin.Utils.formatCurrency(item.unitPrice)}</td>
-                      <td style="padding: 6px 5px; text-align: right; font-size: 11px; border: 1px solid #ddd; font-weight: 700; color: #065f46;">${Admin.Utils.formatCurrency(item.lineTotal)}</td>
-                    </tr>`;
-                  }).join('')}
-                </tbody>
-              </table>
+            <div style="margin-bottom: 24px;">
+              ${(inv.items || []).map((item, idx) => {
+                const cfg = parseConfig(item.configuration || item.options);
+                // Check if this is an accessory item
+                if (item.isAccessory) {
+                  return `
+                  <div style="background: #eff6ff; border: 1px solid #dbeafe; border-radius: 8px; padding: 12px; margin-bottom: 12px;">
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                      <div>
+                        <span style="background: #1e40af; color: white; padding: 2px 8px; border-radius: 4px; font-size: 10px; margin-right: 8px;">ACCESSORY</span>
+                        <span style="font-weight: 600; color: #1e40af;">${Admin.Utils.escapeHtml(item.description || 'Accessory')}</span>
+                        ${item.details ? '<span style="color: #6b7280; margin-left: 8px;">(' + Admin.Utils.escapeHtml(item.details) + ')</span>' : ''}
+                      </div>
+                      <div style="text-align: right;">
+                        <div style="font-size: 11px; color: #6b7280;">Qty: ${item.quantity || 1}</div>
+                        <div style="font-size: 14px; font-weight: 700; color: #1e40af;">${Admin.Utils.formatCurrency(item.lineTotal || 0)}</div>
+                      </div>
+                    </div>
+                  </div>`;
+                }
+                // Regular blind item - Card layout
+                return `
+                <div style="background: ${idx % 2 === 0 ? '#fff' : '#f9fafb'}; border: 2px solid #1a1a2e; border-radius: 8px; padding: 16px; margin-bottom: 12px;">
+                  <!-- Header Row -->
+                  <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px solid #e5e7eb;">
+                    <div>
+                      <span style="background: #1a1a2e; color: white; padding: 2px 8px; border-radius: 4px; font-size: 10px; margin-right: 8px;">#${idx + 1}</span>
+                      <span style="font-weight: 600; color: #3b82f6; font-size: 14px;">${Admin.Utils.escapeHtml(item.roomLabel || item.room_label || 'Item ' + (idx + 1))}</span>
+                    </div>
+                    <div style="text-align: right;">
+                      <div style="font-size: 12px; color: #6b7280;">Qty: <span style="font-weight: 700; color: #1a1a2e;">${item.quantity}</span></div>
+                      <div style="font-size: 16px; font-weight: 700; color: #065f46;">${Admin.Utils.formatCurrency(item.lineTotal)}</div>
+                    </div>
+                  </div>
+
+                  <!-- Dimensions & Fabric -->
+                  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 12px;">
+                    <div style="background: #fef3c7; padding: 8px 12px; border-radius: 6px;">
+                      <div style="font-size: 10px; color: #92400e; text-transform: uppercase; margin-bottom: 2px;">Dimensions</div>
+                      <div style="font-size: 14px; font-weight: 700; color: #1a1a2e;">${item.width || '-'}" x ${item.height || '-'}"</div>
+                    </div>
+                    <div style="background: #dbeafe; padding: 8px 12px; border-radius: 6px;">
+                      <div style="font-size: 10px; color: #1e40af; text-transform: uppercase; margin-bottom: 2px;">Fabric Code</div>
+                      <div style="font-size: 14px; font-weight: 700; color: #1a1a2e;">${cfg.fabricCode || '-'}</div>
+                    </div>
+                    ${cfg.lightFiltering ? `
+                    <div style="background: #f3e8ff; padding: 8px 12px; border-radius: 6px;">
+                      <div style="font-size: 10px; color: #7c3aed; text-transform: uppercase; margin-bottom: 2px;">Light Filtering</div>
+                      <div style="font-size: 12px; font-weight: 600; color: #1a1a2e;">${cfg.lightFiltering}</div>
+                    </div>` : ''}
+                  </div>
+
+                  <!-- Configuration Details - 2 Column Grid -->
+                  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 11px;">
+                    ${cfg.standardCassette ? `<div><span style="color: #6b7280;">Cassette:</span> <span style="font-weight: 500;">${cfg.standardCassette}</span></div>` : ''}
+                    ${cfg.standardBottomBar ? `<div><span style="color: #6b7280;">Bottom Bar:</span> <span style="font-weight: 500;">${cfg.standardBottomBar}</span></div>` : ''}
+                    ${cfg.valanceType ? `<div><span style="color: #6b7280;">Valance:</span> <span style="font-weight: 500;">${cfg.valanceType}</span></div>` : ''}
+                    ${cfg.bottomRail ? `<div><span style="color: #6b7280;">Bottom Rail:</span> <span style="font-weight: 500;">${cfg.bottomRail}</span></div>` : ''}
+                    ${cfg.rollerType ? `<div><span style="color: #6b7280;">Roll Type:</span> <span style="font-weight: 500;">${cfg.rollerType}</span></div>` : ''}
+                    ${cfg.mountType ? `<div><span style="color: #6b7280;">Mount:</span> <span style="font-weight: 500;">${cfg.mountType}</span></div>` : ''}
+                    ${cfg.chainSide ? `<div><span style="color: #6b7280;">Chain Side:</span> <span style="font-weight: 500;">${cfg.chainSide}</span></div>` : ''}
+                    ${cfg.controlType ? `<div><span style="color: #6b7280;">Control:</span> <span style="font-weight: 500;">${cfg.controlType}</span></div>` : ''}
+                    ${cfg.motorBrand || cfg.chainType ? `<div><span style="color: #6b7280;">Motor/Chain:</span> <span style="font-weight: 500;">${cfg.motorBrand || cfg.chainType}</span></div>` : ''}
+                    ${cfg.motorType ? `<div><span style="color: #6b7280;">Motor Type:</span> <span style="font-weight: 500;">${cfg.motorType}</span></div>` : ''}
+                    ${cfg.remoteType ? `<div><span style="color: #6b7280;">Remote:</span> <span style="font-weight: 500;">${cfg.remoteType}</span></div>` : ''}
+                    ${cfg.solarType === 'yes' ? `<div><span style="color: #6b7280;">Solar:</span> <span style="font-weight: 600; color: #065f46; background: #d1fae5; padding: 1px 6px; border-radius: 4px;">YES</span></div>` : ''}
+                  </div>
+
+                  <!-- Unit Price -->
+                  <div style="margin-top: 12px; padding-top: 8px; border-top: 1px dashed #e5e7eb; text-align: right; font-size: 11px; color: #6b7280;">
+                    Unit Price: ${Admin.Utils.formatCurrency(item.unitPrice)}
+                  </div>
+                </div>`;
+              }).join('')}
             </div>
 
             <!-- Accessories Breakdown - Match Orders Page Format -->

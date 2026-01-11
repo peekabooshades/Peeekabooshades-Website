@@ -9236,7 +9236,7 @@
       "name": "Admin",
       "role": "admin",
       "createdAt": "2025-01-01T00:00:00.000Z",
-      "lastLogin": "2026-01-11T03:37:57.959Z"
+      "lastLogin": "2026-01-11T16:08:33.987Z"
     },
     {
       "id": "f94f0fc3-d028-4738-bbb2-c937c3c69a38",
@@ -9250,7 +9250,7 @@
       ],
       "createdAt": "2026-01-11T04:20:14.058Z",
       "updatedAt": "2026-01-11T04:20:14.059Z",
-      "lastLogin": "2026-01-11T04:32:30.043Z"
+      "lastLogin": "2026-01-11T16:07:22.832Z"
     }
   ],
   "settings": {
@@ -10873,8 +10873,7 @@
           "description": "Square cassette design",
           "isDefault": true,
           "isActive": true,
-          "sortOrder": 1,
-          "image": "/images/hardware/zebra/zebra_valance_p12_img3_1142x1089.jpeg"
+          "sortOrder": 1
         },
         {
           "id": "v3-fabric-wrapped",
@@ -10883,11 +10882,13 @@
           "price": 3.15,
           "priceType": "sqm",
           "imageUrl": "/images/hardware/zebra/page12_valance_img10_1091x1117.jpeg",
-          "description": "Fabric wrapped V3 cassette",
+          "description": "Fabric wrapped V3 cassette with rounded side cover",
           "isDefault": false,
           "isActive": true,
           "sortOrder": 2,
-          "image": "/images/hardware/zebra/zebra_valance_p12_img5_1468x1595.png"
+          "manufacturerCost": 2.2,
+          "margin": 43,
+          "image": "/images/hardware/zebra/page12_valance_img10_1091x1117.jpeg"
         },
         {
           "id": "sa-fabric-wrapped",
@@ -10896,11 +10897,13 @@
           "price": 3.15,
           "priceType": "sqm",
           "imageUrl": "/images/hardware/zebra/page12_valance_img3_1142x1089.jpeg",
-          "description": "Fabric wrapped SA cassette",
+          "description": "Fabric wrapped SA cassette with rounded side cover",
           "isDefault": false,
           "isActive": true,
           "sortOrder": 3,
-          "image": "/images/hardware/zebra/zebra_valance_p12_img6_1510x1631.png"
+          "manufacturerCost": 2.2,
+          "margin": 43,
+          "image": "/images/hardware/zebra/page12_valance_img3_1142x1089.jpeg"
         },
         {
           "id": "s1-fabric-inserted",
@@ -10909,11 +10912,12 @@
           "price": 3.19,
           "priceType": "sqm",
           "imageUrl": "/images/hardware/zebra/page12_valance_img9_1337x1532.jpeg",
-          "description": "Fabric inserted S1 cassette",
+          "description": "Curved cassette with fabric insert",
           "isDefault": false,
           "isActive": true,
           "sortOrder": 4,
-          "image": "/images/hardware/zebra/zebra_valance_p12_img7_883x1049.jpeg"
+          "manufacturerCost": 2.2,
+          "margin": 45
         },
         {
           "id": "s2-curve-white",
@@ -10922,11 +10926,10 @@
           "price": 3.12,
           "priceType": "sqm",
           "imageUrl": "/images/hardware/zebra/page12_valance_img5_1468x1595.png",
-          "description": "Curved white S2 cassette",
+          "description": "Smooth curved white cassette",
           "isDefault": false,
           "isActive": true,
-          "sortOrder": 5,
-          "image": "/images/hardware/zebra/zebra_valance_p12_img8_915x1006.jpeg"
+          "sortOrder": 5
         },
         {
           "id": "s3-fabric-wrapped",
@@ -10935,11 +10938,12 @@
           "price": 3.12,
           "priceType": "sqm",
           "imageUrl": "/images/hardware/zebra/page12_valance_img6_1510x1631.png",
-          "description": "Fabric wrapped S3 cassette",
+          "description": "Large rounded fabric wrapped cassette",
           "isDefault": false,
           "isActive": true,
           "sortOrder": 6,
-          "image": "/images/hardware/zebra/zebra_valance_p12_img9_1337x1532.jpeg"
+          "manufacturerCost": 2.2,
+          "margin": 42
         },
         {
           "id": "z3-standard",
@@ -10948,11 +10952,10 @@
           "price": 0,
           "priceType": "flat",
           "imageUrl": "/images/hardware/zebra/page12_valance_img7_883x1049.jpeg",
-          "description": "Z3 standard cassette",
+          "description": "Full blind with white square valance",
           "isDefault": false,
           "isActive": true,
-          "sortOrder": 7,
-          "image": "/images/hardware/zebra/zebra_valance_p12_img4_1159x983.jpeg"
+          "sortOrder": 7
         },
         {
           "id": "z3-fabric-wrapped",
@@ -10961,11 +10964,12 @@
           "price": 3.5,
           "priceType": "sqm",
           "imageUrl": "/images/hardware/zebra/page12_valance_img8_915x1006.jpeg",
-          "description": "Fabric wrapped Z3 cassette",
+          "description": "Chevron pattern fabric wrapped valance",
           "isDefault": false,
           "isActive": true,
           "sortOrder": 8,
-          "image": "/images/hardware/zebra/zebra_valance_p12_img10_1091x1117.jpeg"
+          "manufacturerCost": 2.2,
+          "margin": 59
         }
       ],
       "bottomRail": [
@@ -11019,7 +11023,9 @@
           "isDefault": false,
           "isActive": true,
           "sortOrder": 4,
-          "image": "/images/zebra-hardware/bottom-rail-fabric-wrapped.png"
+          "image": "/images/zebra-hardware/bottom-rail-fabric-wrapped.png",
+          "manufacturerCost": 2.2,
+          "margin": 51
         }
       ],
       "chainSide": [
@@ -15057,6 +15063,46 @@
       "source": "direct",
       "page": "/product/affordable-custom-roller-blinds",
       "createdAt": "2026-01-11T04:53:40.550Z"
+    },
+    {
+      "id": "event-71e612ec",
+      "type": "page_view",
+      "sessionId": "sess_ddn1gpf45mk6b9s75",
+      "productId": null,
+      "value": 0,
+      "source": "direct",
+      "page": "/product/affordable-custom-roller-blinds",
+      "createdAt": "2026-01-11T16:11:20.925Z"
+    },
+    {
+      "id": "event-adb51696",
+      "type": "product_view",
+      "sessionId": "sess_ddn1gpf45mk6b9s75",
+      "productId": "b23180d5-7989-4f9d-bf28-9b210cb31256",
+      "value": 0,
+      "source": "direct",
+      "page": "/product/affordable-custom-roller-blinds",
+      "createdAt": "2026-01-11T16:11:20.941Z"
+    },
+    {
+      "id": "event-3557c871",
+      "type": "page_view",
+      "sessionId": "sess_ddn1gpf45mk6b9s75",
+      "productId": null,
+      "value": 0,
+      "source": "direct",
+      "page": "/product/affordable-custom-roller-blinds",
+      "createdAt": "2026-01-11T16:20:17.141Z"
+    },
+    {
+      "id": "event-48a4dfdc",
+      "type": "product_view",
+      "sessionId": "sess_ddn1gpf45mk6b9s75",
+      "productId": "b23180d5-7989-4f9d-bf28-9b210cb31256",
+      "value": 0,
+      "source": "direct",
+      "page": "/product/affordable-custom-roller-blinds",
+      "createdAt": "2026-01-11T16:20:17.158Z"
     }
   ],
   "notifications": [
