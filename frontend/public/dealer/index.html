@@ -299,6 +299,20 @@
     .status-badge.shipped { background: #d1fae5; color: #065f46; }
     .status-badge.delivered { background: #d1fae5; color: #065f46; }
 
+    /* Product Type Badges - TICKET-006 */
+    .product-badge {
+      display: inline-block;
+      padding: 4px 10px;
+      border-radius: 20px;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+    .product-badge.roller { background: #dbeafe; color: #1e40af; }
+    .product-badge.zebra { background: #fef3c7; color: #92400e; }
+    .product-badge.mixed { background: #e0e7ff; color: #3730a3; }
+    .product-badge.unknown { background: #f3f4f6; color: #6b7280; }
+
     /* Empty State */
     .empty-state {
       text-align: center;
@@ -466,6 +480,7 @@
               <thead>
                 <tr>
                   <th>Order #</th>
+                  <th>Product</th>
                   <th>Customer</th>
                   <th>Date</th>
                   <th>Amount</th>
@@ -476,6 +491,7 @@
                 ${result.data.map(order => `
                   <tr onclick="window.location='/dealer/orders.html?id=${order.id}'">
                     <td><span class="order-number">${order.orderNumber || order.id}</span></td>
+                    <td>${getProductTypeBadge(getOrderProductType(order))}</td>
                     <td>${order.customerName || 'N/A'}</td>
                     <td>${formatDate(order.createdAt)}</td>
                     <td>${formatCurrency(order.total)}</td>
@@ -522,6 +538,45 @@
         'cancelled': 'Cancelled'
       };
       return statusMap[status] || status;
+    }
+
+    // TICKET-006: Product type detection for dealer portal
+    function getOrderProductType(order) {
+      if (!order.items || order.items.length === 0) return 'unknown';
+
+      const types = new Set();
+      order.items.forEach(item => {
+        // Check explicit product_type field
+        if (item.product_type) {
+          types.add(item.product_type.toLowerCase());
+        }
+        // Check product name for hints
+        else if (item.productName || item.name) {
+          const name = (item.productName || item.name).toLowerCase();
+          if (name.includes('zebra')) types.add('zebra');
+          else if (name.includes('roller')) types.add('roller');
+        }
+        // Check fabric code patterns
+        else if (item.fabricCode) {
+          if (item.fabricCode.startsWith('83')) types.add('zebra');
+          else if (item.fabricCode.startsWith('82')) types.add('roller');
+        }
+      });
+
+      if (types.size === 0) return 'unknown';
+      if (types.size > 1) return 'mixed';
+      return Array.from(types)[0];
+    }
+
+    function getProductTypeBadge(type) {
+      const styles = {
+        roller: { label: 'Roller', className: 'roller' },
+        zebra: { label: 'Zebra', className: 'zebra' },
+        mixed: { label: 'Mixed', className: 'mixed' },
+        unknown: { label: 'N/A', className: 'unknown' }
+      };
+      const style = styles[type] || styles.unknown;
+      return `<span class="product-badge ${style.className}">${style.label}</span>`;
     }
 
     function logout() {

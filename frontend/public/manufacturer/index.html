@@ -584,6 +584,13 @@
         <h2 class="orders-title">Orders</h2>
         <div class="orders-filters">
           <input type="text" class="filter-input" id="filter-search" placeholder="Search order #...">
+          <select class="filter-select" id="product-type-filter" style="padding: 8px 12px; border: 1px solid #374151; border-radius: 6px; background: #1f2937; color: white;">
+            <option value="">All Products</option>
+            <option value="roller">Roller Shades</option>
+            <option value="zebra">Zebra Shades</option>
+            <option value="honeycomb">Honeycomb</option>
+            <option value="roman">Roman Shades</option>
+          </select>
           <button class="btn-refresh" onclick="loadOrders()">
             <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
@@ -599,6 +606,7 @@
             <tr>
               <th>Order #</th>
               <th>Customer</th>
+              <th>Product</th>
               <th>Items</th>
               <th>Status</th>
               <th>Date</th>
@@ -606,7 +614,7 @@
             </tr>
           </thead>
           <tbody id="orders-tbody">
-            <tr><td colspan="6"><div class="loading"><div class="spinner"></div></div></td></tr>
+            <tr><td colspan="7"><div class="loading"><div class="spinner"></div></div></td></tr>
           </tbody>
         </table>
       </div>
@@ -738,20 +746,57 @@
       }
     }
 
+    // Get product type from order
+    function getOrderProductType(order) {
+      if (!order.items || order.items.length === 0) return 'unknown';
+      const types = new Set();
+      order.items.forEach(item => {
+        let type = item.product_type || item.productType;
+        if (!type && item.product_slug) {
+          if (item.product_slug.includes('zebra')) type = 'zebra';
+          else if (item.product_slug.includes('honeycomb')) type = 'honeycomb';
+          else if (item.product_slug.includes('roman')) type = 'roman';
+          else if (item.product_slug.includes('roller')) type = 'roller';
+        }
+        if (type) types.add(type);
+      });
+      if (types.size === 0) return 'unknown';
+      if (types.size > 1) return 'mixed';
+      return [...types][0];
+    }
+
+    // Get product type badge
+    function getProductTypeBadge(type) {
+      const styles = {
+        roller: { bg: '#dbeafe', color: '#1e40af', label: 'Roller' },
+        zebra: { bg: '#fef3c7', color: '#92400e', label: 'Zebra' },
+        honeycomb: { bg: '#d1fae5', color: '#065f46', label: 'Honeycomb' },
+        roman: { bg: '#fce7f3', color: '#9d174d', label: 'Roman' },
+        mixed: { bg: '#e5e7eb', color: '#374151', label: 'Mixed' },
+        unknown: { bg: '#f3f4f6', color: '#6b7280', label: 'Unknown' }
+      };
+      const style = styles[type] || styles.unknown;
+      return `<span style="display:inline-block;padding:2px 8px;border-radius:4px;font-size:11px;font-weight:600;background:${style.bg};color:${style.color};">${style.label}</span>`;
+    }
+
     // Render orders
     function renderOrders() {
       const tbody = document.getElementById('orders-tbody');
       const search = document.getElementById('filter-search').value.toLowerCase();
+      const productTypeFilter = document.getElementById('product-type-filter').value;
 
       let filtered = orders;
       if (search) {
-        filtered = orders.filter(o => o.orderNumber.toLowerCase().includes(search));
+        filtered = filtered.filter(o => o.orderNumber.toLowerCase().includes(search));
+      }
+      if (productTypeFilter) {
+        filtered = filtered.filter(o => getOrderProductType(o) === productTypeFilter);
       }
 
       if (filtered.length === 0) {
         tbody.innerHTML = `
           <tr>
-            <td colspan="6">
+            <td colspan="7">
               <div class="empty-state">
                 <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4"/>
@@ -764,12 +809,15 @@
         return;
       }
 
-      tbody.innerHTML = filtered.map(order => `
+      tbody.innerHTML = filtered.map(order => {
+        const productType = getOrderProductType(order);
+        return `
         <tr>
           <td>
             <span class="order-number" onclick="openOrderDetail('${order.id}')">${order.orderNumber}</span>
           </td>
           <td>${escapeHtml(order.customer || 'N/A')}</td>
+          <td>${getProductTypeBadge(productType)}</td>
           <td>${order.itemCount} item${order.itemCount !== 1 ? 's' : ''}</td>
           <td><span class="status-badge ${order.status}">${formatStatus(order.status)}</span></td>
           <td>${formatDate(order.createdAt)}</td>
@@ -777,7 +825,7 @@
             <button class="btn-action primary" onclick="openOrderDetail('${order.id}')">View</button>
           </td>
         </tr>
-      `).join('');
+      `;}).join('');
     }
 
     // Open order detail modal
@@ -1471,6 +1519,7 @@
 
     // Search filter
     document.getElementById('filter-search').addEventListener('input', renderOrders);
+    document.getElementById('product-type-filter').addEventListener('change', renderOrders);
 
     // Logout
     function logout() {

@@ -311,6 +311,25 @@ const HardwareAPI = {
   }
 };
 
+// Zebra Hardware API
+const ZebraHardwareAPI = {
+  getCategory(category) {
+    return API.get(`/zebra/hardware/${category}`);
+  },
+
+  createOption(category, option) {
+    return API.post(`/zebra/hardware/${category}`, option);
+  },
+
+  updateOption(category, id, option) {
+    return API.put(`/zebra/hardware/${category}/${id}`, option);
+  },
+
+  deleteOption(category, id) {
+    return API.delete(`/zebra/hardware/${category}/${id}`);
+  }
+};
+
 // Accessories API
 const AccessoriesAPI = {
   getAll() {
@@ -782,6 +801,7 @@ window.Admin = {
   CategoriesAPI,
   FabricsAPI,
   HardwareAPI,
+  ZebraHardwareAPI,
   AccessoriesAPI,
   ProductContentAPI,
   ProductCatalogAPI,

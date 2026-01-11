@@ -2574,6 +2574,87 @@ app.get('/api/zebra/hardware', (req, res) => {
   }
 });
 
+// Get zebra hardware options by category (Admin)
+app.get('/api/admin/zebra/hardware/:category', authMiddleware, (req, res) => {
+  try {
+    const db = loadDatabase();
+    const { category } = req.params;
+    const zebraHardware = db.productContent?.zebraHardwareOptions || {};
+    const options = zebraHardware[category] || [];
+    res.json({ success: true, data: options });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Create zebra hardware option (Admin)
+app.post('/api/admin/zebra/hardware/:category', authMiddleware, (req, res) => {
+  try {
+    const db = loadDatabase();
+    const { category } = req.params;
+
+    if (!db.productContent) db.productContent = {};
+    if (!db.productContent.zebraHardwareOptions) db.productContent.zebraHardwareOptions = {};
+    if (!db.productContent.zebraHardwareOptions[category]) db.productContent.zebraHardwareOptions[category] = [];
+
+    const newOption = {
+      id: `${category}-${Date.now()}`,
+      ...req.body
+    };
+
+    db.productContent.zebraHardwareOptions[category].push(newOption);
+    saveDatabase(db);
+
+    res.json({ success: true, data: newOption });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Update zebra hardware option (Admin)
+app.put('/api/admin/zebra/hardware/:category/:id', authMiddleware, (req, res) => {
+  try {
+    const db = loadDatabase();
+    const { category, id } = req.params;
+
+    const options = db.productContent?.zebraHardwareOptions?.[category] || [];
+    const index = options.findIndex(opt => opt.id === id);
+
+    if (index === -1) {
+      return res.status(404).json({ success: false, error: 'Option not found' });
+    }
+
+    options[index] = { ...options[index], ...req.body };
+    saveDatabase(db);
+
+    res.json({ success: true, data: options[index] });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Delete zebra hardware option (Admin)
+app.delete('/api/admin/zebra/hardware/:category/:id', authMiddleware, (req, res) => {
+  try {
+    const db = loadDatabase();
+    const { category, id } = req.params;
+
+    const options = db.productContent?.zebraHardwareOptions?.[category] || [];
+    const index = options.findIndex(opt => opt.id === id);
+
+    if (index === -1) {
+      return res.status(404).json({ success: false, error: 'Option not found' });
+    }
+
+    options.splice(index, 1);
+    saveDatabase(db);
+
+    res.json({ success: true, message: 'Option deleted' });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
 // Get zebra fabrics with customer pricing
 app.get('/api/fabrics/zebra', (req, res) => {
   try {

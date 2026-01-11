@@ -1046,8 +1046,8 @@
   <div class="top-bar">
     <div class="top-bar-container">
       <div class="top-bar-left">
-        <span><i class="fas fa-phone"></i> 1-800-PEEKABOO</span>
-        <span><i class="fas fa-envelope"></i> support@peekabooshades.com</span>
+        <span><i class="fas fa-phone"></i> <span id="topBarPhone">1-800-PEEKABOO</span></span>
+        <span><i class="fas fa-envelope"></i> <span id="topBarEmail">support@peekabooshades.com</span></span>
       </div>
       <div class="top-bar-center">
         <a href="#">Free Shipping on Orders $99+</a>
@@ -1851,6 +1851,146 @@
     const MARGIN_PERCENTAGE = 40;
 
     // ============================================
+    // PAGE CONFIGURATION (Admin-controlled)
+    // ============================================
+
+    let pageConfig = null;
+
+    // Load page configuration from admin settings
+    async function loadPageConfig() {
+      try {
+        const response = await fetch('/api/product-page-content/affordable-custom-zebra-shades');
+        const result = await response.json();
+
+        if (result.success && result.data) {
+          pageConfig = result.data;
+          applyThemeColors(result.data.theme?.colors);
+          applyFonts(result.data.theme?.fonts);
+          applyProductInfo(result.data.product);
+          applyContentSections(result.data.content);
+        }
+      } catch (error) {
+        console.error('Failed to load page config:', error);
+      }
+    }
+
+    // Apply theme colors to CSS variables
+    function applyThemeColors(colors) {
+      if (!colors) return;
+
+      const root = document.documentElement;
+      if (colors.primary) {
+        root.style.setProperty('--golden-brown', colors.primary);
+        root.style.setProperty('--golden-brown-dark', colors.primaryDark || colors.primary);
+        root.style.setProperty('--dark-brown', colors.primary);
+        root.style.setProperty('--text-brown', colors.primary);
+      }
+      if (colors.textDark) root.style.setProperty('--text-dark', colors.textDark);
+      if (colors.textLight) root.style.setProperty('--text-light', colors.textLight);
+      if (colors.textMuted) root.style.setProperty('--text-muted', colors.textMuted);
+      if (colors.bgCream) root.style.setProperty('--bg-cream', colors.bgCream);
+      if (colors.bgLight) root.style.setProperty('--bg-light', colors.bgLight);
+      if (colors.bgWhite) root.style.setProperty('--bg-white', colors.bgWhite);
+      if (colors.borderLight) root.style.setProperty('--border-light', colors.borderLight);
+      if (colors.borderMedium) root.style.setProperty('--border-medium', colors.borderMedium);
+      if (colors.success) root.style.setProperty('--success-green', colors.success);
+      if (colors.error) root.style.setProperty('--error-red', colors.error);
+
+      // Also update body background if secondary color is set
+      if (colors.secondary) {
+        document.body.style.backgroundColor = colors.secondary;
+      }
+    }
+
+    // Apply fonts from config
+    function applyFonts(fonts) {
+      if (!fonts) return;
+
+      // Load primary font if different
+      if (fonts.primary?.family && fonts.primary.family !== 'Montserrat') {
+        const link = document.createElement('link');
+        link.href = fonts.primary.url;
+        link.rel = 'stylesheet';
+        document.head.appendChild(link);
+        document.body.style.fontFamily = `'${fonts.primary.family}', sans-serif`;
+      }
+
+      // Apply font sizes if defined
+      if (fonts.sizes) {
+        const root = document.documentElement;
+        if (fonts.sizes.base) root.style.setProperty('--font-size-base', fonts.sizes.base);
+        if (fonts.sizes.sm) root.style.setProperty('--font-size-sm', fonts.sizes.sm);
+        if (fonts.sizes.lg) root.style.setProperty('--font-size-lg', fonts.sizes.lg);
+      }
+    }
+
+    // Apply product info from config
+    function applyProductInfo(product) {
+      if (!product) return;
+
+      // Update product title
+      const titleEl = document.getElementById('productTitle');
+      if (titleEl && product.name) {
+        titleEl.textContent = product.name;
+      }
+
+      // Update page title
+      if (product.name) {
+        document.title = `${product.name} - Peekaboo Shades`;
+      }
+
+      // Update product description
+      const descEl = document.getElementById('productDescription');
+      if (descEl && product.description) {
+        descEl.textContent = product.description;
+      }
+
+      // Update base price display
+      if (product.base_price) {
+        const priceEl = document.getElementById('basePrice');
+        if (priceEl) priceEl.textContent = `$${product.base_price.toFixed(2)}`;
+      }
+
+      // Update gallery images
+      if (product.gallery_images && product.gallery_images.length > 0) {
+        const mainImg = document.getElementById('mainProductImage');
+        if (mainImg) mainImg.src = product.gallery_images[0];
+      }
+    }
+
+    // Apply content sections (header, footer, etc)
+    function applyContentSections(content) {
+      if (!content) return;
+
+      // Update trust badges
+      if (content.trustBadges) {
+        const badgesContainer = document.getElementById('trustBadges');
+        if (badgesContainer) {
+          badgesContainer.innerHTML = content.trustBadges.map(badge => `
+            <div class="trust-badge">
+              <i class="fas ${badge.icon}"></i>
+              <span>${badge.title}</span>
+            </div>
+          `).join('');
+        }
+      }
+
+      // Update top bar contact info
+      if (content.topBar) {
+        const phoneEl = document.getElementById('topBarPhone');
+        const emailEl = document.getElementById('topBarEmail');
+        if (phoneEl && content.topBar.phone) phoneEl.textContent = content.topBar.phone;
+        if (emailEl && content.topBar.email) emailEl.textContent = content.topBar.email;
+      }
+
+      // Update footer copyright
+      if (content.footer?.copyright) {
+        const copyrightEl = document.querySelector('.footer-bottom p');
+        if (copyrightEl) copyrightEl.textContent = content.footer.copyright;
+      }
+    }
+
+    // ============================================
     // FABRIC & OPTIONS LOADING
     // ============================================
 
@@ -2145,7 +2285,10 @@
     }
 
     // Initialize on page load
-    document.addEventListener('DOMContentLoaded', function() {
+    document.addEventListener('DOMContentLoaded', async function() {
+      // Load admin-controlled page configuration first
+      await loadPageConfig();
+      // Then load fabrics and other data
       loadFabrics();
     });
 
