@@ -6,6 +6,28 @@
   <title>Orders - Peekaboo Shades Admin</title>
   <link rel="stylesheet" href="css/admin.css">
   <link rel="icon" type="image/png" href="/images/favicon.png">
+  <style>
+    .date-filter-btn {
+      padding: 6px 12px;
+      border: 1px solid #ddd;
+      background: white;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 500;
+      color: #666;
+      transition: all 0.2s;
+    }
+    .date-filter-btn:hover {
+      border-color: var(--admin-primary);
+      color: var(--admin-primary);
+    }
+    .date-filter-btn.active {
+      background: var(--admin-primary);
+      color: white;
+      border-color: var(--admin-primary);
+    }
+  </style>
 </head>
 <body>
   <div class="admin-layout">
@@ -152,13 +174,21 @@
                   <option value="roman">Roman Shades</option>
                 </select>
               </div>
-              <!-- TICKET 013: Add date range filters -->
+              <!-- Date range inputs -->
               <div class="filter-group">
                 <input type="date" id="date-from" class="form-input" placeholder="From" title="From Date">
               </div>
               <div class="filter-group">
                 <input type="date" id="date-to" class="form-input" placeholder="To" title="To Date">
               </div>
+            </div>
+            <!-- Date preset buttons -->
+            <div class="date-filter-group" style="display: flex; gap: 8px; margin-top: 12px;">
+              <button class="date-filter-btn active" data-days="0">All Time</button>
+              <button class="date-filter-btn" data-days="1">Today</button>
+              <button class="date-filter-btn" data-days="7">1 Week</button>
+              <button class="date-filter-btn" data-days="30">1 Month</button>
+              <button class="date-filter-btn" data-days="90">3 Months</button>
             </div>
           </div>
         </div>
@@ -254,18 +284,22 @@
         if (item.product_type) {
           types.add(item.product_type);
         } else if (item.product_slug) {
-          // Derive from slug
+          // Derive from slug - only add if we can positively identify the type
           if (item.product_slug.includes('zebra')) types.add('zebra');
           else if (item.product_slug.includes('honeycomb') || item.product_slug.includes('cellular')) types.add('honeycomb');
           else if (item.product_slug.includes('roman')) types.add('roman');
-          else types.add('roller');
+          else if (item.product_slug.includes('roller')) types.add('roller');
+          // TICKET-004: Don't default to roller if we can't identify the type
         } else if (item.configuration) {
           // Check configuration for hints
-          const cfg = typeof item.configuration === 'string' ? JSON.parse(item.configuration) : item.configuration;
-          if (cfg.productType) types.add(cfg.productType);
+          try {
+            const cfg = typeof item.configuration === 'string' ? JSON.parse(item.configuration) : item.configuration;
+            if (cfg.productType) types.add(cfg.productType);
+          } catch (e) { /* ignore parse errors */ }
         }
       });
-      if (types.size === 0) return 'roller'; // default
+      // TICKET-004: Return 'unknown' instead of defaulting to 'roller'
+      if (types.size === 0) return 'unknown';
       if (types.size === 1) return [...types][0];
       return 'mixed'; // Multiple product types in one order
     }
@@ -360,20 +394,34 @@
       `;}).join('');
     }
 
+    let currentDatePreset = 0; // 0 = all time, 1 = today, 7 = week, 30 = month, 90 = 3 months
+
     function initFilters() {
       const searchInput = document.getElementById('search-input');
       const statusFilter = document.getElementById('status-filter');
       const productTypeFilter = document.getElementById('product-type-filter');
-      // TICKET 013: Date range filters
+      // Date range filters
       const dateFrom = document.getElementById('date-from');
       const dateTo = document.getElementById('date-to');
+      const dateFilterBtns = document.querySelectorAll('.date-filter-btn');
 
       const applyFilters = Admin.Utils.debounce(() => {
         const search = searchInput.value.toLowerCase();
         const status = statusFilter.value;
         const productType = productTypeFilter.value;
-        const fromDate = dateFrom.value ? new Date(dateFrom.value) : null;
-        const toDate = dateTo.value ? new Date(dateTo.value + 'T23:59:59') : null;
+
+        // Use preset date or manual date inputs
+        let fromDate = null;
+        let toDate = null;
+
+        if (currentDatePreset > 0) {
+          fromDate = new Date();
+          fromDate.setDate(fromDate.getDate() - currentDatePreset);
+          fromDate.setHours(0, 0, 0, 0);
+        } else {
+          fromDate = dateFrom.value ? new Date(dateFrom.value) : null;
+          toDate = dateTo.value ? new Date(dateTo.value + 'T23:59:59') : null;
+        }
 
         const filtered = allOrders.filter(o => {
           const matchesSearch = !search ||
@@ -389,7 +437,7 @@
             matchesProductType = orderType === productType || (productType === 'mixed' && orderType === 'mixed');
           }
 
-          // TICKET 013: Date range filtering
+          // Date range filtering
           let matchesDate = true;
           if (fromDate || toDate) {
             const orderDate = new Date(o.created_at);
@@ -406,8 +454,34 @@
       searchInput.addEventListener('input', applyFilters);
       statusFilter.addEventListener('change', applyFilters);
       productTypeFilter.addEventListener('change', applyFilters);
-      dateFrom.addEventListener('change', applyFilters);
-      dateTo.addEventListener('change', applyFilters);
+      dateFrom.addEventListener('change', () => {
+        // Clear preset when manual date is selected
+        currentDatePreset = 0;
+        dateFilterBtns.forEach(b => b.classList.remove('active'));
+        dateFilterBtns[0].classList.add('active');
+        applyFilters();
+      });
+      dateTo.addEventListener('change', () => {
+        currentDatePreset = 0;
+        dateFilterBtns.forEach(b => b.classList.remove('active'));
+        dateFilterBtns[0].classList.add('active');
+        applyFilters();
+      });
+
+      // Date preset buttons
+      dateFilterBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+          dateFilterBtns.forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          currentDatePreset = parseInt(btn.dataset.days) || 0;
+          // Clear manual date inputs when preset is selected
+          if (currentDatePreset > 0) {
+            dateFrom.value = '';
+            dateTo.value = '';
+          }
+          applyFilters();
+        });
+      });
     }
 
     async function updateStatus(id, status) {

@@ -82,6 +82,40 @@
       color: white;
       border-color: var(--admin-primary);
     }
+    .date-filter-btn {
+      padding: 6px 12px;
+      border: 1px solid #ddd;
+      background: white;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 500;
+      color: #666;
+      transition: all 0.2s;
+    }
+    .date-filter-btn:hover {
+      border-color: var(--admin-primary);
+      color: var(--admin-primary);
+    }
+    .date-filter-btn.active {
+      background: var(--admin-primary);
+      color: white;
+      border-color: var(--admin-primary);
+    }
+    .product-type-badge {
+      display: inline-block;
+      padding: 3px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+    .product-type-badge.roller { background: #dbeafe; color: #1e40af; }
+    .product-type-badge.zebra { background: #fef3c7; color: #92400e; }
+    .product-type-badge.honeycomb { background: #d1fae5; color: #065f46; }
+    .product-type-badge.roman { background: #fce7f3; color: #9d174d; }
+    .product-type-badge.mixed { background: #e5e7eb; color: #374151; }
+    .product-type-badge.unknown { background: #f3f4f6; color: #6b7280; }
   </style>
 </head>
 <body>
@@ -258,6 +292,20 @@
                 <select id="order-filter" class="filter-select">
                   <option value="">All Orders</option>
                 </select>
+                <select id="product-type-filter" class="filter-select">
+                  <option value="">All Products</option>
+                  <option value="roller">Roller Shades</option>
+                  <option value="zebra">Zebra Shades</option>
+                  <option value="honeycomb">Honeycomb Shades</option>
+                  <option value="roman">Roman Shades</option>
+                </select>
+              </div>
+              <div class="date-filter-group" style="display: flex; gap: 8px; margin-top: 12px;">
+                <button class="date-filter-btn active" data-days="0">All Time</button>
+                <button class="date-filter-btn" data-days="1">Today</button>
+                <button class="date-filter-btn" data-days="7">1 Week</button>
+                <button class="date-filter-btn" data-days="30">1 Month</button>
+                <button class="date-filter-btn" data-days="90">3 Months</button>
               </div>
             </div>
           </div>
@@ -272,6 +320,7 @@
                   <th>Invoice #</th>
                   <th>Invoice Date</th>
                   <th>Type</th>
+                  <th>Product</th>
                   <th>Order #</th>
                   <th>Customer/Vendor</th>
                   <th>Amount</th>
@@ -283,7 +332,7 @@
               </thead>
               <tbody id="invoices-table">
                 <tr>
-                  <td colspan="10" style="text-align: center; padding: 60px;">
+                  <td colspan="11" style="text-align: center; padding: 60px;">
                     <div class="spinner"></div>
                     <p style="margin-top: 16px; color: var(--admin-text-secondary);">Loading invoices...</p>
                   </td>
@@ -425,6 +474,8 @@
     let allInvoices = [];
     let currentTypeFilter = '';
     let currentInvoice = null;
+    let currentDateFilter = 0; // 0 = all time, 1 = today, 7 = week, 30 = month, 90 = 3 months
+    let currentProductTypeFilter = '';
 
     async function loadSummary() {
       try {
@@ -461,7 +512,7 @@
         Admin.Toast.error('Failed to load invoices');
         document.getElementById('invoices-table').innerHTML = `
           <tr>
-            <td colspan="10" style="text-align: center; padding: 60px; color: var(--admin-text-secondary);">
+            <td colspan="11" style="text-align: center; padding: 60px; color: var(--admin-text-secondary);">
               Failed to load invoices. <a href="#" onclick="loadInvoices(); return false;">Try again</a>
             </td>
           </tr>
@@ -475,7 +526,7 @@
       if (!invoices || invoices.length === 0) {
         tbody.innerHTML = `
           <tr>
-            <td colspan="10" class="empty-state">
+            <td colspan="11" class="empty-state">
               <svg xmlns="http://www.w3.org/2000/svg" class="empty-state-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
               </svg>
@@ -488,7 +539,12 @@
         return;
       }
 
-      tbody.innerHTML = invoices.map(inv => `
+      tbody.innerHTML = invoices.map(inv => {
+        // Get product type for invoice
+        const productType = getProductTypeFromInvoice(inv);
+        const productTypeBadge = getProductTypeBadge(productType);
+
+        return `
         <tr data-id="${inv.id}">
           <td>
             <a href="#" onclick="viewInvoice('${inv.id}'); return false;" class="invoice-number">
@@ -499,6 +555,7 @@
           <td>
             <span class="badge badge-${inv.type}">${inv.type === 'customer' ? 'Customer' : 'Manufacturer'}</span>
           </td>
+          <td>${productTypeBadge}</td>
           <td>
             <a href="/admin/orders.html?id=${inv.orderId}" style="color: var(--admin-primary); text-decoration: none;">
               ${Admin.Utils.escapeHtml(inv.orderNumber || '-')}
@@ -547,7 +604,45 @@
             </div>
           </td>
         </tr>
-      `).join('');
+      `;
+      }).join('');
+    }
+
+    // Helper to get product type from invoice items
+    function getProductTypeFromInvoice(invoice) {
+      if (!invoice.items || invoice.items.length === 0) return 'unknown';
+      const types = new Set();
+      invoice.items.forEach(item => {
+        let type = item.product_type || item.productType;
+        if (!type && item.configuration) {
+          const cfg = parseConfig(item.configuration);
+          type = cfg.productType || cfg.product_type;
+        }
+        if (!type && item.productSlug) {
+          if (item.productSlug.includes('zebra')) type = 'zebra';
+          else if (item.productSlug.includes('honeycomb') || item.productSlug.includes('cellular')) type = 'honeycomb';
+          else if (item.productSlug.includes('roman')) type = 'roman';
+          else if (item.productSlug.includes('roller')) type = 'roller';
+        }
+        if (type) types.add(type);
+      });
+      if (types.size === 0) return 'unknown';
+      if (types.size > 1) return 'mixed';
+      return [...types][0];
+    }
+
+    // Helper to generate product type badge HTML
+    function getProductTypeBadge(type) {
+      const labels = {
+        roller: 'Roller',
+        zebra: 'Zebra',
+        honeycomb: 'Honeycomb',
+        roman: 'Roman',
+        mixed: 'Mixed',
+        unknown: 'Unknown'
+      };
+      const label = labels[type] || 'Unknown';
+      return `<span class="product-type-badge ${type}">${label}</span>`;
     }
 
     function formatStatus(status) {
@@ -567,22 +662,66 @@
       const searchInput = document.getElementById('search-input');
       const statusFilter = document.getElementById('status-filter');
       const orderFilter = document.getElementById('order-filter');
+      const productTypeFilter = document.getElementById('product-type-filter');
       const tabButtons = document.querySelectorAll('.tab-btn');
+      const dateFilterBtns = document.querySelectorAll('.date-filter-btn');
+
+      // Helper to detect product type from invoice items
+      function getInvoiceProductType(invoice) {
+        if (!invoice.items || invoice.items.length === 0) return 'unknown';
+        const types = new Set();
+        invoice.items.forEach(item => {
+          let type = item.product_type || item.productType;
+          if (!type && item.configuration) {
+            const cfg = parseConfig(item.configuration);
+            type = cfg.productType || cfg.product_type;
+          }
+          if (!type && item.productSlug) {
+            if (item.productSlug.includes('zebra')) type = 'zebra';
+            else if (item.productSlug.includes('honeycomb') || item.productSlug.includes('cellular')) type = 'honeycomb';
+            else if (item.productSlug.includes('roman')) type = 'roman';
+            else type = 'roller';
+          }
+          if (type) types.add(type);
+        });
+        if (types.size === 0) return 'unknown';
+        if (types.size > 1) return 'mixed';
+        return [...types][0];
+      }
 
       const applyFilters = Admin.Utils.debounce(() => {
         const search = searchInput.value.toLowerCase();
         const status = statusFilter.value;
         const orderNum = orderFilter.value;
+        const productType = productTypeFilter.value;
 
         const filtered = allInvoices.filter(i => {
+          // Search filter
           const matchesSearch = !search ||
             i.invoiceNumber.toLowerCase().includes(search) ||
             (i.orderNumber && i.orderNumber.toLowerCase().includes(search)) ||
             (i.customer?.name && i.customer.name.toLowerCase().includes(search));
+
+          // Status filter
           const matchesStatus = !status || i.status === status;
+
+          // Order filter
           const matchesOrder = !orderNum || i.orderNumber === orderNum;
 
-          return matchesSearch && matchesStatus && matchesOrder;
+          // Product type filter
+          const invoiceProductType = getInvoiceProductType(i);
+          const matchesProductType = !productType || invoiceProductType === productType;
+
+          // Date filter
+          let matchesDate = true;
+          if (currentDateFilter > 0) {
+            const invoiceDate = new Date(i.invoiceGeneratedAt || i.createdAt || i.orderDate);
+            const cutoffDate = new Date();
+            cutoffDate.setDate(cutoffDate.getDate() - currentDateFilter);
+            matchesDate = invoiceDate >= cutoffDate;
+          }
+
+          return matchesSearch && matchesStatus && matchesOrder && matchesProductType && matchesDate;
         });
 
         renderInvoices(filtered);
@@ -591,7 +730,22 @@
       searchInput.addEventListener('input', applyFilters);
       statusFilter.addEventListener('change', applyFilters);
       orderFilter.addEventListener('change', applyFilters);
+      productTypeFilter.addEventListener('change', () => {
+        currentProductTypeFilter = productTypeFilter.value;
+        applyFilters();
+      });
 
+      // Date filter buttons
+      dateFilterBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+          dateFilterBtns.forEach(b => b.classList.remove('active'));
+          btn.classList.add('active');
+          currentDateFilter = parseInt(btn.dataset.days) || 0;
+          applyFilters();
+        });
+      });
+
+      // Tab buttons for invoice type
       tabButtons.forEach(btn => {
         btn.addEventListener('click', () => {
           tabButtons.forEach(b => b.classList.remove('active'));
@@ -600,6 +754,9 @@
           loadInvoices();
         });
       });
+
+      // Make applyFilters available globally
+      window.applyFilters = applyFilters;
     }
 
     function populateOrderFilter(invoices) {

@@ -970,6 +970,7 @@ class ExtendedPricingEngine {
 
   /**
    * Validate dimension
+   * TICKET-012: Added zero-dimension check
    */
   validateDimension(value, dimensionType, rules) {
     const config = rules[dimensionType];
@@ -977,6 +978,11 @@ class ExtendedPricingEngine {
 
     if (isNaN(numValue)) {
       throw new Error(`Invalid ${dimensionType}: must be a number`);
+    }
+
+    // TICKET-012: Reject zero or negative dimensions
+    if (numValue <= 0) {
+      throw new Error(`Invalid ${dimensionType}: must be greater than 0`);
     }
 
     if (numValue < config.min) {

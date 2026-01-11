@@ -27,6 +27,7 @@ const analyticsService = require('./services/analytics-service');
 const manufacturerService = require('./services/manufacturer-service');
 const dealerService = require('./services/dealer-service');
 const invoiceService = require('./services/invoice-service');
+const dbIndex = require('./services/database-index');
 
 // ============================================
 // CRM/OMS/FINANCE/ANALYTICS ROUTES
@@ -1198,6 +1199,35 @@ app.post('/api/admin/login', (req, res) => {
 // Verify Token
 app.get('/api/admin/verify', authMiddleware, (req, res) => {
   res.json({ success: true, admin: req.admin });
+});
+
+// Database index stats endpoint (TICKET-011)
+app.get('/api/admin/db-stats', authMiddleware, (req, res) => {
+  try {
+    const db = loadDatabase();
+    const indexStats = dbIndex.getStats();
+
+    res.json({
+      success: true,
+      data: {
+        collections: {
+          orders: db.orders?.length || 0,
+          invoices: db.invoices?.length || 0,
+          customers: db.customers?.length || 0,
+          products: db.products?.length || 0,
+          cart: db.cart?.length || 0,
+          quotes: db.quotes?.length || 0
+        },
+        indexes: indexStats,
+        performance: {
+          cacheEnabled: true,
+          indexingEnabled: true
+        }
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
 });
 
 // ============================================
@@ -10549,4 +10579,12 @@ server.listen(PORT, () => {
 ║                                                            ║
 ╚════════════════════════════════════════════════════════════╝
   `);
+
+  // Build database indexes on startup for fast queries
+  try {
+    const db = loadDatabase();
+    dbIndex.rebuildAll(db);
+  } catch (error) {
+    console.error('Failed to build database indexes:', error.message);
+  }
 });

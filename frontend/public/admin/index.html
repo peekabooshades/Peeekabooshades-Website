@@ -225,6 +225,83 @@
       align-items: center;
       justify-content: center;
     }
+
+    /* Order Pipeline DAG Styles (TICKET-008) */
+    .pipeline-stage {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      min-width: 100px;
+      position: relative;
+    }
+    .pipeline-node {
+      width: 80px;
+      height: 80px;
+      border-radius: 12px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s;
+      border: 2px solid transparent;
+      position: relative;
+    }
+    .pipeline-node:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+    .pipeline-node .count {
+      font-size: 24px;
+      font-weight: 700;
+      line-height: 1;
+    }
+    .pipeline-node .label {
+      font-size: 10px;
+      font-weight: 500;
+      margin-top: 4px;
+      text-transform: uppercase;
+    }
+    .pipeline-arrow {
+      display: flex;
+      align-items: center;
+      color: #d1d5db;
+      font-size: 20px;
+      margin: 0 -4px;
+    }
+    .pipeline-node.order_placed { background: #dbeafe; color: #1e40af; border-color: #93c5fd; }
+    .pipeline-node.order_received { background: #e0e7ff; color: #4338ca; border-color: #a5b4fc; }
+    .pipeline-node.manufacturing { background: #fef3c7; color: #92400e; border-color: #fcd34d; }
+    .pipeline-node.qa { background: #fce7f3; color: #9d174d; border-color: #f9a8d4; }
+    .pipeline-node.shipped { background: #d1fae5; color: #065f46; border-color: #6ee7b7; }
+    .pipeline-node.delivered { background: #dcfce7; color: #166534; border-color: #86efac; }
+    .pipeline-node.issue_reported { background: #fee2e2; color: #dc2626; border-color: #fca5a5; }
+    .pipeline-node.cancelled { background: #f3f4f6; color: #6b7280; border-color: #d1d5db; }
+    .pipeline-node.refunded { background: #fef3c7; color: #d97706; border-color: #fcd34d; }
+    .pipeline-sub-stages {
+      display: flex;
+      gap: 8px;
+      margin-top: 8px;
+    }
+    .pipeline-sub-node {
+      width: 50px;
+      height: 50px;
+      border-radius: 8px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 10px;
+      transition: all 0.2s;
+    }
+    .pipeline-sub-node:hover {
+      transform: scale(1.05);
+    }
+    .pipeline-sub-node .count {
+      font-size: 16px;
+      font-weight: 600;
+    }
   </style>
 </head>
 <body>
@@ -630,6 +707,22 @@
           </div>
         </div>
 
+        <!-- Order Pipeline DAG (TICKET-008) -->
+        <div class="order-pipeline-section" style="margin-top: 24px;">
+          <div class="card">
+            <div class="card-header" style="display: flex; justify-content: space-between; align-items: center; padding: 16px 20px; border-bottom: 1px solid #e5e7eb;">
+              <h3 style="margin: 0; font-size: 16px; font-weight: 600; color: #1f2937;">Order Pipeline</h3>
+              <a href="/admin/orders.html" style="font-size: 13px; color: var(--admin-primary); text-decoration: none;">View All Orders</a>
+            </div>
+            <div class="card-body" style="padding: 20px;">
+              <div class="pipeline-container" id="order-pipeline" style="display: flex; align-items: flex-start; justify-content: space-between; overflow-x: auto; gap: 8px;">
+                <!-- Pipeline stages will be rendered here -->
+                <div style="text-align: center; color: #9ca3af; padding: 40px;">Loading pipeline...</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
         <!-- Charts Row -->
         <div class="dashboard-row">
           <div class="chart-card">
@@ -812,6 +905,9 @@
           renderRecentQuotes(dashboardData.recentQuotes);
         }
 
+        // Load order pipeline (TICKET-008)
+        await loadOrderPipeline();
+
       } catch (error) {
         console.error('Failed to load dashboard:', error);
       }
@@ -870,6 +966,98 @@
       if (seconds < 3600) return Math.floor(seconds / 60) + 'm ago';
       if (seconds < 86400) return Math.floor(seconds / 3600) + 'h ago';
       return Math.floor(seconds / 86400) + 'd ago';
+    }
+
+    // Order Pipeline DAG (TICKET-008)
+    async function loadOrderPipeline() {
+      try {
+        const response = await Admin.API.get('/orders');
+        if (response.success) {
+          const orders = response.orders || [];
+          const statusCounts = {};
+
+          // Count orders by status
+          orders.forEach(order => {
+            const status = order.status || 'unknown';
+            statusCounts[status] = (statusCounts[status] || 0) + 1;
+          });
+
+          renderOrderPipeline(statusCounts);
+        }
+      } catch (error) {
+        console.error('Failed to load order pipeline:', error);
+        document.getElementById('order-pipeline').innerHTML =
+          '<div style="text-align: center; color: #9ca3af; padding: 20px;">Failed to load pipeline</div>';
+      }
+    }
+
+    function renderOrderPipeline(statusCounts) {
+      const container = document.getElementById('order-pipeline');
+
+      // Define pipeline stages in order
+      const mainStages = [
+        { status: 'order_placed', label: 'Placed' },
+        { status: 'order_received', label: 'Received' },
+        { status: 'manufacturing', label: 'Mfg' },
+        { status: 'qa', label: 'QA' },
+        { status: 'shipped', label: 'Shipped' },
+        { status: 'delivered', label: 'Delivered' }
+      ];
+
+      const issueStages = [
+        { status: 'issue_reported', label: 'Issues' },
+        { status: 'refund_requested', label: 'Refund Req' },
+        { status: 'refunded', label: 'Refunded' },
+        { status: 'cancelled', label: 'Cancelled' }
+      ];
+
+      let html = '<div style="display: flex; flex-direction: column; gap: 16px; width: 100%;">';
+
+      // Main pipeline row
+      html += '<div style="display: flex; align-items: center; justify-content: center; gap: 4px; flex-wrap: wrap;">';
+      mainStages.forEach((stage, index) => {
+        const count = statusCounts[stage.status] || 0;
+        html += `
+          <div class="pipeline-stage">
+            <div class="pipeline-node ${stage.status}" onclick="window.location.href='/admin/orders.html?status=${stage.status}'" title="Click to view ${stage.label} orders">
+              <div class="count">${count}</div>
+              <div class="label">${stage.label}</div>
+            </div>
+          </div>
+        `;
+        if (index < mainStages.length - 1) {
+          html += '<div class="pipeline-arrow">→</div>';
+        }
+      });
+      html += '</div>';
+
+      // Issue stages row (if any issues exist)
+      const hasIssues = issueStages.some(s => (statusCounts[s.status] || 0) > 0);
+      if (hasIssues) {
+        html += '<div style="display: flex; align-items: center; justify-content: center; gap: 16px; padding-top: 8px; border-top: 1px dashed #e5e7eb;">';
+        issueStages.forEach(stage => {
+          const count = statusCounts[stage.status] || 0;
+          if (count > 0) {
+            html += `
+              <div class="pipeline-stage">
+                <div class="pipeline-node ${stage.status}" style="width: 70px; height: 70px;" onclick="window.location.href='/admin/orders.html?status=${stage.status}'" title="Click to view ${stage.label} orders">
+                  <div class="count" style="font-size: 20px;">${count}</div>
+                  <div class="label" style="font-size: 9px;">${stage.label}</div>
+                </div>
+              </div>
+            `;
+          }
+        });
+        html += '</div>';
+      }
+
+      html += '</div>';
+
+      // Show total count
+      const total = Object.values(statusCounts).reduce((a, b) => a + b, 0);
+      html += `<div style="text-align: center; margin-top: 12px; font-size: 12px; color: #6b7280;">Total: ${total} orders</div>`;
+
+      container.innerHTML = html;
     }
 
     async function markAllRead() {
