@@ -345,36 +345,44 @@ function createInvoiceFromOrder(orderId, type = 'customer', options = {}) {
           unitPrice: item.unit_price,
           lineTotal: item.line_total || (item.unit_price * item.quantity),
 
-          // Configuration columns
-          fabricCode: cfg.fabricCode || '',
-          fabricColor: cfg.fabricColor || '',
-          lightFiltering: cfg.lightFiltering || '',
-          standardCassette: cfg.standardCassette || '',
-          standardBottomBar: cfg.standardBottomBar || '',
-          rollerType: cfg.rollerType || '',
-          mountType: cfg.mountType || '',
-          controlType: cfg.controlType || '',
-          motorType: cfg.motorType || cfg.motorBrand || '',
-          motorBrand: cfg.motorBrand || '',
-          remoteType: cfg.remoteType || '',
-          solarType: cfg.solarType || '',
-          chainType: cfg.chainType || '',
-          chainSide: cfg.chainSide || '',
-          smartHubQty: cfg.smartHubQty || 0,
-          usbChargerQty: cfg.usbChargerQty || 0,
-          configuration: item.configuration || '{}'
+          // Configuration columns - extract from multiple sources
+          // Priority: cfg (explicit config) > price_snapshot > options_breakdown
+          fabricCode: cfg.fabricCode || mfrPrice.fabric_code || item.fabricCode || '',
+          fabricColor: cfg.fabricColor || item.fabricColor || '',
+          lightFiltering: cfg.lightFiltering || item.lightFiltering || '',
+          standardCassette: cfg.standardCassette || item.standardCassette || '',
+          standardBottomBar: cfg.standardBottomBar || item.standardBottomBar || '',
+          rollerType: cfg.rollerType || item.rollerType || '',
+          mountType: cfg.mountType || item.mountType || '',
+          controlType: cfg.controlType || item.controlType || (optionsBreakdown.find(o => o.type === 'motorization') ? 'motorized' : (optionsBreakdown.length === 0 ? 'manual' : '')),
+          motorType: cfg.motorType || cfg.motorBrand || item.motorType || '',
+          motorBrand: cfg.motorBrand || item.motorBrand || (optionsBreakdown.find(o => o.type === 'motorization')?.brand || ''),
+          remoteType: cfg.remoteType || item.remoteType || (optionsBreakdown.find(o => o.type === 'remote')?.code || ''),
+          solarType: cfg.solarType || item.solarType || '',
+          chainType: cfg.chainType || item.chainType || '',
+          chainSide: cfg.chainSide || item.chainSide || '',
+          smartHubQty: cfg.smartHubQty || item.smartHubQty || (accessoriesBreakdown.find(a => a.code === 'smart_hub')?.quantity || 0),
+          usbChargerQty: cfg.usbChargerQty || item.usbChargerQty || (accessoriesBreakdown.find(a => a.code === 'usb_charger')?.quantity || 0),
+          configuration: item.configuration || '{}',
+          // Add product_type for filtering
+          product_type: item.product_type || (item.product_name?.toLowerCase().includes('zebra') ? 'zebra' : 'roller')
         };
       }),
 
-      // Totals - USE ORDER'S STORED VALUES (invoice must match what customer was charged)
-      // BUG FIX: Previously recalculated tax instead of using order's stored tax
+      // Totals - USE ORDER'S STORED VALUES, fallback to calculating from line items
       subtotal: (() => {
-        const orderSubtotal = order.pricing?.subtotal || order.subtotal || 0;
-        return orderSubtotal;
+        const orderSubtotal = order.pricing?.subtotal || order.subtotal;
+        // If order has subtotal, use it; otherwise calculate from line items
+        if (orderSubtotal && orderSubtotal > 0) return orderSubtotal;
+        return order.items.reduce((sum, item) => sum + (item.line_total || item.unit_price * item.quantity), 0);
       })(),
       // Use order's stored tax value - DO NOT recalculate
       ...(() => {
-        const orderSubtotal = order.pricing?.subtotal || order.subtotal || 0;
+        // Calculate subtotal from line items if order doesn't have it
+        let orderSubtotal = order.pricing?.subtotal || order.subtotal;
+        if (!orderSubtotal || orderSubtotal === 0) {
+          orderSubtotal = order.items.reduce((sum, item) => sum + (item.line_total || item.unit_price * item.quantity), 0);
+        }
         // Use stored tax from order - this is what customer was charged at checkout
         const orderTax = order.pricing?.tax || order.tax || 0;
         // Ensure shipping is a number (could be an object with tracking info)
@@ -382,8 +390,10 @@ function createInvoiceFromOrder(orderId, type = 'customer', options = {}) {
         const orderShipping = typeof rawShipping === 'number' ? rawShipping : 0;
         const orderDiscount = order.pricing?.discount || order.discount || 0;
         // Use order's stored total, or calculate from stored values
-        const orderTotal = order.pricing?.total || order.total ||
-          Math.round((orderSubtotal + orderTax + orderShipping - orderDiscount) * 100) / 100;
+        let orderTotal = order.pricing?.total || order.total;
+        if (!orderTotal || orderTotal === 0) {
+          orderTotal = Math.round((orderSubtotal + orderTax + orderShipping - orderDiscount) * 100) / 100;
+        }
 
         // Extract state for reference only (don't use for tax calculation)
         const shippingAddr = order.shipping_address || customerAddress;
@@ -402,10 +412,16 @@ function createInvoiceFromOrder(orderId, type = 'customer', options = {}) {
       })(),
       currency: 'USD',
 
-      // Payment info - use order's stored total (not recalculated)
+      // Payment info - calculate from line items if order total not available
       ...(() => {
-        // Use the order's stored total - this is what customer was actually charged
-        const orderTotal = order.pricing?.total || order.total || 0;
+        // Calculate total from line items if order doesn't have it
+        let orderTotal = order.pricing?.total || order.total;
+        if (!orderTotal || orderTotal === 0) {
+          const subtotal = order.items.reduce((sum, item) => sum + (item.line_total || item.unit_price * item.quantity), 0);
+          const tax = order.pricing?.tax || order.tax || 0;
+          const shipping = typeof (order.pricing?.shipping || order.shipping) === 'number' ? (order.pricing?.shipping || order.shipping) : 0;
+          orderTotal = Math.round((subtotal + tax + shipping) * 100) / 100;
+        }
 
         return {
           amountPaid: order.payment?.status === 'completed' ? orderTotal : 0,

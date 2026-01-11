@@ -2836,6 +2836,17 @@ app.get('/api/motor-brands', (req, res) => {
   }
 });
 
+// Get all hardware options (for orders page)
+app.get('/api/admin/hardware', authMiddleware, (req, res) => {
+  try {
+    const db = loadDatabase();
+    const hardware = db.productContent?.hardwareOptions || db.hardwareOptions || {};
+    res.json({ success: true, data: hardware });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
 // ============================================
 // MANUFACTURER FABRIC PRICES API
 // Dynamic pricing per fabric code (manual/cordless per m²)
