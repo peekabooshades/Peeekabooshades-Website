@@ -175,6 +175,357 @@ Peekaboo Shades is a full-stack e-commerce platform for selling custom window bl
 | Invoice Generation | Automatic PDF invoices |
 | Real-time Sync | WebSocket updates across portals |
 
+### Portal Data Models & Architecture
+
+This section explains how each portal's data model works and links to the main system.
+
+```
+┌─────────────────────────────────────────────────────────────────────────────────────────────┐
+│                           PORTAL DATA MODEL ARCHITECTURE                                     │
+├─────────────────────────────────────────────────────────────────────────────────────────────┤
+│                                                                                              │
+│   ┌───────────────┐     ┌───────────────┐     ┌───────────────┐     ┌───────────────┐      │
+│   │   CUSTOMERS   │     │    DEALERS    │     │  TECHNICIANS  │     │ MANUFACTURERS │      │
+│   │   (Members)   │     │     (B2B)     │     │ (Installers)  │     │  (Production) │      │
+│   └───────┬───────┘     └───────┬───────┘     └───────┬───────┘     └───────┬───────┘      │
+│           │                     │                     │                     │               │
+│           │                     │                     │                     │               │
+│           ▼                     ▼                     ▼                     ▼               │
+│   ┌───────────────────────────────────────────────────────────────────────────────────┐    │
+│   │                              ORDERS (Central Hub)                                  │    │
+│   │   - customerId (links to customer)                                                 │    │
+│   │   - dealerId (links to dealer for B2B orders)                                      │    │
+│   │   - technicianId (links to assigned technician via appointments)                   │    │
+│   │   - manufacturerId (links to production manufacturer)                              │    │
+│   └───────────────────────────────────────────────────────────────────────────────────┘    │
+│           │                     │                     │                     │               │
+│           ▼                     ▼                     ▼                     ▼               │
+│   ┌─────────────┐       ┌─────────────┐       ┌─────────────┐       ┌─────────────┐        │
+│   │  INVOICES   │       │ COMMISSIONS │       │APPOINTMENTS │       │ PRODUCTION  │        │
+│   │ (Customer)  │       │  (Dealer)   │       │(Technician) │       │   QUEUE     │        │
+│   └─────────────┘       └─────────────┘       └─────────────┘       └─────────────┘        │
+│                                                                                              │
+└─────────────────────────────────────────────────────────────────────────────────────────────┘
+```
+
+#### 1. Customer (Member) Data Model
+
+**Collections:** `customers`
+
+```javascript
+{
+  "id": "cust-21ea3271",           // Unique customer ID
+  "email": "jane@example.com",     // Login email (unique)
+  "password": "$2b$10$...",        // Hashed password (bcrypt)
+  "firstName": "Jane",
+  "lastName": "Doe",
+  "phone": "555-987-6543",
+  "type": "retail",                // retail, wholesale, trade
+  "companyName": "",               // For business customers
+  "addresses": [                   // Saved addresses
+    {
+      "type": "shipping",
+      "address": "205 Blue Jasmine Trl, Georgetown, TX 78628"
+    }
+  ],
+  "tags": ["website-signup", "vip"],
+  "notes": "Signed up via website",
+  "totalOrders": 5,                // Order count (auto-updated)
+  "totalSpent": 1467.70,           // Lifetime value (auto-updated)
+  "totalSavings": 0,               // Discounts used
+  "rewardPoints": 100,             // Loyalty points
+  "newsletter": true,              // Email opt-in
+  "createdAt": "2026-01-17T20:43:26.903Z",
+  "lastLoginAt": "2026-01-17T20:43:31.185Z",
+  "lastOrderAt": "2026-01-18T02:59:46.755Z"
+}
+```
+
+**Linked To:**
+- `orders.customerId` → Customer's orders
+- `invoices.customerId` → Customer's invoices
+- `appointments.customerId` → Installation appointments
+
+**API Endpoints:**
+| Method | Endpoint | Purpose |
+|--------|----------|---------|
+| POST | `/api/customer/register` | Create account |
+| POST | `/api/customer/login` | Authenticate |
+| GET | `/api/customer/profile` | Get profile |
+| PUT | `/api/customer/profile` | Update profile |
+| GET | `/api/customer/orders` | Order history |
+| GET | `/api/customer/addresses` | Saved addresses |
+
+---
+
+#### 2. Dealer Data Model
+
+**Collections:** `dealers`, `dealerUsers`, `dealerCustomers`, `dealerOrders`
+
+```javascript
+// Dealer Company
+{
+  "id": "dealer-001",
+  "companyName": "ABC Window Coverings",
+  "contactName": "John Smith",
+  "email": "contact@abcwindows.com",
+  "phone": "555-123-4567",
+  "address": {
+    "street": "123 Main St",
+    "city": "Austin",
+    "state": "TX",
+    "zip": "78701"
+  },
+  "tier": "silver",                // bronze, silver, gold
+  "discountPercent": 20,           // Tier-based discount
+  "commissionRate": 5,             // Commission % on sales
+  "status": "active",
+  "totalOrders": 45,
+  "totalRevenue": 125000,
+  "createdAt": "2025-01-01T00:00:00.000Z"
+}
+
+// Dealer User (Login)
+{
+  "id": "dealer-user-001",
+  "dealerId": "dealer-001",        // Links to dealer company
+  "dealerName": "ABC Window Coverings",
+  "name": "John Smith",
+  "email": "john@abcwindows.com",  // Login email
+  "password": "$2b$10$...",        // Hashed password
+  "role": "admin",                 // admin, manager, staff
+  "status": "active",
+  "lastLogin": "2026-01-11T19:52:15.779Z"
+}
+```
+
+**Tier System:**
+| Tier | Min Orders | Discount | Benefits |
+|------|------------|----------|----------|
+| Bronze | 0 | 15% | Base pricing |
+| Silver | 11+ | 20% | Priority support |
+| Gold | 51+ | 25% | Dedicated account manager |
+
+**Linked To:**
+- `dealerOrders.dealerId` → Dealer's B2B orders
+- `dealerCustomers.dealerId` → Dealer's end customers
+- `commissions.dealerId` → Dealer earnings
+
+**API Endpoints:**
+| Method | Endpoint | Purpose |
+|--------|----------|---------|
+| POST | `/api/dealer/login` | Authenticate |
+| GET | `/api/dealer/stats` | Dashboard stats |
+| GET | `/api/dealer/orders` | Order list |
+| POST | `/api/dealer/orders` | Create B2B order |
+| GET | `/api/dealer/customers` | End customers |
+| GET | `/api/dealer/commissions` | Commission history |
+
+---
+
+#### 3. Technician Data Model
+
+**Collections:** `technicians`, `appointments`, `installationPayments`
+
+```javascript
+// Technician
+{
+  "id": "tech-b21c1efb",
+  "name": "Matt Johnson",
+  "email": "matt@gmail.com",       // Login email
+  "phone": "8169449009",
+  "password": "$2b$10$...",        // Hashed password
+  "specialties": [                 // Service capabilities
+    "roller-blinds",
+    "zebra-shades",
+    "roman-shades",
+    "honeycomb",
+    "motorized",
+    "commercial"
+  ],
+  "serviceAreas": ["Austin", "Round Rock", "Georgetown"],
+  "status": "active",              // active, inactive, suspended
+  "availability": [                // Available time slots
+    {
+      "date": "2026-01-20",
+      "slots": ["12pm-2pm", "2pm-4pm", "4pm-6pm"]
+    }
+  ],
+  "rating": 4.8,                   // Average customer rating
+  "reviewCount": 45,
+  "createdAt": "2026-01-18T01:35:05.921Z"
+}
+
+// Appointment
+{
+  "id": "apt-c4e5eff0",
+  "appointmentType": "new-installation",  // new-installation, repair, measurement
+  "orderId": "ORD-123456",                // Links to order
+  "technicianId": "tech-b21c1efb",        // Assigned technician
+  "customerId": "cust-ed8efb2f",          // Customer
+  "customerName": "Surya",
+  "customerPhone": "8169449009",
+  "customerEmail": "surya@gmail.com",
+  "scheduledDate": "2026-01-19",
+  "scheduledTime": "8:00 AM - 10:00 AM",
+  "installationAddress": {
+    "address1": "205 Blue Jasmine St",
+    "city": "Leander",
+    "state": "TX",
+    "zip": "78628"
+  },
+  "installationFee": 100,
+  "status": "scheduled",           // scheduled, in-progress, completed, cancelled
+  "notes": "Ring doorbell",
+  "createdAt": "2026-01-18T03:28:28.275Z"
+}
+```
+
+**Linked To:**
+- `appointments.technicianId` → Technician's jobs
+- `appointments.orderId` → Installation for specific order
+- `appointments.customerId` → Customer being served
+- `installationPayments.technicianId` → Technician earnings
+
+**API Endpoints:**
+| Method | Endpoint | Purpose |
+|--------|----------|---------|
+| POST | `/api/technician/register` | Create account |
+| POST | `/api/technician/login` | Authenticate |
+| GET | `/api/technician/stats` | Dashboard stats |
+| GET | `/api/technician/appointments` | Job list |
+| PUT | `/api/technician/appointments/:id` | Update job status |
+| GET | `/api/technician/schedule` | Availability |
+| PUT | `/api/technician/schedule` | Update availability |
+| GET | `/api/technician/payments` | Earnings history |
+
+---
+
+#### 4. Manufacturer Data Model
+
+**Collections:** `manufacturers`, `manufacturerUsers`, `manufacturerPrices`
+
+```javascript
+// Manufacturer Company
+{
+  "id": "mfr-default",
+  "name": "Default Manufacturer",
+  "code": "DEFAULT",
+  "contactName": "Alice Wang",
+  "email": "alice@manufacturer.com",
+  "phone": "+86-123-456-7890",
+  "address": {
+    "street": "",
+    "city": "Shenzhen",
+    "country": "China"
+  },
+  "leadTimeDays": 14,              // Production time
+  "shippingMethod": "ocean_freight",
+  "status": "active",
+  "productTypes": ["roller", "zebra", "honeycomb", "roman"],
+  "paymentTerms": "net30",
+  "createdAt": "2025-01-01T00:00:00.000Z"
+}
+
+// Manufacturer User (Login)
+{
+  "id": "mfr-user-e23820d6",
+  "manufacturerId": "mfr-default",  // Links to manufacturer
+  "manufacturerName": "Default Manufacturer",
+  "name": "Factory Manager",
+  "email": "manufacturer@peekaboo.com",
+  "password": "$2b$10$...",
+  "role": "manager",                // operator, manager, admin
+  "status": "active",
+  "lastLogin": "2026-01-18T15:53:20.050Z"
+}
+
+// Manufacturer Prices
+{
+  "id": "mp-001",
+  "manufacturerId": "mfr-default",
+  "productType": "roller",
+  "fabricCode": "82032A",
+  "fabricName": "Light Filtering White",
+  "pricePerSqMeter": 45.00,        // Cost per sq meter
+  "status": "active"
+}
+```
+
+**Order Status Flow (Manufacturer Controls):**
+```
+order_received → manufacturing → qa → ready_to_ship → shipped
+```
+
+**Linked To:**
+- `orders.manufacturerId` → Orders assigned to manufacturer
+- `manufacturerPrices.manufacturerId` → Pricing data
+- `invoices` (type: 'manufacturer') → Manufacturer invoices (payables)
+- `orderStatusHistory` → Status change audit trail
+
+**API Endpoints:**
+| Method | Endpoint | Purpose |
+|--------|----------|---------|
+| POST | `/api/manufacturer/login` | Authenticate |
+| GET | `/api/manufacturer/stats` | Dashboard stats |
+| GET | `/api/manufacturer/orders` | Production queue |
+| GET | `/api/manufacturer/orders/:id` | Order details |
+| PUT | `/api/manufacturer/orders/:id/status` | Update status |
+| PUT | `/api/manufacturer/orders/:id/tracking` | Add tracking |
+
+---
+
+### How Data Links Together
+
+```
+                                    ┌─────────────────┐
+                                    │     ORDER       │
+                                    │   (Central)     │
+                                    └────────┬────────┘
+                                             │
+         ┌───────────────┬───────────────────┼───────────────────┬───────────────┐
+         │               │                   │                   │               │
+         ▼               ▼                   ▼                   ▼               ▼
+┌─────────────┐  ┌─────────────┐    ┌─────────────┐    ┌─────────────┐  ┌─────────────┐
+│  CUSTOMER   │  │   DEALER    │    │ TECHNICIAN  │    │MANUFACTURER │  │  INVOICES   │
+│             │  │             │    │             │    │             │  │             │
+│ orders[]    │  │dealerOrders │    │appointments │    │ orders[]    │  │ Customer    │
+│ addresses[] │  │commissions[]│    │ payments[]  │    │ prices[]    │  │ Manufacturer│
+│ invoices[]  │  │customers[]  │    │ schedule[]  │    │ tracking[]  │  │ (Receivable/│
+│             │  │             │    │             │    │             │  │  Payable)   │
+└─────────────┘  └─────────────┘    └─────────────┘    └─────────────┘  └─────────────┘
+```
+
+**Order Links Example:**
+```javascript
+{
+  "id": "ORD-123456",
+  "customerId": "cust-ed8efb2f",         // Links to customer
+  "dealerId": null,                       // null = direct sale, set = B2B
+  "manufacturerId": "mfr-default",        // Production manufacturer
+  // ... order details
+}
+
+// Related appointment
+{
+  "orderId": "ORD-123456",
+  "technicianId": "tech-b21c1efb",        // Assigned installer
+  "customerId": "cust-ed8efb2f"           // Same customer
+}
+
+// Related invoices
+{
+  "orderId": "ORD-123456",
+  "type": "customer",                     // Customer invoice (revenue)
+  "customerId": "cust-ed8efb2f"
+}
+{
+  "orderId": "ORD-123456",
+  "type": "manufacturer",                 // Manufacturer invoice (cost)
+  "manufacturerId": "mfr-default"
+}
+```
+
 ---
 
 ## 2. Technology Stack
