@@ -2,6 +2,8 @@
 
 A comprehensive e-commerce platform for custom window blinds and shades, featuring customer-facing shopping, dealer portal, manufacturer portal, and admin dashboard.
 
+> **New:** See [COMPREHENSIVE_SYSTEM_DOCUMENTATION.md](docs/COMPREHENSIVE_SYSTEM_DOCUMENTATION.md) for complete system documentation covering 579+ API endpoints, 100+ admin pages, business model with invoices/accounts/profits/analytics, and pricing engine details.
+
 ## Table of Contents
 
 - [Overview](#overview)
@@ -515,17 +517,54 @@ NODE_ENV=development
 
 Detailed documentation is available in the `/docs` folder:
 
+### Primary Documentation
+
 | Document | Description |
 |----------|-------------|
+| [COMPREHENSIVE_SYSTEM_DOCUMENTATION.md](docs/COMPREHENSIVE_SYSTEM_DOCUMENTATION.md) | **Complete system docs** - 579+ APIs, 100+ admin pages, business model, pricing engine |
+| [KNOWLEDGE_TRANSFER_COMPLETE.md](docs/KNOWLEDGE_TRANSFER_COMPLETE.md) | Full knowledge transfer with business model diagram |
+| [ADMIN_KNOWLEDGE_TRANSFER.md](docs/ADMIN_KNOWLEDGE_TRANSFER.md) | Admin panel knowledge transfer |
+
+### Architecture & Technical
+
+| Document | Description |
+|----------|-------------|
+| [ARCHITECTURE.md](docs/ARCHITECTURE.md) | System architecture overview |
+| [SITE_ARCHITECTURE.md](docs/SITE_ARCHITECTURE.md) | Site structure and navigation |
+| [DATA_MODEL.md](docs/DATA_MODEL.md) | Database schema and data models |
+| [API_CONTRACTS.md](docs/API_CONTRACTS.md) | API contracts and specifications |
 | [API_REFERENCE.md](docs/API_REFERENCE.md) | Complete API endpoint documentation |
+| [API_DOCUMENTATION.md](docs/API_DOCUMENTATION.md) | Original API documentation |
+
+### Business & Operations
+
+| Document | Description |
+|----------|-------------|
+| [FINANCE_ACCOUNTING.md](docs/FINANCE_ACCOUNTING.md) | Invoices, ledger, margins, profitability |
+| [ORDER_LIFECYCLE.md](docs/ORDER_LIFECYCLE.md) | Order status workflow and transitions |
+| [ORDER_STATUS_MANAGEMENT.md](docs/ORDER_STATUS_MANAGEMENT.md) | Order status management guide |
+| [PRODUCTION_MANUFACTURER_SYSTEM.md](docs/PRODUCTION_MANUFACTURER_SYSTEM.md) | Production queue and manufacturer portal |
+| [PRICING_SOURCE_TARGET_MAPPING.md](docs/PRICING_SOURCE_TARGET_MAPPING.md) | Pricing data flow mappings |
+
+### Portal Guides
+
+| Document | Description |
+|----------|-------------|
+| [admin_guide.md](docs/admin_guide.md) | Admin portal guide |
+| [ADMIN_SYSTEM_MAP.md](docs/ADMIN_SYSTEM_MAP.md) | Admin system page map |
 | [DEALER_PORTAL.md](docs/DEALER_PORTAL.md) | Dealer portal user guide |
 | [DEALER_PORTAL_DATA_FLOW.md](docs/DEALER_PORTAL_DATA_FLOW.md) | Data flow diagrams & architecture |
-| [FINANCE_ACCOUNTING.md](docs/FINANCE_ACCOUNTING.md) | Invoices, ledger, margins, profitability |
-| [ARCHITECTURE.md](docs/ARCHITECTURE.md) | System architecture overview |
-| [KNOWLEDGE_TRANSFER.md](docs/KNOWLEDGE_TRANSFER.md) | Developer onboarding guide |
-| [API_DOCUMENTATION.md](docs/API_DOCUMENTATION.md) | Original API documentation |
+
+### Development & QA
+
+| Document | Description |
+|----------|-------------|
+| [AI_DEVELOPMENT_GUIDE.md](docs/AI_DEVELOPMENT_GUIDE.md) | AI/Claude development guidelines |
+| [PEEKABOO_SHADES_QA_DICTIONARY.md](docs/PEEKABOO_SHADES_QA_DICTIONARY.md) | QA testing dictionary |
+| [ADMIN_QA_REPORT.md](docs/ADMIN_QA_REPORT.md) | Admin QA test results |
+| [UI_FLOWS.md](docs/UI_FLOWS.md) | User interface flows |
+| [PRODUCT_PAGE_EDITOR.md](docs/PRODUCT_PAGE_EDITOR.md) | Product page editor guide |
 | [peekabooshades_knowledge_summary.md](docs/peekabooshades_knowledge_summary.md) | Business rules & pricing summary |
-| [admin_guide.md](docs/admin_guide.md) | Admin portal guide |
 
 ---
 
