@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Facebook Catalog - Peekaboo Shades Admin</title>
+  <link rel="stylesheet" href="/admin/css/admin.css?v=1737200003.0.28">
+  <script src="/admin/js/adminNavConfig.js?v=1737200002"></script>
+  <style>
+    .integration-grid { display: grid; grid-template-columns: 1fr 350px; gap: 1.5rem; margin-top: 1.5rem; }
+    .integration-card { background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+    .integration-card h3 { margin: 0 0 1.5rem 0; }
+    .status-banner { padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: center; }
+    .status-connected { background: #DBEAFE; }
+    .form-group { margin-bottom: 1.25rem; }
+    .form-group label { display: block; margin-bottom: 0.5rem; font-weight: 500; }
+    .form-group select, .form-group input { width: 100%; padding: 0.75rem; border: 1px solid #ddd; border-radius: 8px; }
+    .toggle { position: relative; width: 50px; height: 26px; display: inline-block; vertical-align: middle; }
+    .toggle input { opacity: 0; width: 0; height: 0; }
+    .toggle .slider { position: absolute; cursor: pointer; inset: 0; background: #ddd; border-radius: 26px; transition: 0.3s; }
+    .toggle .slider:before { content: ""; position: absolute; height: 20px; width: 20px; left: 3px; bottom: 3px; background: white; border-radius: 50%; transition: 0.3s; }
+    .toggle input:checked + .slider { background: #1877F2; }
+    .toggle input:checked + .slider:before { transform: translateX(24px); }
+    .btn-primary { padding: 0.75rem 1.5rem; background: #1877F2; color: white; border: none; border-radius: 8px; cursor: pointer; }
+    .btn-secondary { padding: 0.75rem 1.5rem; background: #E5E7EB; color: #374151; border: none; border-radius: 8px; cursor: pointer; }
+    .stat-card { background: #F9FAFB; padding: 1rem; border-radius: 8px; margin-bottom: 1rem; }
+    .stat-card h4 { margin: 0 0 0.5rem 0; font-size: 0.85rem; color: #666; }
+    .stat-card .value { font-size: 1.5rem; font-weight: 600; color: #1877F2; }
+    .pixel-status { display: flex; align-items: center; gap: 0.5rem; padding: 0.75rem; background: #D1FAE5; border-radius: 6px; margin-bottom: 1rem; }
+    .pixel-status .dot { width: 8px; height: 8px; background: #10B981; border-radius: 50%; }
+  </style>
+</head>
+<body>
+  <div class="admin-layout">
+    <aside class="admin-sidebar"></aside>
+    <main class="admin-main">
+      <header class="admin-header"><h1>Facebook Catalog</h1></header>
+      <div class="admin-content">
+        <div class="status-banner status-connected">
+          <div>
+            <strong style="color: #1E40AF;">Connected to Facebook Business</strong>
+            <p style="margin: 0; font-size: 0.9rem; color: #1E40AF;">Catalog: Peekaboo Shades Products • 45 items</p>
+          </div>
+          <button class="btn-secondary" onclick="syncNow()">Sync Catalog</button>
+        </div>
+        <div class="integration-grid">
+          <div class="integration-card">
+            <h3>Catalog Settings</h3>
+            <div class="pixel-status">
+              <span class="dot"></span>
+              <span>Facebook Pixel Active (ID: 123456789012345)</span>
+            </div>
+            <div class="form-group">
+              <label>Business Account</label>
+              <input type="text" value="Peekaboo Shades" readonly>
+            </div>
+            <div class="form-group">
+              <label>Catalog ID</label>
+              <input type="text" value="987654321098765" readonly>
+            </div>
+            <div class="form-group">
+              <label style="display: flex; justify-content: space-between; align-items: center;">
+                Enable Dynamic Ads
+                <label class="toggle"><input type="checkbox" checked><span class="slider"></span></label>
+              </label>
+            </div>
+            <div class="form-group">
+              <label style="display: flex; justify-content: space-between; align-items: center;">
+                Instagram Shopping
+                <label class="toggle"><input type="checkbox" checked><span class="slider"></span></label>
+              </label>
+            </div>
+            <div class="form-group">
+              <label style="display: flex; justify-content: space-between; align-items: center;">
+                Facebook Shop
+                <label class="toggle"><input type="checkbox" checked><span class="slider"></span></label>
+              </label>
+            </div>
+            <h3 style="margin-top: 2rem;">Product Sets</h3>
+            <div style="display: grid; gap: 0.5rem;">
+              <div style="padding: 0.75rem; background: #F9FAFB; border-radius: 6px; display: flex; justify-content: space-between;">
+                <span>All Window Treatments</span><span>45 items</span>
+              </div>
+              <div style="padding: 0.75rem; background: #F9FAFB; border-radius: 6px; display: flex; justify-content: space-between;">
+                <span>Blackout Collection</span><span>12 items</span>
+              </div>
+              <div style="padding: 0.75rem; background: #F9FAFB; border-radius: 6px; display: flex; justify-content: space-between;">
+                <span>Motorized Shades</span><span>8 items</span>
+              </div>
+              <div style="padding: 0.75rem; background: #F9FAFB; border-radius: 6px; display: flex; justify-content: space-between;">
+                <span>Sale Items</span><span>5 items</span>
+              </div>
+            </div>
+          </div>
+          <div>
+            <div class="integration-card">
+              <h3>Ad Performance</h3>
+              <div class="stat-card">
+                <h4>Reach (30 days)</h4>
+                <div class="value">28,450</div>
+              </div>
+              <div class="stat-card">
+                <h4>Link Clicks</h4>
+                <div class="value">892</div>
+              </div>
+              <div class="stat-card">
+                <h4>Add to Cart</h4>
+                <div class="value">156</div>
+              </div>
+              <div class="stat-card">
+                <h4>Purchases</h4>
+                <div class="value">42</div>
+              </div>
+              <div class="stat-card">
+                <h4>ROAS</h4>
+                <div class="value">4.2x</div>
+              </div>
+            </div>
+            <div class="integration-card">
+              <h3>Pixel Events</h3>
+              <div class="stat-card">
+                <h4>Page Views (Today)</h4>
+                <div class="value">234</div>
+              </div>
+              <div class="stat-card">
+                <h4>View Content</h4>
+                <div class="value">89</div>
+              </div>
+              <div class="stat-card">
+                <h4>Add to Cart</h4>
+                <div class="value">12</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      if (!localStorage.getItem('admin_token')) { window.location.href = '/admin/login.html'; return; }
+      AdminNavConfig.initSidebar('facebook-catalog');
+    });
+    function syncNow() { alert('Syncing products to Facebook Catalog...'); }
+  </script>
+</body>
+</html>

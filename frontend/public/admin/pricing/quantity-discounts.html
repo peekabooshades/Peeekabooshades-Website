@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quantity Discounts - Peekaboo Shades Admin</title>
+  <link rel="stylesheet" href="/admin/css/admin.css?v=1737200003.0.28">
+  <script src="/admin/js/adminNavConfig.js?v=1737200002"></script>
+  <style>
+    .discount-grid { display: grid; grid-template-columns: 1fr 400px; gap: 1.5rem; margin-top: 1.5rem; }
+    .discount-rules { background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+    .discount-preview { background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); height: fit-content; position: sticky; top: 1rem; }
+    .rule-card { border: 1px solid #eee; border-radius: 8px; padding: 1rem; margin-bottom: 1rem; }
+    .rule-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
+    .rule-title { font-weight: 600; }
+    .rule-toggle { display: flex; align-items: center; gap: 0.5rem; }
+    .rule-toggle input { width: 18px; height: 18px; }
+    .tiers-table { width: 100%; border-collapse: collapse; }
+    .tiers-table th { background: #f9f9f9; padding: 0.75rem; text-align: left; font-size: 0.85rem; font-weight: 600; }
+    .tiers-table td { padding: 0.75rem; border-top: 1px solid #eee; }
+    .tiers-table input { width: 100%; padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px; }
+    .btn-add-tier { margin-top: 0.5rem; padding: 0.4rem 0.75rem; background: none; border: 1px dashed #ccc; border-radius: 4px; cursor: pointer; font-size: 0.85rem; }
+    .btn-remove { background: none; border: none; color: #EF4444; cursor: pointer; }
+    .preview-title { font-size: 1.1rem; font-weight: 600; margin-bottom: 1rem; }
+    .preview-example { background: #f9f9f9; padding: 1rem; border-radius: 8px; margin-bottom: 1rem; }
+    .preview-row { display: flex; justify-content: space-between; padding: 0.5rem 0; border-bottom: 1px solid #eee; }
+    .preview-row:last-child { border-bottom: none; font-weight: 600; }
+    .savings { color: #10B981; }
+    .form-group { margin-bottom: 1rem; }
+    .form-group label { display: block; margin-bottom: 0.5rem; font-weight: 500; font-size: 0.9rem; }
+    .form-group select { width: 100%; padding: 0.75rem; border: 1px solid #ddd; border-radius: 8px; }
+    .btn-add-rule { width: 100%; padding: 1rem; background: #8E6545; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; margin-top: 1rem; }
+  </style>
+</head>
+<body>
+  <div class="admin-layout">
+    <aside class="admin-sidebar"></aside>
+    <main class="admin-main">
+      <header class="admin-header">
+        <h1>Quantity Discounts</h1>
+      </header>
+      <div class="admin-content">
+        <div class="discount-grid">
+          <div class="discount-rules" id="discountRules"></div>
+          <div class="discount-preview">
+            <h3 class="preview-title">Discount Preview</h3>
+            <div class="form-group">
+              <label>Select Rule to Preview</label>
+              <select id="previewRule" onchange="updatePreview()"></select>
+            </div>
+            <div class="form-group">
+              <label>Base Price per Unit ($)</label>
+              <input type="number" id="previewPrice" value="150" onchange="updatePreview()" style="width: 100%; padding: 0.75rem; border: 1px solid #ddd; border-radius: 8px;">
+            </div>
+            <div id="previewResults"></div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+  <script>
+    let discountRules = [];
+
+    document.addEventListener('DOMContentLoaded', () => {
+      if (!localStorage.getItem('admin_token')) { window.location.href = '/admin/login.html'; return; }
+      AdminNavConfig.initSidebar('quantity-discounts');
+      loadDiscountRules();
+    });
+
+    async function loadDiscountRules() {
+      const token = localStorage.getItem('admin_token');
+      const headers = { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' };
+
+      try {
+        const res = await fetch('/api/admin/pricing/quantity-discounts', { headers });
+        const data = await res.json();
+
+        if (data.success) {
+          discountRules = data.rules || data.data || [];
+        } else {
+          discountRules = [];
+        }
+      } catch (error) {
+        console.error('Error loading discount rules:', error);
+        discountRules = [];
+      }
+      renderRules();
+      updateRuleSelect();
+      updatePreview();
+    }
+
+    async function saveDiscountRules() {
+      const token = localStorage.getItem('admin_token');
+      const headers = { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' };
+
+      try {
+        const res = await fetch('/api/admin/pricing/quantity-discounts', {
+          method: 'PUT',
+          headers,
+          body: JSON.stringify({ rules: discountRules })
+        });
+        const data = await res.json();
+
+        if (!data.success) {
+          console.error('Failed to save discount rules:', data.error);
+        }
+      } catch (error) {
+        console.error('Error saving discount rules:', error);
+      }
+    }
+
+    function renderRules() {
+      document.getElementById('discountRules').innerHTML = discountRules.map(rule => `
+        <div class="rule-card">
+          <div class="rule-header">
+            <span class="rule-title">${rule.name}</span>
+            <div class="rule-toggle">
+              <label style="font-size: 0.85rem; color: #666;">Enabled</label>
+              <input type="checkbox" ${rule.enabled ? 'checked' : ''} onchange="toggleRule('${rule.id}')">
+            </div>
+          </div>
+          <div style="margin-bottom: 0.75rem; font-size: 0.85rem; color: #666;">
+            Applies to: <strong>${rule.applyTo === 'all' ? 'All Products' : rule.applyTo}</strong>
+          </div>
+          <table class="tiers-table">
+            <thead>
+              <tr>
+                <th>Min Qty</th>
+                <th>Max Qty</th>
+                <th>Discount</th>
+                <th>Type</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              ${rule.tiers.map((tier, idx) => `
+                <tr>
+                  <td><input type="number" value="${tier.minQty}" min="1" onchange="updateTier('${rule.id}', ${idx}, 'minQty', this.value)"></td>
+                  <td><input type="number" value="${tier.maxQty || ''}" placeholder="∞" onchange="updateTier('${rule.id}', ${idx}, 'maxQty', this.value)"></td>
+                  <td><input type="number" value="${tier.discount}" step="0.01" onchange="updateTier('${rule.id}', ${idx}, 'discount', this.value)"></td>
+                  <td>
+                    <select onchange="updateTier('${rule.id}', ${idx}, 'type', this.value)">
+                      <option value="percent" ${tier.type === 'percent' ? 'selected' : ''}>%</option>
+                      <option value="flat" ${tier.type === 'flat' ? 'selected' : ''}>$</option>
+                    </select>
+                  </td>
+                  <td><button class="btn-remove" onclick="removeTier('${rule.id}', ${idx})">×</button></td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+          <button class="btn-add-tier" onclick="addTier('${rule.id}')">+ Add Tier</button>
+        </div>
+      `).join('') + '<button class="btn-add-rule" onclick="addRule()">+ Add Discount Rule</button>';
+    }
+
+    function updateRuleSelect() {
+      document.getElementById('previewRule').innerHTML = discountRules.map(r =>
+        `<option value="${r.id}">${r.name}</option>`
+      ).join('');
+    }
+
+    function toggleRule(ruleId) {
+      const rule = discountRules.find(r => r.id === ruleId);
+      if (rule) {
+        rule.enabled = !rule.enabled;
+        saveDiscountRules();
+      }
+    }
+
+    function updateTier(ruleId, tierIdx, field, value) {
+      const rule = discountRules.find(r => r.id === ruleId);
+      if (rule && rule.tiers[tierIdx]) {
+        if (field === 'maxQty' && value === '') {
+          rule.tiers[tierIdx][field] = null;
+        } else {
+          rule.tiers[tierIdx][field] = field === 'type' ? value : parseFloat(value);
+        }
+        updatePreview();
+        saveDiscountRules();
+      }
+    }
+
+    function removeTier(ruleId, tierIdx) {
+      const rule = discountRules.find(r => r.id === ruleId);
+      if (rule) {
+        rule.tiers.splice(tierIdx, 1);
+        renderRules();
+        updatePreview();
+        saveDiscountRules();
+      }
+    }
+
+    function addTier(ruleId) {
+      const rule = discountRules.find(r => r.id === ruleId);
+      if (rule) {
+        const lastTier = rule.tiers[rule.tiers.length - 1];
+        const minQty = lastTier ? (lastTier.maxQty || lastTier.minQty) + 1 : 1;
+        rule.tiers.push({ minQty, maxQty: null, discount: 0, type: 'percent' });
+        renderRules();
+        saveDiscountRules();
+      }
+    }
+
+    function addRule() {
+      const name = prompt('Enter discount rule name:');
+      if (name && name.trim()) {
+        discountRules.push({
+          id: 'rule-' + Date.now(),
+          name: name.trim(),
+          enabled: true,
+          applyTo: 'all',
+          tiers: [{ minQty: 2, maxQty: null, discount: 5, type: 'percent' }]
+        });
+        renderRules();
+        updateRuleSelect();
+        saveDiscountRules();
+      }
+    }
+
+    function updatePreview() {
+      const ruleId = document.getElementById('previewRule').value;
+      const basePrice = parseFloat(document.getElementById('previewPrice').value) || 100;
+      const rule = discountRules.find(r => r.id === ruleId);
+
+      if (!rule) return;
+
+      const quantities = [1, 2, 5, 10, 25];
+      let html = '';
+
+      quantities.forEach(qty => {
+        const tier = rule.tiers.find(t => qty >= t.minQty && (t.maxQty === null || qty <= t.maxQty));
+        let unitPrice = basePrice;
+        let savings = 0;
+
+        if (tier) {
+          if (tier.type === 'percent') {
+            savings = basePrice * (tier.discount / 100);
+          } else {
+            savings = tier.discount;
+          }
+          unitPrice = basePrice - savings;
+        }
+
+        const total = unitPrice * qty;
+        const totalSavings = savings * qty;
+
+        html += `
+          <div class="preview-example">
+            <div style="font-weight: 600; margin-bottom: 0.5rem;">${qty} Unit${qty > 1 ? 's' : ''}</div>
+            <div class="preview-row">
+              <span>Base price</span>
+              <span>$${basePrice.toFixed(2)}/unit</span>
+            </div>
+            ${tier ? `
+              <div class="preview-row">
+                <span>Discount (${tier.type === 'percent' ? tier.discount + '%' : '$' + tier.discount})</span>
+                <span class="savings">-$${savings.toFixed(2)}/unit</span>
+              </div>
+            ` : ''}
+            <div class="preview-row">
+              <span>Unit price</span>
+              <span>$${unitPrice.toFixed(2)}</span>
+            </div>
+            <div class="preview-row" style="margin-top: 0.5rem; padding-top: 0.5rem;">
+              <span>Total</span>
+              <span>$${total.toFixed(2)} ${totalSavings > 0 ? `<span class="savings">(Save $${totalSavings.toFixed(2)})</span>` : ''}</span>
+            </div>
+          </div>
+        `;
+      });
+
+      document.getElementById('previewResults').innerHTML = html;
+    }
+  </script>
+</body>
+</html>

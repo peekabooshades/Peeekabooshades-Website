@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Error Logs - Peekaboo Shades Admin</title>
+  <link rel="stylesheet" href="/admin/css/admin.css?v=1737200003.0.28">
+  <script src="/admin/js/adminNavConfig.js?v=1737200002"></script>
+  <style>
+    .filters { display: flex; gap: 1rem; margin-bottom: 1.5rem; flex-wrap: wrap; }
+    .filters select, .filters input { padding: 0.5rem 1rem; border: 1px solid #ddd; border-radius: 6px; }
+    .stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 1.5rem; }
+    .stat-card { background: white; padding: 1rem; border-radius: 8px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); text-align: center; }
+    .stat-card .value { font-size: 1.5rem; font-weight: 600; }
+    .stat-card .label { font-size: 0.8rem; color: #666; }
+    .stat-error .value { color: #EF4444; }
+    .stat-warning .value { color: #F59E0B; }
+    .stat-info .value { color: #3B82F6; }
+    .logs-card { background: white; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); overflow: hidden; }
+    .log-entry { padding: 1rem 1.5rem; border-bottom: 1px solid #eee; }
+    .log-entry:last-child { border-bottom: none; }
+    .log-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; }
+    .log-level { padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.75rem; font-weight: 600; }
+    .level-error { background: #FEE2E2; color: #991B1B; }
+    .level-warning { background: #FEF3C7; color: #92400E; }
+    .level-info { background: #DBEAFE; color: #1E40AF; }
+    .log-time { font-size: 0.8rem; color: #666; }
+    .log-message { font-family: monospace; font-size: 0.9rem; background: #f9f9f9; padding: 0.5rem; border-radius: 4px; }
+    .log-details { font-size: 0.85rem; color: #666; margin-top: 0.5rem; }
+    .btn-clear { padding: 0.5rem 1rem; background: #FEE2E2; color: #991B1B; border: none; border-radius: 6px; cursor: pointer; }
+    .btn-export { padding: 0.5rem 1rem; background: #E5E7EB; color: #374151; border: none; border-radius: 6px; cursor: pointer; }
+    .pagination { display: flex; justify-content: center; gap: 0.5rem; margin-top: 1rem; padding: 1rem; }
+    .pagination button { padding: 0.5rem 1rem; border: 1px solid #ddd; background: white; border-radius: 4px; cursor: pointer; }
+    .pagination button.active { background: #8E6545; color: white; border-color: #8E6545; }
+  </style>
+</head>
+<body>
+  <div class="admin-layout">
+    <aside class="admin-sidebar"></aside>
+    <main class="admin-main">
+      <header class="admin-header">
+        <h1>Error Logs</h1>
+        <div class="header-actions">
+          <button class="btn-export" onclick="exportLogs()">Export</button>
+          <button class="btn-clear" onclick="clearLogs()">Clear Logs</button>
+        </div>
+      </header>
+      <div class="admin-content">
+        <div class="stats-row">
+          <div class="stat-card stat-error"><div class="value">12</div><div class="label">Errors (24h)</div></div>
+          <div class="stat-card stat-warning"><div class="value">28</div><div class="label">Warnings (24h)</div></div>
+          <div class="stat-card stat-info"><div class="value">156</div><div class="label">Info (24h)</div></div>
+          <div class="stat-card"><div class="value">99.2%</div><div class="label">Uptime</div></div>
+        </div>
+        <div class="filters">
+          <select id="levelFilter"><option value="">All Levels</option><option value="error">Errors</option><option value="warning">Warnings</option><option value="info">Info</option></select>
+          <select id="sourceFilter"><option value="">All Sources</option><option value="api">API</option><option value="auth">Authentication</option><option value="payment">Payment</option></select>
+          <input type="date" id="dateFilter">
+          <input type="text" placeholder="Search logs..." style="width: 200px;">
+        </div>
+        <div class="logs-card">
+          <div class="log-entry">
+            <div class="log-header">
+              <span class="log-level level-error">ERROR</span>
+              <span class="log-time">2024-01-15 14:32:18</span>
+            </div>
+            <div class="log-message">PaymentProcessingError: Card declined - insufficient funds</div>
+            <div class="log-details">Source: payment-service | Order: ORD-2024-1089</div>
+          </div>
+          <div class="log-entry">
+            <div class="log-header">
+              <span class="log-level level-warning">WARNING</span>
+              <span class="log-time">2024-01-15 14:28:45</span>
+            </div>
+            <div class="log-message">Rate limit approaching: 450/500 requests per minute from IP 192.168.1.100</div>
+            <div class="log-details">Source: api-gateway</div>
+          </div>
+          <div class="log-entry">
+            <div class="log-header">
+              <span class="log-level level-info">INFO</span>
+              <span class="log-time">2024-01-15 14:25:00</span>
+            </div>
+            <div class="log-message">Scheduled backup completed successfully</div>
+            <div class="log-details">Source: backup-service | Duration: 45s</div>
+          </div>
+          <div class="log-entry">
+            <div class="log-header">
+              <span class="log-level level-error">ERROR</span>
+              <span class="log-time">2024-01-15 14:18:33</span>
+            </div>
+            <div class="log-message">SMTP connection failed: Connection timeout after 30000ms</div>
+            <div class="log-details">Source: email-service</div>
+          </div>
+          <div class="pagination">
+            <button class="active">1</button>
+            <button>2</button>
+            <button>3</button>
+            <button>Next →</button>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      if (!localStorage.getItem('admin_token')) { window.location.href = '/admin/login.html'; return; }
+      AdminNavConfig.initSidebar('error-logs');
+    });
+    function exportLogs() { alert('Exporting logs...'); }
+    function clearLogs() { if(confirm('Clear all logs?')) alert('Logs cleared'); }
+  </script>
+</body>
+</html>

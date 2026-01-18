@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Shipping Reports - Peekaboo Shades Admin</title>
+  <link rel="stylesheet" href="/admin/css/admin.css?v=1737200003.0.28">
+  <script src="/admin/js/adminNavConfig.js?v=1737200002"></script>
+  <style>
+    .metrics-row { display: grid; grid-template-columns: repeat(5, 1fr); gap: 1rem; margin-bottom: 1.5rem; }
+    .metric-card { background: white; padding: 1.25rem; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); text-align: center; }
+    .metric-card h4 { margin: 0 0 0.5rem 0; font-size: 0.8rem; color: #666; }
+    .metric-card .value { font-size: 1.5rem; font-weight: 600; color: #333; }
+    .reports-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+    .report-card { background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+    .report-card h3 { margin: 0 0 1rem 0; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { padding: 0.75rem; text-align: left; border-bottom: 1px solid #eee; }
+    th { font-weight: 600; color: #666; font-size: 0.85rem; }
+    .status-badge { padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.75rem; }
+    .status-delivered { background: #D1FAE5; color: #065F46; }
+    .status-transit { background: #DBEAFE; color: #1E40AF; }
+    .status-delayed { background: #FEE2E2; color: #991B1B; }
+    .carrier-bar { display: flex; align-items: center; gap: 0.5rem; }
+    .carrier-fill { height: 8px; background: #8E6545; border-radius: 4px; }
+    .filters { display: flex; gap: 1rem; margin-bottom: 1.5rem; }
+    .filters select { padding: 0.5rem 1rem; border: 1px solid #ddd; border-radius: 6px; }
+  </style>
+</head>
+<body>
+  <div class="admin-layout">
+    <aside class="admin-sidebar"></aside>
+    <main class="admin-main">
+      <header class="admin-header"><h1>Shipping Reports</h1></header>
+      <div class="admin-content">
+        <div class="filters">
+          <select><option>Last 30 Days</option><option>Last 60 Days</option><option>Last 90 Days</option></select>
+          <select><option>All Carriers</option><option>FedEx</option><option>UPS</option><option>USPS</option></select>
+        </div>
+        <div class="metrics-row">
+          <div class="metric-card">
+            <h4>Shipments</h4>
+            <div class="value">342</div>
+          </div>
+          <div class="metric-card">
+            <h4>On-Time Rate</h4>
+            <div class="value" style="color: #10B981;">94%</div>
+          </div>
+          <div class="metric-card">
+            <h4>Avg Transit Days</h4>
+            <div class="value">4.2</div>
+          </div>
+          <div class="metric-card">
+            <h4>Shipping Cost</h4>
+            <div class="value">$4,890</div>
+          </div>
+          <div class="metric-card">
+            <h4>Avg Cost/Order</h4>
+            <div class="value">$14.30</div>
+          </div>
+        </div>
+        <div class="reports-grid">
+          <div class="report-card">
+            <h3>Carrier Performance</h3>
+            <table>
+              <thead>
+                <tr><th>Carrier</th><th>Shipments</th><th>On-Time</th><th>Avg Days</th></tr>
+              </thead>
+              <tbody>
+                <tr><td>FedEx Ground</td><td>156</td><td>96%</td><td>3.8</td></tr>
+                <tr><td>UPS Ground</td><td>98</td><td>94%</td><td>4.1</td></tr>
+                <tr><td>USPS Priority</td><td>62</td><td>89%</td><td>5.2</td></tr>
+                <tr><td>FedEx Express</td><td>26</td><td>98%</td><td>1.5</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="report-card">
+            <h3>Delivery Status Breakdown</h3>
+            <div style="margin-bottom: 1rem;">
+              <div class="carrier-bar" style="margin-bottom: 0.75rem;">
+                <span style="min-width: 100px;">Delivered</span>
+                <div class="carrier-fill" style="width: 280px; background: #10B981;"></div>
+                <span>82%</span>
+              </div>
+              <div class="carrier-bar" style="margin-bottom: 0.75rem;">
+                <span style="min-width: 100px;">In Transit</span>
+                <div class="carrier-fill" style="width: 45px; background: #3B82F6;"></div>
+                <span>13%</span>
+              </div>
+              <div class="carrier-bar" style="margin-bottom: 0.75rem;">
+                <span style="min-width: 100px;">Delayed</span>
+                <div class="carrier-fill" style="width: 10px; background: #EF4444;"></div>
+                <span>3%</span>
+              </div>
+              <div class="carrier-bar">
+                <span style="min-width: 100px;">Exception</span>
+                <div class="carrier-fill" style="width: 7px; background: #F59E0B;"></div>
+                <span>2%</span>
+              </div>
+            </div>
+          </div>
+          <div class="report-card">
+            <h3>Shipping by Zone</h3>
+            <table>
+              <thead><tr><th>Zone</th><th>Orders</th><th>Avg Cost</th><th>Avg Days</th></tr></thead>
+              <tbody>
+                <tr><td>Zone 1-2 (Local)</td><td>89</td><td>$8.50</td><td>2.1</td></tr>
+                <tr><td>Zone 3-4</td><td>124</td><td>$12.40</td><td>3.5</td></tr>
+                <tr><td>Zone 5-6</td><td>86</td><td>$16.80</td><td>4.8</td></tr>
+                <tr><td>Zone 7-8</td><td>43</td><td>$22.50</td><td>6.2</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="report-card">
+            <h3>Recent Delays</h3>
+            <table>
+              <thead><tr><th>Order</th><th>Carrier</th><th>Days Late</th><th>Status</th></tr></thead>
+              <tbody>
+                <tr><td>#1089</td><td>USPS</td><td>2</td><td><span class="status-badge status-delivered">Delivered</span></td></tr>
+                <tr><td>#1076</td><td>FedEx</td><td>1</td><td><span class="status-badge status-delivered">Delivered</span></td></tr>
+                <tr><td>#1092</td><td>UPS</td><td>3</td><td><span class="status-badge status-transit">In Transit</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      if (!localStorage.getItem('admin_token')) { window.location.href = '/admin/login.html'; return; }
+      AdminNavConfig.initSidebar('shipping-reports');
+    });
+  </script>
+</body>
+</html>

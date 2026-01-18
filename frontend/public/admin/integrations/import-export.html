@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Import/Export Tools - Peekaboo Shades Admin</title>
+  <link rel="stylesheet" href="/admin/css/admin.css?v=1737200003.0.28">
+  <script src="/admin/js/adminNavConfig.js?v=1737200002"></script>
+  <style>
+    .tools-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-top: 1.5rem; }
+    .tool-card { background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+    .tool-card h3 { margin: 0 0 1rem 0; }
+    .form-group { margin-bottom: 1.25rem; }
+    .form-group label { display: block; margin-bottom: 0.5rem; font-weight: 500; }
+    .form-group select { width: 100%; padding: 0.75rem; border: 1px solid #ddd; border-radius: 8px; }
+    .upload-zone { border: 2px dashed #ddd; border-radius: 12px; padding: 2rem; text-align: center; cursor: pointer; }
+    .upload-zone:hover { border-color: #8E6545; }
+    .btn-primary { padding: 0.75rem 1.5rem; background: #8E6545; color: white; border: none; border-radius: 8px; cursor: pointer; width: 100%; }
+    .btn-secondary { padding: 0.75rem 1.5rem; background: #E5E7EB; color: #374151; border: none; border-radius: 8px; cursor: pointer; width: 100%; }
+    .export-option { padding: 0.75rem; background: #F9FAFB; border-radius: 6px; margin-bottom: 0.5rem; display: flex; justify-content: space-between; align-items: center; }
+  </style>
+</head>
+<body>
+  <div class="admin-layout">
+    <aside class="admin-sidebar"></aside>
+    <main class="admin-main">
+      <header class="admin-header"><h1>Import/Export Tools</h1></header>
+      <div class="admin-content">
+        <div class="tools-grid">
+          <div class="tool-card">
+            <h3>Import Data</h3>
+            <div class="form-group">
+              <label>Data Type</label>
+              <select>
+                <option>Products</option>
+                <option>Fabrics</option>
+                <option>Customers</option>
+                <option>Orders</option>
+                <option>Pricing Rules</option>
+              </select>
+            </div>
+            <div class="upload-zone" onclick="selectFile()">
+              <div style="font-size: 2rem; margin-bottom: 0.5rem;">📄</div>
+              <p style="margin: 0; font-weight: 500;">Click to upload CSV/Excel file</p>
+              <p style="margin: 0.5rem 0 0 0; font-size: 0.85rem; color: #666;">or drag and drop</p>
+            </div>
+            <button class="btn-primary" style="margin-top: 1rem;" onclick="importData()">Import Data</button>
+            <p style="margin-top: 0.5rem; font-size: 0.85rem; color: #666; text-align: center;">
+              <a href="#" style="color: #8E6545;">Download template</a>
+            </p>
+          </div>
+          <div class="tool-card">
+            <h3>Export Data</h3>
+            <div class="export-option"><span>Products (45 items)</span><button class="btn-secondary" style="width:auto;padding:0.5rem 1rem;" onclick="exportData('products')">Export CSV</button></div>
+            <div class="export-option"><span>Fabrics (120 items)</span><button class="btn-secondary" style="width:auto;padding:0.5rem 1rem;" onclick="exportData('fabrics')">Export CSV</button></div>
+            <div class="export-option"><span>Customers (1,245)</span><button class="btn-secondary" style="width:auto;padding:0.5rem 1rem;" onclick="exportData('customers')">Export CSV</button></div>
+            <div class="export-option"><span>Orders (562)</span><button class="btn-secondary" style="width:auto;padding:0.5rem 1rem;" onclick="exportData('orders')">Export CSV</button></div>
+            <div class="export-option"><span>Pricing Rules</span><button class="btn-secondary" style="width:auto;padding:0.5rem 1rem;" onclick="exportData('pricing')">Export CSV</button></div>
+            <h3 style="margin-top: 1.5rem;">Full Export</h3>
+            <button class="btn-primary" onclick="exportAll()">Export All Data (ZIP)</button>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      if (!localStorage.getItem('admin_token')) { window.location.href = '/admin/login.html'; return; }
+      AdminNavConfig.initSidebar('import-export-tools');
+    });
+    function selectFile() { alert('Opening file picker...'); }
+    function importData() { alert('Importing data...'); }
+    function exportData(type) { alert(`Exporting ${type}...`); }
+    function exportAll() { alert('Exporting all data...'); }
+  </script>
+</body>
+</html>

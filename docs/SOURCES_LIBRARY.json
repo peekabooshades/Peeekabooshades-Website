@@ -1,0 +1,371 @@
+{
+  "version": "1.0.0",
+  "lastUpdated": "2025-01-11",
+  "description": "Central registry of all sources and evidence for content, specs, and pricing",
+  "primarySources": {
+    "pdfCatalog": {
+      "id": "src-pdf-001",
+      "type": "manufacturer-catalog",
+      "filename": "成品帘总目录册-印刷版-2025.5.16(1).pdf",
+      "location": "/Users/surya/Downloads/",
+      "dateReceived": "2025-05-16",
+      "manufacturer": "Qingyuan Leyou Household Products Co., Ltd. (Zstarr Blinds)",
+      "pages": 60,
+      "fileSize": "103MB",
+      "contentTypes": ["product-specs", "dimensions", "control-systems", "valance-types", "fabric-codes", "installation-guides"],
+      "lastExtracted": "2025-01-11",
+      "pageMapping": {
+        "companyInfo": [1, 2, 60],
+        "rollerShades": [3, 4, 5, 6, 7, 8, 9, 10],
+        "zebraShades": [11, 12, 13, 14, 15],
+        "sheerShades": [16, 17, 18, 19],
+        "honeycombShades": [20, 21, 22, 23, 24, 25, 26],
+        "romanShades": [27, 28, 29, 30, 31],
+        "outdoorShades": [32, 33, 34, 35, 36, 37, 38, 39, 40],
+        "aluminumBlinds": [41, 42, 43, 44],
+        "fauxWoodBlinds": [45, 46, 47, 48],
+        "panelTrackBlinds": [49, 50, 51, 52],
+        "verticalBlinds": [53, 54, 55, 56, 57],
+        "printedBlinds": [58, 59]
+      }
+    },
+    "qaReport": {
+      "id": "src-qa-001",
+      "type": "internal-audit",
+      "filename": "PEEKABOO_SHADES_QA_DICTIONARY.docx",
+      "location": "/Users/surya/Desktop/",
+      "dateCreated": "2025-01-08",
+      "author": "QA Team",
+      "contentTypes": ["page-inventory", "endpoint-inventory", "database-schema", "element-registry"],
+      "coverage": {
+        "htmlPages": 91,
+        "apiEndpoints": 394,
+        "databaseCollections": 58
+      }
+    },
+    "nonFunctionalReport": {
+      "id": "src-nf-001",
+      "type": "internal-audit",
+      "filename": "NON_FUNCTIONAL_ELEMENTS_REPORT.docx",
+      "location": "/Users/surya/Desktop/",
+      "dateCreated": "2025-01-09",
+      "author": "QA Team",
+      "contentTypes": ["broken-links", "stub-functions", "placeholder-alerts", "dead-buttons"],
+      "issueCount": 127
+    },
+    "database": {
+      "id": "src-db-001",
+      "type": "application-database",
+      "filename": "database.json",
+      "location": "/backend/",
+      "collections": {
+        "categories": { "count": 5, "description": "Product categories" },
+        "products": { "count": 5, "description": "Main products" },
+        "fabrics": { "count": "150+", "description": "Fabric swatches with codes" },
+        "hardwareOptions": { "count": "30+", "description": "Roller shade hardware options" },
+        "zebraHardwareOptions": { "count": "20+", "description": "Zebra shade hardware options" },
+        "motorBrands": { "count": 2, "description": "AOK and Dooya motors" },
+        "manufacturerPrices": { "count": "100+", "description": "MFR pricing by fabric and area" },
+        "orders": { "type": "transactional", "description": "Customer orders" },
+        "quotes": { "type": "transactional", "description": "Customer quotes" },
+        "dealerOrders": { "type": "transactional", "description": "Dealer orders" },
+        "customers": { "type": "transactional", "description": "Customer records" },
+        "dealers": { "type": "transactional", "description": "Dealer accounts" }
+      }
+    }
+  },
+  "contentSources": {
+    "productDescriptions": [
+      {
+        "target": "rollerShades.description",
+        "source": "src-pdf-001",
+        "page": 3,
+        "quote": "The eco-friendly and durable fabric is made into a variety of shading effects: transparent, semi-blackout, blackout, with unique design and functions of insulation, dust-proof, shading and light filtering"
+      },
+      {
+        "target": "zebraShades.description",
+        "source": "src-pdf-001",
+        "page": 11,
+        "quote": "Our zebra shades offer a versatile range of colors, textures, and prints with simple yet elegant light control options"
+      },
+      {
+        "target": "sheerShades.description",
+        "source": "src-pdf-001",
+        "page": 16,
+        "quote": "Adjustable, softly contoured fabric vanes with a light-diffusing back panel. This luxurious blinds softly filter light into the home and combine the sophistication of drapery with the functionality of shades"
+      },
+      {
+        "target": "honeycombShades.description",
+        "source": "src-pdf-001",
+        "page": 20,
+        "quote": "With a honeycomb-like structure that offer good insulation, light control and come in various styles to enhance the aesthetics of a room"
+      },
+      {
+        "target": "romanShades.description",
+        "source": "src-pdf-001",
+        "page": 27,
+        "quote": "Elegantly tailored. In flat or full folds. Transforming light, for a more alluring space"
+      },
+      {
+        "target": "outdoorShades.description",
+        "source": "src-pdf-001",
+        "page": 32,
+        "quote": "Made of durable materials, it has properties such as waterproof, sunproof, and mildewproof. The color remains vivid and does not fade easily"
+      },
+      {
+        "target": "aluminumBlinds.description",
+        "source": "src-pdf-001",
+        "page": 41,
+        "quote": "High strength elastic, not easy to deformation, wind and sun resistance. 180 degrees flip blade adjustment to easily control indoor light"
+      },
+      {
+        "target": "panelTrackBlinds.description",
+        "source": "src-pdf-001",
+        "page": 49,
+        "quote": "Sleek gliding panels. A contemporary feel. Creating a dramatic backdrop for short, tall or wide windows"
+      },
+      {
+        "target": "verticalBlinds.description",
+        "source": "src-pdf-001",
+        "page": 53,
+        "quote": "Vertical hanging design, suitable for large windows and sliding doors. Panels can be easily slid open or closed"
+      }
+    ],
+    "specifications": [
+      {
+        "target": "rollerShades.dimensions.simpleRolling.beadChain",
+        "source": "src-pdf-001",
+        "page": 9,
+        "table": "Roller Blinds Customized Size"
+      },
+      {
+        "target": "zebraShades.dimensions.38tube",
+        "source": "src-pdf-001",
+        "page": 15,
+        "table": "38tube Zebra Blinds Customized Size"
+      },
+      {
+        "target": "honeycombShades.dimensions.26mm",
+        "source": "src-pdf-001",
+        "page": 25,
+        "table": "26mm Honeycomb Blinds Customized Size"
+      },
+      {
+        "target": "honeycombShades.dimensions.38mm",
+        "source": "src-pdf-001",
+        "page": 26,
+        "table": "38、45mm Honeycomb Blinds Customized Size"
+      },
+      {
+        "target": "romanShades.dimensions",
+        "source": "src-pdf-001",
+        "page": 30,
+        "table": "Roman Blinds Customizable Size"
+      },
+      {
+        "target": "venetianBlinds.dimensions",
+        "source": "src-pdf-001",
+        "page": 44,
+        "table": "Venetian Blinds Customizable Size"
+      },
+      {
+        "target": "fauxWoodBlinds.dimensions",
+        "source": "src-pdf-001",
+        "page": 48,
+        "table": "Faux Wood Blinds Customizable Size"
+      }
+    ],
+    "valanceParameters": [
+      {
+        "target": "valance.squareV2.dimensions",
+        "source": "src-pdf-001",
+        "page": 8,
+        "measurements": "76x70x66mm, tube 40.3mm"
+      },
+      {
+        "target": "valance.fabricWrappedSA.dimensions",
+        "source": "src-pdf-001",
+        "page": 8,
+        "measurements": "58.8x87.41x68.7mm, tube 66mm"
+      },
+      {
+        "target": "valance.fabricInsertedS1.dimensions",
+        "source": "src-pdf-001",
+        "page": 8,
+        "measurements": "82x62x95.1mm, tube 73.5mm"
+      }
+    ],
+    "controlSystems": [
+      {
+        "target": "controlSystems.beadChain",
+        "source": "src-pdf-001",
+        "page": 7,
+        "types": ["plastic", "metal", "with-wand", "retractable-wand"]
+      },
+      {
+        "target": "controlSystems.cordless",
+        "source": "src-pdf-001",
+        "page": 7
+      },
+      {
+        "target": "controlSystems.motorized",
+        "source": "src-pdf-001",
+        "page": 7,
+        "features": ["APP control", "cordless-motorized 2-in-1"]
+      },
+      {
+        "target": "controlSystems.outdoor",
+        "source": "src-pdf-001",
+        "page": 37,
+        "types": ["remote", "voice", "mobile-app", "wind-light-rain-sensor", "crank"]
+      }
+    ],
+    "fabricCodes": [
+      {
+        "target": "fabrics.aluminumBlinds.matte",
+        "source": "src-pdf-001",
+        "page": 43,
+        "codes": ["92005A-O", "92004A-D"]
+      },
+      {
+        "target": "fabrics.aluminumBlinds.brushed",
+        "source": "src-pdf-001",
+        "page": 43,
+        "codes": ["92006A-J"]
+      },
+      {
+        "target": "fabrics.fauxWood",
+        "source": "src-pdf-001",
+        "page": 47,
+        "codes": ["F105WT", "F105T", "F198WHT", "TA250-261", "BD101-145"]
+      }
+    ],
+    "installation": [
+      {
+        "target": "installation.insideMount",
+        "source": "src-pdf-001",
+        "page": 24,
+        "requirements": "Depth >= 6cm, width = min frame width - 0.5cm"
+      },
+      {
+        "target": "installation.outsideMount",
+        "source": "src-pdf-001",
+        "page": 24,
+        "requirements": "Frame protrusion <= 1cm, width = frame + 10cm, height = frame + 15cm"
+      },
+      {
+        "target": "installation.outdoorShades",
+        "source": "src-pdf-001",
+        "page": 39,
+        "accuracy": "3mm"
+      }
+    ]
+  },
+  "pricingSources": {
+    "fabricPricing": {
+      "source": "src-db-001",
+      "collection": "manufacturerPrices",
+      "priceType": "per-sqm",
+      "marginDefault": 40,
+      "note": "Manufacturer costs stored in database, customer price = MFR cost * (1 + margin%)"
+    },
+    "hardwarePricing": {
+      "source": "src-db-001",
+      "collections": ["hardwareOptions", "zebraHardwareOptions"],
+      "priceTypes": ["flat", "per-sqm"],
+      "categories": ["valanceType", "bottomRail", "sideCover", "controlType", "mountType"]
+    },
+    "motorPricing": {
+      "source": "src-db-001",
+      "collection": "motorBrands",
+      "brands": ["AOK", "Dooya"],
+      "types": ["battery", "plugin-wire"]
+    },
+    "accessoryPricing": {
+      "source": "src-db-001",
+      "collection": "accessories",
+      "items": ["smartHub", "usbCharger", "solarPanel", "remoteTypes"]
+    },
+    "minimumArea": {
+      "roller": { "value": 1.0, "unit": "sqm", "source": "src-pdf-001" },
+      "zebra": { "value": 1.5, "unit": "sqm", "source": "src-pdf-001", "page": 15, "note": "BUG-015 fix applied" },
+      "fauxWood": { "value": 1.0, "unit": "sqm", "source": "src-pdf-001", "page": 48 }
+    }
+  },
+  "elementSources": {
+    "pageElements": {
+      "source": "src-qa-001",
+      "registryFile": "/docs/ELEMENT_REGISTRY.json",
+      "totalElements": 285,
+      "byStatus": {
+        "working": 180,
+        "partial": 35,
+        "disabled": 25,
+        "broken": 30,
+        "stub": 15
+      }
+    },
+    "nonFunctionalElements": {
+      "source": "src-nf-001",
+      "fixesApplied": "2025-01-11",
+      "fixesDocumented": "/docs/NON_FUNCTIONAL_FIXES.md",
+      "automatedChecker": "/scripts/framework/check-nonfunctional.js"
+    }
+  },
+  "crossReferences": {
+    "productToSpec": {
+      "affordable-custom-roller-blinds": {
+        "specRef": "productCategories.rollerShades",
+        "pdfPages": [3, 4, 5, 6, 7, 8, 9, 10],
+        "databaseId": "b23180d5-7989-4f9d-bf28-9b210cb31256"
+      },
+      "affordable-custom-zebra-shades": {
+        "specRef": "productCategories.zebraShades",
+        "pdfPages": [11, 12, 13, 14, 15],
+        "databaseId": "07595ff8-fab4-4e0e-b53b-7b7165cbe69c"
+      },
+      "energy-efficient-roman-shades": {
+        "specRef": "productCategories.romanShades",
+        "pdfPages": [27, 28, 29, 30, 31],
+        "databaseId": "cb1032e2-498f-4ea6-bdd7-354db14d16d9"
+      },
+      "natural-woven-timeless": {
+        "specRef": "productCategories.honeycombShades",
+        "pdfPages": [20, 21, 22, 23, 24, 25, 26],
+        "databaseId": "722a194e-490a-40d9-81a0-167269654332"
+      },
+      "custom-blackout-drapes": {
+        "specRef": "productCategories.verticalBlinds",
+        "pdfPages": [53, 54, 55, 56, 57],
+        "databaseId": "2f19a7a5-64f8-4c89-89d1-9d7a42288952"
+      }
+    },
+    "fabricToProduct": {
+      "82xxx": "roller-shades",
+      "83xxx": "zebra-shades",
+      "92xxx": "venetian-blinds"
+    },
+    "hardwareToProduct": {
+      "valanceType": ["roller-shades", "zebra-shades", "sheer-shades"],
+      "bottomRail": ["roller-shades", "zebra-shades"],
+      "liftSystem": ["honeycomb-shades", "roman-shades"]
+    }
+  },
+  "verificationLog": [
+    {
+      "date": "2025-01-11",
+      "action": "initial-extraction",
+      "source": "src-pdf-001",
+      "pages": "1-60",
+      "extractor": "PyMuPDF",
+      "verifiedBy": "automated"
+    },
+    {
+      "date": "2025-01-11",
+      "action": "database-cross-reference",
+      "source": "src-db-001",
+      "collections": ["products", "fabrics", "hardwareOptions"],
+      "verifiedBy": "automated"
+    }
+  ]
+}

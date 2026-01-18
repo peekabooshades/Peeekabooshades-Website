@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Buying Guides - Peekaboo Shades Admin</title>
+  <link rel="stylesheet" href="/admin/css/admin.css?v=1737200003.0.28">
+  <script src="/admin/js/adminNavConfig.js?v=1737200002"></script>
+  <style>
+    .guides-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem; margin-top: 1.5rem; }
+    .guide-card { background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+    .guide-thumb { height: 140px; background: linear-gradient(135deg, #8E6545, #A67C5B); display: flex; align-items: center; justify-content: center; color: white; font-size: 2.5rem; }
+    .guide-content { padding: 1.5rem; }
+    .guide-content h3 { margin: 0 0 0.5rem 0; }
+    .guide-content p { color: #666; font-size: 0.9rem; margin: 0 0 1rem 0; }
+    .guide-meta { display: flex; justify-content: space-between; align-items: center; }
+    .status-badge { padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.75rem; }
+    .status-published { background: #D1FAE5; color: #065F46; }
+    .status-draft { background: #FEF3C7; color: #92400E; }
+    .btn-edit { padding: 0.4rem 0.75rem; background: #8E6545; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 0.85rem; }
+    .btn-primary { padding: 0.75rem 1.5rem; background: #8E6545; color: white; border: none; border-radius: 8px; cursor: pointer; }
+  </style>
+</head>
+<body>
+  <div class="admin-layout">
+    <aside class="admin-sidebar"></aside>
+    <main class="admin-main">
+      <header class="admin-header">
+        <h1>Buying Guides</h1>
+        <div class="header-actions"><button class="btn-primary" onclick="createGuide()">+ New Guide</button></div>
+      </header>
+      <div class="admin-content">
+        <div class="guides-grid">
+          <div class="guide-card">
+            <div class="guide-thumb">🪟</div>
+            <div class="guide-content">
+              <h3>Roller Shade Buying Guide</h3>
+              <p>Complete guide to choosing roller shades - fabrics, opacity, controls.</p>
+              <div class="guide-meta"><span class="status-badge status-published">Published</span><button class="btn-edit" onclick="editGuide('roller')">Edit</button></div>
+            </div>
+          </div>
+          <div class="guide-card">
+            <div class="guide-thumb">🦓</div>
+            <div class="guide-content">
+              <h3>Zebra Blinds Guide</h3>
+              <p>Everything about dual sheer/opaque zebra blinds.</p>
+              <div class="guide-meta"><span class="status-badge status-published">Published</span><button class="btn-edit" onclick="editGuide('zebra')">Edit</button></div>
+            </div>
+          </div>
+          <div class="guide-card">
+            <div class="guide-thumb">⚡</div>
+            <div class="guide-content">
+              <h3>Motorized Shades Guide</h3>
+              <p>Smart home integration and motor options explained.</p>
+              <div class="guide-meta"><span class="status-badge status-published">Published</span><button class="btn-edit" onclick="editGuide('motorized')">Edit</button></div>
+            </div>
+          </div>
+          <div class="guide-card">
+            <div class="guide-thumb">🌙</div>
+            <div class="guide-content">
+              <h3>Blackout vs Light Filtering</h3>
+              <p>Choosing the right opacity for your room.</p>
+              <div class="guide-meta"><span class="status-badge status-draft">Draft</span><button class="btn-edit" onclick="editGuide('opacity')">Edit</button></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      if (!localStorage.getItem('admin_token')) { window.location.href = '/admin/login.html'; return; }
+      AdminNavConfig.initSidebar('buying-guides');
+    });
+    function createGuide() { alert('Opening guide editor...'); }
+    function editGuide(type) { alert(`Editing ${type} guide`); }
+  </script>
+</body>
+</html>

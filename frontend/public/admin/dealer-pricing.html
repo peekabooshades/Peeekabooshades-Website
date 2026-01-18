@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dealer Pricing - Peekaboo Shades Admin</title>
+  <link rel="stylesheet" href="css/admin.css?v=1737200003">
+  <link rel="icon" type="image/jpeg" href="/images/peekabooshades_logo.jpeg">
+  <style>
+    .shade-type-tabs { display: flex; gap: 0; margin-bottom: 1.5rem; border-bottom: 2px solid #e5e7eb; }
+    .shade-type-tab { padding: 1rem 2rem; border: none; background: none; cursor: pointer; font-weight: 600; font-size: 15px; color: #666; position: relative; transition: all 0.2s; }
+    .shade-type-tab:hover { color: #8E6545; }
+    .shade-type-tab.active { color: #8E6545; }
+    .shade-type-tab.active::after { content: ''; position: absolute; bottom: -2px; left: 0; right: 0; height: 2px; background: #8E6545; }
+    .shade-type-tab.roller.active::after { background: #92400E; }
+    .shade-type-tab.zebra.active::after { background: #1E40AF; }
+
+    .tier-cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem; }
+    .tier-card { background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); border: 2px solid transparent; transition: all 0.2s; }
+    .tier-card:hover { border-color: #8E6545; }
+    .tier-card.featured { border-color: #8E6545; background: linear-gradient(135deg, #FFFBF7 0%, white 100%); }
+    .tier-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem; }
+    .tier-name { font-size: 1.25rem; font-weight: 700; color: #1F2937; }
+    .tier-badge { padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; text-transform: uppercase; }
+    .tier-badge.active { background: #DEF7EC; color: #03543F; }
+    .tier-badge.inactive { background: #F3F4F6; color: #6B7280; }
+    .tier-badge.featured { background: #FEF3C7; color: #92400E; }
+
+    .tier-discount { font-size: 2.5rem; font-weight: 800; color: #059669; margin: 1rem 0; }
+    .tier-discount span { font-size: 1rem; font-weight: 500; color: #6B7280; }
+
+    .tier-details { list-style: none; padding: 0; margin: 1rem 0; }
+    .tier-details li { padding: 8px 0; border-bottom: 1px solid #F3F4F6; display: flex; justify-content: space-between; font-size: 14px; }
+    .tier-details li:last-child { border-bottom: none; }
+    .tier-details .label { color: #6B7280; }
+    .tier-details .value { font-weight: 600; color: #1F2937; }
+
+    .tier-actions { display: flex; gap: 8px; margin-top: 1rem; padding-top: 1rem; border-top: 1px solid #E5E7EB; }
+    .tier-actions button { flex: 1; }
+
+    .info-box { background: #F0FDF4; border: 1px solid #BBF7D0; border-radius: 8px; padding: 1rem; margin-bottom: 1.5rem; }
+    .info-box h4 { margin: 0 0 0.5rem 0; color: #166534; font-size: 14px; }
+    .info-box p { margin: 0; color: #15803D; font-size: 13px; }
+
+    .empty-state { text-align: center; padding: 60px 20px; }
+  </style>
+</head>
+<body>
+  <div class="admin-layout">
+    <aside class="admin-sidebar"></aside>
+    <main class="admin-main">
+      <header class="admin-header">
+        <div class="header-left">
+          <div class="breadcrumb">
+            <a href="/admin/">Dashboard</a>
+            <span class="breadcrumb-separator">/</span>
+            <span class="breadcrumb-current">Dealer Pricing</span>
+          </div>
+        </div>
+        <div class="header-right">
+          <button class="btn btn-primary" onclick="openModal()">+ Add Dealer Tier</button>
+        </div>
+      </header>
+
+      <div class="admin-content">
+        <div class="page-header">
+          <h1 class="page-title">Dealer & Wholesale Pricing</h1>
+          <p style="color: var(--admin-text-secondary); margin-top: 5px;">Set up pricing tiers for dealers, contractors, and wholesale accounts</p>
+        </div>
+
+        <div class="info-box">
+          <h4>How Dealer Pricing Works</h4>
+          <p>Dealers and wholesale customers get special pricing based on their tier. Assign tiers to customer accounts to automatically apply discounts at checkout.</p>
+        </div>
+
+        <!-- Shade Type Tabs -->
+        <div class="shade-type-tabs">
+          <button class="shade-type-tab roller active" onclick="switchShadeType('roller')">Roller Shades</button>
+          <button class="shade-type-tab zebra" onclick="switchShadeType('zebra')">Zebra Shades</button>
+        </div>
+
+        <!-- Content -->
+        <div id="tiers-container">
+          <div class="card" style="text-align: center; padding: 60px;">
+            <div class="spinner"></div>
+            <p style="margin-top: 16px; color: var(--admin-text-secondary);">Loading dealer tiers...</p>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Add/Edit Modal -->
+  <div class="modal-overlay" id="tier-modal">
+    <div class="modal" style="max-width: 550px;">
+      <div class="modal-header">
+        <h3 class="modal-title" id="modal-title">Add Dealer Tier</h3>
+        <button class="modal-close" onclick="closeModal()">&times;</button>
+      </div>
+      <form id="tier-form" onsubmit="saveTier(event)">
+        <div class="modal-body">
+          <div class="form-group">
+            <label class="form-label">Tier Name *</label>
+            <input type="text" class="form-input" id="tier-name" required placeholder="e.g., Silver Dealer">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Description</label>
+            <textarea class="form-input" id="tier-description" rows="2" placeholder="Brief description of this tier..."></textarea>
+          </div>
+          <div class="form-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+            <div class="form-group">
+              <label class="form-label">Discount Type *</label>
+              <select class="form-input" id="discount-type">
+                <option value="percentage">Percentage off Retail (%)</option>
+                <option value="margin">Fixed Margin (%)</option>
+                <option value="cost-plus">Cost + Markup (%)</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Discount Value *</label>
+              <input type="number" class="form-input" id="discount-value" required min="0" max="100" step="0.1" placeholder="15">
+            </div>
+          </div>
+          <div class="form-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+            <div class="form-group">
+              <label class="form-label">Min Order Value ($)</label>
+              <input type="number" class="form-input" id="min-order" min="0" step="0.01" placeholder="0 for no minimum">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Priority (sort order)</label>
+              <input type="number" class="form-input" id="tier-priority" min="1" value="1" placeholder="1">
+            </div>
+          </div>
+          <div class="form-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+            <div class="form-group">
+              <label class="form-label">Status</label>
+              <div style="padding-top: 8px;">
+                <label class="status-toggle">
+                  <input type="checkbox" id="tier-active" checked>
+                  <span class="slider"></span>
+                </label>
+                <span style="margin-left: 8px; color: var(--admin-text-secondary);" id="status-label">Active</span>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Featured Tier</label>
+              <div style="padding-top: 8px;">
+                <label class="status-toggle">
+                  <input type="checkbox" id="tier-featured">
+                  <span class="slider"></span>
+                </label>
+                <span style="margin-left: 8px; color: var(--admin-text-secondary);" id="featured-label">No</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="save-btn">Save Tier</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="js/adminNavConfig.js?v=1737200002"></script>
+  <script src="js/admin.js?v=1737100001"></script>
+  <script>
+    let currentShadeType = 'roller';
+    let tiers = [];
+    let editingId = null;
+
+    // Initialize
+    if (!Admin.Auth.requireAuth()) {
+      // Redirect
+    } else {
+      loadTiers();
+    }
+
+    function switchShadeType(type) {
+      currentShadeType = type;
+      document.querySelectorAll('.shade-type-tab').forEach(tab => {
+        tab.classList.toggle('active', tab.classList.contains(type));
+      });
+      loadTiers();
+    }
+
+    async function loadTiers() {
+      const container = document.getElementById('tiers-container');
+      container.innerHTML = `<div class="card" style="text-align: center; padding: 60px;"><div class="spinner"></div><p style="margin-top: 16px; color: var(--admin-text-secondary);">Loading dealer tiers...</p></div>`;
+
+      try {
+        const token = localStorage.getItem('admin_token');
+        const res = await fetch(`/api/admin/pricing/dealer-tiers/${currentShadeType}`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const data = await res.json();
+
+        if (data.success) {
+          tiers = data.tiers || [];
+          renderTiers();
+        }
+      } catch (error) {
+        container.innerHTML = `<div class="card" style="text-align: center; padding: 60px; color: var(--admin-danger);">Failed to load dealer tiers</div>`;
+      }
+    }
+
+    function renderTiers() {
+      const container = document.getElementById('tiers-container');
+      const shadeLabel = currentShadeType === 'roller' ? 'Roller Shades' : 'Zebra Shades';
+
+      if (tiers.length === 0) {
+        container.innerHTML = `
+          <div class="card empty-state">
+            <svg style="width: 64px; height: 64px; margin-bottom: 1rem; color: #9CA3AF;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+            </svg>
+            <h3>No dealer tiers yet</h3>
+            <p style="color: var(--admin-text-secondary);">Add pricing tiers for ${shadeLabel} to offer wholesale discounts</p>
+            <button class="btn btn-primary" style="margin-top: 1rem;" onclick="openModal()">+ Add First Dealer Tier</button>
+          </div>
+        `;
+        return;
+      }
+
+      // Sort by priority
+      tiers.sort((a, b) => (a.priority || 999) - (b.priority || 999));
+
+      container.innerHTML = `
+        <div class="tier-cards">
+          ${tiers.map(t => `
+            <div class="tier-card ${t.isFeatured ? 'featured' : ''}">
+              <div class="tier-header">
+                <div class="tier-name">${t.name}</div>
+                <div>
+                  ${t.isFeatured ? '<span class="tier-badge featured">Featured</span>' : ''}
+                  <span class="tier-badge ${t.isActive ? 'active' : 'inactive'}">${t.isActive ? 'Active' : 'Inactive'}</span>
+                </div>
+              </div>
+              <div class="tier-discount">
+                ${t.discountValue}%
+                <span>${getDiscountTypeLabel(t.discountType)}</span>
+              </div>
+              ${t.description ? `<p style="color: #6B7280; font-size: 13px; margin-bottom: 1rem;">${t.description}</p>` : ''}
+              <ul class="tier-details">
+                <li>
+                  <span class="label">Min Order</span>
+                  <span class="value">${t.minOrderValue ? '$' + t.minOrderValue.toFixed(2) : 'No minimum'}</span>
+                </li>
+                <li>
+                  <span class="label">Discount Type</span>
+                  <span class="value">${getDiscountTypeLabel(t.discountType)}</span>
+                </li>
+                <li>
+                  <span class="label">Priority</span>
+                  <span class="value">#${t.priority || 1}</span>
+                </li>
+              </ul>
+              <div class="tier-actions">
+                <button class="btn btn-secondary btn-sm" onclick="editTier('${t.id}')">Edit</button>
+                <button class="btn btn-danger btn-sm" onclick="deleteTier('${t.id}')">Delete</button>
+              </div>
+            </div>
+          `).join('')}
+        </div>
+      `;
+    }
+
+    function getDiscountTypeLabel(type) {
+      const labels = {
+        'percentage': 'Off Retail',
+        'margin': 'Fixed Margin',
+        'cost-plus': 'Cost + Markup'
+      };
+      return labels[type] || type;
+    }
+
+    function openModal(tier = null) {
+      editingId = tier ? tier.id : null;
+      document.getElementById('modal-title').textContent = tier ? 'Edit Dealer Tier' : 'Add Dealer Tier';
+      document.getElementById('save-btn').textContent = tier ? 'Update Tier' : 'Save Tier';
+
+      document.getElementById('tier-name').value = tier?.name || '';
+      document.getElementById('tier-description').value = tier?.description || '';
+      document.getElementById('discount-type').value = tier?.discountType || 'percentage';
+      document.getElementById('discount-value').value = tier?.discountValue || '';
+      document.getElementById('min-order').value = tier?.minOrderValue || '';
+      document.getElementById('tier-priority').value = tier?.priority || (tiers.length + 1);
+      document.getElementById('tier-active').checked = tier?.isActive !== false;
+      document.getElementById('tier-featured').checked = tier?.isFeatured || false;
+
+      updateLabels();
+      Admin.Modal.show('tier-modal');
+    }
+
+    function closeModal() {
+      Admin.Modal.hide('tier-modal');
+      editingId = null;
+    }
+
+    function editTier(id) {
+      const tier = tiers.find(t => t.id === id);
+      if (tier) openModal(tier);
+    }
+
+    function updateLabels() {
+      document.getElementById('status-label').textContent = document.getElementById('tier-active').checked ? 'Active' : 'Inactive';
+      document.getElementById('featured-label').textContent = document.getElementById('tier-featured').checked ? 'Yes' : 'No';
+    }
+
+    async function saveTier(e) {
+      e.preventDefault();
+      const saveBtn = document.getElementById('save-btn');
+      saveBtn.disabled = true;
+      saveBtn.textContent = 'Saving...';
+
+      try {
+        const token = localStorage.getItem('admin_token');
+        const data = {
+          name: document.getElementById('tier-name').value.trim(),
+          description: document.getElementById('tier-description').value.trim(),
+          discountType: document.getElementById('discount-type').value,
+          discountValue: parseFloat(document.getElementById('discount-value').value),
+          minOrderValue: document.getElementById('min-order').value ? parseFloat(document.getElementById('min-order').value) : 0,
+          priority: parseInt(document.getElementById('tier-priority').value) || 1,
+          isActive: document.getElementById('tier-active').checked,
+          isFeatured: document.getElementById('tier-featured').checked,
+          shadeType: currentShadeType
+        };
+
+        const url = editingId
+          ? `/api/admin/pricing/dealer-tiers/${currentShadeType}/${editingId}`
+          : `/api/admin/pricing/dealer-tiers/${currentShadeType}`;
+
+        const res = await fetch(url, {
+          method: editingId ? 'PUT' : 'POST',
+          headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
+        });
+        const result = await res.json();
+
+        if (result.success) {
+          Admin.Toast.success(editingId ? 'Dealer tier updated' : 'Dealer tier created');
+          closeModal();
+          loadTiers();
+        } else {
+          Admin.Toast.error(result.error || 'Failed to save');
+        }
+      } catch (error) {
+        Admin.Toast.error('Error saving dealer tier');
+      } finally {
+        saveBtn.disabled = false;
+        saveBtn.textContent = editingId ? 'Update Tier' : 'Save Tier';
+      }
+    }
+
+    async function deleteTier(id) {
+      if (!confirm('Delete this dealer tier?')) return;
+
+      try {
+        const token = localStorage.getItem('admin_token');
+        const res = await fetch(`/api/admin/pricing/dealer-tiers/${currentShadeType}/${id}`, {
+          method: 'DELETE',
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const result = await res.json();
+
+        if (result.success) {
+          Admin.Toast.success('Dealer tier deleted');
+          loadTiers();
+        } else {
+          Admin.Toast.error(result.error || 'Failed to delete');
+        }
+      } catch (error) {
+        Admin.Toast.error('Error deleting dealer tier');
+      }
+    }
+
+    // Toggle labels
+    document.getElementById('tier-active')?.addEventListener('change', updateLabels);
+    document.getElementById('tier-featured')?.addEventListener('change', updateLabels);
+  </script>
+</body>
+</html>

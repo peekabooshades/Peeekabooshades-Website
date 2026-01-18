@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Contact Support - Peekaboo Shades Admin</title>
+  <link rel="stylesheet" href="/admin/css/admin.css?v=1737200003.0.28">
+  <script src="/admin/js/adminNavConfig.js?v=1737200002"></script>
+  <style>
+    .support-grid { display: grid; grid-template-columns: 1fr 350px; gap: 1.5rem; margin-top: 1.5rem; }
+    .support-card { background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+    .support-card h3 { margin: 0 0 1rem 0; }
+    .form-group { margin-bottom: 1.25rem; }
+    .form-group label { display: block; margin-bottom: 0.5rem; font-weight: 500; }
+    .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 0.75rem; border: 1px solid #ddd; border-radius: 8px; }
+    .form-group textarea { resize: vertical; min-height: 150px; }
+    .btn-primary { padding: 0.75rem 1.5rem; background: #8E6545; color: white; border: none; border-radius: 8px; cursor: pointer; width: 100%; }
+    .contact-option { padding: 1rem; background: #F9FAFB; border-radius: 8px; margin-bottom: 1rem; display: flex; gap: 1rem; align-items: center; }
+    .contact-option .icon { font-size: 1.5rem; }
+    .contact-option h4 { margin: 0 0 0.25rem 0; }
+    .contact-option p { margin: 0; font-size: 0.85rem; color: #666; }
+    .ticket-row { padding: 0.75rem; background: #F9FAFB; border-radius: 6px; margin-bottom: 0.5rem; display: flex; justify-content: space-between; }
+    .status-badge { padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.75rem; }
+    .status-open { background: #FEF3C7; color: #92400E; }
+    .status-closed { background: #D1FAE5; color: #065F46; }
+  </style>
+</head>
+<body>
+  <div class="admin-layout">
+    <aside class="admin-sidebar"></aside>
+    <main class="admin-main">
+      <header class="admin-header"><h1>Contact Support</h1></header>
+      <div class="admin-content">
+        <div class="support-grid">
+          <div class="support-card">
+            <h3>Submit a Support Ticket</h3>
+            <div class="form-group"><label>Subject</label><input type="text" placeholder="Brief description of your issue"></div>
+            <div class="form-group"><label>Category</label><select><option>Technical Issue</option><option>Billing Question</option><option>Feature Request</option><option>General Inquiry</option></select></div>
+            <div class="form-group"><label>Priority</label><select><option>Low</option><option>Medium</option><option>High</option><option>Urgent</option></select></div>
+            <div class="form-group"><label>Description</label><textarea placeholder="Please describe your issue in detail..."></textarea></div>
+            <div class="form-group"><label>Attachments</label><input type="file" multiple></div>
+            <button class="btn-primary" onclick="submitTicket()">Submit Ticket</button>
+          </div>
+          <div>
+            <div class="support-card">
+              <h3>Contact Options</h3>
+              <div class="contact-option">
+                <span class="icon">📧</span>
+                <div><h4>Email</h4><p>support@peekabooshades.com</p></div>
+              </div>
+              <div class="contact-option">
+                <span class="icon">📞</span>
+                <div><h4>Phone</h4><p>1-800-XXX-XXXX (9am-5pm PST)</p></div>
+              </div>
+              <div class="contact-option">
+                <span class="icon">💬</span>
+                <div><h4>Live Chat</h4><p>Available 24/7</p></div>
+              </div>
+            </div>
+            <div class="support-card" style="margin-top: 1rem;">
+              <h3>Your Recent Tickets</h3>
+              <div class="ticket-row">
+                <div><strong>#1234</strong><br><small>Pricing calculator issue</small></div>
+                <span class="status-badge status-closed">Closed</span>
+              </div>
+              <div class="ticket-row">
+                <div><strong>#1235</strong><br><small>Integration question</small></div>
+                <span class="status-badge status-open">Open</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      if (!localStorage.getItem('admin_token')) { window.location.href = '/admin/login.html'; return; }
+      AdminNavConfig.initSidebar('contact-support');
+    });
+    function submitTicket() { alert('Ticket submitted! We will respond within 24 hours.'); }
+  </script>
+</body>
+</html>

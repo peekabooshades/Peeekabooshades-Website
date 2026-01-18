@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Free Shipping Rules - Peekaboo Shades Admin</title>
+  <link rel="stylesheet" href="/admin/css/admin.css?v=1737200003.0.28">
+  <script src="/admin/js/adminNavConfig.js?v=1737200002"></script>
+  <style>
+    .rules-grid { display: grid; gap: 1rem; margin-top: 1.5rem; }
+    .rule-card { background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+    .rule-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
+    .rule-header h4 { margin: 0; }
+    .status-badge { padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.75rem; }
+    .status-active { background: #D1FAE5; color: #065F46; }
+    .status-inactive { background: #F3F4F6; color: #6B7280; }
+    .rule-details { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; padding: 1rem 0; border-top: 1px solid #eee; border-bottom: 1px solid #eee; }
+    .rule-detail label { font-size: 0.8rem; color: #666; display: block; }
+    .rule-detail span { font-weight: 600; }
+    .rule-actions { display: flex; gap: 0.5rem; margin-top: 1rem; }
+    .btn-edit { padding: 0.4rem 0.75rem; background: #E5E7EB; color: #374151; border: none; border-radius: 4px; cursor: pointer; font-size: 0.85rem; }
+    .btn-delete { padding: 0.4rem 0.75rem; background: #FEE2E2; color: #991B1B; border: none; border-radius: 4px; cursor: pointer; font-size: 0.85rem; }
+    .btn-primary { padding: 0.75rem 1.5rem; background: #8E6545; color: white; border: none; border-radius: 8px; cursor: pointer; }
+    .toggle { position: relative; width: 50px; height: 26px; }
+    .toggle input { opacity: 0; width: 0; height: 0; }
+    .toggle .slider { position: absolute; cursor: pointer; inset: 0; background: #ddd; border-radius: 26px; transition: 0.3s; }
+    .toggle .slider:before { content: ""; position: absolute; height: 20px; width: 20px; left: 3px; bottom: 3px; background: white; border-radius: 50%; transition: 0.3s; }
+    .toggle input:checked + .slider { background: #10B981; }
+    .toggle input:checked + .slider:before { transform: translateX(24px); }
+    .summary-card { background: #FEF3C7; border-radius: 12px; padding: 1.5rem; margin-top: 1.5rem; }
+  </style>
+</head>
+<body>
+  <div class="admin-layout">
+    <aside class="admin-sidebar"></aside>
+    <main class="admin-main">
+      <header class="admin-header">
+        <h1>Free Shipping Rules</h1>
+        <div class="header-actions"><button class="btn-primary" onclick="addRule()">+ Add Rule</button></div>
+      </header>
+      <div class="admin-content">
+        <div class="rules-grid">
+          <div class="rule-card">
+            <div class="rule-header">
+              <h4>Orders Over $299</h4>
+              <div style="display: flex; align-items: center; gap: 1rem;">
+                <span class="status-badge status-active">Active</span>
+                <label class="toggle"><input type="checkbox" checked><span class="slider"></span></label>
+              </div>
+            </div>
+            <div class="rule-details">
+              <div class="rule-detail">
+                <label>Minimum Order</label>
+                <span>$299.00</span>
+              </div>
+              <div class="rule-detail">
+                <label>Applies To</label>
+                <span>All Products</span>
+              </div>
+              <div class="rule-detail">
+                <label>Shipping Method</label>
+                <span>Standard Ground</span>
+              </div>
+              <div class="rule-detail">
+                <label>Regions</label>
+                <span>Continental US</span>
+              </div>
+            </div>
+            <div class="rule-actions">
+              <button class="btn-edit" onclick="editRule(1)">Edit</button>
+              <button class="btn-delete" onclick="deleteRule(1)">Delete</button>
+            </div>
+          </div>
+          <div class="rule-card">
+            <div class="rule-header">
+              <h4>Trade/Dealer Orders</h4>
+              <div style="display: flex; align-items: center; gap: 1rem;">
+                <span class="status-badge status-active">Active</span>
+                <label class="toggle"><input type="checkbox" checked><span class="slider"></span></label>
+              </div>
+            </div>
+            <div class="rule-details">
+              <div class="rule-detail">
+                <label>Minimum Order</label>
+                <span>$500.00</span>
+              </div>
+              <div class="rule-detail">
+                <label>Applies To</label>
+                <span>Trade Customers</span>
+              </div>
+              <div class="rule-detail">
+                <label>Shipping Method</label>
+                <span>All Methods</span>
+              </div>
+              <div class="rule-detail">
+                <label>Regions</label>
+                <span>All US</span>
+              </div>
+            </div>
+            <div class="rule-actions">
+              <button class="btn-edit" onclick="editRule(2)">Edit</button>
+              <button class="btn-delete" onclick="deleteRule(2)">Delete</button>
+            </div>
+          </div>
+          <div class="rule-card">
+            <div class="rule-header">
+              <h4>Sample Orders</h4>
+              <div style="display: flex; align-items: center; gap: 1rem;">
+                <span class="status-badge status-active">Active</span>
+                <label class="toggle"><input type="checkbox" checked><span class="slider"></span></label>
+              </div>
+            </div>
+            <div class="rule-details">
+              <div class="rule-detail">
+                <label>Minimum Order</label>
+                <span>$0.00</span>
+              </div>
+              <div class="rule-detail">
+                <label>Applies To</label>
+                <span>Fabric Samples</span>
+              </div>
+              <div class="rule-detail">
+                <label>Shipping Method</label>
+                <span>USPS First Class</span>
+              </div>
+              <div class="rule-detail">
+                <label>Max Samples</label>
+                <span>Up to 5</span>
+              </div>
+            </div>
+            <div class="rule-actions">
+              <button class="btn-edit" onclick="editRule(3)">Edit</button>
+              <button class="btn-delete" onclick="deleteRule(3)">Delete</button>
+            </div>
+          </div>
+        </div>
+        <div class="summary-card">
+          <h4 style="margin: 0 0 0.5rem 0;">Impact Summary (Last 30 Days)</h4>
+          <p style="margin: 0; color: #92400E;">Free shipping applied to 234 orders • Total shipping cost absorbed: $3,510 • Avg order with free shipping: $412</p>
+        </div>
+      </div>
+    </main>
+  </div>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      if (!localStorage.getItem('admin_token')) { window.location.href = '/admin/login.html'; return; }
+      AdminNavConfig.initSidebar('free-shipping');
+    });
+    function addRule() { alert('Opening add free shipping rule form...'); }
+    function editRule(id) { alert(`Editing rule ${id}`); }
+    function deleteRule(id) { if(confirm('Delete this rule?')) alert(`Deleted rule ${id}`); }
+  </script>
+</body>
+</html>

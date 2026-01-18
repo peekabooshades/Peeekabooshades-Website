@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Care & Maintenance - Peekaboo Shades Admin</title>
+  <link rel="stylesheet" href="/admin/css/admin.css?v=1737200003.0.28">
+  <script src="/admin/js/adminNavConfig.js?v=1737200002"></script>
+  <style>
+    .care-grid { display: grid; grid-template-columns: 1fr 350px; gap: 1.5rem; margin-top: 1.5rem; }
+    .care-card { background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+    .care-card h3 { margin: 0 0 1rem 0; }
+    .care-section { padding: 1rem; background: #F9FAFB; border-radius: 8px; margin-bottom: 1rem; }
+    .care-section h4 { margin: 0 0 0.5rem 0; display: flex; align-items: center; gap: 0.5rem; }
+    .care-section p { margin: 0; font-size: 0.9rem; color: #666; }
+    .btn-primary { padding: 0.75rem 1.5rem; background: #8E6545; color: white; border: none; border-radius: 8px; cursor: pointer; }
+    .btn-edit { padding: 0.4rem 0.75rem; background: #E5E7EB; color: #374151; border: none; border-radius: 4px; cursor: pointer; font-size: 0.85rem; }
+    .tip-list { list-style: none; padding: 0; margin: 0; }
+    .tip-list li { padding: 0.5rem 0; border-bottom: 1px solid #eee; font-size: 0.9rem; }
+    .tip-list li:last-child { border-bottom: none; }
+  </style>
+</head>
+<body>
+  <div class="admin-layout">
+    <aside class="admin-sidebar"></aside>
+    <main class="admin-main">
+      <header class="admin-header">
+        <h1>Care & Maintenance Guides</h1>
+        <div class="header-actions"><button class="btn-primary" onclick="saveAll()">Save All Changes</button></div>
+      </header>
+      <div class="admin-content">
+        <div class="care-grid">
+          <div class="care-card">
+            <h3>Care Instructions by Product</h3>
+            <div class="care-section">
+              <h4>🪟 Roller Shades <button class="btn-edit" onclick="editSection('roller')">Edit</button></h4>
+              <p>Dust regularly with soft cloth or vacuum with brush attachment. Spot clean with mild soap solution. Do not machine wash.</p>
+            </div>
+            <div class="care-section">
+              <h4>🦓 Zebra Blinds <button class="btn-edit" onclick="editSection('zebra')">Edit</button></h4>
+              <p>Gently dust with microfiber cloth. For stains, use damp cloth with mild detergent. Avoid harsh chemicals.</p>
+            </div>
+            <div class="care-section">
+              <h4>⚡ Motorized Shades <button class="btn-edit" onclick="editSection('motorized')">Edit</button></h4>
+              <p>Same fabric care as manual shades. Check battery levels monthly. Keep motor housing dry.</p>
+            </div>
+            <div class="care-section">
+              <h4>📜 Roman Shades <button class="btn-edit" onclick="editSection('roman')">Edit</button></h4>
+              <p>Professional cleaning recommended. Vacuum with low suction. Steam clean for deep cleaning.</p>
+            </div>
+          </div>
+          <div>
+            <div class="care-card">
+              <h3>General Care Tips</h3>
+              <ul class="tip-list">
+                <li>✓ Dust weekly to prevent buildup</li>
+                <li>✓ Clean spills immediately</li>
+                <li>✓ Test cleaning solutions on hidden area</li>
+                <li>✓ Avoid abrasive cleaners</li>
+                <li>✓ Keep shades fully raised when cleaning windows</li>
+                <li>✓ Operate shades gently</li>
+              </ul>
+            </div>
+            <div class="care-card" style="margin-top: 1rem;">
+              <h3>Warranty Note</h3>
+              <p style="font-size: 0.9rem; color: #666;">Improper cleaning or care may void warranty. Always follow manufacturer guidelines.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      if (!localStorage.getItem('admin_token')) { window.location.href = '/admin/login.html'; return; }
+      AdminNavConfig.initSidebar('care-maintenance');
+    });
+    function saveAll() { alert('Care guides saved!'); }
+    function editSection(type) { alert(`Editing ${type} care guide`); }
+  </script>
+</body>
+</html>

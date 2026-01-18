@@ -151,6 +151,12 @@
       display: flex;
       gap: 32px;
       list-style: none;
+      margin: 0;
+      padding: 0;
+    }
+
+    .main-nav li {
+      position: relative;
     }
 
     .main-nav a {
@@ -162,6 +168,7 @@
       gap: 6px;
       letter-spacing: 0.02em;
       transition: color 0.2s ease;
+      padding: 10px 0;
     }
 
     .main-nav a:hover,
@@ -176,7 +183,7 @@
     .nav-dropdown-menu {
       position: absolute;
       top: 100%;
-      left: 0;
+      left: -10px;
       background: var(--pk-bg-white);
       border: 1px solid var(--pk-border-light);
       border-radius: 10px;
@@ -603,6 +610,65 @@
       text-decoration: line-through;
     }
 
+    /* Product Category Label */
+    .product-category {
+      font-size: 11px;
+      font-weight: 600;
+      color: var(--pk-primary);
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      margin-bottom: 6px;
+      display: block;
+    }
+
+    /* Product Tagline */
+    .product-tagline {
+      font-size: 12px;
+      color: var(--pk-text-light);
+      margin-bottom: 10px;
+      line-height: 1.4;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+
+    /* Price Label */
+    .price-label {
+      font-size: 11px;
+      color: var(--pk-text-muted);
+      font-weight: 500;
+      margin-right: 4px;
+    }
+
+    /* Product Rooms */
+    .product-rooms {
+      font-size: 11px;
+      color: var(--pk-text-light);
+      margin-top: 10px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .product-rooms i {
+      color: #22c55e;
+      font-size: 12px;
+    }
+
+    /* Promo Badge Variants */
+    .product-badge.promo {
+      background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%);
+    }
+
+    .product-badge.sale {
+      background: linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%);
+    }
+
+    .product-badge.new {
+      background: linear-gradient(135deg, #22c55e 0%, #4ade80 100%);
+    }
+
     /* ============================================
        LOAD MORE
        ============================================ */
@@ -897,6 +963,275 @@
         text-align: center;
       }
     }
+
+    /* ============================================
+       FILTER PANEL - Slide-out filter system
+       ============================================ */
+    .filter-panel {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 320px;
+      height: 100vh;
+      background: var(--pk-bg-white);
+      box-shadow: 5px 0 25px rgba(0,0,0,0.15);
+      z-index: 2000;
+      transform: translateX(-100%);
+      transition: transform 0.3s ease;
+      overflow-y: auto;
+    }
+
+    .filter-panel.active {
+      transform: translateX(0);
+    }
+
+    .filter-panel-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 1999;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity 0.3s ease, visibility 0.3s ease;
+    }
+
+    .filter-panel-overlay.active {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .filter-panel-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px;
+      border-bottom: 1px solid var(--pk-border-light);
+      position: sticky;
+      top: 0;
+      background: var(--pk-bg-white);
+      z-index: 1;
+    }
+
+    .filter-panel-header h3 {
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--pk-text-dark);
+    }
+
+    .filter-panel-close {
+      background: none;
+      border: none;
+      font-size: 24px;
+      cursor: pointer;
+      color: var(--pk-text-muted);
+      transition: color 0.2s;
+    }
+
+    .filter-panel-close:hover {
+      color: var(--pk-text-dark);
+    }
+
+    .filter-panel-body {
+      padding: 20px;
+    }
+
+    .filter-section {
+      margin-bottom: 25px;
+      padding-bottom: 20px;
+      border-bottom: 1px solid var(--pk-border-light);
+    }
+
+    .filter-section:last-child {
+      border-bottom: none;
+    }
+
+    .filter-section-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--pk-text-dark);
+      margin-bottom: 15px;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+
+    .filter-options {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .filter-option {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      cursor: pointer;
+      padding: 8px 12px;
+      border-radius: 8px;
+      transition: background 0.2s;
+    }
+
+    .filter-option:hover {
+      background: var(--pk-bg-cream);
+    }
+
+    .filter-option input[type="checkbox"],
+    .filter-option input[type="radio"] {
+      width: 18px;
+      height: 18px;
+      accent-color: var(--pk-primary);
+      cursor: pointer;
+    }
+
+    .filter-option label {
+      font-size: 14px;
+      color: var(--pk-text-dark);
+      cursor: pointer;
+      flex: 1;
+    }
+
+    .filter-option .count {
+      font-size: 12px;
+      color: var(--pk-text-muted);
+    }
+
+    .color-options {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+    }
+
+    .color-swatch {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      cursor: pointer;
+      border: 2px solid transparent;
+      transition: all 0.2s;
+      position: relative;
+    }
+
+    .color-swatch:hover {
+      transform: scale(1.1);
+    }
+
+    .color-swatch.selected {
+      border-color: var(--pk-primary);
+      box-shadow: 0 0 0 2px var(--pk-bg-white), 0 0 0 4px var(--pk-primary);
+    }
+
+    .color-swatch::after {
+      content: attr(title);
+      position: absolute;
+      bottom: -25px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 10px;
+      color: var(--pk-text-muted);
+      white-space: nowrap;
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+
+    .color-swatch:hover::after {
+      opacity: 1;
+    }
+
+    .price-range-inputs {
+      display: flex;
+      gap: 10px;
+      align-items: center;
+    }
+
+    .price-range-inputs input {
+      width: 100px;
+      padding: 10px;
+      border: 1px solid var(--pk-border-light);
+      border-radius: 8px;
+      font-size: 14px;
+    }
+
+    .price-range-inputs span {
+      color: var(--pk-text-muted);
+    }
+
+    .filter-panel-footer {
+      padding: 20px;
+      border-top: 1px solid var(--pk-border-light);
+      display: flex;
+      gap: 10px;
+      position: sticky;
+      bottom: 0;
+      background: var(--pk-bg-white);
+    }
+
+    .btn-clear-filters {
+      flex: 1;
+      padding: 12px 20px;
+      background: var(--pk-bg-cream);
+      color: var(--pk-text-dark);
+      border: 1px solid var(--pk-border-light);
+      border-radius: 8px;
+      font-weight: 500;
+      transition: all 0.2s;
+    }
+
+    .btn-clear-filters:hover {
+      background: var(--pk-border-light);
+    }
+
+    .btn-apply-filters {
+      flex: 1;
+      padding: 12px 20px;
+      background: var(--pk-primary);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-weight: 500;
+      transition: all 0.2s;
+    }
+
+    .btn-apply-filters:hover {
+      background: var(--pk-primary-dark);
+    }
+
+    .active-filters {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 10px;
+    }
+
+    .active-filter-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      background: var(--pk-bg-cream);
+      border-radius: 20px;
+      font-size: 12px;
+      color: var(--pk-text-dark);
+    }
+
+    .active-filter-tag button {
+      background: none;
+      border: none;
+      cursor: pointer;
+      color: var(--pk-text-muted);
+      font-size: 14px;
+      line-height: 1;
+    }
+
+    .active-filter-tag button:hover {
+      color: var(--pk-primary);
+    }
+
+    .filter-pill.active {
+      background: var(--pk-primary);
+      color: white;
+    }
   </style>
 </head>
 <body>
@@ -908,9 +1243,9 @@
         <span><i class="fas fa-envelope"></i> info@peekabooshades.com</span>
       </div>
       <div class="top-bar-right">
-        <a href="#">Free Samples</a>
-        <a href="#">Trade Program</a>
-        <a href="#">Help</a>
+        <a href="/samples.html" title="Order free fabric samples">Free Samples</a>
+        <a href="/dealer/" title="Dealer/Trade Program">Trade Program</a>
+        <a href="/contact.html">Help</a>
       </div>
     </div>
   </div>
@@ -933,11 +1268,11 @@
               <a href="/shop?category=honeycomb-shades">Honeycomb Shades</a>
             </div>
           </li>
-          <li><a href="#">Curtains</a></li>
-          <li><a href="#">Look up My Order</a></li>
-          <li><a href="#">Bulk Orders/Wholesale</a></li>
-          <li><a href="#">Contact Us</a></li>
-          <li><a href="#">My Account</a></li>
+          <li><a href="javascript:void(0)" onclick="showToast('Curtains coming soon!', 'info')" style="opacity:0.6" title="Coming soon">Curtains</a></li>
+          <li><a href="javascript:void(0)" onclick="showToast('Order tracking requires an account. Contact us for order status.', 'info')" title="Contact us for order status">Look up My Order</a></li>
+          <li><a href="/dealer/" title="Dealer Portal for wholesale orders">Bulk Orders/Wholesale</a></li>
+          <li><a href="/contact.html">Contact Us</a></li>
+          <li><a href="javascript:void(0)" onclick="showToast('Customer accounts coming soon!', 'info')" style="opacity:0.6" title="Coming soon">My Account</a></li>
         </ul>
       </nav>
 
@@ -946,8 +1281,8 @@
           <input type="text" placeholder="Search products..." id="searchInput">
           <button onclick="searchProducts()"><i class="fas fa-search"></i></button>
         </div>
-        <a href="#" class="header-icon"><i class="far fa-heart"></i></a>
-        <a href="#" class="header-icon"><i class="far fa-user"></i></a>
+        <a href="javascript:void(0)" class="header-icon" onclick="showToast('Wishlist coming soon!', 'info')" title="Wishlist coming soon" style="opacity:0.5"><i class="far fa-heart"></i></a>
+        <a href="javascript:void(0)" class="header-icon" onclick="showToast('Customer accounts coming soon!', 'info')" title="Account coming soon" style="opacity:0.5"><i class="far fa-user"></i></a>
         <a href="/cart" class="header-icon">
           <i class="fas fa-shopping-cart"></i>
           <span class="cart-count" id="cartCount">0</span>
@@ -1090,6 +1425,142 @@
     </div>
   </section>
 
+  <!-- Filter Panel Overlay -->
+  <div class="filter-panel-overlay" id="filterPanelOverlay" onclick="closeFilterPanel()"></div>
+
+  <!-- Filter Panel -->
+  <div class="filter-panel" id="filterPanel">
+    <div class="filter-panel-header">
+      <h3>Filters</h3>
+      <button class="filter-panel-close" onclick="closeFilterPanel()">&times;</button>
+    </div>
+    <div class="filter-panel-body">
+      <!-- Room Filter -->
+      <div class="filter-section">
+        <div class="filter-section-title">Room</div>
+        <div class="filter-options">
+          <div class="filter-option">
+            <input type="checkbox" id="room-living" name="room" value="living-room" onchange="updateActiveFilters()">
+            <label for="room-living">Living Room</label>
+          </div>
+          <div class="filter-option">
+            <input type="checkbox" id="room-bedroom" name="room" value="bedroom" onchange="updateActiveFilters()">
+            <label for="room-bedroom">Bedroom</label>
+          </div>
+          <div class="filter-option">
+            <input type="checkbox" id="room-kitchen" name="room" value="kitchen" onchange="updateActiveFilters()">
+            <label for="room-kitchen">Kitchen</label>
+          </div>
+          <div class="filter-option">
+            <input type="checkbox" id="room-bathroom" name="room" value="bathroom" onchange="updateActiveFilters()">
+            <label for="room-bathroom">Bathroom</label>
+          </div>
+          <div class="filter-option">
+            <input type="checkbox" id="room-office" name="room" value="office" onchange="updateActiveFilters()">
+            <label for="room-office">Home Office</label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Color Filter -->
+      <div class="filter-section">
+        <div class="filter-section-title">Color</div>
+        <div class="color-options">
+          <div class="color-swatch" style="background: #FFFFFF; border: 1px solid #ddd;" data-color="white" title="White" onclick="toggleColorSwatch(this)"></div>
+          <div class="color-swatch" style="background: #F5F5DC;" data-color="cream" title="Cream" onclick="toggleColorSwatch(this)"></div>
+          <div class="color-swatch" style="background: #808080;" data-color="gray" title="Gray" onclick="toggleColorSwatch(this)"></div>
+          <div class="color-swatch" style="background: #333333;" data-color="charcoal" title="Charcoal" onclick="toggleColorSwatch(this)"></div>
+          <div class="color-swatch" style="background: #000000;" data-color="black" title="Black" onclick="toggleColorSwatch(this)"></div>
+          <div class="color-swatch" style="background: #8E6545;" data-color="brown" title="Brown" onclick="toggleColorSwatch(this)"></div>
+          <div class="color-swatch" style="background: #D2B48C;" data-color="tan" title="Tan" onclick="toggleColorSwatch(this)"></div>
+          <div class="color-swatch" style="background: #B8860B;" data-color="gold" title="Gold" onclick="toggleColorSwatch(this)"></div>
+          <div class="color-swatch" style="background: #4682B4;" data-color="blue" title="Blue" onclick="toggleColorSwatch(this)"></div>
+          <div class="color-swatch" style="background: #228B22;" data-color="green" title="Green" onclick="toggleColorSwatch(this)"></div>
+        </div>
+      </div>
+
+      <!-- Price Filter -->
+      <div class="filter-section">
+        <div class="filter-section-title">Price Range</div>
+        <div class="filter-options">
+          <div class="filter-option">
+            <input type="radio" id="price-all" name="price" value="" checked onchange="updateActiveFilters()">
+            <label for="price-all">All Prices</label>
+          </div>
+          <div class="filter-option">
+            <input type="radio" id="price-0-50" name="price" value="0-50" onchange="updateActiveFilters()">
+            <label for="price-0-50">Under $50</label>
+          </div>
+          <div class="filter-option">
+            <input type="radio" id="price-50-100" name="price" value="50-100" onchange="updateActiveFilters()">
+            <label for="price-50-100">$50 - $100</label>
+          </div>
+          <div class="filter-option">
+            <input type="radio" id="price-100-200" name="price" value="100-200" onchange="updateActiveFilters()">
+            <label for="price-100-200">$100 - $200</label>
+          </div>
+          <div class="filter-option">
+            <input type="radio" id="price-200+" name="price" value="200+" onchange="updateActiveFilters()">
+            <label for="price-200+">$200+</label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Light Filtering -->
+      <div class="filter-section">
+        <div class="filter-section-title">Light Control</div>
+        <div class="filter-options">
+          <div class="filter-option">
+            <input type="checkbox" id="light-blackout" name="light" value="blackout" onchange="updateActiveFilters()">
+            <label for="light-blackout">Blackout</label>
+          </div>
+          <div class="filter-option">
+            <input type="checkbox" id="light-room-darkening" name="light" value="room-darkening" onchange="updateActiveFilters()">
+            <label for="light-room-darkening">Room Darkening</label>
+          </div>
+          <div class="filter-option">
+            <input type="checkbox" id="light-filtering" name="light" value="light-filtering" onchange="updateActiveFilters()">
+            <label for="light-filtering">Light Filtering</label>
+          </div>
+          <div class="filter-option">
+            <input type="checkbox" id="light-sheer" name="light" value="sheer" onchange="updateActiveFilters()">
+            <label for="light-sheer">Sheer</label>
+          </div>
+        </div>
+      </div>
+
+      <!-- Material Filter -->
+      <div class="filter-section">
+        <div class="filter-section-title">Material</div>
+        <div class="filter-options">
+          <div class="filter-option">
+            <input type="checkbox" id="material-fabric" name="material" value="fabric" onchange="updateActiveFilters()">
+            <label for="material-fabric">Fabric</label>
+          </div>
+          <div class="filter-option">
+            <input type="checkbox" id="material-faux-wood" name="material" value="faux-wood" onchange="updateActiveFilters()">
+            <label for="material-faux-wood">Faux Wood</label>
+          </div>
+          <div class="filter-option">
+            <input type="checkbox" id="material-natural" name="material" value="natural" onchange="updateActiveFilters()">
+            <label for="material-natural">Natural Woven</label>
+          </div>
+          <div class="filter-option">
+            <input type="checkbox" id="material-vinyl" name="material" value="vinyl" onchange="updateActiveFilters()">
+            <label for="material-vinyl">Vinyl</label>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="filter-panel-footer">
+      <button class="btn-clear-filters" onclick="clearAllFilters()">Clear All</button>
+      <button class="btn-apply-filters" onclick="applyAllFilters()">Apply Filters</button>
+    </div>
+  </div>
+
+  <!-- Active Filters Display -->
+  <div class="active-filters" id="activeFiltersContainer" style="max-width: 1400px; margin: 0 auto; padding: 0 40px;"></div>
+
   <!-- Products Grid -->
   <section class="products-section">
     <div class="products-container">
@@ -1116,10 +1587,10 @@
             Premium quality, affordable prices, and exceptional service.
           </p>
           <div class="footer-social">
-            <a href="#" class="social-icon"><i class="fab fa-facebook-f"></i></a>
-            <a href="#" class="social-icon"><i class="fab fa-instagram"></i></a>
-            <a href="#" class="social-icon"><i class="fab fa-twitter"></i></a>
-            <a href="#" class="social-icon"><i class="fab fa-pinterest"></i></a>
+            <a href="javascript:void(0)" class="social-icon" title="Facebook coming soon" style="opacity:0.5"><i class="fab fa-facebook-f"></i></a>
+            <a href="javascript:void(0)" class="social-icon" title="Instagram coming soon" style="opacity:0.5"><i class="fab fa-instagram"></i></a>
+            <a href="javascript:void(0)" class="social-icon" title="Twitter coming soon" style="opacity:0.5"><i class="fab fa-twitter"></i></a>
+            <a href="javascript:void(0)" class="social-icon" title="Pinterest coming soon" style="opacity:0.5"><i class="fab fa-pinterest"></i></a>
           </div>
         </div>
 
@@ -1137,31 +1608,31 @@
         <div class="footer-column">
           <h4>Customer Service</h4>
           <ul>
-            <li><a href="#">Track Order</a></li>
-            <li><a href="#">Returns & Exchanges</a></li>
-            <li><a href="#">Shipping Info</a></li>
-            <li><a href="#">FAQs</a></li>
-            <li><a href="#">Contact Us</a></li>
+            <li><a href="/contact.html" title="Contact us to track your order">Track Order</a></li>
+            <li><a href="/returns.html">Returns & Exchanges</a></li>
+            <li><a href="/shipping.html">Shipping Info</a></li>
+            <li><a href="/page.html?slug=faqs">FAQs</a></li>
+            <li><a href="/contact.html">Contact Us</a></li>
           </ul>
         </div>
 
         <div class="footer-column">
           <h4>Talk To Us</h4>
           <ul>
-            <li><a href="#">About Us</a></li>
-            <li><a href="#">Careers</a></li>
-            <li><a href="#">Press</a></li>
-            <li><a href="#">Blog</a></li>
+            <li><a href="/page.html?slug=about">About Us</a></li>
+            <li><a href="/contact.html" title="Contact us about careers">Careers</a></li>
+            <li><a href="/contact.html" title="Press inquiries">Press</a></li>
+            <li><a href="/guides/">Blog</a></li>
           </ul>
         </div>
 
         <div class="footer-column">
           <h4>Resources</h4>
           <ul>
-            <li><a href="#">Measuring Guide</a></li>
-            <li><a href="#">Installation Guide</a></li>
-            <li><a href="#">Free Samples</a></li>
-            <li><a href="#">Trade Program</a></li>
+            <li><a href="/guides/how-to-measure-for-blinds.html">Measuring Guide</a></li>
+            <li><a href="/guides/">Installation Guide</a></li>
+            <li><a href="/samples.html" title="Order free fabric samples">Free Samples</a></li>
+            <li><a href="/dealer/">Trade Program</a></li>
           </ul>
         </div>
       </div>
@@ -1169,9 +1640,9 @@
       <div class="footer-bottom">
         <p class="footer-copyright">&copy; 2024 Peekaboo Shades. All rights reserved.</p>
         <div class="footer-links">
-          <a href="#">Privacy Policy</a>
-          <a href="#">Terms of Service</a>
-          <a href="#">Accessibility</a>
+          <a href="/page.html?slug=privacy-policy">Privacy Policy</a>
+          <a href="/page.html?slug=terms-of-service">Terms of Service</a>
+          <a href="/page.html?slug=accessibility">Accessibility</a>
         </div>
       </div>
     </div>
@@ -1186,7 +1657,7 @@
     let allProducts = [];
     let filteredProducts = [];
     let currentPage = 1;
-    const productsPerPage = 9;
+    let productsPerPage = 9;
     let currentCategory = 'all';
 
     // Product images - local images matching product detail page
@@ -1416,24 +1887,45 @@
       const endIndex = currentPage * productsPerPage;
       const productsToShow = filteredProducts.slice(0, endIndex);
 
-      grid.innerHTML = productsToShow.map(product => `
+      grid.innerHTML = productsToShow.map(product => {
+        // Determine badge to show (promo_badge > sale > none)
+        let badgeHtml = '';
+        if (product.promo_badge) {
+          badgeHtml = `<span class="product-badge promo">${product.promo_badge}</span>`;
+        } else if (product.sale_price || product.compare_price) {
+          badgeHtml = '<span class="product-badge sale">Sale</span>';
+        }
+
+        // Price display logic
+        const currentPrice = product.sale_price || product.base_price;
+        const originalPrice = product.compare_price || (product.sale_price ? product.base_price : null);
+
+        return `
         <div class="product-card" onclick="window.location.href='/product/${product.slug}'">
           <div class="product-image">
             <img src="${product.image_url}" alt="${product.name}">
-            ${product.sale_price ? '<span class="product-badge">Sale</span>' : ''}
+            ${badgeHtml}
             <button class="product-wishlist" onclick="event.stopPropagation(); addToWishlist('${product.id}')">
               <i class="far fa-heart"></i>
             </button>
           </div>
           <div class="product-info">
+            <span class="product-category">${product.category_name || 'Window Treatments'}</span>
             <h3 class="product-title">${product.name}</h3>
+            ${product.tagline ? `<p class="product-tagline">${product.tagline}</p>` : ''}
             <div class="product-price">
-              <span class="current-price">$${product.base_price.toFixed(2)} USD</span>
-              ${product.sale_price ? `<span class="original-price">$${product.sale_price.toFixed(2)}</span>` : ''}
+              <span class="price-label">Starting at</span>
+              <span class="current-price">$${currentPrice.toFixed(2)}</span>
+              ${originalPrice ? `<span class="original-price">$${originalPrice.toFixed(2)}</span>` : ''}
             </div>
+            ${product.recommended_rooms && product.recommended_rooms.length > 0 ? `
+              <div class="product-rooms">
+                <i class="fas fa-check-circle"></i> Perfect for ${product.recommended_rooms.slice(0, 2).map(r => r.replace('-', ' ')).join(', ')}
+              </div>
+            ` : ''}
           </div>
         </div>
-      `).join('');
+      `}).join('');
 
       // Update count
       document.getElementById('productsCount').textContent = filteredProducts.length;
@@ -1477,38 +1969,10 @@
       });
     }
 
-    // Apply filters
+    // Apply filters (redirects to the full filter system)
     function applyFilters() {
-      const sort = document.getElementById('sortFilter').value;
-      const priceRange = document.getElementById('priceFilter').value;
-
-      // Start with category filtered products
-      let products = currentCategory === 'all'
-        ? [...allProducts]
-        : allProducts.filter(p => p.category_slug === currentCategory);
-
-      // Price filter
-      if (priceRange) {
-        if (priceRange === '200+') {
-          products = products.filter(p => p.base_price >= 200);
-        } else {
-          const [min, max] = priceRange.split('-').map(Number);
-          products = products.filter(p => p.base_price >= min && p.base_price <= max);
-        }
-      }
-
-      // Sort
-      if (sort === 'price_asc') {
-        products.sort((a, b) => a.base_price - b.base_price);
-      } else if (sort === 'price_desc') {
-        products.sort((a, b) => b.base_price - a.base_price);
-      } else if (sort === 'name') {
-        products.sort((a, b) => a.name.localeCompare(b.name));
-      }
-
-      filteredProducts = products;
-      currentPage = 1;
-      renderProducts();
+      // Delegate to the full filter system
+      applyAllFilters();
     }
 
     // Load more products
@@ -1541,15 +2005,293 @@
       }
     });
 
-    // Toggle filters (mobile)
+    // ============================================
+    // FILTER PANEL FUNCTIONALITY
+    // ============================================
+
+    // Filter state
+    let activeFilters = {
+      rooms: [],
+      colors: [],
+      price: '',
+      lightControl: [],
+      materials: []
+    };
+
+    // Toggle filter panel
     function toggleFilters() {
-      // Implement mobile filter panel toggle
-      showToast('Filter panel coming soon!');
+      const panel = document.getElementById('filterPanel');
+      const overlay = document.getElementById('filterPanelOverlay');
+      panel.classList.add('active');
+      overlay.classList.add('active');
+      document.body.style.overflow = 'hidden';
     }
 
-    // Add to wishlist
+    // Close filter panel
+    function closeFilterPanel() {
+      const panel = document.getElementById('filterPanel');
+      const overlay = document.getElementById('filterPanelOverlay');
+      panel.classList.remove('active');
+      overlay.classList.remove('active');
+      document.body.style.overflow = '';
+    }
+
+    // Toggle color filter - opens panel and scrolls to color section
+    function toggleColorFilter() {
+      toggleFilters();
+      setTimeout(() => {
+        const colorSection = document.querySelector('.filter-section:nth-child(2)');
+        if (colorSection) colorSection.scrollIntoView({ behavior: 'smooth' });
+      }, 300);
+    }
+
+    // Toggle size filter - not applicable, redirects to main filter
+    function toggleSizeFilter() {
+      toggleFilters();
+    }
+
+    // Toggle price filter - opens panel and scrolls to price section
+    function togglePriceFilter() {
+      toggleFilters();
+      setTimeout(() => {
+        const priceSection = document.querySelector('.filter-section:nth-child(3)');
+        if (priceSection) priceSection.scrollIntoView({ behavior: 'smooth' });
+      }, 300);
+    }
+
+    // Toggle room filter - opens panel and scrolls to room section
+    function toggleRoomFilter() {
+      toggleFilters();
+      setTimeout(() => {
+        const roomSection = document.querySelector('.filter-section:nth-child(1)');
+        if (roomSection) roomSection.scrollIntoView({ behavior: 'smooth' });
+      }, 300);
+    }
+
+    // Toggle color swatch selection
+    function toggleColorSwatch(element) {
+      element.classList.toggle('selected');
+      updateActiveFilters();
+    }
+
+    // Update active filters display
+    function updateActiveFilters() {
+      const container = document.getElementById('activeFiltersContainer');
+
+      // Gather all selected filters
+      const rooms = Array.from(document.querySelectorAll('input[name="room"]:checked')).map(el => el.value);
+      const colors = Array.from(document.querySelectorAll('.color-swatch.selected')).map(el => el.dataset.color);
+      const price = document.querySelector('input[name="price"]:checked')?.value || '';
+      const lightControl = Array.from(document.querySelectorAll('input[name="light"]:checked')).map(el => el.value);
+      const materials = Array.from(document.querySelectorAll('input[name="material"]:checked')).map(el => el.value);
+
+      // Store in state
+      activeFilters = { rooms, colors, price, lightControl, materials };
+
+      // Build tags HTML
+      let tagsHTML = '';
+
+      rooms.forEach(room => {
+        tagsHTML += `<span class="active-filter-tag">${formatFilterLabel(room)} <button onclick="removeFilter('room', '${room}')">&times;</button></span>`;
+      });
+
+      colors.forEach(color => {
+        tagsHTML += `<span class="active-filter-tag">${formatFilterLabel(color)} <button onclick="removeFilter('color', '${color}')">&times;</button></span>`;
+      });
+
+      if (price) {
+        const priceLabel = price === '200+' ? '$200+' : `$${price.replace('-', ' - $')}`;
+        tagsHTML += `<span class="active-filter-tag">${priceLabel} <button onclick="removeFilter('price', '${price}')">&times;</button></span>`;
+      }
+
+      lightControl.forEach(light => {
+        tagsHTML += `<span class="active-filter-tag">${formatFilterLabel(light)} <button onclick="removeFilter('light', '${light}')">&times;</button></span>`;
+      });
+
+      materials.forEach(material => {
+        tagsHTML += `<span class="active-filter-tag">${formatFilterLabel(material)} <button onclick="removeFilter('material', '${material}')">&times;</button></span>`;
+      });
+
+      container.innerHTML = tagsHTML;
+
+      // Update filter pill active states
+      updateFilterPillStates();
+    }
+
+    // Format filter label for display
+    function formatFilterLabel(value) {
+      return value.split('-').map(word => word.charAt(0).toUpperCase() + word.slice(1)).join(' ');
+    }
+
+    // Remove a specific filter
+    function removeFilter(type, value) {
+      if (type === 'room') {
+        const checkbox = document.querySelector(`input[name="room"][value="${value}"]`);
+        if (checkbox) checkbox.checked = false;
+      } else if (type === 'color') {
+        const swatch = document.querySelector(`.color-swatch[data-color="${value}"]`);
+        if (swatch) swatch.classList.remove('selected');
+      } else if (type === 'price') {
+        document.getElementById('price-all').checked = true;
+      } else if (type === 'light') {
+        const checkbox = document.querySelector(`input[name="light"][value="${value}"]`);
+        if (checkbox) checkbox.checked = false;
+      } else if (type === 'material') {
+        const checkbox = document.querySelector(`input[name="material"][value="${value}"]`);
+        if (checkbox) checkbox.checked = false;
+      }
+
+      updateActiveFilters();
+      applyAllFilters();
+    }
+
+    // Update filter pill active states
+    function updateFilterPillStates() {
+      const filterPills = document.querySelectorAll('.filter-pill');
+
+      // Get filter counts
+      const hasFilters = activeFilters.rooms.length > 0 ||
+                         activeFilters.colors.length > 0 ||
+                         activeFilters.price !== '' ||
+                         activeFilters.lightControl.length > 0 ||
+                         activeFilters.materials.length > 0;
+
+      // Update main Filters pill
+      filterPills[0]?.classList.toggle('active', hasFilters);
+      // Update Color pill
+      filterPills[1]?.classList.toggle('active', activeFilters.colors.length > 0);
+      // Update Price pill (index 3 based on current button order)
+      filterPills[3]?.classList.toggle('active', activeFilters.price !== '');
+      // Update Room pill
+      filterPills[4]?.classList.toggle('active', activeFilters.rooms.length > 0);
+    }
+
+    // Clear all filters
+    function clearAllFilters() {
+      // Uncheck all room checkboxes
+      document.querySelectorAll('input[name="room"]').forEach(el => el.checked = false);
+      // Deselect all color swatches
+      document.querySelectorAll('.color-swatch.selected').forEach(el => el.classList.remove('selected'));
+      // Reset price to "All Prices"
+      document.getElementById('price-all').checked = true;
+      // Uncheck all light control checkboxes
+      document.querySelectorAll('input[name="light"]').forEach(el => el.checked = false);
+      // Uncheck all material checkboxes
+      document.querySelectorAll('input[name="material"]').forEach(el => el.checked = false);
+
+      // Update state and UI
+      updateActiveFilters();
+
+      // Apply filters (shows all products)
+      applyAllFilters();
+    }
+
+    // Apply all filters
+    function applyAllFilters() {
+      const sort = document.getElementById('sortFilter').value;
+
+      // Start with category filtered products
+      let products = currentCategory === 'all'
+        ? [...allProducts]
+        : allProducts.filter(p => p.category_slug === currentCategory);
+
+      // Apply price filter
+      if (activeFilters.price) {
+        if (activeFilters.price === '200+') {
+          products = products.filter(p => p.base_price >= 200);
+        } else {
+          const [min, max] = activeFilters.price.split('-').map(Number);
+          products = products.filter(p => p.base_price >= min && p.base_price <= max);
+        }
+      }
+
+      // Note: Room, Color, Light Control, and Material filters would need product data to include these attributes
+      // For now, we'll simulate filtering by product name/description matching (as a demonstration)
+
+      // Apply room filter (simulated - matches category or name)
+      if (activeFilters.rooms.length > 0) {
+        products = products.filter(p => {
+          const nameLC = (p.name || '').toLowerCase();
+          const descLC = (p.description || '').toLowerCase();
+          return activeFilters.rooms.some(room =>
+            nameLC.includes(room.replace('-', ' ')) ||
+            descLC.includes(room.replace('-', ' ')) ||
+            (room === 'bedroom' && (p.category_slug === 'blackout-shades' || nameLC.includes('blackout'))) ||
+            (room === 'bathroom' && nameLC.includes('moisture')) ||
+            (room === 'office' && (nameLC.includes('light filter') || p.category_slug === 'roller-shades'))
+          );
+        });
+      }
+
+      // Apply light control filter
+      if (activeFilters.lightControl.length > 0) {
+        products = products.filter(p => {
+          const nameLC = (p.name || '').toLowerCase();
+          const descLC = (p.description || '').toLowerCase();
+          return activeFilters.lightControl.some(light =>
+            nameLC.includes(light.replace('-', ' ')) ||
+            descLC.includes(light.replace('-', ' '))
+          );
+        });
+      }
+
+      // Apply material filter
+      if (activeFilters.materials.length > 0) {
+        products = products.filter(p => {
+          const nameLC = (p.name || '').toLowerCase();
+          const descLC = (p.description || '').toLowerCase();
+          const catLC = (p.category_slug || '').toLowerCase();
+          return activeFilters.materials.some(mat => {
+            if (mat === 'fabric') return catLC.includes('roller') || catLC.includes('roman');
+            if (mat === 'natural') return catLC.includes('woven') || catLC.includes('natural');
+            if (mat === 'faux-wood') return nameLC.includes('wood') || catLC.includes('wood');
+            return nameLC.includes(mat) || descLC.includes(mat);
+          });
+        });
+      }
+
+      // Apply color filter (simulated - matches name)
+      if (activeFilters.colors.length > 0) {
+        products = products.filter(p => {
+          const nameLC = (p.name || '').toLowerCase();
+          const descLC = (p.description || '').toLowerCase();
+          return activeFilters.colors.some(color =>
+            nameLC.includes(color) || descLC.includes(color)
+          );
+        });
+      }
+
+      // Apply sort
+      if (sort === 'price_asc') {
+        products.sort((a, b) => a.base_price - b.base_price);
+      } else if (sort === 'price_desc') {
+        products.sort((a, b) => b.base_price - a.base_price);
+      } else if (sort === 'name') {
+        products.sort((a, b) => a.name.localeCompare(b.name));
+      } else if (sort === 'newest') {
+        products.sort((a, b) => new Date(b.created_at || 0) - new Date(a.created_at || 0));
+      }
+
+      filteredProducts = products;
+      currentPage = 1;
+      renderProducts();
+
+      // Close filter panel
+      closeFilterPanel();
+    }
+
+    // Add to wishlist (using localStorage)
     function addToWishlist(productId) {
-      showToast('Added to wishlist!', 'success');
+      let wishlist = JSON.parse(localStorage.getItem('wishlist') || '[]');
+      if (!wishlist.includes(productId)) {
+        wishlist.push(productId);
+        localStorage.setItem('wishlist', JSON.stringify(wishlist));
+        showToast('Added to wishlist!', 'success');
+      } else {
+        wishlist = wishlist.filter(id => id !== productId);
+        localStorage.setItem('wishlist', JSON.stringify(wishlist));
+        showToast('Removed from wishlist', 'info');
+      }
     }
 
     // ============================================

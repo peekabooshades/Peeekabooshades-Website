@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Technician Registration - Peekaboo Shades</title>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Montserrat', sans-serif;
+      min-height: 100vh;
+      background: linear-gradient(135deg, #f5f0ec 0%, #e8e0da 100%);
+      padding: 2rem;
+    }
+
+    .signup-container {
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      color: #8E6545;
+      text-decoration: none;
+      font-weight: 500;
+      margin-bottom: 2rem;
+    }
+
+    .back-link:hover {
+      text-decoration: underline;
+    }
+
+    .back-link svg {
+      width: 20px;
+      height: 20px;
+    }
+
+    .signup-card {
+      background: white;
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+    }
+
+    .signup-header {
+      background: linear-gradient(135deg, #8E6545 0%, #A67C5B 100%);
+      color: white;
+      padding: 2rem;
+      text-align: center;
+    }
+
+    .signup-header h1 {
+      font-size: 1.5rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .signup-header p {
+      opacity: 0.9;
+      font-size: 0.95rem;
+    }
+
+    .signup-form {
+      padding: 2rem;
+    }
+
+    .form-section {
+      margin-bottom: 2rem;
+    }
+
+    .form-section-title {
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #8E6545;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      margin-bottom: 1rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 2px solid #f0e6df;
+    }
+
+    .form-group {
+      margin-bottom: 1.25rem;
+    }
+
+    .form-group label {
+      display: block;
+      font-weight: 500;
+      color: #374151;
+      margin-bottom: 0.5rem;
+      font-size: 0.9rem;
+    }
+
+    .form-group input, .form-group select, .form-group textarea {
+      width: 100%;
+      padding: 0.875rem 1rem;
+      border: 2px solid #e5e7eb;
+      border-radius: 10px;
+      font-size: 0.95rem;
+      font-family: inherit;
+      transition: all 0.2s;
+      background: #fafafa;
+    }
+
+    .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+      outline: none;
+      border-color: #8E6545;
+      box-shadow: 0 0 0 3px rgba(142,101,69,0.1);
+      background: white;
+    }
+
+    .form-group input::placeholder {
+      color: #9ca3af;
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+
+    .input-hint {
+      font-size: 0.8rem;
+      color: #6b7280;
+      margin-top: 0.35rem;
+    }
+
+    .specialty-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 0.75rem;
+    }
+
+    .specialty-item {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.75rem 1rem;
+      background: #faf8f6;
+      border: 2px solid #e8e0da;
+      border-radius: 10px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .specialty-item:hover {
+      border-color: #8E6545;
+      background: #f5f0ec;
+    }
+
+    .specialty-item input {
+      width: 18px;
+      height: 18px;
+      accent-color: #8E6545;
+      cursor: pointer;
+    }
+
+    .specialty-item span {
+      font-size: 0.9rem;
+      color: #374151;
+    }
+
+    .specialty-item:has(input:checked) {
+      background: #f5f0ec;
+      border-color: #8E6545;
+    }
+
+    .specialty-item:has(input:checked) span {
+      color: #8E6545;
+      font-weight: 500;
+    }
+
+    .password-requirements {
+      background: #f5f0ec;
+      border-radius: 10px;
+      padding: 1rem;
+      margin-top: 0.75rem;
+    }
+
+    .password-requirements h4 {
+      font-size: 0.85rem;
+      color: #374151;
+      margin-bottom: 0.5rem;
+    }
+
+    .password-requirements ul {
+      list-style: none;
+      font-size: 0.85rem;
+      color: #6b7280;
+    }
+
+    .password-requirements li {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-bottom: 0.25rem;
+    }
+
+    .password-requirements li.valid {
+      color: #059669;
+    }
+
+    .password-requirements li svg {
+      width: 16px;
+      height: 16px;
+    }
+
+    .terms-checkbox {
+      display: flex;
+      align-items: flex-start;
+      gap: 0.75rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .terms-checkbox input {
+      width: 20px;
+      height: 20px;
+      accent-color: #8E6545;
+      margin-top: 2px;
+      cursor: pointer;
+    }
+
+    .terms-checkbox label {
+      font-size: 0.9rem;
+      color: #4b5563;
+      cursor: pointer;
+    }
+
+    .terms-checkbox a {
+      color: #8E6545;
+      text-decoration: none;
+    }
+
+    .terms-checkbox a:hover {
+      text-decoration: underline;
+    }
+
+    .btn-signup {
+      width: 100%;
+      padding: 1rem;
+      background: linear-gradient(135deg, #8E6545 0%, #A67C5B 100%);
+      color: white;
+      border: none;
+      border-radius: 12px;
+      font-size: 1rem;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      transition: all 0.2s;
+      box-shadow: 0 4px 12px rgba(142, 101, 69, 0.3);
+    }
+
+    .btn-signup:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(142, 101, 69, 0.4);
+    }
+
+    .btn-signup:disabled {
+      opacity: 0.7;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .login-link {
+      text-align: center;
+      margin-top: 1.5rem;
+      color: #6b7280;
+      font-size: 0.95rem;
+    }
+
+    .login-link a {
+      color: #8E6545;
+      font-weight: 600;
+      text-decoration: none;
+    }
+
+    .login-link a:hover {
+      text-decoration: underline;
+    }
+
+    .error-message, .success-message {
+      padding: 1rem;
+      border-radius: 10px;
+      margin-bottom: 1.5rem;
+      font-size: 0.9rem;
+      display: none;
+    }
+
+    .error-message {
+      background: #FEE2E2;
+      border: 1px solid #FECACA;
+      color: #991B1B;
+    }
+
+    .success-message {
+      background: #D1FAE5;
+      border: 1px solid #A7F3D0;
+      color: #065F46;
+    }
+
+    .error-message.show, .success-message.show {
+      display: block;
+    }
+
+    @media (max-width: 600px) {
+      body {
+        padding: 1rem;
+      }
+      .form-row {
+        grid-template-columns: 1fr;
+      }
+      .specialty-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="signup-container">
+    <a href="/technician/login.html" class="back-link">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M19 12H5M12 19l-7-7 7-7"/>
+      </svg>
+      Back to Login
+    </a>
+
+    <div class="signup-card">
+      <div class="signup-header">
+        <img src="/images/peekabooshades_logo.jpeg" alt="Peekaboo Shades" style="width: 80px; height: 80px; border-radius: 16px; margin-bottom: 1rem; background: white; padding: 8px;">
+        <h1>Become a Technician</h1>
+        <p>Join our network of professional installers</p>
+      </div>
+
+      <form class="signup-form" onsubmit="handleSignup(event)">
+        <div id="errorMessage" class="error-message"></div>
+        <div id="successMessage" class="success-message"></div>
+
+        <div class="form-section">
+          <div class="form-section-title">Personal Information</div>
+          <div class="form-group">
+            <label for="name">Full Name *</label>
+            <input type="text" id="name" placeholder="Enter your full name" required>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="email">Email Address *</label>
+              <input type="email" id="email" placeholder="you@example.com" required>
+            </div>
+            <div class="form-group">
+              <label for="phone">Phone Number</label>
+              <input type="tel" id="phone" placeholder="(555) 000-0000">
+            </div>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <div class="form-section-title">Account Security</div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="password">Password *</label>
+              <input type="password" id="password" placeholder="Create a password" required oninput="checkPassword()">
+            </div>
+            <div class="form-group">
+              <label for="confirmPassword">Confirm Password *</label>
+              <input type="password" id="confirmPassword" placeholder="Confirm password" required oninput="checkPassword()">
+            </div>
+          </div>
+          <div class="password-requirements">
+            <h4>Password must have:</h4>
+            <ul>
+              <li id="req-length"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/></svg> At least 8 characters</li>
+              <li id="req-upper"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/></svg> One uppercase letter</li>
+              <li id="req-number"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/></svg> One number</li>
+              <li id="req-match"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/></svg> Passwords match</li>
+            </ul>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <div class="form-section-title">Installation Specialties</div>
+          <div class="specialty-grid">
+            <label class="specialty-item">
+              <input type="checkbox" name="specialties" value="roller-blinds">
+              <span>Roller Blinds</span>
+            </label>
+            <label class="specialty-item">
+              <input type="checkbox" name="specialties" value="zebra-shades">
+              <span>Zebra Shades</span>
+            </label>
+            <label class="specialty-item">
+              <input type="checkbox" name="specialties" value="roman-shades">
+              <span>Roman Shades</span>
+            </label>
+            <label class="specialty-item">
+              <input type="checkbox" name="specialties" value="honeycomb">
+              <span>Honeycomb Shades</span>
+            </label>
+            <label class="specialty-item">
+              <input type="checkbox" name="specialties" value="motorized">
+              <span>Motorized Systems</span>
+            </label>
+            <label class="specialty-item">
+              <input type="checkbox" name="specialties" value="commercial">
+              <span>Commercial Install</span>
+            </label>
+          </div>
+        </div>
+
+        <div class="form-section">
+          <div class="form-section-title">Service Area</div>
+          <div class="form-group">
+            <label for="serviceAreas">Cities/Areas You Serve</label>
+            <input type="text" id="serviceAreas" placeholder="e.g., Los Angeles, Orange County, San Diego">
+            <div class="input-hint">Separate multiple areas with commas</div>
+          </div>
+        </div>
+
+        <div class="terms-checkbox">
+          <input type="checkbox" id="terms" required>
+          <label for="terms">I agree to the <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a>, and understand my account requires admin approval before activation.</label>
+        </div>
+
+        <button type="submit" class="btn-signup" id="signupBtn">Create Account</button>
+
+        <div class="login-link">
+          Already registered? <a href="/technician/login.html">Sign in here</a>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    function checkPassword() {
+      const password = document.getElementById('password').value;
+      const confirm = document.getElementById('confirmPassword').value;
+
+      updateRequirement('req-length', password.length >= 8);
+      updateRequirement('req-upper', /[A-Z]/.test(password));
+      updateRequirement('req-number', /[0-9]/.test(password));
+      updateRequirement('req-match', password && confirm && password === confirm);
+    }
+
+    function updateRequirement(id, isValid) {
+      const el = document.getElementById(id);
+      if (isValid) {
+        el.classList.add('valid');
+        el.querySelector('svg').innerHTML = '<path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/>';
+      } else {
+        el.classList.remove('valid');
+        el.querySelector('svg').innerHTML = '<circle cx="12" cy="12" r="10"/>';
+      }
+    }
+
+    async function handleSignup(e) {
+      e.preventDefault();
+
+      const password = document.getElementById('password').value;
+      const confirmPassword = document.getElementById('confirmPassword').value;
+      const signupBtn = document.getElementById('signupBtn');
+      const errorMessage = document.getElementById('errorMessage');
+      const successMessage = document.getElementById('successMessage');
+
+      errorMessage.classList.remove('show');
+      successMessage.classList.remove('show');
+
+      // Validate password
+      if (password.length < 8) {
+        errorMessage.textContent = 'Password must be at least 8 characters';
+        errorMessage.classList.add('show');
+        return;
+      }
+
+      if (!/[A-Z]/.test(password)) {
+        errorMessage.textContent = 'Password must contain an uppercase letter';
+        errorMessage.classList.add('show');
+        return;
+      }
+
+      if (!/[0-9]/.test(password)) {
+        errorMessage.textContent = 'Password must contain a number';
+        errorMessage.classList.add('show');
+        return;
+      }
+
+      if (password !== confirmPassword) {
+        errorMessage.textContent = 'Passwords do not match';
+        errorMessage.classList.add('show');
+        return;
+      }
+
+      const specialties = Array.from(document.querySelectorAll('input[name="specialties"]:checked')).map(cb => cb.value);
+      const serviceAreasRaw = document.getElementById('serviceAreas').value;
+      const serviceAreas = serviceAreasRaw ? serviceAreasRaw.split(',').map(s => s.trim()).filter(s => s) : [];
+
+      const data = {
+        name: document.getElementById('name').value,
+        email: document.getElementById('email').value,
+        phone: document.getElementById('phone').value,
+        password,
+        specialties,
+        serviceAreas
+      };
+
+      signupBtn.disabled = true;
+      signupBtn.textContent = 'Creating Account...';
+
+      try {
+        const response = await fetch('/api/technician/signup', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+          successMessage.innerHTML = '<strong>Registration successful!</strong><br>Your account is pending admin approval. You will be notified once approved.';
+          successMessage.classList.add('show');
+          document.querySelector('form').reset();
+
+          setTimeout(() => {
+            window.location.href = '/technician/login.html';
+          }, 3000);
+        } else {
+          errorMessage.textContent = result.error || 'Registration failed';
+          errorMessage.classList.add('show');
+        }
+      } catch (error) {
+        errorMessage.textContent = 'Connection error. Please try again.';
+        errorMessage.classList.add('show');
+      } finally {
+        signupBtn.disabled = false;
+        signupBtn.textContent = 'Create Account';
+      }
+    }
+  </script>
+</body>
+</html>

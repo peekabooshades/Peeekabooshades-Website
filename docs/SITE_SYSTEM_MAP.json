@@ -1,0 +1,821 @@
+{
+  "metadata": {
+    "version": "1.0.0",
+    "generatedAt": "2026-01-11T00:00:00Z",
+    "description": "PeekabooShades Site Framework - Machine-readable system map",
+    "totalPages": 92,
+    "totalEndpoints": 401,
+    "totalCollections": 65
+  },
+  "portals": {
+    "customer": {
+      "name": "Customer Frontend",
+      "basePath": "/",
+      "auth": "none",
+      "pages": [
+        {
+          "id": "home",
+          "path": "/index.html",
+          "name": "Homepage",
+          "scripts": ["js/common.js"],
+          "endpoints": [
+            "GET /api/site-content",
+            "GET /api/categories",
+            "GET /api/products"
+          ],
+          "status": "working"
+        },
+        {
+          "id": "shop",
+          "path": "/shop.html",
+          "name": "Shop / Product Listing",
+          "scripts": ["js/shop.js"],
+          "endpoints": [
+            "GET /api/products",
+            "GET /api/categories"
+          ],
+          "status": "partial",
+          "issues": ["filters not implemented", "broken navigation links"]
+        },
+        {
+          "id": "product-roller",
+          "path": "/product.html",
+          "name": "Roller Shades Configurator",
+          "scripts": ["js/product.js"],
+          "endpoints": [
+            "GET /api/products/:slug",
+            "GET /api/product-content",
+            "POST /api/v1/pricing/calculate",
+            "POST /api/cart"
+          ],
+          "status": "working"
+        },
+        {
+          "id": "product-zebra",
+          "path": "/zebra-product.html",
+          "name": "Zebra Shades Configurator",
+          "scripts": ["js/zebra-product.js"],
+          "endpoints": [
+            "GET /api/products/:slug",
+            "GET /api/fabrics/zebra",
+            "POST /api/v1/pricing/calculate",
+            "POST /api/cart"
+          ],
+          "status": "working"
+        },
+        {
+          "id": "cart",
+          "path": "/cart.html",
+          "name": "Shopping Cart",
+          "scripts": ["js/cart.js"],
+          "endpoints": [
+            "GET /api/cart/:sessionId",
+            "PUT /api/cart/:id",
+            "DELETE /api/cart/:id",
+            "POST /api/calculate-order-total"
+          ],
+          "status": "working"
+        },
+        {
+          "id": "contact",
+          "path": "/contact.html",
+          "name": "Contact Us",
+          "scripts": [],
+          "endpoints": ["POST /api/contact"],
+          "status": "working"
+        },
+        {
+          "id": "shipping",
+          "path": "/shipping.html",
+          "name": "Shipping Policy",
+          "scripts": [],
+          "endpoints": [],
+          "status": "working"
+        },
+        {
+          "id": "returns",
+          "path": "/returns.html",
+          "name": "Returns Policy",
+          "scripts": [],
+          "endpoints": [],
+          "status": "working"
+        },
+        {
+          "id": "warranty",
+          "path": "/warranty.html",
+          "name": "Warranty Info",
+          "scripts": [],
+          "endpoints": [],
+          "status": "working"
+        },
+        {
+          "id": "child-safety",
+          "path": "/child-safety.html",
+          "name": "Child Safety",
+          "scripts": [],
+          "endpoints": [],
+          "status": "working"
+        },
+        {
+          "id": "cms-page",
+          "path": "/page.html",
+          "name": "CMS Dynamic Page",
+          "scripts": ["js/page.js"],
+          "endpoints": ["GET /api/pages/by-slug/:slug"],
+          "status": "working"
+        }
+      ]
+    },
+    "admin": {
+      "name": "Admin Portal",
+      "basePath": "/admin/",
+      "auth": "authMiddleware",
+      "tokenHeader": "Authorization: Bearer <jwt>",
+      "pages": [
+        {
+          "id": "admin-login",
+          "path": "/admin/login.html",
+          "name": "Admin Login",
+          "auth": "none",
+          "endpoints": ["POST /api/admin/login"],
+          "status": "working"
+        },
+        {
+          "id": "admin-dashboard",
+          "path": "/admin/index.html",
+          "name": "Dashboard",
+          "endpoints": ["GET /api/admin/dashboard", "GET /api/admin/orders"],
+          "status": "working"
+        },
+        {
+          "id": "admin-orders",
+          "path": "/admin/orders.html",
+          "name": "Orders",
+          "endpoints": [
+            "GET /api/admin/orders",
+            "GET /api/admin/orders/:id",
+            "PUT /api/admin/orders/:id/status"
+          ],
+          "status": "working"
+        },
+        {
+          "id": "admin-quotes",
+          "path": "/admin/quotes.html",
+          "name": "Quotes",
+          "endpoints": [
+            "GET /api/admin/quotes",
+            "PUT /api/admin/quotes/:id/status"
+          ],
+          "status": "working"
+        },
+        {
+          "id": "admin-invoices",
+          "path": "/admin/invoices.html",
+          "name": "Invoices",
+          "endpoints": [
+            "GET /api/admin/invoices",
+            "GET /api/admin/invoices/:id",
+            "POST /api/admin/invoices/:id/payment",
+            "POST /api/admin/invoices/generate-missing"
+          ],
+          "status": "working"
+        },
+        {
+          "id": "admin-print-invoice",
+          "path": "/admin/print-invoice.html",
+          "name": "Print Invoice",
+          "endpoints": ["GET /api/admin/invoices/:id"],
+          "status": "working"
+        },
+        {
+          "id": "admin-accounts",
+          "path": "/admin/accounts.html",
+          "name": "Accounts & Profit",
+          "endpoints": [
+            "GET /api/admin/ledger",
+            "GET /api/admin/ledger/summary"
+          ],
+          "status": "working"
+        },
+        {
+          "id": "admin-products",
+          "path": "/admin/products.html",
+          "name": "Products",
+          "endpoints": [
+            "GET /api/admin/products",
+            "POST /api/admin/products",
+            "PUT /api/admin/products/:id",
+            "DELETE /api/admin/products/:id"
+          ],
+          "status": "working"
+        },
+        {
+          "id": "admin-product-edit",
+          "path": "/admin/product-edit.html",
+          "name": "Product Edit",
+          "endpoints": [
+            "GET /api/admin/products/:id",
+            "PUT /api/admin/products/:id"
+          ],
+          "status": "working"
+        },
+        {
+          "id": "admin-product-launch",
+          "path": "/admin/product-launch.html",
+          "name": "Launch Product",
+          "endpoints": ["POST /api/admin/products"],
+          "status": "working"
+        },
+        {
+          "id": "admin-categories",
+          "path": "/admin/categories.html",
+          "name": "Categories",
+          "endpoints": [
+            "GET /api/admin/categories",
+            "POST /api/admin/categories",
+            "PUT /api/admin/categories/:id",
+            "DELETE /api/admin/categories/:id"
+          ],
+          "status": "working"
+        },
+        {
+          "id": "admin-fabrics",
+          "path": "/admin/fabrics.html",
+          "name": "Fabrics",
+          "endpoints": [
+            "GET /api/admin/fabrics",
+            "POST /api/admin/fabrics",
+            "PUT /api/admin/fabrics/:id",
+            "DELETE /api/admin/fabrics/:id"
+          ],
+          "status": "working"
+        },
+        {
+          "id": "admin-zebra-pricing",
+          "path": "/admin/zebra-pricing.html",
+          "name": "Zebra Pricing",
+          "endpoints": ["GET /api/admin/manufacturer-prices"],
+          "status": "working"
+        },
+        {
+          "id": "admin-zebra-page-editor",
+          "path": "/admin/zebra-page-editor.html",
+          "name": "Zebra Page Editor",
+          "endpoints": ["GET /api/admin/product-page-content/zebra"],
+          "status": "working"
+        },
+        {
+          "id": "admin-zebra-hardware",
+          "path": "/admin/zebra-hardware.html",
+          "name": "Zebra Hardware",
+          "endpoints": ["GET /api/admin/zebra/hardware/:category"],
+          "status": "working"
+        },
+        {
+          "id": "admin-hardware-options",
+          "path": "/admin/hardware-options.html",
+          "name": "Hardware Options",
+          "endpoints": [
+            "GET /api/admin/hardware/:category",
+            "POST /api/admin/hardware/:category",
+            "PUT /api/admin/hardware/:category/:id"
+          ],
+          "status": "working"
+        },
+        {
+          "id": "admin-accessories",
+          "path": "/admin/accessories.html",
+          "name": "Accessories",
+          "endpoints": [
+            "GET /api/admin/accessories",
+            "POST /api/admin/accessories",
+            "PUT /api/admin/accessories/:id"
+          ],
+          "status": "working"
+        },
+        {
+          "id": "admin-product-pricing",
+          "path": "/admin/product-pricing.html",
+          "name": "Customer Pricing",
+          "endpoints": [
+            "GET /api/admin/margins",
+            "PUT /api/admin/margins/product/:productId"
+          ],
+          "status": "working"
+        },
+        {
+          "id": "admin-customers",
+          "path": "/admin/customers.html",
+          "name": "All Customers",
+          "endpoints": [
+            "GET /api/admin/customers",
+            "PUT /api/admin/customers/:id"
+          ],
+          "status": "working"
+        },
+        {
+          "id": "admin-customer-detail",
+          "path": "/admin/customer.html",
+          "name": "Customer Detail",
+          "endpoints": ["GET /api/admin/customers/:id"],
+          "status": "working"
+        },
+        {
+          "id": "admin-product-content",
+          "path": "/admin/product-content.html",
+          "name": "Product Content",
+          "endpoints": ["GET /api/admin/product-catalog"],
+          "status": "working"
+        },
+        {
+          "id": "admin-product-page-editor",
+          "path": "/admin/product-page-editor.html",
+          "name": "Page Editor",
+          "endpoints": ["GET /api/admin/product-page-elements"],
+          "status": "working"
+        },
+        {
+          "id": "admin-pages",
+          "path": "/admin/pages.html",
+          "name": "CMS Pages",
+          "endpoints": ["GET /api/admin/pages"],
+          "status": "working"
+        },
+        {
+          "id": "admin-blog-posts",
+          "path": "/admin/blog/posts.html",
+          "name": "Blog Posts",
+          "endpoints": ["GET /api/admin/blog-posts"],
+          "status": "partial",
+          "issues": ["no public blog page exists"]
+        },
+        {
+          "id": "admin-media-library",
+          "path": "/admin/media-library.html",
+          "name": "Media Library",
+          "endpoints": [
+            "GET /api/admin/media",
+            "POST /api/admin/media/upload"
+          ],
+          "status": "working"
+        },
+        {
+          "id": "admin-faqs",
+          "path": "/admin/faqs.html",
+          "name": "FAQs",
+          "endpoints": [
+            "GET /api/admin/faqs",
+            "POST /api/admin/faqs",
+            "PUT /api/admin/faqs/:id"
+          ],
+          "status": "working"
+        },
+        {
+          "id": "admin-theme-settings",
+          "path": "/admin/theme-settings.html",
+          "name": "Theme & Colors",
+          "endpoints": [
+            "GET /api/admin/site-content/theme",
+            "PUT /api/admin/site-content/theme"
+          ],
+          "status": "working"
+        },
+        {
+          "id": "admin-image-manager",
+          "path": "/admin/image-manager.html",
+          "name": "Image Manager",
+          "endpoints": ["GET /api/admin/media"],
+          "status": "working"
+        },
+        {
+          "id": "admin-analytics",
+          "path": "/admin/analytics.html",
+          "name": "Reports",
+          "endpoints": ["GET /api/admin/analytics/dashboard"],
+          "status": "working"
+        },
+        {
+          "id": "admin-system-config",
+          "path": "/admin/system-config.html",
+          "name": "System Config",
+          "endpoints": ["GET /api/admin/system-config"],
+          "status": "working"
+        },
+        {
+          "id": "admin-settings",
+          "path": "/admin/settings.html",
+          "name": "Settings",
+          "endpoints": [
+            "GET /api/admin/settings",
+            "PUT /api/admin/settings"
+          ],
+          "status": "working"
+        },
+        {
+          "id": "admin-draft-orders",
+          "path": "/admin/draft-orders.html",
+          "name": "Draft Orders",
+          "endpoints": ["GET /api/admin/draft-orders"],
+          "status": "partial"
+        },
+        {
+          "id": "admin-abandoned-checkouts",
+          "path": "/admin/abandoned-checkouts.html",
+          "name": "Abandoned Checkouts",
+          "endpoints": ["GET /api/admin/abandoned-checkouts"],
+          "status": "working"
+        },
+        {
+          "id": "admin-api-tester",
+          "path": "/admin/api-tester.html",
+          "name": "API Tester",
+          "endpoints": [],
+          "status": "working"
+        }
+      ],
+      "subSections": {
+        "security": {
+          "basePath": "/admin/security/",
+          "pages": [
+            {
+              "id": "security-overview",
+              "path": "/admin/security/index.html",
+              "name": "Security Overview",
+              "endpoints": ["GET /api/admin/security/overview"],
+              "status": "working"
+            },
+            {
+              "id": "security-users",
+              "path": "/admin/security/users.html",
+              "name": "Admin Users",
+              "endpoints": [
+                "GET /api/admin/security/users",
+                "POST /api/admin/security/users"
+              ],
+              "status": "working"
+            },
+            {
+              "id": "security-permissions",
+              "path": "/admin/security/permissions.html",
+              "name": "Permissions",
+              "endpoints": ["GET /api/admin/security/permissions"],
+              "status": "working"
+            },
+            {
+              "id": "security-audit-logs",
+              "path": "/admin/security/audit-logs.html",
+              "name": "Audit Logs",
+              "endpoints": ["GET /api/admin/security/audit-logs"],
+              "status": "working"
+            },
+            {
+              "id": "security-sessions",
+              "path": "/admin/security/sessions.html",
+              "name": "Active Sessions",
+              "endpoints": ["GET /api/admin/security/sessions"],
+              "status": "stub",
+              "issues": ["revoke session not implemented - JWT stateless"]
+            },
+            {
+              "id": "security-two-factor",
+              "path": "/admin/security/two-factor.html",
+              "name": "Two-Factor Auth",
+              "endpoints": [],
+              "status": "stub",
+              "issues": ["UI only - no backend endpoints exist"]
+            },
+            {
+              "id": "security-sso",
+              "path": "/admin/security/sso.html",
+              "name": "Single Sign-On",
+              "endpoints": [],
+              "status": "stub",
+              "issues": ["UI only - no OAuth/SAML integration"]
+            },
+            {
+              "id": "security-firewall",
+              "path": "/admin/security/firewall.html",
+              "name": "IP Firewall",
+              "endpoints": [],
+              "status": "stub",
+              "issues": ["UI only - no enforcement middleware"]
+            },
+            {
+              "id": "security-api-keys",
+              "path": "/admin/security/api-security.html",
+              "name": "API Security",
+              "endpoints": ["GET /api/admin/security/api-keys"],
+              "status": "partial"
+            }
+          ]
+        },
+        "marketing": {
+          "basePath": "/admin/marketing/",
+          "pages": [
+            {
+              "id": "marketing-index",
+              "path": "/admin/marketing/index.html",
+              "name": "Marketing Overview",
+              "endpoints": [],
+              "status": "working"
+            },
+            {
+              "id": "marketing-social",
+              "path": "/admin/marketing/social.html",
+              "name": "Social Media",
+              "endpoints": [],
+              "status": "stub",
+              "issues": ["UI only - no social API integrations"]
+            },
+            {
+              "id": "marketing-campaigns",
+              "path": "/admin/marketing/campaigns.html",
+              "name": "Email Campaigns",
+              "endpoints": [],
+              "status": "stub",
+              "issues": ["UI only - no email service configured"]
+            },
+            {
+              "id": "marketing-automations",
+              "path": "/admin/marketing/automations.html",
+              "name": "Automations",
+              "endpoints": [],
+              "status": "stub",
+              "issues": ["UI only - no automation engine"]
+            },
+            {
+              "id": "marketing-subscribers",
+              "path": "/admin/marketing/subscribers.html",
+              "name": "Subscribers",
+              "endpoints": ["GET /api/admin/subscribers"],
+              "status": "partial",
+              "issues": ["can view but cannot send emails"]
+            },
+            {
+              "id": "marketing-promotions",
+              "path": "/admin/marketing/promotions.html",
+              "name": "Promotions",
+              "endpoints": ["GET /api/admin/promotions"],
+              "status": "working"
+            }
+          ]
+        },
+        "onlineStore": {
+          "basePath": "/admin/online-store/",
+          "pages": [
+            {
+              "id": "store-homepage",
+              "path": "/admin/online-store/homepage.html",
+              "name": "Homepage Settings",
+              "endpoints": ["PUT /api/admin/site-content/homepage"],
+              "status": "working"
+            },
+            {
+              "id": "store-banners",
+              "path": "/admin/online-store/banners.html",
+              "name": "Banners",
+              "endpoints": [
+                "GET /api/admin/content/banners",
+                "POST /api/admin/content/banners"
+              ],
+              "status": "working"
+            },
+            {
+              "id": "store-navigation",
+              "path": "/admin/online-store/navigation.html",
+              "name": "Navigation",
+              "endpoints": ["PUT /api/admin/site-content/navigation"],
+              "status": "working"
+            },
+            {
+              "id": "store-themes",
+              "path": "/admin/online-store/themes.html",
+              "name": "Themes",
+              "endpoints": ["GET /api/admin/themes"],
+              "status": "partial",
+              "issues": ["custom theme upload not working"]
+            },
+            {
+              "id": "store-shop-settings",
+              "path": "/admin/online-store/shop-settings.html",
+              "name": "Shop Settings",
+              "endpoints": ["PUT /api/admin/site-content/shop"],
+              "status": "working"
+            }
+          ]
+        }
+      }
+    },
+    "dealer": {
+      "name": "Dealer Portal",
+      "basePath": "/dealer/",
+      "auth": "dealerAuthMiddleware",
+      "tokenHeader": "Authorization: Bearer <dealer_jwt>",
+      "pages": [
+        {
+          "id": "dealer-login",
+          "path": "/dealer/login.html",
+          "name": "Dealer Login",
+          "auth": "none",
+          "endpoints": ["POST /api/dealer/login"],
+          "status": "working"
+        },
+        {
+          "id": "dealer-dashboard",
+          "path": "/dealer/index.html",
+          "name": "Dealer Dashboard",
+          "endpoints": [
+            "GET /api/dealer/stats",
+            "GET /api/dealer/orders"
+          ],
+          "status": "working"
+        },
+        {
+          "id": "dealer-orders",
+          "path": "/dealer/orders.html",
+          "name": "Orders",
+          "endpoints": [
+            "GET /api/dealer/orders",
+            "PUT /api/dealer/orders/:id/status"
+          ],
+          "status": "working"
+        },
+        {
+          "id": "dealer-new-order",
+          "path": "/dealer/new-order.html",
+          "name": "Create Order",
+          "endpoints": [
+            "POST /api/dealer/orders",
+            "POST /api/v1/pricing/calculate"
+          ],
+          "status": "working"
+        },
+        {
+          "id": "dealer-customers",
+          "path": "/dealer/customers.html",
+          "name": "Customers",
+          "endpoints": [
+            "GET /api/dealer/customers",
+            "POST /api/dealer/customers"
+          ],
+          "status": "working"
+        },
+        {
+          "id": "dealer-commissions",
+          "path": "/dealer/commissions.html",
+          "name": "Commissions",
+          "endpoints": ["GET /api/dealer/commissions"],
+          "status": "partial",
+          "issues": ["exportToCsv() shows 'Coming soon' toast"]
+        }
+      ]
+    },
+    "manufacturer": {
+      "name": "Manufacturer Portal",
+      "basePath": "/manufacturer/",
+      "auth": "manufacturerAuthMiddleware",
+      "tokenHeader": "Authorization: Bearer <manufacturer_jwt>",
+      "pages": [
+        {
+          "id": "manufacturer-login",
+          "path": "/manufacturer/login.html",
+          "name": "Manufacturer Login",
+          "auth": "none",
+          "endpoints": ["POST /api/manufacturer/login"],
+          "status": "working"
+        },
+        {
+          "id": "manufacturer-dashboard",
+          "path": "/manufacturer/index.html",
+          "name": "Order Fulfillment",
+          "endpoints": [
+            "GET /api/manufacturer/orders",
+            "PUT /api/manufacturer/orders/:id/status",
+            "GET /api/manufacturer/orders/:id/sheet"
+          ],
+          "status": "working"
+        }
+      ]
+    },
+    "landing": {
+      "name": "Landing Pages",
+      "basePath": "/landing/",
+      "auth": "none",
+      "pages": [
+        {"id": "landing-roller", "path": "/landing/roller-shades.html", "status": "working"},
+        {"id": "landing-zebra", "path": "/landing/zebra-shades.html", "status": "working"},
+        {"id": "landing-blackout-roller", "path": "/landing/blackout-roller-shades.html", "status": "working"},
+        {"id": "landing-motorized", "path": "/landing/motorized-roller-shades.html", "status": "working"},
+        {"id": "landing-cordless", "path": "/landing/cordless-shades.html", "status": "working"},
+        {"id": "landing-light-filtering", "path": "/landing/light-filtering-roller-shades.html", "status": "working"},
+        {"id": "landing-bedroom", "path": "/landing/window-shades-bedroom.html", "status": "working"},
+        {"id": "landing-living-room", "path": "/landing/window-shades-living-room.html", "status": "working"},
+        {"id": "landing-blackout-zebra", "path": "/landing/blackout-zebra-shades.html", "status": "working"}
+      ]
+    },
+    "guides": {
+      "name": "Guide Pages",
+      "basePath": "/guides/",
+      "auth": "none",
+      "pages": [
+        {"id": "guides-index", "path": "/guides/index.html", "status": "working"},
+        {"id": "guide-measure", "path": "/guides/how-to-measure-for-blinds.html", "status": "working"},
+        {"id": "guide-zebra-vs-roller", "path": "/guides/zebra-vs-roller-shades.html", "status": "working"},
+        {"id": "guide-blackout", "path": "/guides/blackout-shades-what-to-know.html", "status": "working"},
+        {"id": "guide-cordless-motorized", "path": "/guides/cordless-vs-motorized.html", "status": "working"}
+      ]
+    }
+  },
+  "database": {
+    "file": "backend/database.json",
+    "collections": [
+      {"name": "categories", "purpose": "Product categories", "usedBy": ["shop", "product", "admin-categories"]},
+      {"name": "products", "purpose": "Product catalog", "usedBy": ["shop", "product", "admin-products"]},
+      {"name": "cart", "purpose": "Shopping cart sessions", "usedBy": ["cart"]},
+      {"name": "cartItems", "purpose": "Cart line items", "usedBy": ["cart"]},
+      {"name": "orders", "purpose": "Customer orders", "usedBy": ["admin-orders", "dealer-orders", "manufacturer-dashboard"]},
+      {"name": "quotes", "purpose": "Saved quotes", "usedBy": ["admin-quotes"]},
+      {"name": "invoices", "purpose": "Generated invoices", "usedBy": ["admin-invoices"]},
+      {"name": "customers", "purpose": "Customer records", "usedBy": ["admin-customers", "dealer-customers"]},
+      {"name": "adminUsers", "purpose": "Admin accounts", "usedBy": ["admin-login", "security-users"]},
+      {"name": "dealerUsers", "purpose": "Dealer accounts", "usedBy": ["dealer-login"]},
+      {"name": "manufacturerUsers", "purpose": "Manufacturer accounts", "usedBy": ["manufacturer-login"]},
+      {"name": "dealers", "purpose": "Dealer companies", "usedBy": ["dealer-dashboard"]},
+      {"name": "dealerCustomers", "purpose": "Dealer's customers", "usedBy": ["dealer-customers"]},
+      {"name": "dealerOrders", "purpose": "Dealer order tracking", "usedBy": ["dealer-orders"]},
+      {"name": "faqs", "purpose": "FAQ items", "usedBy": ["admin-faqs", "customer pages"]},
+      {"name": "pages", "purpose": "CMS pages", "usedBy": ["admin-pages", "cms-page"]},
+      {"name": "blogPosts", "purpose": "Blog articles", "usedBy": ["admin-blog-posts"]},
+      {"name": "settings", "purpose": "System settings", "usedBy": ["admin-settings"]},
+      {"name": "siteContent", "purpose": "Site content", "usedBy": ["homepage", "shop"]},
+      {"name": "productContent", "purpose": "Product page content", "usedBy": ["product", "admin-product-content"]},
+      {"name": "themeSettings", "purpose": "Theme configuration", "usedBy": ["admin-theme-settings"]},
+      {"name": "manufacturerPrices", "purpose": "Roller fabric pricing", "usedBy": ["pricing engine", "admin-zebra-pricing"]},
+      {"name": "zebraManufacturerPrices", "purpose": "Zebra fabric pricing", "usedBy": ["pricing engine"]},
+      {"name": "customerPriceRules", "purpose": "Customer-specific pricing", "usedBy": ["admin-product-pricing"]},
+      {"name": "motorBrands", "purpose": "Motor brand options", "usedBy": ["product configurator"]},
+      {"name": "fabricCategories", "purpose": "Fabric groupings", "usedBy": ["admin-fabrics"]},
+      {"name": "zebraFabrics", "purpose": "Zebra fabric options", "usedBy": ["zebra-product"]},
+      {"name": "ledger", "purpose": "Financial ledger", "usedBy": ["admin-accounts"]},
+      {"name": "ledgerEntries", "purpose": "Ledger transactions", "usedBy": ["admin-accounts"]},
+      {"name": "audit_logs", "purpose": "Audit trail", "usedBy": ["security-audit-logs"]},
+      {"name": "analytics", "purpose": "Analytics data", "usedBy": ["admin-analytics"]},
+      {"name": "analyticsEvents", "purpose": "Analytics events", "usedBy": ["admin-analytics"]},
+      {"name": "security", "purpose": "Security settings", "usedBy": ["security section"]},
+      {"name": "users", "purpose": "Generic users", "usedBy": ["security-users"]},
+      {"name": "mediaLibrary", "purpose": "Media files", "usedBy": ["admin-media-library"]},
+      {"name": "roomLabels", "purpose": "Room label options", "usedBy": ["product configurator"]},
+      {"name": "draftOrders", "purpose": "Draft orders", "usedBy": ["admin-draft-orders"]},
+      {"name": "abandonedCheckouts", "purpose": "Abandoned carts", "usedBy": ["admin-abandoned-checkouts"]}
+    ]
+  },
+  "businessFlows": {
+    "customerPurchase": {
+      "name": "Customer Purchase Flow",
+      "steps": [
+        {"step": 1, "action": "Browse Products", "page": "/shop.html", "endpoint": "GET /api/products"},
+        {"step": 2, "action": "Configure Product", "page": "/product.html", "endpoint": "POST /api/v1/pricing/calculate"},
+        {"step": 3, "action": "Add to Cart", "page": "/product.html", "endpoint": "POST /api/cart"},
+        {"step": 4, "action": "View Cart", "page": "/cart.html", "endpoint": "GET /api/cart/:sessionId"},
+        {"step": 5, "action": "Calculate Total", "page": "/cart.html", "endpoint": "POST /api/calculate-order-total"},
+        {"step": 6, "action": "Place Order", "page": "/cart.html", "endpoint": "POST /api/orders"},
+        {"step": 7, "action": "Invoice Generated", "auto": true, "service": "invoice-service.js"}
+      ]
+    },
+    "orderFulfillment": {
+      "name": "Order Fulfillment Flow",
+      "steps": [
+        {"step": 1, "action": "Order Received", "page": "/admin/orders.html", "status": "pending"},
+        {"step": 2, "action": "Confirm Order", "page": "/admin/orders.html", "status": "confirmed"},
+        {"step": 3, "action": "Send to Manufacturing", "page": "/admin/orders.html", "status": "processing"},
+        {"step": 4, "action": "Manufacturing", "page": "/manufacturer/index.html", "status": "manufacturing"},
+        {"step": 5, "action": "Quality Check", "page": "/manufacturer/index.html", "status": "quality_check"},
+        {"step": 6, "action": "Ready to Ship", "page": "/manufacturer/index.html", "status": "ready_to_ship"},
+        {"step": 7, "action": "Shipped", "page": "/manufacturer/index.html", "status": "shipped"},
+        {"step": 8, "action": "Delivered", "page": "/admin/orders.html", "status": "delivered"},
+        {"step": 9, "action": "Completed", "page": "/admin/orders.html", "status": "completed"}
+      ]
+    },
+    "dealerOrder": {
+      "name": "Dealer Order Flow",
+      "steps": [
+        {"step": 1, "action": "Login", "page": "/dealer/login.html"},
+        {"step": 2, "action": "Select Customer", "page": "/dealer/new-order.html"},
+        {"step": 3, "action": "Configure Product", "page": "/dealer/new-order.html"},
+        {"step": 4, "action": "Apply Dealer Discount", "auto": true},
+        {"step": 5, "action": "Submit Order", "page": "/dealer/new-order.html"},
+        {"step": 6, "action": "Track Order", "page": "/dealer/orders.html"},
+        {"step": 7, "action": "View Commission", "page": "/dealer/commissions.html"}
+      ]
+    }
+  },
+  "nonFunctionalSummary": {
+    "totalIssues": 127,
+    "brokenLinks": 47,
+    "stubPages": 12,
+    "buttonsNoAction": 28,
+    "adminNotConnected": 18,
+    "apiNoUI": 8,
+    "placeholderFunctions": 14
+  }
+}

@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Email Notifications - Peekaboo Shades Admin</title>
+  <link rel="stylesheet" href="/admin/css/admin.css?v=1737200003.0.28">
+  <script src="/admin/js/adminNavConfig.js?v=1737200002"></script>
+  <style>
+    .notifications-grid { display: grid; gap: 1.5rem; margin-top: 1.5rem; }
+    .notification-card { background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+    .notification-card h3 { margin: 0 0 1rem 0; display: flex; align-items: center; gap: 0.5rem; }
+    .notification-card h3 span { font-size: 1.25rem; }
+    .notification-item { display: flex; justify-content: space-between; align-items: center; padding: 1rem; border-bottom: 1px solid #eee; }
+    .notification-item:last-child { border-bottom: none; }
+    .notification-info h4 { margin: 0 0 0.25rem 0; font-size: 0.95rem; }
+    .notification-info p { margin: 0; font-size: 0.85rem; color: #666; }
+    .toggle { position: relative; width: 48px; height: 24px; }
+    .toggle input { opacity: 0; width: 0; height: 0; }
+    .toggle .slider { position: absolute; cursor: pointer; inset: 0; background: #ddd; border-radius: 24px; transition: 0.3s; }
+    .toggle .slider:before { content: ""; position: absolute; height: 18px; width: 18px; left: 3px; bottom: 3px; background: white; border-radius: 50%; transition: 0.3s; }
+    .toggle input:checked + .slider { background: #10B981; }
+    .toggle input:checked + .slider:before { transform: translateX(24px); }
+    .btn-edit { padding: 0.4rem 0.75rem; background: #8E6545; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 0.8rem; margin-left: 0.5rem; }
+    .btn-save { padding: 0.75rem 2rem; background: #8E6545; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; }
+  </style>
+</head>
+<body>
+  <div class="admin-layout">
+    <aside class="admin-sidebar"></aside>
+    <main class="admin-main">
+      <header class="admin-header">
+        <h1>Email Notifications</h1>
+        <div class="header-actions">
+          <button class="btn-save" onclick="saveSettings()">Save Settings</button>
+        </div>
+      </header>
+      <div class="admin-content">
+        <div class="notifications-grid">
+          <div class="notification-card">
+            <h3><span>📦</span> Order Notifications</h3>
+            <div class="notification-item">
+              <div class="notification-info">
+                <h4>Order Confirmation</h4>
+                <p>Sent when customer places an order</p>
+              </div>
+              <div style="display: flex; align-items: center;">
+                <label class="toggle"><input type="checkbox" checked><span class="slider"></span></label>
+                <button class="btn-edit" onclick="editTemplate('order-confirm')">Edit</button>
+              </div>
+            </div>
+            <div class="notification-item">
+              <div class="notification-info">
+                <h4>Order Shipped</h4>
+                <p>Sent when order ships with tracking info</p>
+              </div>
+              <div style="display: flex; align-items: center;">
+                <label class="toggle"><input type="checkbox" checked><span class="slider"></span></label>
+                <button class="btn-edit" onclick="editTemplate('order-shipped')">Edit</button>
+              </div>
+            </div>
+            <div class="notification-item">
+              <div class="notification-info">
+                <h4>Order Delivered</h4>
+                <p>Sent when order is delivered</p>
+              </div>
+              <div style="display: flex; align-items: center;">
+                <label class="toggle"><input type="checkbox" checked><span class="slider"></span></label>
+                <button class="btn-edit" onclick="editTemplate('order-delivered')">Edit</button>
+              </div>
+            </div>
+          </div>
+          <div class="notification-card">
+            <h3><span>👤</span> Customer Notifications</h3>
+            <div class="notification-item">
+              <div class="notification-info">
+                <h4>Welcome Email</h4>
+                <p>Sent when customer creates account</p>
+              </div>
+              <div style="display: flex; align-items: center;">
+                <label class="toggle"><input type="checkbox" checked><span class="slider"></span></label>
+                <button class="btn-edit" onclick="editTemplate('welcome')">Edit</button>
+              </div>
+            </div>
+            <div class="notification-item">
+              <div class="notification-info">
+                <h4>Password Reset</h4>
+                <p>Sent when customer requests password reset</p>
+              </div>
+              <div style="display: flex; align-items: center;">
+                <label class="toggle"><input type="checkbox" checked><span class="slider"></span></label>
+                <button class="btn-edit" onclick="editTemplate('password-reset')">Edit</button>
+              </div>
+            </div>
+          </div>
+          <div class="notification-card">
+            <h3><span>🔔</span> Admin Notifications</h3>
+            <div class="notification-item">
+              <div class="notification-info">
+                <h4>New Order Alert</h4>
+                <p>Notify admin of new orders</p>
+              </div>
+              <label class="toggle"><input type="checkbox" checked><span class="slider"></span></label>
+            </div>
+            <div class="notification-item">
+              <div class="notification-info">
+                <h4>Low Stock Alert</h4>
+                <p>Notify when sample inventory is low</p>
+              </div>
+              <label class="toggle"><input type="checkbox" checked><span class="slider"></span></label>
+            </div>
+            <div class="notification-item">
+              <div class="notification-info">
+                <h4>Return Request</h4>
+                <p>Notify of new return requests</p>
+              </div>
+              <label class="toggle"><input type="checkbox" checked><span class="slider"></span></label>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      if (!localStorage.getItem('admin_token')) { window.location.href = '/admin/login.html'; return; }
+      AdminNavConfig.initSidebar('email-notifications');
+    });
+    function editTemplate(template) { window.location.href = `/admin/marketing/templates.html?template=${template}`; }
+    function saveSettings() { alert('Email notification settings saved!'); }
+  </script>
+</body>
+</html>

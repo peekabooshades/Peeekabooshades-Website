@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Header Settings - Peekaboo Shades Admin</title>
+  <link rel="stylesheet" href="/admin/css/admin.css?v=1737200003.0.28">
+  <script src="/admin/js/adminNavConfig.js?v=1737200002"></script>
+  <style>
+    .header-grid { display: grid; grid-template-columns: 1fr 400px; gap: 1.5rem; margin-top: 1.5rem; }
+    .settings-card { background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+    .settings-card h3 { margin: 0 0 1.5rem 0; }
+    .form-group { margin-bottom: 1.25rem; }
+    .form-group label { display: block; margin-bottom: 0.5rem; font-weight: 500; }
+    .form-group input, .form-group select { width: 100%; padding: 0.75rem; border: 1px solid #ddd; border-radius: 8px; }
+    .toggle-row { display: flex; justify-content: space-between; align-items: center; padding: 0.75rem 0; border-bottom: 1px solid #eee; }
+    .toggle { position: relative; width: 50px; height: 26px; }
+    .toggle input { opacity: 0; width: 0; height: 0; }
+    .toggle .slider { position: absolute; cursor: pointer; inset: 0; background: #ddd; border-radius: 26px; transition: 0.3s; }
+    .toggle .slider:before { content: ""; position: absolute; height: 20px; width: 20px; left: 3px; bottom: 3px; background: white; border-radius: 50%; transition: 0.3s; }
+    .toggle input:checked + .slider { background: #10B981; }
+    .toggle input:checked + .slider:before { transform: translateX(24px); }
+    .btn-save { padding: 0.75rem 2rem; background: #8E6545; color: white; border: none; border-radius: 8px; cursor: pointer; }
+    .preview-header { background: white; padding: 1rem 1.5rem; display: flex; justify-content: space-between; align-items: center; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+    .preview-logo { font-weight: 600; color: #8E6545; }
+    .preview-nav { display: flex; gap: 1.5rem; }
+    .preview-nav a { color: #374151; text-decoration: none; font-size: 0.9rem; }
+    .preview-actions { display: flex; gap: 1rem; }
+  </style>
+</head>
+<body>
+  <div class="admin-layout">
+    <aside class="admin-sidebar"></aside>
+    <main class="admin-main">
+      <header class="admin-header">
+        <h1>Header Settings</h1>
+        <div class="header-actions"><button class="btn-save" onclick="saveSettings()">Save Changes</button></div>
+      </header>
+      <div class="admin-content">
+        <div class="header-grid">
+          <div class="settings-card">
+            <h3>Header Elements</h3>
+            <div class="toggle-row"><span>Show Logo</span><label class="toggle"><input type="checkbox" checked><span class="slider"></span></label></div>
+            <div class="toggle-row"><span>Show Search Bar</span><label class="toggle"><input type="checkbox" checked><span class="slider"></span></label></div>
+            <div class="toggle-row"><span>Show Cart Icon</span><label class="toggle"><input type="checkbox" checked><span class="slider"></span></label></div>
+            <div class="toggle-row"><span>Show Phone Number</span><label class="toggle"><input type="checkbox" checked><span class="slider"></span></label></div>
+            <div class="toggle-row"><span>Show Account Link</span><label class="toggle"><input type="checkbox" checked><span class="slider"></span></label></div>
+            <div class="toggle-row"><span>Sticky Header</span><label class="toggle"><input type="checkbox" checked><span class="slider"></span></label></div>
+            <h3 style="margin-top: 2rem;">Announcement Bar</h3>
+            <div class="toggle-row"><span>Show Announcement</span><label class="toggle"><input type="checkbox" checked><span class="slider"></span></label></div>
+            <div class="form-group" style="margin-top: 1rem;">
+              <label>Announcement Text</label>
+              <input type="text" value="Free Shipping on Orders Over $299!">
+            </div>
+            <div class="form-group">
+              <label>Background Color</label>
+              <input type="color" value="#8E6545" style="height: 40px;">
+            </div>
+          </div>
+          <div>
+            <div class="settings-card">
+              <h3>Preview</h3>
+              <div style="background: #8E6545; color: white; padding: 0.5rem; text-align: center; font-size: 0.85rem; border-radius: 8px 8px 0 0;">Free Shipping on Orders Over $299!</div>
+              <div class="preview-header" style="border-radius: 0 0 8px 8px;">
+                <span class="preview-logo">Peekaboo Shades</span>
+                <div class="preview-nav">
+                  <a href="#">Shop</a>
+                  <a href="#">Samples</a>
+                  <a href="#">Help</a>
+                </div>
+                <div class="preview-actions">
+                  <span>🔍</span>
+                  <span>👤</span>
+                  <span>🛒</span>
+                </div>
+              </div>
+            </div>
+            <div class="settings-card" style="margin-top: 1rem;">
+              <h3>Logo Settings</h3>
+              <div class="form-group">
+                <label>Logo Image</label>
+                <input type="file" accept="image/*">
+              </div>
+              <div class="form-group">
+                <label>Logo Width (px)</label>
+                <input type="number" value="150">
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      if (!localStorage.getItem('admin_token')) { window.location.href = '/admin/login.html'; return; }
+      AdminNavConfig.initSidebar('header-settings');
+    });
+    function saveSettings() { alert('Header settings saved!'); }
+  </script>
+</body>
+</html>

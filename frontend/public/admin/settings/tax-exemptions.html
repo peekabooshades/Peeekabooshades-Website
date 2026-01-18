@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tax Exemptions - Peekaboo Shades Admin</title>
+  <link rel="stylesheet" href="/admin/css/admin.css?v=1737200003.0.28">
+  <script src="/admin/js/adminNavConfig.js?v=1737200002"></script>
+  <style>
+    .exemptions-grid { display: grid; grid-template-columns: 1fr 350px; gap: 1.5rem; margin-top: 1.5rem; }
+    .exemptions-card { background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+    .exemptions-card h3 { margin: 0 0 1.5rem 0; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { padding: 0.75rem; text-align: left; border-bottom: 1px solid #eee; }
+    th { font-weight: 600; color: #666; font-size: 0.85rem; }
+    .status-badge { padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.75rem; }
+    .status-active { background: #D1FAE5; color: #065F46; }
+    .status-pending { background: #FEF3C7; color: #92400E; }
+    .status-expired { background: #FEE2E2; color: #991B1B; }
+    .btn-primary { padding: 0.75rem 1.5rem; background: #8E6545; color: white; border: none; border-radius: 8px; cursor: pointer; }
+    .btn-view { padding: 0.3rem 0.6rem; background: #E5E7EB; color: #374151; border: none; border-radius: 4px; cursor: pointer; font-size: 0.8rem; }
+    .info-card { background: #F9FAFB; padding: 1rem; border-radius: 8px; margin-bottom: 1rem; }
+    .info-card h4 { margin: 0 0 0.5rem 0; font-size: 0.9rem; }
+    .info-card p { margin: 0; font-size: 0.85rem; color: #666; }
+    .stat-value { font-size: 1.5rem; font-weight: 600; color: #8E6545; }
+  </style>
+</head>
+<body>
+  <div class="admin-layout">
+    <aside class="admin-sidebar"></aside>
+    <main class="admin-main">
+      <header class="admin-header">
+        <h1>Tax Exemptions</h1>
+        <div class="header-actions"><button class="btn-primary" onclick="addExemption()">+ Add Exemption</button></div>
+      </header>
+      <div class="admin-content">
+        <div class="exemptions-grid">
+          <div class="exemptions-card">
+            <h3>Tax Exempt Customers</h3>
+            <table>
+              <thead>
+                <tr>
+                  <th>Customer</th>
+                  <th>Type</th>
+                  <th>Certificate #</th>
+                  <th>Expires</th>
+                  <th>Status</th>
+                  <th></th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>ABC Interior Design</td>
+                  <td>Resale</td>
+                  <td>RSL-12345-CA</td>
+                  <td>Dec 31, 2025</td>
+                  <td><span class="status-badge status-active">Active</span></td>
+                  <td><button class="btn-view" onclick="viewCertificate(1)">View</button></td>
+                </tr>
+                <tr>
+                  <td>Smith Contractors LLC</td>
+                  <td>Resale</td>
+                  <td>RSL-67890-TX</td>
+                  <td>Jun 30, 2025</td>
+                  <td><span class="status-badge status-active">Active</span></td>
+                  <td><button class="btn-view" onclick="viewCertificate(2)">View</button></td>
+                </tr>
+                <tr>
+                  <td>Church of the Valley</td>
+                  <td>Non-Profit</td>
+                  <td>501c3-11111</td>
+                  <td>N/A</td>
+                  <td><span class="status-badge status-active">Active</span></td>
+                  <td><button class="btn-view" onclick="viewCertificate(3)">View</button></td>
+                </tr>
+                <tr>
+                  <td>State University</td>
+                  <td>Government</td>
+                  <td>GOV-EDU-555</td>
+                  <td>N/A</td>
+                  <td><span class="status-badge status-active">Active</span></td>
+                  <td><button class="btn-view" onclick="viewCertificate(4)">View</button></td>
+                </tr>
+                <tr>
+                  <td>Pending: XYZ Designs</td>
+                  <td>Resale</td>
+                  <td>Pending Review</td>
+                  <td>-</td>
+                  <td><span class="status-badge status-pending">Pending</span></td>
+                  <td><button class="btn-view" onclick="reviewCertificate(5)">Review</button></td>
+                </tr>
+                <tr>
+                  <td>Old Client Corp</td>
+                  <td>Resale</td>
+                  <td>RSL-00001-NY</td>
+                  <td>Jan 1, 2024</td>
+                  <td><span class="status-badge status-expired">Expired</span></td>
+                  <td><button class="btn-view" onclick="viewCertificate(6)">Renew</button></td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div>
+            <div class="exemptions-card">
+              <h3>Summary</h3>
+              <div class="info-card">
+                <h4>Active Exemptions</h4>
+                <div class="stat-value">12</div>
+              </div>
+              <div class="info-card">
+                <h4>Pending Review</h4>
+                <div class="stat-value">3</div>
+              </div>
+              <div class="info-card">
+                <h4>Expiring Soon (30 days)</h4>
+                <div class="stat-value">2</div>
+              </div>
+              <div class="info-card">
+                <h4>Tax Exempt Sales (MTD)</h4>
+                <div class="stat-value">$8,450</div>
+              </div>
+            </div>
+            <div class="exemptions-card">
+              <h3>Exemption Types</h3>
+              <div class="info-card">
+                <h4>Resale Certificates</h4>
+                <p>For trade customers reselling products. Requires valid state resale certificate.</p>
+              </div>
+              <div class="info-card">
+                <h4>Non-Profit (501c3)</h4>
+                <p>For qualified non-profit organizations with IRS determination letter.</p>
+              </div>
+              <div class="info-card">
+                <h4>Government</h4>
+                <p>For government agencies and educational institutions.</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      if (!localStorage.getItem('admin_token')) { window.location.href = '/admin/login.html'; return; }
+      AdminNavConfig.initSidebar('tax-exemptions');
+    });
+    function addExemption() { alert('Opening add tax exemption form...'); }
+    function viewCertificate(id) { alert(`Viewing certificate ${id}`); }
+    function reviewCertificate(id) { alert(`Reviewing certificate ${id}`); }
+  </script>
+</body>
+</html>

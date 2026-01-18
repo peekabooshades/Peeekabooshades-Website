@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Locations - Peekaboo Shades Admin</title>
+  <link rel="stylesheet" href="/admin/css/admin.css?v=1737200003.0.28">
+  <script src="/admin/js/adminNavConfig.js?v=1737200002"></script>
+  <style>
+    .locations-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 1.5rem; margin-top: 1.5rem; }
+    .location-card { background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+    .location-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem; }
+    .location-name { font-size: 1.1rem; font-weight: 600; margin: 0; }
+    .location-type { font-size: 0.8rem; color: #666; }
+    .status-badge { padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.75rem; }
+    .status-active { background: #D1FAE5; color: #065F46; }
+    .status-inactive { background: #F3F4F6; color: #6B7280; }
+    .location-details { margin-bottom: 1rem; }
+    .location-details p { margin: 0.25rem 0; font-size: 0.9rem; color: #666; }
+    .location-meta { display: flex; gap: 1.5rem; padding-top: 1rem; border-top: 1px solid #eee; font-size: 0.85rem; color: #666; }
+    .btn-primary { padding: 0.75rem 1.5rem; background: #8E6545; color: white; border: none; border-radius: 8px; cursor: pointer; }
+    .btn-edit { padding: 0.4rem 0.75rem; background: #E5E7EB; color: #374151; border: none; border-radius: 4px; cursor: pointer; font-size: 0.85rem; }
+  </style>
+</head>
+<body>
+  <div class="admin-layout">
+    <aside class="admin-sidebar"></aside>
+    <main class="admin-main">
+      <header class="admin-header">
+        <h1>Locations</h1>
+        <div class="header-actions"><button class="btn-primary" onclick="addLocation()">+ Add Location</button></div>
+      </header>
+      <div class="admin-content">
+        <div class="locations-grid">
+          <div class="location-card">
+            <div class="location-header">
+              <div>
+                <h3 class="location-name">Main Warehouse</h3>
+                <span class="location-type">Fulfillment Center</span>
+              </div>
+              <span class="status-badge status-active">Active</span>
+            </div>
+            <div class="location-details">
+              <p>1234 Industrial Blvd</p>
+              <p>Los Angeles, CA 90001</p>
+              <p>United States</p>
+            </div>
+            <div class="location-meta">
+              <span>Ships all products</span>
+              <span>Primary location</span>
+            </div>
+            <div style="margin-top: 1rem;">
+              <button class="btn-edit" onclick="editLocation('main')">Edit</button>
+            </div>
+          </div>
+          <div class="location-card">
+            <div class="location-header">
+              <div>
+                <h3 class="location-name">Production Facility</h3>
+                <span class="location-type">Manufacturing</span>
+              </div>
+              <span class="status-badge status-active">Active</span>
+            </div>
+            <div class="location-details">
+              <p>5678 Factory Way</p>
+              <p>Phoenix, AZ 85001</p>
+              <p>United States</p>
+            </div>
+            <div class="location-meta">
+              <span>Custom manufacturing</span>
+              <span>Cut & assembly</span>
+            </div>
+            <div style="margin-top: 1rem;">
+              <button class="btn-edit" onclick="editLocation('production')">Edit</button>
+            </div>
+          </div>
+          <div class="location-card">
+            <div class="location-header">
+              <div>
+                <h3 class="location-name">Sample Inventory</h3>
+                <span class="location-type">Sample Storage</span>
+              </div>
+              <span class="status-badge status-active">Active</span>
+            </div>
+            <div class="location-details">
+              <p>Same as Main Warehouse</p>
+              <p>Los Angeles, CA 90001</p>
+              <p>United States</p>
+            </div>
+            <div class="location-meta">
+              <span>Fabric samples only</span>
+              <span>Fast shipping</span>
+            </div>
+            <div style="margin-top: 1rem;">
+              <button class="btn-edit" onclick="editLocation('samples')">Edit</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      if (!localStorage.getItem('admin_token')) { window.location.href = '/admin/login.html'; return; }
+      AdminNavConfig.initSidebar('locations');
+    });
+    function addLocation() { alert('Opening add location form...'); }
+    function editLocation(id) { alert(`Editing location: ${id}`); }
+  </script>
+</body>
+</html>

@@ -1,0 +1,1110 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Create Account - Peekaboo Shades</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="icon" type="image/jpeg" href="/images/peekabooshades_logo.jpeg">
+  <style>
+    :root {
+      --golden-brown: #8E6545;
+      --golden-brown-dark: #7a5539;
+      --golden-brown-light: #a8795a;
+      --text-dark: #333333;
+      --text-light: #666666;
+      --text-muted: #999999;
+      --bg-cream: #F8F6F3;
+      --bg-light: #FAFAFA;
+      --bg-white: #FFFFFF;
+      --border-light: #E8E8E8;
+      --success: #28a745;
+      --error: #dc3545;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 16px;
+      line-height: 1.6;
+      color: var(--text-dark);
+      background: var(--bg-cream);
+      min-height: 100vh;
+    }
+
+    /* ============================================
+       HEADER
+       ============================================ */
+    .signup-header {
+      background: var(--golden-brown);
+      padding: 15px 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .logo-link {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+    }
+
+    .logo-link img {
+      height: 50px;
+      border-radius: 6px;
+    }
+
+    .logo-text {
+      color: white;
+      font-size: 22px;
+      font-weight: 600;
+      letter-spacing: 1px;
+    }
+
+    .header-links {
+      display: flex;
+      gap: 30px;
+      align-items: center;
+    }
+
+    .header-links a {
+      color: white;
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 500;
+      transition: opacity 0.2s;
+    }
+
+    .header-links a:hover {
+      opacity: 0.85;
+    }
+
+    .login-btn {
+      background: white;
+      color: var(--golden-brown);
+      padding: 10px 24px;
+      border-radius: 25px;
+      font-weight: 600;
+    }
+
+    /* ============================================
+       MAIN LAYOUT
+       ============================================ */
+    .signup-container {
+      display: flex;
+      min-height: calc(100vh - 80px);
+    }
+
+    /* Left Side - Visual */
+    .signup-visual {
+      flex: 1;
+      background: linear-gradient(135deg, #8E6545 0%, #6d4d35 50%, #4a3424 100%);
+      position: relative;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 60px;
+    }
+
+    .visual-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="blinds" patternUnits="userSpaceOnUse" width="20" height="4"><rect fill="rgba(255,255,255,0.03)" width="20" height="2"/></pattern></defs><rect fill="url(%23blinds)" width="100" height="100"/></svg>');
+      opacity: 0.5;
+    }
+
+    .visual-content {
+      position: relative;
+      z-index: 2;
+      color: white;
+    }
+
+    .visual-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: rgba(255,255,255,0.15);
+      padding: 10px 20px;
+      border-radius: 30px;
+      font-size: 13px;
+      font-weight: 500;
+      margin-bottom: 30px;
+      backdrop-filter: blur(10px);
+    }
+
+    .visual-badge i {
+      color: #FFD700;
+    }
+
+    .visual-title {
+      font-size: 42px;
+      font-weight: 700;
+      line-height: 1.2;
+      margin-bottom: 20px;
+    }
+
+    .visual-subtitle {
+      font-size: 18px;
+      opacity: 0.9;
+      margin-bottom: 40px;
+      max-width: 450px;
+    }
+
+    /* Benefits List */
+    .benefits-list {
+      list-style: none;
+      margin-bottom: 50px;
+    }
+
+    .benefits-list li {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+      margin-bottom: 18px;
+      font-size: 15px;
+    }
+
+    .benefit-icon {
+      width: 40px;
+      height: 40px;
+      background: rgba(255,255,255,0.15);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .benefit-icon i {
+      font-size: 16px;
+    }
+
+    /* Special Offer Card */
+    .offer-card {
+      background: linear-gradient(135deg, rgba(255,215,0,0.2) 0%, rgba(255,215,0,0.1) 100%);
+      border: 1px solid rgba(255,215,0,0.3);
+      border-radius: 16px;
+      padding: 25px;
+      backdrop-filter: blur(10px);
+    }
+
+    .offer-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-bottom: 15px;
+    }
+
+    .offer-header i {
+      font-size: 24px;
+      color: #FFD700;
+    }
+
+    .offer-header span {
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      opacity: 0.9;
+    }
+
+    .offer-title {
+      font-size: 28px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .offer-code {
+      display: inline-block;
+      background: rgba(255,255,255,0.2);
+      padding: 8px 16px;
+      border-radius: 8px;
+      font-family: monospace;
+      font-size: 16px;
+      font-weight: 600;
+      letter-spacing: 2px;
+      margin-top: 10px;
+    }
+
+    /* Room Images Grid */
+    .room-preview {
+      position: absolute;
+      bottom: 40px;
+      left: 40px;
+      right: 40px;
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      z-index: 2;
+    }
+
+    .room-preview-item {
+      flex: 0 0 90px;
+      height: 65px;
+      border-radius: 8px;
+      overflow: hidden;
+      border: 2px solid rgba(255,255,255,0.3);
+      transition: transform 0.3s, border-color 0.3s;
+      position: relative;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+    }
+
+    .room-preview-item:hover {
+      transform: scale(1.08);
+      border-color: rgba(255,255,255,0.7);
+    }
+
+    .room-preview-item img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .room-label {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: linear-gradient(transparent, rgba(0,0,0,0.8));
+      color: white;
+      font-size: 8px;
+      font-weight: 600;
+      text-align: center;
+      padding: 10px 4px 4px;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    /* Right Side - Form */
+    .signup-form-section {
+      flex: 1;
+      background: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 40px;
+    }
+
+    .form-container {
+      width: 100%;
+      max-width: 440px;
+    }
+
+    .form-header {
+      text-align: center;
+      margin-bottom: 35px;
+    }
+
+    .form-header h1 {
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--text-dark);
+      margin-bottom: 10px;
+    }
+
+    .form-header p {
+      color: var(--text-light);
+      font-size: 15px;
+    }
+
+    /* Social Login Buttons */
+    .social-login {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 30px;
+    }
+
+    .social-btn {
+      flex: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      padding: 14px;
+      border: 1px solid var(--border-light);
+      border-radius: 10px;
+      background: white;
+      font-size: 14px;
+      font-weight: 500;
+      color: var(--text-dark);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .social-btn:hover {
+      background: var(--bg-light);
+      border-color: #ccc;
+    }
+
+    .social-btn.google img {
+      width: 20px;
+      height: 20px;
+    }
+
+    .social-btn.facebook {
+      background: #1877F2;
+      color: white;
+      border-color: #1877F2;
+    }
+
+    .social-btn.facebook:hover {
+      background: #166FE5;
+    }
+
+    .social-btn.apple {
+      background: #000;
+      color: white;
+      border-color: #000;
+    }
+
+    .social-btn.apple:hover {
+      background: #333;
+    }
+
+    .social-btn.coming-soon {
+      opacity: 0.7;
+      cursor: not-allowed;
+      position: relative;
+    }
+
+    .social-btn.coming-soon::after {
+      content: 'Soon';
+      position: absolute;
+      top: -6px;
+      right: -6px;
+      background: var(--golden-brown);
+      color: white;
+      font-size: 8px;
+      padding: 2px 5px;
+      border-radius: 6px;
+      font-weight: 700;
+      text-transform: uppercase;
+    }
+
+    .social-btn.coming-soon:hover {
+      transform: none;
+    }
+
+    /* Divider */
+    .divider {
+      display: flex;
+      align-items: center;
+      margin: 25px 0;
+    }
+
+    .divider-line {
+      flex: 1;
+      height: 1px;
+      background: var(--border-light);
+    }
+
+    .divider-text {
+      padding: 0 20px;
+      color: var(--text-muted);
+      font-size: 13px;
+    }
+
+    /* Form Fields */
+    .form-row {
+      display: flex;
+      gap: 15px;
+      margin-bottom: 20px;
+    }
+
+    .form-group {
+      flex: 1;
+      margin-bottom: 20px;
+    }
+
+    .form-row .form-group {
+      margin-bottom: 0;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--text-dark);
+      margin-bottom: 8px;
+    }
+
+    .form-group input {
+      width: 100%;
+      padding: 14px 16px;
+      border: 1px solid var(--border-light);
+      border-radius: 10px;
+      font-size: 15px;
+      font-family: inherit;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+
+    .form-group input:focus {
+      outline: none;
+      border-color: var(--golden-brown);
+      box-shadow: 0 0 0 3px rgba(142, 101, 69, 0.1);
+    }
+
+    .form-group input::placeholder {
+      color: var(--text-muted);
+    }
+
+    .input-icon-wrapper {
+      position: relative;
+    }
+
+    .input-icon-wrapper input {
+      padding-right: 45px;
+    }
+
+    .input-icon {
+      position: absolute;
+      right: 15px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: var(--text-muted);
+      cursor: pointer;
+    }
+
+    .input-icon:hover {
+      color: var(--text-light);
+    }
+
+    /* Password Strength */
+    .password-strength {
+      display: flex;
+      gap: 5px;
+      margin-top: 8px;
+    }
+
+    .strength-bar {
+      flex: 1;
+      height: 4px;
+      background: var(--border-light);
+      border-radius: 2px;
+      transition: background 0.3s;
+    }
+
+    .strength-bar.weak { background: #dc3545; }
+    .strength-bar.medium { background: #ffc107; }
+    .strength-bar.strong { background: #28a745; }
+
+    .strength-text {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 5px;
+    }
+
+    /* Checkbox */
+    .form-checkbox {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      margin-bottom: 25px;
+    }
+
+    .form-checkbox input[type="checkbox"] {
+      width: 20px;
+      height: 20px;
+      accent-color: var(--golden-brown);
+      flex-shrink: 0;
+      margin-top: 2px;
+    }
+
+    .form-checkbox label {
+      font-size: 13px;
+      color: var(--text-light);
+      line-height: 1.5;
+    }
+
+    .form-checkbox label a {
+      color: var(--golden-brown);
+      text-decoration: none;
+      font-weight: 500;
+    }
+
+    .form-checkbox label a:hover {
+      text-decoration: underline;
+    }
+
+    /* Submit Button */
+    .submit-btn {
+      width: 100%;
+      padding: 16px;
+      background: linear-gradient(135deg, var(--golden-brown) 0%, var(--golden-brown-dark) 100%);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .submit-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(142, 101, 69, 0.35);
+    }
+
+    .submit-btn:disabled {
+      opacity: 0.7;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .submit-btn .spinner {
+      width: 20px;
+      height: 20px;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-top-color: white;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* Login Link */
+    .login-link {
+      text-align: center;
+      margin-top: 25px;
+      font-size: 14px;
+      color: var(--text-light);
+    }
+
+    .login-link a {
+      color: var(--golden-brown);
+      font-weight: 600;
+      text-decoration: none;
+    }
+
+    .login-link a:hover {
+      text-decoration: underline;
+    }
+
+    /* Trust Badges */
+    .trust-badges {
+      display: flex;
+      justify-content: center;
+      gap: 25px;
+      margin-top: 35px;
+      padding-top: 25px;
+      border-top: 1px solid var(--border-light);
+    }
+
+    .trust-badge {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      color: var(--text-muted);
+    }
+
+    .trust-badge i {
+      color: var(--golden-brown);
+    }
+
+    /* Error/Success Messages */
+    .alert {
+      padding: 14px 18px;
+      border-radius: 10px;
+      margin-bottom: 20px;
+      display: none;
+      align-items: center;
+      gap: 12px;
+      font-size: 14px;
+    }
+
+    .alert.show {
+      display: flex;
+    }
+
+    .alert.error {
+      background: #FFF0F0;
+      border: 1px solid #FFCDD2;
+      color: #C62828;
+    }
+
+    .alert.success {
+      background: #E8F5E9;
+      border: 1px solid #C8E6C9;
+      color: #2E7D32;
+    }
+
+    /* Responsive */
+    @media (max-width: 1024px) {
+      .signup-visual {
+        display: none;
+      }
+
+      .signup-container {
+        justify-content: center;
+      }
+
+      .signup-form-section {
+        flex: none;
+        max-width: 100%;
+      }
+    }
+
+    @media (max-width: 600px) {
+      .signup-header {
+        padding: 12px 20px;
+      }
+
+      .header-links {
+        gap: 15px;
+      }
+
+      .header-links a:not(.login-btn) {
+        display: none;
+      }
+
+      .signup-form-section {
+        padding: 30px 20px;
+      }
+
+      .social-login {
+        flex-direction: column;
+      }
+
+      .form-row {
+        flex-direction: column;
+        gap: 0;
+      }
+
+      .form-row .form-group {
+        margin-bottom: 20px;
+      }
+
+      .trust-badges {
+        flex-direction: column;
+        gap: 15px;
+        align-items: center;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <header class="signup-header">
+    <a href="/" class="logo-link">
+      <img src="/images/logo.png" alt="Peekaboo Shades" onerror="this.style.display='none'">
+      <span class="logo-text">PEEKABOO SHADES</span>
+    </a>
+    <nav class="header-links">
+      <a href="/shop.html">Shop Blinds</a>
+      <a href="tel:1-800-SHADES"><i class="fas fa-phone"></i> 1-800-SHADES</a>
+      <a href="/login.html" class="login-btn">Log In</a>
+    </nav>
+  </header>
+
+  <div class="signup-container">
+    <!-- Left Visual Section -->
+    <div class="signup-visual">
+      <div class="visual-overlay"></div>
+      <div class="visual-content">
+        <div class="visual-badge">
+          <i class="fas fa-star"></i>
+          <span>Join 50,000+ Happy Customers</span>
+        </div>
+
+        <h2 class="visual-title">Transform Your<br>Home Today</h2>
+        <p class="visual-subtitle">Create your free account and discover the perfect window treatments for every room in your home.</p>
+
+        <ul class="benefits-list">
+          <li>
+            <div class="benefit-icon"><i class="fas fa-tag"></i></div>
+            <span>Exclusive member-only discounts & early access to sales</span>
+          </li>
+          <li>
+            <div class="benefit-icon"><i class="fas fa-heart"></i></div>
+            <span>Save favorites & wishlists for future purchases</span>
+          </li>
+          <li>
+            <div class="benefit-icon"><i class="fas fa-truck"></i></div>
+            <span>Track orders & get real-time shipping updates</span>
+          </li>
+          <li>
+            <div class="benefit-icon"><i class="fas fa-undo"></i></div>
+            <span>Easy reorders with saved measurements</span>
+          </li>
+          <li>
+            <div class="benefit-icon"><i class="fas fa-headset"></i></div>
+            <span>Priority customer support & design consultation</span>
+          </li>
+        </ul>
+
+        <!-- Special Offer -->
+        <div class="offer-card">
+          <div class="offer-header">
+            <i class="fas fa-gift"></i>
+            <span>New Member Exclusive</span>
+          </div>
+          <div class="offer-title">15% OFF Your First Order</div>
+          <p style="opacity: 0.9; font-size: 14px;">Plus FREE shipping on orders over $99</p>
+          <div class="offer-code">WELCOME15</div>
+        </div>
+      </div>
+
+      <!-- Shade Types Preview -->
+      <div class="room-preview">
+        <div class="room-preview-item">
+          <img src="https://images.unsplash.com/photo-1615874959474-d609969a20ed?w=300&q=80" alt="Roller Shades">
+          <span class="room-label">Roller Shades</span>
+        </div>
+        <div class="room-preview-item">
+          <img src="https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=300&q=80" alt="Zebra Shades">
+          <span class="room-label">Zebra Shades</span>
+        </div>
+        <div class="room-preview-item">
+          <img src="https://images.unsplash.com/photo-1616046229478-9901c5536a45?w=300&q=80" alt="Roman Shades">
+          <span class="room-label">Roman Shades</span>
+        </div>
+        <div class="room-preview-item">
+          <img src="https://images.unsplash.com/photo-1618221195710-dd6b41faaea6?w=300&q=80" alt="Honeycomb Shades">
+          <span class="room-label">Honeycomb</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Right Form Section -->
+    <div class="signup-form-section">
+      <div class="form-container">
+        <div class="form-header">
+          <h1>Create Your Account</h1>
+          <p>Start shopping custom blinds & shades in minutes</p>
+        </div>
+
+        <!-- Alert Messages -->
+        <div class="alert error" id="errorAlert">
+          <i class="fas fa-exclamation-circle"></i>
+          <span id="errorMessage">An error occurred</span>
+        </div>
+        <div class="alert success" id="successAlert">
+          <i class="fas fa-check-circle"></i>
+          <span id="successMessage">Account created successfully!</span>
+        </div>
+
+        <!-- Social Login -->
+        <div class="social-login">
+          <button type="button" class="social-btn google coming-soon" onclick="showComingSoon('Google')" title="Google signup coming soon">
+            <svg width="20" height="20" viewBox="0 0 24 24"><path fill="#4285F4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/><path fill="#34A853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/><path fill="#FBBC05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/><path fill="#EA4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/></svg>
+            Google
+          </button>
+          <button type="button" class="social-btn facebook coming-soon" onclick="showComingSoon('Facebook')" title="Facebook signup coming soon">
+            <i class="fab fa-facebook-f"></i>
+            Facebook
+          </button>
+          <button type="button" class="social-btn apple coming-soon" onclick="showComingSoon('Apple')" title="Apple signup coming soon">
+            <i class="fab fa-apple"></i>
+            Apple
+          </button>
+        </div>
+
+        <div class="divider">
+          <div class="divider-line"></div>
+          <span class="divider-text">or sign up with email</span>
+          <div class="divider-line"></div>
+        </div>
+
+        <!-- Signup Form -->
+        <form id="signupForm" onsubmit="handleSignup(event)">
+          <div class="form-row">
+            <div class="form-group">
+              <label for="firstName">First Name</label>
+              <input type="text" id="firstName" name="firstName" placeholder="John" required>
+            </div>
+            <div class="form-group">
+              <label for="lastName">Last Name</label>
+              <input type="text" id="lastName" name="lastName" placeholder="Doe" required>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="email">Email Address</label>
+            <input type="email" id="email" name="email" placeholder="john@example.com" required>
+          </div>
+
+          <div class="form-group">
+            <label for="phone">Phone Number (Optional)</label>
+            <input type="tel" id="phone" name="phone" placeholder="(555) 123-4567">
+          </div>
+
+          <div class="form-group">
+            <label for="password">Create Password</label>
+            <div class="input-icon-wrapper">
+              <input type="password" id="password" name="password" placeholder="Minimum 8 characters" required minlength="8" oninput="checkPasswordStrength()">
+              <span class="input-icon" onclick="togglePassword('password')">
+                <i class="fas fa-eye" id="passwordIcon"></i>
+              </span>
+            </div>
+            <div class="password-strength" id="passwordStrength">
+              <div class="strength-bar" id="bar1"></div>
+              <div class="strength-bar" id="bar2"></div>
+              <div class="strength-bar" id="bar3"></div>
+              <div class="strength-bar" id="bar4"></div>
+            </div>
+            <div class="strength-text" id="strengthText"></div>
+          </div>
+
+          <div class="form-group">
+            <label for="confirmPassword">Confirm Password</label>
+            <div class="input-icon-wrapper">
+              <input type="password" id="confirmPassword" name="confirmPassword" placeholder="Re-enter your password" required>
+              <span class="input-icon" onclick="togglePassword('confirmPassword')">
+                <i class="fas fa-eye" id="confirmPasswordIcon"></i>
+              </span>
+            </div>
+          </div>
+
+          <div class="form-checkbox">
+            <input type="checkbox" id="newsletter" name="newsletter" checked>
+            <label for="newsletter">Send me exclusive offers, design tips, and new arrivals</label>
+          </div>
+
+          <div class="form-checkbox">
+            <input type="checkbox" id="terms" name="terms" required>
+            <label for="terms">By creating an account, I agree to Peekaboo Shades' <a href="/policies/terms.html">Terms & Conditions</a>, <a href="/policies/privacy.html">Privacy Policy</a>, and consent to receive order updates, promotions, and product information via email. Custom window treatments are made-to-order and subject to our <a href="/policies/returns.html">Return Policy</a>.</label>
+          </div>
+
+          <button type="submit" class="submit-btn" id="submitBtn">
+            <span id="btnText">Create My Account</span>
+            <span id="btnSpinner" class="spinner" style="display: none;"></span>
+          </button>
+        </form>
+
+        <div class="login-link">
+          Already have an account? <a href="/login.html">Log in here</a>
+        </div>
+
+        <div class="trust-badges">
+          <div class="trust-badge">
+            <i class="fas fa-lock"></i>
+            <span>256-bit SSL Secure</span>
+          </div>
+          <div class="trust-badge">
+            <i class="fas fa-shield-alt"></i>
+            <span>Privacy Protected</span>
+          </div>
+          <div class="trust-badge">
+            <i class="fas fa-credit-card"></i>
+            <span>Safe Checkout</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Password visibility toggle
+    function togglePassword(inputId) {
+      const input = document.getElementById(inputId);
+      const icon = document.getElementById(inputId + 'Icon');
+
+      if (input.type === 'password') {
+        input.type = 'text';
+        icon.classList.remove('fa-eye');
+        icon.classList.add('fa-eye-slash');
+      } else {
+        input.type = 'password';
+        icon.classList.remove('fa-eye-slash');
+        icon.classList.add('fa-eye');
+      }
+    }
+
+    // Password strength checker
+    function checkPasswordStrength() {
+      const password = document.getElementById('password').value;
+      const bars = ['bar1', 'bar2', 'bar3', 'bar4'];
+      const strengthText = document.getElementById('strengthText');
+
+      let strength = 0;
+
+      if (password.length >= 8) strength++;
+      if (password.match(/[a-z]/) && password.match(/[A-Z]/)) strength++;
+      if (password.match(/\d/)) strength++;
+      if (password.match(/[^a-zA-Z\d]/)) strength++;
+
+      // Reset all bars
+      bars.forEach(bar => {
+        document.getElementById(bar).className = 'strength-bar';
+      });
+
+      // Fill bars based on strength
+      const strengthClasses = ['weak', 'weak', 'medium', 'strong'];
+      const strengthTexts = ['', 'Weak - Add uppercase, numbers, symbols', 'Medium - Getting better!', 'Strong - Great password!'];
+
+      for (let i = 0; i < strength; i++) {
+        document.getElementById(bars[i]).classList.add(strengthClasses[strength - 1]);
+      }
+
+      strengthText.textContent = strengthTexts[strength];
+      strengthText.style.color = strength === 1 ? '#dc3545' : strength === 2 ? '#ffc107' : strength >= 3 ? '#28a745' : '#999';
+    }
+
+    // Show/hide alerts
+    function showAlert(type, message) {
+      const errorAlert = document.getElementById('errorAlert');
+      const successAlert = document.getElementById('successAlert');
+
+      errorAlert.classList.remove('show');
+      successAlert.classList.remove('show');
+
+      if (type === 'error') {
+        document.getElementById('errorMessage').textContent = message;
+        errorAlert.classList.add('show');
+      } else {
+        document.getElementById('successMessage').textContent = message;
+        successAlert.classList.add('show');
+      }
+    }
+
+    function hideAlerts() {
+      document.getElementById('errorAlert').classList.remove('show');
+      document.getElementById('successAlert').classList.remove('show');
+    }
+
+    // Social login - Coming Soon toast
+    function showComingSoon(provider) {
+      const toast = document.createElement('div');
+      toast.style.cssText = 'position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:linear-gradient(135deg,#8E6545,#6B4D35);color:white;padding:14px 28px;border-radius:10px;font-size:14px;font-weight:500;box-shadow:0 8px 30px rgba(0,0,0,0.25);z-index:9999;animation:slideUp 0.4s ease;display:flex;align-items:center;gap:10px;';
+      toast.innerHTML = '<i class="fas fa-clock" style="font-size:16px"></i>' + provider + ' signup coming soon! Please use email for now.';
+      document.body.appendChild(toast);
+
+      if (!document.getElementById('toastStyle')) {
+        const style = document.createElement('style');
+        style.id = 'toastStyle';
+        style.textContent = '@keyframes slideUp{from{opacity:0;transform:translateX(-50%) translateY(20px)}to{opacity:1;transform:translateX(-50%) translateY(0)}}';
+        document.head.appendChild(style);
+      }
+
+      setTimeout(() => {
+        toast.style.animation = 'slideUp 0.3s ease reverse';
+        setTimeout(() => toast.remove(), 300);
+      }, 3000);
+    }
+
+    // Handle signup form submission
+    async function handleSignup(event) {
+      event.preventDefault();
+      hideAlerts();
+
+      const submitBtn = document.getElementById('submitBtn');
+      const btnText = document.getElementById('btnText');
+      const btnSpinner = document.getElementById('btnSpinner');
+
+      // Get form values
+      const firstName = document.getElementById('firstName').value.trim();
+      const lastName = document.getElementById('lastName').value.trim();
+      const email = document.getElementById('email').value.trim();
+      const phone = document.getElementById('phone').value.trim();
+      const password = document.getElementById('password').value;
+      const confirmPassword = document.getElementById('confirmPassword').value;
+      const newsletter = document.getElementById('newsletter').checked;
+      const terms = document.getElementById('terms').checked;
+
+      // Validation
+      if (!terms) {
+        showAlert('error', 'Please agree to the Terms of Service and Privacy Policy');
+        return;
+      }
+
+      if (password !== confirmPassword) {
+        showAlert('error', 'Passwords do not match');
+        return;
+      }
+
+      if (password.length < 8) {
+        showAlert('error', 'Password must be at least 8 characters long');
+        return;
+      }
+
+      // Show loading state
+      submitBtn.disabled = true;
+      btnText.textContent = 'Creating Account...';
+      btnSpinner.style.display = 'block';
+
+      try {
+        const response = await fetch('/api/customer/register', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            firstName,
+            lastName,
+            email,
+            phone,
+            password,
+            newsletter,
+            source: 'website'
+          })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          showAlert('success', 'Welcome to Peekaboo Shades! Redirecting to your account...');
+
+          // Store token and customer info
+          localStorage.setItem('customer_token', data.token);
+          localStorage.setItem('customer', JSON.stringify(data.customer));
+
+          // Redirect to account page after short delay
+          setTimeout(() => {
+            window.location.href = '/account.html';
+          }, 1500);
+        } else {
+          showAlert('error', data.error || 'Failed to create account. Please try again.');
+        }
+      } catch (error) {
+        console.error('Signup error:', error);
+        showAlert('error', 'Connection error. Please check your internet and try again.');
+      } finally {
+        // Reset button state
+        submitBtn.disabled = false;
+        btnText.textContent = 'Create My Account';
+        btnSpinner.style.display = 'none';
+      }
+    }
+
+    // Check if already logged in
+    document.addEventListener('DOMContentLoaded', () => {
+      const token = localStorage.getItem('customer_token');
+      if (token) {
+        // Verify token is still valid
+        fetch('/api/customer/verify', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        })
+        .then(res => res.json())
+        .then(data => {
+          if (data.success) {
+            window.location.href = '/account.html';
+          }
+        })
+        .catch(() => {
+          localStorage.removeItem('customer_token');
+          localStorage.removeItem('customer');
+        });
+      }
+    });
+  </script>
+</body>
+</html>

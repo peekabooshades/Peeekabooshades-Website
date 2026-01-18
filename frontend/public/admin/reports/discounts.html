@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Discount Usage Report - Peekaboo Shades Admin</title>
+  <link rel="stylesheet" href="/admin/css/admin.css?v=1737200003.0.28">
+  <script src="/admin/js/adminNavConfig.js?v=1737200002"></script>
+  <style>
+    .metrics-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 1.5rem; }
+    .metric-card { background: white; padding: 1.5rem; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); text-align: center; }
+    .metric-card h4 { margin: 0 0 0.5rem 0; font-size: 0.85rem; color: #666; }
+    .metric-card .value { font-size: 1.75rem; font-weight: 600; color: #8E6545; }
+    .metric-card .sub { font-size: 0.85rem; color: #666; margin-top: 0.25rem; }
+    .reports-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+    .report-card { background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+    .report-card h3 { margin: 0 0 1rem 0; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { padding: 0.75rem; text-align: left; border-bottom: 1px solid #eee; }
+    th { font-weight: 600; color: #666; font-size: 0.85rem; }
+    .code-badge { background: #E5E7EB; padding: 0.25rem 0.5rem; border-radius: 4px; font-family: monospace; font-size: 0.85rem; }
+    .status-active { color: #10B981; }
+    .status-expired { color: #9CA3AF; }
+  </style>
+</head>
+<body>
+  <div class="admin-layout">
+    <aside class="admin-sidebar"></aside>
+    <main class="admin-main">
+      <header class="admin-header"><h1>Discount Usage Report</h1></header>
+      <div class="admin-content">
+        <div class="metrics-row">
+          <div class="metric-card">
+            <h4>Total Discounts Given</h4>
+            <div class="value">$8,456</div>
+            <div class="sub">This month</div>
+          </div>
+          <div class="metric-card">
+            <h4>Orders with Discount</h4>
+            <div class="value">156</div>
+            <div class="sub">28% of orders</div>
+          </div>
+          <div class="metric-card">
+            <h4>Avg Discount per Order</h4>
+            <div class="value">$54.21</div>
+            <div class="sub">-12% from promotion</div>
+          </div>
+          <div class="metric-card">
+            <h4>Revenue from Discounted</h4>
+            <div class="value">$42,890</div>
+            <div class="sub">34% of total revenue</div>
+          </div>
+        </div>
+        <div class="reports-grid">
+          <div class="report-card">
+            <h3>Top Performing Codes</h3>
+            <table>
+              <thead><tr><th>Code</th><th>Uses</th><th>Revenue</th><th>Discount</th></tr></thead>
+              <tbody>
+                <tr><td><span class="code-badge">SAVE15</span></td><td>68</td><td>$18,240</td><td>$2,736</td></tr>
+                <tr><td><span class="code-badge">SPRING20</span></td><td>42</td><td>$12,560</td><td>$2,512</td></tr>
+                <tr><td><span class="code-badge">NEWCUSTOMER</span></td><td>28</td><td>$6,720</td><td>$672</td></tr>
+                <tr><td><span class="code-badge">TRADE10</span></td><td>12</td><td>$4,890</td><td>$489</td></tr>
+                <tr><td><span class="code-badge">FREESHIP</span></td><td>6</td><td>$1,480</td><td>$89</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="report-card">
+            <h3>Discount Type Breakdown</h3>
+            <table>
+              <thead><tr><th>Type</th><th>Orders</th><th>Total Discount</th><th>Avg %</th></tr></thead>
+              <tbody>
+                <tr><td>Percentage Off</td><td>98</td><td>$5,890</td><td>15%</td></tr>
+                <tr><td>Fixed Amount</td><td>32</td><td>$1,600</td><td>$50 avg</td></tr>
+                <tr><td>Free Shipping</td><td>18</td><td>$324</td><td>$18 avg</td></tr>
+                <tr><td>Quantity Discount</td><td>8</td><td>$642</td><td>10%</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="report-card">
+            <h3>Active Promotions Performance</h3>
+            <table>
+              <thead><tr><th>Promotion</th><th>Uses</th><th>Budget</th><th>Status</th></tr></thead>
+              <tbody>
+                <tr><td>Spring Sale 20% Off</td><td>42/100</td><td>$3,000/$5,000</td><td class="status-active">Active</td></tr>
+                <tr><td>New Customer 10%</td><td>28/∞</td><td>$672/∞</td><td class="status-active">Active</td></tr>
+                <tr><td>Trade Program 10%</td><td>12/∞</td><td>$489/∞</td><td class="status-active">Active</td></tr>
+                <tr><td>Winter Clearance</td><td>89/100</td><td>$4,200/$5,000</td><td class="status-expired">Expired</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="report-card">
+            <h3>Discount by Product Category</h3>
+            <table>
+              <thead><tr><th>Category</th><th>Orders</th><th>Discount Given</th><th>Avg %</th></tr></thead>
+              <tbody>
+                <tr><td>Roller Shades</td><td>78</td><td>$4,120</td><td>14%</td></tr>
+                <tr><td>Zebra Blinds</td><td>45</td><td>$2,340</td><td>15%</td></tr>
+                <tr><td>Motorized Options</td><td>22</td><td>$1,456</td><td>12%</td></tr>
+                <tr><td>Accessories</td><td>11</td><td>$540</td><td>18%</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      if (!localStorage.getItem('admin_token')) { window.location.href = '/admin/login.html'; return; }
+      AdminNavConfig.initSidebar('discount-usage');
+    });
+  </script>
+</body>
+</html>

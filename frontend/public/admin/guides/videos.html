@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>How-To Videos - Peekaboo Shades Admin</title>
+  <link rel="stylesheet" href="/admin/css/admin.css?v=1737200003.0.28">
+  <script src="/admin/js/adminNavConfig.js?v=1737200002"></script>
+  <style>
+    .videos-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem; margin-top: 1.5rem; }
+    .video-card { background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+    .video-thumb { height: 170px; background: #1F2937; display: flex; align-items: center; justify-content: center; position: relative; }
+    .video-thumb .play-btn { width: 60px; height: 60px; background: rgba(255,255,255,0.9); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; }
+    .video-thumb .duration { position: absolute; bottom: 8px; right: 8px; background: rgba(0,0,0,0.8); color: white; padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.75rem; }
+    .video-content { padding: 1rem; }
+    .video-content h4 { margin: 0 0 0.5rem 0; }
+    .video-content p { color: #666; font-size: 0.85rem; margin: 0 0 0.75rem 0; }
+    .video-meta { display: flex; justify-content: space-between; font-size: 0.8rem; color: #666; }
+    .btn-primary { padding: 0.75rem 1.5rem; background: #8E6545; color: white; border: none; border-radius: 8px; cursor: pointer; }
+    .btn-edit { padding: 0.3rem 0.6rem; background: #E5E7EB; color: #374151; border: none; border-radius: 4px; cursor: pointer; font-size: 0.8rem; }
+  </style>
+</head>
+<body>
+  <div class="admin-layout">
+    <aside class="admin-sidebar"></aside>
+    <main class="admin-main">
+      <header class="admin-header">
+        <h1>How-To Videos</h1>
+        <div class="header-actions"><button class="btn-primary" onclick="addVideo()">+ Add Video</button></div>
+      </header>
+      <div class="admin-content">
+        <div class="videos-grid">
+          <div class="video-card">
+            <div class="video-thumb"><div class="play-btn">▶</div><span class="duration">3:45</span></div>
+            <div class="video-content">
+              <h4>How to Measure for Inside Mount</h4>
+              <p>Step-by-step measuring instructions for inside mount installation.</p>
+              <div class="video-meta"><span>1.2K views</span><button class="btn-edit">Edit</button></div>
+            </div>
+          </div>
+          <div class="video-card">
+            <div class="video-thumb"><div class="play-btn">▶</div><span class="duration">4:20</span></div>
+            <div class="video-content">
+              <h4>Roller Shade Installation</h4>
+              <p>Complete installation guide for roller shades.</p>
+              <div class="video-meta"><span>980 views</span><button class="btn-edit">Edit</button></div>
+            </div>
+          </div>
+          <div class="video-card">
+            <div class="video-thumb"><div class="play-btn">▶</div><span class="duration">5:15</span></div>
+            <div class="video-content">
+              <h4>Programming Motorized Shades</h4>
+              <p>How to pair remotes and set up smart home integration.</p>
+              <div class="video-meta"><span>756 views</span><button class="btn-edit">Edit</button></div>
+            </div>
+          </div>
+          <div class="video-card">
+            <div class="video-thumb"><div class="play-btn">▶</div><span class="duration">2:30</span></div>
+            <div class="video-content">
+              <h4>Zebra Blind Adjustment</h4>
+              <p>Adjusting light levels with zebra blind stripes.</p>
+              <div class="video-meta"><span>542 views</span><button class="btn-edit">Edit</button></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      if (!localStorage.getItem('admin_token')) { window.location.href = '/admin/login.html'; return; }
+      AdminNavConfig.initSidebar('how-to-videos');
+    });
+    function addVideo() { alert('Opening video upload form...'); }
+  </script>
+</body>
+</html>

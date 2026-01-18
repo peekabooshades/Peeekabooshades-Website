@@ -1,0 +1,882 @@
+{
+  "metadata": {
+    "version": "1.0.0",
+    "generatedAt": "2026-01-11T00:00:00Z",
+    "description": "Interactive elements registry - tracks all clickable elements",
+    "totalElements": 285,
+    "working": 210,
+    "disabled": 28,
+    "broken": 47
+  },
+  "statusDefinitions": {
+    "working": "Element functions as expected",
+    "partial": "Element works but with limitations",
+    "disabled": "Element is intentionally disabled with reason",
+    "broken": "Element has href='#' or no action handler",
+    "stub": "UI exists but backend not implemented"
+  },
+  "elements": {
+    "customer": {
+      "shop.html": {
+        "navigation": [
+          {
+            "id": "nav-free-samples",
+            "selector": "a[href='#']:contains('Free Samples')",
+            "line": 911,
+            "text": "Free Samples",
+            "type": "navigate",
+            "expectedAction": "Navigate to samples page",
+            "currentBehavior": "Dead link (href='#')",
+            "status": "broken",
+            "fix": "DISABLE or link to /samples.html if exists"
+          },
+          {
+            "id": "nav-trade-program",
+            "selector": "a[href='#']:contains('Trade Program')",
+            "line": 912,
+            "text": "Trade Program",
+            "type": "navigate",
+            "expectedAction": "Navigate to trade program",
+            "currentBehavior": "Dead link (href='#')",
+            "status": "broken",
+            "fix": "DISABLE or link to /dealer/"
+          },
+          {
+            "id": "nav-help",
+            "selector": "a[href='#']:contains('Help')",
+            "line": 913,
+            "text": "Help",
+            "type": "navigate",
+            "expectedAction": "Navigate to help page",
+            "currentBehavior": "Dead link (href='#')",
+            "status": "broken",
+            "fix": "DISABLE or link to /contact.html"
+          },
+          {
+            "id": "nav-curtains",
+            "selector": "a[href='#']:contains('Curtains')",
+            "line": 936,
+            "text": "Curtains",
+            "type": "navigate",
+            "expectedAction": "Navigate to curtains category",
+            "currentBehavior": "Dead link (href='#')",
+            "status": "broken",
+            "fix": "DISABLE - no curtains products exist"
+          },
+          {
+            "id": "nav-lookup-order",
+            "selector": "a[href='#']:contains('Look up My Order')",
+            "line": 937,
+            "text": "Look up My Order",
+            "type": "navigate",
+            "expectedAction": "Navigate to order lookup",
+            "currentBehavior": "Dead link (href='#')",
+            "status": "broken",
+            "fix": "DISABLE - no customer account system"
+          },
+          {
+            "id": "nav-bulk-orders",
+            "selector": "a[href='#']:contains('Bulk Orders')",
+            "line": 938,
+            "text": "Bulk Orders/Wholesale",
+            "type": "navigate",
+            "expectedAction": "Navigate to wholesale page",
+            "currentBehavior": "Dead link (href='#')",
+            "status": "broken",
+            "fix": "Link to /dealer/ or DISABLE"
+          },
+          {
+            "id": "nav-contact-us",
+            "selector": "a[href='#']:contains('Contact Us')",
+            "line": 939,
+            "text": "Contact Us",
+            "type": "navigate",
+            "expectedAction": "Navigate to contact page",
+            "currentBehavior": "Dead link (href='#')",
+            "status": "broken",
+            "fix": "Link to /contact.html"
+          },
+          {
+            "id": "nav-my-account",
+            "selector": "a[href='#']:contains('My Account')",
+            "line": 940,
+            "text": "My Account",
+            "type": "navigate",
+            "expectedAction": "Navigate to account page",
+            "currentBehavior": "Dead link (href='#')",
+            "status": "broken",
+            "fix": "DISABLE - no customer account system"
+          },
+          {
+            "id": "icon-wishlist",
+            "selector": ".wishlist-icon",
+            "line": 949,
+            "text": "Heart/Wishlist Icon",
+            "type": "action",
+            "expectedAction": "Open wishlist",
+            "currentBehavior": "Dead link (href='#')",
+            "status": "broken",
+            "fix": "DISABLE - no wishlist system"
+          },
+          {
+            "id": "icon-account",
+            "selector": ".account-icon",
+            "line": 950,
+            "text": "User Account Icon",
+            "type": "action",
+            "expectedAction": "Open account menu",
+            "currentBehavior": "Dead link (href='#')",
+            "status": "broken",
+            "fix": "DISABLE - no customer account system"
+          }
+        ],
+        "filters": [
+          {
+            "id": "filter-toggle",
+            "selector": "#filterToggle",
+            "text": "Filter Button",
+            "type": "action",
+            "handler": "toggleFilterPanel()",
+            "expectedAction": "Open filter panel",
+            "currentBehavior": "Shows 'Filter panel coming soon!' toast",
+            "status": "stub",
+            "fix": "Implement filter panel OR hide button"
+          },
+          {
+            "id": "filter-room",
+            "selector": "#roomFilter",
+            "text": "Room Filter Dropdown",
+            "type": "action",
+            "handler": "filterByRoom()",
+            "expectedAction": "Filter products by room",
+            "currentBehavior": "Shows toast only",
+            "status": "stub",
+            "fix": "Implement filter logic"
+          },
+          {
+            "id": "filter-color",
+            "selector": "#colorFilter",
+            "text": "Color Filter",
+            "type": "action",
+            "handler": "filterByColor()",
+            "expectedAction": "Filter products by color",
+            "currentBehavior": "Shows toast only",
+            "status": "stub",
+            "fix": "Implement filter logic"
+          },
+          {
+            "id": "filter-price",
+            "selector": "#priceRange",
+            "text": "Price Range Slider",
+            "type": "action",
+            "handler": "filterByPrice()",
+            "expectedAction": "Filter by price range",
+            "currentBehavior": "Shows toast only",
+            "status": "stub",
+            "fix": "Implement filter logic"
+          },
+          {
+            "id": "filter-material",
+            "selector": "#materialFilter",
+            "text": "Material Filter",
+            "type": "action",
+            "handler": "filterByMaterial()",
+            "expectedAction": "Filter by material",
+            "currentBehavior": "Shows toast only",
+            "status": "stub",
+            "fix": "Implement filter logic"
+          },
+          {
+            "id": "filter-light",
+            "selector": "#lightFilter",
+            "text": "Light Filtering Filter",
+            "type": "action",
+            "handler": "filterByLightFiltering()",
+            "expectedAction": "Filter by light control",
+            "currentBehavior": "Shows toast only",
+            "status": "stub",
+            "fix": "Implement filter logic"
+          }
+        ],
+        "social": [
+          {
+            "id": "social-facebook",
+            "selector": ".social-facebook",
+            "line": 1119,
+            "text": "Facebook Icon",
+            "type": "navigate",
+            "expectedAction": "Open Facebook page",
+            "currentBehavior": "Dead link (href='#')",
+            "status": "broken",
+            "fix": "Add social URL or DISABLE"
+          },
+          {
+            "id": "social-instagram",
+            "selector": ".social-instagram",
+            "line": 1120,
+            "text": "Instagram Icon",
+            "type": "navigate",
+            "expectedAction": "Open Instagram page",
+            "currentBehavior": "Dead link (href='#')",
+            "status": "broken",
+            "fix": "Add social URL or DISABLE"
+          },
+          {
+            "id": "social-twitter",
+            "selector": ".social-twitter",
+            "line": 1121,
+            "text": "Twitter Icon",
+            "type": "navigate",
+            "expectedAction": "Open Twitter page",
+            "currentBehavior": "Dead link (href='#')",
+            "status": "broken",
+            "fix": "Add social URL or DISABLE"
+          },
+          {
+            "id": "social-pinterest",
+            "selector": ".social-pinterest",
+            "line": 1122,
+            "text": "Pinterest Icon",
+            "type": "navigate",
+            "expectedAction": "Open Pinterest page",
+            "currentBehavior": "Dead link (href='#')",
+            "status": "broken",
+            "fix": "Add social URL or DISABLE"
+          }
+        ]
+      },
+      "index.html": {
+        "navigation": [
+          {
+            "id": "footer-links",
+            "selector": "footer a[href='#']",
+            "text": "Various footer links",
+            "type": "navigate",
+            "status": "broken",
+            "count": 12,
+            "fix": "Wire to real pages or DISABLE"
+          },
+          {
+            "id": "footer-social",
+            "selector": "footer .social-icons a",
+            "text": "Social media icons",
+            "type": "navigate",
+            "status": "broken",
+            "count": 4,
+            "fix": "Add social URLs"
+          }
+        ],
+        "forms": [
+          {
+            "id": "newsletter-subscribe",
+            "selector": "#newsletterForm",
+            "line": 1768,
+            "text": "Newsletter Subscribe",
+            "type": "action",
+            "handler": "subscribeNewsletter()",
+            "expectedAction": "Subscribe email to mailing list",
+            "currentBehavior": "Shows toast only, no backend",
+            "status": "stub",
+            "fix": "Implement POST /api/subscribers OR show disclaimer"
+          }
+        ]
+      },
+      "product.html": {
+        "configuration": [
+          {
+            "id": "fabric-select",
+            "selector": "#fabricSelect",
+            "text": "Fabric Dropdown",
+            "type": "action",
+            "handler": "onFabricChange()",
+            "status": "working"
+          },
+          {
+            "id": "width-input",
+            "selector": "#widthInput",
+            "text": "Width Input",
+            "type": "action",
+            "handler": "calculatePrice()",
+            "status": "working"
+          },
+          {
+            "id": "height-input",
+            "selector": "#heightInput",
+            "text": "Height Input",
+            "type": "action",
+            "handler": "calculatePrice()",
+            "status": "working"
+          },
+          {
+            "id": "add-to-cart",
+            "selector": "#addToCartBtn",
+            "text": "Add to Cart",
+            "type": "action",
+            "handler": "addToCart()",
+            "endpoint": "POST /api/cart",
+            "status": "working"
+          },
+          {
+            "id": "save-quote",
+            "selector": "#saveQuoteBtn",
+            "text": "Save as Quote",
+            "type": "action",
+            "handler": "saveAsQuote()",
+            "endpoint": "POST /api/quotes",
+            "status": "working"
+          }
+        ],
+        "sharing": [
+          {
+            "id": "share-facebook",
+            "selector": ".share-facebook",
+            "text": "Share to Facebook",
+            "type": "action",
+            "status": "partial",
+            "issue": "Opens Facebook but format may be incorrect"
+          },
+          {
+            "id": "share-pinterest",
+            "selector": ".share-pinterest",
+            "text": "Share to Pinterest",
+            "type": "action",
+            "status": "partial",
+            "issue": "Opens Pinterest but format may be incorrect"
+          },
+          {
+            "id": "share-twitter",
+            "selector": ".share-twitter",
+            "text": "Share to Twitter",
+            "type": "action",
+            "status": "partial",
+            "issue": "Opens Twitter but format may be incorrect"
+          }
+        ]
+      },
+      "cart.html": {
+        "actions": [
+          {
+            "id": "apply-coupon",
+            "selector": "#applyCoupon",
+            "text": "Apply Coupon",
+            "type": "action",
+            "status": "partial",
+            "issue": "Validation limited"
+          },
+          {
+            "id": "save-for-later",
+            "selector": ".save-for-later",
+            "text": "Save for Later",
+            "type": "action",
+            "status": "stub",
+            "issue": "Feature not implemented"
+          },
+          {
+            "id": "update-quantity",
+            "selector": ".qty-update",
+            "text": "Update Quantity",
+            "type": "action",
+            "endpoint": "PUT /api/cart/:id",
+            "status": "working"
+          },
+          {
+            "id": "remove-item",
+            "selector": ".remove-item",
+            "text": "Remove Item",
+            "type": "action",
+            "endpoint": "DELETE /api/cart/:id",
+            "status": "working"
+          },
+          {
+            "id": "checkout",
+            "selector": "#checkoutBtn",
+            "text": "Proceed to Checkout",
+            "type": "action",
+            "endpoint": "POST /api/orders",
+            "status": "working"
+          }
+        ]
+      },
+      "page.html": {
+        "forms": [
+          {
+            "id": "fabric-select-cms",
+            "selector": ".fabric-selector",
+            "line": 797,
+            "text": "Fabric Selection (CMS)",
+            "type": "action",
+            "handler": "selectFabric()",
+            "currentBehavior": "Shows alert('Selected fabric: ' + code)",
+            "status": "stub",
+            "fix": "Wire to product configurator"
+          },
+          {
+            "id": "newsletter-cms",
+            "selector": ".newsletter-form",
+            "line": 828,
+            "text": "Newsletter Form (CMS)",
+            "type": "action",
+            "currentBehavior": "Shows alert with email - no backend",
+            "status": "stub",
+            "fix": "Implement subscription API"
+          }
+        ]
+      }
+    },
+    "dealer": {
+      "index.html": {
+        "actions": [
+          {
+            "id": "download-price-list",
+            "selector": "#downloadPriceList",
+            "text": "Download Price List",
+            "type": "action",
+            "handler": "downloadPriceList()",
+            "expectedAction": "Download dealer price list PDF",
+            "currentBehavior": "Shows alert('Price list download coming soon!')",
+            "status": "stub",
+            "fix": "Implement PDF generation or DISABLE"
+          }
+        ]
+      },
+      "commissions.html": {
+        "actions": [
+          {
+            "id": "export-csv",
+            "selector": "#exportCsv",
+            "line": 477,
+            "text": "Export CSV",
+            "type": "action",
+            "handler": "exportToCsv()",
+            "expectedAction": "Download commissions as CSV",
+            "currentBehavior": "Shows alert('CSV export coming soon!')",
+            "status": "stub",
+            "fix": "Implement CSV export or DISABLE"
+          }
+        ]
+      }
+    },
+    "admin": {
+      "security/two-factor.html": {
+        "actions": [
+          {
+            "id": "enable-2fa",
+            "selector": "#enable2FA",
+            "text": "Enable 2FA",
+            "type": "action",
+            "expectedEndpoint": "POST /api/admin/security/2fa/enable",
+            "status": "stub",
+            "issue": "Endpoint does not exist"
+          },
+          {
+            "id": "verify-code",
+            "selector": "#verifyCode",
+            "text": "Verify Code",
+            "type": "action",
+            "expectedEndpoint": "POST /api/admin/security/2fa/verify",
+            "status": "stub",
+            "issue": "Endpoint does not exist"
+          },
+          {
+            "id": "generate-backup",
+            "selector": "#generateBackup",
+            "text": "Generate Backup Codes",
+            "type": "action",
+            "expectedEndpoint": "POST /api/admin/security/2fa/backup",
+            "status": "stub",
+            "issue": "Endpoint does not exist"
+          },
+          {
+            "id": "disable-2fa",
+            "selector": "#disable2FA",
+            "text": "Disable 2FA",
+            "type": "action",
+            "expectedEndpoint": "DELETE /api/admin/security/2fa",
+            "status": "stub",
+            "issue": "Endpoint does not exist"
+          }
+        ]
+      },
+      "security/sso.html": {
+        "actions": [
+          {
+            "id": "sso-google",
+            "selector": "#connectGoogle",
+            "text": "Configure Google Workspace",
+            "type": "action",
+            "status": "stub",
+            "issue": "No OAuth integration"
+          },
+          {
+            "id": "sso-microsoft",
+            "selector": "#connectMicrosoft",
+            "text": "Configure Microsoft Azure AD",
+            "type": "action",
+            "status": "stub",
+            "issue": "No OAuth integration"
+          },
+          {
+            "id": "sso-okta",
+            "selector": "#connectOkta",
+            "text": "Configure Okta",
+            "type": "action",
+            "status": "stub",
+            "issue": "No SAML integration"
+          },
+          {
+            "id": "sso-saml",
+            "selector": "#configSaml",
+            "text": "Configure Custom SAML",
+            "type": "action",
+            "status": "stub",
+            "issue": "No SAML integration"
+          },
+          {
+            "id": "sso-ldap",
+            "selector": "#connectLdap",
+            "text": "Configure LDAP",
+            "type": "action",
+            "status": "stub",
+            "issue": "No LDAP integration"
+          },
+          {
+            "id": "sso-github",
+            "selector": "#connectGithub",
+            "text": "Configure GitHub",
+            "type": "action",
+            "status": "stub",
+            "issue": "No OAuth integration"
+          }
+        ]
+      },
+      "security/firewall.html": {
+        "actions": [
+          {
+            "id": "firewall-toggle",
+            "selector": "#firewallToggle",
+            "text": "Enable/Disable Firewall",
+            "type": "action",
+            "status": "stub",
+            "issue": "No enforcement middleware"
+          },
+          {
+            "id": "firewall-whitelist",
+            "selector": "#addWhitelist",
+            "text": "Add IP to Whitelist",
+            "type": "action",
+            "status": "stub",
+            "issue": "IPs not persisted"
+          },
+          {
+            "id": "firewall-blacklist",
+            "selector": "#addBlacklist",
+            "text": "Add IP to Blacklist",
+            "type": "action",
+            "status": "stub",
+            "issue": "IPs not persisted"
+          },
+          {
+            "id": "firewall-country",
+            "selector": "#countryBlock",
+            "text": "Country Blocking",
+            "type": "action",
+            "status": "stub",
+            "issue": "No enforcement"
+          },
+          {
+            "id": "firewall-rate-limit",
+            "selector": "#rateLimitToggle",
+            "text": "Rate Limiting",
+            "type": "action",
+            "status": "stub",
+            "issue": "No rate limiter middleware"
+          }
+        ]
+      },
+      "security/sessions.html": {
+        "actions": [
+          {
+            "id": "session-view",
+            "selector": "#viewSessions",
+            "text": "View Sessions",
+            "type": "action",
+            "status": "partial",
+            "issue": "Shows mock data"
+          },
+          {
+            "id": "session-revoke",
+            "selector": ".revoke-session",
+            "text": "Revoke Session",
+            "type": "action",
+            "status": "stub",
+            "issue": "JWT tokens are stateless - no revocation"
+          },
+          {
+            "id": "session-revoke-all",
+            "selector": "#revokeAll",
+            "text": "Revoke All Sessions",
+            "type": "action",
+            "status": "stub",
+            "issue": "JWT tokens are stateless - no revocation"
+          }
+        ]
+      },
+      "marketing/social.html": {
+        "actions": [
+          {
+            "id": "connect-facebook",
+            "selector": "#connectFacebook",
+            "text": "Connect Facebook",
+            "type": "action",
+            "status": "stub",
+            "issue": "No OAuth integration"
+          },
+          {
+            "id": "connect-instagram",
+            "selector": "#connectInstagram",
+            "text": "Connect Instagram",
+            "type": "action",
+            "status": "stub",
+            "issue": "No OAuth integration"
+          },
+          {
+            "id": "connect-twitter",
+            "selector": "#connectTwitter",
+            "text": "Connect Twitter/X",
+            "type": "action",
+            "status": "stub",
+            "issue": "No OAuth integration"
+          },
+          {
+            "id": "connect-pinterest",
+            "selector": "#connectPinterest",
+            "text": "Connect Pinterest",
+            "type": "action",
+            "status": "stub",
+            "issue": "No OAuth integration"
+          },
+          {
+            "id": "connect-tiktok",
+            "selector": "#connectTiktok",
+            "text": "Connect TikTok",
+            "type": "action",
+            "status": "stub",
+            "issue": "No OAuth integration"
+          },
+          {
+            "id": "social-composer",
+            "selector": "#postComposer",
+            "text": "Post Composer",
+            "type": "action",
+            "status": "stub",
+            "issue": "Cannot post - no API integration"
+          },
+          {
+            "id": "social-schedule",
+            "selector": "#schedulePost",
+            "text": "Schedule Posts",
+            "type": "action",
+            "status": "stub",
+            "issue": "No scheduling system"
+          }
+        ]
+      },
+      "marketing/campaigns.html": {
+        "actions": [
+          {
+            "id": "create-campaign",
+            "selector": "#createCampaign",
+            "text": "Create Campaign",
+            "type": "action",
+            "status": "stub",
+            "issue": "No email service configured"
+          },
+          {
+            "id": "send-campaign",
+            "selector": "#sendCampaign",
+            "text": "Send Campaign",
+            "type": "action",
+            "status": "stub",
+            "issue": "Cannot send - no SMTP"
+          }
+        ]
+      },
+      "marketing/automations.html": {
+        "actions": [
+          {
+            "id": "create-automation",
+            "selector": "#createAutomation",
+            "text": "Create Automation",
+            "type": "action",
+            "status": "stub",
+            "issue": "No automation engine"
+          }
+        ]
+      },
+      "invoices.html": {
+        "actions": [
+          {
+            "id": "send-invoice",
+            "selector": ".send-invoice",
+            "text": "Send Invoice",
+            "type": "action",
+            "handler": "sendInvoice()",
+            "status": "stub",
+            "issue": "Email not implemented"
+          },
+          {
+            "id": "generate-missing",
+            "selector": "#generateMissing",
+            "text": "Generate Missing Invoices",
+            "type": "action",
+            "endpoint": "POST /api/admin/invoices/generate-missing",
+            "status": "working"
+          },
+          {
+            "id": "view-invoice",
+            "selector": ".view-invoice",
+            "text": "View Invoice",
+            "type": "action",
+            "endpoint": "GET /api/admin/invoices/:id",
+            "status": "working"
+          },
+          {
+            "id": "print-invoice",
+            "selector": ".print-invoice",
+            "text": "Print Invoice",
+            "type": "navigate",
+            "destination": "/admin/print-invoice.html?id=:id",
+            "status": "working"
+          },
+          {
+            "id": "record-payment",
+            "selector": ".record-payment",
+            "text": "Record Payment",
+            "type": "modal",
+            "endpoint": "POST /api/admin/invoices/:id/payment",
+            "status": "working"
+          }
+        ]
+      },
+      "orders.html": {
+        "actions": [
+          {
+            "id": "search-orders",
+            "selector": "#searchOrders",
+            "text": "Search",
+            "type": "action",
+            "handler": "searchOrders()",
+            "endpoint": "GET /api/admin/orders?search=",
+            "status": "working"
+          },
+          {
+            "id": "filter-status",
+            "selector": "#statusFilter",
+            "text": "Filter by Status",
+            "type": "action",
+            "handler": "filterByStatus()",
+            "endpoint": "GET /api/admin/orders?status=",
+            "status": "working"
+          },
+          {
+            "id": "export-orders",
+            "selector": "#exportOrders",
+            "text": "Export",
+            "type": "action",
+            "handler": "exportOrders()",
+            "status": "working"
+          },
+          {
+            "id": "view-order",
+            "selector": ".view-order",
+            "text": "View Details",
+            "type": "modal",
+            "endpoint": "GET /api/admin/orders/:id",
+            "status": "working"
+          },
+          {
+            "id": "update-status",
+            "selector": ".update-status",
+            "text": "Update Status",
+            "type": "modal",
+            "endpoint": "PUT /api/admin/orders/:id/status",
+            "status": "working"
+          },
+          {
+            "id": "print-order",
+            "selector": ".print-order",
+            "text": "Print",
+            "type": "action",
+            "handler": "printOrder()",
+            "status": "working"
+          }
+        ]
+      }
+    },
+    "manufacturer": {
+      "index.html": {
+        "actions": [
+          {
+            "id": "load-orders",
+            "selector": "#loadOrders",
+            "text": "Load Orders",
+            "type": "action",
+            "handler": "loadOrders()",
+            "endpoint": "GET /api/manufacturer/orders",
+            "status": "working"
+          },
+          {
+            "id": "update-status",
+            "selector": ".update-status",
+            "text": "Update Status",
+            "type": "action",
+            "handler": "updateOrderStatus()",
+            "endpoint": "PUT /api/manufacturer/orders/:id/status",
+            "status": "working"
+          },
+          {
+            "id": "download-sheet",
+            "selector": ".download-sheet",
+            "text": "Download Order Sheet",
+            "type": "action",
+            "handler": "downloadOrderSheet()",
+            "endpoint": "GET /api/manufacturer/orders/:id/sheet",
+            "status": "working"
+          },
+          {
+            "id": "mark-shipped",
+            "selector": ".mark-shipped",
+            "text": "Mark as Shipped",
+            "type": "action",
+            "handler": "markAsShipped()",
+            "endpoint": "PUT /api/manufacturer/orders/:id/ship",
+            "status": "working"
+          }
+        ]
+      }
+    }
+  },
+  "fixPriority": {
+    "critical": [
+      "Remove/disable 2FA, SSO, Firewall pages (security stub pages)",
+      "Fix broken navigation links on shop.html (6 items)",
+      "Fix social icons across all pages (dead links)"
+    ],
+    "high": [
+      "Fix shop page filters (5 filter functions)",
+      "Implement or disable Export CSV on dealer commissions",
+      "Implement or disable Download Price List on dealer dashboard",
+      "Fix newsletter subscription (backend needed or disclaimer)"
+    ],
+    "medium": [
+      "Fix footer links across all pages",
+      "Implement or disable session revocation",
+      "Fix marketing section stub pages"
+    ],
+    "low": [
+      "Fix share buttons format on product page",
+      "Improve coupon validation",
+      "Add Save for Later functionality or remove button"
+    ]
+  }
+}

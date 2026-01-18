@@ -4,8 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Invoices - Peekaboo Shades Admin</title>
-  <link rel="stylesheet" href="css/admin.css">
-  <link rel="icon" type="image/png" href="/images/favicon.png">
+  <link rel="stylesheet" href="css/admin.css?v=1737200003">
+  <link rel="icon" type="image/jpeg" href="/images/peekabooshades_logo.jpeg">
   <style>
     .stats-grid {
       display: grid;
@@ -120,84 +120,9 @@
 </head>
 <body>
   <div class="admin-layout">
-    <!-- Sidebar -->
+    <!-- Sidebar (dynamically populated by adminNavConfig.js) -->
     <aside class="admin-sidebar">
-      <div class="sidebar-header">
-        <a href="/admin/" class="sidebar-logo">
-          <img src="/images/logo.png" alt="Logo" onerror="this.style.display='none'">
-          <span>Peekaboo Shades</span>
-        </a>
-      </div>
-
-      <nav class="sidebar-nav">
-        <div class="nav-section">
-          <a href="/admin/" class="nav-item">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-            </svg>
-            <span>Dashboard</span>
-          </a>
-        </div>
-
-        <div class="nav-section">
-          <div class="nav-section-title">Catalog</div>
-          <a href="/admin/products.html" class="nav-item">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-            </svg>
-            <span>Products</span>
-          </a>
-          <a href="/admin/categories.html" class="nav-item">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
-            </svg>
-            <span>Categories</span>
-          </a>
-        </div>
-
-        <div class="nav-section">
-          <div class="nav-section-title">Sales</div>
-          <a href="/admin/orders.html" class="nav-item">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
-            </svg>
-            <span>Orders</span>
-          </a>
-          <a href="/admin/invoices.html" class="nav-item active">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-            </svg>
-            <span>Invoices</span>
-          </a>
-          <a href="/admin/quotes.html" class="nav-item">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-            </svg>
-            <span>Quotes</span>
-          </a>
-        </div>
-
-        <div class="nav-section">
-          <div class="nav-section-title">Content</div>
-          <a href="/admin/faqs.html" class="nav-item">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            <span>FAQs</span>
-          </a>
-        </div>
-
-        <div class="nav-section">
-          <div class="nav-section-title">Settings</div>
-          <a href="/admin/settings.html" class="nav-item">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-            </svg>
-            <span>Settings</span>
-          </a>
-        </div>
-      </nav>
+      <!-- Sidebar content will be injected dynamically -->
     </aside>
 
     <!-- Main Content -->
@@ -340,6 +265,20 @@
               </tbody>
             </table>
           </div>
+          <!-- Pagination -->
+          <div id="pagination-container" style="display: flex; justify-content: space-between; align-items: center; padding: 16px; border-top: 1px solid #e5e7eb;">
+            <div id="pagination-info" style="font-size: 13px; color: #6b7280;">Showing 0 of 0 invoices</div>
+            <div id="pagination-controls" style="display: flex; gap: 8px; align-items: center;">
+              <button id="prev-page" class="btn btn-secondary" style="padding: 6px 12px; font-size: 13px;" disabled>Previous</button>
+              <span id="page-indicator" style="font-size: 13px; color: #374151;">Page 1 of 1</span>
+              <button id="next-page" class="btn btn-secondary" style="padding: 6px 12px; font-size: 13px;" disabled>Next</button>
+              <select id="page-size" style="padding: 6px 10px; border: 1px solid #ddd; border-radius: 6px; font-size: 13px;">
+                <option value="25">25 per page</option>
+                <option value="50">50 per page</option>
+                <option value="100">100 per page</option>
+              </select>
+            </div>
+          </div>
         </div>
       </div>
     </main>
@@ -347,21 +286,31 @@
 
   <!-- Invoice Detail Modal -->
   <div class="modal-overlay" id="invoice-modal">
-    <div class="modal" style="max-width: 700px;">
-      <div class="modal-header">
-        <h3 class="modal-title">Invoice Details</h3>
-        <button class="modal-close" onclick="Admin.Modal.hide('invoice-modal')">
-          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+    <div class="modal" style="max-width: 800px; border-radius: 16px; overflow: hidden;">
+      <div class="modal-header" style="background: linear-gradient(135deg, #8E6545 0%, #A67C52 100%); color: white; padding: 20px 24px; border: none;">
+        <div style="display: flex; align-items: center; gap: 12px;">
+          <svg width="28" height="28" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/>
+          </svg>
+          <h3 class="modal-title" style="color: white; margin: 0; font-size: 18px;">Invoice Details</h3>
+        </div>
+        <button class="modal-close" onclick="Admin.Modal.hide('invoice-modal')" style="color: white; opacity: 0.9;">
+          <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
           </svg>
         </button>
       </div>
-      <div class="modal-body" id="invoice-detail-content">
+      <div class="modal-body" id="invoice-detail-content" style="padding: 24px; max-height: 70vh; overflow-y: auto;">
         <!-- Content will be loaded dynamically -->
       </div>
-      <div class="modal-footer">
+      <div class="modal-footer" style="background: #f8f6f3; border-top: 1px solid #e8e4e0; padding: 16px 24px;">
         <button class="btn btn-secondary" onclick="Admin.Modal.hide('invoice-modal')">Close</button>
-        <button class="btn btn-primary" id="btn-print-invoice" onclick="printInvoice()">Print</button>
+        <button class="btn" style="background: #8E6545; color: white; border: none;" id="btn-print-invoice" onclick="printInvoice()">
+          <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="margin-right: 6px;">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/>
+          </svg>
+          Print Invoice
+        </button>
       </div>
     </div>
   </div>
@@ -460,15 +409,17 @@
     </div>
   </div>
 
-  <script src="js/admin.js"></script>
+  <script src="js/adminNavConfig.js?v=1737200002"></script>
+  <script src="js/admin.js?v=1737100001"></script>
   <script>
     // Require authentication
     if (!Admin.Auth.requireAuth()) {
       // Will redirect
     } else {
+      initFilters();
+      initPagination();
       loadInvoices();
       loadSummary();
-      initFilters();
     }
 
     let allInvoices = [];
@@ -476,6 +427,10 @@
     let currentInvoice = null;
     let currentDateFilter = 0; // 0 = all time, 1 = today, 7 = week, 30 = month, 90 = 3 months
     let currentProductTypeFilter = '';
+    let currentPage = 1;
+    let pageSize = 25;
+    let totalInvoices = 0;
+    let totalPages = 1;
 
     async function loadSummary() {
       try {
@@ -497,7 +452,25 @@
     async function loadInvoices() {
       try {
         const params = new URLSearchParams();
+        params.append('page', currentPage);
+        params.append('limit', pageSize);
+
         if (currentTypeFilter) params.append('type', currentTypeFilter);
+
+        const search = document.getElementById('search-input').value;
+        const status = document.getElementById('status-filter').value;
+        const orderNum = document.getElementById('order-filter').value;
+
+        if (search) params.append('search', search);
+        if (status) params.append('status', status);
+        if (orderNum) params.append('orderNumber', orderNum);
+
+        // Date filtering
+        if (currentDateFilter > 0) {
+          const startDate = new Date();
+          startDate.setDate(startDate.getDate() - currentDateFilter);
+          params.append('startDate', startDate.toISOString().split('T')[0]);
+        }
 
         const response = await fetch(`/api/admin/invoices?${params}`, {
           headers: { 'Authorization': `Bearer ${Admin.Auth.getToken()}` }
@@ -505,8 +478,12 @@
         const data = await response.json();
         if (data.success) {
           allInvoices = data.invoices || [];
+          totalInvoices = data.total || allInvoices.length;
+          totalPages = data.pages || 1;
+          currentPage = data.page || 1;
           populateOrderFilter(allInvoices);
           renderInvoices(allInvoices);
+          updatePagination();
         }
       } catch (error) {
         Admin.Toast.error('Failed to load invoices');
@@ -518,6 +495,47 @@
           </tr>
         `;
       }
+    }
+
+    function initPagination() {
+      const prevBtn = document.getElementById('prev-page');
+      const nextBtn = document.getElementById('next-page');
+      const pageSizeSelect = document.getElementById('page-size');
+
+      prevBtn.addEventListener('click', () => {
+        if (currentPage > 1) {
+          currentPage--;
+          loadInvoices();
+        }
+      });
+
+      nextBtn.addEventListener('click', () => {
+        if (currentPage < totalPages) {
+          currentPage++;
+          loadInvoices();
+        }
+      });
+
+      pageSizeSelect.addEventListener('change', () => {
+        pageSize = parseInt(pageSizeSelect.value);
+        currentPage = 1;
+        loadInvoices();
+      });
+    }
+
+    function updatePagination() {
+      const prevBtn = document.getElementById('prev-page');
+      const nextBtn = document.getElementById('next-page');
+      const pageIndicator = document.getElementById('page-indicator');
+      const paginationInfo = document.getElementById('pagination-info');
+
+      prevBtn.disabled = currentPage <= 1;
+      nextBtn.disabled = currentPage >= totalPages;
+      pageIndicator.textContent = `Page ${currentPage} of ${totalPages}`;
+
+      const start = (currentPage - 1) * pageSize + 1;
+      const end = Math.min(currentPage * pageSize, totalInvoices);
+      paginationInfo.textContent = `Showing ${totalInvoices > 0 ? start : 0}-${end} of ${totalInvoices} invoices`;
     }
 
     function renderInvoices(invoices) {
@@ -614,16 +632,30 @@
       const types = new Set();
       invoice.items.forEach(item => {
         let type = item.product_type || item.productType;
+
+        // Check configuration
         if (!type && item.configuration) {
           const cfg = parseConfig(item.configuration);
           type = cfg.productType || cfg.product_type;
         }
+
+        // Check productSlug
         if (!type && item.productSlug) {
           if (item.productSlug.includes('zebra')) type = 'zebra';
           else if (item.productSlug.includes('honeycomb') || item.productSlug.includes('cellular')) type = 'honeycomb';
           else if (item.productSlug.includes('roman')) type = 'roman';
           else if (item.productSlug.includes('roller')) type = 'roller';
         }
+
+        // Check product_name or productName
+        if (!type) {
+          const name = (item.product_name || item.productName || '').toLowerCase();
+          if (name.includes('zebra')) type = 'zebra';
+          else if (name.includes('honeycomb') || name.includes('cellular')) type = 'honeycomb';
+          else if (name.includes('roman')) type = 'roman';
+          else if (name.includes('roller')) type = 'roller';
+        }
+
         if (type) types.add(type);
       });
       if (types.size === 0) return 'unknown';
@@ -666,65 +698,10 @@
       const tabButtons = document.querySelectorAll('.tab-btn');
       const dateFilterBtns = document.querySelectorAll('.date-filter-btn');
 
-      // Helper to detect product type from invoice items
-      function getInvoiceProductType(invoice) {
-        if (!invoice.items || invoice.items.length === 0) return 'unknown';
-        const types = new Set();
-        invoice.items.forEach(item => {
-          let type = item.product_type || item.productType;
-          if (!type && item.configuration) {
-            const cfg = parseConfig(item.configuration);
-            type = cfg.productType || cfg.product_type;
-          }
-          if (!type && item.productSlug) {
-            if (item.productSlug.includes('zebra')) type = 'zebra';
-            else if (item.productSlug.includes('honeycomb') || item.productSlug.includes('cellular')) type = 'honeycomb';
-            else if (item.productSlug.includes('roman')) type = 'roman';
-            else type = 'roller';
-          }
-          if (type) types.add(type);
-        });
-        if (types.size === 0) return 'unknown';
-        if (types.size > 1) return 'mixed';
-        return [...types][0];
-      }
-
+      // Server-side filtering - reload from server with new params
       const applyFilters = Admin.Utils.debounce(() => {
-        const search = searchInput.value.toLowerCase();
-        const status = statusFilter.value;
-        const orderNum = orderFilter.value;
-        const productType = productTypeFilter.value;
-
-        const filtered = allInvoices.filter(i => {
-          // Search filter
-          const matchesSearch = !search ||
-            i.invoiceNumber.toLowerCase().includes(search) ||
-            (i.orderNumber && i.orderNumber.toLowerCase().includes(search)) ||
-            (i.customer?.name && i.customer.name.toLowerCase().includes(search));
-
-          // Status filter
-          const matchesStatus = !status || i.status === status;
-
-          // Order filter
-          const matchesOrder = !orderNum || i.orderNumber === orderNum;
-
-          // Product type filter
-          const invoiceProductType = getInvoiceProductType(i);
-          const matchesProductType = !productType || invoiceProductType === productType;
-
-          // Date filter
-          let matchesDate = true;
-          if (currentDateFilter > 0) {
-            const invoiceDate = new Date(i.invoiceGeneratedAt || i.createdAt || i.orderDate);
-            const cutoffDate = new Date();
-            cutoffDate.setDate(cutoffDate.getDate() - currentDateFilter);
-            matchesDate = invoiceDate >= cutoffDate;
-          }
-
-          return matchesSearch && matchesStatus && matchesOrder && matchesProductType && matchesDate;
-        });
-
-        renderInvoices(filtered);
+        currentPage = 1; // Reset to first page on filter change
+        loadInvoices();
       }, 300);
 
       searchInput.addEventListener('input', applyFilters);
@@ -751,6 +728,7 @@
           tabButtons.forEach(b => b.classList.remove('active'));
           btn.classList.add('active');
           currentTypeFilter = btn.dataset.type;
+          currentPage = 1;
           loadInvoices();
         });
       });
@@ -785,233 +763,347 @@
           const inv = data.invoice;
 
           document.getElementById('invoice-detail-content').innerHTML = `
-            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 24px;">
-              <div>
-                <h2 style="margin-bottom: 8px; font-size: 20px;">${Admin.Utils.escapeHtml(inv.invoiceNumber)}</h2>
-                <p style="color: var(--admin-text-secondary);">Order: ${Admin.Utils.escapeHtml(inv.orderNumber || '-')}</p>
+            <!-- Invoice Header Card -->
+            <div style="background: linear-gradient(135deg, #faf6f3 0%, #f5efe9 100%); border-radius: 12px; padding: 20px; margin-bottom: 24px; border-left: 4px solid #8E6545;">
+              <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 16px;">
+                <div>
+                  <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
+                    <h2 style="margin: 0; font-size: 24px; color: #8E6545; font-weight: 700;">${Admin.Utils.escapeHtml(inv.invoiceNumber)}</h2>
+                    <span class="badge badge-${inv.status}" style="font-size: 12px; padding: 4px 12px;">${formatStatus(inv.status)}</span>
+                  </div>
+                  <p style="color: #666; margin: 0; font-size: 14px;">
+                    <svg width="14" height="14" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="vertical-align: middle; margin-right: 4px;">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z"/>
+                    </svg>
+                    Order: <strong>${Admin.Utils.escapeHtml(inv.orderNumber || '-')}</strong>
+                  </p>
+                </div>
+                <div style="text-align: right;">
+                  <div style="margin-bottom: 10px;">
+                    <div style="font-size: 12px; color: #888; text-transform: uppercase; margin-bottom: 4px;">Product Type</div>
+                    ${getProductTypeBadge(getProductTypeFromInvoice(inv))}
+                  </div>
+                  <div>
+                    <div style="font-size: 12px; color: #888; text-transform: uppercase; margin-bottom: 4px;">Invoice Type</div>
+                    <span style="background: ${inv.type === 'customer' ? '#8E6545' : '#1e40af'}; color: white; padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 600;">
+                      ${inv.type === 'customer' ? 'Customer Invoice' : 'Manufacturer Invoice'}
+                    </span>
+                  </div>
+                </div>
               </div>
-              <span class="badge badge-${inv.status}" style="font-size: 14px;">${formatStatus(inv.status)}</span>
             </div>
 
-            <!-- Customer/Manufacturer Details Table -->
-            <h5 style="margin-bottom: 12px; font-size: 13px; text-transform: uppercase; color: var(--admin-text-secondary);">
-              ${inv.type === 'customer' ? 'Customer Details' : 'Manufacturer Details'}
-            </h5>
-            <table style="width: 100%; border-collapse: collapse; margin-bottom: 20px; border: 2px solid #1a1a2e;">
-              <thead>
-                <tr style="background: #1a1a2e; color: white;">
-                  <th style="padding: 10px; text-align: left; border: 1px solid #374151; width: 30%;">FIELD</th>
-                  <th style="padding: 10px; text-align: left; border: 1px solid #374151;">VALUE</th>
-                </tr>
-              </thead>
-              <tbody>
-                ${inv.type === 'customer' ? `
-                  <tr><td style="padding: 8px 10px; border: 1px solid #ddd; font-weight: 600; background: #f9fafb;">Name</td><td style="padding: 8px 10px; border: 1px solid #ddd;">${Admin.Utils.escapeHtml(inv.customer?.name || '-')}</td></tr>
-                  <tr><td style="padding: 8px 10px; border: 1px solid #ddd; font-weight: 600; background: #f9fafb;">Email</td><td style="padding: 8px 10px; border: 1px solid #ddd;">${Admin.Utils.escapeHtml(inv.customer?.email || '-')}</td></tr>
-                  <tr><td style="padding: 8px 10px; border: 1px solid #ddd; font-weight: 600; background: #f9fafb;">Phone</td><td style="padding: 8px 10px; border: 1px solid #ddd;">${Admin.Utils.escapeHtml(inv.customer?.phone || '-')}</td></tr>
-                  <tr><td style="padding: 8px 10px; border: 1px solid #ddd; font-weight: 600; background: #f9fafb;">Address</td><td style="padding: 8px 10px; border: 1px solid #ddd;">${Admin.Utils.escapeHtml(inv.customer?.address || '-')}</td></tr>
-                ` : `
-                  <tr><td style="padding: 8px 10px; border: 1px solid #ddd; font-weight: 600; background: #f9fafb;">Manufacturer</td><td style="padding: 8px 10px; border: 1px solid #ddd;">${Admin.Utils.escapeHtml(inv.manufacturer?.name || '-')}</td></tr>
-                  <tr><td style="padding: 8px 10px; border: 1px solid #ddd; font-weight: 600; background: #f9fafb;">Email</td><td style="padding: 8px 10px; border: 1px solid #ddd;">${Admin.Utils.escapeHtml(inv.manufacturer?.email || '-')}</td></tr>
-                `}
-                <tr><td style="padding: 8px 10px; border: 1px solid #ddd; font-weight: 600; background: #f9fafb;">Issue Date</td><td style="padding: 8px 10px; border: 1px solid #ddd;">${Admin.Utils.formatDate(inv.issueDate)}</td></tr>
-                <tr><td style="padding: 8px 10px; border: 1px solid #ddd; font-weight: 600; background: #f9fafb;">Due Date</td><td style="padding: 8px 10px; border: 1px solid #ddd;">${Admin.Utils.formatDate(inv.dueDate)}</td></tr>
-                <tr><td style="padding: 8px 10px; border: 1px solid #ddd; font-weight: 600; background: #f9fafb;">Type</td><td style="padding: 8px 10px; border: 1px solid #ddd;"><span class="badge badge-${inv.type}">${inv.type === 'customer' ? 'Customer Invoice' : 'Manufacturer Invoice'}</span></td></tr>
-              </tbody>
-            </table>
+            <!-- Customer/Manufacturer Details Card -->
+            <div style="background: white; border-radius: 12px; border: 1px solid #e8e4e0; margin-bottom: 24px; overflow: hidden;">
+              <div style="background: #8E6545; color: white; padding: 12px 16px; font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">
+                <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="vertical-align: middle; margin-right: 8px;">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"/>
+                </svg>
+                ${inv.type === 'customer' ? 'Customer Details' : 'Manufacturer Details'}
+              </div>
+              <div style="padding: 16px;">
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 16px;">
+                  ${inv.type === 'customer' ? `
+                    <div style="padding: 12px; background: #f9f7f5; border-radius: 8px;">
+                      <div style="font-size: 11px; color: #8E6545; text-transform: uppercase; margin-bottom: 4px; font-weight: 600;">Name</div>
+                      <div style="font-size: 15px; font-weight: 500; color: #333;">${Admin.Utils.escapeHtml(inv.customer?.name || '-')}</div>
+                    </div>
+                    <div style="padding: 12px; background: #f9f7f5; border-radius: 8px;">
+                      <div style="font-size: 11px; color: #8E6545; text-transform: uppercase; margin-bottom: 4px; font-weight: 600;">Email</div>
+                      <div style="font-size: 15px; font-weight: 500; color: #333;">${Admin.Utils.escapeHtml(inv.customer?.email || '-')}</div>
+                    </div>
+                    <div style="padding: 12px; background: #f9f7f5; border-radius: 8px;">
+                      <div style="font-size: 11px; color: #8E6545; text-transform: uppercase; margin-bottom: 4px; font-weight: 600;">Phone</div>
+                      <div style="font-size: 15px; font-weight: 500; color: #333;">${Admin.Utils.escapeHtml(inv.customer?.phone || '-')}</div>
+                    </div>
+                    <div style="padding: 12px; background: #f9f7f5; border-radius: 8px;">
+                      <div style="font-size: 11px; color: #8E6545; text-transform: uppercase; margin-bottom: 4px; font-weight: 600;">Address</div>
+                      <div style="font-size: 14px; font-weight: 500; color: #333;">${Admin.Utils.escapeHtml(inv.customer?.address || '-')}</div>
+                    </div>
+                  ` : `
+                    <div style="padding: 12px; background: #f9f7f5; border-radius: 8px;">
+                      <div style="font-size: 11px; color: #8E6545; text-transform: uppercase; margin-bottom: 4px; font-weight: 600;">Manufacturer</div>
+                      <div style="font-size: 15px; font-weight: 500; color: #333;">${Admin.Utils.escapeHtml(inv.manufacturer?.name || '-')}</div>
+                    </div>
+                    <div style="padding: 12px; background: #f9f7f5; border-radius: 8px;">
+                      <div style="font-size: 11px; color: #8E6545; text-transform: uppercase; margin-bottom: 4px; font-weight: 600;">Email</div>
+                      <div style="font-size: 15px; font-weight: 500; color: #333;">${Admin.Utils.escapeHtml(inv.manufacturer?.email || '-')}</div>
+                    </div>
+                  `}
+                  <div style="padding: 12px; background: #f9f7f5; border-radius: 8px;">
+                    <div style="font-size: 11px; color: #8E6545; text-transform: uppercase; margin-bottom: 4px; font-weight: 600;">Issue Date</div>
+                    <div style="font-size: 15px; font-weight: 500; color: #333;">${Admin.Utils.formatDate(inv.issueDate)}</div>
+                  </div>
+                  <div style="padding: 12px; background: #f9f7f5; border-radius: 8px;">
+                    <div style="font-size: 11px; color: #8E6545; text-transform: uppercase; margin-bottom: 4px; font-weight: 600;">Due Date</div>
+                    <div style="font-size: 15px; font-weight: 500; color: #333;">${Admin.Utils.formatDate(inv.dueDate)}</div>
+                  </div>
+                </div>
+              </div>
+            </div>
 
-            <!-- Order Items - Card Layout -->
-            <h5 style="margin-bottom: 12px; font-size: 13px; text-transform: uppercase; color: var(--admin-text-secondary);">Order Items (${inv.items?.length || 0} items)</h5>
-            <div style="margin-bottom: 24px;">
+            <!-- Order Items Section -->
+            <div style="background: white; border-radius: 12px; border: 1px solid #e8e4e0; margin-bottom: 24px; overflow: hidden;">
+              <div style="background: #8E6545; color: white; padding: 12px 16px; font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">
+                <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="vertical-align: middle; margin-right: 8px;">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>
+                </svg>
+                Order Items (${inv.items?.length || 0} items)
+              </div>
+              <div style="padding: 16px;">
               ${(inv.items || []).map((item, idx) => {
                 const cfg = parseConfig(item.configuration || item.options);
                 // Check if this is an accessory item
                 if (item.isAccessory) {
                   return `
-                  <div style="background: #eff6ff; border: 1px solid #dbeafe; border-radius: 8px; padding: 12px; margin-bottom: 12px;">
+                  <div style="background: linear-gradient(135deg, #faf6f3 0%, #f5efe9 100%); border: 1px solid #e8e4e0; border-radius: 10px; padding: 14px; margin-bottom: 12px;">
                     <div style="display: flex; justify-content: space-between; align-items: center;">
                       <div>
-                        <span style="background: #1e40af; color: white; padding: 2px 8px; border-radius: 4px; font-size: 10px; margin-right: 8px;">ACCESSORY</span>
-                        <span style="font-weight: 600; color: #1e40af;">${Admin.Utils.escapeHtml(item.description || 'Accessory')}</span>
-                        ${item.details ? '<span style="color: #6b7280; margin-left: 8px;">(' + Admin.Utils.escapeHtml(item.details) + ')</span>' : ''}
+                        <span style="background: #8E6545; color: white; padding: 3px 10px; border-radius: 12px; font-size: 10px; font-weight: 600; margin-right: 10px;">ACCESSORY</span>
+                        <span style="font-weight: 600; color: #8E6545;">${Admin.Utils.escapeHtml(item.description || 'Accessory')}</span>
+                        ${item.details ? '<span style="color: #888; margin-left: 8px; font-size: 13px;">(' + Admin.Utils.escapeHtml(item.details) + ')</span>' : ''}
                       </div>
                       <div style="text-align: right;">
-                        <div style="font-size: 11px; color: #6b7280;">Qty: ${item.quantity || 1}</div>
-                        <div style="font-size: 14px; font-weight: 700; color: #1e40af;">${Admin.Utils.formatCurrency(item.lineTotal || 0)}</div>
+                        <div style="font-size: 11px; color: #888;">Qty: ${item.quantity || 1}</div>
+                        <div style="font-size: 16px; font-weight: 700; color: #8E6545;">${Admin.Utils.formatCurrency(item.lineTotal || 0)}</div>
                       </div>
                     </div>
                   </div>`;
                 }
                 // Regular blind item - Card layout
                 return `
-                <div style="background: ${idx % 2 === 0 ? '#fff' : '#f9fafb'}; border: 2px solid #1a1a2e; border-radius: 8px; padding: 16px; margin-bottom: 12px;">
+                <div style="background: ${idx % 2 === 0 ? '#fff' : '#faf8f6'}; border: 2px solid #8E6545; border-radius: 12px; padding: 18px; margin-bottom: 14px;">
                   <!-- Header Row -->
-                  <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px solid #e5e7eb;">
+                  <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 14px; padding-bottom: 14px; border-bottom: 1px solid #e8e4e0;">
                     <div>
-                      <span style="background: #1a1a2e; color: white; padding: 2px 8px; border-radius: 4px; font-size: 10px; margin-right: 8px;">#${idx + 1}</span>
-                      <span style="font-weight: 600; color: #3b82f6; font-size: 14px;">${Admin.Utils.escapeHtml(item.roomLabel || item.room_label || 'Item ' + (idx + 1))}</span>
+                      <span style="background: #8E6545; color: white; padding: 4px 10px; border-radius: 12px; font-size: 11px; font-weight: 600; margin-right: 10px;">#${idx + 1}</span>
+                      <span style="font-weight: 600; color: #8E6545; font-size: 15px;">${Admin.Utils.escapeHtml(item.roomLabel || item.room_label || 'Item ' + (idx + 1))}</span>
                     </div>
                     <div style="text-align: right;">
-                      <div style="font-size: 12px; color: #6b7280;">Qty: <span style="font-weight: 700; color: #1a1a2e;">${item.quantity}</span></div>
-                      <div style="font-size: 16px; font-weight: 700; color: #065f46;">${Admin.Utils.formatCurrency(item.lineTotal)}</div>
+                      <div style="font-size: 12px; color: #888;">Qty: <span style="font-weight: 700; color: #333;">${item.quantity}</span></div>
+                      <div style="font-size: 18px; font-weight: 700; color: #065f46;">${Admin.Utils.formatCurrency(item.lineTotal)}</div>
                     </div>
                   </div>
 
                   <!-- Dimensions & Fabric -->
-                  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin-bottom: 12px;">
-                    <div style="background: #fef3c7; padding: 8px 12px; border-radius: 6px;">
-                      <div style="font-size: 10px; color: #92400e; text-transform: uppercase; margin-bottom: 2px;">Dimensions</div>
-                      <div style="font-size: 14px; font-weight: 700; color: #1a1a2e;">${item.width || '-'}" x ${item.height || '-'}"</div>
+                  <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 12px; margin-bottom: 14px;">
+                    <div style="background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); padding: 10px 14px; border-radius: 8px; border-left: 3px solid #f59e0b;">
+                      <div style="font-size: 10px; color: #92400e; text-transform: uppercase; margin-bottom: 4px; font-weight: 600;">Dimensions</div>
+                      <div style="font-size: 16px; font-weight: 700; color: #333;">${item.width || '-'}" x ${item.height || '-'}"</div>
                     </div>
-                    <div style="background: #dbeafe; padding: 8px 12px; border-radius: 6px;">
-                      <div style="font-size: 10px; color: #1e40af; text-transform: uppercase; margin-bottom: 2px;">Fabric Code</div>
-                      <div style="font-size: 14px; font-weight: 700; color: #1a1a2e;">${cfg.fabricCode || '-'}</div>
+                    <div style="background: linear-gradient(135deg, #e8d5c4 0%, #d4bfae 100%); padding: 10px 14px; border-radius: 8px; border-left: 3px solid #8E6545;">
+                      <div style="font-size: 10px; color: #6b4c3a; text-transform: uppercase; margin-bottom: 4px; font-weight: 600;">Fabric Code</div>
+                      <div style="font-size: 16px; font-weight: 700; color: #333;">${cfg.fabricCode || '-'}</div>
                     </div>
                     ${cfg.lightFiltering ? `
-                    <div style="background: #f3e8ff; padding: 8px 12px; border-radius: 6px;">
-                      <div style="font-size: 10px; color: #7c3aed; text-transform: uppercase; margin-bottom: 2px;">Light Filtering</div>
-                      <div style="font-size: 12px; font-weight: 600; color: #1a1a2e;">${cfg.lightFiltering}</div>
+                    <div style="background: linear-gradient(135deg, #f3e8ff 0%, #e9d5ff 100%); padding: 10px 14px; border-radius: 8px; border-left: 3px solid #9333ea;">
+                      <div style="font-size: 10px; color: #7c3aed; text-transform: uppercase; margin-bottom: 4px; font-weight: 600;">Light Filtering</div>
+                      <div style="font-size: 13px; font-weight: 600; color: #333;">${cfg.lightFiltering}</div>
                     </div>` : ''}
                   </div>
 
                   <!-- Configuration Details - 2 Column Grid -->
-                  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; font-size: 11px;">
-                    ${cfg.standardCassette ? `<div><span style="color: #6b7280;">Cassette:</span> <span style="font-weight: 500;">${cfg.standardCassette}</span></div>` : ''}
-                    ${cfg.standardBottomBar ? `<div><span style="color: #6b7280;">Bottom Bar:</span> <span style="font-weight: 500;">${cfg.standardBottomBar}</span></div>` : ''}
-                    ${cfg.valanceType ? `<div><span style="color: #6b7280;">Valance:</span> <span style="font-weight: 500;">${cfg.valanceType}</span></div>` : ''}
-                    ${cfg.bottomRail ? `<div><span style="color: #6b7280;">Bottom Rail:</span> <span style="font-weight: 500;">${cfg.bottomRail}</span></div>` : ''}
-                    ${cfg.rollerType ? `<div><span style="color: #6b7280;">Roll Type:</span> <span style="font-weight: 500;">${cfg.rollerType}</span></div>` : ''}
-                    ${cfg.mountType ? `<div><span style="color: #6b7280;">Mount:</span> <span style="font-weight: 500;">${cfg.mountType}</span></div>` : ''}
-                    ${cfg.chainSide ? `<div><span style="color: #6b7280;">Chain Side:</span> <span style="font-weight: 500;">${cfg.chainSide}</span></div>` : ''}
-                    ${cfg.controlType ? `<div><span style="color: #6b7280;">Control:</span> <span style="font-weight: 500;">${cfg.controlType}</span></div>` : ''}
-                    ${cfg.motorBrand || cfg.chainType ? `<div><span style="color: #6b7280;">Motor/Chain:</span> <span style="font-weight: 500;">${cfg.motorBrand || cfg.chainType}</span></div>` : ''}
-                    ${cfg.motorType ? `<div><span style="color: #6b7280;">Motor Type:</span> <span style="font-weight: 500;">${cfg.motorType}</span></div>` : ''}
-                    ${cfg.remoteType ? `<div><span style="color: #6b7280;">Remote:</span> <span style="font-weight: 500;">${cfg.remoteType}</span></div>` : ''}
-                    ${cfg.solarType === 'yes' ? `<div><span style="color: #6b7280;">Solar:</span> <span style="font-weight: 600; color: #065f46; background: #d1fae5; padding: 1px 6px; border-radius: 4px;">YES</span></div>` : ''}
+                  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 12px; background: #f9f7f5; padding: 12px; border-radius: 8px;">
+                    ${cfg.standardCassette ? `<div><span style="color: #888;">Cassette:</span> <span style="font-weight: 600; color: #333;">${cfg.standardCassette}</span></div>` : ''}
+                    ${cfg.standardBottomBar ? `<div><span style="color: #888;">Bottom Bar:</span> <span style="font-weight: 600; color: #333;">${cfg.standardBottomBar}</span></div>` : ''}
+                    ${cfg.valanceType ? `<div><span style="color: #888;">Valance:</span> <span style="font-weight: 600; color: #333;">${cfg.valanceType}</span></div>` : ''}
+                    ${cfg.bottomRail ? `<div><span style="color: #888;">Bottom Rail:</span> <span style="font-weight: 600; color: #333;">${cfg.bottomRail}</span></div>` : ''}
+                    ${cfg.rollerType ? `<div><span style="color: #888;">Roll Type:</span> <span style="font-weight: 600; color: #333;">${cfg.rollerType}</span></div>` : ''}
+                    ${cfg.mountType ? `<div><span style="color: #888;">Mount:</span> <span style="font-weight: 600; color: #333;">${cfg.mountType}</span></div>` : ''}
+                    ${cfg.chainSide ? `<div><span style="color: #888;">Chain Side:</span> <span style="font-weight: 600; color: #333;">${cfg.chainSide}</span></div>` : ''}
+                    ${cfg.controlType ? `<div><span style="color: #888;">Control:</span> <span style="font-weight: 600; color: #333;">${cfg.controlType}</span></div>` : ''}
+                    ${cfg.motorBrand || cfg.chainType ? `<div><span style="color: #888;">Motor/Chain:</span> <span style="font-weight: 600; color: #333;">${cfg.motorBrand || cfg.chainType}</span></div>` : ''}
+                    ${cfg.motorType ? `<div><span style="color: #888;">Motor Type:</span> <span style="font-weight: 600; color: #333;">${cfg.motorType}</span></div>` : ''}
+                    ${cfg.remoteType ? `<div><span style="color: #888;">Remote:</span> <span style="font-weight: 600; color: #333;">${cfg.remoteType}</span></div>` : ''}
+                    ${cfg.solarType === 'yes' ? `<div><span style="color: #888;">Solar:</span> <span style="font-weight: 600; color: #065f46; background: #d1fae5; padding: 2px 8px; border-radius: 4px;">YES</span></div>` : ''}
                   </div>
 
                   <!-- Unit Price -->
-                  <div style="margin-top: 12px; padding-top: 8px; border-top: 1px dashed #e5e7eb; text-align: right; font-size: 11px; color: #6b7280;">
-                    Unit Price: ${Admin.Utils.formatCurrency(item.unitPrice)}
+                  <div style="margin-top: 14px; padding-top: 10px; border-top: 1px dashed #e8e4e0; display: flex; justify-content: space-between; align-items: center;">
+                    <span style="font-size: 12px; color: #888;">Unit Price:</span>
+                    <span style="font-size: 15px; font-weight: 600; color: #8E6545;">${Admin.Utils.formatCurrency(item.unitPrice)}</span>
                   </div>
                 </div>`;
               }).join('')}
+              </div>
             </div>
 
-            <!-- Accessories Breakdown - Match Orders Page Format -->
-            ${(() => {
-              // Collect accessories from items - MATCH ORDERS PAGE FORMAT
-              const allAccessories = [];
-              (inv.items || []).forEach((item, idx) => {
+            <!-- Price Breakdown by Option Section -->
+            <div style="background: white; border-radius: 12px; border: 1px solid #e8e4e0; margin-bottom: 24px; overflow: hidden;">
+              <div style="background: #8E6545; color: white; padding: 12px 16px; font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">
+                <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="vertical-align: middle; margin-right: 8px;">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 7h6m0 10v-3m-3 3h.01M9 17h.01M9 14h.01M12 14h.01M15 11h.01M12 11h.01M9 11h.01M7 21h10a2 2 0 002-2V5a2 2 0 00-2-2H7a2 2 0 00-2 2v14a2 2 0 002 2z"/>
+                </svg>
+                Price Breakdown
+              </div>
+              <div style="padding: 16px;">
+              ${(inv.items || []).filter(item => !item.isAccessory).map((item, idx) => {
+                const snapshot = item.price_snapshots || item.price_snapshot || {};
+                const customerPrice = snapshot.customer_price || {};
+                const optionsBreakdown = customerPrice.options_breakdown || item.optionsBreakdown || [];
+                const accessoriesBreakdown = customerPrice.accessories_breakdown || item.accessoriesBreakdown || [];
+                const unitPrice = item.unitPrice || item.unit_price || 0;
+                const lineTotal = item.lineTotal || item.line_total || (unitPrice * item.quantity);
                 const cfg = parseConfig(item.configuration || item.options);
-                const accBreakdown = item.accessoriesBreakdown || [];
-                const unitPrice = item.unitPrice || 0;
-                const lineTotal = item.lineTotal || 0;
-                const quantity = item.quantity || 1;
-                // Calculate accessories total same way as orders page
-                const accessoriesTotal = lineTotal - (unitPrice * quantity);
 
-                // Check accessoriesBreakdown first (same as orders page)
-                if (accBreakdown.length > 0) {
-                  accBreakdown.forEach(acc => {
-                    allAccessories.push({
-                      roomLabel: item.roomLabel || item.room_label || 'Item ' + (idx + 1),
-                      name: acc.name,
-                      price: acc.price
-                    });
+                // Get fabric code from configuration
+                const fabricCode = cfg.fabricCode || '';
+
+                // Calculate base fabric price (unit price minus options and accessories)
+                let optionsTotal = 0;
+                optionsBreakdown.forEach(opt => { optionsTotal += opt.price || 0; });
+                let accessoriesTotal = 0;
+                accessoriesBreakdown.forEach(acc => { accessoriesTotal += acc.price || 0; });
+                const baseFabricPrice = unitPrice - optionsTotal - accessoriesTotal;
+
+                // Build pricing rows from configuration if no breakdown available
+                const pricingRows = [];
+
+                // Always add base fabric
+                pricingRows.push({ name: 'Base Fabric' + (fabricCode ? ' (' + fabricCode + ')' : ''), price: baseFabricPrice > 0 ? baseFabricPrice : unitPrice, category: 'fabric' });
+
+                // Add options from breakdown
+                if (optionsBreakdown.length > 0) {
+                  optionsBreakdown.forEach(opt => {
+                    pricingRows.push({ name: opt.name, price: opt.price || 0, category: 'option' });
                   });
-                } else if (accessoriesTotal > 0.01) {
-                  // Fallback: Show as combined line like orders page does
-                  allAccessories.push({
-                    roomLabel: item.roomLabel || item.room_label || 'Item ' + (idx + 1),
-                    name: 'Smart Hub + USB',
-                    price: accessoriesTotal
-                  });
+                } else {
+                  // Build from configuration if no breakdown
+                  if (cfg.standardCassette || cfg.valanceType) {
+                    pricingRows.push({ name: 'Cassette/Valance: ' + (cfg.standardCassette || cfg.valanceType), price: 0, category: 'option' });
+                  }
+                  if (cfg.standardBottomBar || cfg.bottomRail) {
+                    pricingRows.push({ name: 'Bottom Bar: ' + (cfg.standardBottomBar || cfg.bottomRail), price: 0, category: 'option' });
+                  }
+                  if (cfg.controlType === 'motorized') {
+                    if (cfg.motorBrand) pricingRows.push({ name: 'Motor: ' + cfg.motorBrand + (cfg.motorType ? ' ' + cfg.motorType : ''), price: 0, category: 'option' });
+                    if (cfg.remoteType) pricingRows.push({ name: 'Remote: ' + cfg.remoteType, price: 0, category: 'option' });
+                    if (cfg.solarType === 'yes') pricingRows.push({ name: 'Solar Panel', price: 0, category: 'option' });
+                  }
                 }
-              });
 
-              if (allAccessories.length === 0) return '';
+                // Add accessories from breakdown
+                if (accessoriesBreakdown.length > 0) {
+                  accessoriesBreakdown.forEach(acc => {
+                    pricingRows.push({ name: acc.name, price: acc.price || 0, category: 'accessory' });
+                  });
+                } else {
+                  // Build from configuration if no breakdown
+                  if (cfg.smartHubQty > 0) pricingRows.push({ name: 'Smart Hub (×' + cfg.smartHubQty + ')', price: 0, category: 'accessory' });
+                  if (cfg.usbChargerQty > 0) pricingRows.push({ name: 'USB Charger (×' + cfg.usbChargerQty + ')', price: 0, category: 'accessory' });
+                }
 
-              const totalAccessories = allAccessories.reduce((sum, a) => sum + (a.price || 0), 0);
+                return '<div style="background: #fff; border: 2px solid #e8e4e0; border-radius: 10px; margin-bottom: 16px; overflow: hidden;">' +
+                  '<!-- Item Header -->' +
+                  '<div style="display: flex; justify-content: space-between; align-items: center; padding: 12px 16px; background: linear-gradient(135deg, #8E6545 0%, #A67C5B 100%); color: white;">' +
+                    '<span style="font-weight: 600; font-size: 14px;">' + Admin.Utils.escapeHtml(item.roomLabel || item.room_label || 'Item ' + (idx + 1)) + ' (' + (item.width || '-') + '" × ' + (item.height || '-') + '")</span>' +
+                    '<span style="font-size: 12px; background: rgba(255,255,255,0.2); padding: 4px 12px; border-radius: 12px;">Qty: ' + item.quantity + '</span>' +
+                  '</div>' +
 
-              return '<h5 style="margin-bottom: 12px; font-size: 13px; text-transform: uppercase; color: var(--admin-text-secondary);">Accessories (per order)</h5>' +
-                '<div style="overflow-x: auto; margin-bottom: 24px;">' +
-                  '<table style="width: 100%; max-width: 500px; border-collapse: collapse; border: 2px solid #1a1a2e;">' +
+                  '<!-- Pricing Table -->' +
+                  '<table style="width: 100%; border-collapse: collapse;">' +
                     '<thead>' +
-                      '<tr style="background: #1a1a2e; color: white;">' +
-                        '<th style="padding: 8px 10px; text-align: left; font-size: 11px; border: 1px solid #374151;">ROOM</th>' +
-                        '<th style="padding: 8px 10px; text-align: left; font-size: 11px; border: 1px solid #374151;">ACCESSORY</th>' +
-                        '<th style="padding: 8px 10px; text-align: right; font-size: 11px; border: 1px solid #374151;">PRICE</th>' +
+                      '<tr style="background: #f8f9fa;">' +
+                        '<th style="padding: 10px 16px; text-align: left; font-size: 11px; font-weight: 600; color: #6b7280; text-transform: uppercase; border-bottom: 2px solid #e5e7eb;">Component</th>' +
+                        '<th style="padding: 10px 16px; text-align: right; font-size: 11px; font-weight: 600; color: #8E6545; text-transform: uppercase; border-bottom: 2px solid #e5e7eb;">Price</th>' +
                       '</tr>' +
                     '</thead>' +
                     '<tbody>' +
-                      allAccessories.map((acc, i) =>
-                        '<tr style="background: ' + (i % 2 === 0 ? '#fff' : '#f9fafb') + ';">' +
-                          '<td style="padding: 6px 10px; font-size: 11px; border: 1px solid #ddd; color: #3b82f6;">' + Admin.Utils.escapeHtml(acc.roomLabel) + '</td>' +
-                          '<td style="padding: 6px 10px; font-size: 11px; border: 1px solid #ddd;">' + Admin.Utils.escapeHtml(acc.name) + '</td>' +
-                          '<td style="padding: 6px 10px; font-size: 11px; border: 1px solid #ddd; text-align: right; font-weight: 600;">' + Admin.Utils.formatCurrency(acc.price) + '</td>' +
-                        '</tr>'
-                      ).join('') +
-                      '<tr style="background: #f3f4f6; font-weight: 600;">' +
-                        '<td colspan="2" style="padding: 8px 10px; font-size: 11px; border: 1px solid #ddd; text-align: right;">Accessories Total</td>' +
-                        '<td style="padding: 8px 10px; font-size: 11px; border: 1px solid #ddd; text-align: right; color: #059669;">' + Admin.Utils.formatCurrency(totalAccessories) + '</td>' +
+                      pricingRows.map((row, i) => {
+                        const isTotal = row.category === 'total';
+                        const isFabric = row.category === 'fabric';
+                        const bgColor = isTotal ? 'linear-gradient(135deg, #fdf8f5 0%, #fff 100%)' : (i % 2 === 0 ? '#fff' : '#faf8f6');
+                        return '<tr style="background: ' + bgColor + ';">' +
+                          '<td style="padding: ' + (isTotal ? '12px' : '10px') + ' 16px; border-bottom: 1px solid #e5e7eb; ' + (isTotal ? 'font-weight: 700; color: #8E6545; font-size: 14px;' : (isFabric ? 'font-weight: 600; color: #374151;' : 'color: #374151; padding-left: 32px;')) + '">' +
+                            (isFabric ? '<span style="display: flex; align-items: center; gap: 6px;"><span style="width: 8px; height: 8px; background: #8E6545; border-radius: 50%;"></span>' + Admin.Utils.escapeHtml(row.name) + '</span>' : Admin.Utils.escapeHtml(row.name)) +
+                          '</td>' +
+                          '<td style="padding: ' + (isTotal ? '12px' : '10px') + ' 16px; border-bottom: 1px solid #e5e7eb; text-align: right; ' + (isTotal ? 'font-weight: 700; font-size: 14px; color: #065f46;' : 'font-weight: 600; color: #065f46;') + '">' +
+                            (row.price > 0 ? '$' + row.price.toFixed(2) : (row.price === 0 && !isFabric ? '<span style="color: #9ca3af;">Included</span>' : '$' + row.price.toFixed(2))) +
+                          '</td>' +
+                        '</tr>';
+                      }).join('') +
+                      '<!-- UNIT TOTAL -->' +
+                      '<tr style="background: linear-gradient(135deg, #fdf8f5 0%, #fff 100%);">' +
+                        '<td style="padding: 12px 16px; font-weight: 700; color: #8E6545; font-size: 14px; border-top: 2px solid #8E6545;">UNIT PRICE</td>' +
+                        '<td style="padding: 12px 16px; text-align: right; font-weight: 700; font-size: 16px; color: #065f46; border-top: 2px solid #8E6545;">$' + unitPrice.toFixed(2) + '</td>' +
                       '</tr>' +
+                      (item.quantity > 1 ?
+                        '<tr style="background: #f0fdf4;">' +
+                          '<td style="padding: 10px 16px; font-weight: 600; color: #065f46; font-size: 13px;">LINE TOTAL (×' + item.quantity + ')</td>' +
+                          '<td style="padding: 10px 16px; text-align: right; font-weight: 700; font-size: 16px; color: #065f46;">$' + lineTotal.toFixed(2) + '</td>' +
+                        '</tr>' : '') +
                     '</tbody>' +
                   '</table>' +
                 '</div>';
-            })()}
+              }).join('')}
+              </div>
+            </div>
 
+            <!-- Price Summary Section -->
             <div style="display: flex; justify-content: flex-end; margin-bottom: 24px;">
-              <div style="width: 280px;">
-                <div style="display: flex; justify-content: space-between; padding: 8px 0;">
-                  <span>Subtotal</span>
-                  <span>${Admin.Utils.formatCurrency(inv.subtotal)}</span>
+              <div style="width: 320px; background: white; border-radius: 12px; border: 2px solid #8E6545; overflow: hidden;">
+                <div style="background: linear-gradient(135deg, #8E6545 0%, #A67C52 100%); color: white; padding: 12px 16px; font-size: 13px; font-weight: 600; text-transform: uppercase;">
+                  <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="vertical-align: middle; margin-right: 8px;">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                  </svg>
+                  Customer Price Summary
                 </div>
-                ${inv.tax > 0 || inv.taxState ? `
-                <div style="display: flex; justify-content: space-between; padding: 8px 0;">
-                  <span>Sales Tax ${inv.taxState ? `(${inv.taxState})` : ''} (${((inv.taxRate || 0) * 100).toFixed(2)}%)</span>
-                  <span>${Admin.Utils.formatCurrency(inv.tax || 0)}</span>
-                </div>
-                ${inv.taxNote ? `<div style="font-size: 11px; color: #6b7280; text-align: right; margin-top: -4px;">${inv.taxNote}</div>` : ''}
-                ` : ''}
-                ${inv.shipping > 0 ? `
-                <div style="display: flex; justify-content: space-between; padding: 8px 0;">
-                  <span>Shipping</span>
-                  <span>${Admin.Utils.formatCurrency(inv.shipping)}</span>
-                </div>
-                ` : ''}
-                ${inv.discount > 0 ? `
-                <div style="display: flex; justify-content: space-between; padding: 8px 0; color: #059669;">
-                  <span>Discount</span>
-                  <span>-${Admin.Utils.formatCurrency(inv.discount)}</span>
-                </div>
-                ` : ''}
-                <div style="display: flex; justify-content: space-between; padding: 12px 0; border-top: 2px solid var(--admin-border); font-weight: 600; font-size: 18px;">
-                  <span>Total</span>
-                  <span>${Admin.Utils.formatCurrency(inv.total)}</span>
-                </div>
-                <div style="display: flex; justify-content: space-between; padding: 8px 0;">
-                  <span>Amount Paid</span>
-                  <span style="color: #059669;">${Admin.Utils.formatCurrency(inv.amountPaid || 0)}</span>
-                </div>
-                <div style="display: flex; justify-content: space-between; padding: 8px 0; font-weight: 600; color: ${inv.amountDue > 0 ? '#dc2626' : '#059669'};">
-                  <span>Balance Due</span>
-                  <span>${Admin.Utils.formatCurrency(inv.amountDue || 0)}</span>
+                <div style="padding: 16px;">
+                  <div style="display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #f0ebe6;">
+                    <span style="color: #666;">Subtotal</span>
+                    <span style="font-weight: 600; color: #333;">${Admin.Utils.formatCurrency(inv.subtotal)}</span>
+                  </div>
+                  ${inv.tax > 0 || inv.taxState ? `
+                  <div style="display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #f0ebe6;">
+                    <span style="color: #666;">Sales Tax ${inv.taxState ? `(${inv.taxState})` : ''} <span style="font-size: 11px;">(${((inv.taxRate || 0) * 100).toFixed(2)}%)</span></span>
+                    <span style="font-weight: 600; color: #333;">${Admin.Utils.formatCurrency(inv.tax || 0)}</span>
+                  </div>
+                  ${inv.taxNote ? `<div style="font-size: 11px; color: #888; text-align: right; padding: 4px 0;">${inv.taxNote}</div>` : ''}
+                  ` : ''}
+                  ${inv.shipping > 0 ? `
+                  <div style="display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #f0ebe6;">
+                    <span style="color: #666;">Shipping</span>
+                    <span style="font-weight: 600; color: #333;">${Admin.Utils.formatCurrency(inv.shipping)}</span>
+                  </div>
+                  ` : ''}
+                  ${inv.discount > 0 ? `
+                  <div style="display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #f0ebe6;">
+                    <span style="color: #059669;">Discount</span>
+                    <span style="font-weight: 600; color: #059669;">-${Admin.Utils.formatCurrency(inv.discount)}</span>
+                  </div>
+                  ` : ''}
+                  <div style="display: flex; justify-content: space-between; padding: 14px 0; margin-top: 8px; background: linear-gradient(135deg, #faf6f3 0%, #f5efe9 100%); margin: 8px -16px 0; padding: 14px 16px; border-top: 2px solid #8E6545;">
+                    <span style="font-weight: 700; font-size: 16px; color: #8E6545;">TOTAL</span>
+                    <span style="font-weight: 700; font-size: 20px; color: #8E6545;">${Admin.Utils.formatCurrency(inv.total)}</span>
+                  </div>
+                  <div style="display: flex; justify-content: space-between; padding: 10px 0; margin-top: 12px;">
+                    <span style="color: #666;">Amount Paid</span>
+                    <span style="font-weight: 600; color: #059669;">${Admin.Utils.formatCurrency(inv.amountPaid || 0)}</span>
+                  </div>
+                  <div style="display: flex; justify-content: space-between; padding: 12px 16px; margin: 8px -16px -16px; background: ${inv.amountDue > 0 ? '#fef2f2' : '#f0fdf4'}; border-radius: 0 0 10px 10px;">
+                    <span style="font-weight: 700; color: ${inv.amountDue > 0 ? '#dc2626' : '#059669'};">Balance Due</span>
+                    <span style="font-weight: 700; font-size: 18px; color: ${inv.amountDue > 0 ? '#dc2626' : '#059669'};">${Admin.Utils.formatCurrency(inv.amountDue || 0)}</span>
+                  </div>
                 </div>
               </div>
             </div>
 
             ${inv.payments && inv.payments.length > 0 ? `
-            <div style="margin-bottom: 24px;">
-              <h5 style="margin-bottom: 12px; font-size: 13px; text-transform: uppercase; color: var(--admin-text-secondary);">Payment History</h5>
-              <div style="background: var(--admin-body-bg); padding: 16px; border-radius: 8px;">
+            <div style="background: white; border-radius: 12px; border: 1px solid #e8e4e0; margin-bottom: 24px; overflow: hidden;">
+              <div style="background: #8E6545; color: white; padding: 12px 16px; font-size: 13px; font-weight: 600; text-transform: uppercase;">
+                <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24" style="vertical-align: middle; margin-right: 8px;">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z"/>
+                </svg>
+                Payment History
+              </div>
+              <div style="padding: 16px;">
                 ${inv.payments.map(p => `
-                  <div class="payment-row">
+                  <div style="display: flex; justify-content: space-between; align-items: center; padding: 12px; background: #f9f7f5; border-radius: 8px; margin-bottom: 8px;">
                     <div>
-                      <p style="font-weight: 500;">${Admin.Utils.formatCurrency(p.amount)}</p>
-                      <p style="font-size: 13px; color: var(--admin-text-secondary);">${p.method} ${p.reference ? '- ' + Admin.Utils.escapeHtml(p.reference) : ''}</p>
+                      <p style="font-weight: 600; color: #059669; font-size: 16px; margin: 0;">${Admin.Utils.formatCurrency(p.amount)}</p>
+                      <p style="font-size: 12px; color: #888; margin: 4px 0 0;">${p.method} ${p.reference ? '- ' + Admin.Utils.escapeHtml(p.reference) : ''}</p>
                     </div>
-                    <span style="color: var(--admin-text-secondary); font-size: 13px;">${Admin.Utils.formatDateTime(p.recordedAt)}</span>
+                    <span style="color: #666; font-size: 12px;">${Admin.Utils.formatDateTime(p.recordedAt)}</span>
                   </div>
                 `).join('')}
               </div>
@@ -1019,9 +1111,9 @@
             ` : ''}
 
             ${inv.notes ? `
-            <div style="background: var(--admin-body-bg); padding: 16px; border-radius: 8px;">
-              <h5 style="margin-bottom: 8px; font-size: 13px; text-transform: uppercase; color: var(--admin-text-secondary);">Notes</h5>
-              <p>${Admin.Utils.escapeHtml(inv.notes)}</p>
+            <div style="background: linear-gradient(135deg, #faf6f3 0%, #f5efe9 100%); padding: 16px; border-radius: 12px; border-left: 4px solid #8E6545;">
+              <h5 style="margin: 0 0 8px; font-size: 12px; text-transform: uppercase; color: #8E6545; font-weight: 600;">Notes</h5>
+              <p style="margin: 0; color: #555; line-height: 1.5;">${Admin.Utils.escapeHtml(inv.notes)}</p>
             </div>
             ` : ''}
           `;

@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bulk Import/Export - Peekaboo Shades Admin</title>
+  <link rel="stylesheet" href="/admin/css/admin.css?v=1737200003.0.28">
+  <script src="/admin/js/admin.js?v=1737100001"></script>
+  <script src="/admin/js/adminNavConfig.js?v=1737200002"></script>
+  <style>
+    .import-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 1.5rem; margin-top: 1.5rem; }
+    .import-card { background: white; border-radius: 12px; padding: 2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+    .import-card h2 { margin: 0 0 0.5rem 0; font-size: 1.25rem; }
+    .import-card p { color: #666; margin: 0 0 1.5rem 0; }
+    .upload-zone { border: 2px dashed #ddd; border-radius: 12px; padding: 3rem 2rem; text-align: center; cursor: pointer; transition: all 0.2s; }
+    .upload-zone:hover { border-color: #8E6545; background: #faf8f6; }
+    .upload-zone.dragover { border-color: #8E6545; background: #faf8f6; }
+    .upload-icon { font-size: 3rem; margin-bottom: 1rem; }
+    .upload-zone h3 { margin: 0 0 0.5rem 0; }
+    .upload-zone p { margin: 0; color: #666; }
+    .file-input { display: none; }
+    .export-options { display: grid; gap: 0.75rem; margin-bottom: 1.5rem; }
+    .export-option { display: flex; align-items: center; gap: 0.75rem; padding: 1rem; background: #f9f9f9; border-radius: 8px; cursor: pointer; }
+    .export-option:hover { background: #f0f0f0; }
+    .export-option input[type="checkbox"] { width: 18px; height: 18px; }
+    .export-option label { cursor: pointer; flex: 1; }
+    .export-option .count { color: #666; font-size: 0.85rem; }
+    .btn-export { width: 100%; padding: 1rem; background: #8E6545; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 1rem; }
+    .btn-export:hover { background: #7a5539; }
+    .history-section { margin-top: 2rem; }
+    .history-section h3 { margin-bottom: 1rem; }
+    .history-list { display: grid; gap: 0.5rem; }
+    .history-item { display: flex; justify-content: space-between; align-items: center; padding: 1rem; background: #f9f9f9; border-radius: 8px; }
+    .history-item .info { display: flex; flex-direction: column; gap: 0.25rem; }
+    .history-item .filename { font-weight: 500; }
+    .history-item .meta { font-size: 0.85rem; color: #666; }
+    .history-item .status { padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.75rem; font-weight: 600; }
+    .status-success { background: #D1FAE5; color: #065F46; }
+    .status-failed { background: #FEE2E2; color: #991B1B; }
+    .status-processing { background: #DBEAFE; color: #1E40AF; }
+    .template-links { margin-top: 1rem; padding-top: 1rem; border-top: 1px solid #eee; }
+    .template-links a { color: #8E6545; text-decoration: none; margin-right: 1rem; font-size: 0.9rem; }
+    .template-links a:hover { text-decoration: underline; }
+    .progress-bar { height: 6px; background: #e0e0e0; border-radius: 3px; overflow: hidden; margin-top: 1rem; display: none; }
+    .progress-fill { height: 100%; background: #8E6545; width: 0%; transition: width 0.3s; }
+  </style>
+</head>
+<body>
+  <div class="admin-layout">
+    <aside class="admin-sidebar"></aside>
+    <main class="admin-main">
+      <header class="admin-header">
+        <h1>Bulk Import/Export</h1>
+      </header>
+      <div class="admin-content">
+        <div class="import-grid">
+          <div class="import-card">
+            <h2>Import Data</h2>
+            <p>Upload CSV or Excel files to bulk import products, fabrics, or customers.</p>
+            <div class="upload-zone" id="uploadZone" onclick="document.getElementById('fileInput').click()">
+              <div class="upload-icon">📁</div>
+              <h3>Drop files here or click to upload</h3>
+              <p>Supports CSV, XLS, XLSX (max 10MB)</p>
+            </div>
+            <input type="file" id="fileInput" class="file-input" accept=".csv,.xls,.xlsx" onchange="handleFileSelect(event)">
+            <div class="progress-bar" id="progressBar"><div class="progress-fill" id="progressFill"></div></div>
+            <div class="template-links">
+              <strong>Download Templates:</strong><br>
+              <a href="#" onclick="downloadTemplate('products')">Products Template</a>
+              <a href="#" onclick="downloadTemplate('fabrics')">Fabrics Template</a>
+              <a href="#" onclick="downloadTemplate('customers')">Customers Template</a>
+            </div>
+          </div>
+          <div class="import-card">
+            <h2>Export Data</h2>
+            <p>Download your data as CSV files for backup or editing.</p>
+            <div class="export-options">
+              <div class="export-option">
+                <input type="checkbox" id="exp-products" checked>
+                <label for="exp-products">Products</label>
+                <span class="count" id="count-products">Loading...</span>
+              </div>
+              <div class="export-option">
+                <input type="checkbox" id="exp-fabrics">
+                <label for="exp-fabrics">Fabrics</label>
+                <span class="count" id="count-fabrics">Loading...</span>
+              </div>
+              <div class="export-option">
+                <input type="checkbox" id="exp-customers">
+                <label for="exp-customers">Customers</label>
+                <span class="count" id="count-customers">Loading...</span>
+              </div>
+              <div class="export-option">
+                <input type="checkbox" id="exp-orders">
+                <label for="exp-orders">Orders</label>
+                <span class="count" id="count-orders">Loading...</span>
+              </div>
+              <div class="export-option">
+                <input type="checkbox" id="exp-categories">
+                <label for="exp-categories">Categories</label>
+                <span class="count" id="count-categories">Loading...</span>
+              </div>
+            </div>
+            <button class="btn-export" onclick="exportData()">Export Selected Data</button>
+          </div>
+        </div>
+        <div class="history-section">
+          <h3>Recent Import/Export History</h3>
+          <div class="history-list" id="historyList"></div>
+        </div>
+      </div>
+    </main>
+  </div>
+  <script>
+    let importHistory = [];
+    let dataCounts = { products: 0, fabrics: 0, customers: 0, orders: 0, categories: 0 };
+    let allData = { products: [], fabrics: [], customers: [], orders: [], categories: [] };
+
+    document.addEventListener('DOMContentLoaded', () => {
+      if (!localStorage.getItem('admin_token')) { window.location.href = '/admin/login.html'; return; }
+      AdminNavConfig.initSidebar('bulk-import');
+      loadCounts();
+      loadHistory();
+      setupDragDrop();
+    });
+
+    async function loadCounts() {
+      const token = localStorage.getItem('admin_token');
+      const headers = { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' };
+
+      try {
+        // Fetch all data counts in parallel
+        const [productsRes, fabricsRes, customersRes, ordersRes, categoriesRes] = await Promise.all([
+          fetch('/api/admin/products', { headers }),
+          fetch('/api/admin/fabrics', { headers }),
+          fetch('/api/admin/customers', { headers }),
+          fetch('/api/admin/orders', { headers }),
+          fetch('/api/admin/categories', { headers })
+        ]);
+
+        const [productsData, fabricsData, customersData, ordersData, categoriesData] = await Promise.all([
+          productsRes.json(),
+          fabricsRes.json(),
+          customersRes.json(),
+          ordersRes.json(),
+          categoriesRes.json()
+        ]);
+
+        // Store data for export
+        allData.products = productsData.products || productsData.data || [];
+        allData.fabrics = fabricsData.fabrics || fabricsData.data || [];
+        allData.customers = customersData.customers || customersData.data || [];
+        allData.orders = ordersData.orders || ordersData.data || [];
+        allData.categories = categoriesData.categories || categoriesData.data || [];
+
+        // Update counts
+        dataCounts.products = allData.products.length;
+        dataCounts.fabrics = allData.fabrics.length;
+        dataCounts.customers = allData.customers.length;
+        dataCounts.orders = allData.orders.length;
+        dataCounts.categories = allData.categories.length;
+
+        // Update UI
+        document.getElementById('count-products').textContent = `${dataCounts.products} items`;
+        document.getElementById('count-fabrics').textContent = `${dataCounts.fabrics} items`;
+        document.getElementById('count-customers').textContent = `${dataCounts.customers} items`;
+        document.getElementById('count-orders').textContent = `${dataCounts.orders} items`;
+        document.getElementById('count-categories').textContent = `${dataCounts.categories} items`;
+      } catch (error) {
+        console.error('Error loading counts:', error);
+        ['products', 'fabrics', 'customers', 'orders', 'categories'].forEach(type => {
+          document.getElementById(`count-${type}`).textContent = 'Error';
+        });
+      }
+    }
+
+    async function loadHistory() {
+      // Load from localStorage (or could be from backend)
+      const stored = localStorage.getItem('import_export_history');
+      if (stored) {
+        try {
+          importHistory = JSON.parse(stored);
+        } catch (e) {
+          importHistory = [];
+        }
+      }
+      renderHistory();
+    }
+
+    function saveHistory() {
+      localStorage.setItem('import_export_history', JSON.stringify(importHistory.slice(0, 20)));
+    }
+
+    function setupDragDrop() {
+      const zone = document.getElementById('uploadZone');
+      ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(e => {
+        zone.addEventListener(e, ev => { ev.preventDefault(); ev.stopPropagation(); });
+      });
+      zone.addEventListener('dragenter', () => zone.classList.add('dragover'));
+      zone.addEventListener('dragleave', () => zone.classList.remove('dragover'));
+      zone.addEventListener('drop', e => {
+        zone.classList.remove('dragover');
+        const files = e.dataTransfer.files;
+        if (files.length) processFile(files[0]);
+      });
+    }
+
+    function handleFileSelect(e) {
+      if (e.target.files.length) processFile(e.target.files[0]);
+    }
+
+    async function processFile(file) {
+      const validTypes = ['text/csv', 'application/vnd.ms-excel', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'];
+      if (!validTypes.includes(file.type) && !file.name.match(/\.(csv|xls|xlsx)$/i)) {
+        alert('Please upload a CSV or Excel file');
+        return;
+      }
+      if (file.size > 10 * 1024 * 1024) {
+        alert('File too large. Max 10MB allowed.');
+        return;
+      }
+
+      // Determine import type based on filename
+      const importType = file.name.toLowerCase().includes('fabric') ? 'fabrics' :
+                        file.name.toLowerCase().includes('product') ? 'products' :
+                        file.name.toLowerCase().includes('customer') ? 'customers' : 'fabrics';
+
+      const progressBar = document.getElementById('progressBar');
+      const progressFill = document.getElementById('progressFill');
+      progressBar.style.display = 'block';
+      progressFill.style.width = '0%';
+
+      const token = localStorage.getItem('admin_token');
+
+      try {
+        // Read CSV file
+        const text = await file.text();
+        const lines = text.split('\n').filter(l => l.trim());
+        const headers = lines[0].split(',').map(h => h.trim().replace(/"/g, ''));
+        const records = [];
+
+        for (let i = 1; i < lines.length; i++) {
+          const values = lines[i].split(',').map(v => v.trim().replace(/"/g, ''));
+          const record = {};
+          headers.forEach((h, idx) => record[h] = values[idx] || '');
+          records.push(record);
+          progressFill.style.width = ((i / lines.length) * 50) + '%';
+        }
+
+        // Call appropriate bulk upload API
+        let endpoint = '/api/admin/fabrics/bulk-upload';
+        if (importType === 'products') {
+          // Products don't have bulk upload, add them one by one
+          let imported = 0;
+          for (const record of records) {
+            try {
+              await fetch('/api/admin/products', {
+                method: 'POST',
+                headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+                body: JSON.stringify(record)
+              });
+              imported++;
+            } catch (e) {}
+            progressFill.style.width = (50 + (imported / records.length) * 50) + '%';
+          }
+          progressBar.style.display = 'none';
+          importHistory.unshift({
+            id: Date.now(), type: 'import', filename: file.name,
+            records: imported, date: new Date().toLocaleString(), status: 'success'
+          });
+          saveHistory();
+          renderHistory();
+          loadCounts();
+          alert(`Import complete! ${imported} products imported.`);
+        } else if (importType === 'fabrics') {
+          const res = await fetch(endpoint, {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+            body: JSON.stringify({ fabrics: records })
+          });
+          const result = await res.json();
+          progressBar.style.display = 'none';
+
+          if (result.success) {
+            importHistory.unshift({
+              id: Date.now(), type: 'import', filename: file.name,
+              records: result.imported || records.length, date: new Date().toLocaleString(), status: 'success'
+            });
+            alert(`Import complete! ${result.imported || records.length} fabrics imported.`);
+          } else {
+            importHistory.unshift({
+              id: Date.now(), type: 'import', filename: file.name,
+              records: 0, date: new Date().toLocaleString(), status: 'failed'
+            });
+            alert('Import failed: ' + (result.error || 'Unknown error'));
+          }
+          saveHistory();
+          renderHistory();
+          loadCounts();
+        } else {
+          progressBar.style.display = 'none';
+          alert('Import type not supported for bulk upload. Please use the individual management pages.');
+        }
+      } catch (error) {
+        progressBar.style.display = 'none';
+        console.error('Import error:', error);
+        importHistory.unshift({
+          id: Date.now(), type: 'import', filename: file.name,
+          records: 0, date: new Date().toLocaleString(), status: 'failed'
+        });
+        saveHistory();
+        renderHistory();
+        alert('Error processing file: ' + error.message);
+      }
+    }
+
+    async function exportData() {
+      const selected = [];
+      if (document.getElementById('exp-products').checked) selected.push('products');
+      if (document.getElementById('exp-fabrics').checked) selected.push('fabrics');
+      if (document.getElementById('exp-customers').checked) selected.push('customers');
+      if (document.getElementById('exp-orders').checked) selected.push('orders');
+      if (document.getElementById('exp-categories').checked) selected.push('categories');
+
+      if (selected.length === 0) {
+        alert('Please select at least one data type to export');
+        return;
+      }
+
+      try {
+        let totalRecords = 0;
+        const csvFiles = [];
+
+        for (const type of selected) {
+          const data = allData[type];
+          if (data.length === 0) continue;
+
+          // Convert to CSV
+          const headers = Object.keys(data[0]);
+          const csvRows = [headers.join(',')];
+          data.forEach(item => {
+            const values = headers.map(h => {
+              let val = item[h];
+              if (val === null || val === undefined) val = '';
+              if (typeof val === 'object') val = JSON.stringify(val);
+              if (typeof val === 'string' && (val.includes(',') || val.includes('"'))) {
+                val = '"' + val.replace(/"/g, '""') + '"';
+              }
+              return val;
+            });
+            csvRows.push(values.join(','));
+          });
+
+          const csv = csvRows.join('\n');
+          const filename = `${type}-export-${new Date().toISOString().split('T')[0]}.csv`;
+
+          // Download file
+          const blob = new Blob([csv], { type: 'text/csv' });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = filename;
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          URL.revokeObjectURL(url);
+
+          totalRecords += data.length;
+          csvFiles.push(filename);
+        }
+
+        // Add to history
+        importHistory.unshift({
+          id: Date.now(), type: 'export',
+          filename: csvFiles.join(', '),
+          records: totalRecords,
+          date: new Date().toLocaleString(),
+          status: 'success'
+        });
+        saveHistory();
+        renderHistory();
+        alert(`Export complete! ${totalRecords} records exported.`);
+      } catch (error) {
+        console.error('Export error:', error);
+        alert('Error exporting data: ' + error.message);
+      }
+    }
+
+    function downloadTemplate(type) {
+      let headers, sampleData;
+
+      if (type === 'products') {
+        headers = ['name', 'slug', 'category_id', 'description', 'is_active', 'is_featured'];
+        sampleData = ['Sample Roller Shade', 'sample-roller-shade', '1', 'A beautiful roller shade', 'true', 'false'];
+      } else if (type === 'fabrics') {
+        headers = ['name', 'code', 'color', 'filterType', 'pricePerSqMeter', 'swatchImage', 'isActive'];
+        sampleData = ['Arctic White', 'AW001', '#FFFFFF', 'blackout', '25.00', '/images/fabrics/arctic-white.jpg', 'true'];
+      } else if (type === 'customers') {
+        headers = ['email', 'firstName', 'lastName', 'phone', 'company', 'street', 'city', 'state', 'zip'];
+        sampleData = ['john@example.com', 'John', 'Doe', '555-1234', 'Acme Inc', '123 Main St', 'Austin', 'TX', '78701'];
+      }
+
+      const csv = [headers.join(','), sampleData.join(',')].join('\n');
+      const blob = new Blob([csv], { type: 'text/csv' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `${type}-template.csv`;
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+    }
+
+    function renderHistory() {
+      const historyEl = document.getElementById('historyList');
+      if (importHistory.length === 0) {
+        historyEl.innerHTML = '<div class="history-item"><div class="info"><span class="meta">No import/export history yet.</span></div></div>';
+        return;
+      }
+      historyEl.innerHTML = importHistory.map(h => `
+        <div class="history-item">
+          <div class="info">
+            <span class="filename">${h.type === 'import' ? '📥' : '📤'} ${h.filename}</span>
+            <span class="meta">${h.records} records • ${h.date}</span>
+          </div>
+          <span class="status status-${h.status}">${h.status}</span>
+        </div>
+      `).join('');
+    }
+  </script>
+</body>
+</html>

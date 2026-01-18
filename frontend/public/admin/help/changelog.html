@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Changelog - Peekaboo Shades Admin</title>
+  <link rel="stylesheet" href="/admin/css/admin.css?v=1737200003.0.28">
+  <script src="/admin/js/adminNavConfig.js?v=1737200002"></script>
+  <style>
+    .changelog-container { max-width: 800px; margin: 1.5rem auto 0; }
+    .release { background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); margin-bottom: 1.5rem; }
+    .release-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; padding-bottom: 1rem; border-bottom: 1px solid #eee; }
+    .release-header h3 { margin: 0; }
+    .release-date { color: #666; font-size: 0.9rem; }
+    .change-type { font-weight: 600; margin: 1rem 0 0.5rem 0; display: flex; align-items: center; gap: 0.5rem; }
+    .change-type.new { color: #10B981; }
+    .change-type.improved { color: #3B82F6; }
+    .change-type.fixed { color: #F59E0B; }
+    .changes-list { margin: 0; padding-left: 1.5rem; color: #666; }
+    .changes-list li { margin-bottom: 0.25rem; }
+    .version-badge { padding: 0.25rem 0.75rem; background: #8E6545; color: white; border-radius: 4px; font-size: 0.85rem; }
+  </style>
+</head>
+<body>
+  <div class="admin-layout">
+    <aside class="admin-sidebar"></aside>
+    <main class="admin-main">
+      <header class="admin-header"><h1>Changelog</h1></header>
+      <div class="admin-content">
+        <div class="changelog-container">
+          <div class="release">
+            <div class="release-header">
+              <h3><span class="version-badge">v1.0.28</span> Latest Release</h3>
+              <span class="release-date">January 16, 2024</span>
+            </div>
+            <div class="change-type new">✨ New Features</div>
+            <ul class="changes-list">
+              <li>Complete admin panel with 90+ pages</li>
+              <li>Enhanced pricing engine with fabric tiers</li>
+              <li>Sample request management system</li>
+              <li>Trade/dealer program management</li>
+            </ul>
+            <div class="change-type improved">💪 Improvements</div>
+            <ul class="changes-list">
+              <li>Improved order management workflow</li>
+              <li>Enhanced customer analytics</li>
+              <li>Better mobile responsive design</li>
+            </ul>
+            <div class="change-type fixed">🐛 Bug Fixes</div>
+            <ul class="changes-list">
+              <li>Fixed pricing calculation for large dimensions</li>
+              <li>Resolved invoice generation issues</li>
+            </ul>
+          </div>
+          <div class="release">
+            <div class="release-header">
+              <h3><span class="version-badge">v1.0.27</span></h3>
+              <span class="release-date">January 10, 2024</span>
+            </div>
+            <div class="change-type new">✨ New Features</div>
+            <ul class="changes-list">
+              <li>Added zebra blind pricing support</li>
+              <li>Motorized shade configuration options</li>
+            </ul>
+            <div class="change-type fixed">🐛 Bug Fixes</div>
+            <ul class="changes-list">
+              <li>Fixed cart calculation errors</li>
+              <li>Resolved checkout flow issues</li>
+            </ul>
+          </div>
+          <div class="release">
+            <div class="release-header">
+              <h3><span class="version-badge">v1.0.26</span></h3>
+              <span class="release-date">January 5, 2024</span>
+            </div>
+            <div class="change-type new">✨ New Features</div>
+            <ul class="changes-list">
+              <li>Initial admin panel release</li>
+              <li>Product and fabric management</li>
+              <li>Order processing system</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      if (!localStorage.getItem('admin_token')) { window.location.href = '/admin/login.html'; return; }
+      AdminNavConfig.initSidebar('changelog');
+    });
+  </script>
+</body>
+</html>

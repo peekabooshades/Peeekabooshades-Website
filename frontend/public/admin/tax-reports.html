@@ -1,0 +1,492 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tax Reports - Peekaboo Shades Admin</title>
+  <link rel="stylesheet" href="/admin/css/admin.css?v=1737200003.0.28">
+  <style>
+    .tax-grid { display: grid; grid-template-columns: 1fr 350px; gap: 1.5rem; margin-top: 1.5rem; }
+    .tax-card { background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+    .tax-card h3 { margin: 0 0 1rem 0; font-size: 1.1rem; color: #333; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { padding: 0.75rem; text-align: left; border-bottom: 1px solid #eee; }
+    th { font-weight: 600; color: #666; font-size: 0.85rem; background: #f9f9f9; position: sticky; top: 0; }
+    .btn-export { padding: 0.5rem 1rem; background: #8E6545; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 0.85rem; }
+    .btn-export:hover { background: #7a5639; }
+    .summary-row { display: flex; justify-content: space-between; padding: 0.75rem 0; border-bottom: 1px solid #eee; }
+    .summary-row:last-child { border-bottom: none; }
+    .summary-row .label { color: #666; }
+    .summary-row .value { font-weight: 600; color: #333; }
+    .filters { display: flex; gap: 1rem; margin-bottom: 1.5rem; flex-wrap: wrap; align-items: center; }
+    .filters select { padding: 0.5rem 1rem; border: 1px solid #ddd; border-radius: 6px; font-size: 14px; }
+    .table-scroll { max-height: 500px; overflow-y: auto; }
+    .loading { text-align: center; padding: 2rem; color: #666; }
+    .tax-rate-badge { background: #E0E7FF; color: #3730A3; padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.8rem; }
+    tfoot tr { background: #f0f0f0; font-weight: 600; }
+    tfoot td { border-top: 2px solid #ddd; }
+    .info-note { background: #fef3c7; border-radius: 8px; padding: 12px 16px; margin-bottom: 1.5rem; font-size: 13px; color: #92400e; display: flex; align-items: center; gap: 10px; }
+    .info-note svg { flex-shrink: 0; }
+    .state-orders { font-size: 12px; color: #666; }
+    .no-data { text-align: center; padding: 40px; color: #666; }
+    .no-data svg { width: 48px; height: 48px; color: #ccc; margin-bottom: 12px; }
+    @media (max-width: 1024px) {
+      .tax-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="admin-layout">
+    <aside class="admin-sidebar"></aside>
+    <main class="admin-main">
+      <header class="admin-header">
+        <div>
+          <h1 style="margin: 0;">Tax Reports</h1>
+          <p style="margin: 4px 0 0 0; font-size: 0.85rem; color: #666;">View sales tax collected by state from actual orders</p>
+        </div>
+        <div class="header-actions">
+          <button class="btn-export" onclick="exportReport()">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="vertical-align: middle; margin-right: 4px;">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+            Export CSV
+          </button>
+        </div>
+      </header>
+      <div class="admin-content">
+        <div class="info-note">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+          </svg>
+          <span>This report shows <strong>actual tax collected</strong> from orders, not calculated estimates. Tax rates shown are effective rates based on what was charged.</span>
+        </div>
+
+        <div class="filters">
+          <select id="yearFilter" onchange="loadTaxReport()"></select>
+          <select id="quarterFilter" onchange="loadTaxReport()">
+            <option value="all">All Quarters</option>
+            <option value="Q1">Q1 (Jan-Mar)</option>
+            <option value="Q2">Q2 (Apr-Jun)</option>
+            <option value="Q3">Q3 (Jul-Sep)</option>
+            <option value="Q4">Q4 (Oct-Dec)</option>
+          </select>
+          <select id="stateFilter" onchange="filterByState()">
+            <option value="all">All States</option>
+          </select>
+        </div>
+
+        <div class="tax-grid">
+          <div class="tax-card">
+            <h3>Tax Collected by State</h3>
+            <div class="loading" id="loadingState">Loading tax data from orders...</div>
+            <div class="table-scroll" id="tableContainer" style="display: none;">
+              <table>
+                <thead>
+                  <tr>
+                    <th>State</th>
+                    <th>Orders</th>
+                    <th>Taxable Sales</th>
+                    <th>Effective Rate</th>
+                    <th>Tax Collected</th>
+                  </tr>
+                </thead>
+                <tbody id="taxTableBody"></tbody>
+                <tfoot id="taxTableFoot"></tfoot>
+              </table>
+            </div>
+            <div class="no-data" id="noDataState" style="display: none;">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+              <p>No orders found for this period</p>
+            </div>
+          </div>
+          <div>
+            <div class="tax-card">
+              <h3>Tax Summary</h3>
+              <div class="summary-row"><span class="label">Total Orders</span><span class="value" id="totalOrders">0</span></div>
+              <div class="summary-row"><span class="label">Total Sales</span><span class="value" id="totalSales">$0</span></div>
+              <div class="summary-row"><span class="label">Taxable Sales</span><span class="value" id="taxableSales">$0</span></div>
+              <div class="summary-row"><span class="label">Tax Exempt Sales</span><span class="value" id="exemptSales">$0</span></div>
+              <div class="summary-row" style="background: #f0f9ff; margin: 0 -1.5rem; padding: 0.75rem 1.5rem;">
+                <span class="label" style="color: #0369a1; font-weight: 600;">Total Tax Collected</span>
+                <span class="value" style="color: #0369a1; font-size: 1.1rem;" id="totalTax">$0</span>
+              </div>
+            </div>
+            <div class="tax-card" style="margin-top: 1rem;">
+              <h3>Quarterly Breakdown</h3>
+              <div id="quarterlyBreakdown"></div>
+            </div>
+            <div class="tax-card" style="margin-top: 1rem;">
+              <h3>Top States by Tax</h3>
+              <div id="topStates"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="js/adminNavConfig.js?v=1737200002"></script>
+  <script src="js/admin.js?v=1737100001"></script>
+  <script>
+    // State name lookup
+    const stateNames = {
+      'AL': 'Alabama', 'AK': 'Alaska', 'AZ': 'Arizona', 'AR': 'Arkansas', 'CA': 'California',
+      'CO': 'Colorado', 'CT': 'Connecticut', 'DE': 'Delaware', 'FL': 'Florida', 'GA': 'Georgia',
+      'HI': 'Hawaii', 'ID': 'Idaho', 'IL': 'Illinois', 'IN': 'Indiana', 'IA': 'Iowa',
+      'KS': 'Kansas', 'KY': 'Kentucky', 'LA': 'Louisiana', 'ME': 'Maine', 'MD': 'Maryland',
+      'MA': 'Massachusetts', 'MI': 'Michigan', 'MN': 'Minnesota', 'MS': 'Mississippi', 'MO': 'Missouri',
+      'MT': 'Montana', 'NE': 'Nebraska', 'NV': 'Nevada', 'NH': 'New Hampshire', 'NJ': 'New Jersey',
+      'NM': 'New Mexico', 'NY': 'New York', 'NC': 'North Carolina', 'ND': 'North Dakota', 'OH': 'Ohio',
+      'OK': 'Oklahoma', 'OR': 'Oregon', 'PA': 'Pennsylvania', 'RI': 'Rhode Island', 'SC': 'South Carolina',
+      'SD': 'South Dakota', 'TN': 'Tennessee', 'TX': 'Texas', 'UT': 'Utah', 'VT': 'Vermont',
+      'VA': 'Virginia', 'WA': 'Washington', 'WV': 'West Virginia', 'WI': 'Wisconsin', 'WY': 'Wyoming',
+      'DC': 'District of Columbia'
+    };
+
+    let taxData = [];
+    let orders = [];
+    let currentFilter = 'all';
+
+    document.addEventListener('DOMContentLoaded', () => {
+      if (!localStorage.getItem('admin_token')) {
+        window.location.href = '/admin/login.html';
+        return;
+      }
+      AdminNavConfig.initSidebar('tax-reports');
+      initFilters();
+      loadTaxReport();
+    });
+
+    function initFilters() {
+      // Year filter - last 5 years
+      const yearSelect = document.getElementById('yearFilter');
+      const currentYear = new Date().getFullYear();
+      for (let y = currentYear; y >= currentYear - 4; y--) {
+        yearSelect.innerHTML += `<option value="${y}">${y}</option>`;
+      }
+
+      // State filter
+      const stateSelect = document.getElementById('stateFilter');
+      Object.entries(stateNames).sort((a, b) => a[1].localeCompare(b[1])).forEach(([code, name]) => {
+        stateSelect.innerHTML += `<option value="${code}">${name}</option>`;
+      });
+    }
+
+    async function loadTaxReport() {
+      const token = localStorage.getItem('admin_token');
+      const headers = { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' };
+      const year = document.getElementById('yearFilter').value;
+      const quarter = document.getElementById('quarterFilter').value;
+
+      document.getElementById('loadingState').style.display = 'block';
+      document.getElementById('tableContainer').style.display = 'none';
+      document.getElementById('noDataState').style.display = 'none';
+
+      try {
+        // Load all orders for the year
+        const res = await fetch(`/api/admin/orders?limit=1000`, { headers });
+        const data = await res.json();
+
+        if (data.success) {
+          // Filter orders by year
+          orders = (data.orders || []).filter(o => {
+            const orderDate = new Date(o.created_at || o.createdAt);
+            return orderDate.getFullYear() === parseInt(year);
+          });
+
+          // Filter by quarter if specified
+          if (quarter !== 'all') {
+            const quarterRanges = { 'Q1': [0, 2], 'Q2': [3, 5], 'Q3': [6, 8], 'Q4': [9, 11] };
+            const [startMonth, endMonth] = quarterRanges[quarter];
+            orders = orders.filter(o => {
+              const month = new Date(o.created_at || o.createdAt).getMonth();
+              return month >= startMonth && month <= endMonth;
+            });
+          }
+
+          calculateTaxData();
+        } else {
+          orders = [];
+          calculateTaxData();
+        }
+      } catch (error) {
+        console.error('Error loading tax report:', error);
+        orders = [];
+        calculateTaxData();
+      }
+
+      document.getElementById('loadingState').style.display = 'none';
+
+      if (orders.length > 0) {
+        document.getElementById('tableContainer').style.display = 'block';
+      } else {
+        document.getElementById('noDataState').style.display = 'block';
+      }
+    }
+
+    function calculateTaxData() {
+      // Initialize state data map
+      const stateMap = {};
+
+      // Process each order - use ACTUAL tax from order, not calculated
+      orders.forEach(order => {
+        // Get state - try multiple field paths including taxState and address parsing
+        let state = order.taxState ||  // Invoice service stores state here
+                    order.shipping?.state ||
+                    order.shippingAddress?.state ||
+                    order.shipping_address?.state ||
+                    order.customer?.address?.state ||
+                    order.billing?.state ||
+                    null;
+
+        // If no direct state field, try to extract from address strings
+        if (!state) {
+          const addressString = order.shipping_address || order.shippingAddress ||
+                               order.customer?.address || order.billingAddress || '';
+          if (typeof addressString === 'string') {
+            state = extractStateFromAddress(addressString);
+          }
+        }
+
+        if (!state) return; // Skip orders without state
+
+        // Normalize state code
+        const stateCode = state.length === 2 ? state.toUpperCase() : getStateCode(state);
+        if (!stateCode) return;
+
+        // Get ACTUAL values from order - don't recalculate
+        const subtotal = parseFloat(order.pricing?.subtotal || order.subtotal || 0);
+        const actualTax = parseFloat(order.pricing?.tax || order.tax || order.taxAmount || 0);
+        const isExempt = order.taxExempt || order.tax_exempt || actualTax === 0;
+
+        if (!stateMap[stateCode]) {
+          stateMap[stateCode] = {
+            stateCode,
+            stateName: stateNames[stateCode] || stateCode,
+            orders: 0,
+            taxableSales: 0,
+            taxExemptSales: 0,
+            taxCollected: 0
+          };
+        }
+
+        stateMap[stateCode].orders++;
+
+        if (isExempt) {
+          stateMap[stateCode].taxExemptSales += subtotal;
+        } else {
+          stateMap[stateCode].taxableSales += subtotal;
+          stateMap[stateCode].taxCollected += actualTax;
+        }
+      });
+
+      // Convert to array
+      taxData = Object.values(stateMap);
+
+      // Calculate effective tax rate for each state
+      taxData.forEach(state => {
+        state.effectiveRate = state.taxableSales > 0
+          ? (state.taxCollected / state.taxableSales * 100)
+          : 0;
+      });
+
+      renderTaxTable();
+      updateSummary();
+      updateQuarterlyBreakdown();
+      updateTopStates();
+    }
+
+    function getStateCode(stateName) {
+      if (!stateName) return null;
+      const entry = Object.entries(stateNames).find(([code, name]) =>
+        name.toLowerCase() === stateName.toLowerCase()
+      );
+      return entry ? entry[0] : null;
+    }
+
+    // Extract state code from address string like "205 Blue Jasmine Trl, Georgetown, TX 78628, US"
+    function extractStateFromAddress(address) {
+      if (!address || typeof address !== 'string') return null;
+      const upperAddress = address.toUpperCase();
+      const stateAbbreviations = Object.keys(stateNames);
+
+      // Try state + zip pattern (e.g., "TX 78628" or "TX, 78628")
+      const stateZipRegex = /\b([A-Z]{2})\s*,?\s*(\d{5}(-\d{4})?)\b/;
+      const stateZipMatch = upperAddress.match(stateZipRegex);
+      if (stateZipMatch && stateAbbreviations.includes(stateZipMatch[1])) {
+        return stateZipMatch[1];
+      }
+
+      // Try comma + state pattern (e.g., ", TX")
+      const commaStateRegex = /,\s*([A-Z]{2})\b/g;
+      let match;
+      while ((match = commaStateRegex.exec(upperAddress)) !== null) {
+        if (stateAbbreviations.includes(match[1])) {
+          return match[1];
+        }
+      }
+
+      // Try full state name
+      for (const [code, name] of Object.entries(stateNames)) {
+        if (upperAddress.includes(name.toUpperCase())) {
+          return code;
+        }
+      }
+
+      return null;
+    }
+
+    function filterByState() {
+      currentFilter = document.getElementById('stateFilter').value;
+      renderTaxTable();
+    }
+
+    function renderTaxTable() {
+      let filtered = taxData;
+      if (currentFilter !== 'all') {
+        filtered = taxData.filter(s => s.stateCode === currentFilter);
+      }
+
+      // Sort by tax collected descending
+      const sorted = [...filtered].sort((a, b) => b.taxCollected - a.taxCollected);
+
+      const tbody = document.getElementById('taxTableBody');
+
+      if (sorted.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="5" style="text-align: center; color: #666; padding: 20px;">No data for selected filters</td></tr>`;
+        document.getElementById('taxTableFoot').innerHTML = '';
+        return;
+      }
+
+      tbody.innerHTML = sorted.map(state => `
+        <tr>
+          <td>
+            <strong>${state.stateName}</strong>
+            <span style="color: #888; font-size: 12px;"> (${state.stateCode})</span>
+          </td>
+          <td><span class="state-orders">${state.orders}</span></td>
+          <td>$${state.taxableSales.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+          <td><span class="tax-rate-badge">${state.effectiveRate.toFixed(2)}%</span></td>
+          <td style="font-weight: 600; color: ${state.taxCollected > 0 ? '#166534' : '#666'};">
+            $${state.taxCollected.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}
+          </td>
+        </tr>
+      `).join('');
+
+      // Footer totals
+      const totalOrders = sorted.reduce((sum, s) => sum + s.orders, 0);
+      const totalSales = sorted.reduce((sum, s) => sum + s.taxableSales, 0);
+      const totalTax = sorted.reduce((sum, s) => sum + s.taxCollected, 0);
+      const avgRate = totalSales > 0 ? (totalTax / totalSales * 100) : 0;
+
+      document.getElementById('taxTableFoot').innerHTML = `
+        <tr>
+          <td><strong>Total (${sorted.length} state${sorted.length !== 1 ? 's' : ''})</strong></td>
+          <td><strong>${totalOrders}</strong></td>
+          <td><strong>$${totalSales.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong></td>
+          <td><span class="tax-rate-badge">${avgRate.toFixed(2)}%</span></td>
+          <td><strong style="color: #166534;">$${totalTax.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong></td>
+        </tr>
+      `;
+    }
+
+    function updateSummary() {
+      const totalOrderCount = orders.length;
+      const totalSales = orders.reduce((sum, o) => sum + parseFloat(o.pricing?.total || o.total || 0), 0);
+      const taxableSales = taxData.reduce((sum, s) => sum + s.taxableSales, 0);
+      const exemptSales = taxData.reduce((sum, s) => sum + s.taxExemptSales, 0);
+      const totalTax = taxData.reduce((sum, s) => sum + s.taxCollected, 0);
+
+      document.getElementById('totalOrders').textContent = totalOrderCount.toLocaleString();
+      document.getElementById('totalSales').textContent = '$' + totalSales.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      document.getElementById('taxableSales').textContent = '$' + taxableSales.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      document.getElementById('exemptSales').textContent = '$' + exemptSales.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      document.getElementById('totalTax').textContent = '$' + totalTax.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+    }
+
+    function updateQuarterlyBreakdown() {
+      const year = document.getElementById('yearFilter').value;
+      const quarters = ['Q1', 'Q2', 'Q3', 'Q4'];
+      const quarterRanges = { 'Q1': [0, 2], 'Q2': [3, 5], 'Q3': [6, 8], 'Q4': [9, 11] };
+
+      // Get all orders for the year (not just filtered)
+      const token = localStorage.getItem('admin_token');
+      fetch(`/api/admin/orders?limit=1000`, {
+        headers: { 'Authorization': `Bearer ${token}` }
+      }).then(res => res.json()).then(data => {
+        const yearOrders = (data.orders || []).filter(o => {
+          const orderDate = new Date(o.created_at || o.createdAt);
+          return orderDate.getFullYear() === parseInt(year);
+        });
+
+        const quarterlyData = quarters.map(q => {
+          const [startMonth, endMonth] = quarterRanges[q];
+          const quarterOrders = yearOrders.filter(o => {
+            const month = new Date(o.created_at || o.createdAt).getMonth();
+            return month >= startMonth && month <= endMonth;
+          });
+          const tax = quarterOrders.reduce((sum, o) => sum + parseFloat(o.pricing?.tax || o.tax || 0), 0);
+          const orders = quarterOrders.length;
+          return { quarter: q, tax, orders };
+        });
+
+        document.getElementById('quarterlyBreakdown').innerHTML = quarterlyData.map(q => `
+          <div class="summary-row">
+            <span class="label">${q.quarter} ${year} <span style="color: #999; font-size: 11px;">(${q.orders} orders)</span></span>
+            <span class="value">$${q.tax.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+          </div>
+        `).join('');
+      });
+    }
+
+    function updateTopStates() {
+      const top5 = [...taxData].sort((a, b) => b.taxCollected - a.taxCollected).slice(0, 5);
+
+      if (top5.length === 0) {
+        document.getElementById('topStates').innerHTML = '<p style="color: #666; font-size: 13px;">No data available</p>';
+        return;
+      }
+
+      document.getElementById('topStates').innerHTML = top5.map((state, i) => `
+        <div class="summary-row">
+          <span class="label">
+            <span style="display: inline-block; width: 20px; color: #999;">${i + 1}.</span>
+            ${state.stateName}
+          </span>
+          <span class="value">$${state.taxCollected.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+        </div>
+      `).join('');
+    }
+
+    function exportReport() {
+      const year = document.getElementById('yearFilter').value;
+      const quarter = document.getElementById('quarterFilter').value;
+
+      let csv = 'State,State Code,Orders,Taxable Sales,Effective Tax Rate,Tax Collected\n';
+      taxData
+        .filter(s => currentFilter === 'all' || s.stateCode === currentFilter)
+        .sort((a, b) => b.taxCollected - a.taxCollected)
+        .forEach(state => {
+          csv += `"${state.stateName}",${state.stateCode},${state.orders},${state.taxableSales.toFixed(2)},${state.effectiveRate.toFixed(2)}%,${state.taxCollected.toFixed(2)}\n`;
+        });
+
+      // Add totals row
+      const totalOrders = taxData.reduce((sum, s) => sum + s.orders, 0);
+      const totalSales = taxData.reduce((sum, s) => sum + s.taxableSales, 0);
+      const totalTax = taxData.reduce((sum, s) => sum + s.taxCollected, 0);
+      const avgRate = totalSales > 0 ? (totalTax / totalSales * 100) : 0;
+      csv += `\n"TOTAL",--,${totalOrders},${totalSales.toFixed(2)},${avgRate.toFixed(2)}%,${totalTax.toFixed(2)}\n`;
+
+      const blob = new Blob([csv], { type: 'text/csv' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `tax-report-${year}-${quarter}.csv`;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+  </script>
+</body>
+</html>

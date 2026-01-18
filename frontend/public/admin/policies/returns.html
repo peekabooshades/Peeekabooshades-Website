@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Return Policy - Peekaboo Shades Admin</title>
+  <link rel="stylesheet" href="/admin/css/admin.css?v=1737200003.0.28">
+  <script src="/admin/js/adminNavConfig.js?v=1737200002"></script>
+  <style>
+    .policy-editor { display: grid; grid-template-columns: 250px 1fr; gap: 1.5rem; margin-top: 1.5rem; }
+    .policy-nav { background: white; border-radius: 12px; padding: 1rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); height: fit-content; }
+    .nav-item { display: block; padding: 0.75rem 1rem; border-radius: 6px; cursor: pointer; margin-bottom: 0.25rem; }
+    .nav-item:hover { background: #f5f5f5; }
+    .nav-item.active { background: #8E6545; color: white; }
+    .editor-container { background: white; border-radius: 12px; padding: 2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+    .editor-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
+    .editor-toolbar { display: flex; gap: 0.25rem; padding: 0.75rem; border: 1px solid #ddd; border-bottom: none; border-radius: 8px 8px 0 0; background: #f9f9f9; }
+    .toolbar-btn { padding: 0.5rem 0.75rem; background: white; border: 1px solid #ddd; border-radius: 4px; cursor: pointer; }
+    .toolbar-btn:hover { background: #f0f0f0; }
+    .editor-content { border: 1px solid #ddd; border-radius: 0 0 8px 8px; min-height: 400px; padding: 1rem; outline: none; }
+    .btn-save { padding: 0.75rem 2rem; background: #8E6545; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; }
+    .btn-preview { padding: 0.75rem 1.5rem; background: #E5E7EB; color: #374151; border: none; border-radius: 8px; cursor: pointer; margin-right: 0.5rem; }
+    .last-updated { color: #666; font-size: 0.85rem; }
+  </style>
+</head>
+<body>
+  <div class="admin-layout">
+    <aside class="admin-sidebar"></aside>
+    <main class="admin-main">
+      <header class="admin-header">
+        <h1>Return Policy</h1>
+        <div class="header-actions">
+          <button class="btn-preview" onclick="previewPolicy()">Preview</button>
+          <button class="btn-save" onclick="savePolicy()">Save Changes</button>
+        </div>
+      </header>
+      <div class="admin-content">
+        <div class="policy-editor">
+          <nav class="policy-nav">
+            <div class="nav-item active" onclick="loadSection('overview')">Overview</div>
+            <div class="nav-item" onclick="loadSection('eligibility')">Eligibility</div>
+            <div class="nav-item" onclick="loadSection('process')">Return Process</div>
+            <div class="nav-item" onclick="loadSection('refunds')">Refunds</div>
+            <div class="nav-item" onclick="loadSection('exceptions')">Exceptions</div>
+            <div class="nav-item" onclick="loadSection('contact')">Contact Info</div>
+          </nav>
+          <div class="editor-container">
+            <div class="editor-header">
+              <h2 id="sectionTitle">Overview</h2>
+              <span class="last-updated">Last updated: Jan 10, 2024</span>
+            </div>
+            <div class="editor-toolbar">
+              <button class="toolbar-btn" onclick="execCmd('bold')"><b>B</b></button>
+              <button class="toolbar-btn" onclick="execCmd('italic')"><i>I</i></button>
+              <button class="toolbar-btn" onclick="execCmd('underline')"><u>U</u></button>
+              <button class="toolbar-btn" onclick="execCmd('insertUnorderedList')">• List</button>
+              <button class="toolbar-btn" onclick="execCmd('insertOrderedList')">1. List</button>
+            </div>
+            <div class="editor-content" id="editorContent" contenteditable="true">
+              <h3>Return Policy Overview</h3>
+              <p>At Peekaboo Shades, we want you to be completely satisfied with your purchase. Because our window treatments are custom-made to your specifications, we have specific guidelines for returns and exchanges.</p>
+              <h4>Return Window</h4>
+              <p>Returns must be initiated within <strong>30 days</strong> of delivery for most products.</p>
+              <h4>Custom Products</h4>
+              <p>Due to the custom nature of our products, returns are only accepted for:</p>
+              <ul>
+                <li>Manufacturing defects</li>
+                <li>Incorrect measurements (if we measured)</li>
+                <li>Damage during shipping</li>
+                <li>Wrong product delivered</li>
+              </ul>
+              <p>Products made to customer-provided measurements are not eligible for return due to sizing issues.</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      if (!localStorage.getItem('admin_token')) { window.location.href = '/admin/login.html'; return; }
+      AdminNavConfig.initSidebar('return-policy');
+    });
+    function loadSection(section) {
+      document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+      event.target.classList.add('active');
+      document.getElementById('sectionTitle').textContent = section.charAt(0).toUpperCase() + section.slice(1);
+    }
+    function execCmd(command) { document.execCommand(command, false, null); }
+    function previewPolicy() { window.open('/policies/returns', '_blank'); }
+    function savePolicy() { alert('Return policy saved successfully!'); }
+  </script>
+</body>
+</html>

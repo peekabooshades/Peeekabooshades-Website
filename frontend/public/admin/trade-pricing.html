@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Trade Pricing Tiers - Peekaboo Shades Admin</title>
+  <link rel="stylesheet" href="/admin/css/admin.css?v=1737200003.0.28">
+  <script src="/admin/js/admin.js?v=1737100001"></script>
+  <script src="/admin/js/adminNavConfig.js?v=1737200002"></script>
+  <style>
+    .pricing-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.5rem; margin-top: 1.5rem; }
+    .tier-card { background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+    .tier-header { padding: 1.5rem; text-align: center; color: white; }
+    .tier-header.bronze { background: linear-gradient(135deg, #CD7F32, #A0522D); }
+    .tier-header.silver { background: linear-gradient(135deg, #C0C0C0, #808080); }
+    .tier-header.gold { background: linear-gradient(135deg, #FFD700, #DAA520); }
+    .tier-header h3 { margin: 0; font-size: 1.5rem; }
+    .tier-header .discount { font-size: 2.5rem; font-weight: 700; margin: 0.5rem 0; }
+    .tier-content { padding: 1.5rem; }
+    .tier-content ul { list-style: none; padding: 0; margin: 0; }
+    .tier-content li { padding: 0.75rem 0; border-bottom: 1px solid #eee; display: flex; align-items: center; gap: 0.5rem; }
+    .tier-content li:last-child { border-bottom: none; }
+    .tier-content li svg { width: 20px; height: 20px; color: #10B981; }
+    .btn-edit { width: 100%; padding: 0.75rem; background: #8E6545; color: white; border: none; border-radius: 8px; cursor: pointer; margin-top: 1rem; }
+    .settings-card { background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); margin-top: 1.5rem; }
+    .settings-card h3 { margin: 0 0 1rem 0; }
+    .form-row { display: flex; gap: 1rem; margin-bottom: 1rem; }
+    .form-group { flex: 1; }
+    .form-group label { display: block; margin-bottom: 0.5rem; font-weight: 500; }
+    .form-group input, .form-group select { width: 100%; padding: 0.5rem; border: 1px solid #ddd; border-radius: 6px; }
+    .btn-primary { padding: 0.75rem 1.5rem; background: #8E6545; color: white; border: none; border-radius: 8px; cursor: pointer; }
+    table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
+    th, td { padding: 0.75rem; text-align: left; border-bottom: 1px solid #eee; }
+    th { font-weight: 600; color: #666; }
+  </style>
+</head>
+<body>
+  <div class="admin-layout">
+    <aside class="admin-sidebar"></aside>
+    <main class="admin-main">
+      <header class="admin-header">
+        <h1>Trade Pricing Tiers</h1>
+        <div class="header-actions"><button class="btn-primary" onclick="addTier()">+ Add Tier</button></div>
+      </header>
+      <div class="admin-content">
+        <div class="pricing-grid">
+          <div class="tier-card">
+            <div class="tier-header bronze">
+              <h3>Bronze</h3>
+              <div class="discount">15% Off</div>
+              <p style="margin: 0; opacity: 0.9;">Entry Level Trade</p>
+            </div>
+            <div class="tier-content">
+              <ul>
+                <li><svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg> $0 - $5,000 annual purchases</li>
+                <li><svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg> Net 15 payment terms</li>
+                <li><svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg> Standard shipping rates</li>
+                <li><svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg> Email support</li>
+              </ul>
+              <button class="btn-edit" onclick="editTier('bronze')">Edit Tier</button>
+            </div>
+          </div>
+          <div class="tier-card">
+            <div class="tier-header silver">
+              <h3>Silver</h3>
+              <div class="discount">25% Off</div>
+              <p style="margin: 0; opacity: 0.9;">Professional Trade</p>
+            </div>
+            <div class="tier-content">
+              <ul>
+                <li><svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg> $5,000 - $25,000 annual purchases</li>
+                <li><svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg> Net 30 payment terms</li>
+                <li><svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg> Discounted shipping</li>
+                <li><svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg> Priority phone support</li>
+              </ul>
+              <button class="btn-edit" onclick="editTier('silver')">Edit Tier</button>
+            </div>
+          </div>
+          <div class="tier-card">
+            <div class="tier-header gold">
+              <h3>Gold</h3>
+              <div class="discount">35% Off</div>
+              <p style="margin: 0; opacity: 0.9;">Elite Trade Partner</p>
+            </div>
+            <div class="tier-content">
+              <ul>
+                <li><svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg> $25,000+ annual purchases</li>
+                <li><svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg> Net 45 payment terms</li>
+                <li><svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg> Free shipping on orders $500+</li>
+                <li><svg fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"/></svg> Dedicated account manager</li>
+              </ul>
+              <button class="btn-edit" onclick="editTier('gold')">Edit Tier</button>
+            </div>
+          </div>
+        </div>
+        <div class="settings-card">
+          <h3>Trade Members by Tier</h3>
+          <div id="loadingDealers" style="text-align: center; padding: 2rem; color: #666;">Loading dealers...</div>
+          <table id="dealersTable" style="display: none;">
+            <thead>
+              <tr><th>Company</th><th>Contact</th><th>Tier</th><th>YTD Purchases</th><th>Status</th><th>Actions</th></tr>
+            </thead>
+            <tbody id="dealersTableBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </main>
+  </div>
+  <script>
+    let dealers = [];
+    const TIER_COLORS = { bronze: '#A0522D', silver: '#808080', gold: '#DAA520' };
+    const TIER_DISCOUNTS = { bronze: 15, silver: 25, gold: 35 };
+
+    document.addEventListener('DOMContentLoaded', () => {
+      if (!localStorage.getItem('admin_token')) { window.location.href = '/admin/login.html'; return; }
+      AdminNavConfig.initSidebar('trade-pricing');
+      loadDealers();
+    });
+
+    async function loadDealers() {
+      const token = localStorage.getItem('admin_token');
+      const headers = { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' };
+
+      try {
+        const res = await fetch('/api/admin/dealers', { headers });
+        const data = await res.json();
+
+        if (data.success) {
+          dealers = data.dealers || [];
+          renderDealersTable();
+        } else {
+          document.getElementById('loadingDealers').textContent = 'Failed to load dealers';
+        }
+      } catch (error) {
+        console.error('Error loading dealers:', error);
+        document.getElementById('loadingDealers').textContent = 'Error loading dealers. Please refresh.';
+      }
+    }
+
+    function renderDealersTable() {
+      const loading = document.getElementById('loadingDealers');
+      const table = document.getElementById('dealersTable');
+      const tbody = document.getElementById('dealersTableBody');
+
+      if (dealers.length === 0) {
+        loading.textContent = 'No dealers found. Click "Add Tier" to create your first dealer.';
+        return;
+      }
+
+      loading.style.display = 'none';
+      table.style.display = 'table';
+
+      tbody.innerHTML = dealers.map(d => {
+        const tier = d.tier || 'bronze';
+        const tierColor = TIER_COLORS[tier] || '#A0522D';
+        const revenue = d.totalRevenue || 0;
+        const status = d.status || 'active';
+
+        return `
+          <tr>
+            <td>${d.companyName || 'N/A'}</td>
+            <td>${d.contactName || d.email || 'N/A'}</td>
+            <td><span style="color: ${tierColor}; font-weight: 600; text-transform: capitalize;">${tier}</span></td>
+            <td>$${revenue.toLocaleString()}</td>
+            <td><span class="status-badge status-${status}">${status}</span></td>
+            <td>
+              <button class="btn-action" onclick="editDealer('${d.id}')" style="padding: 0.25rem 0.5rem; background: #8E6545; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 0.8rem;">Edit</button>
+            </td>
+          </tr>
+        `;
+      }).join('');
+
+      // Update tier summary counts
+      updateTierCounts();
+    }
+
+    function updateTierCounts() {
+      const bronzeCount = dealers.filter(d => (d.tier || 'bronze') === 'bronze').length;
+      const silverCount = dealers.filter(d => d.tier === 'silver').length;
+      const goldCount = dealers.filter(d => d.tier === 'gold').length;
+
+      // Could add counts to tier cards if needed
+    }
+
+    async function editDealer(dealerId) {
+      const dealer = dealers.find(d => d.id === dealerId);
+      if (!dealer) return;
+
+      const newTier = prompt(`Change tier for ${dealer.companyName}?\nCurrent: ${dealer.tier || 'bronze'}\nOptions: bronze, silver, gold`, dealer.tier || 'bronze');
+      if (!newTier || !['bronze', 'silver', 'gold'].includes(newTier.toLowerCase())) return;
+
+      const token = localStorage.getItem('admin_token');
+      const headers = { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' };
+
+      try {
+        const res = await fetch(`/api/admin/dealers/${dealerId}`, {
+          method: 'PUT',
+          headers,
+          body: JSON.stringify({ tier: newTier.toLowerCase() })
+        });
+        const data = await res.json();
+
+        if (data.success) {
+          alert('Dealer tier updated successfully!');
+          loadDealers();
+        } else {
+          alert('Failed to update dealer: ' + (data.error || 'Unknown error'));
+        }
+      } catch (error) {
+        console.error('Error updating dealer:', error);
+        alert('Error updating dealer. Please try again.');
+      }
+    }
+
+    function editTier(tier) {
+      const discount = prompt(`Edit ${tier} tier discount percentage:`, TIER_DISCOUNTS[tier]);
+      if (discount && !isNaN(discount)) {
+        alert(`Tier discount changes require backend configuration update.\nNew discount: ${discount}%`);
+      }
+    }
+
+    async function addTier() {
+      // Open a form to create new dealer
+      const companyName = prompt('Company Name:');
+      if (!companyName) return;
+
+      const contactName = prompt('Contact Name:');
+      const email = prompt('Email:');
+      if (!email) {
+        alert('Email is required');
+        return;
+      }
+
+      const phone = prompt('Phone (optional):');
+
+      const token = localStorage.getItem('admin_token');
+      const headers = { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' };
+
+      try {
+        const res = await fetch('/api/admin/dealers', {
+          method: 'POST',
+          headers,
+          body: JSON.stringify({ companyName, contactName, email, phone })
+        });
+        const data = await res.json();
+
+        if (data.success) {
+          alert('Dealer created successfully!');
+          loadDealers();
+        } else {
+          alert('Failed to create dealer: ' + (data.error || 'Unknown error'));
+        }
+      } catch (error) {
+        console.error('Error creating dealer:', error);
+        alert('Error creating dealer. Please try again.');
+      }
+    }
+  </script>
+</body>
+</html>

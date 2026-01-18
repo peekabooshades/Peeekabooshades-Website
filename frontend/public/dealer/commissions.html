@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Commissions - Dealer Portal</title>
-  <link rel="icon" type="image/png" href="/images/favicon.png">
+  <link rel="icon" type="image/jpeg" href="/images/peekabooshades_logo.jpeg">
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -473,8 +473,50 @@
       }
     }
 
-    function exportCommissions() {
-      alert('CSV export coming soon!');
+    async function exportCommissions() {
+      const days = document.getElementById('filter-period').value;
+      let url = '/api/dealer/commissions';
+      if (days) url += `?days=${days}`;
+
+      try {
+        const response = await fetch(url, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const result = await response.json();
+
+        if (result.success && result.data.history?.length > 0) {
+          // Create CSV content
+          const headers = ['Date', 'Order Number', 'Customer', 'Order Total', 'Commission', 'Status'];
+          const rows = result.data.history.map(item => [
+            formatDate(item.date),
+            item.orderNumber || item.orderId,
+            item.customerName || 'N/A',
+            formatCurrency(item.orderTotal),
+            formatCurrency(item.commission),
+            item.paid ? 'Paid' : 'Pending'
+          ]);
+
+          const csvContent = [headers, ...rows]
+            .map(row => row.map(cell => `"${(cell || '').toString().replace(/"/g, '""')}"`).join(','))
+            .join('\n');
+
+          // Download file
+          const blob = new Blob([csvContent], { type: 'text/csv' });
+          const downloadUrl = window.URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = downloadUrl;
+          a.download = `commissions_export_${new Date().toISOString().split('T')[0]}.csv`;
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          window.URL.revokeObjectURL(downloadUrl);
+        } else {
+          alert('No commissions data to export.');
+        }
+      } catch (error) {
+        console.error('Export error:', error);
+        alert('Failed to export commissions. Please try again.');
+      }
     }
 
     function formatCurrency(amount) {

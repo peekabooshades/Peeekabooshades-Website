@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Promotion Rules - Peekaboo Shades Admin</title>
+  <link rel="stylesheet" href="css/admin.css?v=1737200003">
+  <link rel="icon" type="image/jpeg" href="/images/peekabooshades_logo.jpeg">
+  <style>
+    .shade-type-tabs { display: flex; gap: 0; margin-bottom: 1.5rem; border-bottom: 2px solid #e5e7eb; }
+    .shade-type-tab { padding: 1rem 2rem; border: none; background: none; cursor: pointer; font-weight: 600; font-size: 15px; color: #666; position: relative; transition: all 0.2s; }
+    .shade-type-tab:hover { color: #8E6545; }
+    .shade-type-tab.active { color: #8E6545; }
+    .shade-type-tab.active::after { content: ''; position: absolute; bottom: -2px; left: 0; right: 0; height: 2px; background: #8E6545; }
+    .shade-type-tab.roller.active::after { background: #92400E; }
+    .shade-type-tab.zebra.active::after { background: #1E40AF; }
+    .shade-type-tab.all.active::after { background: #7C3AED; }
+
+    .promo-card { background: white; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); margin-bottom: 1rem; overflow: hidden; }
+    .promo-header { display: flex; justify-content: space-between; align-items: center; padding: 1.25rem 1.5rem; border-bottom: 1px solid #E5E7EB; }
+    .promo-info { display: flex; align-items: center; gap: 1rem; }
+    .promo-icon { width: 48px; height: 48px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 24px; }
+    .promo-icon.percentage { background: #DCFCE7; }
+    .promo-icon.fixed { background: #FEF3C7; }
+    .promo-icon.bogo { background: #DBEAFE; }
+    .promo-icon.free-shipping { background: #F3E8FF; }
+    .promo-title { font-weight: 600; font-size: 1rem; color: #1F2937; }
+    .promo-code { font-family: monospace; background: #F3F4F6; padding: 4px 10px; border-radius: 6px; font-size: 13px; color: #4B5563; margin-top: 4px; display: inline-block; }
+    .promo-badges { display: flex; gap: 8px; }
+    .promo-badge { padding: 4px 10px; border-radius: 20px; font-size: 11px; font-weight: 600; }
+    .promo-badge.active { background: #DEF7EC; color: #03543F; }
+    .promo-badge.inactive { background: #F3F4F6; color: #6B7280; }
+    .promo-badge.expired { background: #FEE2E2; color: #991B1B; }
+    .promo-badge.scheduled { background: #DBEAFE; color: #1E40AF; }
+    .promo-badge.type { background: #F3E8FF; color: #7C3AED; }
+
+    .promo-body { padding: 1.25rem 1.5rem; display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1rem; }
+    .promo-stat { text-align: center; }
+    .promo-stat-value { font-size: 1.5rem; font-weight: 700; color: #1F2937; }
+    .promo-stat-label { font-size: 12px; color: #6B7280; margin-top: 4px; }
+
+    .promo-footer { display: flex; justify-content: space-between; align-items: center; padding: 1rem 1.5rem; background: #F9FAFB; border-top: 1px solid #E5E7EB; }
+    .promo-dates { font-size: 13px; color: #6B7280; }
+
+    .info-box { background: #FEF3C7; border: 1px solid #FCD34D; border-radius: 8px; padding: 1rem; margin-bottom: 1.5rem; }
+    .info-box h4 { margin: 0 0 0.5rem 0; color: #92400E; font-size: 14px; }
+    .info-box p { margin: 0; color: #B45309; font-size: 13px; }
+
+    .empty-state { text-align: center; padding: 60px 20px; }
+  </style>
+</head>
+<body>
+  <div class="admin-layout">
+    <aside class="admin-sidebar"></aside>
+    <main class="admin-main">
+      <header class="admin-header">
+        <div class="header-left">
+          <div class="breadcrumb">
+            <a href="/admin/">Dashboard</a>
+            <span class="breadcrumb-separator">/</span>
+            <span class="breadcrumb-current">Promotion Rules</span>
+          </div>
+        </div>
+        <div class="header-right">
+          <button class="btn btn-primary" onclick="openModal()">+ Create Promotion</button>
+        </div>
+      </header>
+
+      <div class="admin-content">
+        <div class="page-header">
+          <h1 class="page-title">Promotion Rules</h1>
+          <p style="color: var(--admin-text-secondary); margin-top: 5px;">Create discount codes and promotional offers</p>
+        </div>
+
+        <div class="info-box">
+          <h4>Promotion Types</h4>
+          <p>Create percentage discounts, fixed amount off, buy-one-get-one, or free shipping promotions. You can target specific shade types or apply to all products.</p>
+        </div>
+
+        <!-- Shade Type Tabs -->
+        <div class="shade-type-tabs">
+          <button class="shade-type-tab all active" onclick="switchShadeType('all')">All Products</button>
+          <button class="shade-type-tab roller" onclick="switchShadeType('roller')">Roller Shades Only</button>
+          <button class="shade-type-tab zebra" onclick="switchShadeType('zebra')">Zebra Shades Only</button>
+        </div>
+
+        <!-- Content -->
+        <div id="promos-container">
+          <div class="card" style="text-align: center; padding: 60px;">
+            <div class="spinner"></div>
+            <p style="margin-top: 16px; color: var(--admin-text-secondary);">Loading promotions...</p>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Add/Edit Modal -->
+  <div class="modal-overlay" id="promo-modal">
+    <div class="modal" style="max-width: 600px; max-height: 90vh; overflow-y: auto;">
+      <div class="modal-header">
+        <h3 class="modal-title" id="modal-title">Create Promotion</h3>
+        <button class="modal-close" onclick="closeModal()">&times;</button>
+      </div>
+      <form id="promo-form" onsubmit="savePromo(event)">
+        <div class="modal-body">
+          <div class="form-row" style="display: grid; grid-template-columns: 2fr 1fr; gap: 16px;">
+            <div class="form-group">
+              <label class="form-label">Promotion Name *</label>
+              <input type="text" class="form-input" id="promo-name" required placeholder="e.g., Summer Sale 2024">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Promo Code *</label>
+              <input type="text" class="form-input" id="promo-code" required placeholder="SUMMER20" style="text-transform: uppercase;">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Description</label>
+            <textarea class="form-input" id="promo-description" rows="2" placeholder="Brief description..."></textarea>
+          </div>
+
+          <div class="form-row" style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px;">
+            <div class="form-group">
+              <label class="form-label">Applies To *</label>
+              <select class="form-input" id="promo-applies">
+                <option value="all">All Products</option>
+                <option value="roller">Roller Shades Only</option>
+                <option value="zebra">Zebra Shades Only</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Discount Type *</label>
+              <select class="form-input" id="promo-type" onchange="updatePromoFields()">
+                <option value="percentage">Percentage Off</option>
+                <option value="fixed">Fixed Amount Off</option>
+                <option value="free-shipping">Free Shipping</option>
+                <option value="bogo">Buy X Get Y</option>
+              </select>
+            </div>
+            <div class="form-group" id="discount-value-group">
+              <label class="form-label">Discount Value *</label>
+              <input type="number" class="form-input" id="promo-value" min="0" step="0.01" placeholder="20">
+            </div>
+          </div>
+
+          <div class="form-row" id="bogo-fields" style="display: none; grid-template-columns: 1fr 1fr; gap: 16px;">
+            <div class="form-group">
+              <label class="form-label">Buy Quantity</label>
+              <input type="number" class="form-input" id="bogo-buy" min="1" value="2">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Get Free Quantity</label>
+              <input type="number" class="form-input" id="bogo-get" min="1" value="1">
+            </div>
+          </div>
+
+          <div class="form-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+            <div class="form-group">
+              <label class="form-label">Min Order Value ($)</label>
+              <input type="number" class="form-input" id="promo-min-order" min="0" step="0.01" placeholder="0 for no minimum">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Max Uses (0 = unlimited)</label>
+              <input type="number" class="form-input" id="promo-max-uses" min="0" value="0">
+            </div>
+          </div>
+
+          <div class="form-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+            <div class="form-group">
+              <label class="form-label">Start Date</label>
+              <input type="datetime-local" class="form-input" id="promo-start">
+            </div>
+            <div class="form-group">
+              <label class="form-label">End Date</label>
+              <input type="datetime-local" class="form-input" id="promo-end">
+            </div>
+          </div>
+
+          <div class="form-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+            <div class="form-group">
+              <label class="form-label">Status</label>
+              <div style="padding-top: 8px;">
+                <label class="status-toggle">
+                  <input type="checkbox" id="promo-active" checked>
+                  <span class="slider"></span>
+                </label>
+                <span style="margin-left: 8px; color: var(--admin-text-secondary);" id="status-label">Active</span>
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Stackable with others</label>
+              <div style="padding-top: 8px;">
+                <label class="status-toggle">
+                  <input type="checkbox" id="promo-stackable">
+                  <span class="slider"></span>
+                </label>
+                <span style="margin-left: 8px; color: var(--admin-text-secondary);" id="stackable-label">No</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="save-btn">Create Promotion</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="js/adminNavConfig.js?v=1737200002"></script>
+  <script src="js/admin.js?v=1737100001"></script>
+  <script>
+    let currentShadeType = 'all';
+    let promotions = [];
+    let editingId = null;
+
+    // Initialize
+    if (!Admin.Auth.requireAuth()) {
+      // Redirect
+    } else {
+      loadPromos();
+    }
+
+    function switchShadeType(type) {
+      currentShadeType = type;
+      document.querySelectorAll('.shade-type-tab').forEach(tab => {
+        tab.classList.toggle('active', tab.classList.contains(type));
+      });
+      loadPromos();
+    }
+
+    async function loadPromos() {
+      const container = document.getElementById('promos-container');
+      container.innerHTML = `<div class="card" style="text-align: center; padding: 60px;"><div class="spinner"></div><p style="margin-top: 16px; color: var(--admin-text-secondary);">Loading promotions...</p></div>`;
+
+      try {
+        const token = localStorage.getItem('admin_token');
+        const res = await fetch(`/api/admin/pricing/promotions?shadeType=${currentShadeType}`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const data = await res.json();
+
+        if (data.success) {
+          promotions = data.promotions || [];
+          renderPromos();
+        }
+      } catch (error) {
+        container.innerHTML = `<div class="card" style="text-align: center; padding: 60px; color: var(--admin-danger);">Failed to load promotions</div>`;
+      }
+    }
+
+    function renderPromos() {
+      const container = document.getElementById('promos-container');
+
+      if (promotions.length === 0) {
+        container.innerHTML = `
+          <div class="card empty-state">
+            <svg style="width: 64px; height: 64px; margin-bottom: 1rem; color: #9CA3AF;" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+            </svg>
+            <h3>No promotions yet</h3>
+            <p style="color: var(--admin-text-secondary);">Create discount codes and promotional offers</p>
+            <button class="btn btn-primary" style="margin-top: 1rem;" onclick="openModal()">+ Create First Promotion</button>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = promotions.map(p => {
+        const status = getPromoStatus(p);
+        const icon = getPromoIcon(p.discountType);
+        return `
+          <div class="promo-card">
+            <div class="promo-header">
+              <div class="promo-info">
+                <div class="promo-icon ${p.discountType}">${icon}</div>
+                <div>
+                  <div class="promo-title">${p.name}</div>
+                  <div class="promo-code">${p.code}</div>
+                </div>
+              </div>
+              <div class="promo-badges">
+                <span class="promo-badge type">${getAppliesToLabel(p.appliesTo)}</span>
+                <span class="promo-badge ${status.class}">${status.label}</span>
+              </div>
+            </div>
+            <div class="promo-body">
+              <div class="promo-stat">
+                <div class="promo-stat-value">${getDiscountDisplay(p)}</div>
+                <div class="promo-stat-label">${getDiscountTypeLabel(p.discountType)}</div>
+              </div>
+              <div class="promo-stat">
+                <div class="promo-stat-value">${p.usedCount || 0}</div>
+                <div class="promo-stat-label">Times Used</div>
+              </div>
+              <div class="promo-stat">
+                <div class="promo-stat-value">${p.maxUses || '∞'}</div>
+                <div class="promo-stat-label">Max Uses</div>
+              </div>
+              <div class="promo-stat">
+                <div class="promo-stat-value">${p.minOrderValue ? '$' + p.minOrderValue : '$0'}</div>
+                <div class="promo-stat-label">Min Order</div>
+              </div>
+            </div>
+            <div class="promo-footer">
+              <div class="promo-dates">
+                ${p.startDate ? 'Starts: ' + formatDate(p.startDate) : 'No start date'}
+                ${p.endDate ? ' | Ends: ' + formatDate(p.endDate) : ''}
+              </div>
+              <div class="action-buttons">
+                <button class="action-btn" title="Edit" onclick="editPromo('${p.id}')">
+                  <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                  </svg>
+                </button>
+                <button class="action-btn danger" title="Delete" onclick="deletePromo('${p.id}')">
+                  <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function getPromoStatus(promo) {
+      if (!promo.isActive) return { label: 'Inactive', class: 'inactive' };
+      const now = new Date();
+      if (promo.startDate && new Date(promo.startDate) > now) return { label: 'Scheduled', class: 'scheduled' };
+      if (promo.endDate && new Date(promo.endDate) < now) return { label: 'Expired', class: 'expired' };
+      if (promo.maxUses && promo.usedCount >= promo.maxUses) return { label: 'Exhausted', class: 'expired' };
+      return { label: 'Active', class: 'active' };
+    }
+
+    function getPromoIcon(type) {
+      const icons = { 'percentage': '%', 'fixed': '$', 'free-shipping': '🚚', 'bogo': '🎁' };
+      return icons[type] || '%';
+    }
+
+    function getDiscountDisplay(promo) {
+      if (promo.discountType === 'percentage') return promo.discountValue + '%';
+      if (promo.discountType === 'fixed') return '$' + promo.discountValue;
+      if (promo.discountType === 'free-shipping') return 'Free';
+      if (promo.discountType === 'bogo') return `${promo.bogoBuy || 2}+${promo.bogoGet || 1}`;
+      return promo.discountValue;
+    }
+
+    function getDiscountTypeLabel(type) {
+      const labels = { 'percentage': 'Percent Off', 'fixed': 'Amount Off', 'free-shipping': 'Shipping', 'bogo': 'Buy & Get' };
+      return labels[type] || type;
+    }
+
+    function getAppliesToLabel(appliesTo) {
+      const labels = { 'all': 'All Products', 'roller': 'Roller Only', 'zebra': 'Zebra Only' };
+      return labels[appliesTo] || appliesTo;
+    }
+
+    function formatDate(dateStr) {
+      return new Date(dateStr).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    }
+
+    function updatePromoFields() {
+      const type = document.getElementById('promo-type').value;
+      document.getElementById('discount-value-group').style.display = type === 'free-shipping' ? 'none' : 'block';
+      document.getElementById('bogo-fields').style.display = type === 'bogo' ? 'grid' : 'none';
+    }
+
+    function openModal(promo = null) {
+      editingId = promo ? promo.id : null;
+      document.getElementById('modal-title').textContent = promo ? 'Edit Promotion' : 'Create Promotion';
+      document.getElementById('save-btn').textContent = promo ? 'Update Promotion' : 'Create Promotion';
+
+      document.getElementById('promo-name').value = promo?.name || '';
+      document.getElementById('promo-code').value = promo?.code || '';
+      document.getElementById('promo-description').value = promo?.description || '';
+      document.getElementById('promo-applies').value = promo?.appliesTo || 'all';
+      document.getElementById('promo-type').value = promo?.discountType || 'percentage';
+      document.getElementById('promo-value').value = promo?.discountValue || '';
+      document.getElementById('bogo-buy').value = promo?.bogoBuy || 2;
+      document.getElementById('bogo-get').value = promo?.bogoGet || 1;
+      document.getElementById('promo-min-order').value = promo?.minOrderValue || '';
+      document.getElementById('promo-max-uses').value = promo?.maxUses || 0;
+      document.getElementById('promo-start').value = promo?.startDate ? promo.startDate.slice(0, 16) : '';
+      document.getElementById('promo-end').value = promo?.endDate ? promo.endDate.slice(0, 16) : '';
+      document.getElementById('promo-active').checked = promo?.isActive !== false;
+      document.getElementById('promo-stackable').checked = promo?.isStackable || false;
+
+      updatePromoFields();
+      updateLabels();
+      Admin.Modal.show('promo-modal');
+    }
+
+    function closeModal() {
+      Admin.Modal.hide('promo-modal');
+      editingId = null;
+    }
+
+    function editPromo(id) {
+      const promo = promotions.find(p => p.id === id);
+      if (promo) openModal(promo);
+    }
+
+    function updateLabels() {
+      document.getElementById('status-label').textContent = document.getElementById('promo-active').checked ? 'Active' : 'Inactive';
+      document.getElementById('stackable-label').textContent = document.getElementById('promo-stackable').checked ? 'Yes' : 'No';
+    }
+
+    async function savePromo(e) {
+      e.preventDefault();
+      const saveBtn = document.getElementById('save-btn');
+      saveBtn.disabled = true;
+      saveBtn.textContent = 'Saving...';
+
+      try {
+        const token = localStorage.getItem('admin_token');
+        const data = {
+          name: document.getElementById('promo-name').value.trim(),
+          code: document.getElementById('promo-code').value.trim().toUpperCase(),
+          description: document.getElementById('promo-description').value.trim(),
+          appliesTo: document.getElementById('promo-applies').value,
+          discountType: document.getElementById('promo-type').value,
+          discountValue: parseFloat(document.getElementById('promo-value').value) || 0,
+          bogoBuy: parseInt(document.getElementById('bogo-buy').value) || 2,
+          bogoGet: parseInt(document.getElementById('bogo-get').value) || 1,
+          minOrderValue: parseFloat(document.getElementById('promo-min-order').value) || 0,
+          maxUses: parseInt(document.getElementById('promo-max-uses').value) || 0,
+          startDate: document.getElementById('promo-start').value || null,
+          endDate: document.getElementById('promo-end').value || null,
+          isActive: document.getElementById('promo-active').checked,
+          isStackable: document.getElementById('promo-stackable').checked
+        };
+
+        const url = editingId
+          ? `/api/admin/pricing/promotions/${editingId}`
+          : `/api/admin/pricing/promotions`;
+
+        const res = await fetch(url, {
+          method: editingId ? 'PUT' : 'POST',
+          headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
+        });
+        const result = await res.json();
+
+        if (result.success) {
+          Admin.Toast.success(editingId ? 'Promotion updated' : 'Promotion created');
+          closeModal();
+          loadPromos();
+        } else {
+          Admin.Toast.error(result.error || 'Failed to save');
+        }
+      } catch (error) {
+        Admin.Toast.error('Error saving promotion');
+      } finally {
+        saveBtn.disabled = false;
+        saveBtn.textContent = editingId ? 'Update Promotion' : 'Create Promotion';
+      }
+    }
+
+    async function deletePromo(id) {
+      if (!confirm('Delete this promotion?')) return;
+
+      try {
+        const token = localStorage.getItem('admin_token');
+        const res = await fetch(`/api/admin/pricing/promotions/${id}`, {
+          method: 'DELETE',
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const result = await res.json();
+
+        if (result.success) {
+          Admin.Toast.success('Promotion deleted');
+          loadPromos();
+        } else {
+          Admin.Toast.error(result.error || 'Failed to delete');
+        }
+      } catch (error) {
+        Admin.Toast.error('Error deleting promotion');
+      }
+    }
+
+    // Toggle labels
+    document.getElementById('promo-active')?.addEventListener('change', updateLabels);
+    document.getElementById('promo-stackable')?.addEventListener('change', updateLabels);
+  </script>
+</body>
+</html>

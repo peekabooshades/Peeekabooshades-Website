@@ -1,0 +1,787 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Service Areas - Peekaboo Shades Admin</title>
+  <link rel="stylesheet" href="/admin/css/admin.css?v=1737200003.0.26">
+  <script src="/admin/js/adminNavConfig.js?v=1737200002"></script>
+  <style>
+    .service-stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+    .stat-card {
+      background: white;
+      border-radius: 12px;
+      padding: 1.5rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+    .stat-card h3 {
+      font-size: 0.85rem;
+      color: #666;
+      margin-bottom: 0.5rem;
+      text-transform: uppercase;
+    }
+    .stat-card .value {
+      font-size: 2rem;
+      font-weight: 700;
+      color: #8E6545;
+    }
+    .controls {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+    .search-box {
+      display: flex;
+      align-items: center;
+      background: white;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 0.5rem 1rem;
+      min-width: 300px;
+    }
+    .search-box input {
+      border: none;
+      outline: none;
+      padding: 0.5rem;
+      flex: 1;
+    }
+    .areas-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+      gap: 1.5rem;
+    }
+    .area-card {
+      background: white;
+      border-radius: 12px;
+      padding: 1.5rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+    .area-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: start;
+      margin-bottom: 1rem;
+    }
+    .area-name {
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: #333;
+      margin: 0;
+    }
+    .area-status {
+      padding: 0.25rem 0.75rem;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+    .status-active { background: #D1FAE5; color: #065F46; }
+    .status-inactive { background: #FEE2E2; color: #991B1B; }
+    .area-details {
+      display: grid;
+      gap: 0.75rem;
+      margin-bottom: 1rem;
+    }
+    .area-detail {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.9rem;
+      color: #555;
+    }
+    .area-detail svg {
+      width: 16px;
+      height: 16px;
+      color: #8E6545;
+    }
+    .area-zip-codes {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+      margin-top: 1rem;
+      padding-top: 1rem;
+      border-top: 1px solid #eee;
+    }
+    .zip-code {
+      padding: 0.25rem 0.5rem;
+      background: #f0f0f0;
+      border-radius: 4px;
+      font-size: 0.8rem;
+      font-family: monospace;
+    }
+    .area-installers {
+      margin-top: 1rem;
+      padding-top: 1rem;
+      border-top: 1px solid #eee;
+    }
+    .area-installers h4 {
+      font-size: 0.85rem;
+      color: #666;
+      margin-bottom: 0.5rem;
+    }
+    .installer-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.35rem;
+      padding: 0.35rem 0.75rem;
+      background: #EEF2FF;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      color: #4338CA;
+      margin-right: 0.5rem;
+      margin-bottom: 0.5rem;
+    }
+    .area-actions {
+      display: flex;
+      gap: 0.5rem;
+      margin-top: 1rem;
+      padding-top: 1rem;
+      border-top: 1px solid #eee;
+    }
+    .btn-action {
+      padding: 0.5rem 1rem;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      transition: all 0.2s;
+    }
+    .btn-edit {
+      background: #8E6545;
+      color: white;
+    }
+    .btn-edit:hover { background: #7A5639; }
+    .btn-delete {
+      background: #FEE2E2;
+      color: #991B1B;
+    }
+    .btn-delete:hover { background: #FECACA; }
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+    }
+    .modal.active { display: flex; }
+    .modal-content {
+      background: white;
+      border-radius: 12px;
+      padding: 2rem;
+      max-width: 600px;
+      width: 90%;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+    }
+    .modal-header h2 { margin: 0; }
+    .modal-close {
+      background: none;
+      border: none;
+      font-size: 1.5rem;
+      cursor: pointer;
+      color: #666;
+    }
+    .form-group {
+      margin-bottom: 1.25rem;
+    }
+    .form-group label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 500;
+    }
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      width: 100%;
+      padding: 0.75rem;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      font-size: 0.95rem;
+    }
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+    .btn-submit {
+      width: 100%;
+      padding: 0.875rem;
+      background: #8E6545;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .btn-submit:hover { background: #7A5639; }
+    .empty-state {
+      text-align: center;
+      padding: 4rem 2rem;
+      color: #666;
+    }
+    .empty-state svg {
+      width: 80px;
+      height: 80px;
+      margin-bottom: 1.5rem;
+      color: #ccc;
+    }
+    .customer-count {
+      background: #f5f5f5;
+      padding: 0.5rem 0.75rem;
+      border-radius: 6px;
+      margin-top: 0.5rem;
+    }
+    .customer-count.has-customers {
+      background: #E8F5E9;
+      color: #2E7D32;
+    }
+    .customer-count strong {
+      color: #8E6545;
+    }
+    .btn-view {
+      background: #8E6545 !important;
+      color: white !important;
+    }
+    .btn-view:hover {
+      background: #7A5639 !important;
+    }
+    /* Customer Modal */
+    .customer-list {
+      max-height: 400px;
+      overflow-y: auto;
+    }
+    .customer-item {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 1rem;
+      border-bottom: 1px solid #eee;
+    }
+    .customer-item:last-child {
+      border-bottom: none;
+    }
+    .customer-avatar {
+      width: 40px;
+      height: 40px;
+      background: #8E6545;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 600;
+    }
+    .customer-info {
+      flex: 1;
+    }
+    .customer-name {
+      font-weight: 600;
+      color: #333;
+    }
+    .customer-address {
+      font-size: 0.85rem;
+      color: #666;
+    }
+    .customer-link {
+      color: #8E6545;
+      text-decoration: none;
+      font-size: 0.85rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="admin-layout">
+    <aside class="admin-sidebar"></aside>
+    <main class="admin-main">
+      <header class="admin-header">
+        <h1>Service Areas</h1>
+        <div class="header-actions">
+          <button class="btn-primary" onclick="openModal()">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" width="20" height="20">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+            </svg>
+            Add Service Area
+          </button>
+        </div>
+      </header>
+
+      <div class="admin-content">
+        <div class="service-stats">
+          <div class="stat-card">
+            <h3>Total Areas</h3>
+            <div class="value" id="stat-total">0</div>
+          </div>
+          <div class="stat-card">
+            <h3>Active Areas</h3>
+            <div class="value" id="stat-active">0</div>
+          </div>
+          <div class="stat-card">
+            <h3>Zip Codes Covered</h3>
+            <div class="value" id="stat-zips">0</div>
+          </div>
+          <div class="stat-card">
+            <h3>Installers Assigned</h3>
+            <div class="value" id="stat-installers">0</div>
+          </div>
+          <div class="stat-card">
+            <h3>Customers in Areas</h3>
+            <div class="value" id="stat-customers">0</div>
+          </div>
+        </div>
+
+        <div class="controls">
+          <div class="search-box">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" width="20" height="20">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+            <input type="text" placeholder="Search by area name or zip code..." id="searchInput" onkeyup="filterAreas()">
+          </div>
+        </div>
+
+        <div class="areas-grid" id="areasGrid">
+          <div class="empty-state">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
+            </svg>
+            <h3>No Service Areas</h3>
+            <p>Add service areas to define where your installers operate.</p>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <div class="modal" id="areaModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 id="modalTitle">Add Service Area</h2>
+        <button class="modal-close" onclick="closeModal()">&times;</button>
+      </div>
+      <form id="areaForm" onsubmit="saveArea(event)">
+        <input type="hidden" name="id" id="areaId">
+        <div class="form-group">
+          <label>Area Name</label>
+          <input type="text" name="name" required placeholder="e.g., Los Angeles Metro">
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Region</label>
+            <select name="region" required>
+              <option value="">Select region...</option>
+              <option value="west">West Coast</option>
+              <option value="east">East Coast</option>
+              <option value="midwest">Midwest</option>
+              <option value="south">South</option>
+              <option value="southwest">Southwest</option>
+              <option value="northeast">Northeast</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Status</label>
+            <select name="status" required>
+              <option value="active">Active</option>
+              <option value="inactive">Inactive</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>State</label>
+            <input type="text" name="state" required placeholder="e.g., California">
+          </div>
+          <div class="form-group">
+            <label>City</label>
+            <input type="text" name="city" placeholder="e.g., Los Angeles">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>ZIP Codes (comma-separated)</label>
+          <textarea name="zipCodes" rows="3" placeholder="90001, 90002, 90003, ..."></textarea>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Base Installation Fee ($)</label>
+            <input type="number" name="baseFee" min="0" step="0.01" placeholder="150.00">
+          </div>
+          <div class="form-group">
+            <label>Per Window Fee ($)</label>
+            <input type="number" name="perWindowFee" min="0" step="0.01" placeholder="25.00">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Notes</label>
+          <textarea name="notes" rows="2" placeholder="Any special notes about this area..."></textarea>
+        </div>
+        <button type="submit" class="btn-submit">Save Service Area</button>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    const Admin = {
+      API: {
+        async get(endpoint) {
+          const token = localStorage.getItem('admin_token');
+          const response = await fetch(endpoint, {
+            headers: { 'Authorization': `Bearer ${token}` }
+          });
+          return response.json();
+        },
+        async post(endpoint, data) {
+          const token = localStorage.getItem('admin_token');
+          const response = await fetch(endpoint, {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+          });
+          return response.json();
+        },
+        async put(endpoint, data) {
+          const token = localStorage.getItem('admin_token');
+          const response = await fetch(endpoint, {
+            method: 'PUT',
+            headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+          });
+          return response.json();
+        },
+        async delete(endpoint) {
+          const token = localStorage.getItem('admin_token');
+          const response = await fetch(endpoint, {
+            method: 'DELETE',
+            headers: { 'Authorization': `Bearer ${token}` }
+          });
+          return response.json();
+        }
+      },
+      Toast: {
+        show(message, type = 'success') {
+          alert(message);
+        }
+      }
+    };
+
+    let serviceAreas = [];
+    let installers = [];
+    let customers = [];
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      const token = localStorage.getItem('admin_token');
+      if (!token) {
+        window.location.href = '/admin/login.html';
+        return;
+      }
+      AdminNavConfig.initSidebar('service-areas');
+      await loadData();
+    });
+
+    async function loadData() {
+      try {
+        const [areasData, installersData, customersData] = await Promise.all([
+          Admin.API.get('/api/admin/service-areas'),
+          Admin.API.get('/api/admin/installers'),
+          Admin.API.get('/api/admin/customers')
+        ]);
+        serviceAreas = areasData.success ? (areasData.serviceAreas || []) : [];
+        installers = installersData.success ? (installersData.installers || []) : [];
+        customers = customersData.success ? (customersData.customers || customersData.data || []) : [];
+        updateStats();
+        renderAreas();
+      } catch (error) {
+        console.error('Error loading data:', error);
+      }
+    }
+
+    // Get customers in a service area based on ZIP code matching
+    function getCustomersInArea(area) {
+      if (!area.zipCodes) return [];
+      const areaZips = area.zipCodes.split(',').map(z => z.trim().toLowerCase());
+      return customers.filter(c => {
+        const customerZip = (c.zip || c.zipCode || c.postalCode || '').toString().trim().toLowerCase();
+        const addressZip = c.address?.zip || c.address?.zipCode || '';
+        return areaZips.includes(customerZip) || areaZips.includes(addressZip.toString().trim().toLowerCase());
+      });
+    }
+
+    function updateStats() {
+      const active = serviceAreas.filter(a => a.status === 'active').length;
+      const totalZips = serviceAreas.reduce((sum, a) => {
+        const zips = a.zipCodes ? a.zipCodes.split(',').filter(z => z.trim()).length : 0;
+        return sum + zips;
+      }, 0);
+      const assignedInstallers = new Set();
+      serviceAreas.forEach(a => {
+        (a.installerIds || []).forEach(id => assignedInstallers.add(id));
+      });
+
+      // Count customers in all service areas
+      let totalCustomersInAreas = 0;
+      serviceAreas.forEach(area => {
+        totalCustomersInAreas += getCustomersInArea(area).length;
+      });
+
+      document.getElementById('stat-total').textContent = serviceAreas.length;
+      document.getElementById('stat-active').textContent = active;
+      document.getElementById('stat-zips').textContent = totalZips;
+      document.getElementById('stat-installers').textContent = assignedInstallers.size;
+      document.getElementById('stat-customers').textContent = totalCustomersInAreas;
+    }
+
+    function renderAreas() {
+      const container = document.getElementById('areasGrid');
+      const search = document.getElementById('searchInput').value.toLowerCase();
+
+      let filtered = serviceAreas;
+      if (search) {
+        filtered = serviceAreas.filter(a =>
+          a.name.toLowerCase().includes(search) ||
+          (a.zipCodes && a.zipCodes.toLowerCase().includes(search)) ||
+          (a.city && a.city.toLowerCase().includes(search))
+        );
+      }
+
+      if (filtered.length === 0) {
+        container.innerHTML = `
+          <div class="empty-state" style="grid-column: 1/-1;">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 20l-5.447-2.724A1 1 0 013 16.382V5.618a1 1 0 011.447-.894L9 7m0 13l6-3m-6 3V7m6 10l4.553 2.276A1 1 0 0021 18.382V7.618a1 1 0 00-.553-.894L15 4m0 13V4m0 0L9 7" />
+            </svg>
+            <h3>No Service Areas Found</h3>
+            <p>${search ? 'No areas match your search.' : 'Add service areas to get started.'}</p>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = filtered.map(area => {
+        const zips = area.zipCodes ? area.zipCodes.split(',').map(z => z.trim()).filter(z => z).slice(0, 8) : [];
+        const moreZips = area.zipCodes ? area.zipCodes.split(',').length - 8 : 0;
+        const areaCustomers = getCustomersInArea(area);
+        const customerCount = areaCustomers.length;
+
+        return `
+          <div class="area-card">
+            <div class="area-header">
+              <h3 class="area-name">${area.name}</h3>
+              <span class="area-status status-${area.status}">${area.status}</span>
+            </div>
+            <div class="area-details">
+              <div class="area-detail">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                </svg>
+                ${area.city || 'N/A'}, ${area.state || 'N/A'}
+              </div>
+              <div class="area-detail">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3.935V5.5A2.5 2.5 0 0010.5 8h.5a2 2 0 012 2 2 2 0 104 0 2 2 0 012-2h1.064M15 20.488V18a2 2 0 012-2h3.064" />
+                </svg>
+                ${formatRegion(area.region)}
+              </div>
+              <div class="area-detail customer-count ${customerCount > 0 ? 'has-customers' : ''}">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                </svg>
+                <strong>${customerCount}</strong> Customer${customerCount !== 1 ? 's' : ''} in Area
+              </div>
+              ${area.baseFee ? `
+              <div class="area-detail">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1" />
+                </svg>
+                Base: $${area.baseFee} | Per Window: $${area.perWindowFee || '0'}
+              </div>
+              ` : ''}
+            </div>
+            ${zips.length > 0 ? `
+            <div class="area-zip-codes">
+              ${zips.map(z => `<span class="zip-code">${z}</span>`).join('')}
+              ${moreZips > 0 ? `<span class="zip-code">+${moreZips} more</span>` : ''}
+            </div>
+            ` : ''}
+            <div class="area-actions">
+              ${customerCount > 0 ? `<button class="btn-action btn-view" onclick="viewCustomers('${area.id}')">View Customers</button>` : ''}
+              <button class="btn-action btn-edit" onclick="editArea('${area.id}')">Edit</button>
+              <button class="btn-action btn-delete" onclick="deleteArea('${area.id}')">Delete</button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function formatRegion(region) {
+      const regions = {
+        west: 'West Coast',
+        east: 'East Coast',
+        midwest: 'Midwest',
+        south: 'South',
+        southwest: 'Southwest',
+        northeast: 'Northeast'
+      };
+      return regions[region] || region || 'N/A';
+    }
+
+    function filterAreas() {
+      renderAreas();
+    }
+
+    function openModal(area = null) {
+      const form = document.getElementById('areaForm');
+      form.reset();
+      document.getElementById('areaId').value = '';
+      document.getElementById('modalTitle').textContent = 'Add Service Area';
+
+      if (area) {
+        document.getElementById('modalTitle').textContent = 'Edit Service Area';
+        document.getElementById('areaId').value = area.id;
+        form.name.value = area.name || '';
+        form.region.value = area.region || '';
+        form.status.value = area.status || 'active';
+        form.state.value = area.state || '';
+        form.city.value = area.city || '';
+        form.zipCodes.value = area.zipCodes || '';
+        form.baseFee.value = area.baseFee || '';
+        form.perWindowFee.value = area.perWindowFee || '';
+        form.notes.value = area.notes || '';
+      }
+
+      document.getElementById('areaModal').classList.add('active');
+    }
+
+    function closeModal() {
+      document.getElementById('areaModal').classList.remove('active');
+    }
+
+    function editArea(id) {
+      const area = serviceAreas.find(a => a.id === id);
+      if (area) openModal(area);
+    }
+
+    async function saveArea(event) {
+      event.preventDefault();
+      const form = event.target;
+      const formData = new FormData(form);
+      const id = formData.get('id');
+
+      const data = {
+        name: formData.get('name'),
+        region: formData.get('region'),
+        status: formData.get('status'),
+        state: formData.get('state'),
+        city: formData.get('city'),
+        zipCodes: formData.get('zipCodes'),
+        baseFee: formData.get('baseFee'),
+        perWindowFee: formData.get('perWindowFee'),
+        notes: formData.get('notes')
+      };
+
+      try {
+        let result;
+        if (id) {
+          result = await Admin.API.put(`/api/admin/service-areas/${id}`, data);
+        } else {
+          result = await Admin.API.post('/api/admin/service-areas', data);
+        }
+
+        if (result.success) {
+          Admin.Toast.show(id ? 'Service area updated' : 'Service area created');
+          closeModal();
+          await loadData();
+        } else {
+          Admin.Toast.show(result.error || 'Error saving area', 'error');
+        }
+      } catch (error) {
+        Admin.Toast.show('Error saving area', 'error');
+      }
+    }
+
+    async function deleteArea(id) {
+      if (!confirm('Are you sure you want to delete this service area?')) return;
+
+      try {
+        const result = await Admin.API.delete(`/api/admin/service-areas/${id}`);
+        if (result.success) {
+          Admin.Toast.show('Service area deleted');
+          await loadData();
+        } else {
+          Admin.Toast.show(result.error || 'Error deleting area', 'error');
+        }
+      } catch (error) {
+        Admin.Toast.show('Error deleting area', 'error');
+      }
+    }
+
+    document.getElementById('areaModal').addEventListener('click', (e) => {
+      if (e.target.id === 'areaModal') closeModal();
+    });
+
+    // View customers in a service area
+    function viewCustomers(areaId) {
+      const area = serviceAreas.find(a => a.id === areaId);
+      if (!area) return;
+
+      const areaCustomers = getCustomersInArea(area);
+
+      const modal = document.createElement('div');
+      modal.className = 'modal active';
+      modal.id = 'customersModal';
+      modal.innerHTML = `
+        <div class="modal-content">
+          <div class="modal-header">
+            <h2>Customers in ${area.name}</h2>
+            <button class="modal-close" onclick="closeCustomersModal()">&times;</button>
+          </div>
+          <div class="customer-list">
+            ${areaCustomers.length > 0 ? areaCustomers.map(c => `
+              <div class="customer-item">
+                <div class="customer-avatar">${(c.firstName || c.name || 'C').charAt(0).toUpperCase()}</div>
+                <div class="customer-info">
+                  <div class="customer-name">${c.firstName || ''} ${c.lastName || c.name || 'Customer'}</div>
+                  <div class="customer-address">
+                    ${c.address?.street || c.street || ''}
+                    ${c.address?.city || c.city || ''},
+                    ${c.address?.state || c.state || ''}
+                    ${c.address?.zip || c.zip || c.zipCode || ''}
+                  </div>
+                  <div class="customer-address">${c.email || ''} ${c.phone ? '• ' + c.phone : ''}</div>
+                </div>
+                <a href="/admin/customer.html?id=${c.id}" class="customer-link">View Profile →</a>
+              </div>
+            `).join('') : '<p style="padding: 2rem; text-align: center; color: #666;">No customers found in this area.</p>'}
+          </div>
+          <div style="padding: 1rem; border-top: 1px solid #eee; text-align: right;">
+            <a href="/admin/customers.html?zip=${encodeURIComponent(area.zipCodes || '')}" class="btn-primary" style="display: inline-block; padding: 0.75rem 1.5rem; text-decoration: none;">
+              View All in Customers Page
+            </a>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(modal);
+    }
+
+    function closeCustomersModal() {
+      const modal = document.getElementById('customersModal');
+      if (modal) modal.remove();
+    }
+  </script>
+</body>
+</html>

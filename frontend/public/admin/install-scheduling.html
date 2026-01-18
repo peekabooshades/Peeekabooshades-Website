@@ -1,0 +1,744 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Installation Scheduling - Peekaboo Shades Admin</title>
+  <link rel="stylesheet" href="/admin/css/admin.css?v=1737200003.0.26">
+  <script src="/admin/js/adminNavConfig.js?v=1737200002"></script>
+  <style>
+    .schedule-stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+    .stat-card {
+      background: white;
+      border-radius: 12px;
+      padding: 1.5rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+    .stat-card h3 {
+      font-size: 0.85rem;
+      color: #666;
+      margin-bottom: 0.5rem;
+      text-transform: uppercase;
+    }
+    .stat-card .value {
+      font-size: 2rem;
+      font-weight: 700;
+      color: #8E6545;
+    }
+    .stat-card .trend {
+      font-size: 0.8rem;
+      color: #888;
+      margin-top: 0.25rem;
+    }
+    .controls {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+    .filter-tabs {
+      display: flex;
+      gap: 0.5rem;
+    }
+    .filter-tab {
+      padding: 0.5rem 1rem;
+      border: 1px solid #ddd;
+      background: white;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.9rem;
+    }
+    .filter-tab.active {
+      background: #8E6545;
+      color: white;
+      border-color: #8E6545;
+    }
+    .calendar-view {
+      background: white;
+      border-radius: 12px;
+      padding: 1.5rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      margin-bottom: 2rem;
+    }
+    .calendar-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+    }
+    .calendar-nav {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+    .calendar-nav button {
+      background: none;
+      border: 1px solid #ddd;
+      border-radius: 6px;
+      padding: 0.5rem;
+      cursor: pointer;
+    }
+    .calendar-nav h2 {
+      margin: 0;
+      font-size: 1.25rem;
+    }
+    .calendar-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 1px;
+      background: #e5e7eb;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .calendar-day-header {
+      background: #f9fafb;
+      padding: 0.75rem;
+      text-align: center;
+      font-weight: 600;
+      font-size: 0.85rem;
+      color: #666;
+    }
+    .calendar-day {
+      background: white;
+      min-height: 100px;
+      padding: 0.5rem;
+    }
+    .calendar-day.other-month {
+      background: #f9fafb;
+      color: #ccc;
+    }
+    .calendar-day.today {
+      background: #FEF3C7;
+    }
+    .day-number {
+      font-weight: 600;
+      font-size: 0.9rem;
+      margin-bottom: 0.5rem;
+    }
+    .day-events {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+    .day-event {
+      padding: 0.25rem 0.5rem;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      cursor: pointer;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .event-scheduled { background: #DBEAFE; color: #1E40AF; }
+    .event-confirmed { background: #D1FAE5; color: #065F46; }
+    .event-in_progress { background: #FEF3C7; color: #92400E; }
+    .event-completed { background: #E5E7EB; color: #374151; }
+    .event-cancelled { background: #FEE2E2; color: #991B1B; }
+    .installations-list {
+      display: grid;
+      gap: 1rem;
+    }
+    .install-card {
+      background: white;
+      border-radius: 12px;
+      padding: 1.5rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      gap: 1.5rem;
+      align-items: start;
+    }
+    .install-date {
+      text-align: center;
+      padding: 1rem;
+      background: #f5f5f5;
+      border-radius: 8px;
+      min-width: 80px;
+    }
+    .install-date .day {
+      font-size: 1.75rem;
+      font-weight: 700;
+      color: #8E6545;
+    }
+    .install-date .month {
+      font-size: 0.85rem;
+      color: #666;
+      text-transform: uppercase;
+    }
+    .install-date .time {
+      font-size: 0.9rem;
+      font-weight: 600;
+      margin-top: 0.5rem;
+      color: #333;
+    }
+    .install-info h4 {
+      margin: 0 0 0.5rem 0;
+      font-size: 1.1rem;
+    }
+    .install-meta {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1rem;
+      font-size: 0.85rem;
+      color: #666;
+      margin-bottom: 0.75rem;
+    }
+    .install-meta span {
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+    .install-meta svg {
+      width: 14px;
+      height: 14px;
+    }
+    .install-details {
+      background: #f9f9f9;
+      padding: 0.75rem;
+      border-radius: 6px;
+      font-size: 0.9rem;
+      margin-top: 0.75rem;
+    }
+    .status-badge {
+      padding: 0.25rem 0.75rem;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+    .status-scheduled { background: #DBEAFE; color: #1E40AF; }
+    .status-confirmed { background: #D1FAE5; color: #065F46; }
+    .status-in_progress { background: #FEF3C7; color: #92400E; }
+    .status-completed { background: #E5E7EB; color: #374151; }
+    .status-cancelled { background: #FEE2E2; color: #991B1B; }
+    .install-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+    .btn-action {
+      padding: 0.5rem 1rem;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      font-weight: 500;
+    }
+    .btn-confirm { background: #10B981; color: white; }
+    .btn-start { background: #8E6545; color: white; }
+    .btn-complete { background: #059669; color: white; }
+    .btn-cancel { background: #FEE2E2; color: #991B1B; }
+    .btn-view { background: #E5E7EB; color: #374151; }
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+    }
+    .modal.active { display: flex; }
+    .modal-content {
+      background: white;
+      border-radius: 12px;
+      padding: 2rem;
+      max-width: 600px;
+      width: 90%;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+    }
+    .modal-header h2 { margin: 0; }
+    .modal-close {
+      background: none;
+      border: none;
+      font-size: 1.5rem;
+      cursor: pointer;
+    }
+    .form-group {
+      margin-bottom: 1.25rem;
+    }
+    .form-group label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 500;
+    }
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      width: 100%;
+      padding: 0.75rem;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      font-size: 0.95rem;
+    }
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+    .btn-submit {
+      width: 100%;
+      padding: 0.875rem;
+      background: #8E6545;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .empty-state {
+      text-align: center;
+      padding: 4rem;
+      color: #666;
+    }
+    .empty-state svg {
+      width: 80px;
+      height: 80px;
+      color: #ccc;
+      margin-bottom: 1rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="admin-layout">
+    <aside class="admin-sidebar"></aside>
+    <main class="admin-main">
+      <header class="admin-header">
+        <h1>Installation Scheduling</h1>
+        <div class="header-actions">
+          <button class="btn-primary" onclick="openModal()">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" width="20" height="20">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+            </svg>
+            Schedule Installation
+          </button>
+        </div>
+      </header>
+
+      <div class="admin-content">
+        <div class="schedule-stats">
+          <div class="stat-card">
+            <h3>Today</h3>
+            <div class="value" id="stat-today">0</div>
+            <div class="trend">Installations</div>
+          </div>
+          <div class="stat-card">
+            <h3>This Week</h3>
+            <div class="value" id="stat-week">0</div>
+            <div class="trend">Scheduled</div>
+          </div>
+          <div class="stat-card">
+            <h3>Pending Confirm</h3>
+            <div class="value" id="stat-pending">0</div>
+            <div class="trend">Need confirmation</div>
+          </div>
+          <div class="stat-card">
+            <h3>Completed</h3>
+            <div class="value" id="stat-completed">0</div>
+            <div class="trend">This month</div>
+          </div>
+        </div>
+
+        <div class="controls">
+          <div class="filter-tabs">
+            <button class="filter-tab active" data-filter="all" onclick="setFilter('all')">All</button>
+            <button class="filter-tab" data-filter="scheduled" onclick="setFilter('scheduled')">Scheduled</button>
+            <button class="filter-tab" data-filter="confirmed" onclick="setFilter('confirmed')">Confirmed</button>
+            <button class="filter-tab" data-filter="in_progress" onclick="setFilter('in_progress')">In Progress</button>
+            <button class="filter-tab" data-filter="completed" onclick="setFilter('completed')">Completed</button>
+          </div>
+        </div>
+
+        <div class="installations-list" id="installationsList">
+          <div class="empty-state">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
+            <h3>No Installations Scheduled</h3>
+            <p>Schedule installations for your customers.</p>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <div class="modal" id="installModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 id="modalTitle">Schedule Installation</h2>
+        <button class="modal-close" onclick="closeModal()">&times;</button>
+      </div>
+      <form id="installForm" onsubmit="saveInstallation(event)">
+        <input type="hidden" name="id" id="installId">
+        <div class="form-row">
+          <div class="form-group">
+            <label>Order Number</label>
+            <input type="text" name="orderNumber" required placeholder="ORD-2024-001">
+          </div>
+          <div class="form-group">
+            <label>Customer Name</label>
+            <input type="text" name="customerName" required placeholder="Full name">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Phone</label>
+            <input type="tel" name="phone" required placeholder="Phone number">
+          </div>
+          <div class="form-group">
+            <label>Email</label>
+            <input type="email" name="email" placeholder="Email address">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Installation Address</label>
+          <textarea name="address" required rows="2" placeholder="Full address"></textarea>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Date</label>
+            <input type="date" name="date" required>
+          </div>
+          <div class="form-group">
+            <label>Time</label>
+            <select name="timeSlot" required>
+              <option value="">Select time...</option>
+              <option value="08:00-10:00">8:00 AM - 10:00 AM</option>
+              <option value="10:00-12:00">10:00 AM - 12:00 PM</option>
+              <option value="12:00-14:00">12:00 PM - 2:00 PM</option>
+              <option value="14:00-16:00">2:00 PM - 4:00 PM</option>
+              <option value="16:00-18:00">4:00 PM - 6:00 PM</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Installer</label>
+            <select name="installerId" id="installerSelect">
+              <option value="">Select installer...</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Number of Windows</label>
+            <input type="number" name="windowCount" min="1" value="1">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Special Instructions</label>
+          <textarea name="notes" rows="2" placeholder="Access codes, parking info, etc."></textarea>
+        </div>
+        <button type="submit" class="btn-submit">Save Installation</button>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    const Admin = {
+      API: {
+        async get(endpoint) {
+          const token = localStorage.getItem('admin_token');
+          const response = await fetch(endpoint, {
+            headers: { 'Authorization': `Bearer ${token}` }
+          });
+          return response.json();
+        },
+        async post(endpoint, data) {
+          const token = localStorage.getItem('admin_token');
+          const response = await fetch(endpoint, {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+          });
+          return response.json();
+        },
+        async put(endpoint, data) {
+          const token = localStorage.getItem('admin_token');
+          const response = await fetch(endpoint, {
+            method: 'PUT',
+            headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+          });
+          return response.json();
+        },
+        async delete(endpoint) {
+          const token = localStorage.getItem('admin_token');
+          const response = await fetch(endpoint, {
+            method: 'DELETE',
+            headers: { 'Authorization': `Bearer ${token}` }
+          });
+          return response.json();
+        }
+      },
+      Toast: {
+        show(message) { alert(message); }
+      }
+    };
+
+    let installations = [];
+    let installers = [];
+    let currentFilter = 'all';
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      const token = localStorage.getItem('admin_token');
+      if (!token) {
+        window.location.href = '/admin/login.html';
+        return;
+      }
+      AdminNavConfig.initSidebar('installation-scheduling');
+      await loadData();
+    });
+
+    async function loadData() {
+      try {
+        const [instData, installersData] = await Promise.all([
+          Admin.API.get('/api/admin/installations'),
+          Admin.API.get('/api/admin/installers')
+        ]);
+        installations = instData.success ? (instData.installations || []) : [];
+        installers = installersData.success ? (installersData.installers || []) : [];
+        populateInstallers();
+        updateStats();
+        renderInstallations();
+      } catch (error) {
+        console.error('Error:', error);
+      }
+    }
+
+    function populateInstallers() {
+      const select = document.getElementById('installerSelect');
+      select.innerHTML = '<option value="">Select installer...</option>' +
+        installers.map(i => `<option value="${i.id}">${i.companyName || i.name}</option>`).join('');
+    }
+
+    function updateStats() {
+      const today = new Date().toISOString().split('T')[0];
+      const weekStart = new Date();
+      weekStart.setDate(weekStart.getDate() - weekStart.getDay());
+      const weekEnd = new Date(weekStart);
+      weekEnd.setDate(weekEnd.getDate() + 6);
+
+      const todayCount = installations.filter(i => i.date === today).length;
+      const weekCount = installations.filter(i => {
+        const d = new Date(i.date);
+        return d >= weekStart && d <= weekEnd;
+      }).length;
+      const pending = installations.filter(i => i.status === 'scheduled').length;
+      const completed = installations.filter(i => i.status === 'completed').length;
+
+      document.getElementById('stat-today').textContent = todayCount;
+      document.getElementById('stat-week').textContent = weekCount;
+      document.getElementById('stat-pending').textContent = pending;
+      document.getElementById('stat-completed').textContent = completed;
+    }
+
+    function renderInstallations() {
+      const container = document.getElementById('installationsList');
+      let filtered = currentFilter === 'all'
+        ? installations
+        : installations.filter(i => i.status === currentFilter);
+
+      filtered.sort((a, b) => new Date(a.date) - new Date(b.date));
+
+      if (filtered.length === 0) {
+        container.innerHTML = `
+          <div class="empty-state">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
+            <h3>No Installations</h3>
+            <p>${currentFilter !== 'all' ? 'No installations with this status.' : 'Schedule installations to get started.'}</p>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = filtered.map(inst => {
+        const date = new Date(inst.date);
+        const installer = installers.find(i => i.id === inst.installerId);
+
+        return `
+          <div class="install-card">
+            <div class="install-date">
+              <div class="day">${date.getDate()}</div>
+              <div class="month">${date.toLocaleString('default', { month: 'short' })}</div>
+              <div class="time">${inst.timeSlot || 'TBD'}</div>
+            </div>
+            <div class="install-info">
+              <h4>${inst.customerName}</h4>
+              <span class="status-badge status-${inst.status}">${formatStatus(inst.status)}</span>
+              <div class="install-meta">
+                <span>
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
+                  ${inst.orderNumber}
+                </span>
+                <span>
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z" />
+                  </svg>
+                  ${inst.phone}
+                </span>
+                <span>
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16" />
+                  </svg>
+                  ${inst.windowCount || 1} windows
+                </span>
+              </div>
+              <div class="install-details">
+                <strong>Address:</strong> ${inst.address}<br>
+                ${installer ? `<strong>Installer:</strong> ${installer.companyName || installer.name}` : ''}
+                ${inst.notes ? `<br><strong>Notes:</strong> ${inst.notes}` : ''}
+              </div>
+            </div>
+            <div class="install-actions">
+              ${getActionButtons(inst)}
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function getActionButtons(inst) {
+      switch (inst.status) {
+        case 'scheduled':
+          return `
+            <button class="btn-action btn-confirm" onclick="updateStatus('${inst.id}', 'confirmed')">Confirm</button>
+            <button class="btn-action btn-cancel" onclick="updateStatus('${inst.id}', 'cancelled')">Cancel</button>
+          `;
+        case 'confirmed':
+          return `
+            <button class="btn-action btn-start" onclick="updateStatus('${inst.id}', 'in_progress')">Start</button>
+            <button class="btn-action btn-cancel" onclick="updateStatus('${inst.id}', 'cancelled')">Cancel</button>
+          `;
+        case 'in_progress':
+          return `
+            <button class="btn-action btn-complete" onclick="updateStatus('${inst.id}', 'completed')">Complete</button>
+          `;
+        default:
+          return `<button class="btn-action btn-view" onclick="editInstallation('${inst.id}')">View</button>`;
+      }
+    }
+
+    function formatStatus(status) {
+      return {
+        'scheduled': 'Scheduled',
+        'confirmed': 'Confirmed',
+        'in_progress': 'In Progress',
+        'completed': 'Completed',
+        'cancelled': 'Cancelled'
+      }[status] || status;
+    }
+
+    function setFilter(filter) {
+      currentFilter = filter;
+      document.querySelectorAll('.filter-tab').forEach(t => t.classList.toggle('active', t.dataset.filter === filter));
+      renderInstallations();
+    }
+
+    function openModal(inst = null) {
+      const form = document.getElementById('installForm');
+      form.reset();
+      document.getElementById('installId').value = '';
+      document.getElementById('modalTitle').textContent = 'Schedule Installation';
+
+      if (inst) {
+        document.getElementById('modalTitle').textContent = 'Edit Installation';
+        document.getElementById('installId').value = inst.id;
+        form.orderNumber.value = inst.orderNumber || '';
+        form.customerName.value = inst.customerName || '';
+        form.phone.value = inst.phone || '';
+        form.email.value = inst.email || '';
+        form.address.value = inst.address || '';
+        form.date.value = inst.date || '';
+        form.timeSlot.value = inst.timeSlot || '';
+        form.installerId.value = inst.installerId || '';
+        form.windowCount.value = inst.windowCount || 1;
+        form.notes.value = inst.notes || '';
+      }
+
+      document.getElementById('installModal').classList.add('active');
+    }
+
+    function closeModal() {
+      document.getElementById('installModal').classList.remove('active');
+    }
+
+    function editInstallation(id) {
+      const inst = installations.find(i => i.id === id);
+      if (inst) openModal(inst);
+    }
+
+    async function saveInstallation(event) {
+      event.preventDefault();
+      const form = event.target;
+      const formData = new FormData(form);
+      const id = formData.get('id');
+
+      const data = {
+        orderNumber: formData.get('orderNumber'),
+        customerName: formData.get('customerName'),
+        phone: formData.get('phone'),
+        email: formData.get('email'),
+        address: formData.get('address'),
+        date: formData.get('date'),
+        timeSlot: formData.get('timeSlot'),
+        installerId: formData.get('installerId'),
+        windowCount: parseInt(formData.get('windowCount')) || 1,
+        notes: formData.get('notes'),
+        status: 'scheduled'
+      };
+
+      try {
+        const result = id
+          ? await Admin.API.put(`/api/admin/installations/${id}`, data)
+          : await Admin.API.post('/api/admin/installations', data);
+
+        if (result.success) {
+          Admin.Toast.show(id ? 'Installation updated' : 'Installation scheduled');
+          closeModal();
+          await loadData();
+        } else {
+          Admin.Toast.show(result.error || 'Error saving');
+        }
+      } catch (error) {
+        Admin.Toast.show('Error saving installation');
+      }
+    }
+
+    async function updateStatus(id, status) {
+      try {
+        const result = await Admin.API.put(`/api/admin/installations/${id}`, { status });
+        if (result.success) {
+          Admin.Toast.show(`Installation ${formatStatus(status).toLowerCase()}`);
+          await loadData();
+        }
+      } catch (error) {
+        Admin.Toast.show('Error updating status');
+      }
+    }
+
+    document.getElementById('installModal').addEventListener('click', e => {
+      if (e.target.id === 'installModal') closeModal();
+    });
+  </script>
+</body>
+</html>

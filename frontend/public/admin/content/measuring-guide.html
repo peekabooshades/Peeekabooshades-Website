@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Measuring Guide - Peekaboo Shades Admin</title>
+  <link rel="stylesheet" href="/admin/css/admin.css?v=1737200003.0.28">
+  <script src="/admin/js/adminNavConfig.js?v=1737200002"></script>
+  <style>
+    .guide-layout { display: grid; grid-template-columns: 250px 1fr; gap: 1.5rem; margin-top: 1.5rem; }
+    .guide-nav { background: white; border-radius: 12px; padding: 1rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); height: fit-content; position: sticky; top: 1rem; }
+    .guide-nav-item { display: block; padding: 0.75rem 1rem; border-radius: 6px; color: #666; text-decoration: none; margin-bottom: 0.25rem; cursor: pointer; }
+    .guide-nav-item:hover { background: #f5f5f5; }
+    .guide-nav-item.active { background: #8E6545; color: white; }
+    .guide-content { background: white; border-radius: 12px; padding: 2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+    .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
+    .section-header h2 { margin: 0; }
+    .content-editor { border: 1px solid #ddd; border-radius: 8px; min-height: 400px; }
+    .editor-toolbar { display: flex; gap: 0.25rem; padding: 0.75rem; border-bottom: 1px solid #ddd; background: #f9f9f9; border-radius: 8px 8px 0 0; }
+    .toolbar-btn { padding: 0.5rem 0.75rem; background: white; border: 1px solid #ddd; border-radius: 4px; cursor: pointer; }
+    .toolbar-btn:hover { background: #f0f0f0; }
+    .editor-content { padding: 1rem; min-height: 350px; outline: none; }
+    .editor-content:focus { border-color: #8E6545; }
+    .media-gallery { display: grid; grid-template-columns: repeat(auto-fill, minmax(120px, 1fr)); gap: 1rem; margin-top: 1rem; padding: 1rem; background: #f9f9f9; border-radius: 8px; }
+    .media-item { aspect-ratio: 1; background: #e0e0e0; border-radius: 8px; display: flex; align-items: center; justify-content: center; position: relative; cursor: pointer; }
+    .media-item img { width: 100%; height: 100%; object-fit: cover; border-radius: 8px; }
+    .media-item .delete-btn { position: absolute; top: 4px; right: 4px; background: #EF4444; color: white; border: none; border-radius: 50%; width: 24px; height: 24px; cursor: pointer; display: none; }
+    .media-item:hover .delete-btn { display: block; }
+    .add-media { border: 2px dashed #ccc; cursor: pointer; }
+    .add-media:hover { border-color: #8E6545; }
+    .btn-save { padding: 0.75rem 2rem; background: #8E6545; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; }
+    .btn-preview { padding: 0.75rem 2rem; background: #E5E7EB; color: #374151; border: none; border-radius: 8px; cursor: pointer; margin-right: 0.5rem; }
+    .last-saved { color: #666; font-size: 0.85rem; }
+  </style>
+</head>
+<body>
+  <div class="admin-layout">
+    <aside class="admin-sidebar"></aside>
+    <main class="admin-main">
+      <header class="admin-header">
+        <h1>Measuring Guide</h1>
+        <div class="header-actions">
+          <button class="btn-preview" onclick="previewGuide()">Preview</button>
+          <button class="btn-save" onclick="saveGuide()">Save Changes</button>
+        </div>
+      </header>
+      <div class="admin-content">
+        <div class="guide-layout">
+          <nav class="guide-nav">
+            <div class="guide-nav-item active" data-section="intro" onclick="selectSection('intro')">Introduction</div>
+            <div class="guide-nav-item" data-section="tools" onclick="selectSection('tools')">Tools Needed</div>
+            <div class="guide-nav-item" data-section="inside" onclick="selectSection('inside')">Inside Mount</div>
+            <div class="guide-nav-item" data-section="outside" onclick="selectSection('outside')">Outside Mount</div>
+            <div class="guide-nav-item" data-section="tips" onclick="selectSection('tips')">Pro Tips</div>
+            <div class="guide-nav-item" data-section="video" onclick="selectSection('video')">Video Tutorial</div>
+            <div class="guide-nav-item" data-section="faq" onclick="selectSection('faq')">FAQ</div>
+          </nav>
+          <div class="guide-content">
+            <div class="section-header">
+              <h2 id="sectionTitle">Introduction</h2>
+              <span class="last-saved">Last saved: 2 hours ago</span>
+            </div>
+            <div class="content-editor">
+              <div class="editor-toolbar">
+                <button class="toolbar-btn" onclick="execCmd('bold')"><b>B</b></button>
+                <button class="toolbar-btn" onclick="execCmd('italic')"><i>I</i></button>
+                <button class="toolbar-btn" onclick="execCmd('underline')"><u>U</u></button>
+                <button class="toolbar-btn" onclick="execCmd('insertUnorderedList')">• List</button>
+                <button class="toolbar-btn" onclick="execCmd('insertOrderedList')">1. List</button>
+                <button class="toolbar-btn" onclick="insertLink()">Link</button>
+                <button class="toolbar-btn" onclick="insertImage()">Image</button>
+              </div>
+              <div class="editor-content" id="editorContent" contenteditable="true">
+                <h3>Getting Accurate Measurements</h3>
+                <p>Proper measurements are crucial for a perfect fit. Follow these step-by-step instructions to measure your windows correctly.</p>
+                <p>Our custom window treatments are made to your exact specifications, so accurate measurements ensure:</p>
+                <ul>
+                  <li>Perfect fit for your windows</li>
+                  <li>Proper light control and privacy</li>
+                  <li>Professional appearance</li>
+                  <li>No returns due to sizing issues</li>
+                </ul>
+                <p><strong>Tip:</strong> Always use a metal tape measure for the most accurate results. Cloth tape measures can stretch over time.</p>
+              </div>
+            </div>
+            <h3 style="margin-top: 1.5rem;">Section Images</h3>
+            <div class="media-gallery">
+              <div class="media-item">
+                <img src="/images/guides/measure-1.jpg" alt="Measuring width" onerror="this.style.display='none';this.parentElement.innerHTML='📏'">
+                <button class="delete-btn">×</button>
+              </div>
+              <div class="media-item">
+                <img src="/images/guides/measure-2.jpg" alt="Measuring height" onerror="this.style.display='none';this.parentElement.innerHTML='📐'">
+                <button class="delete-btn">×</button>
+              </div>
+              <div class="media-item add-media" onclick="addMedia()">
+                <span>+ Add Image</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+  <script>
+    const sections = {
+      intro: { title: 'Introduction', content: '<h3>Getting Accurate Measurements</h3><p>Proper measurements are crucial for a perfect fit...</p>' },
+      tools: { title: 'Tools Needed', content: '<h3>What You\'ll Need</h3><ul><li>Metal tape measure</li><li>Pencil and paper</li><li>Step stool or ladder</li></ul>' },
+      inside: { title: 'Inside Mount', content: '<h3>Inside Mount Measurements</h3><p>For a clean, built-in look...</p>' },
+      outside: { title: 'Outside Mount', content: '<h3>Outside Mount Measurements</h3><p>For maximum light coverage...</p>' },
+      tips: { title: 'Pro Tips', content: '<h3>Professional Tips</h3><ul><li>Measure each window individually</li><li>Measure twice, order once</li></ul>' },
+      video: { title: 'Video Tutorial', content: '<h3>Watch Our Tutorial</h3><p>Video embed placeholder</p>' },
+      faq: { title: 'FAQ', content: '<h3>Frequently Asked Questions</h3><p>Common measuring questions...</p>' }
+    };
+
+    let currentSection = 'intro';
+
+    document.addEventListener('DOMContentLoaded', () => {
+      if (!localStorage.getItem('admin_token')) { window.location.href = '/admin/login.html'; return; }
+      AdminNavConfig.initSidebar('measuring-guide');
+    });
+
+    function selectSection(section) {
+      currentSection = section;
+      document.querySelectorAll('.guide-nav-item').forEach(item => {
+        item.classList.toggle('active', item.dataset.section === section);
+      });
+      document.getElementById('sectionTitle').textContent = sections[section].title;
+      // In real app, load content from database
+    }
+
+    function execCmd(command) {
+      document.execCommand(command, false, null);
+    }
+
+    function insertLink() {
+      const url = prompt('Enter URL:');
+      if (url) document.execCommand('createLink', false, url);
+    }
+
+    function insertImage() {
+      const url = prompt('Enter image URL:');
+      if (url) document.execCommand('insertImage', false, url);
+    }
+
+    function addMedia() {
+      alert('Open media library to select image');
+    }
+
+    function previewGuide() {
+      window.open('/help/measuring-guide', '_blank');
+    }
+
+    function saveGuide() {
+      const content = document.getElementById('editorContent').innerHTML;
+      alert('Guide saved successfully!');
+    }
+  </script>
+</body>
+</html>

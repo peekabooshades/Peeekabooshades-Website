@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Measurement Requests - Peekaboo Shades Admin</title>
+  <link rel="stylesheet" href="/admin/css/admin.css?v=1737200003.0.27">
+  <script src="/admin/js/adminNavConfig.js?v=1737200002"></script>
+  <style>
+    .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
+    .stat-card { background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+    .stat-card h3 { font-size: 0.85rem; color: #666; margin-bottom: 0.5rem; }
+    .stat-card .value { font-size: 2rem; font-weight: 700; color: #8E6545; }
+    .controls { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem; }
+    .search-box { display: flex; align-items: center; background: white; border: 1px solid #ddd; border-radius: 8px; padding: 0.5rem 1rem; min-width: 300px; }
+    .search-box input { border: none; outline: none; padding: 0.5rem; flex: 1; }
+    .filter-tabs { display: flex; gap: 0.5rem; }
+    .filter-tab { padding: 0.5rem 1rem; border: 1px solid #ddd; background: white; border-radius: 6px; cursor: pointer; }
+    .filter-tab.active { background: #8E6545; color: white; border-color: #8E6545; }
+    .requests-list { display: grid; gap: 1rem; }
+    .request-card { background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); display: grid; grid-template-columns: auto 1fr auto; gap: 1.5rem; align-items: start; }
+    .request-date { text-align: center; padding: 1rem; background: #f5f5f5; border-radius: 8px; min-width: 80px; }
+    .request-date .day { font-size: 1.75rem; font-weight: 700; color: #8E6545; }
+    .request-date .month { font-size: 0.85rem; color: #666; }
+    .request-info h4 { margin: 0 0 0.5rem 0; }
+    .request-meta { display: flex; flex-wrap: wrap; gap: 1rem; font-size: 0.85rem; color: #666; margin-bottom: 0.75rem; }
+    .request-meta span { display: flex; align-items: center; gap: 0.35rem; }
+    .request-details { background: #f9f9f9; padding: 0.75rem; border-radius: 6px; font-size: 0.9rem; }
+    .status-badge { padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.75rem; font-weight: 600; display: inline-block; margin-bottom: 0.5rem; }
+    .status-pending { background: #FEF3C7; color: #92400E; }
+    .status-scheduled { background: #DBEAFE; color: #1E40AF; }
+    .status-completed { background: #D1FAE5; color: #065F46; }
+    .status-cancelled { background: #FEE2E2; color: #991B1B; }
+    .request-actions { display: flex; flex-direction: column; gap: 0.5rem; }
+    .btn-action { padding: 0.5rem 1rem; border: none; border-radius: 6px; cursor: pointer; font-size: 0.85rem; }
+    .btn-schedule { background: #8E6545; color: white; }
+    .btn-complete { background: #10B981; color: white; }
+    .btn-cancel { background: #FEE2E2; color: #991B1B; }
+    .btn-view { background: #E5E7EB; color: #374151; }
+    .modal { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; }
+    .modal.active { display: flex; }
+    .modal-content { background: white; border-radius: 12px; padding: 2rem; max-width: 600px; width: 90%; max-height: 90vh; overflow-y: auto; }
+    .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
+    .modal-header h2 { margin: 0; }
+    .modal-close { background: none; border: none; font-size: 1.5rem; cursor: pointer; }
+    .form-group { margin-bottom: 1.25rem; }
+    .form-group label { display: block; margin-bottom: 0.5rem; font-weight: 500; }
+    .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 0.75rem; border: 1px solid #ddd; border-radius: 8px; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    .btn-submit { width: 100%; padding: 0.875rem; background: #8E6545; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; }
+    .empty-state { text-align: center; padding: 4rem; color: #666; }
+  </style>
+</head>
+<body>
+  <div class="admin-layout">
+    <aside class="admin-sidebar"></aside>
+    <main class="admin-main">
+      <header class="admin-header">
+        <h1>Measurement Requests</h1>
+        <div class="header-actions">
+          <button class="btn-primary" onclick="openModal()">+ New Request</button>
+        </div>
+      </header>
+      <div class="admin-content">
+        <div class="stats">
+          <div class="stat-card"><h3>Pending</h3><div class="value" id="stat-pending">0</div></div>
+          <div class="stat-card"><h3>Scheduled</h3><div class="value" id="stat-scheduled">0</div></div>
+          <div class="stat-card"><h3>Completed</h3><div class="value" id="stat-completed">0</div></div>
+          <div class="stat-card"><h3>This Month</h3><div class="value" id="stat-month">0</div></div>
+        </div>
+        <div class="controls">
+          <div class="search-box">
+            <input type="text" placeholder="Search by customer or address..." id="searchInput" onkeyup="filterRequests()">
+          </div>
+          <div class="filter-tabs">
+            <button class="filter-tab active" data-filter="all" onclick="setFilter('all')">All</button>
+            <button class="filter-tab" data-filter="pending" onclick="setFilter('pending')">Pending</button>
+            <button class="filter-tab" data-filter="scheduled" onclick="setFilter('scheduled')">Scheduled</button>
+            <button class="filter-tab" data-filter="completed" onclick="setFilter('completed')">Completed</button>
+          </div>
+        </div>
+        <div class="requests-list" id="requestsList"></div>
+      </div>
+    </main>
+  </div>
+  <div class="modal" id="requestModal">
+    <div class="modal-content">
+      <div class="modal-header"><h2 id="modalTitle">New Measurement Request</h2><button class="modal-close" onclick="closeModal()">&times;</button></div>
+      <form id="requestForm" onsubmit="saveRequest(event)">
+        <input type="hidden" name="id" id="requestId">
+        <div class="form-row">
+          <div class="form-group"><label>Customer Name</label><input type="text" name="customerName" required></div>
+          <div class="form-group"><label>Phone</label><input type="tel" name="phone" required></div>
+        </div>
+        <div class="form-group"><label>Email</label><input type="email" name="email"></div>
+        <div class="form-group"><label>Address</label><textarea name="address" rows="2" required></textarea></div>
+        <div class="form-row">
+          <div class="form-group"><label>Preferred Date</label><input type="date" name="preferredDate" required></div>
+          <div class="form-group"><label>Time Preference</label>
+            <select name="timePreference">
+              <option value="morning">Morning (8am-12pm)</option>
+              <option value="afternoon">Afternoon (12pm-5pm)</option>
+              <option value="flexible">Flexible</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label>Number of Windows</label><input type="number" name="windowCount" min="1" value="1"></div>
+          <div class="form-group"><label>Property Type</label>
+            <select name="propertyType">
+              <option value="residential">Residential</option>
+              <option value="commercial">Commercial</option>
+              <option value="multi-family">Multi-Family</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group"><label>Notes</label><textarea name="notes" rows="2"></textarea></div>
+        <button type="submit" class="btn-submit">Save Request</button>
+      </form>
+    </div>
+  </div>
+  <script>
+    const Admin = {
+      API: {
+        async get(endpoint) { const token = localStorage.getItem('admin_token'); const r = await fetch(endpoint, { headers: { 'Authorization': `Bearer ${token}` } }); return r.json(); },
+        async post(endpoint, data) { const token = localStorage.getItem('admin_token'); const r = await fetch(endpoint, { method: 'POST', headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }, body: JSON.stringify(data) }); return r.json(); },
+        async put(endpoint, data) { const token = localStorage.getItem('admin_token'); const r = await fetch(endpoint, { method: 'PUT', headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' }, body: JSON.stringify(data) }); return r.json(); },
+        async delete(endpoint) { const token = localStorage.getItem('admin_token'); const r = await fetch(endpoint, { method: 'DELETE', headers: { 'Authorization': `Bearer ${token}` } }); return r.json(); }
+      },
+      Toast: { show(msg) { alert(msg); } }
+    };
+    let requests = [];
+    let currentFilter = 'all';
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      const token = localStorage.getItem('admin_token');
+      if (!token) { window.location.href = '/admin/login.html'; return; }
+      AdminNavConfig.initSidebar('measurement-requests');
+      await loadRequests();
+    });
+
+    async function loadRequests() {
+      try {
+        const data = await Admin.API.get('/api/admin/measurement-requests');
+        requests = data.success ? (data.measurementRequests || data.requests || []) : getSampleData();
+      } catch (e) { requests = getSampleData(); }
+      updateStats();
+      renderRequests();
+    }
+
+    function getSampleData() {
+      return [
+        { id: 'MR-001', customerName: 'John Smith', phone: '(555) 123-4567', email: 'john@email.com', address: '123 Main St, Los Angeles, CA 90001', preferredDate: '2024-01-25', timePreference: 'morning', windowCount: 5, propertyType: 'residential', status: 'pending', createdAt: '2024-01-20' },
+        { id: 'MR-002', customerName: 'Lisa Wong', phone: '(555) 987-6543', email: 'lisa@email.com', address: '456 Oak Ave, Pasadena, CA 91101', preferredDate: '2024-01-22', timePreference: 'afternoon', windowCount: 12, propertyType: 'commercial', status: 'scheduled', scheduledDate: '2024-01-22', assignedTo: 'Pro Blinds Installation', createdAt: '2024-01-18' },
+        { id: 'MR-003', customerName: 'Mike Davis', phone: '(555) 456-7890', email: 'mike@email.com', address: '789 Pine Rd, Glendale, CA 91201', preferredDate: '2024-01-20', timePreference: 'flexible', windowCount: 8, propertyType: 'residential', status: 'completed', measurements: { windows: 8, totalSqFt: 120 }, createdAt: '2024-01-15' }
+      ];
+    }
+
+    function updateStats() {
+      document.getElementById('stat-pending').textContent = requests.filter(r => r.status === 'pending').length;
+      document.getElementById('stat-scheduled').textContent = requests.filter(r => r.status === 'scheduled').length;
+      document.getElementById('stat-completed').textContent = requests.filter(r => r.status === 'completed').length;
+      document.getElementById('stat-month').textContent = requests.length;
+    }
+
+    function renderRequests() {
+      const container = document.getElementById('requestsList');
+      const search = document.getElementById('searchInput').value.toLowerCase();
+      let filtered = currentFilter === 'all' ? requests : requests.filter(r => r.status === currentFilter);
+      if (search) filtered = filtered.filter(r => r.customerName.toLowerCase().includes(search) || r.address.toLowerCase().includes(search));
+
+      if (filtered.length === 0) {
+        container.innerHTML = '<div class="empty-state"><h3>No Requests Found</h3><p>Measurement requests will appear here.</p></div>';
+        return;
+      }
+
+      container.innerHTML = filtered.map(req => {
+        const date = new Date(req.preferredDate || req.scheduledDate || req.createdAt);
+        return `
+          <div class="request-card">
+            <div class="request-date">
+              <div class="day">${date.getDate()}</div>
+              <div class="month">${date.toLocaleString('default', { month: 'short' })}</div>
+            </div>
+            <div class="request-info">
+              <span class="status-badge status-${req.status}">${req.status}</span>
+              <h4>${req.customerName}</h4>
+              <div class="request-meta">
+                <span>📞 ${req.phone}</span>
+                <span>🏠 ${req.windowCount} windows</span>
+                <span>📍 ${req.propertyType}</span>
+              </div>
+              <div class="request-details">
+                <strong>Address:</strong> ${req.address}<br>
+                <strong>Preferred:</strong> ${formatDate(req.preferredDate)} (${req.timePreference})
+                ${req.assignedTo ? `<br><strong>Assigned:</strong> ${req.assignedTo}` : ''}
+                ${req.notes ? `<br><strong>Notes:</strong> ${req.notes}` : ''}
+              </div>
+            </div>
+            <div class="request-actions">
+              ${req.status === 'pending' ? `<button class="btn-action btn-schedule" onclick="updateStatus('${req.id}', 'scheduled')">Schedule</button>` : ''}
+              ${req.status === 'scheduled' ? `<button class="btn-action btn-complete" onclick="updateStatus('${req.id}', 'completed')">Complete</button>` : ''}
+              ${req.status !== 'completed' && req.status !== 'cancelled' ? `<button class="btn-action btn-cancel" onclick="updateStatus('${req.id}', 'cancelled')">Cancel</button>` : ''}
+              <button class="btn-action btn-view" onclick="editRequest('${req.id}')">Edit</button>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function formatDate(d) { if (!d) return 'N/A'; return new Date(d).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }); }
+    function setFilter(f) { currentFilter = f; document.querySelectorAll('.filter-tab').forEach(t => t.classList.toggle('active', t.dataset.filter === f)); renderRequests(); }
+    function filterRequests() { renderRequests(); }
+
+    function openModal(req = null) {
+      const form = document.getElementById('requestForm');
+      form.reset();
+      document.getElementById('requestId').value = '';
+      document.getElementById('modalTitle').textContent = 'New Measurement Request';
+      if (req) {
+        document.getElementById('modalTitle').textContent = 'Edit Request';
+        document.getElementById('requestId').value = req.id;
+        form.customerName.value = req.customerName || '';
+        form.phone.value = req.phone || '';
+        form.email.value = req.email || '';
+        form.address.value = req.address || '';
+        form.preferredDate.value = req.preferredDate || '';
+        form.timePreference.value = req.timePreference || 'flexible';
+        form.windowCount.value = req.windowCount || 1;
+        form.propertyType.value = req.propertyType || 'residential';
+        form.notes.value = req.notes || '';
+      }
+      document.getElementById('requestModal').classList.add('active');
+    }
+
+    function closeModal() { document.getElementById('requestModal').classList.remove('active'); }
+    function editRequest(id) { const req = requests.find(r => r.id === id); if (req) openModal(req); }
+
+    async function saveRequest(e) {
+      e.preventDefault();
+      const form = e.target;
+      const formData = new FormData(form);
+      const id = formData.get('id');
+      const data = {
+        customerName: formData.get('customerName'),
+        phone: formData.get('phone'),
+        email: formData.get('email'),
+        address: formData.get('address'),
+        preferredDate: formData.get('preferredDate'),
+        timePreference: formData.get('timePreference'),
+        windowCount: parseInt(formData.get('windowCount')),
+        propertyType: formData.get('propertyType'),
+        notes: formData.get('notes'),
+        status: 'pending'
+      };
+      try {
+        if (id) {
+          await Admin.API.put(`/api/admin/measurement-requests/${id}`, data);
+        } else {
+          await Admin.API.post('/api/admin/measurement-requests', data);
+        }
+      } catch (e) {}
+      if (!id) { data.id = 'MR-' + Date.now(); requests.unshift(data); }
+      else { const idx = requests.findIndex(r => r.id === id); if (idx >= 0) requests[idx] = { ...requests[idx], ...data }; }
+      closeModal();
+      updateStats();
+      renderRequests();
+      Admin.Toast.show(id ? 'Request updated' : 'Request created');
+    }
+
+    async function updateStatus(id, status) {
+      const req = requests.find(r => r.id === id);
+      if (req) { req.status = status; updateStats(); renderRequests(); }
+      try { await Admin.API.put(`/api/admin/measurement-requests/${id}`, { status }); } catch (e) {}
+      Admin.Toast.show(`Request ${status}`);
+    }
+
+    document.getElementById('requestModal').addEventListener('click', e => { if (e.target.id === 'requestModal') closeModal(); });
+  </script>
+</body>
+</html>

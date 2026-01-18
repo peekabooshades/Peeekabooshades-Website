@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tax Rates - Peekaboo Shades Admin</title>
+  <link rel="stylesheet" href="/admin/css/admin.css?v=1737200003.0.28">
+  <script src="/admin/js/admin.js?v=1737100001"></script>
+  <script src="/admin/js/adminNavConfig.js?v=1737200002"></script>
+  <style>
+    .tax-settings { display: grid; grid-template-columns: 1fr 350px; gap: 1.5rem; margin-top: 1.5rem; }
+    .tax-table-container { background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+    .tax-sidebar { display: flex; flex-direction: column; gap: 1rem; }
+    .settings-card { background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+    .settings-card h3 { margin: 0 0 1rem 0; font-size: 1rem; }
+    .setting-row { display: flex; justify-content: space-between; align-items: center; padding: 0.75rem 0; border-bottom: 1px solid #eee; }
+    .setting-row:last-child { border-bottom: none; }
+    .setting-label { font-weight: 500; }
+    .setting-desc { font-size: 0.85rem; color: #666; margin-top: 0.25rem; }
+    .toggle { position: relative; width: 48px; height: 24px; }
+    .toggle input { opacity: 0; width: 0; height: 0; }
+    .toggle .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background: #ddd; border-radius: 24px; transition: 0.3s; }
+    .toggle .slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background: white; border-radius: 50%; transition: 0.3s; }
+    .toggle input:checked + .slider { background: #10B981; }
+    .toggle input:checked + .slider:before { transform: translateX(24px); }
+    table { width: 100%; border-collapse: collapse; }
+    th { background: #f9f9f9; padding: 1rem; text-align: left; font-weight: 600; font-size: 0.85rem; color: #666; text-transform: uppercase; }
+    td { padding: 1rem; border-top: 1px solid #eee; }
+    .tax-rate-input { width: 70px; padding: 0.4rem; border: 1px solid #ddd; border-radius: 4px; text-align: right; }
+    .btn-action { padding: 0.4rem 0.75rem; border: none; border-radius: 4px; cursor: pointer; font-size: 0.8rem; margin-right: 0.25rem; }
+    .btn-edit { background: #8E6545; color: white; }
+    .btn-delete { background: #FEE2E2; color: #991B1B; }
+    .search-box { padding: 0.75rem 1rem; border: 1px solid #ddd; border-radius: 8px; width: 100%; margin-bottom: 1rem; }
+    .modal { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; }
+    .modal.active { display: flex; }
+    .modal-content { background: white; border-radius: 12px; padding: 2rem; max-width: 500px; width: 90%; }
+    .modal-header { display: flex; justify-content: space-between; margin-bottom: 1.5rem; }
+    .modal-header h2 { margin: 0; }
+    .modal-close { background: none; border: none; font-size: 1.5rem; cursor: pointer; }
+    .form-group { margin-bottom: 1.25rem; }
+    .form-group label { display: block; margin-bottom: 0.5rem; font-weight: 500; }
+    .form-group input, .form-group select { width: 100%; padding: 0.75rem; border: 1px solid #ddd; border-radius: 8px; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    .btn-submit { width: 100%; padding: 0.875rem; background: #8E6545; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; }
+  </style>
+</head>
+<body>
+  <div class="admin-layout">
+    <aside class="admin-sidebar"></aside>
+    <main class="admin-main">
+      <header class="admin-header">
+        <h1>Tax Rates</h1>
+        <div class="header-actions">
+          <button class="btn-primary" onclick="openModal()">+ Add Tax Rate</button>
+        </div>
+      </header>
+      <div class="admin-content">
+        <div class="tax-settings">
+          <div class="tax-table-container">
+            <input type="text" class="search-box" placeholder="Search by state or ZIP..." oninput="filterRates(this.value)">
+            <table>
+              <thead>
+                <tr>
+                  <th>State</th>
+                  <th>State Rate</th>
+                  <th>County</th>
+                  <th>County Rate</th>
+                  <th>Total</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
+              <tbody id="taxRatesBody"></tbody>
+            </table>
+          </div>
+          <div class="tax-sidebar">
+            <div class="settings-card">
+              <h3>Tax Settings</h3>
+              <div class="setting-row">
+                <div>
+                  <div class="setting-label">Enable Tax Collection</div>
+                  <div class="setting-desc">Charge tax on orders</div>
+                </div>
+                <label class="toggle">
+                  <input type="checkbox" id="taxEnabled" onchange="saveSettings()">
+                  <span class="slider"></span>
+                </label>
+              </div>
+              <div class="setting-row">
+                <div>
+                  <div class="setting-label">Tax Included in Price</div>
+                  <div class="setting-desc">Prices already include tax</div>
+                </div>
+                <label class="toggle">
+                  <input type="checkbox" id="taxIncluded" onchange="saveSettings()">
+                  <span class="slider"></span>
+                </label>
+              </div>
+              <div class="setting-row">
+                <div>
+                  <div class="setting-label">Show Tax in Cart</div>
+                  <div class="setting-desc">Display estimated tax before checkout</div>
+                </div>
+                <label class="toggle">
+                  <input type="checkbox" id="showTaxInCart" onchange="saveSettings()">
+                  <span class="slider"></span>
+                </label>
+              </div>
+            </div>
+            <div class="settings-card">
+              <h3>Tax Exemptions</h3>
+              <div class="setting-row">
+                <div>
+                  <div class="setting-label">Trade Customers</div>
+                  <div class="setting-desc">Exempt verified trade accounts</div>
+                </div>
+                <label class="toggle">
+                  <input type="checkbox" id="exemptTrade" onchange="saveSettings()">
+                  <span class="slider"></span>
+                </label>
+              </div>
+              <div class="setting-row">
+                <div>
+                  <div class="setting-label">Resellers</div>
+                  <div class="setting-desc">Exempt with valid resale certificate</div>
+                </div>
+                <label class="toggle">
+                  <input type="checkbox" id="exemptResellers" onchange="saveSettings()">
+                  <span class="slider"></span>
+                </label>
+              </div>
+            </div>
+            <div class="settings-card">
+              <h3>Default Rate</h3>
+              <p style="color: #666; font-size: 0.9rem; margin: 0 0 1rem 0;">Used when no specific rate is configured</p>
+              <div style="display: flex; align-items: center; gap: 0.5rem;">
+                <input type="number" id="defaultRate" step="0.01" style="width: 80px; padding: 0.5rem; border: 1px solid #ddd; border-radius: 6px;" onchange="saveSettings()">
+                <span>%</span>
+              </div>
+              <button onclick="saveSettings()" style="margin-top: 1rem; padding: 0.5rem 1rem; background: #8E6545; color: white; border: none; border-radius: 6px; cursor: pointer;">Save Settings</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+  <div class="modal" id="taxModal">
+    <div class="modal-content">
+      <div class="modal-header"><h2 id="modalTitle">Add Tax Rate</h2><button class="modal-close" onclick="closeModal()">&times;</button></div>
+      <form onsubmit="saveTaxRate(event)">
+        <input type="hidden" id="taxId">
+        <div class="form-group">
+          <label>State</label>
+          <select id="taxState" required>
+            <option value="">Select state...</option>
+            <option value="CA">California</option>
+            <option value="TX">Texas</option>
+            <option value="FL">Florida</option>
+            <option value="NY">New York</option>
+            <option value="IL">Illinois</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>County (optional)</label>
+          <input type="text" id="taxCounty" placeholder="e.g., Los Angeles">
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>State Rate (%)</label>
+            <input type="number" id="stateRate" step="0.001" required>
+          </div>
+          <div class="form-group">
+            <label>County Rate (%)</label>
+            <input type="number" id="countyRate" step="0.001" value="0">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>ZIP Codes (optional, comma-separated)</label>
+          <input type="text" id="taxZips" placeholder="e.g., 90210, 90211, 90212">
+        </div>
+        <button type="submit" class="btn-submit">Save Tax Rate</button>
+      </form>
+    </div>
+  </div>
+  <script>
+    let taxConfig = { enabled: true, defaultRate: 0.08, includedInPrice: false, rules: [] };
+    let taxRates = [];
+
+    document.addEventListener('DOMContentLoaded', () => {
+      if (!localStorage.getItem('admin_token')) { window.location.href = '/admin/login.html'; return; }
+      AdminNavConfig.initSidebar('tax-rates');
+      loadTaxConfig();
+    });
+
+    async function loadTaxConfig() {
+      const token = localStorage.getItem('admin_token');
+      const headers = { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' };
+
+      try {
+        const res = await fetch('/api/admin/system-config', { headers });
+        const data = await res.json();
+
+        if (data.success && data.data && data.data.tax) {
+          taxConfig = data.data.tax;
+          taxRates = (taxConfig.rules || []).map((r, idx) => ({
+            id: 't-' + idx,
+            state: r.region || r.state || 'default',
+            stateRate: (r.rate || 0) * 100,
+            county: r.name || r.county || 'Default',
+            countyRate: (r.countyRate || 0) * 100,
+            zips: r.zips || []
+          }));
+
+          // Update UI toggles
+          document.getElementById('taxEnabled').checked = taxConfig.enabled !== false;
+          document.getElementById('taxIncluded').checked = taxConfig.includedInPrice === true;
+          document.getElementById('showTaxInCart').checked = taxConfig.showInCart !== false;
+          document.getElementById('exemptTrade').checked = taxConfig.exemptTrade !== false;
+          document.getElementById('exemptResellers').checked = taxConfig.exemptResellers !== false;
+          document.getElementById('defaultRate').value = ((taxConfig.defaultRate || 0.08) * 100).toFixed(2);
+
+          renderTaxRates();
+        }
+      } catch (error) {
+        console.error('Error loading tax config:', error);
+        alert('Error loading tax configuration. Please refresh.');
+      }
+    }
+
+    async function saveSettings() {
+      const token = localStorage.getItem('admin_token');
+      const headers = { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' };
+
+      const updatedConfig = {
+        enabled: document.getElementById('taxEnabled').checked,
+        includedInPrice: document.getElementById('taxIncluded').checked,
+        showInCart: document.getElementById('showTaxInCart').checked,
+        exemptTrade: document.getElementById('exemptTrade').checked,
+        exemptResellers: document.getElementById('exemptResellers').checked,
+        defaultRate: parseFloat(document.getElementById('defaultRate').value) / 100,
+        rules: taxRates.map(r => ({
+          region: r.state,
+          rate: r.stateRate / 100,
+          name: r.county,
+          countyRate: r.countyRate / 100,
+          zips: r.zips || []
+        }))
+      };
+
+      try {
+        const res = await fetch('/api/admin/system-config/tax', {
+          method: 'PUT',
+          headers,
+          body: JSON.stringify(updatedConfig)
+        });
+        const data = await res.json();
+
+        if (data.success) {
+          Admin.Toast.success('Tax settings saved successfully');
+        } else {
+          Admin.Toast.error('Failed to save: ' + (data.error || 'Unknown error'));
+        }
+      } catch (error) {
+        console.error('Error saving tax config:', error);
+        Admin.Toast.error('Error saving tax configuration');
+      }
+    }
+
+    function filterRates(query) {
+      renderTaxRates(query.toLowerCase());
+    }
+
+    function renderTaxRates(filter = '') {
+      let filtered = taxRates;
+      if (filter) {
+        filtered = taxRates.filter(r =>
+          r.state.toLowerCase().includes(filter) ||
+          r.county.toLowerCase().includes(filter)
+        );
+      }
+
+      if (filtered.length === 0) {
+        document.getElementById('taxRatesBody').innerHTML = `
+          <tr><td colspan="6" style="text-align: center; padding: 2rem; color: #666;">
+            No tax rates configured. Click "Add Tax Rate" to create one.
+          </td></tr>`;
+        return;
+      }
+
+      document.getElementById('taxRatesBody').innerHTML = filtered.map(r => `
+        <tr>
+          <td><strong>${r.state}</strong></td>
+          <td><input type="number" class="tax-rate-input" value="${r.stateRate.toFixed(3)}" step="0.001" onchange="updateRate('${r.id}', 'stateRate', this.value)">%</td>
+          <td>${r.county}</td>
+          <td><input type="number" class="tax-rate-input" value="${r.countyRate.toFixed(3)}" step="0.001" onchange="updateRate('${r.id}', 'countyRate', this.value)">%</td>
+          <td><strong>${(r.stateRate + r.countyRate).toFixed(3)}%</strong></td>
+          <td>
+            <button class="btn-action btn-edit" onclick="editTaxRate('${r.id}')">Edit</button>
+            <button class="btn-action btn-delete" onclick="deleteTaxRate('${r.id}')">Delete</button>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    function updateRate(id, field, value) {
+      const rate = taxRates.find(r => r.id === id);
+      if (rate) {
+        rate[field] = parseFloat(value);
+        renderTaxRates();
+        saveSettings(); // Auto-save on change
+      }
+    }
+
+    function openModal(rate = null) {
+      document.getElementById('taxId').value = rate ? rate.id : '';
+      document.getElementById('taxState').value = rate ? rate.state : '';
+      document.getElementById('taxCounty').value = rate ? rate.county : '';
+      document.getElementById('stateRate').value = rate ? rate.stateRate : '';
+      document.getElementById('countyRate').value = rate ? rate.countyRate : 0;
+      document.getElementById('taxZips').value = rate && rate.zips ? rate.zips.join(', ') : '';
+      document.getElementById('modalTitle').textContent = rate ? 'Edit Tax Rate' : 'Add Tax Rate';
+      document.getElementById('taxModal').classList.add('active');
+    }
+
+    function closeModal() { document.getElementById('taxModal').classList.remove('active'); }
+
+    function editTaxRate(id) {
+      const rate = taxRates.find(r => r.id === id);
+      if (rate) openModal(rate);
+    }
+
+    async function deleteTaxRate(id) {
+      if (!confirm('Delete this tax rate?')) return;
+
+      taxRates = taxRates.filter(r => r.id !== id);
+      renderTaxRates();
+      await saveSettings();
+      Admin.Toast.success('Tax rate deleted');
+    }
+
+    async function saveTaxRate(e) {
+      e.preventDefault();
+      const id = document.getElementById('taxId').value;
+      const data = {
+        state: document.getElementById('taxState').value,
+        stateRate: parseFloat(document.getElementById('stateRate').value),
+        county: document.getElementById('taxCounty').value || 'Default',
+        countyRate: parseFloat(document.getElementById('countyRate').value) || 0,
+        zips: document.getElementById('taxZips').value.split(',').map(z => z.trim()).filter(z => z)
+      };
+
+      if (id) {
+        const idx = taxRates.findIndex(r => r.id === id);
+        if (idx >= 0) taxRates[idx] = { ...taxRates[idx], ...data };
+      } else {
+        data.id = 't-' + Date.now();
+        taxRates.push(data);
+      }
+
+      closeModal();
+      renderTaxRates();
+      await saveSettings();
+      Admin.Toast.success(id ? 'Tax rate updated' : 'Tax rate created');
+    }
+
+    document.getElementById('taxModal').addEventListener('click', e => { if (e.target.id === 'taxModal') closeModal(); });
+  </script>
+</body>
+</html>

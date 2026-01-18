@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Meta Tags - Peekaboo Shades Admin</title>
+  <link rel="stylesheet" href="/admin/css/admin.css?v=1737200003.0.28">
+  <script src="/admin/js/adminNavConfig.js?v=1737200002"></script>
+  <style>
+    .tabs { display: flex; gap: 0; margin-bottom: 1.5rem; border-bottom: 2px solid #eee; }
+    .tab { padding: 1rem 1.5rem; background: none; border: none; cursor: pointer; font-weight: 500; color: #666; position: relative; }
+    .tab.active { color: #8E6545; }
+    .tab.active::after { content: ''; position: absolute; bottom: -2px; left: 0; right: 0; height: 2px; background: #8E6545; }
+    .meta-list { display: grid; gap: 1rem; }
+    .meta-card { background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+    .meta-header { display: flex; justify-content: space-between; align-items: start; margin-bottom: 1rem; }
+    .meta-page { font-size: 1.1rem; font-weight: 600; margin: 0; }
+    .meta-url { color: #666; font-size: 0.85rem; margin-top: 0.25rem; }
+    .seo-preview { background: #f9f9f9; padding: 1rem; border-radius: 8px; margin: 1rem 0; }
+    .seo-preview-title { color: #1a0dab; font-size: 1.1rem; margin: 0 0 0.25rem 0; }
+    .seo-preview-url { color: #006621; font-size: 0.85rem; margin: 0 0 0.25rem 0; }
+    .seo-preview-desc { color: #545454; font-size: 0.9rem; margin: 0; }
+    .meta-fields { display: grid; gap: 1rem; }
+    .meta-field { display: grid; grid-template-columns: 150px 1fr; gap: 1rem; align-items: start; }
+    .meta-field label { font-weight: 500; padding-top: 0.75rem; }
+    .meta-field input, .meta-field textarea { padding: 0.75rem; border: 1px solid #ddd; border-radius: 8px; width: 100%; }
+    .meta-field .char-count { font-size: 0.8rem; color: #666; margin-top: 0.25rem; text-align: right; }
+    .char-count.warning { color: #F59E0B; }
+    .char-count.error { color: #EF4444; }
+    .meta-actions { display: flex; gap: 0.5rem; margin-top: 1rem; padding-top: 1rem; border-top: 1px solid #eee; }
+    .btn-save { padding: 0.5rem 1.5rem; background: #8E6545; color: white; border: none; border-radius: 6px; cursor: pointer; }
+    .btn-reset { padding: 0.5rem 1.5rem; background: #E5E7EB; color: #374151; border: none; border-radius: 6px; cursor: pointer; }
+    .search-box { padding: 0.75rem 1rem; border: 1px solid #ddd; border-radius: 8px; width: 300px; margin-bottom: 1.5rem; }
+    .og-fields { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; margin-top: 1rem; padding-top: 1rem; border-top: 1px solid #eee; }
+  </style>
+</head>
+<body>
+  <div class="admin-layout">
+    <aside class="admin-sidebar"></aside>
+    <main class="admin-main">
+      <header class="admin-header">
+        <h1>Meta Tags</h1>
+      </header>
+      <div class="admin-content">
+        <div class="tabs">
+          <button class="tab active" data-tab="pages" onclick="setTab('pages')">Pages</button>
+          <button class="tab" data-tab="products" onclick="setTab('products')">Products</button>
+          <button class="tab" data-tab="categories" onclick="setTab('categories')">Categories</button>
+        </div>
+        <input type="text" class="search-box" placeholder="Search pages..." oninput="filterPages(this.value)">
+        <div class="meta-list" id="metaList"></div>
+      </div>
+    </main>
+  </div>
+  <script>
+    let currentTab = 'pages';
+    let pages = [
+      { id: 'p-1', type: 'pages', name: 'Homepage', url: '/', title: 'Peekaboo Shades - Custom Window Treatments', description: 'Shop premium custom blinds, shades, and shutters. Free shipping on orders over $200. Professional installation available.', ogTitle: '', ogDescription: '', ogImage: '' },
+      { id: 'p-2', type: 'pages', name: 'Shop', url: '/shop', title: 'Shop Window Treatments | Peekaboo Shades', description: 'Browse our collection of roller shades, cellular shades, zebra blinds, and more. Custom sizes available.', ogTitle: '', ogDescription: '', ogImage: '' },
+      { id: 'p-3', type: 'pages', name: 'About Us', url: '/about', title: 'About Peekaboo Shades | Our Story', description: 'Learn about our commitment to quality window treatments and exceptional customer service.', ogTitle: '', ogDescription: '', ogImage: '' },
+      { id: 'p-4', type: 'pages', name: 'Contact', url: '/contact', title: 'Contact Us | Peekaboo Shades', description: 'Get in touch with our team for questions about custom window treatments, orders, or installation.', ogTitle: '', ogDescription: '', ogImage: '' },
+      { id: 'p-5', type: 'products', name: 'Roller Shades', url: '/products/roller-shades', title: 'Custom Roller Shades | Peekaboo Shades', description: 'Shop stylish roller shades in a variety of fabrics and colors. Easy to install, blackout options available.', ogTitle: '', ogDescription: '', ogImage: '' },
+      { id: 'p-6', type: 'products', name: 'Cellular Shades', url: '/products/cellular-shades', title: 'Energy-Efficient Cellular Shades | Peekaboo Shades', description: 'Honeycomb cellular shades for superior insulation. Cordless and motorized options.', ogTitle: '', ogDescription: '', ogImage: '' },
+      { id: 'p-7', type: 'categories', name: 'Motorized Shades', url: '/category/motorized', title: 'Smart Motorized Window Shades | Peekaboo Shades', description: 'Upgrade to motorized shades with smart home integration. Works with Alexa, Google Home, and HomeKit.', ogTitle: '', ogDescription: '', ogImage: '' }
+    ];
+
+    document.addEventListener('DOMContentLoaded', () => {
+      if (!localStorage.getItem('admin_token')) { window.location.href = '/admin/login.html'; return; }
+      AdminNavConfig.initSidebar('meta-tags');
+      renderPages();
+    });
+
+    function setTab(tab) {
+      currentTab = tab;
+      document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.tab === tab));
+      renderPages();
+    }
+
+    function filterPages(query) {
+      renderPages(query.toLowerCase());
+    }
+
+    function renderPages(filter = '') {
+      let filtered = pages.filter(p => p.type === currentTab);
+      if (filter) {
+        filtered = filtered.filter(p => p.name.toLowerCase().includes(filter) || p.url.includes(filter));
+      }
+
+      document.getElementById('metaList').innerHTML = filtered.map(page => `
+        <div class="meta-card" data-id="${page.id}">
+          <div class="meta-header">
+            <div>
+              <h3 class="meta-page">${page.name}</h3>
+              <div class="meta-url">${page.url}</div>
+            </div>
+          </div>
+          <div class="seo-preview">
+            <h4 class="seo-preview-title">${page.title || 'No title set'}</h4>
+            <p class="seo-preview-url">https://peekabooshades.com${page.url}</p>
+            <p class="seo-preview-desc">${page.description || 'No description set'}</p>
+          </div>
+          <div class="meta-fields">
+            <div class="meta-field">
+              <label>Page Title</label>
+              <div>
+                <input type="text" value="${page.title}" onchange="updateField('${page.id}', 'title', this.value)" oninput="updateCharCount(this, 60)">
+                <div class="char-count ${page.title.length > 60 ? 'warning' : ''}">${page.title.length}/60 characters</div>
+              </div>
+            </div>
+            <div class="meta-field">
+              <label>Meta Description</label>
+              <div>
+                <textarea rows="2" onchange="updateField('${page.id}', 'description', this.value)" oninput="updateCharCount(this, 160)">${page.description}</textarea>
+                <div class="char-count ${page.description.length > 160 ? 'warning' : ''}">${page.description.length}/160 characters</div>
+              </div>
+            </div>
+          </div>
+          <div class="og-fields">
+            <div class="meta-field" style="grid-template-columns: 1fr;">
+              <label>OG Title (optional)</label>
+              <input type="text" value="${page.ogTitle}" placeholder="Defaults to page title" onchange="updateField('${page.id}', 'ogTitle', this.value)">
+            </div>
+            <div class="meta-field" style="grid-template-columns: 1fr;">
+              <label>OG Image URL</label>
+              <input type="text" value="${page.ogImage}" placeholder="https://..." onchange="updateField('${page.id}', 'ogImage', this.value)">
+            </div>
+          </div>
+          <div class="meta-actions">
+            <button class="btn-save" onclick="savePage('${page.id}')">Save Changes</button>
+            <button class="btn-reset" onclick="resetPage('${page.id}')">Reset</button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function updateField(id, field, value) {
+      const page = pages.find(p => p.id === id);
+      if (page) {
+        page[field] = value;
+        // Update preview
+        const card = document.querySelector(`.meta-card[data-id="${id}"]`);
+        if (card) {
+          if (field === 'title') {
+            card.querySelector('.seo-preview-title').textContent = value || 'No title set';
+          } else if (field === 'description') {
+            card.querySelector('.seo-preview-desc').textContent = value || 'No description set';
+          }
+        }
+      }
+    }
+
+    function updateCharCount(input, max) {
+      const count = input.value.length;
+      const countEl = input.parentElement.querySelector('.char-count');
+      countEl.textContent = `${count}/${max} characters`;
+      countEl.className = 'char-count' + (count > max ? ' warning' : '');
+    }
+
+    function savePage(id) {
+      alert('Meta tags saved for this page!');
+    }
+
+    function resetPage(id) {
+      if (confirm('Reset meta tags to defaults?')) {
+        renderPages();
+      }
+    }
+  </script>
+</body>
+</html>

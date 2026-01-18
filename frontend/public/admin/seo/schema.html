@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Schema Markup - Peekaboo Shades Admin</title>
+  <link rel="stylesheet" href="/admin/css/admin.css?v=1737200003.0.28">
+  <script src="/admin/js/adminNavConfig.js?v=1737200002"></script>
+  <style>
+    .schema-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-top: 1.5rem; }
+    .schema-card { background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+    .schema-card h3 { margin: 0 0 1rem 0; }
+    .schema-type { padding: 1rem; background: #F9FAFB; border-radius: 8px; margin-bottom: 0.75rem; display: flex; justify-content: space-between; align-items: center; }
+    .schema-type .info h4 { margin: 0 0 0.25rem 0; }
+    .schema-type .info p { margin: 0; font-size: 0.85rem; color: #666; }
+    .toggle { position: relative; width: 50px; height: 26px; }
+    .toggle input { opacity: 0; width: 0; height: 0; }
+    .toggle .slider { position: absolute; cursor: pointer; inset: 0; background: #ddd; border-radius: 26px; transition: 0.3s; }
+    .toggle .slider:before { content: ""; position: absolute; height: 20px; width: 20px; left: 3px; bottom: 3px; background: white; border-radius: 50%; transition: 0.3s; }
+    .toggle input:checked + .slider { background: #10B981; }
+    .toggle input:checked + .slider:before { transform: translateX(24px); }
+    .btn-save { padding: 0.75rem 2rem; background: #8E6545; color: white; border: none; border-radius: 8px; cursor: pointer; }
+    .code-preview { background: #1F2937; color: #10B981; padding: 1rem; border-radius: 8px; font-family: monospace; font-size: 0.8rem; overflow-x: auto; white-space: pre; max-height: 300px; overflow-y: auto; }
+  </style>
+</head>
+<body>
+  <div class="admin-layout">
+    <aside class="admin-sidebar"></aside>
+    <main class="admin-main">
+      <header class="admin-header">
+        <h1>Schema Markup</h1>
+        <div class="header-actions"><button class="btn-save" onclick="saveSettings()">Save Changes</button></div>
+      </header>
+      <div class="admin-content">
+        <div class="schema-grid">
+          <div class="schema-card">
+            <h3>Schema Types</h3>
+            <div class="schema-type">
+              <div class="info"><h4>Organization</h4><p>Company info, logo, contact</p></div>
+              <label class="toggle"><input type="checkbox" checked><span class="slider"></span></label>
+            </div>
+            <div class="schema-type">
+              <div class="info"><h4>Product</h4><p>Price, availability, reviews</p></div>
+              <label class="toggle"><input type="checkbox" checked><span class="slider"></span></label>
+            </div>
+            <div class="schema-type">
+              <div class="info"><h4>BreadcrumbList</h4><p>Navigation breadcrumbs</p></div>
+              <label class="toggle"><input type="checkbox" checked><span class="slider"></span></label>
+            </div>
+            <div class="schema-type">
+              <div class="info"><h4>FAQPage</h4><p>FAQ rich results</p></div>
+              <label class="toggle"><input type="checkbox" checked><span class="slider"></span></label>
+            </div>
+            <div class="schema-type">
+              <div class="info"><h4>LocalBusiness</h4><p>Business hours, address</p></div>
+              <label class="toggle"><input type="checkbox"><span class="slider"></span></label>
+            </div>
+          </div>
+          <div class="schema-card">
+            <h3>Generated Schema Preview</h3>
+            <div class="code-preview">{
+  "@context": "https://schema.org",
+  "@type": "Organization",
+  "name": "Peekaboo Shades",
+  "url": "https://peekabooshades.com",
+  "logo": "https://peekabooshades.com/images/logo.png",
+  "contactPoint": {
+    "@type": "ContactPoint",
+    "telephone": "+1-XXX-XXX-XXXX",
+    "contactType": "customer service"
+  }
+}</div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      if (!localStorage.getItem('admin_token')) { window.location.href = '/admin/login.html'; return; }
+      AdminNavConfig.initSidebar('schema-markup');
+    });
+    function saveSettings() { alert('Schema settings saved!'); }
+  </script>
+</body>
+</html>

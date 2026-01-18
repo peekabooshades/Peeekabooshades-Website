@@ -1,0 +1,963 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Production Queue - Peekaboo Shades Admin</title>
+  <link rel="stylesheet" href="css/admin.css?v=1737200003">
+  <link rel="icon" type="image/jpeg" href="/images/peekabooshades_logo.jpeg">
+  <style>
+    .production-stats {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+    .stat-card {
+      background: white;
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      border-left: 4px solid #8E6545;
+    }
+    .stat-card.received { border-left-color: #3b82f6; }
+    .stat-card.manufacturing { border-left-color: #f59e0b; }
+    .stat-card.qa { border-left-color: #8b5cf6; }
+    .stat-card.ready { border-left-color: #06b6d4; }
+    .stat-card.shipped { border-left-color: #10b981; }
+    .stat-value {
+      font-size: 32px;
+      font-weight: 700;
+      color: #1f2937;
+      margin-bottom: 4px;
+    }
+    .stat-label {
+      font-size: 13px;
+      color: #6b7280;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .stat-items {
+      font-size: 12px;
+      color: #9ca3af;
+      margin-top: 4px;
+    }
+
+    .view-toggle {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+    .view-btn {
+      padding: 8px 16px;
+      border: 1px solid #ddd;
+      background: white;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 500;
+      color: #666;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .view-btn:hover {
+      border-color: var(--admin-primary);
+      color: var(--admin-primary);
+    }
+    .view-btn.active {
+      background: var(--admin-primary);
+      color: white;
+      border-color: var(--admin-primary);
+    }
+
+    /* Kanban View */
+    .kanban-container {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 16px;
+      min-height: 500px;
+    }
+    .kanban-column {
+      background: #f3f4f6;
+      border-radius: 12px;
+      padding: 16px;
+      min-height: 400px;
+    }
+    .kanban-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+      padding-bottom: 12px;
+      border-bottom: 2px solid;
+    }
+    .kanban-header.received { border-bottom-color: #3b82f6; }
+    .kanban-header.manufacturing { border-bottom-color: #f59e0b; }
+    .kanban-header.qa { border-bottom-color: #8b5cf6; }
+    .kanban-header.ready { border-bottom-color: #06b6d4; }
+    .kanban-header.shipped { border-bottom-color: #10b981; }
+    .kanban-title {
+      font-weight: 600;
+      color: #374151;
+      font-size: 14px;
+    }
+    .kanban-count {
+      background: #e5e7eb;
+      color: #374151;
+      padding: 4px 10px;
+      border-radius: 12px;
+      font-size: 12px;
+      font-weight: 600;
+    }
+    .kanban-cards {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .kanban-card {
+      background: white;
+      border-radius: 8px;
+      padding: 14px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+      cursor: pointer;
+      transition: all 0.2s;
+      border-left: 3px solid transparent;
+    }
+    .kanban-card:hover {
+      box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+      transform: translateY(-2px);
+    }
+    .kanban-card.roller { border-left-color: #3b82f6; }
+    .kanban-card.zebra { border-left-color: #f59e0b; }
+    .kanban-card.honeycomb { border-left-color: #10b981; }
+    .kanban-card.roman { border-left-color: #ec4899; }
+    .kanban-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      margin-bottom: 8px;
+    }
+    .kanban-order-number {
+      font-weight: 600;
+      color: #8E6545;
+      font-size: 13px;
+    }
+    .kanban-date {
+      font-size: 11px;
+      color: #9ca3af;
+    }
+    .kanban-customer {
+      font-size: 13px;
+      color: #374151;
+      margin-bottom: 8px;
+    }
+    .kanban-items {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 4px;
+      margin-bottom: 10px;
+    }
+    .kanban-item-badge {
+      font-size: 10px;
+      padding: 3px 8px;
+      border-radius: 10px;
+      font-weight: 500;
+    }
+    .kanban-item-badge.roller { background: #dbeafe; color: #1e40af; }
+    .kanban-item-badge.zebra { background: #fef3c7; color: #92400e; }
+    .kanban-item-badge.honeycomb { background: #d1fae5; color: #065f46; }
+    .kanban-item-badge.roman { background: #fce7f3; color: #9d174d; }
+    .kanban-card-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding-top: 10px;
+      border-top: 1px solid #f3f4f6;
+    }
+    .kanban-total {
+      font-weight: 600;
+      color: #065f46;
+      font-size: 13px;
+    }
+    .kanban-actions {
+      display: flex;
+      gap: 4px;
+    }
+    .kanban-action-btn {
+      padding: 4px 8px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 11px;
+      font-weight: 500;
+      transition: all 0.2s;
+    }
+    .kanban-action-btn.next {
+      background: #10b981;
+      color: white;
+    }
+    .kanban-action-btn.next:hover {
+      background: #059669;
+    }
+    .kanban-action-btn.view {
+      background: #e5e7eb;
+      color: #374151;
+    }
+    .kanban-action-btn.view:hover {
+      background: #d1d5db;
+    }
+
+    /* Table View */
+    .table-view {
+      display: none;
+    }
+    .table-view.active {
+      display: block;
+    }
+    .kanban-view {
+      display: none;
+    }
+    .kanban-view.active {
+      display: block;
+    }
+
+    .priority-badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 10px;
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+    .priority-badge.high { background: #fee2e2; color: #dc2626; }
+    .priority-badge.normal { background: #e5e7eb; color: #6b7280; }
+    .priority-badge.rush { background: #fef3c7; color: #d97706; }
+
+    .empty-column {
+      text-align: center;
+      padding: 40px 20px;
+      color: #9ca3af;
+      font-size: 13px;
+    }
+    .empty-column svg {
+      width: 40px;
+      height: 40px;
+      margin-bottom: 8px;
+      opacity: 0.5;
+    }
+  </style>
+</head>
+<body>
+  <div class="admin-layout">
+    <!-- Sidebar -->
+    <aside class="admin-sidebar">
+      <!-- Sidebar content will be injected dynamically -->
+    </aside>
+
+    <!-- Main Content -->
+    <main class="admin-main">
+      <!-- Header -->
+      <header class="admin-header">
+        <div class="header-left">
+          <div class="breadcrumb">
+            <a href="/admin/">Dashboard</a>
+            <span class="breadcrumb-separator">/</span>
+            <span class="breadcrumb-current">Production Queue</span>
+          </div>
+        </div>
+        <div class="header-right">
+          <button onclick="exportProductionList()" class="btn btn-secondary" style="margin-right: 10px;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="margin-right: 4px;">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+            Export Queue
+          </button>
+          <button onclick="Admin.AuthAPI.logout();" class="btn btn-logout" style="background: #dc3545; color: white; padding: 8px 16px; border: none; border-radius: 6px; cursor: pointer; font-size: 14px; margin-right: 10px;">
+            Logout
+          </button>
+          <div class="dropdown">
+            <div class="header-profile">
+              <div class="profile-avatar">A</div>
+              <span class="profile-name">Admin</span>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <!-- Page Content -->
+      <div class="admin-content">
+        <div class="page-header">
+          <h1 class="page-title">Production Queue</h1>
+          <p style="color: #6b7280; margin-top: 4px;">Track and manage orders through production stages</p>
+        </div>
+
+        <!-- Stats Cards -->
+        <div class="production-stats">
+          <div class="stat-card received">
+            <div class="stat-value" id="stat-received">0</div>
+            <div class="stat-label">Order Received</div>
+            <div class="stat-items" id="stat-received-items">0 items</div>
+          </div>
+          <div class="stat-card manufacturing">
+            <div class="stat-value" id="stat-manufacturing">0</div>
+            <div class="stat-label">Manufacturing</div>
+            <div class="stat-items" id="stat-manufacturing-items">0 items</div>
+          </div>
+          <div class="stat-card qa">
+            <div class="stat-value" id="stat-qa">0</div>
+            <div class="stat-label">Quality Assurance</div>
+            <div class="stat-items" id="stat-qa-items">0 items</div>
+          </div>
+          <div class="stat-card ready">
+            <div class="stat-value" id="stat-ready">0</div>
+            <div class="stat-label">Ready to Ship</div>
+            <div class="stat-items" id="stat-ready-items">0 items</div>
+          </div>
+          <div class="stat-card shipped">
+            <div class="stat-value" id="stat-shipped">0</div>
+            <div class="stat-label">Shipped</div>
+            <div class="stat-items" id="stat-shipped-items">0 items</div>
+          </div>
+        </div>
+
+        <!-- View Toggle & Filters -->
+        <div class="card" style="margin-bottom: 20px;">
+          <div class="card-body" style="padding: 16px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 16px;">
+              <div class="view-toggle">
+                <button class="view-btn active" data-view="kanban" onclick="switchView('kanban')">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17V7m0 10a2 2 0 01-2 2H5a2 2 0 01-2-2V7a2 2 0 012-2h2a2 2 0 012 2m0 10a2 2 0 002 2h2a2 2 0 002-2M9 7a2 2 0 012-2h2a2 2 0 012 2m0 10V7m0 10a2 2 0 002 2h2a2 2 0 002-2V7a2 2 0 00-2-2h-2a2 2 0 00-2 2" />
+                  </svg>
+                  Kanban
+                </button>
+                <button class="view-btn" data-view="table" onclick="switchView('table')">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16" />
+                  </svg>
+                  Table
+                </button>
+              </div>
+              <div style="display: flex; gap: 12px; align-items: center;">
+                <div class="search-input" style="width: 250px;">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                  </svg>
+                  <input type="text" id="search-input" placeholder="Search orders..." class="form-input" oninput="filterOrders()">
+                </div>
+                <select id="product-type-filter" class="filter-select" onchange="filterOrders()">
+                  <option value="">All Products</option>
+                  <option value="roller">Roller Shades</option>
+                  <option value="zebra">Zebra Shades</option>
+                  <option value="honeycomb">Honeycomb Shades</option>
+                  <option value="roman">Roman Shades</option>
+                </select>
+                <button onclick="loadProductionQueue()" class="btn btn-secondary" title="Refresh">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+                  </svg>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Kanban View -->
+        <div class="kanban-view active" id="kanban-view">
+          <div class="kanban-container">
+            <!-- Order Received Column -->
+            <div class="kanban-column">
+              <div class="kanban-header received">
+                <span class="kanban-title">Order Received</span>
+                <span class="kanban-count" id="count-received">0</span>
+              </div>
+              <div class="kanban-cards" id="column-received">
+                <div class="empty-column">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
+                  </svg>
+                  <div>No orders waiting</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Manufacturing Column -->
+            <div class="kanban-column">
+              <div class="kanban-header manufacturing">
+                <span class="kanban-title">Manufacturing</span>
+                <span class="kanban-count" id="count-manufacturing">0</span>
+              </div>
+              <div class="kanban-cards" id="column-manufacturing">
+                <div class="empty-column">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
+                  </svg>
+                  <div>No orders in production</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- QA Column -->
+            <div class="kanban-column">
+              <div class="kanban-header qa">
+                <span class="kanban-title">Quality Assurance</span>
+                <span class="kanban-count" id="count-qa">0</span>
+              </div>
+              <div class="kanban-cards" id="column-qa">
+                <div class="empty-column">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  <div>No orders in QA</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Ready to Ship Column -->
+            <div class="kanban-column">
+              <div class="kanban-header ready">
+                <span class="kanban-title">Ready to Ship</span>
+                <span class="kanban-count" id="count-ready">0</span>
+              </div>
+              <div class="kanban-cards" id="column-ready">
+                <div class="empty-column">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
+                  </svg>
+                  <div>No orders ready</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Shipped Column -->
+            <div class="kanban-column">
+              <div class="kanban-header shipped">
+                <span class="kanban-title">Shipped</span>
+                <span class="kanban-count" id="count-shipped">0</span>
+              </div>
+              <div class="kanban-cards" id="column-shipped">
+                <div class="empty-column">
+                  <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                  </svg>
+                  <div>No shipped orders</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Table View -->
+        <div class="table-view" id="table-view">
+          <div class="card">
+            <div class="table-container">
+              <table class="admin-table">
+                <thead>
+                  <tr>
+                    <th>Order #</th>
+                    <th>Date</th>
+                    <th>Customer</th>
+                    <th>Product Type</th>
+                    <th>Items</th>
+                    <th>Status</th>
+                    <th>Days in Queue</th>
+                    <th style="width: 150px;">Actions</th>
+                  </tr>
+                </thead>
+                <tbody id="production-table">
+                  <tr>
+                    <td colspan="8" style="text-align: center; padding: 60px;">
+                      <div class="spinner"></div>
+                      <p style="margin-top: 16px; color: var(--admin-text-secondary);">Loading production queue...</p>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Order Detail Modal -->
+  <div class="modal-overlay" id="order-modal">
+    <div class="modal" style="max-width: 900px;">
+      <div class="modal-header" style="background: linear-gradient(135deg, #8E6545 0%, #A67C5B 100%); color: white;">
+        <h3 class="modal-title" style="color: white;">Production Details</h3>
+        <button class="modal-close" onclick="Admin.Modal.hide('order-modal')" style="color: white;">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+      <div class="modal-body" id="order-detail-content" style="padding: 24px; max-height: 70vh; overflow-y: auto;">
+        <!-- Content loaded dynamically -->
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="Admin.Modal.hide('order-modal')">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/adminNavConfig.js?v=1737200002"></script>
+  <script src="js/admin.js?v=1737100001"></script>
+  <script>
+    // Require authentication
+    if (!Admin.Auth.requireAuth()) {
+      // Will redirect
+    } else {
+      loadProductionQueue();
+    }
+
+    let allProductionOrders = [];
+    let filteredOrders = [];
+    let currentView = 'kanban';
+
+    // Production status workflow
+    const PRODUCTION_STATUSES = ['order_received', 'manufacturing', 'qa', 'ready_to_ship', 'shipped'];
+    const NEXT_STATUS = {
+      'order_received': 'manufacturing',
+      'manufacturing': 'qa',
+      'qa': 'ready_to_ship',
+      'ready_to_ship': 'shipped',
+      'shipped': null
+    };
+    const STATUS_LABELS = {
+      'order_received': 'Order Received',
+      'manufacturing': 'Manufacturing',
+      'qa': 'Quality Assurance',
+      'ready_to_ship': 'Ready to Ship',
+      'shipped': 'Shipped'
+    };
+
+    async function loadProductionQueue() {
+      try {
+        // Fetch orders for all production statuses including ready_to_ship and shipped
+        const statuses = ['order_received', 'manufacturing', 'qa', 'ready_to_ship', 'shipped'];
+        const promises = statuses.map(status =>
+          fetch(`/api/admin/orders?status=${status}&limit=100`, {
+            headers: { 'Authorization': `Bearer ${Admin.Auth.getToken()}` }
+          }).then(r => r.json())
+        );
+
+        const results = await Promise.all(promises);
+        allProductionOrders = [];
+
+        results.forEach((data, idx) => {
+          if (data.success && data.orders) {
+            data.orders.forEach(order => {
+              order.production_status = statuses[idx];
+              allProductionOrders.push(order);
+            });
+          }
+        });
+
+        // Sort by date (oldest first for production queue)
+        allProductionOrders.sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
+        filteredOrders = [...allProductionOrders];
+
+        updateStats();
+        renderCurrentView();
+      } catch (error) {
+        console.error('Failed to load production queue:', error);
+        Admin.Toast.error('Failed to load production queue');
+      }
+    }
+
+    function updateStats() {
+      const received = filteredOrders.filter(o => o.status === 'order_received');
+      const manufacturing = filteredOrders.filter(o => o.status === 'manufacturing');
+      const qa = filteredOrders.filter(o => o.status === 'qa');
+      const ready = filteredOrders.filter(o => o.status === 'ready_to_ship');
+      const shipped = filteredOrders.filter(o => o.status === 'shipped');
+
+      document.getElementById('stat-received').textContent = received.length;
+      document.getElementById('stat-manufacturing').textContent = manufacturing.length;
+      document.getElementById('stat-qa').textContent = qa.length;
+      document.getElementById('stat-ready').textContent = ready.length;
+      document.getElementById('stat-shipped').textContent = shipped.length;
+
+      // Calculate total items
+      const receivedItems = received.reduce((sum, o) => sum + (o.items?.length || 0), 0);
+      const manufacturingItems = manufacturing.reduce((sum, o) => sum + (o.items?.length || 0), 0);
+      const qaItems = qa.reduce((sum, o) => sum + (o.items?.length || 0), 0);
+      const readyItems = ready.reduce((sum, o) => sum + (o.items?.length || 0), 0);
+      const shippedItems = shipped.reduce((sum, o) => sum + (o.items?.length || 0), 0);
+
+      document.getElementById('stat-received-items').textContent = `${receivedItems} items`;
+      document.getElementById('stat-manufacturing-items').textContent = `${manufacturingItems} items`;
+      document.getElementById('stat-qa-items').textContent = `${qaItems} items`;
+      document.getElementById('stat-ready-items').textContent = `${readyItems} items`;
+      document.getElementById('stat-shipped-items').textContent = `${shippedItems} items`;
+
+      // Update column counts
+      document.getElementById('count-received').textContent = received.length;
+      document.getElementById('count-manufacturing').textContent = manufacturing.length;
+      document.getElementById('count-qa').textContent = qa.length;
+      document.getElementById('count-ready').textContent = ready.length;
+      document.getElementById('count-shipped').textContent = shipped.length;
+    }
+
+    function switchView(view) {
+      currentView = view;
+      document.querySelectorAll('.view-btn').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.view === view);
+      });
+      document.getElementById('kanban-view').classList.toggle('active', view === 'kanban');
+      document.getElementById('table-view').classList.toggle('active', view === 'table');
+      renderCurrentView();
+    }
+
+    function renderCurrentView() {
+      if (currentView === 'kanban') {
+        renderKanbanView();
+      } else {
+        renderTableView();
+      }
+    }
+
+    function getProductType(order) {
+      if (!order.items || order.items.length === 0) return 'unknown';
+      const types = new Set();
+      order.items.forEach(item => {
+        // Check multiple fields for product type
+        if (item.product_type) {
+          types.add(item.product_type.toLowerCase());
+        } else {
+          // Check product_slug, product_name, name, and configuration
+          const searchFields = [
+            item.product_slug || '',
+            item.product_name || '',
+            item.name || '',
+            item.product?.name || '',
+            item.product?.slug || '',
+            (typeof item.configuration === 'string' ? item.configuration : JSON.stringify(item.configuration || ''))
+          ].join(' ').toLowerCase();
+
+          if (searchFields.includes('zebra')) types.add('zebra');
+          else if (searchFields.includes('honeycomb')) types.add('honeycomb');
+          else if (searchFields.includes('roman')) types.add('roman');
+          else if (searchFields.includes('roller') || searchFields.includes('blind')) types.add('roller');
+        }
+      });
+      if (types.size === 0) return 'roller'; // Default to roller if no type detected
+      if (types.size === 1) return [...types][0];
+      return 'mixed';
+    }
+
+    function getDaysInQueue(order) {
+      const created = new Date(order.created_at);
+      const now = new Date();
+      return Math.floor((now - created) / (1000 * 60 * 60 * 24));
+    }
+
+    function renderKanbanView() {
+      const columns = {
+        'order_received': document.getElementById('column-received'),
+        'manufacturing': document.getElementById('column-manufacturing'),
+        'qa': document.getElementById('column-qa'),
+        'ready_to_ship': document.getElementById('column-ready'),
+        'shipped': document.getElementById('column-shipped')
+      };
+
+      // Clear columns
+      Object.values(columns).forEach(col => col.innerHTML = '');
+
+      // Group orders by status
+      const grouped = {
+        'order_received': filteredOrders.filter(o => o.status === 'order_received'),
+        'manufacturing': filteredOrders.filter(o => o.status === 'manufacturing'),
+        'qa': filteredOrders.filter(o => o.status === 'qa'),
+        'ready_to_ship': filteredOrders.filter(o => o.status === 'ready_to_ship'),
+        'shipped': filteredOrders.filter(o => o.status === 'shipped')
+      };
+
+      // Render each column
+      Object.entries(grouped).forEach(([status, orders]) => {
+        const column = columns[status];
+        if (orders.length === 0) {
+          column.innerHTML = `
+            <div class="empty-column">
+              <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
+              </svg>
+              <div>No orders</div>
+            </div>
+          `;
+          return;
+        }
+
+        orders.forEach(order => {
+          const productType = getProductType(order);
+          const days = getDaysInQueue(order);
+          const customerName = order.customer_name || order.customer?.name || 'Guest';
+          const total = order.total || order.pricing?.total || 0;
+          const orderNumber = order.order_number || order.id.slice(0, 8).toUpperCase();
+          const nextStatus = NEXT_STATUS[status];
+
+          const card = document.createElement('div');
+          card.className = `kanban-card ${productType}`;
+          card.innerHTML = `
+            <div class="kanban-card-header">
+              <span class="kanban-order-number">#${orderNumber}</span>
+              <span class="kanban-date">${days}d ago</span>
+            </div>
+            <div class="kanban-customer">${Admin.Utils.escapeHtml(customerName)}</div>
+            <div class="kanban-items">
+              ${order.items?.map(item => {
+                const itemType = item.product_type || productType;
+                return `<span class="kanban-item-badge ${itemType}">${item.width}"×${item.height}"</span>`;
+              }).join('') || '<span class="kanban-item-badge">No items</span>'}
+            </div>
+            <div class="kanban-card-footer">
+              <span class="kanban-total">${Admin.Utils.formatCurrency(total)}</span>
+              <div class="kanban-actions">
+                <button class="kanban-action-btn view" onclick="viewOrderDetails('${order.id}')" title="View Details">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                  </svg>
+                </button>
+                ${nextStatus ? `
+                  <button class="kanban-action-btn next" onclick="moveToNextStage('${order.id}', '${nextStatus}')" title="Move to ${STATUS_LABELS[nextStatus]}">
+                    ${nextStatus === 'shipped' ? 'Ship' : 'Next'} →
+                  </button>
+                ` : `
+                  <span style="font-size: 10px; color: #10b981; font-weight: 600;">✓ Done</span>
+                `}
+              </div>
+            </div>
+          `;
+          column.appendChild(card);
+        });
+      });
+    }
+
+    function renderTableView() {
+      const tbody = document.getElementById('production-table');
+
+      if (filteredOrders.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="8" class="empty-state">
+              <svg xmlns="http://www.w3.org/2000/svg" class="empty-state-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
+              </svg>
+              <h3 class="empty-state-title">No orders in production</h3>
+              <p class="empty-state-text">Orders will appear here when they enter the production queue</p>
+            </td>
+          </tr>
+        `;
+        return;
+      }
+
+      tbody.innerHTML = filteredOrders.map(order => {
+        const productType = getProductType(order);
+        const days = getDaysInQueue(order);
+        const customerName = order.customer_name || order.customer?.name || 'Guest';
+        const orderNumber = order.order_number || order.id.slice(0, 8).toUpperCase();
+        const nextStatus = NEXT_STATUS[order.status];
+
+        const statusColors = {
+          'order_received': { bg: '#dbeafe', color: '#1e40af' },
+          'manufacturing': { bg: '#fef3c7', color: '#92400e' },
+          'qa': { bg: '#ede9fe', color: '#5b21b6' },
+          'ready_to_ship': { bg: '#cffafe', color: '#0e7490' },
+          'shipped': { bg: '#d1fae5', color: '#065f46' }
+        };
+        const style = statusColors[order.status] || { bg: '#e5e7eb', color: '#374151' };
+
+        const typeStyles = {
+          roller: { bg: '#dbeafe', color: '#1e40af', label: 'Roller' },
+          zebra: { bg: '#fef3c7', color: '#92400e', label: 'Zebra' },
+          honeycomb: { bg: '#d1fae5', color: '#065f46', label: 'Honeycomb' },
+          roman: { bg: '#fce7f3', color: '#9d174d', label: 'Roman' },
+          mixed: { bg: '#e5e7eb', color: '#374151', label: 'Mixed' },
+          unknown: { bg: '#f3f4f6', color: '#6b7280', label: 'Unknown' }
+        };
+        const typeStyle = typeStyles[productType] || typeStyles.unknown;
+
+        return `
+          <tr>
+            <td>
+              <a href="#" onclick="viewOrderDetails('${order.id}'); return false;" style="color: var(--admin-primary); text-decoration: none; font-weight: 500;">
+                #${orderNumber}
+              </a>
+            </td>
+            <td>${Admin.Utils.formatDateTime(order.created_at)}</td>
+            <td>${Admin.Utils.escapeHtml(customerName)}</td>
+            <td>
+              <span style="display: inline-block; padding: 4px 10px; background: ${typeStyle.bg}; color: ${typeStyle.color}; border-radius: 12px; font-size: 11px; font-weight: 600;">${typeStyle.label}</span>
+            </td>
+            <td>${order.items?.length || 0} items</td>
+            <td>
+              <span style="display: inline-block; padding: 4px 12px; background: ${style.bg}; color: ${style.color}; border-radius: 12px; font-size: 11px; font-weight: 600;">${STATUS_LABELS[order.status]}</span>
+            </td>
+            <td>
+              <span style="color: ${days > 5 ? '#dc2626' : days > 3 ? '#d97706' : '#059669'}; font-weight: 600;">${days} days</span>
+            </td>
+            <td>
+              <div class="action-buttons">
+                <button class="action-btn" title="View Details" onclick="viewOrderDetails('${order.id}')">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                  </svg>
+                </button>
+                ${nextStatus ? `
+                  <button class="action-btn" style="background: #10b981; color: white;" title="Move to ${STATUS_LABELS[nextStatus]}" onclick="moveToNextStage('${order.id}', '${nextStatus}')">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                    </svg>
+                  </button>
+                ` : `
+                  <span style="padding: 4px 8px; background: #d1fae5; color: #065f46; border-radius: 4px; font-size: 11px; font-weight: 600;">✓ Complete</span>
+                `}
+              </div>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function filterOrders() {
+      const search = document.getElementById('search-input').value.toLowerCase();
+      const productType = document.getElementById('product-type-filter').value;
+
+      filteredOrders = allProductionOrders.filter(order => {
+        const orderNumber = (order.order_number || order.id).toLowerCase();
+        const customerName = (order.customer_name || order.customer?.name || '').toLowerCase();
+        const matchesSearch = !search || orderNumber.includes(search) || customerName.includes(search);
+
+        const orderProductType = getProductType(order);
+        const matchesType = !productType || orderProductType === productType;
+
+        return matchesSearch && matchesType;
+      });
+
+      updateStats();
+      renderCurrentView();
+    }
+
+    async function moveToNextStage(orderId, nextStatus) {
+      try {
+        const result = await Admin.OrdersAPI.updateStatus(orderId, nextStatus);
+        if (result.success) {
+          Admin.Toast.success(`Order moved to ${STATUS_LABELS[nextStatus]}`);
+          loadProductionQueue();
+        } else {
+          throw new Error(result.error || 'Failed to update status');
+        }
+      } catch (error) {
+        Admin.Toast.error('Failed to update status: ' + error.message);
+      }
+    }
+
+    async function viewOrderDetails(orderId) {
+      try {
+        const data = await Admin.OrdersAPI.getById(orderId);
+        if (data.success) {
+          const order = data.order || data.data;
+          const customerName = order.customer_name || order.customer?.name || 'Guest';
+          const orderNumber = order.order_number || order.id.slice(0, 8).toUpperCase();
+          const days = getDaysInQueue(order);
+
+          document.getElementById('order-detail-content').innerHTML = `
+            <div style="margin-bottom: 20px; padding: 16px; background: linear-gradient(135deg, #fdf8f5 0%, #fff 100%); border-radius: 8px; border-left: 4px solid #8E6545;">
+              <div style="display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                  <h4 style="margin: 0; color: #8E6545; font-size: 18px;">Order #${orderNumber}</h4>
+                  <p style="margin: 4px 0 0 0; color: #6b7280; font-size: 13px;">${Admin.Utils.escapeHtml(customerName)} • ${Admin.Utils.formatDateTime(order.created_at)}</p>
+                </div>
+                <div style="text-align: right;">
+                  <span style="display: inline-block; padding: 4px 12px; background: ${days > 5 ? '#fee2e2' : days > 3 ? '#fef3c7' : '#d1fae5'}; color: ${days > 5 ? '#dc2626' : days > 3 ? '#d97706' : '#059669'}; border-radius: 12px; font-size: 12px; font-weight: 600;">${days} days in queue</span>
+                </div>
+              </div>
+            </div>
+
+            <h5 style="margin: 0 0 12px 0; color: #374151; font-size: 14px; font-weight: 600;">Production Items</h5>
+            <table style="width: 100%; border-collapse: collapse; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+              <thead>
+                <tr style="background: linear-gradient(135deg, #8E6545 0%, #A67C5B 100%);">
+                  <th style="padding: 10px; text-align: center; color: white; font-size: 11px; font-weight: 600;">#</th>
+                  <th style="padding: 10px; text-align: left; color: white; font-size: 11px; font-weight: 600;">Room</th>
+                  <th style="padding: 10px; text-align: center; color: white; font-size: 11px; font-weight: 600;">Size</th>
+                  <th style="padding: 10px; text-align: left; color: white; font-size: 11px; font-weight: 600;">Fabric</th>
+                  <th style="padding: 10px; text-align: center; color: white; font-size: 11px; font-weight: 600;">Qty</th>
+                  <th style="padding: 10px; text-align: left; color: white; font-size: 11px; font-weight: 600;">Options</th>
+                </tr>
+              </thead>
+              <tbody>
+                ${order.items?.map((item, idx) => {
+                  const cfg = typeof item.configuration === 'string' ? JSON.parse(item.configuration || '{}') : (item.configuration || {});
+                  return `
+                    <tr style="background: ${idx % 2 === 0 ? '#fff' : '#faf7f5'};">
+                      <td style="padding: 10px; text-align: center; border-bottom: 1px solid #e5e7eb; font-weight: 600; color: #8E6545;">${idx + 1}</td>
+                      <td style="padding: 10px; border-bottom: 1px solid #e5e7eb; color: #374151;">${Admin.Utils.escapeHtml(item.room_label || '-')}</td>
+                      <td style="padding: 10px; text-align: center; border-bottom: 1px solid #e5e7eb; font-weight: 600;">${item.width}" × ${item.height}"</td>
+                      <td style="padding: 10px; border-bottom: 1px solid #e5e7eb; color: #374151;">${cfg.fabricCode || '-'}</td>
+                      <td style="padding: 10px; text-align: center; border-bottom: 1px solid #e5e7eb; font-weight: 600; color: #8E6545;">${item.quantity}</td>
+                      <td style="padding: 10px; border-bottom: 1px solid #e5e7eb; font-size: 11px; color: #6b7280;">
+                        ${cfg.controlType || ''} ${cfg.mountType || ''} ${cfg.motorBrand || ''}
+                      </td>
+                    </tr>
+                  `;
+                }).join('') || '<tr><td colspan="6" style="padding: 20px; text-align: center; color: #9ca3af;">No items</td></tr>'}
+              </tbody>
+            </table>
+
+            <div style="margin-top: 20px; display: flex; gap: 12px; justify-content: flex-end;">
+              ${NEXT_STATUS[order.status] ? `
+                <button class="btn btn-primary" onclick="moveToNextStage('${order.id}', '${NEXT_STATUS[order.status]}'); Admin.Modal.hide('order-modal');">
+                  Move to ${STATUS_LABELS[NEXT_STATUS[order.status]]} →
+                </button>
+              ` : `
+                <span style="padding: 8px 16px; background: #d1fae5; color: #065f46; border-radius: 6px; font-weight: 600;">✓ Order Complete</span>
+              `}
+              <a href="/admin/orders.html" class="btn btn-secondary">View Full Order</a>
+            </div>
+          `;
+          Admin.Modal.show('order-modal');
+        }
+      } catch (error) {
+        Admin.Toast.error('Failed to load order details');
+      }
+    }
+
+    function exportProductionList() {
+      if (filteredOrders.length === 0) {
+        Admin.Toast.warning('No orders to export');
+        return;
+      }
+
+      const headers = ['Order #', 'Date', 'Customer', 'Status', 'Items', 'Days in Queue'];
+      const rows = filteredOrders.map(order => {
+        const orderNumber = order.order_number || order.id.slice(0, 8).toUpperCase();
+        const customerName = order.customer_name || order.customer?.name || 'Guest';
+        const days = getDaysInQueue(order);
+        return [
+          orderNumber,
+          Admin.Utils.formatDateTime(order.created_at),
+          customerName,
+          STATUS_LABELS[order.status],
+          order.items?.length || 0,
+          days
+        ];
+      });
+
+      const csvContent = [headers, ...rows].map(row => row.map(cell => `"${cell}"`).join(',')).join('\n');
+      const blob = new Blob([csvContent], { type: 'text/csv' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `production-queue-${new Date().toISOString().split('T')[0]}.csv`;
+      a.click();
+      URL.revokeObjectURL(url);
+      Admin.Toast.success('Production queue exported');
+    }
+  </script>
+</body>
+</html>

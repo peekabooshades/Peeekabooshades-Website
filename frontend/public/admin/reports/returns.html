@@ -1,0 +1,127 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Return Rate Report - Peekaboo Shades Admin</title>
+  <link rel="stylesheet" href="/admin/css/admin.css?v=1737200003.0.28">
+  <script src="/admin/js/adminNavConfig.js?v=1737200002"></script>
+  <style>
+    .metrics-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 1.5rem; }
+    .metric-card { background: white; padding: 1.5rem; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); text-align: center; }
+    .metric-card h4 { margin: 0 0 0.5rem 0; font-size: 0.85rem; color: #666; }
+    .metric-card .value { font-size: 2rem; font-weight: 600; }
+    .metric-card .change { font-size: 0.85rem; margin-top: 0.25rem; }
+    .good { color: #10B981; }
+    .warning { color: #F59E0B; }
+    .bad { color: #EF4444; }
+    .reports-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+    .report-card { background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+    .report-card h3 { margin: 0 0 1rem 0; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { padding: 0.75rem; text-align: left; border-bottom: 1px solid #eee; }
+    th { font-weight: 600; color: #666; font-size: 0.85rem; }
+    .reason-bar { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.75rem; }
+    .reason-name { min-width: 140px; font-size: 0.9rem; }
+    .reason-fill { height: 20px; background: #8E6545; border-radius: 4px; display: flex; align-items: center; justify-content: flex-end; padding-right: 0.5rem; color: white; font-size: 0.8rem; }
+  </style>
+</head>
+<body>
+  <div class="admin-layout">
+    <aside class="admin-sidebar"></aside>
+    <main class="admin-main">
+      <header class="admin-header"><h1>Return Rate Report</h1></header>
+      <div class="admin-content">
+        <div class="metrics-row">
+          <div class="metric-card">
+            <h4>Overall Return Rate</h4>
+            <div class="value good">3.2%</div>
+            <div class="change good">-0.5% vs last month</div>
+          </div>
+          <div class="metric-card">
+            <h4>Returns This Month</h4>
+            <div class="value">18</div>
+            <div class="change">of 562 orders</div>
+          </div>
+          <div class="metric-card">
+            <h4>Refund Amount</h4>
+            <div class="value">$4,230</div>
+            <div class="change warning">+$890 vs last month</div>
+          </div>
+          <div class="metric-card">
+            <h4>Remake Rate</h4>
+            <div class="value">1.8%</div>
+            <div class="change good">-0.3%</div>
+          </div>
+        </div>
+        <div class="reports-grid">
+          <div class="report-card">
+            <h3>Return Reasons</h3>
+            <div class="reason-bar">
+              <span class="reason-name">Wrong Size</span>
+              <div class="reason-fill" style="width: 180px;">32%</div>
+            </div>
+            <div class="reason-bar">
+              <span class="reason-name">Color Mismatch</span>
+              <div class="reason-fill" style="width: 140px;">25%</div>
+            </div>
+            <div class="reason-bar">
+              <span class="reason-name">Manufacturing Defect</span>
+              <div class="reason-fill" style="width: 100px;">18%</div>
+            </div>
+            <div class="reason-bar">
+              <span class="reason-name">Changed Mind</span>
+              <div class="reason-fill" style="width: 85px;">15%</div>
+            </div>
+            <div class="reason-bar">
+              <span class="reason-name">Shipping Damage</span>
+              <div class="reason-fill" style="width: 55px;">10%</div>
+            </div>
+          </div>
+          <div class="report-card">
+            <h3>Returns by Product Category</h3>
+            <table>
+              <thead><tr><th>Category</th><th>Orders</th><th>Returns</th><th>Rate</th></tr></thead>
+              <tbody>
+                <tr><td>Roller Shades</td><td>312</td><td>8</td><td class="good">2.6%</td></tr>
+                <tr><td>Zebra Blinds</td><td>145</td><td>5</td><td class="good">3.4%</td></tr>
+                <tr><td>Roman Shades</td><td>68</td><td>4</td><td class="warning">5.9%</td></tr>
+                <tr><td>Motorized</td><td>37</td><td>1</td><td class="good">2.7%</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="report-card">
+            <h3>Monthly Trend</h3>
+            <table>
+              <thead><tr><th>Month</th><th>Orders</th><th>Returns</th><th>Rate</th></tr></thead>
+              <tbody>
+                <tr><td>January</td><td>523</td><td>19</td><td>3.6%</td></tr>
+                <tr><td>February</td><td>489</td><td>18</td><td>3.7%</td></tr>
+                <tr><td>March</td><td>534</td><td>16</td><td>3.0%</td></tr>
+                <tr><td>April</td><td>562</td><td>18</td><td>3.2%</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="report-card">
+            <h3>High Return Products</h3>
+            <table>
+              <thead><tr><th>Product</th><th>Returns</th><th>Rate</th><th>Main Reason</th></tr></thead>
+              <tbody>
+                <tr><td>Roman Premium Linen</td><td>3</td><td class="bad">8.1%</td><td>Color Mismatch</td></tr>
+                <tr><td>Blackout Velvet</td><td>2</td><td class="warning">5.4%</td><td>Wrong Size</td></tr>
+                <tr><td>Sheer Elegance</td><td>2</td><td class="warning">4.8%</td><td>Changed Mind</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      if (!localStorage.getItem('admin_token')) { window.location.href = '/admin/login.html'; return; }
+      AdminNavConfig.initSidebar('return-rate');
+    });
+  </script>
+</body>
+</html>

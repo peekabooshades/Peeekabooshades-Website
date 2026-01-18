@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Bestsellers - Peekaboo Shades Admin</title>
+  <link rel="stylesheet" href="/admin/css/admin.css?v=1737200003.0.28">
+  <script src="/admin/js/adminNavConfig.js?v=1737200002"></script>
+  <style>
+    .filters { display: flex; gap: 1rem; margin-bottom: 1.5rem; flex-wrap: wrap; }
+    .filters select { padding: 0.5rem 1rem; border: 1px solid #ddd; border-radius: 6px; }
+    .report-card { background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); margin-bottom: 1.5rem; }
+    .report-card h3 { margin: 0 0 1rem 0; }
+    table { width: 100%; border-collapse: collapse; }
+    th { background: #f9f9f9; padding: 1rem; text-align: left; font-weight: 600; font-size: 0.85rem; color: #666; text-transform: uppercase; }
+    td { padding: 1rem; border-top: 1px solid #eee; }
+    .rank-badge { width: 28px; height: 28px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 0.85rem; }
+    .rank-1 { background: #FEF3C7; color: #92400E; }
+    .rank-2 { background: #E5E7EB; color: #374151; }
+    .rank-3 { background: #FED7AA; color: #9A3412; }
+    .rank-default { background: #F3F4F6; color: #6B7280; }
+    .product-info { display: flex; align-items: center; gap: 0.75rem; }
+    .product-name { font-weight: 500; }
+    .product-sku { font-size: 0.85rem; color: #666; }
+    .bar-container { width: 120px; height: 8px; background: #e0e0e0; border-radius: 4px; overflow: hidden; }
+    .bar-fill { height: 100%; background: #8E6545; border-radius: 4px; }
+    .stats-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; margin-bottom: 1.5rem; }
+    .mini-stat { background: white; padding: 1rem; border-radius: 8px; box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
+    .mini-stat-label { font-size: 0.8rem; color: #666; }
+    .mini-stat-value { font-size: 1.5rem; font-weight: 600; color: #8E6545; }
+    .btn-export { padding: 0.5rem 1rem; background: #8E6545; color: white; border: none; border-radius: 6px; cursor: pointer; }
+    .loading { text-align: center; padding: 2rem; color: #666; }
+    .empty-state { text-align: center; padding: 3rem; color: #666; }
+  </style>
+</head>
+<body>
+  <div class="admin-layout">
+    <aside class="admin-sidebar"></aside>
+    <main class="admin-main">
+      <header class="admin-header">
+        <h1>Bestsellers Report</h1>
+        <div class="header-actions">
+          <button class="btn-export" onclick="exportReport()">Export CSV</button>
+        </div>
+      </header>
+      <div class="admin-content">
+        <div class="filters">
+          <select id="timeRange" onchange="loadReport()">
+            <option value="7">Last 7 Days</option>
+            <option value="30" selected>Last 30 Days</option>
+            <option value="90">Last 90 Days</option>
+            <option value="365">Last Year</option>
+            <option value="all">All Time</option>
+          </select>
+          <select id="sortBy" onchange="renderBestsellers()">
+            <option value="units">Sort by Units Sold</option>
+            <option value="revenue">Sort by Revenue</option>
+          </select>
+        </div>
+
+        <div class="stats-row">
+          <div class="mini-stat">
+            <div class="mini-stat-label">Top Product Revenue</div>
+            <div class="mini-stat-value" id="topRevenue">$0</div>
+          </div>
+          <div class="mini-stat">
+            <div class="mini-stat-label">Top Product Units</div>
+            <div class="mini-stat-value" id="topUnits">0</div>
+          </div>
+          <div class="mini-stat">
+            <div class="mini-stat-label">Total Products Sold</div>
+            <div class="mini-stat-value" id="totalProducts">0</div>
+          </div>
+          <div class="mini-stat">
+            <div class="mini-stat-label">Total Revenue</div>
+            <div class="mini-stat-value" id="totalRevenue">$0</div>
+          </div>
+        </div>
+
+        <div class="report-card">
+          <h3>Top Selling Products</h3>
+          <div id="loadingState" class="loading">Loading...</div>
+          <table id="bestsellersTable" style="display: none;">
+            <thead>
+              <tr>
+                <th>Rank</th>
+                <th>Product</th>
+                <th>Units Sold</th>
+                <th>Revenue</th>
+                <th>Avg Price</th>
+                <th>% of Total</th>
+              </tr>
+            </thead>
+            <tbody id="bestsellersBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </main>
+  </div>
+  <script>
+    let bestsellers = [];
+    let orders = [];
+
+    document.addEventListener('DOMContentLoaded', () => {
+      if (!localStorage.getItem('admin_token')) { window.location.href = '/admin/login.html'; return; }
+      AdminNavConfig.initSidebar('bestsellers');
+      loadReport();
+    });
+
+    async function loadReport() {
+      const token = localStorage.getItem('admin_token');
+      const headers = { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' };
+
+      document.getElementById('loadingState').style.display = 'block';
+      document.getElementById('bestsellersTable').style.display = 'none';
+
+      try {
+        const res = await fetch('/api/admin/orders', { headers });
+        const data = await res.json();
+
+        if (data.success) {
+          orders = data.orders || [];
+          calculateBestsellers();
+        } else {
+          orders = [];
+          calculateBestsellers();
+        }
+      } catch (error) {
+        console.error('Error loading orders:', error);
+        orders = [];
+        calculateBestsellers();
+      }
+    }
+
+    function calculateBestsellers() {
+      const timeRange = parseInt(document.getElementById('timeRange').value);
+      const cutoffDate = new Date();
+      if (timeRange !== 'all') {
+        cutoffDate.setDate(cutoffDate.getDate() - timeRange);
+      }
+
+      // Filter orders by date range
+      const filteredOrders = orders.filter(o => {
+        if (timeRange === 'all') return true;
+        const orderDate = new Date(o.created_at || o.createdAt);
+        return orderDate >= cutoffDate;
+      });
+
+      // Aggregate sales by product
+      const productMap = {};
+
+      filteredOrders.forEach(order => {
+        if (!order.items) return;
+
+        order.items.forEach(item => {
+          const productId = item.product_id || item.productId || 'unknown';
+          const productName = item.product_name || item.productName || 'Unknown Product';
+
+          if (!productMap[productId]) {
+            productMap[productId] = {
+              id: productId,
+              name: productName,
+              units: 0,
+              revenue: 0
+            };
+          }
+
+          productMap[productId].units += item.quantity || 1;
+          productMap[productId].revenue += parseFloat(item.line_total || item.lineTotal || item.unit_price || 0);
+        });
+      });
+
+      // Convert to array and calculate stats
+      bestsellers = Object.values(productMap);
+      const totalRevenue = bestsellers.reduce((sum, p) => sum + p.revenue, 0);
+
+      bestsellers = bestsellers.map(p => ({
+        ...p,
+        avgPrice: p.units > 0 ? Math.round(p.revenue / p.units) : 0,
+        percentTotal: totalRevenue > 0 ? ((p.revenue / totalRevenue) * 100).toFixed(1) : 0
+      }));
+
+      // Update stats
+      const totalUnits = bestsellers.reduce((sum, p) => sum + p.units, 0);
+      document.getElementById('totalProducts').textContent = totalUnits;
+      document.getElementById('totalRevenue').textContent = '$' + totalRevenue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+
+      if (bestsellers.length > 0) {
+        const sortedByRevenue = [...bestsellers].sort((a, b) => b.revenue - a.revenue);
+        const sortedByUnits = [...bestsellers].sort((a, b) => b.units - a.units);
+        document.getElementById('topRevenue').textContent = '$' + sortedByRevenue[0].revenue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        document.getElementById('topUnits').textContent = sortedByUnits[0].units;
+      } else {
+        document.getElementById('topRevenue').textContent = '$0';
+        document.getElementById('topUnits').textContent = '0';
+      }
+
+      document.getElementById('loadingState').style.display = 'none';
+      document.getElementById('bestsellersTable').style.display = 'table';
+
+      renderBestsellers();
+    }
+
+    function renderBestsellers() {
+      const sortBy = document.getElementById('sortBy').value;
+      const sorted = [...bestsellers].sort((a, b) => sortBy === 'revenue' ? b.revenue - a.revenue : b.units - a.units);
+
+      const tbody = document.getElementById('bestsellersBody');
+
+      if (sorted.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" class="empty-state">No orders found for the selected period.</td></tr>';
+        return;
+      }
+
+      const maxRevenue = Math.max(...sorted.map(b => b.revenue));
+
+      tbody.innerHTML = sorted.map((b, idx) => {
+        const rank = idx + 1;
+        const rankClass = rank <= 3 ? `rank-${rank}` : 'rank-default';
+        return `
+          <tr>
+            <td><span class="rank-badge ${rankClass}">${rank}</span></td>
+            <td>
+              <div class="product-info">
+                <div>
+                  <div class="product-name">${b.name}</div>
+                </div>
+              </div>
+            </td>
+            <td><strong>${b.units}</strong></td>
+            <td>$${b.revenue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+            <td>$${b.avgPrice.toLocaleString()}</td>
+            <td>
+              <div style="display: flex; align-items: center; gap: 0.5rem;">
+                <div class="bar-container"><div class="bar-fill" style="width: ${maxRevenue > 0 ? (b.revenue / maxRevenue * 100) : 0}%;"></div></div>
+                <span>${b.percentTotal}%</span>
+              </div>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function exportReport() {
+      if (bestsellers.length === 0) {
+        alert('No data to export');
+        return;
+      }
+
+      let csv = 'Rank,Product,Units Sold,Revenue,Avg Price,% of Total\n';
+      const sortBy = document.getElementById('sortBy').value;
+      const sorted = [...bestsellers].sort((a, b) => sortBy === 'revenue' ? b.revenue - a.revenue : b.units - a.units);
+
+      sorted.forEach((b, idx) => {
+        csv += `${idx + 1},"${b.name}",${b.units},${b.revenue.toFixed(2)},${b.avgPrice},${b.percentTotal}%\n`;
+      });
+
+      const blob = new Blob([csv], { type: 'text/csv' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `bestsellers-report-${new Date().toISOString().split('T')[0]}.csv`;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+  </script>
+</body>
+</html>

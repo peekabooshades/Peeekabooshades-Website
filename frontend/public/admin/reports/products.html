@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Product Performance - Peekaboo Shades Admin</title>
+  <link rel="stylesheet" href="../css/admin.css">
+  <link rel="icon" type="image/jpeg" href="/images/peekabooshades_logo.jpeg">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+    @media (max-width: 1024px) { .stats-row { grid-template-columns: repeat(2, 1fr); } }
+    .stat-card {
+      background: white;
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      border-left: 4px solid #8E6545;
+    }
+    .stat-value { font-size: 28px; font-weight: 700; color: #1f2937; }
+    .stat-label { font-size: 13px; color: #6b7280; margin-top: 4px; }
+    .chart-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 24px;
+      margin-bottom: 24px;
+    }
+    @media (max-width: 1024px) { .chart-grid { grid-template-columns: 1fr; } }
+    .chart-card {
+      background: white;
+      border-radius: 12px;
+      padding: 24px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    .chart-title { font-size: 16px; font-weight: 600; color: #1f2937; margin-bottom: 16px; }
+    .chart-canvas { height: 280px; }
+    .product-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    .product-table th, .product-table td {
+      padding: 14px 16px;
+      text-align: left;
+      border-bottom: 1px solid #e5e7eb;
+    }
+    .product-table th {
+      background: #f9fafb;
+      font-size: 12px;
+      font-weight: 600;
+      color: #6b7280;
+      text-transform: uppercase;
+    }
+    .product-table tr:hover td { background: #fafafa; }
+    .rank-badge {
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 700;
+    }
+    .rank-badge.gold { background: #fef3c7; color: #d97706; }
+    .rank-badge.silver { background: #e5e7eb; color: #6b7280; }
+    .rank-badge.bronze { background: #fed7aa; color: #c2410c; }
+    .rank-badge.default { background: #f3f4f6; color: #9ca3af; }
+    .performance-bar {
+      height: 8px;
+      background: #e5e7eb;
+      border-radius: 4px;
+      overflow: hidden;
+    }
+    .performance-bar-fill {
+      height: 100%;
+      border-radius: 4px;
+    }
+    .filter-row {
+      display: flex;
+      gap: 16px;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+    }
+    .fabric-swatch {
+      width: 40px;
+      height: 40px;
+      border-radius: 8px;
+      background: #f3f4f6;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+      font-weight: 600;
+      color: #6b7280;
+    }
+  </style>
+</head>
+<body>
+  <div class="admin-layout">
+    <aside class="admin-sidebar"></aside>
+    <main class="admin-main">
+      <header class="admin-header">
+        <div class="header-left">
+          <div class="breadcrumb">
+            <a href="/admin/">Dashboard</a>
+            <span class="breadcrumb-separator">/</span>
+            <a href="/admin/analytics.html">Analytics</a>
+            <span class="breadcrumb-separator">/</span>
+            <span class="breadcrumb-current">Product Performance</span>
+          </div>
+        </div>
+        <div class="header-right">
+          <button onclick="exportReport()" class="btn btn-secondary" style="margin-right: 10px;">Export</button>
+          <button onclick="Admin.AuthAPI.logout();" class="btn btn-logout" style="background: #dc3545; color: white; padding: 8px 16px; border: none; border-radius: 6px;">Logout</button>
+        </div>
+      </header>
+
+      <div class="admin-content">
+        <div class="page-header">
+          <h1 class="page-title">Product Performance</h1>
+          <p style="color: #6b7280; margin-top: 4px;">Analyze product sales, fabric popularity, and configuration trends</p>
+        </div>
+
+        <!-- Filters -->
+        <div class="filter-row">
+          <select id="date-range" class="filter-select" onchange="loadReport()">
+            <option value="30" selected>Last 30 Days</option>
+            <option value="90">Last 90 Days</option>
+            <option value="365">Last Year</option>
+            <option value="all">All Time</option>
+          </select>
+          <button onclick="loadReport()" class="btn btn-primary">Refresh</button>
+        </div>
+
+        <!-- Stats -->
+        <div class="stats-row">
+          <div class="stat-card">
+            <div class="stat-value" id="total-units">0</div>
+            <div class="stat-label">Total Units Sold</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" id="unique-fabrics">0</div>
+            <div class="stat-label">Unique Fabrics Used</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" id="avg-size">0"</div>
+            <div class="stat-label">Avg. Size (sq in)</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-value" id="motorized-pct">0%</div>
+            <div class="stat-label">Motorized Orders</div>
+          </div>
+        </div>
+
+        <!-- Charts -->
+        <div class="chart-grid">
+          <div class="chart-card">
+            <h3 class="chart-title">Sales by Product Type</h3>
+            <div class="chart-canvas">
+              <canvas id="product-type-chart"></canvas>
+            </div>
+          </div>
+          <div class="chart-card">
+            <h3 class="chart-title">Control Type Distribution</h3>
+            <div class="chart-canvas">
+              <canvas id="control-type-chart"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <!-- Top Fabrics -->
+        <div class="card" style="margin-bottom: 24px;">
+          <div class="card-header">
+            <h3 class="card-title">Top Selling Fabrics</h3>
+          </div>
+          <div class="table-container">
+            <table class="product-table">
+              <thead>
+                <tr>
+                  <th style="width: 60px;">Rank</th>
+                  <th>Fabric Code</th>
+                  <th>Type</th>
+                  <th style="text-align: center;">Units Sold</th>
+                  <th style="text-align: right;">Revenue</th>
+                  <th style="width: 150px;">Performance</th>
+                </tr>
+              </thead>
+              <tbody id="fabrics-table">
+                <tr><td colspan="6" style="text-align: center; padding: 40px; color: #6b7280;">Loading...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Size Distribution -->
+        <div class="chart-grid">
+          <div class="chart-card">
+            <h3 class="chart-title">Width Distribution</h3>
+            <div class="chart-canvas">
+              <canvas id="width-chart"></canvas>
+            </div>
+          </div>
+          <div class="chart-card">
+            <h3 class="chart-title">Height Distribution</h3>
+            <div class="chart-canvas">
+              <canvas id="height-chart"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <!-- Popular Configurations -->
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">Popular Configurations</h3>
+          </div>
+          <div class="table-container">
+            <table class="product-table">
+              <thead>
+                <tr>
+                  <th>Configuration</th>
+                  <th style="text-align: center;">Count</th>
+                  <th style="text-align: center;">% of Orders</th>
+                  <th style="width: 200px;">Distribution</th>
+                </tr>
+              </thead>
+              <tbody id="config-table">
+                <tr><td colspan="4" style="text-align: center; padding: 40px; color: #6b7280;">Loading...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="../js/adminNavConfig.js?v=1737200002"></script>
+  <script src="../js/admin.js?v=1737100001"></script>
+  <script>
+    if (!Admin.Auth.requireAuth()) {
+      // Redirect
+    } else {
+      loadReport();
+    }
+
+    let productTypeChart = null;
+    let controlTypeChart = null;
+    let widthChart = null;
+    let heightChart = null;
+    let reportData = { items: [], stats: {} };
+
+    async function loadReport() {
+      try {
+        const dateRange = document.getElementById('date-range').value;
+
+        const params = new URLSearchParams();
+        params.append('limit', '500');
+
+        if (dateRange !== 'all') {
+          const start = new Date();
+          start.setDate(start.getDate() - parseInt(dateRange));
+          params.append('startDate', start.toISOString().split('T')[0]);
+        }
+
+        const response = await fetch(`/api/admin/orders?${params}`, {
+          headers: { 'Authorization': `Bearer ${Admin.Auth.getToken()}` }
+        });
+        const data = await response.json();
+
+        const orders = data.success && data.orders ? data.orders : [];
+
+        // Extract all items from orders
+        reportData.items = [];
+        orders.forEach(order => {
+          if (order.items) {
+            order.items.forEach(item => {
+              reportData.items.push({
+                ...item,
+                orderId: order.id,
+                orderDate: order.created_at,
+                orderTotal: order.total
+              });
+            });
+          }
+        });
+
+        calculateStats();
+        renderStats();
+        renderCharts();
+        renderFabricsTable();
+        renderConfigTable();
+
+      } catch (error) {
+        console.error('Failed to load report:', error);
+        Admin.Toast.error('Failed to load data');
+      }
+    }
+
+    function calculateStats() {
+      const items = reportData.items;
+      let totalUnits = 0;
+      let totalSqIn = 0;
+      let motorizedCount = 0;
+      const fabrics = new Set();
+
+      items.forEach(item => {
+        totalUnits += item.quantity || 1;
+        const sqIn = (item.width || 0) * (item.height || 0);
+        totalSqIn += sqIn * (item.quantity || 1);
+
+        const cfg = parseConfig(item.configuration);
+        if (cfg.fabricCode) fabrics.add(cfg.fabricCode);
+        if (cfg.controlType?.toLowerCase().includes('motor')) motorizedCount++;
+      });
+
+      reportData.stats = {
+        totalUnits,
+        uniqueFabrics: fabrics.size,
+        avgSize: items.length > 0 ? Math.round(totalSqIn / totalUnits) : 0,
+        motorizedPct: items.length > 0 ? Math.round(motorizedCount / items.length * 100) : 0
+      };
+    }
+
+    function parseConfig(cfg) {
+      if (!cfg) return {};
+      if (typeof cfg === 'object') return cfg;
+      try { return JSON.parse(cfg); } catch { return {}; }
+    }
+
+    function renderStats() {
+      const s = reportData.stats;
+      document.getElementById('total-units').textContent = s.totalUnits;
+      document.getElementById('unique-fabrics').textContent = s.uniqueFabrics;
+      document.getElementById('avg-size').textContent = s.avgSize.toLocaleString() + '"';
+      document.getElementById('motorized-pct').textContent = s.motorizedPct + '%';
+    }
+
+    function renderCharts() {
+      renderProductTypeChart();
+      renderControlTypeChart();
+      renderSizeCharts();
+    }
+
+    function renderProductTypeChart() {
+      const ctx = document.getElementById('product-type-chart').getContext('2d');
+
+      const types = { roller: 0, zebra: 0, honeycomb: 0, roman: 0, other: 0 };
+      reportData.items.forEach(item => {
+        const type = item.product_type ||
+          (item.product_slug?.includes('zebra') ? 'zebra' :
+           item.product_slug?.includes('roller') ? 'roller' : 'other');
+        types[type] = (types[type] || 0) + (item.quantity || 1);
+      });
+
+      if (productTypeChart) productTypeChart.destroy();
+
+      productTypeChart = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+          labels: ['Roller', 'Zebra', 'Honeycomb', 'Roman', 'Other'],
+          datasets: [{
+            data: [types.roller, types.zebra, types.honeycomb, types.roman, types.other],
+            backgroundColor: ['#3b82f6', '#f59e0b', '#10b981', '#ec4899', '#8b5cf6'],
+            borderWidth: 0
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { position: 'bottom' } }
+        }
+      });
+    }
+
+    function renderControlTypeChart() {
+      const ctx = document.getElementById('control-type-chart').getContext('2d');
+
+      const controls = {};
+      reportData.items.forEach(item => {
+        const cfg = parseConfig(item.configuration);
+        const control = cfg.controlType || 'Unknown';
+        controls[control] = (controls[control] || 0) + (item.quantity || 1);
+      });
+
+      const sortedControls = Object.entries(controls).sort((a, b) => b[1] - a[1]).slice(0, 6);
+
+      if (controlTypeChart) controlTypeChart.destroy();
+
+      controlTypeChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: sortedControls.map(c => c[0]),
+          datasets: [{
+            label: 'Units',
+            data: sortedControls.map(c => c[1]),
+            backgroundColor: '#8E6545',
+            borderRadius: 4
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          indexAxis: 'y',
+          plugins: { legend: { display: false } }
+        }
+      });
+    }
+
+    function renderSizeCharts() {
+      // Width distribution
+      const widthCtx = document.getElementById('width-chart').getContext('2d');
+      const widthBuckets = { '0-24': 0, '25-36': 0, '37-48': 0, '49-60': 0, '61-72': 0, '73+': 0 };
+
+      reportData.items.forEach(item => {
+        const w = item.width || 0;
+        if (w <= 24) widthBuckets['0-24']++;
+        else if (w <= 36) widthBuckets['25-36']++;
+        else if (w <= 48) widthBuckets['37-48']++;
+        else if (w <= 60) widthBuckets['49-60']++;
+        else if (w <= 72) widthBuckets['61-72']++;
+        else widthBuckets['73+']++;
+      });
+
+      if (widthChart) widthChart.destroy();
+      widthChart = new Chart(widthCtx, {
+        type: 'bar',
+        data: {
+          labels: Object.keys(widthBuckets).map(k => k + '"'),
+          datasets: [{
+            label: 'Count',
+            data: Object.values(widthBuckets),
+            backgroundColor: '#3b82f6',
+            borderRadius: 4
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } }
+        }
+      });
+
+      // Height distribution
+      const heightCtx = document.getElementById('height-chart').getContext('2d');
+      const heightBuckets = { '0-36': 0, '37-48': 0, '49-60': 0, '61-72': 0, '73-84': 0, '85+': 0 };
+
+      reportData.items.forEach(item => {
+        const h = item.height || 0;
+        if (h <= 36) heightBuckets['0-36']++;
+        else if (h <= 48) heightBuckets['37-48']++;
+        else if (h <= 60) heightBuckets['49-60']++;
+        else if (h <= 72) heightBuckets['61-72']++;
+        else if (h <= 84) heightBuckets['73-84']++;
+        else heightBuckets['85+']++;
+      });
+
+      if (heightChart) heightChart.destroy();
+      heightChart = new Chart(heightCtx, {
+        type: 'bar',
+        data: {
+          labels: Object.keys(heightBuckets).map(k => k + '"'),
+          datasets: [{
+            label: 'Count',
+            data: Object.values(heightBuckets),
+            backgroundColor: '#10b981',
+            borderRadius: 4
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { display: false } }
+        }
+      });
+    }
+
+    function renderFabricsTable() {
+      const tbody = document.getElementById('fabrics-table');
+
+      // Aggregate by fabric
+      const fabrics = {};
+      reportData.items.forEach(item => {
+        const cfg = parseConfig(item.configuration);
+        const code = cfg.fabricCode || 'Unknown';
+        if (!fabrics[code]) {
+          fabrics[code] = { units: 0, revenue: 0, type: 'Unknown' };
+        }
+        fabrics[code].units += item.quantity || 1;
+        fabrics[code].revenue += item.line_total || item.unit_price * item.quantity || 0;
+
+        // Detect type from fabric code
+        if (code.startsWith('83')) fabrics[code].type = 'Zebra';
+        else if (code.startsWith('23') || code.startsWith('24')) fabrics[code].type = 'Roller';
+      });
+
+      const sortedFabrics = Object.entries(fabrics)
+        .sort((a, b) => b[1].units - a[1].units)
+        .slice(0, 15);
+
+      if (sortedFabrics.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 40px; color: #6b7280;">No fabric data available</td></tr>';
+        return;
+      }
+
+      const maxUnits = sortedFabrics[0][1].units;
+
+      tbody.innerHTML = sortedFabrics.map(([code, data], idx) => {
+        const rankClass = idx === 0 ? 'gold' : idx === 1 ? 'silver' : idx === 2 ? 'bronze' : 'default';
+        const barWidth = (data.units / maxUnits * 100);
+        const barColor = data.type === 'Zebra' ? '#f59e0b' : '#3b82f6';
+
+        return `
+          <tr>
+            <td><span class="rank-badge ${rankClass}">${idx + 1}</span></td>
+            <td style="font-weight: 600; color: #8E6545;">${code}</td>
+            <td>${data.type}</td>
+            <td style="text-align: center; font-weight: 600;">${data.units}</td>
+            <td style="text-align: right;">${Admin.Utils.formatCurrency(data.revenue)}</td>
+            <td>
+              <div class="performance-bar">
+                <div class="performance-bar-fill" style="width: ${barWidth}%; background: ${barColor};"></div>
+              </div>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function renderConfigTable() {
+      const tbody = document.getElementById('config-table');
+
+      // Popular configurations
+      const configs = {
+        'Inside Mount': 0,
+        'Outside Mount': 0,
+        'Motorized': 0,
+        'Chain Control': 0,
+        'Cordless': 0,
+        'Standard Cassette': 0,
+        'Fascia Cassette': 0,
+        'Left Chain Side': 0,
+        'Right Chain Side': 0
+      };
+
+      const total = reportData.items.length;
+
+      reportData.items.forEach(item => {
+        const cfg = parseConfig(item.configuration);
+
+        if (cfg.mountType?.toLowerCase().includes('inside')) configs['Inside Mount']++;
+        if (cfg.mountType?.toLowerCase().includes('outside')) configs['Outside Mount']++;
+        if (cfg.controlType?.toLowerCase().includes('motor')) configs['Motorized']++;
+        if (cfg.controlType?.toLowerCase().includes('chain')) configs['Chain Control']++;
+        if (cfg.controlType?.toLowerCase().includes('cordless')) configs['Cordless']++;
+        if (cfg.standardCassette?.toLowerCase().includes('standard')) configs['Standard Cassette']++;
+        if (cfg.standardCassette?.toLowerCase().includes('fascia')) configs['Fascia Cassette']++;
+        if (cfg.chainSide?.toLowerCase().includes('left')) configs['Left Chain Side']++;
+        if (cfg.chainSide?.toLowerCase().includes('right')) configs['Right Chain Side']++;
+      });
+
+      const sortedConfigs = Object.entries(configs)
+        .filter(([_, count]) => count > 0)
+        .sort((a, b) => b[1] - a[1]);
+
+      if (sortedConfigs.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; padding: 40px; color: #6b7280;">No configuration data available</td></tr>';
+        return;
+      }
+
+      const maxCount = sortedConfigs[0][1];
+
+      tbody.innerHTML = sortedConfigs.map(([name, count]) => {
+        const pct = total > 0 ? (count / total * 100).toFixed(1) : 0;
+        const barWidth = (count / maxCount * 100);
+
+        return `
+          <tr>
+            <td style="font-weight: 500;">${name}</td>
+            <td style="text-align: center; font-weight: 600;">${count}</td>
+            <td style="text-align: center;">${pct}%</td>
+            <td>
+              <div class="performance-bar">
+                <div class="performance-bar-fill" style="width: ${barWidth}%; background: linear-gradient(90deg, #8E6545, #B38B6D);"></div>
+              </div>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function exportReport() {
+      Admin.Toast.success('Export feature coming soon');
+    }
+  </script>
+</body>
+</html>

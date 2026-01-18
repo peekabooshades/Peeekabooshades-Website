@@ -1,0 +1,811 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Product Editor - Peekaboo Shades Admin</title>
+  <link rel="stylesheet" href="css/admin.css?v=1737200003">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
+  <link rel="icon" type="image/jpeg" href="/images/peekabooshades_logo.jpeg">
+  <script src="js/adminNavConfig.js?v=1737200002"></script>
+  <style>
+    .editor-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 24px; }
+    .card { background: white; border-radius: 12px; border: 1px solid #e5e7eb; margin-bottom: 24px; }
+    .card-header { padding: 16px 20px; border-bottom: 1px solid #e5e7eb; }
+    .card-header h3 { margin: 0; font-size: 16px; font-weight: 600; }
+    .card-body { padding: 20px; }
+    .form-group { margin-bottom: 16px; }
+    .form-group:last-child { margin-bottom: 0; }
+    .form-label { display: block; font-size: 14px; font-weight: 500; margin-bottom: 6px; color: #374151; }
+    .form-input, .form-select, .form-textarea {
+      width: 100%; padding: 10px 12px; border: 1px solid #e5e7eb;
+      border-radius: 8px; font-size: 14px; transition: border-color 0.2s;
+    }
+    .form-input:focus, .form-select:focus, .form-textarea:focus {
+      outline: none; border-color: #8E6545;
+    }
+    .form-textarea { min-height: 100px; resize: vertical; }
+    .form-help { font-size: 12px; color: #6b7280; margin-top: 4px; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .form-row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px; }
+    .checkbox-group { display: flex; flex-wrap: wrap; gap: 16px; }
+    .checkbox-item { display: flex; align-items: center; gap: 8px; }
+    .checkbox-item input[type="checkbox"] { width: 18px; height: 18px; accent-color: #8E6545; }
+
+    .image-upload { border: 2px dashed #e5e7eb; border-radius: 12px; padding: 24px; text-align: center; cursor: pointer; transition: all 0.2s; }
+    .image-upload:hover { border-color: #8E6545; background: #fdf8f5; }
+    .image-upload.has-image { border-style: solid; padding: 8px; }
+    .image-upload img { max-width: 100%; max-height: 200px; border-radius: 8px; }
+    .image-upload .placeholder { color: #9ca3af; }
+    .image-upload .placeholder svg { width: 48px; height: 48px; margin-bottom: 8px; }
+
+    .gallery-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+    .gallery-item { aspect-ratio: 1; border: 2px dashed #e5e7eb; border-radius: 8px; display: flex; align-items: center; justify-content: center; cursor: pointer; position: relative; overflow: hidden; }
+    .gallery-item:hover { border-color: #8E6545; }
+    .gallery-item.has-image { border-style: solid; }
+    .gallery-item img { width: 100%; height: 100%; object-fit: cover; }
+    .gallery-item .remove-btn { position: absolute; top: 4px; right: 4px; width: 24px; height: 24px; background: rgba(220,53,69,0.9); color: white; border: none; border-radius: 50%; cursor: pointer; display: none; }
+    .gallery-item:hover .remove-btn { display: flex; align-items: center; justify-content: center; }
+
+    .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+    .page-title { font-size: 24px; font-weight: 700; margin: 0; }
+    .page-actions { display: flex; gap: 12px; }
+
+    .tabs { display: flex; gap: 4px; margin-bottom: 20px; border-bottom: 1px solid #e5e7eb; }
+    .tab { padding: 12px 20px; border: none; background: none; cursor: pointer; font-size: 14px; font-weight: 500; color: #6b7280; border-bottom: 2px solid transparent; margin-bottom: -1px; }
+    .tab.active { color: #8E6545; border-bottom-color: #8E6545; }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+
+    .loading-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(255,255,255,0.8); display: flex; align-items: center; justify-content: center; z-index: 1000; }
+    .loading-overlay.hidden { display: none; }
+    .spinner { width: 40px; height: 40px; border: 3px solid #e5e7eb; border-top-color: #8E6545; border-radius: 50%; animation: spin 1s linear infinite; }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    @media (max-width: 1024px) {
+      .editor-grid { grid-template-columns: 1fr; }
+      .form-row, .form-row-3 { grid-template-columns: 1fr; }
+      .gallery-grid { grid-template-columns: repeat(2, 1fr); }
+    }
+  </style>
+</head>
+<body>
+  <div class="admin-layout">
+    <aside class="admin-sidebar"></aside>
+    <main class="admin-main">
+      <header class="admin-header">
+        <div class="header-left">
+          <div class="breadcrumb">
+            <a href="/admin/">Dashboard</a>
+            <span>/</span>
+            <a href="/admin/products.html">Products</a>
+            <span>/</span>
+            <span id="breadcrumb-title">Add Product</span>
+          </div>
+        </div>
+      </header>
+
+      <div class="admin-content">
+        <div class="page-header">
+          <h1 class="page-title" id="page-title">Add Product</h1>
+          <div class="page-actions">
+            <a href="/admin/products.html" class="btn btn-secondary">Cancel</a>
+            <button type="button" class="btn btn-primary" id="save-btn" onclick="saveProduct()">
+              <span id="save-text">Save Product</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- Tabs -->
+        <div class="tabs">
+          <button class="tab active" onclick="showTab('basic')">Basic Info</button>
+          <button class="tab" onclick="showTab('media')">Images</button>
+          <button class="tab" onclick="showTab('pricing')">Pricing</button>
+          <button class="tab" onclick="showTab('specs')">Specifications</button>
+          <button class="tab" onclick="showTab('seo')">SEO</button>
+        </div>
+
+        <!-- Basic Info Tab -->
+        <div class="tab-content active" id="tab-basic">
+          <div class="editor-grid">
+            <div>
+              <div class="card">
+                <div class="card-header"><h3>Product Information</h3></div>
+                <div class="card-body">
+                  <div class="form-group">
+                    <label class="form-label">Product Name *</label>
+                    <input type="text" class="form-input" id="name" placeholder="e.g., Custom Roller Shades" required>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">URL Slug *</label>
+                    <input type="text" class="form-input" id="slug" placeholder="custom-roller-shades">
+                    <p class="form-help">Auto-generated from name. Used in product URL.</p>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Tagline</label>
+                    <input type="text" class="form-input" id="tagline" placeholder="e.g., Premium quality at factory-direct prices">
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Description</label>
+                    <textarea class="form-textarea" id="description" placeholder="Product description..."></textarea>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Promo Badge</label>
+                    <input type="text" class="form-input" id="promo_badge" placeholder="e.g., BEST SELLER, NEW, SALE">
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <div class="card">
+                <div class="card-header"><h3>Organization</h3></div>
+                <div class="card-body">
+                  <div class="form-group">
+                    <label class="form-label">Category *</label>
+                    <select class="form-select" id="category_id" required>
+                      <option value="">Select category...</option>
+                    </select>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Stock Status</label>
+                    <select class="form-select" id="stock_status">
+                      <option value="in_stock">In Stock</option>
+                      <option value="low_stock">Low Stock</option>
+                      <option value="out_of_stock">Out of Stock</option>
+                      <option value="pre_order">Pre-Order</option>
+                    </select>
+                  </div>
+                </div>
+              </div>
+
+              <div class="card">
+                <div class="card-header"><h3>Status</h3></div>
+                <div class="card-body">
+                  <div class="checkbox-group">
+                    <label class="checkbox-item">
+                      <input type="checkbox" id="is_active" checked>
+                      <span>Active (visible on store)</span>
+                    </label>
+                    <label class="checkbox-item">
+                      <input type="checkbox" id="is_featured">
+                      <span>Featured product</span>
+                    </label>
+                    <label class="checkbox-item">
+                      <input type="checkbox" id="is_discontinued">
+                      <span>Discontinued</span>
+                    </label>
+                  </div>
+                </div>
+              </div>
+
+              <div class="card">
+                <div class="card-header"><h3>Light Control Options</h3></div>
+                <div class="card-body">
+                  <div class="checkbox-group" style="flex-direction: column;">
+                    <label class="checkbox-item">
+                      <input type="checkbox" id="light_filtering" checked>
+                      <span>Light Filtering</span>
+                    </label>
+                    <label class="checkbox-item">
+                      <input type="checkbox" id="room_darkening" checked>
+                      <span>Room Darkening</span>
+                    </label>
+                    <label class="checkbox-item">
+                      <input type="checkbox" id="blackout" checked>
+                      <span>Blackout</span>
+                    </label>
+                  </div>
+                </div>
+              </div>
+
+              <div class="card">
+                <div class="card-header"><h3>Recommended Rooms</h3></div>
+                <div class="card-body">
+                  <div class="checkbox-group" style="flex-direction: column;">
+                    <label class="checkbox-item"><input type="checkbox" id="room_living" checked> Living Room</label>
+                    <label class="checkbox-item"><input type="checkbox" id="room_bedroom" checked> Bedroom</label>
+                    <label class="checkbox-item"><input type="checkbox" id="room_office" checked> Office</label>
+                    <label class="checkbox-item"><input type="checkbox" id="room_kitchen"> Kitchen</label>
+                    <label class="checkbox-item"><input type="checkbox" id="room_bathroom"> Bathroom</label>
+                    <label class="checkbox-item"><input type="checkbox" id="room_dining"> Dining Room</label>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Images Tab -->
+        <div class="tab-content" id="tab-media">
+          <div class="editor-grid">
+            <div>
+              <div class="card">
+                <div class="card-header"><h3>Main Product Image</h3></div>
+                <div class="card-body">
+                  <div class="image-upload" id="main-image-upload" onclick="document.getElementById('main-image-input').click()">
+                    <div class="placeholder" id="main-image-placeholder">
+                      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                      </svg>
+                      <p>Click to upload main image</p>
+                      <small>JPG, PNG, WebP up to 5MB</small>
+                    </div>
+                    <img id="main-image-preview" src="" alt="" style="display: none;">
+                  </div>
+                  <input type="file" id="main-image-input" accept="image/*" style="display: none;" onchange="handleMainImageUpload(this)">
+                  <input type="hidden" id="image_url">
+                </div>
+              </div>
+
+              <div class="card">
+                <div class="card-header"><h3>Gallery Images (up to 4)</h3></div>
+                <div class="card-body">
+                  <div class="gallery-grid" id="gallery-grid"></div>
+                  <input type="file" id="gallery-image-input" accept="image/*" style="display: none;" onchange="handleGalleryImageUpload(this)">
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <div class="card">
+                <div class="card-header"><h3>Image Guidelines</h3></div>
+                <div class="card-body">
+                  <ul style="margin: 0; padding-left: 20px; color: #6b7280; font-size: 14px;">
+                    <li>Use high-quality images (min 800x800px)</li>
+                    <li>White or neutral background preferred</li>
+                    <li>Show product from multiple angles</li>
+                    <li>Include lifestyle/room shots</li>
+                    <li>Max file size: 5MB per image</li>
+                  </ul>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Pricing Tab -->
+        <div class="tab-content" id="tab-pricing">
+          <div class="editor-grid">
+            <div>
+              <div class="card">
+                <div class="card-header"><h3>Product Pricing</h3></div>
+                <div class="card-body">
+                  <div class="form-row">
+                    <div class="form-group">
+                      <label class="form-label">Base Price ($) *</label>
+                      <input type="number" class="form-input" id="base_price" min="0" step="0.01" placeholder="0.00" required>
+                      <p class="form-help">Starting price for smallest size</p>
+                    </div>
+                    <div class="form-group">
+                      <label class="form-label">Sale Price ($)</label>
+                      <input type="number" class="form-input" id="sale_price" min="0" step="0.01" placeholder="0.00">
+                      <p class="form-help">Leave empty for no sale</p>
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Compare At Price ($)</label>
+                    <input type="number" class="form-input" id="compare_price" min="0" step="0.01" placeholder="0.00">
+                    <p class="form-help">Original/MSRP price shown crossed out</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <div class="card">
+                <div class="card-header"><h3>Pricing Notes</h3></div>
+                <div class="card-body">
+                  <p style="color: #6b7280; font-size: 14px; margin: 0;">
+                    The base price is the starting price. Final price is calculated based on dimensions, fabric selection, and hardware options configured in the Pricing section.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Specifications Tab -->
+        <div class="tab-content" id="tab-specs">
+          <div class="editor-grid">
+            <div>
+              <div class="card">
+                <div class="card-header"><h3>Size Limits</h3></div>
+                <div class="card-body">
+                  <div class="form-row">
+                    <div class="form-group">
+                      <label class="form-label">Min Width</label>
+                      <input type="text" class="form-input" id="spec_min_width" placeholder='12"'>
+                    </div>
+                    <div class="form-group">
+                      <label class="form-label">Max Width</label>
+                      <input type="text" class="form-input" id="spec_max_width" placeholder='96"'>
+                    </div>
+                  </div>
+                  <div class="form-row">
+                    <div class="form-group">
+                      <label class="form-label">Min Height</label>
+                      <input type="text" class="form-input" id="spec_min_height" placeholder='12"'>
+                    </div>
+                    <div class="form-group">
+                      <label class="form-label">Max Height</label>
+                      <input type="text" class="form-input" id="spec_max_height" placeholder='120"'>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="card">
+                <div class="card-header"><h3>Product Details</h3></div>
+                <div class="card-body">
+                  <div class="form-group">
+                    <label class="form-label">Material</label>
+                    <input type="text" class="form-input" id="spec_material" placeholder="e.g., 100% Polyester">
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Production Time</label>
+                    <input type="text" class="form-input" id="spec_production_time" placeholder="e.g., 5-7 business days">
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <div class="card">
+                <div class="card-header"><h3>Specification Tips</h3></div>
+                <div class="card-body">
+                  <p style="color: #6b7280; font-size: 14px; margin: 0;">
+                    These specifications are displayed on the product page to help customers understand size limits and product details.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- SEO Tab -->
+        <div class="tab-content" id="tab-seo">
+          <div class="editor-grid">
+            <div>
+              <div class="card">
+                <div class="card-header"><h3>Search Engine Optimization</h3></div>
+                <div class="card-body">
+                  <div class="form-group">
+                    <label class="form-label">SEO Title</label>
+                    <input type="text" class="form-input" id="seo_title" placeholder="Custom Roller Shades | Peekaboo Shades">
+                    <p class="form-help">Recommended: 50-60 characters</p>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Meta Description</label>
+                    <textarea class="form-textarea" id="seo_description" placeholder="Shop premium custom roller shades at factory-direct prices..."></textarea>
+                    <p class="form-help">Recommended: 150-160 characters</p>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Keywords</label>
+                    <input type="text" class="form-input" id="seo_keywords" placeholder="roller shades, custom blinds, window treatments">
+                    <p class="form-help">Comma-separated keywords</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div>
+              <div class="card">
+                <div class="card-header"><h3>SEO Preview</h3></div>
+                <div class="card-body">
+                  <div style="font-family: Arial, sans-serif;">
+                    <div style="color: #1a0dab; font-size: 18px;" id="seo-preview-title">Product Title</div>
+                    <div style="color: #006621; font-size: 14px;">peekaboo-shades.com/product/<span id="seo-preview-slug">slug</span></div>
+                    <div style="color: #545454; font-size: 13px; margin-top: 4px;" id="seo-preview-desc">Meta description preview...</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+    </main>
+  </div>
+
+  <div class="loading-overlay hidden" id="loading">
+    <div class="spinner"></div>
+  </div>
+
+  <script src="js/admin.js?v=1737100001"></script>
+  <script>
+    let productId = null;
+    let categories = [];
+    let galleryImages = ['', '', '', ''];
+    let currentGallerySlot = 0;
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      console.log('Product Editor: Initializing...');
+
+      if (!localStorage.getItem('admin_token')) {
+        console.log('Product Editor: No token, redirecting to login');
+        window.location.href = '/admin/login.html';
+        return;
+      }
+
+      try {
+        // Initialize sidebar
+        if (typeof AdminNavConfig !== 'undefined') {
+          AdminNavConfig.initSidebar('all-products');
+        }
+
+        // Get product ID from URL
+        const params = new URLSearchParams(window.location.search);
+        productId = params.get('id');
+        console.log('Product Editor: Product ID from URL:', productId);
+
+        // Load categories
+        await loadCategories();
+
+        // Render gallery grid
+        renderGalleryGrid();
+
+        // Setup auto-slug generation
+        document.getElementById('name').addEventListener('input', function() {
+          if (!productId) {
+            document.getElementById('slug').value = slugify(this.value);
+          }
+          updateSeoPreview();
+        });
+
+        // SEO preview updates
+        document.getElementById('seo_title').addEventListener('input', updateSeoPreview);
+        document.getElementById('seo_description').addEventListener('input', updateSeoPreview);
+        document.getElementById('slug').addEventListener('input', updateSeoPreview);
+
+        // If editing, load product data
+        if (productId) {
+          document.getElementById('page-title').textContent = 'Edit Product';
+          document.getElementById('breadcrumb-title').textContent = 'Edit Product';
+          document.getElementById('save-text').textContent = 'Update Product';
+          await loadProduct(productId);
+        } else {
+          console.log('Product Editor: Add mode (no product ID)');
+        }
+      } catch (error) {
+        console.error('Product Editor: Initialization error:', error);
+        if (typeof Admin !== 'undefined' && Admin.Toast) {
+          Admin.Toast.error('Failed to initialize editor: ' + error.message);
+        }
+      }
+    });
+
+    function showTab(tabId) {
+      document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+      document.querySelector(`[onclick="showTab('${tabId}')"]`).classList.add('active');
+      document.getElementById('tab-' + tabId).classList.add('active');
+    }
+
+    function slugify(text) {
+      return text.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
+    }
+
+    function showLoading() { document.getElementById('loading').classList.remove('hidden'); }
+    function hideLoading() { document.getElementById('loading').classList.add('hidden'); }
+
+    async function loadCategories() {
+      try {
+        const data = await Admin.CategoriesAPI.getAll();
+        if (data.success) {
+          categories = data.categories || data.data || [];
+          const select = document.getElementById('category_id');
+          select.innerHTML = '<option value="">Select category...</option>' +
+            categories.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+        }
+      } catch (error) {
+        console.error('Failed to load categories:', error);
+      }
+    }
+
+    async function loadProduct(id) {
+      try {
+        showLoading();
+        console.log('Loading product:', id);
+
+        if (typeof Admin === 'undefined' || !Admin.ProductsAPI) {
+          throw new Error('Admin API not loaded. Please refresh the page.');
+        }
+
+        const data = await Admin.ProductsAPI.getById(id);
+        console.log('API Response:', data);
+
+        if (!data.success) {
+          Admin.Toast.error(data.error || 'Failed to load product');
+          return;
+        }
+
+        const product = data.product || data.data;
+        if (!product) {
+          Admin.Toast.error('Product not found');
+          setTimeout(() => window.location.href = '/admin/products.html', 1500);
+          return;
+        }
+
+        // Basic Info
+        document.getElementById('name').value = product.name || '';
+        document.getElementById('slug').value = product.slug || '';
+        document.getElementById('tagline').value = product.tagline || '';
+        document.getElementById('description').value = product.description || '';
+        document.getElementById('promo_badge').value = product.promo_badge || '';
+        document.getElementById('category_id').value = product.category_id || '';
+        document.getElementById('stock_status').value = product.stock_status || 'in_stock';
+
+        // Status
+        document.getElementById('is_active').checked = product.is_active !== false;
+        document.getElementById('is_featured').checked = product.is_featured === true;
+        document.getElementById('is_discontinued').checked = product.is_discontinued === true;
+
+        // Light Control
+        if (product.light_control) {
+          document.getElementById('light_filtering').checked = product.light_control.lightFiltering !== false;
+          document.getElementById('room_darkening').checked = product.light_control.roomDarkening !== false;
+          document.getElementById('blackout').checked = product.light_control.blackout !== false;
+        }
+
+        // Recommended Rooms
+        const rooms = product.recommended_rooms || [];
+        document.getElementById('room_living').checked = rooms.includes('living-room');
+        document.getElementById('room_bedroom').checked = rooms.includes('bedroom');
+        document.getElementById('room_office').checked = rooms.includes('office');
+        document.getElementById('room_kitchen').checked = rooms.includes('kitchen');
+        document.getElementById('room_bathroom').checked = rooms.includes('bathroom');
+        document.getElementById('room_dining').checked = rooms.includes('dining-room');
+
+        // Pricing
+        document.getElementById('base_price').value = product.base_price || '';
+        document.getElementById('sale_price').value = product.sale_price || '';
+        document.getElementById('compare_price').value = product.compare_price || '';
+
+        // Specs
+        if (product.specs) {
+          document.getElementById('spec_min_width').value = product.specs.minWidth || '';
+          document.getElementById('spec_max_width').value = product.specs.maxWidth || '';
+          document.getElementById('spec_min_height').value = product.specs.minHeight || '';
+          document.getElementById('spec_max_height').value = product.specs.maxHeight || '';
+          document.getElementById('spec_material').value = product.specs.material || '';
+          document.getElementById('spec_production_time').value = product.specs.productionTime || '';
+        }
+
+        // SEO
+        if (product.seo) {
+          document.getElementById('seo_title').value = product.seo.title || '';
+          document.getElementById('seo_description').value = product.seo.description || '';
+          document.getElementById('seo_keywords').value = product.seo.keywords || '';
+        }
+
+        // Main Image
+        if (product.image_url) {
+          document.getElementById('image_url').value = product.image_url;
+          document.getElementById('main-image-preview').src = product.image_url;
+          document.getElementById('main-image-preview').style.display = 'block';
+          document.getElementById('main-image-placeholder').style.display = 'none';
+          document.getElementById('main-image-upload').classList.add('has-image');
+        }
+
+        // Gallery Images
+        if (product.gallery_images && Array.isArray(product.gallery_images)) {
+          galleryImages = ['', '', '', ''];
+          product.gallery_images.forEach((img, i) => {
+            if (i < 4) galleryImages[i] = img;
+          });
+          renderGalleryGrid();
+        }
+
+        updateSeoPreview();
+        console.log('Product loaded successfully');
+      } catch (error) {
+        console.error('Load product error:', error);
+        Admin.Toast.error('Failed to load product');
+      } finally {
+        hideLoading();
+      }
+    }
+
+    async function saveProduct() {
+      const btn = document.getElementById('save-btn');
+      const btnText = document.getElementById('save-text');
+
+      // Validate required fields
+      const name = document.getElementById('name').value.trim();
+      const slug = document.getElementById('slug').value.trim();
+      const category_id = document.getElementById('category_id').value;
+      const base_price = document.getElementById('base_price').value;
+
+      if (!name || !slug || !category_id || !base_price) {
+        Admin.Toast.error('Please fill in all required fields');
+        return;
+      }
+
+      // Build recommended rooms array
+      const recommended_rooms = [];
+      if (document.getElementById('room_living').checked) recommended_rooms.push('living-room');
+      if (document.getElementById('room_bedroom').checked) recommended_rooms.push('bedroom');
+      if (document.getElementById('room_office').checked) recommended_rooms.push('office');
+      if (document.getElementById('room_kitchen').checked) recommended_rooms.push('kitchen');
+      if (document.getElementById('room_bathroom').checked) recommended_rooms.push('bathroom');
+      if (document.getElementById('room_dining').checked) recommended_rooms.push('dining-room');
+
+      const productData = {
+        name,
+        slug,
+        tagline: document.getElementById('tagline').value.trim(),
+        description: document.getElementById('description').value.trim(),
+        promo_badge: document.getElementById('promo_badge').value.trim(),
+        category_id,
+        stock_status: document.getElementById('stock_status').value,
+        is_active: document.getElementById('is_active').checked,
+        is_featured: document.getElementById('is_featured').checked,
+        is_discontinued: document.getElementById('is_discontinued').checked,
+        base_price: parseFloat(base_price) || 0,
+        sale_price: parseFloat(document.getElementById('sale_price').value) || null,
+        compare_price: parseFloat(document.getElementById('compare_price').value) || null,
+        image_url: document.getElementById('image_url').value,
+        gallery_images: galleryImages.filter(img => img),
+        light_control: {
+          lightFiltering: document.getElementById('light_filtering').checked,
+          roomDarkening: document.getElementById('room_darkening').checked,
+          blackout: document.getElementById('blackout').checked
+        },
+        recommended_rooms,
+        specs: {
+          minWidth: document.getElementById('spec_min_width').value.trim(),
+          maxWidth: document.getElementById('spec_max_width').value.trim(),
+          minHeight: document.getElementById('spec_min_height').value.trim(),
+          maxHeight: document.getElementById('spec_max_height').value.trim(),
+          material: document.getElementById('spec_material').value.trim(),
+          productionTime: document.getElementById('spec_production_time').value.trim()
+        },
+        seo: {
+          title: document.getElementById('seo_title').value.trim(),
+          description: document.getElementById('seo_description').value.trim(),
+          keywords: document.getElementById('seo_keywords').value.trim()
+        }
+      };
+
+      try {
+        btn.disabled = true;
+        btnText.textContent = productId ? 'Updating...' : 'Saving...';
+        showLoading();
+
+        let result;
+        if (productId) {
+          result = await Admin.ProductsAPI.update(productId, productData);
+        } else {
+          result = await Admin.ProductsAPI.create(productData);
+        }
+
+        if (result.success) {
+          Admin.Toast.success(productId ? 'Product updated!' : 'Product created!');
+          setTimeout(() => window.location.href = '/admin/products.html', 1000);
+        } else {
+          Admin.Toast.error(result.error || 'Failed to save product');
+          btn.disabled = false;
+          btnText.textContent = productId ? 'Update Product' : 'Save Product';
+        }
+      } catch (error) {
+        console.error('Save error:', error);
+        Admin.Toast.error('Failed to save product');
+        btn.disabled = false;
+        btnText.textContent = productId ? 'Update Product' : 'Save Product';
+      } finally {
+        hideLoading();
+      }
+    }
+
+    function renderGalleryGrid() {
+      const grid = document.getElementById('gallery-grid');
+      grid.innerHTML = galleryImages.map((img, i) => `
+        <div class="gallery-item ${img ? 'has-image' : ''}" onclick="selectGallerySlot(${i})">
+          ${img ? `
+            <img src="${img}" alt="Gallery ${i + 1}">
+            <button class="remove-btn" onclick="event.stopPropagation(); removeGalleryImage(${i});">×</button>
+          ` : `
+            <span style="color: #ccc; font-size: 24px;">+</span>
+          `}
+        </div>
+      `).join('');
+    }
+
+    function selectGallerySlot(index) {
+      currentGallerySlot = index;
+      document.getElementById('gallery-image-input').click();
+    }
+
+    function removeGalleryImage(index) {
+      galleryImages[index] = '';
+      renderGalleryGrid();
+    }
+
+    async function handleMainImageUpload(input) {
+      if (!input.files || !input.files[0]) return;
+
+      const file = input.files[0];
+      if (file.size > 5 * 1024 * 1024) {
+        Admin.Toast.error('Image must be less than 5MB');
+        return;
+      }
+
+      try {
+        showLoading();
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('category', 'products');
+
+        const response = await fetch('/api/admin/upload', {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${localStorage.getItem('admin_token')}` },
+          body: formData
+        });
+
+        const data = await response.json();
+        if (data.success && data.url) {
+          document.getElementById('image_url').value = data.url;
+          document.getElementById('main-image-preview').src = data.url;
+          document.getElementById('main-image-preview').style.display = 'block';
+          document.getElementById('main-image-placeholder').style.display = 'none';
+          document.getElementById('main-image-upload').classList.add('has-image');
+        } else {
+          Admin.Toast.error(data.error || 'Upload failed');
+        }
+      } catch (error) {
+        Admin.Toast.error('Upload failed');
+      } finally {
+        hideLoading();
+      }
+    }
+
+    async function handleGalleryImageUpload(input) {
+      if (!input.files || !input.files[0]) return;
+
+      const file = input.files[0];
+      if (file.size > 5 * 1024 * 1024) {
+        Admin.Toast.error('Image must be less than 5MB');
+        return;
+      }
+
+      try {
+        showLoading();
+        const formData = new FormData();
+        formData.append('file', file);
+        formData.append('category', 'products');
+
+        const response = await fetch('/api/admin/upload', {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${localStorage.getItem('admin_token')}` },
+          body: formData
+        });
+
+        const data = await response.json();
+        if (data.success && data.url) {
+          galleryImages[currentGallerySlot] = data.url;
+          renderGalleryGrid();
+        } else {
+          Admin.Toast.error(data.error || 'Upload failed');
+        }
+      } catch (error) {
+        Admin.Toast.error('Upload failed');
+      } finally {
+        hideLoading();
+      }
+    }
+
+    function updateSeoPreview() {
+      const title = document.getElementById('seo_title').value || document.getElementById('name').value || 'Product Title';
+      const slug = document.getElementById('slug').value || 'product-slug';
+      const desc = document.getElementById('seo_description').value || 'Meta description will appear here...';
+
+      document.getElementById('seo-preview-title').textContent = title;
+      document.getElementById('seo-preview-slug').textContent = slug;
+      document.getElementById('seo-preview-desc').textContent = desc;
+    }
+  </script>
+</body>
+</html>

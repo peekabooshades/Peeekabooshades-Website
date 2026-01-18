@@ -4,8 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Customers - Peekaboo Shades Admin</title>
-  <link rel="stylesheet" href="css/admin.css">
-  <link rel="icon" type="image/png" href="/images/favicon.png">
+  <link rel="stylesheet" href="css/admin.css?v=1737200003">
+  <link rel="icon" type="image/jpeg" href="/images/peekabooshades_logo.jpeg">
   <style>
     .customer-filters {
       display: flex;
@@ -157,151 +157,126 @@
       font-size: 14px;
       color: #6D7175;
     }
+    /* Modal styles */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+    }
+    .modal.active {
+      display: flex;
+    }
+    .modal .modal-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.5);
+    }
+    .modal .modal-content {
+      position: relative;
+      background: white;
+      border-radius: 12px;
+      max-height: 90vh;
+      overflow-y: auto;
+      z-index: 1;
+    }
+    .modal .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 16px 20px;
+      border-bottom: 1px solid #E5E5E5;
+    }
+    .modal .modal-header h2 {
+      margin: 0;
+      font-size: 18px;
+    }
+    .modal .modal-close {
+      background: none;
+      border: none;
+      font-size: 24px;
+      cursor: pointer;
+      color: #6D7175;
+    }
+    .modal .modal-body {
+      padding: 20px;
+    }
+    .modal .modal-footer {
+      padding: 16px 20px;
+      border-top: 1px solid #E5E5E5;
+      display: flex;
+      justify-content: flex-end;
+      gap: 12px;
+    }
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+    .form-group {
+      margin-bottom: 16px;
+    }
+    .form-label {
+      display: block;
+      margin-bottom: 6px;
+      font-weight: 500;
+      font-size: 14px;
+    }
+    .form-input, .form-select {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid #E5E5E5;
+      border-radius: 8px;
+      font-size: 14px;
+    }
+    .form-input:focus, .form-select:focus {
+      outline: none;
+      border-color: #8E6545;
+    }
+    /* Button styles */
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 10px 16px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      border: 1px solid transparent;
+      transition: all 0.2s;
+    }
+    .btn-primary {
+      background: #8E6545;
+      color: white;
+      border-color: #8E6545;
+    }
+    .btn-primary:hover {
+      background: #7a5639;
+    }
+    .btn-secondary {
+      background: white;
+      color: #333;
+      border-color: #E5E5E5;
+    }
+    .btn-secondary:hover {
+      background: #f5f5f5;
+    }
   </style>
 </head>
 <body>
   <div class="admin-layout">
-    <!-- Sidebar -->
+    <!-- Sidebar (dynamically populated by adminNavConfig.js) -->
     <aside class="admin-sidebar">
-      <div class="sidebar-header">
-        <a href="/admin/" class="sidebar-logo">
-          <img src="/images/peekabooshades_logo.jpeg" alt="Peekaboo Shades" style="height: 32px; width: auto; border-radius: 6px;">
-          <span>Peekaboo Shades</span>
-        </a>
-      </div>
-
-      <nav class="sidebar-nav">
-        <div class="nav-section">
-          <a href="/admin/" class="nav-item">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-            </svg>
-            <span>Dashboard</span>
-          </a>
-        </div>
-
-        <div class="nav-section">
-          <div class="nav-section-title">Sales</div>
-          <a href="/admin/orders.html" class="nav-item">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
-            </svg>
-            <span>Orders</span>
-          </a>
-          <a href="/admin/quotes.html" class="nav-item">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-            </svg>
-            <span>Quotes</span>
-          </a>
-        </div>
-
-        <div class="nav-section">
-          <div class="nav-section-title">Catalog</div>
-          <a href="/admin/products.html" class="nav-item">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-            </svg>
-            <span>Products</span>
-          </a>
-          <a href="/admin/categories.html" class="nav-item">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
-            </svg>
-            <span>Categories</span>
-          </a>
-          <a href="/admin/fabrics.html" class="nav-item">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-            </svg>
-            <span>Fabrics</span>
-          </a>
-          <a href="/admin/hardware-options.html" class="nav-item">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-            </svg>
-            <span>Hardware Options</span>
-          </a>
-          <a href="/admin/accessories.html" class="nav-item">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 14v6m-3-3h6M6 10h2a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v2a2 2 0 002 2zm10 0h2a2 2 0 002-2V6a2 2 0 00-2-2h-2a2 2 0 00-2 2v2a2 2 0 002 2zM6 20h2a2 2 0 002-2v-2a2 2 0 00-2-2H6a2 2 0 00-2 2v2a2 2 0 002 2z" />
-            </svg>
-            <span>Accessories</span>
-          </a>
-        </div>
-
-        <div class="nav-section">
-          <div class="nav-section-title">Customers</div>
-          <a href="/admin/customers.html" class="nav-item active">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z" />
-            </svg>
-            <span>All Customers</span>
-          </a>
-        </div>
-
-        <div class="nav-section">
-          <div class="nav-section-title">Content</div>
-          <a href="/admin/product-content.html" class="nav-item">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-            </svg>
-            <span>Product Content</span>
-          </a>
-          <a href="/admin/product-page-editor.html" class="nav-item">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-            </svg>
-            <span>Page Editor</span>
-          </a>
-          <a href="/admin/pages.html" class="nav-item">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
-            </svg>
-            <span>Pages</span>
-          </a>
-          <a href="/admin/blog/posts.html" class="nav-item">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
-            </svg>
-            <span>Blog Posts</span>
-          </a>
-          <a href="/admin/files.html" class="nav-item">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-            </svg>
-            <span>Files</span>
-          </a>
-          <a href="/admin/faqs.html" class="nav-item">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            <span>FAQs</span>
-          </a>
-        </div>
-
-        <div class="nav-section">
-          <div class="nav-section-title">Analytics</div>
-          <a href="/admin/analytics.html" class="nav-item">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-            </svg>
-            <span>Reports</span>
-          </a>
-        </div>
-
-        <div class="nav-section">
-          <div class="nav-section-title">Settings</div>
-          <a href="/admin/settings.html" class="nav-item">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-            </svg>
-            <span>Settings</span>
-          </a>
-        </div>
-      </nav>
+      <!-- Sidebar content will be injected dynamically -->
     </aside>
 
     <!-- Main Content -->
@@ -508,7 +483,8 @@
     </div>
   </div>
 
-  <script src="js/admin.js"></script>
+  <script src="js/adminNavConfig.js?v=1737200002"></script>
+  <script src="js/admin.js?v=1737100001"></script>
   <script>
     let customers = [];
     let currentPage = 1;
@@ -516,10 +492,17 @@
     let selectedCustomers = new Set();
     let editingCustomerId = null;
 
-    // Require authentication
-    if (!Admin.Auth.requireAuth()) {
-      // Will redirect to login
-    } else {
+    document.addEventListener('DOMContentLoaded', () => {
+      // Require authentication
+      if (!localStorage.getItem('admin_token')) {
+        window.location.href = '/admin/login.html';
+        return;
+      }
+
+      // Initialize sidebar
+      AdminNavConfig.initSidebar('customers');
+
+      // Load customers
       loadCustomers();
 
       // Check for action in URL
@@ -527,37 +510,58 @@
       if (urlParams.get('action') === 'new') {
         showAddCustomerModal();
       }
-    }
 
-    // Event listeners
-    document.getElementById('searchInput').addEventListener('input', debounce(loadCustomers, 300));
-    document.getElementById('typeFilter').addEventListener('change', loadCustomers);
-    document.getElementById('sortFilter').addEventListener('change', loadCustomers);
+      // Event listeners
+      document.getElementById('searchInput').addEventListener('input', debounce(loadCustomers, 300));
+      document.getElementById('typeFilter').addEventListener('change', loadCustomers);
+      document.getElementById('sortFilter').addEventListener('change', loadCustomers);
+    });
 
     async function loadCustomers() {
-      const search = document.getElementById('searchInput').value;
-      const type = document.getElementById('typeFilter').value;
-      const sort = document.getElementById('sortFilter').value;
+      const search = document.getElementById('searchInput').value || '';
+      const type = document.getElementById('typeFilter').value || '';
+      const sort = document.getElementById('sortFilter').value || 'recent';
+
+      // Show loading state
+      document.getElementById('customersTable').innerHTML = `
+        <tr><td colspan="9" style="text-align: center; padding: 40px; border: 1px solid #ddd;">
+          Loading customers...
+        </td></tr>`;
 
       try {
+        const token = localStorage.getItem('admin_token');
         const params = new URLSearchParams({
           page: currentPage,
-          limit: perPage,
-          search,
-          type,
-          sort
+          limit: perPage
+        });
+        if (search) params.append('search', search);
+        if (type) params.append('type', type);
+        if (sort) params.append('sort', sort);
+
+        const response = await fetch(`/api/admin/customers?${params}`, {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
         });
 
-        const response = await Admin.API.get(`/customers?${params}`);
+        const data = await response.json();
+        console.log('Customers API response:', data);
 
-        if (response.success) {
-          customers = response.customers;
+        if (data.success) {
+          customers = data.customers || [];
           renderCustomers();
-          updatePagination(response.total);
+          updatePagination(data.total || customers.length);
+        } else {
+          throw new Error(data.error || 'Failed to load customers');
         }
       } catch (error) {
         console.error('Failed to load customers:', error);
-        Admin.Toast.error('Failed to load customers');
+        document.getElementById('customersTable').innerHTML = `
+          <tr><td colspan="9" style="text-align: center; padding: 40px; border: 1px solid #ddd; color: #dc3545;">
+            Error loading customers: ${error.message}
+            <br><button class="btn btn-primary" style="margin-top: 10px;" onclick="loadCustomers()">Try Again</button>
+          </td></tr>`;
       }
     }
 
@@ -752,23 +756,33 @@
       };
 
       try {
-        let response;
-        if (editingCustomerId) {
-          response = await Admin.API.put(`/customers/${editingCustomerId}`, customerData);
-        } else {
-          response = await Admin.API.post('/customers', customerData);
-        }
+        const token = localStorage.getItem('admin_token');
+        const url = editingCustomerId
+          ? `/api/admin/customers/${editingCustomerId}`
+          : '/api/admin/customers';
+        const method = editingCustomerId ? 'PUT' : 'POST';
 
-        if (response.success) {
-          Admin.Toast.success(editingCustomerId ? 'Customer updated' : 'Customer added');
+        const response = await fetch(url, {
+          method,
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(customerData)
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          alert(editingCustomerId ? 'Customer updated!' : 'Customer added!');
           closeModal();
           loadCustomers();
         } else {
-          Admin.Toast.error(response.error || 'Failed to save customer');
+          alert('Error: ' + (data.error || 'Failed to save customer'));
         }
       } catch (error) {
         console.error('Failed to save customer:', error);
-        Admin.Toast.error('Failed to save customer');
+        alert('Failed to save customer: ' + error.message);
       }
     }
 
@@ -776,16 +790,24 @@
       if (!confirm('Are you sure you want to delete this customer?')) return;
 
       try {
-        const response = await Admin.API.delete(`/customers/${id}`);
-        if (response.success) {
-          Admin.Toast.success('Customer deleted');
+        const token = localStorage.getItem('admin_token');
+        const response = await fetch(`/api/admin/customers/${id}`, {
+          method: 'DELETE',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        });
+        const data = await response.json();
+        if (data.success) {
+          alert('Customer deleted');
           loadCustomers();
         } else {
-          Admin.Toast.error(response.error || 'Failed to delete customer');
+          alert('Error: ' + (data.error || 'Failed to delete customer'));
         }
       } catch (error) {
         console.error('Failed to delete customer:', error);
-        Admin.Toast.error('Failed to delete customer');
+        alert('Failed to delete customer: ' + error.message);
       }
     }
 
@@ -794,15 +816,22 @@
       if (!confirm(`Are you sure you want to delete ${selectedCustomers.size} customers?`)) return;
 
       try {
+        const token = localStorage.getItem('admin_token');
         for (const id of selectedCustomers) {
-          await Admin.API.delete(`/customers/${id}`);
+          await fetch(`/api/admin/customers/${id}`, {
+            method: 'DELETE',
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json'
+            }
+          });
         }
-        Admin.Toast.success(`${selectedCustomers.size} customers deleted`);
+        alert(`${selectedCustomers.size} customers deleted`);
         clearSelection();
         loadCustomers();
       } catch (error) {
         console.error('Failed to delete customers:', error);
-        Admin.Toast.error('Failed to delete some customers');
+        alert('Failed to delete some customers');
       }
     }
 

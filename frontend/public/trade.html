@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Trade & Wholesale Program - Peekaboo Shades</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --golden-brown: #8E6545;
+      --dark-brown: #8E6545;
+      --text-dark: #333333;
+      --text-light: #666666;
+      --bg-cream: #F8F6F3;
+      --bg-white: #FFFFFF;
+      --border-light: #E8E8E8;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Montserrat', sans-serif; font-size: 14px; line-height: 1.6; color: var(--text-dark); background-color: #F6F1EB; }
+    a { text-decoration: none; color: inherit; }
+    .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+
+    /* Top Bar */
+    .top-bar { background-color: var(--dark-brown); color: white; padding: 8px 0; font-size: 12px; }
+    .top-bar-container { max-width: 1400px; margin: 0 auto; padding: 0 40px; display: flex; justify-content: space-between; align-items: center; }
+    .top-bar-left { display: flex; gap: 20px; }
+    .top-bar-left span { display: flex; align-items: center; gap: 6px; }
+
+    /* Header */
+    .main-header { background-color: #FFFFFF; height: 70px; display: flex; align-items: center; border-bottom: 1px solid var(--border-light); }
+    .header-container { max-width: 1400px; width: 100%; margin: 0 auto; padding: 0 40px; display: flex; justify-content: space-between; align-items: center; }
+    .logo { display: flex; align-items: center; gap: 8px; }
+    .logo img { height: 45px; border-radius: 8px; }
+    .logo-text { font-size: 18px; font-weight: 700; color: var(--golden-brown); }
+    .main-nav { display: flex; gap: 30px; }
+    .main-nav a { font-size: 14px; font-weight: 500; color: var(--text-dark); transition: color 0.2s; }
+    .main-nav a:hover { color: var(--golden-brown); }
+
+    /* Hero Section */
+    .hero-section { background: linear-gradient(135deg, var(--golden-brown) 0%, #6B4E35 100%); padding: 80px 0; text-align: center; color: white; }
+    .hero-section h1 { font-size: 42px; font-weight: 700; margin-bottom: 15px; }
+    .hero-section p { font-size: 18px; opacity: 0.9; max-width: 600px; margin: 0 auto 30px; }
+    .btn-apply { display: inline-block; padding: 16px 40px; background: white; color: var(--golden-brown); border-radius: 8px; font-size: 16px; font-weight: 600; transition: transform 0.3s; }
+    .btn-apply:hover { transform: scale(1.05); }
+
+    /* Benefits Section */
+    .benefits-section { padding: 80px 0; background: white; }
+    .section-title { text-align: center; font-size: 32px; font-weight: 700; margin-bottom: 50px; }
+    .benefits-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 40px; }
+    .benefit-card { text-align: center; padding: 30px; }
+    .benefit-icon { width: 80px; height: 80px; background: var(--bg-cream); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; font-size: 32px; color: var(--golden-brown); }
+    .benefit-card h3 { font-size: 20px; margin-bottom: 12px; }
+    .benefit-card p { color: var(--text-light); }
+
+    /* Tiers Section */
+    .tiers-section { padding: 80px 0; }
+    .tiers-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 30px; }
+    .tier-card { background: white; border-radius: 16px; padding: 40px 30px; text-align: center; box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
+    .tier-card.featured { border: 2px solid var(--golden-brown); transform: scale(1.05); }
+    .tier-name { font-size: 24px; font-weight: 700; margin-bottom: 10px; }
+    .tier-discount { font-size: 48px; font-weight: 700; color: var(--golden-brown); margin-bottom: 20px; }
+    .tier-requirements { color: var(--text-light); margin-bottom: 25px; }
+    .tier-features { list-style: none; text-align: left; margin-bottom: 30px; }
+    .tier-features li { padding: 10px 0; border-bottom: 1px solid var(--border-light); display: flex; align-items: center; gap: 10px; }
+    .tier-features li i { color: var(--golden-brown); }
+    .btn-tier { width: 100%; padding: 14px; background: var(--golden-brown); color: white; border: none; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; }
+
+    /* Apply Section */
+    .apply-section { padding: 80px 0; background: white; }
+    .apply-form { max-width: 600px; margin: 0 auto; background: var(--bg-cream); border-radius: 16px; padding: 40px; }
+    .form-row { display: grid; grid-template-columns: repeat(2, 1fr); gap: 20px; }
+    .form-group { margin-bottom: 20px; }
+    .form-group.full { grid-column: span 2; }
+    .form-group label { display: block; font-weight: 500; margin-bottom: 8px; }
+    .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 14px; border: 1px solid var(--border-light); border-radius: 8px; font-size: 14px; font-family: inherit; background: white; }
+    .form-group textarea { min-height: 100px; resize: vertical; }
+    .btn-submit { width: 100%; padding: 16px; background: var(--golden-brown); color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer; }
+
+    /* Footer */
+    .footer { background-color: #2C2C2C; color: white; padding: 50px 0 20px; margin-top: 60px; }
+    .footer-bottom { text-align: center; padding-top: 20px; border-top: 1px solid #444; color: #888; font-size: 13px; }
+
+    @media (max-width: 768px) {
+      .benefits-grid, .tiers-grid { grid-template-columns: 1fr; }
+      .tier-card.featured { transform: none; }
+      .form-row { grid-template-columns: 1fr; }
+      .form-group.full { grid-column: span 1; }
+    }
+  </style>
+</head>
+<body>
+  <!-- Top Bar -->
+  <div class="top-bar">
+    <div class="top-bar-container">
+      <div class="top-bar-left">
+        <span><i class="fas fa-phone"></i> +1 929-465-9549</span>
+        <span><i class="fas fa-envelope"></i> peekabooshades.pro@gmail.com</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Header -->
+  <header class="main-header">
+    <div class="header-container">
+      <a href="/" class="logo">
+        <img src="/images/peekabooshades_logo.jpeg" alt="Peekaboo Shades">
+        <span class="logo-text">Peekaboo Shades</span>
+      </a>
+      <nav class="main-nav">
+        <a href="/shop">Shop</a>
+        <a href="/samples">Samples</a>
+        <a href="/guides/">Guides</a>
+        <a href="/contact">Contact</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section class="hero-section">
+    <div class="container">
+      <h1>Trade & Wholesale Program</h1>
+      <p>Join our exclusive trade program and enjoy special pricing, dedicated support, and premium benefits for design professionals.</p>
+      <a href="#apply" class="btn-apply">Apply Now</a>
+    </div>
+  </section>
+
+  <!-- Benefits Section -->
+  <section class="benefits-section">
+    <div class="container">
+      <h2 class="section-title">Program Benefits</h2>
+      <div class="benefits-grid">
+        <div class="benefit-card">
+          <div class="benefit-icon"><i class="fas fa-percent"></i></div>
+          <h3>Exclusive Discounts</h3>
+          <p>Enjoy up to 40% off retail pricing on all custom window treatments</p>
+        </div>
+        <div class="benefit-card">
+          <div class="benefit-icon"><i class="fas fa-headset"></i></div>
+          <h3>Dedicated Support</h3>
+          <p>Get priority access to our trade specialist team for all your projects</p>
+        </div>
+        <div class="benefit-card">
+          <div class="benefit-icon"><i class="fas fa-box"></i></div>
+          <h3>Free Samples</h3>
+          <p>Receive complimentary fabric samples for your client presentations</p>
+        </div>
+        <div class="benefit-card">
+          <div class="benefit-icon"><i class="fas fa-truck"></i></div>
+          <h3>Fast Shipping</h3>
+          <p>Priority production and shipping on all trade orders</p>
+        </div>
+        <div class="benefit-card">
+          <div class="benefit-icon"><i class="fas fa-tools"></i></div>
+          <h3>Installation Network</h3>
+          <p>Access to our certified installer network nationwide</p>
+        </div>
+        <div class="benefit-card">
+          <div class="benefit-icon"><i class="fas fa-credit-card"></i></div>
+          <h3>Net 30 Terms</h3>
+          <p>Flexible payment terms for qualified trade accounts</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Tiers Section -->
+  <section class="tiers-section">
+    <div class="container">
+      <h2 class="section-title">Trade Tiers</h2>
+      <div class="tiers-grid">
+        <div class="tier-card">
+          <div class="tier-name">Bronze</div>
+          <div class="tier-discount">20% OFF</div>
+          <div class="tier-requirements">$0 - $5,000 annually</div>
+          <ul class="tier-features">
+            <li><i class="fas fa-check"></i> Trade pricing access</li>
+            <li><i class="fas fa-check"></i> Free fabric samples</li>
+            <li><i class="fas fa-check"></i> Email support</li>
+          </ul>
+          <button class="btn-tier" onclick="location.href='#apply'">Get Started</button>
+        </div>
+        <div class="tier-card featured">
+          <div class="tier-name">Silver</div>
+          <div class="tier-discount">30% OFF</div>
+          <div class="tier-requirements">$5,000 - $25,000 annually</div>
+          <ul class="tier-features">
+            <li><i class="fas fa-check"></i> All Bronze benefits</li>
+            <li><i class="fas fa-check"></i> Dedicated account manager</li>
+            <li><i class="fas fa-check"></i> Priority production</li>
+            <li><i class="fas fa-check"></i> Net 15 payment terms</li>
+          </ul>
+          <button class="btn-tier" onclick="location.href='#apply'">Apply Now</button>
+        </div>
+        <div class="tier-card">
+          <div class="tier-name">Gold</div>
+          <div class="tier-discount">40% OFF</div>
+          <div class="tier-requirements">$25,000+ annually</div>
+          <ul class="tier-features">
+            <li><i class="fas fa-check"></i> All Silver benefits</li>
+            <li><i class="fas fa-check"></i> Custom branding options</li>
+            <li><i class="fas fa-check"></i> Net 30 payment terms</li>
+            <li><i class="fas fa-check"></i> Volume rebates</li>
+          </ul>
+          <button class="btn-tier" onclick="location.href='#apply'">Apply Now</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Apply Section -->
+  <section class="apply-section" id="apply">
+    <div class="container">
+      <h2 class="section-title">Apply for Trade Account</h2>
+      <form class="apply-form" id="tradeForm">
+        <div class="form-row">
+          <div class="form-group">
+            <label>First Name *</label>
+            <input type="text" name="firstName" required>
+          </div>
+          <div class="form-group">
+            <label>Last Name *</label>
+            <input type="text" name="lastName" required>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Company Name *</label>
+            <input type="text" name="company" required>
+          </div>
+          <div class="form-group">
+            <label>Business Type *</label>
+            <select name="businessType" required>
+              <option value="">Select...</option>
+              <option value="interior-designer">Interior Designer</option>
+              <option value="contractor">Contractor</option>
+              <option value="architect">Architect</option>
+              <option value="retailer">Retailer</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Email *</label>
+            <input type="email" name="email" required>
+          </div>
+          <div class="form-group">
+            <label>Phone *</label>
+            <input type="tel" name="phone" required>
+          </div>
+        </div>
+        <div class="form-group full">
+          <label>Website</label>
+          <input type="url" name="website" placeholder="https://">
+        </div>
+        <div class="form-group full">
+          <label>Tell us about your business</label>
+          <textarea name="about" placeholder="Describe your business and expected order volume..."></textarea>
+        </div>
+        <button type="submit" class="btn-submit">Submit Application</button>
+      </form>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-bottom">
+        &copy; 2025 Peekaboo Shades. All rights reserved.
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    document.getElementById('tradeForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      const formData = new FormData(this);
+      const data = Object.fromEntries(formData);
+
+      try {
+        const response = await fetch('/api/trade/applications', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
+        });
+
+        if (response.ok) {
+          alert('Thank you for your application! We will review it and contact you within 2-3 business days.');
+          this.reset();
+        } else {
+          alert('There was an error submitting your application. Please try again or contact us directly.');
+        }
+      } catch (error) {
+        alert('There was an error submitting your application. Please try again or contact us directly.');
+      }
+    });
+  </script>
+</body>
+</html>

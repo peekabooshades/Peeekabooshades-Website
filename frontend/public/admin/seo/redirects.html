@@ -1,0 +1,241 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>URL Redirects - Peekaboo Shades Admin</title>
+  <link rel="stylesheet" href="/admin/css/admin.css?v=1737200003.0.28">
+  <script src="/admin/js/adminNavConfig.js?v=1737200002"></script>
+  <style>
+    .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
+    .stat-card { background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+    .stat-card h3 { font-size: 0.85rem; color: #666; margin-bottom: 0.5rem; }
+    .stat-card .value { font-size: 2rem; font-weight: 700; color: #8E6545; }
+    .controls { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem; }
+    .search-box { padding: 0.75rem 1rem; border: 1px solid #ddd; border-radius: 8px; width: 300px; }
+    .redirects-table { background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+    table { width: 100%; border-collapse: collapse; }
+    th { background: #f9f9f9; padding: 1rem; text-align: left; font-weight: 600; font-size: 0.85rem; color: #666; text-transform: uppercase; }
+    td { padding: 1rem; border-top: 1px solid #eee; }
+    .url-cell { font-family: monospace; font-size: 0.85rem; }
+    .url-from { color: #666; }
+    .url-to { color: #8E6545; }
+    .redirect-type { padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.75rem; font-weight: 600; }
+    .type-301 { background: #D1FAE5; color: #065F46; }
+    .type-302 { background: #FEF3C7; color: #92400E; }
+    .btn-action { padding: 0.4rem 0.75rem; border: none; border-radius: 4px; cursor: pointer; font-size: 0.8rem; margin-right: 0.25rem; }
+    .btn-edit { background: #8E6545; color: white; }
+    .btn-delete { background: #FEE2E2; color: #991B1B; }
+    .modal { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; }
+    .modal.active { display: flex; }
+    .modal-content { background: white; border-radius: 12px; padding: 2rem; max-width: 600px; width: 90%; }
+    .modal-header { display: flex; justify-content: space-between; margin-bottom: 1.5rem; }
+    .modal-header h2 { margin: 0; }
+    .modal-close { background: none; border: none; font-size: 1.5rem; cursor: pointer; }
+    .form-group { margin-bottom: 1.25rem; }
+    .form-group label { display: block; margin-bottom: 0.5rem; font-weight: 500; }
+    .form-group input, .form-group select { width: 100%; padding: 0.75rem; border: 1px solid #ddd; border-radius: 8px; }
+    .form-group small { color: #666; font-size: 0.85rem; }
+    .btn-submit { width: 100%; padding: 0.875rem; background: #8E6545; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; }
+    .import-section { background: #f9f9f9; padding: 1rem; border-radius: 8px; margin-top: 1rem; }
+    .import-section h4 { margin: 0 0 0.5rem 0; }
+    .import-section textarea { width: 100%; height: 100px; padding: 0.75rem; border: 1px solid #ddd; border-radius: 8px; font-family: monospace; font-size: 0.85rem; }
+    .btn-import { margin-top: 0.5rem; padding: 0.5rem 1rem; background: #E5E7EB; color: #374151; border: none; border-radius: 6px; cursor: pointer; }
+  </style>
+</head>
+<body>
+  <div class="admin-layout">
+    <aside class="admin-sidebar"></aside>
+    <main class="admin-main">
+      <header class="admin-header">
+        <h1>URL Redirects</h1>
+        <div class="header-actions">
+          <button class="btn-primary" onclick="openModal()">+ Add Redirect</button>
+        </div>
+      </header>
+      <div class="admin-content">
+        <div class="stats">
+          <div class="stat-card"><h3>Total Redirects</h3><div class="value" id="stat-total">0</div></div>
+          <div class="stat-card"><h3>301 Permanent</h3><div class="value" id="stat-301">0</div></div>
+          <div class="stat-card"><h3>302 Temporary</h3><div class="value" id="stat-302">0</div></div>
+          <div class="stat-card"><h3>Hits This Month</h3><div class="value" id="stat-hits">0</div></div>
+        </div>
+        <div class="controls">
+          <input type="text" class="search-box" id="searchInput" placeholder="Search redirects..." oninput="renderRedirects()">
+        </div>
+        <div class="redirects-table">
+          <table>
+            <thead>
+              <tr>
+                <th>From URL</th>
+                <th>To URL</th>
+                <th>Type</th>
+                <th>Hits</th>
+                <th>Created</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="redirectsBody"></tbody>
+          </table>
+        </div>
+        <div class="import-section">
+          <h4>Bulk Import</h4>
+          <textarea id="bulkImport" placeholder="/old-url,/new-url,301&#10;/another-old,/another-new,302"></textarea>
+          <button class="btn-import" onclick="bulkImport()">Import CSV</button>
+        </div>
+      </div>
+    </main>
+  </div>
+  <div class="modal" id="redirectModal">
+    <div class="modal-content">
+      <div class="modal-header"><h2 id="modalTitle">Add Redirect</h2><button class="modal-close" onclick="closeModal()">&times;</button></div>
+      <form onsubmit="saveRedirect(event)">
+        <input type="hidden" id="redirectId">
+        <div class="form-group">
+          <label>From URL</label>
+          <input type="text" id="fromUrl" required placeholder="/old-page">
+          <small>The old URL path that should redirect</small>
+        </div>
+        <div class="form-group">
+          <label>To URL</label>
+          <input type="text" id="toUrl" required placeholder="/new-page or https://...">
+          <small>The destination URL (can be relative or absolute)</small>
+        </div>
+        <div class="form-group">
+          <label>Redirect Type</label>
+          <select id="redirectType">
+            <option value="301">301 - Permanent (SEO recommended)</option>
+            <option value="302">302 - Temporary</option>
+          </select>
+        </div>
+        <button type="submit" class="btn-submit">Save Redirect</button>
+      </form>
+    </div>
+  </div>
+  <script>
+    let redirects = [
+      { id: 'r-1', from: '/old-roller-shades', to: '/products/roller-shades', type: '301', hits: 245, createdAt: '2024-01-05' },
+      { id: 'r-2', from: '/blinds', to: '/shop', type: '301', hits: 189, createdAt: '2024-01-08' },
+      { id: 'r-3', from: '/summer-sale', to: '/promotions/summer-2024', type: '302', hits: 56, createdAt: '2024-01-15' },
+      { id: 'r-4', from: '/about-us', to: '/about', type: '301', hits: 78, createdAt: '2024-01-10' },
+      { id: 'r-5', from: '/faq', to: '/help/faq', type: '301', hits: 134, createdAt: '2024-01-03' }
+    ];
+
+    document.addEventListener('DOMContentLoaded', () => {
+      if (!localStorage.getItem('admin_token')) { window.location.href = '/admin/login.html'; return; }
+      AdminNavConfig.initSidebar('redirects');
+      updateStats();
+      renderRedirects();
+    });
+
+    function updateStats() {
+      document.getElementById('stat-total').textContent = redirects.length;
+      document.getElementById('stat-301').textContent = redirects.filter(r => r.type === '301').length;
+      document.getElementById('stat-302').textContent = redirects.filter(r => r.type === '302').length;
+      document.getElementById('stat-hits').textContent = redirects.reduce((s, r) => s + r.hits, 0);
+    }
+
+    function renderRedirects() {
+      const search = document.getElementById('searchInput').value.toLowerCase();
+      let filtered = redirects.filter(r =>
+        r.from.toLowerCase().includes(search) || r.to.toLowerCase().includes(search)
+      );
+
+      document.getElementById('redirectsBody').innerHTML = filtered.map(r => `
+        <tr>
+          <td class="url-cell url-from">${r.from}</td>
+          <td class="url-cell url-to">${r.to}</td>
+          <td><span class="redirect-type type-${r.type}">${r.type}</span></td>
+          <td>${r.hits}</td>
+          <td>${formatDate(r.createdAt)}</td>
+          <td>
+            <button class="btn-action btn-edit" onclick="editRedirect('${r.id}')">Edit</button>
+            <button class="btn-action btn-delete" onclick="deleteRedirect('${r.id}')">Delete</button>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    function formatDate(d) { return new Date(d).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }); }
+
+    function openModal(redirect = null) {
+      document.getElementById('redirectId').value = redirect ? redirect.id : '';
+      document.getElementById('fromUrl').value = redirect ? redirect.from : '';
+      document.getElementById('toUrl').value = redirect ? redirect.to : '';
+      document.getElementById('redirectType').value = redirect ? redirect.type : '301';
+      document.getElementById('modalTitle').textContent = redirect ? 'Edit Redirect' : 'Add Redirect';
+      document.getElementById('redirectModal').classList.add('active');
+    }
+
+    function closeModal() { document.getElementById('redirectModal').classList.remove('active'); }
+
+    function editRedirect(id) {
+      const redirect = redirects.find(r => r.id === id);
+      if (redirect) openModal(redirect);
+    }
+
+    function deleteRedirect(id) {
+      if (confirm('Delete this redirect?')) {
+        redirects = redirects.filter(r => r.id !== id);
+        updateStats();
+        renderRedirects();
+      }
+    }
+
+    function saveRedirect(e) {
+      e.preventDefault();
+      const id = document.getElementById('redirectId').value;
+      const data = {
+        from: document.getElementById('fromUrl').value,
+        to: document.getElementById('toUrl').value,
+        type: document.getElementById('redirectType').value
+      };
+
+      if (id) {
+        const idx = redirects.findIndex(r => r.id === id);
+        if (idx >= 0) redirects[idx] = { ...redirects[idx], ...data };
+      } else {
+        data.id = 'r-' + Date.now();
+        data.hits = 0;
+        data.createdAt = new Date().toISOString().split('T')[0];
+        redirects.push(data);
+      }
+
+      closeModal();
+      updateStats();
+      renderRedirects();
+      alert(id ? 'Redirect updated' : 'Redirect created');
+    }
+
+    function bulkImport() {
+      const csv = document.getElementById('bulkImport').value.trim();
+      if (!csv) { alert('Enter CSV data to import'); return; }
+
+      const lines = csv.split('\n');
+      let imported = 0;
+
+      lines.forEach(line => {
+        const parts = line.split(',').map(p => p.trim());
+        if (parts.length >= 2) {
+          redirects.push({
+            id: 'r-' + Date.now() + '-' + Math.random().toString(36).substr(2, 5),
+            from: parts[0],
+            to: parts[1],
+            type: parts[2] || '301',
+            hits: 0,
+            createdAt: new Date().toISOString().split('T')[0]
+          });
+          imported++;
+        }
+      });
+
+      document.getElementById('bulkImport').value = '';
+      updateStats();
+      renderRedirects();
+      alert(`Imported ${imported} redirects`);
+    }
+
+    document.getElementById('redirectModal').addEventListener('click', e => { if (e.target.id === 'redirectModal') closeModal(); });
+  </script>
+</body>
+</html>

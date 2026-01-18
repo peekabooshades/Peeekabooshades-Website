@@ -1,0 +1,580 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Measuring Guide - Peekaboo Shades Admin</title>
+  <link rel="stylesheet" href="/admin/css/admin.css?v=1737200003.0.28">
+  <script src="/admin/js/adminNavConfig.js?v=1737200002"></script>
+  <style>
+    .guide-container { max-width: 1000px; margin: 0 auto; }
+
+    .guide-section {
+      background: white;
+      border-radius: 16px;
+      padding: 2rem;
+      margin-bottom: 2rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    }
+
+    .guide-section h2 {
+      font-size: 1.5rem;
+      color: #8E6545;
+      margin-bottom: 1.5rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 3px solid #f0e6df;
+    }
+
+    .guide-section h3 {
+      font-size: 1.1rem;
+      color: #1f2937;
+      margin: 1.5rem 0 1rem;
+    }
+
+    .guide-section p {
+      color: #4b5563;
+      line-height: 1.7;
+      margin-bottom: 1rem;
+    }
+
+    .mount-types {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 2rem;
+      margin: 1.5rem 0;
+    }
+
+    .mount-card {
+      background: #faf8f6;
+      border: 2px solid #e8e0da;
+      border-radius: 12px;
+      padding: 1.5rem;
+    }
+
+    .mount-card h4 {
+      font-size: 1.1rem;
+      color: #8E6545;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .mount-card svg {
+      width: 24px;
+      height: 24px;
+    }
+
+    .mount-card ul {
+      list-style: none;
+      padding: 0;
+    }
+
+    .mount-card li {
+      padding: 0.5rem 0;
+      border-bottom: 1px dashed #e5e7eb;
+      color: #374151;
+      font-size: 0.95rem;
+    }
+
+    .mount-card li:last-child {
+      border-bottom: none;
+    }
+
+    .formula-box {
+      background: linear-gradient(135deg, #8E6545 0%, #A67C5B 100%);
+      color: white;
+      padding: 1rem 1.5rem;
+      border-radius: 10px;
+      margin: 1rem 0;
+      font-weight: 500;
+    }
+
+    .measurement-diagram {
+      background: #f9fafb;
+      border: 2px solid #e5e7eb;
+      border-radius: 12px;
+      padding: 2rem;
+      text-align: center;
+      margin: 1.5rem 0;
+    }
+
+    .measurement-diagram svg {
+      max-width: 400px;
+      width: 100%;
+      height: auto;
+    }
+
+    .tips-list {
+      background: #D1FAE5;
+      border: 1px solid #A7F3D0;
+      border-radius: 10px;
+      padding: 1.5rem;
+      margin: 1rem 0;
+    }
+
+    .tips-list h4 {
+      color: #065F46;
+      margin-bottom: 0.75rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .tips-list ul {
+      color: #065F46;
+      margin: 0;
+      padding-left: 1.5rem;
+    }
+
+    .tips-list li {
+      margin-bottom: 0.5rem;
+    }
+
+    .warning-box {
+      background: #FEF3C7;
+      border: 1px solid #FDE68A;
+      border-radius: 10px;
+      padding: 1rem 1.5rem;
+      margin: 1rem 0;
+      color: #92400E;
+    }
+
+    .product-tabs {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      margin-bottom: 1.5rem;
+    }
+
+    .product-tab {
+      padding: 0.75rem 1.5rem;
+      border: 2px solid #e5e7eb;
+      border-radius: 10px;
+      background: white;
+      cursor: pointer;
+      font-weight: 500;
+      transition: all 0.2s;
+    }
+
+    .product-tab:hover {
+      border-color: #8E6545;
+    }
+
+    .product-tab.active {
+      background: #8E6545;
+      border-color: #8E6545;
+      color: white;
+    }
+
+    .tab-content {
+      display: none;
+    }
+
+    .tab-content.active {
+      display: block;
+    }
+
+    .size-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1rem 0;
+    }
+
+    .size-table th {
+      background: #8E6545;
+      color: white;
+      padding: 0.75rem 1rem;
+      text-align: left;
+      font-size: 0.85rem;
+    }
+
+    .size-table td {
+      padding: 0.75rem 1rem;
+      border-bottom: 1px solid #e5e7eb;
+      font-size: 0.9rem;
+    }
+
+    .size-table tr:hover {
+      background: #faf8f6;
+    }
+
+    @media (max-width: 768px) {
+      .mount-types { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="admin-layout">
+    <aside class="admin-sidebar"></aside>
+    <main class="admin-main">
+      <header class="admin-header">
+        <h1>Measuring Guide</h1>
+        <p style="color: #6b7280;">Complete measurement instructions for all window treatment products</p>
+      </header>
+      <div class="admin-content">
+        <div class="guide-container">
+
+          <!-- General Measurement Tips -->
+          <div class="guide-section">
+            <h2>General Measurement Guidelines</h2>
+            <p>Accurate measurements are essential for a perfect fit. Follow these guidelines for all window treatments.</p>
+
+            <div class="tips-list">
+              <h4>
+                <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                Important Tips
+              </h4>
+              <ul>
+                <li>Use a rigid measuring tape and ensure accuracy within 3mm</li>
+                <li>Take measurements at top, middle, and bottom positions</li>
+                <li>Always measure in centimeters for precision</li>
+                <li>Double-check all measurements before ordering</li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- Mount Types -->
+          <div class="guide-section">
+            <h2>Mounting Types</h2>
+
+            <div class="mount-types">
+              <!-- Inside Mount -->
+              <div class="mount-card">
+                <h4>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></svg>
+                  Inside Mount
+                </h4>
+                <p style="color: #6b7280; font-size: 0.9rem; margin-bottom: 1rem;">Blinds fit inside the window frame for a clean, built-in look.</p>
+                <ul>
+                  <li><strong>Depth Requirement:</strong> Window depth (D) should be more than 6cm</li>
+                  <li><strong>Width:</strong> Measure W1, W2, W3 at top, middle, bottom</li>
+                  <li><strong>Select:</strong> The shortest measurement</li>
+                </ul>
+                <div class="formula-box">
+                  Width of Blind = Width - 0.5cm<br>
+                  Height of Blind = Height
+                </div>
+              </div>
+
+              <!-- Outside Mount -->
+              <div class="mount-card">
+                <h4>
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="1" width="22" height="22" rx="2"/><rect x="5" y="5" width="14" height="14" rx="1"/></svg>
+                  Outside Mount
+                </h4>
+                <p style="color: #6b7280; font-size: 0.9rem; margin-bottom: 1rem;">Blinds mount on the wall above and around the window frame.</p>
+                <ul>
+                  <li><strong>Note:</strong> Window frames protruding more than 1cm from wall are NOT suitable</li>
+                  <li><strong>Width:</strong> Measure window frame width</li>
+                  <li><strong>Height:</strong> Measure window frame height</li>
+                </ul>
+                <div class="formula-box">
+                  Width of Blind = Width + 10cm<br>
+                  Height of Blind = Height + 15cm
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Product Specific Measurements -->
+          <div class="guide-section">
+            <h2>Product-Specific Measurements</h2>
+
+            <div class="product-tabs">
+              <button class="product-tab active" onclick="showTab('honeycomb')">Honeycomb Shades</button>
+              <button class="product-tab" onclick="showTab('outdoor')">Outdoor Shades</button>
+              <button class="product-tab" onclick="showTab('panel')">Panel Track Blinds</button>
+              <button class="product-tab" onclick="showTab('roller')">Roller Shades</button>
+            </div>
+
+            <!-- Honeycomb Shades -->
+            <div id="honeycomb" class="tab-content active">
+              <h3>Honeycomb Shades Measurement</h3>
+              <p>Honeycomb shades (also known as cellular shades) offer excellent insulation. Precise measurements ensure proper operation.</p>
+
+              <h4 style="margin-top: 1.5rem;">26mm Honeycomb Blinds Size Chart</h4>
+              <table class="size-table">
+                <thead>
+                  <tr>
+                    <th>Control System</th>
+                    <th>Width (mm)</th>
+                    <th>Height (mm)</th>
+                    <th>Max Area</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>Corded (Bottom Up)</td>
+                    <td>200 - 2300</td>
+                    <td>200 - 2600</td>
+                    <td>5.5 m²</td>
+                  </tr>
+                  <tr>
+                    <td>Day & Night Double Corded</td>
+                    <td>350 - 2300</td>
+                    <td>500 - 2600</td>
+                    <td>5.5 m²</td>
+                  </tr>
+                  <tr>
+                    <td>Top Down Bottom Up (Corded)</td>
+                    <td>350 - 2300</td>
+                    <td>500 - 2600</td>
+                    <td>5.5 m²</td>
+                  </tr>
+                  <tr>
+                    <td>Continuous Loop</td>
+                    <td>360 - 2500</td>
+                    <td>500 - 2600</td>
+                    <td>5.5 m²</td>
+                  </tr>
+                  <tr>
+                    <td>Regular Cordless</td>
+                    <td>300 - 2300</td>
+                    <td>500 - 2400</td>
+                    <td>5.5 m²</td>
+                  </tr>
+                  <tr>
+                    <td>Motorized (AC Power)</td>
+                    <td>700 - 2500</td>
+                    <td>300 - 4000</td>
+                    <td>9 m²</td>
+                  </tr>
+                  <tr>
+                    <td>Skylight Manual</td>
+                    <td>250 - 1500</td>
+                    <td>200 - 3500</td>
+                    <td>5 m²</td>
+                  </tr>
+                </tbody>
+              </table>
+
+              <h4 style="margin-top: 1.5rem;">38mm & 45mm Honeycomb Blinds Size Chart</h4>
+              <table class="size-table">
+                <thead>
+                  <tr>
+                    <th>Control System</th>
+                    <th>Width (mm)</th>
+                    <th>Height (mm)</th>
+                    <th>Max Area</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>Corded (Bottom Up)</td>
+                    <td>200 - 2000</td>
+                    <td>300 - 2600</td>
+                    <td>5 m²</td>
+                  </tr>
+                  <tr>
+                    <td>Continuous Loop</td>
+                    <td>280 - 2000</td>
+                    <td>300 - 2600</td>
+                    <td>5 m²</td>
+                  </tr>
+                  <tr>
+                    <td>Regular Cordless</td>
+                    <td>320 - 2500</td>
+                    <td>300 - 2400</td>
+                    <td>5.5 m²</td>
+                  </tr>
+                  <tr>
+                    <td>Motorized (AC/DC Power)</td>
+                    <td>700 - 2500</td>
+                    <td>400 - 3000</td>
+                    <td>9 m²</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <!-- Outdoor Shades -->
+            <div id="outdoor" class="tab-content">
+              <h3>Outdoor Shades Measurement</h3>
+              <p>Outdoor shades require precise measurements for proper installation and wind resistance.</p>
+
+              <div class="mount-types">
+                <div class="mount-card">
+                  <h4>Inside Mount</h4>
+                  <ul>
+                    <li>Measure at top, middle, and bottom positions</li>
+                    <li><strong>Width:</strong> Use minimum frame width - 5mm</li>
+                    <li><strong>Height:</strong> Use minimum frame height - 5mm</li>
+                  </ul>
+                </div>
+                <div class="mount-card">
+                  <h4>Outside Mount</h4>
+                  <p style="font-size: 0.85rem; color: #6b7280; margin-bottom: 0.75rem;">External dimensions based on series:</p>
+                  <ul>
+                    <li><strong>105 Series:</strong> Width + 100mm, Height + 160mm</li>
+                    <li><strong>125 Series:</strong> Width + 120mm, Height + 180mm</li>
+                    <li><strong>Double Layer:</strong> Width + 160mm, Height + 310mm</li>
+                  </ul>
+                </div>
+              </div>
+
+              <h4 style="margin-top: 1.5rem;">Outdoor Shades Size Limits</h4>
+              <table class="size-table">
+                <thead>
+                  <tr>
+                    <th>Series</th>
+                    <th>Width</th>
+                    <th>Height</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>ZS-105 Series</td>
+                    <td>680mm - 4500mm</td>
+                    <td>500mm - 5600mm</td>
+                  </tr>
+                  <tr>
+                    <td>ZS-125 Series</td>
+                    <td>680mm - 4000mm</td>
+                    <td>500mm - 3000mm</td>
+                  </tr>
+                  <tr>
+                    <td>ZS Double Layer</td>
+                    <td>680mm - 4000mm</td>
+                    <td>500mm - 3000mm</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+
+            <!-- Panel Track Blinds -->
+            <div id="panel" class="tab-content">
+              <h3>Panel Track Blinds Measurement</h3>
+              <p>Panel track blinds are ideal for sliding doors, wide windows, and room dividers.</p>
+
+              <div class="warning-box">
+                <strong>Important:</strong> Width fits from 45.8" to 220" (116cm to 559cm)
+              </div>
+
+              <div class="mount-types">
+                <div class="mount-card">
+                  <h4>Inside Mount</h4>
+                  <ul>
+                    <li>Minimum depth: 4 1/8" (10.5cm)</li>
+                    <li>Measure at least 3 points (top, mid, bottom)</li>
+                    <li><strong>Width:</strong> Use minimum measurement = Order Width = End-to-end width</li>
+                    <li><strong>Height:</strong> Measure net height of window</li>
+                  </ul>
+                  <p style="font-size: 0.85rem; color: #6b7280; margin-top: 0.75rem;">Note: Do not remove any size in width - installation clearance will be considered by factory.</p>
+                </div>
+                <div class="mount-card">
+                  <h4>Outside Mount</h4>
+                  <ul>
+                    <li>Measure window net width</li>
+                    <li>Add 6" (15cm) total extension in width</li>
+                    <li>Add 8" (20cm) total extension in height</li>
+                  </ul>
+                  <div class="formula-box" style="margin-top: 1rem;">
+                    Order Width = Net Width + 6"<br>
+                    Order Height = Net Height + 8"
+                  </div>
+                </div>
+              </div>
+
+              <h4 style="margin-top: 1.5rem;">Common Applications</h4>
+              <ul style="color: #4b5563;">
+                <li>Sliding Doors</li>
+                <li>Closet Doors</li>
+                <li>Window Shades</li>
+                <li>Room Dividers</li>
+              </ul>
+            </div>
+
+            <!-- Roller Shades -->
+            <div id="roller" class="tab-content">
+              <h3>Roller Shades Measurement</h3>
+              <p>Roller shades come in various control systems with different size limitations.</p>
+
+              <h4 style="margin-top: 1.5rem;">Roller Blinds Size Chart by Control Type</h4>
+              <table class="size-table">
+                <thead>
+                  <tr>
+                    <th>Valance Type</th>
+                    <th>Bead Chain Width</th>
+                    <th>Cordless Width</th>
+                    <th>Motorized Width</th>
+                    <th>Max Height</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>Simple Rolling</td>
+                    <td>50-230cm</td>
+                    <td>30-230cm</td>
+                    <td>52-230cm</td>
+                    <td>300-430cm</td>
+                  </tr>
+                  <tr>
+                    <td>Curved Plus</td>
+                    <td>50-230cm</td>
+                    <td>30-230cm</td>
+                    <td>52-230cm</td>
+                    <td>250-430cm</td>
+                  </tr>
+                  <tr>
+                    <td>S1 Fabric Inserted</td>
+                    <td>50-230cm</td>
+                    <td>30-230cm</td>
+                    <td>52-230cm</td>
+                    <td>150-260cm</td>
+                  </tr>
+                  <tr>
+                    <td>V2 Square Valance</td>
+                    <td>50-230cm</td>
+                    <td>30-230cm</td>
+                    <td>52-230cm</td>
+                    <td>200-320cm</td>
+                  </tr>
+                  <tr>
+                    <td>S2/S3 Curved Wrapped</td>
+                    <td>50-230cm</td>
+                    <td>30-230cm</td>
+                    <td>52-230cm</td>
+                    <td>250-350cm</td>
+                  </tr>
+                </tbody>
+              </table>
+
+              <div class="tips-list" style="margin-top: 1.5rem;">
+                <h4>Fabric Deduction Notes</h4>
+                <ul>
+                  <li>Simple Rolling: -2.7cm to -2.8cm</li>
+                  <li>Curved Plus: -2.5cm</li>
+                  <li>Motorized: -2.3cm to -2.8cm</li>
+                  <li>Max height limits are tested with thicker fabric. Thinner fabric allows for greater height.</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      if (!localStorage.getItem('admin_token')) {
+        window.location.href = '/admin/login.html';
+        return;
+      }
+      AdminNavConfig.initSidebar('measuring-guide');
+    });
+
+    function showTab(tabId) {
+      // Update tabs
+      document.querySelectorAll('.product-tab').forEach(tab => tab.classList.remove('active'));
+      event.target.classList.add('active');
+
+      // Update content
+      document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+      document.getElementById(tabId).classList.add('active');
+    }
+  </script>
+</body>
+</html>

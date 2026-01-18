@@ -1,0 +1,713 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Appointments - Peekaboo Shades Admin</title>
+  <link rel="stylesheet" href="/admin/css/admin.css?v=1737200003.0.28">
+  <script src="/admin/js/adminNavConfig.js?v=1737200002"></script>
+  <style>
+    .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
+    .stat-card { background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+    .stat-card h3 { font-size: 0.85rem; color: #666; margin-bottom: 0.5rem; text-transform: uppercase; }
+    .stat-card .value { font-size: 2rem; font-weight: 700; color: #8E6545; }
+    .controls { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem; }
+    .filters { display: flex; gap: 1rem; flex-wrap: wrap; }
+    .filter-select, .filter-input { padding: 0.75rem 1rem; border: 2px solid #e5e7eb; border-radius: 10px; font-size: 0.95rem; background: white; }
+
+    .appointments-table { background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+    table { width: 100%; border-collapse: collapse; }
+    th { background: #f9f9f9; padding: 1rem; text-align: left; font-weight: 600; font-size: 0.85rem; color: #666; text-transform: uppercase; }
+    td { padding: 1rem; border-top: 1px solid #eee; vertical-align: top; }
+    tr:hover { background: #faf8f6; }
+
+    .customer-cell { display: flex; flex-direction: column; gap: 0.25rem; }
+    .customer-name { font-weight: 600; color: #1f2937; }
+    .customer-phone { font-size: 0.85rem; color: #6b7280; }
+
+    .badge { padding: 0.3rem 0.65rem; border-radius: 20px; font-size: 0.75rem; font-weight: 600; display: inline-block; }
+    .badge-scheduled { background: #DBEAFE; color: #1D4ED8; }
+    .badge-confirmed { background: #D1FAE5; color: #065F46; }
+    .badge-in-progress { background: #FEF3C7; color: #92400E; }
+    .badge-completed { background: #E5E7EB; color: #374151; }
+    .badge-cancelled { background: #FEE2E2; color: #991B1B; }
+
+    .type-badge { padding: 0.25rem 0.5rem; border-radius: 6px; font-size: 0.7rem; font-weight: 600; text-transform: uppercase; }
+    .type-new-installation { background: #D1FAE5; color: #065F46; }
+    .type-repair { background: #FEF3C7; color: #92400E; }
+    .type-maintenance { background: #DBEAFE; color: #1D4ED8; }
+    .type-consultation { background: #EDE9FE; color: #7C3AED; }
+    .type-other { background: #E5E7EB; color: #374151; }
+
+    .btn-action { padding: 0.4rem 0.75rem; border: none; border-radius: 6px; cursor: pointer; font-size: 0.8rem; margin-right: 0.25rem; font-weight: 500; }
+    .btn-edit { background: #8E6545; color: white; }
+    .btn-delete { background: #FEE2E2; color: #991B1B; }
+
+    /* Modal */
+    .modal { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.6); z-index: 1000; align-items: center; justify-content: center; backdrop-filter: blur(4px); }
+    .modal.active { display: flex; }
+    .modal-content { background: white; border-radius: 16px; max-width: 700px; width: 95%; max-height: 90vh; overflow: hidden; }
+    .modal-header { display: flex; justify-content: space-between; align-items: center; padding: 1.5rem 2rem; background: linear-gradient(135deg, #8E6545 0%, #A67C5B 100%); color: white; }
+    .modal-header h2 { font-size: 1.25rem; margin: 0; }
+    .modal-close { background: rgba(255,255,255,0.2); border: none; font-size: 1.25rem; cursor: pointer; color: white; width: 32px; height: 32px; border-radius: 50%; }
+    .modal-body { padding: 2rem; max-height: calc(90vh - 80px); overflow-y: auto; }
+    .form-section { margin-bottom: 1.75rem; }
+    .form-section-title { font-size: 0.8rem; font-weight: 600; color: #8E6545; text-transform: uppercase; margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 2px solid #f0e6df; }
+    .form-group { margin-bottom: 1.25rem; }
+    .form-group label { display: block; margin-bottom: 0.5rem; font-weight: 500; color: #374151; font-size: 0.9rem; }
+    .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 0.875rem 1rem; border: 2px solid #e5e7eb; border-radius: 10px; font-size: 0.95rem; font-family: inherit; }
+    .form-group input:focus, .form-group select:focus, .form-group textarea:focus { outline: none; border-color: #8E6545; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    .form-row-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1rem; }
+    .btn-submit { width: 100%; padding: 1rem; background: linear-gradient(135deg, #8E6545 0%, #A67C5B 100%); color: white; border: none; border-radius: 10px; font-weight: 600; cursor: pointer; font-size: 1rem; }
+
+    .btn-add { display: inline-flex; align-items: center; gap: 0.5rem; padding: 0.75rem 1.5rem; background: linear-gradient(135deg, #8E6545 0%, #A67C5B 100%); color: white; border: none; border-radius: 10px; font-weight: 600; cursor: pointer; }
+    .btn-add svg { width: 18px; height: 18px; }
+
+    .order-preview { background: #faf8f6; border-radius: 10px; padding: 1rem; margin-top: 0.5rem; }
+    .order-preview h4 { font-size: 0.9rem; color: #374151; margin-bottom: 0.5rem; }
+    .order-preview p { font-size: 0.85rem; color: #6b7280; margin: 0.25rem 0; }
+
+    .empty-state { text-align: center; padding: 4rem 2rem; color: #6b7280; }
+    .empty-state svg { width: 64px; height: 64px; margin-bottom: 1rem; color: #d1d5db; }
+    .empty-state h3 { color: #374151; margin-bottom: 0.5rem; }
+
+    /* Appointment Type Cards */
+    .type-selector { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.75rem; margin-bottom: 1rem; }
+    .type-option { padding: 1rem; border: 2px solid #e5e7eb; border-radius: 10px; cursor: pointer; text-align: center; transition: all 0.2s; }
+    .type-option:hover { border-color: #8E6545; background: #faf8f6; }
+    .type-option.selected { border-color: #8E6545; background: #f5f0ec; }
+    .type-option input { display: none; }
+    .type-option svg { width: 28px; height: 28px; margin-bottom: 0.5rem; color: #8E6545; }
+    .type-option span { display: block; font-size: 0.85rem; font-weight: 500; color: #374151; }
+
+    /* Technician Availability */
+    .availability-info { background: #D1FAE5; border: 1px solid #A7F3D0; padding: 0.75rem 1rem; border-radius: 8px; margin-top: 0.5rem; font-size: 0.85rem; color: #065F46; }
+    .availability-info.warning { background: #FEF3C7; border-color: #FDE68A; color: #92400E; }
+    .availability-info.error { background: #FEE2E2; border-color: #FECACA; color: #991B1B; }
+
+    .tech-card { display: flex; align-items: center; gap: 1rem; padding: 0.75rem 1rem; background: #faf8f6; border: 2px solid #e8e0da; border-radius: 10px; margin-bottom: 0.5rem; cursor: pointer; }
+    .tech-card:hover { border-color: #8E6545; }
+    .tech-card.selected { border-color: #8E6545; background: #f5f0ec; }
+    .tech-card input { display: none; }
+    .tech-avatar { width: 40px; height: 40px; border-radius: 50%; background: linear-gradient(135deg, #8E6545 0%, #A67C5B 100%); color: white; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 0.9rem; }
+    .tech-info { flex: 1; }
+    .tech-name { font-weight: 600; color: #1f2937; font-size: 0.95rem; }
+    .tech-specialties { font-size: 0.8rem; color: #6b7280; }
+    .tech-status { font-size: 0.75rem; padding: 0.2rem 0.5rem; border-radius: 4px; background: #D1FAE5; color: #065F46; }
+    .tech-status.busy { background: #FEE2E2; color: #991B1B; }
+
+    .conditional-section { display: none; }
+    .conditional-section.show { display: block; }
+  </style>
+</head>
+<body>
+  <div class="admin-layout">
+    <aside class="admin-sidebar"></aside>
+    <main class="admin-main">
+      <header class="admin-header">
+        <h1>Appointments</h1>
+        <div class="header-actions">
+          <button class="btn-add" onclick="openModal()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
+            Schedule Appointment
+          </button>
+        </div>
+      </header>
+      <div class="admin-content">
+        <div class="stats">
+          <div class="stat-card"><h3>Total</h3><div class="value" id="stat-total">0</div></div>
+          <div class="stat-card"><h3>New Installs</h3><div class="value" id="stat-installs">0</div></div>
+          <div class="stat-card"><h3>Repairs</h3><div class="value" id="stat-repairs">0</div></div>
+          <div class="stat-card"><h3>Scheduled</h3><div class="value" id="stat-scheduled">0</div></div>
+          <div class="stat-card"><h3>Completed</h3><div class="value" id="stat-completed">0</div></div>
+        </div>
+
+        <div class="controls">
+          <div class="filters">
+            <select class="filter-select" id="typeFilter" onchange="loadAppointments()">
+              <option value="">All Types</option>
+              <option value="new-installation">New Installation</option>
+              <option value="repair">Repair</option>
+              <option value="maintenance">Maintenance</option>
+              <option value="consultation">Consultation</option>
+              <option value="other">Other</option>
+            </select>
+            <select class="filter-select" id="statusFilter" onchange="loadAppointments()">
+              <option value="">All Status</option>
+              <option value="scheduled">Scheduled</option>
+              <option value="confirmed">Confirmed</option>
+              <option value="in-progress">In Progress</option>
+              <option value="completed">Completed</option>
+              <option value="cancelled">Cancelled</option>
+            </select>
+            <select class="filter-select" id="technicianFilter" onchange="loadAppointments()">
+              <option value="">All Technicians</option>
+            </select>
+            <input type="date" class="filter-input" id="startDate" onchange="loadAppointments()">
+            <input type="date" class="filter-input" id="endDate" onchange="loadAppointments()">
+          </div>
+        </div>
+
+        <div class="appointments-table">
+          <table>
+            <thead>
+              <tr>
+                <th>Type</th>
+                <th>Customer</th>
+                <th>Order</th>
+                <th>Technician</th>
+                <th>Date & Time</th>
+                <th>Fee</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="appointmentsBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Schedule Appointment Modal -->
+  <div class="modal" id="appointmentModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 id="modalTitle">Schedule Appointment</h2>
+        <button class="modal-close" onclick="closeModal()">&times;</button>
+      </div>
+      <form onsubmit="saveAppointment(event)">
+        <div class="modal-body">
+          <input type="hidden" id="appointmentId">
+
+          <!-- Appointment Type -->
+          <div class="form-section">
+            <div class="form-section-title">Appointment Type</div>
+            <div class="type-selector">
+              <label class="type-option selected" onclick="selectType('new-installation')">
+                <input type="radio" name="appointmentType" value="new-installation" checked>
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+                <span>New Installation</span>
+              </label>
+              <label class="type-option" onclick="selectType('repair')">
+                <input type="radio" name="appointmentType" value="repair">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+                <span>Repair</span>
+              </label>
+              <label class="type-option" onclick="selectType('maintenance')">
+                <input type="radio" name="appointmentType" value="maintenance">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+                <span>Maintenance</span>
+              </label>
+            </div>
+            <div class="type-selector" style="grid-template-columns: repeat(2, 1fr);">
+              <label class="type-option" onclick="selectType('consultation')">
+                <input type="radio" name="appointmentType" value="consultation">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                <span>Consultation</span>
+              </label>
+              <label class="type-option" onclick="selectType('other')">
+                <input type="radio" name="appointmentType" value="other">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+                <span>Other Service</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Order Selection (for new installations) -->
+          <div class="form-section conditional-section show" id="orderSection">
+            <div class="form-section-title">Link to Order (Optional for repairs)</div>
+            <div class="form-group">
+              <label>Select Order</label>
+              <select id="orderId" onchange="loadOrderDetails()">
+                <option value="">-- No order (manual entry) --</option>
+              </select>
+              <div id="orderPreview"></div>
+            </div>
+          </div>
+
+          <!-- Customer Details (for repairs/manual) -->
+          <div class="form-section conditional-section" id="customerSection">
+            <div class="form-section-title">Customer Details</div>
+            <div class="form-group">
+              <label>Customer Name *</label>
+              <input type="text" id="customerName" placeholder="Full name">
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Phone *</label>
+                <input type="tel" id="customerPhone" placeholder="(555) 000-0000">
+              </div>
+              <div class="form-group">
+                <label>Email</label>
+                <input type="email" id="customerEmail" placeholder="email@example.com">
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Address</label>
+              <input type="text" id="customerAddress" placeholder="Street address">
+            </div>
+            <div class="form-row-3">
+              <div class="form-group">
+                <label>City</label>
+                <input type="text" id="customerCity" placeholder="City">
+              </div>
+              <div class="form-group">
+                <label>State</label>
+                <input type="text" id="customerState" placeholder="State">
+              </div>
+              <div class="form-group">
+                <label>ZIP</label>
+                <input type="text" id="customerZip" placeholder="ZIP">
+              </div>
+            </div>
+          </div>
+
+          <!-- Issue Description (for repairs) -->
+          <div class="form-section conditional-section" id="issueSection">
+            <div class="form-section-title">Issue Description</div>
+            <div class="form-group">
+              <label>Describe the problem</label>
+              <textarea id="issueDescription" rows="3" placeholder="What needs to be repaired or serviced?"></textarea>
+            </div>
+          </div>
+
+          <!-- Scheduling -->
+          <div class="form-section">
+            <div class="form-section-title">Schedule</div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Date *</label>
+                <input type="date" id="scheduledDate" required onchange="checkAvailability()">
+              </div>
+              <div class="form-group">
+                <label>Time Slot *</label>
+                <select id="scheduledTime" required onchange="checkAvailability()">
+                  <option value="">Select time</option>
+                  <option value="8:00 AM - 10:00 AM">8:00 AM - 10:00 AM</option>
+                  <option value="10:00 AM - 12:00 PM">10:00 AM - 12:00 PM</option>
+                  <option value="12:00 PM - 2:00 PM">12:00 PM - 2:00 PM</option>
+                  <option value="2:00 PM - 4:00 PM">2:00 PM - 4:00 PM</option>
+                  <option value="4:00 PM - 6:00 PM">4:00 PM - 6:00 PM</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- Technician Selection -->
+          <div class="form-section">
+            <div class="form-section-title">Assign Technician</div>
+            <div id="technicianList">
+              <p style="color: #6b7280; font-size: 0.9rem;">Select a date to see available technicians</p>
+            </div>
+            <input type="hidden" id="technicianId">
+          </div>
+
+          <!-- Fee & Notes -->
+          <div class="form-section">
+            <div class="form-section-title">Service Fee & Notes</div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Service Fee ($)</label>
+                <input type="number" id="installationFee" step="0.01" min="0" placeholder="0.00">
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Notes for Technician</label>
+              <textarea id="notes" rows="2" placeholder="Special instructions, access codes, etc."></textarea>
+            </div>
+          </div>
+
+          <button type="submit" class="btn-submit">Save Appointment</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    const API_BASE = '/api/admin';
+    let appointments = [];
+    let technicians = [];
+    let readyOrders = [];
+    let selectedType = 'new-installation';
+
+    document.addEventListener('DOMContentLoaded', () => {
+      if (!localStorage.getItem('admin_token')) { window.location.href = '/admin/login.html'; return; }
+      AdminNavConfig.initSidebar('appointments');
+      loadData();
+
+      // Set min date to today
+      document.getElementById('scheduledDate').min = new Date().toISOString().split('T')[0];
+    });
+
+    async function apiCall(endpoint, method = 'GET', data = null) {
+      const token = localStorage.getItem('admin_token');
+      const options = { method, headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` } };
+      if (data) options.body = JSON.stringify(data);
+      const response = await fetch(`${API_BASE}${endpoint}`, options);
+      return response.json();
+    }
+
+    async function loadData() {
+      await Promise.all([loadAppointments(), loadTechnicians(), loadReadyOrders()]);
+    }
+
+    async function loadAppointments() {
+      const type = document.getElementById('typeFilter').value;
+      const status = document.getElementById('statusFilter').value;
+      const technicianId = document.getElementById('technicianFilter').value;
+      const startDate = document.getElementById('startDate').value;
+      const endDate = document.getElementById('endDate').value;
+
+      let url = '/appointments?';
+      if (type) url += `type=${type}&`;
+      if (status) url += `status=${status}&`;
+      if (technicianId) url += `technicianId=${technicianId}&`;
+      if (startDate) url += `startDate=${startDate}&`;
+      if (endDate) url += `endDate=${endDate}&`;
+
+      const result = await apiCall(url);
+      if (result.success) {
+        appointments = result.appointments;
+        updateStats();
+        renderAppointments();
+      }
+    }
+
+    async function loadTechnicians() {
+      const result = await apiCall('/technicians');
+      if (result.success) {
+        technicians = result.technicians;
+        populateTechnicianFilter();
+      }
+    }
+
+    async function loadReadyOrders() {
+      const result = await apiCall('/orders/ready-for-installation');
+      if (result.success) {
+        readyOrders = result.orders;
+        populateOrderSelect();
+      }
+    }
+
+    function updateStats() {
+      document.getElementById('stat-total').textContent = appointments.length;
+      document.getElementById('stat-installs').textContent = appointments.filter(a => a.appointmentType === 'new-installation').length;
+      document.getElementById('stat-repairs').textContent = appointments.filter(a => a.appointmentType === 'repair').length;
+      document.getElementById('stat-scheduled').textContent = appointments.filter(a => ['scheduled', 'confirmed'].includes(a.status)).length;
+      document.getElementById('stat-completed').textContent = appointments.filter(a => a.status === 'completed').length;
+    }
+
+    function populateTechnicianFilter() {
+      const activeTechs = technicians.filter(t => t.status === 'active');
+      const html = '<option value="">All Technicians</option>' + activeTechs.map(t => `<option value="${t.id}">${t.name}</option>`).join('');
+      document.getElementById('technicianFilter').innerHTML = html;
+    }
+
+    function populateOrderSelect() {
+      const html = '<option value="">-- No order (manual entry) --</option>' + readyOrders.map(o =>
+        `<option value="${o.id}">Order #${o.id.slice(-8)} - ${o.customer?.name || 'Customer'} ($${(o.totals?.total || 0).toFixed(2)})</option>`
+      ).join('');
+      document.getElementById('orderId').innerHTML = html;
+    }
+
+    function loadOrderDetails() {
+      const orderId = document.getElementById('orderId').value;
+      const preview = document.getElementById('orderPreview');
+      const customerSection = document.getElementById('customerSection');
+
+      if (!orderId) {
+        preview.innerHTML = '';
+        customerSection.classList.add('show');
+        return;
+      }
+
+      customerSection.classList.remove('show');
+      const order = readyOrders.find(o => o.id === orderId);
+      if (!order) { preview.innerHTML = ''; return; }
+
+      preview.innerHTML = `
+        <div class="order-preview">
+          <h4>Order Details</h4>
+          <p><strong>Customer:</strong> ${order.customer?.name || 'N/A'}</p>
+          <p><strong>Phone:</strong> ${order.customer?.phone || 'N/A'}</p>
+          <p><strong>Items:</strong> ${order.items?.length || 0} items</p>
+          <p><strong>Total:</strong> $${(order.totals?.total || 0).toFixed(2)}</p>
+        </div>
+      `;
+    }
+
+    function selectType(type) {
+      selectedType = type;
+      document.querySelectorAll('.type-option').forEach(el => el.classList.remove('selected'));
+      document.querySelector(`input[value="${type}"]`).closest('.type-option').classList.add('selected');
+      document.querySelector(`input[value="${type}"]`).checked = true;
+
+      // Show/hide sections based on type
+      const orderSection = document.getElementById('orderSection');
+      const customerSection = document.getElementById('customerSection');
+      const issueSection = document.getElementById('issueSection');
+      const orderId = document.getElementById('orderId').value;
+
+      if (type === 'new-installation') {
+        orderSection.classList.add('show');
+        issueSection.classList.remove('show');
+        if (!orderId) customerSection.classList.add('show');
+        else customerSection.classList.remove('show');
+      } else if (type === 'repair' || type === 'maintenance') {
+        orderSection.classList.add('show');
+        issueSection.classList.add('show');
+        if (!orderId) customerSection.classList.add('show');
+        else customerSection.classList.remove('show');
+      } else {
+        orderSection.classList.add('show');
+        issueSection.classList.remove('show');
+        if (!orderId) customerSection.classList.add('show');
+        else customerSection.classList.remove('show');
+      }
+    }
+
+    async function checkAvailability() {
+      const date = document.getElementById('scheduledDate').value;
+      const timeSlot = document.getElementById('scheduledTime').value;
+      const techList = document.getElementById('technicianList');
+
+      if (!date) {
+        techList.innerHTML = '<p style="color: #6b7280; font-size: 0.9rem;">Select a date to see available technicians</p>';
+        return;
+      }
+
+      // Map time slot to availability format
+      const slotMap = {
+        '8:00 AM - 10:00 AM': '8am-10am',
+        '10:00 AM - 12:00 PM': '10am-12pm',
+        '12:00 PM - 2:00 PM': '12pm-2pm',
+        '2:00 PM - 4:00 PM': '2pm-4pm',
+        '4:00 PM - 6:00 PM': '4pm-6pm'
+      };
+
+      const activeTechs = technicians.filter(t => t.status === 'active');
+
+      // Check each technician's availability
+      const techsWithAvailability = activeTechs.map(tech => {
+        const dateAvail = tech.availability?.find(a => a.date === date);
+        let isAvailable = true;
+        let availabilityNote = 'Available';
+
+        if (dateAvail && dateAvail.slots) {
+          if (timeSlot && slotMap[timeSlot]) {
+            isAvailable = dateAvail.slots.includes(slotMap[timeSlot]);
+            availabilityNote = isAvailable ? 'Available for this slot' : 'Not available for this slot';
+          } else {
+            availabilityNote = `Available: ${dateAvail.slots.join(', ')}`;
+          }
+        } else {
+          availabilityNote = 'No schedule set (assumed available)';
+        }
+
+        // Check existing appointments
+        const existingApt = appointments.find(a =>
+          a.technicianId === tech.id &&
+          a.scheduledDate === date &&
+          a.scheduledTime === timeSlot &&
+          !['completed', 'cancelled'].includes(a.status)
+        );
+        if (existingApt) {
+          isAvailable = false;
+          availabilityNote = 'Already booked for this slot';
+        }
+
+        return { ...tech, isAvailable, availabilityNote };
+      });
+
+      techList.innerHTML = techsWithAvailability.map(tech => `
+        <label class="tech-card ${tech.isAvailable ? '' : 'unavailable'}" onclick="${tech.isAvailable ? `selectTechnician('${tech.id}')` : ''}">
+          <input type="radio" name="technician" value="${tech.id}" ${!tech.isAvailable ? 'disabled' : ''}>
+          <div class="tech-avatar">${tech.name.split(' ').map(n => n[0]).join('').toUpperCase()}</div>
+          <div class="tech-info">
+            <div class="tech-name">${tech.name}</div>
+            <div class="tech-specialties">${(tech.specialties || []).slice(0, 2).map(s => s.replace('-', ' ')).join(', ')}</div>
+          </div>
+          <span class="tech-status ${tech.isAvailable ? '' : 'busy'}">${tech.isAvailable ? 'Available' : 'Busy'}</span>
+        </label>
+      `).join('') || '<p style="color: #6b7280;">No active technicians found</p>';
+    }
+
+    function selectTechnician(id) {
+      document.getElementById('technicianId').value = id;
+      document.querySelectorAll('.tech-card').forEach(el => el.classList.remove('selected'));
+      const card = document.querySelector(`input[value="${id}"]`)?.closest('.tech-card');
+      if (card) card.classList.add('selected');
+    }
+
+    function formatType(type) {
+      const types = {
+        'new-installation': 'New Install',
+        'repair': 'Repair',
+        'maintenance': 'Maintenance',
+        'consultation': 'Consultation',
+        'other': 'Other'
+      };
+      return types[type] || type || 'N/A';
+    }
+
+    function renderAppointments() {
+      const tbody = document.getElementById('appointmentsBody');
+
+      if (appointments.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="8"><div class="empty-state">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          <h3>No Appointments</h3><p>Schedule your first appointment</p>
+        </div></td></tr>`;
+        return;
+      }
+
+      tbody.innerHTML = appointments.map(apt => `
+        <tr>
+          <td><span class="type-badge type-${apt.appointmentType || 'other'}">${formatType(apt.appointmentType)}</span></td>
+          <td>
+            <div class="customer-cell">
+              <span class="customer-name">${apt.customerName || apt.customer?.name || 'N/A'}</span>
+              <span class="customer-phone">${apt.customerPhone || apt.customer?.phone || 'N/A'}</span>
+            </div>
+          </td>
+          <td>${apt.orderId ? `<a href="/admin/orders.html?id=${apt.orderId}" style="color: #8E6545; font-weight: 500;">#${apt.orderId.slice(-8)}</a>` : '<span style="color:#6b7280;">No order</span>'}</td>
+          <td>${apt.technician?.name || '<span style="color:#ef4444;">Unassigned</span>'}</td>
+          <td>
+            <strong>${formatDate(apt.scheduledDate)}</strong><br>
+            <span style="color:#6b7280; font-size: 0.85rem;">${apt.scheduledTime || 'TBD'}</span>
+          </td>
+          <td>$${(apt.installationFee || 0).toFixed(2)}</td>
+          <td><span class="badge badge-${apt.status}">${apt.status}</span></td>
+          <td>
+            <button class="btn-action btn-edit" onclick="editAppointment('${apt.id}')">Edit</button>
+            <button class="btn-action btn-delete" onclick="deleteAppointment('${apt.id}')">Delete</button>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    function formatDate(dateStr) {
+      if (!dateStr) return 'TBD';
+      return new Date(dateStr).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    }
+
+    function openModal(appointment = null) {
+      // Reset form
+      document.getElementById('appointmentId').value = '';
+      document.getElementById('orderId').value = '';
+      document.getElementById('technicianId').value = '';
+      document.getElementById('scheduledDate').value = '';
+      document.getElementById('scheduledTime').value = '';
+      document.getElementById('installationFee').value = '';
+      document.getElementById('notes').value = '';
+      document.getElementById('customerName').value = '';
+      document.getElementById('customerPhone').value = '';
+      document.getElementById('customerEmail').value = '';
+      document.getElementById('customerAddress').value = '';
+      document.getElementById('customerCity').value = '';
+      document.getElementById('customerState').value = '';
+      document.getElementById('customerZip').value = '';
+      document.getElementById('issueDescription').value = '';
+      document.getElementById('orderPreview').innerHTML = '';
+      document.getElementById('technicianList').innerHTML = '<p style="color: #6b7280; font-size: 0.9rem;">Select a date to see available technicians</p>';
+
+      // Reset type selection
+      selectType('new-installation');
+
+      if (appointment) {
+        document.getElementById('appointmentId').value = appointment.id;
+        document.getElementById('orderId').value = appointment.orderId || '';
+        document.getElementById('technicianId').value = appointment.technicianId || '';
+        document.getElementById('scheduledDate').value = appointment.scheduledDate || '';
+        document.getElementById('scheduledTime').value = appointment.scheduledTime || '';
+        document.getElementById('installationFee').value = appointment.installationFee || '';
+        document.getElementById('notes').value = appointment.notes || '';
+        document.getElementById('customerName').value = appointment.customerName || '';
+        document.getElementById('customerPhone').value = appointment.customerPhone || '';
+        document.getElementById('customerEmail').value = appointment.customerEmail || '';
+        document.getElementById('issueDescription').value = appointment.issueDescription || '';
+
+        if (appointment.installationAddress) {
+          document.getElementById('customerAddress').value = appointment.installationAddress.address1 || '';
+          document.getElementById('customerCity').value = appointment.installationAddress.city || '';
+          document.getElementById('customerState').value = appointment.installationAddress.state || '';
+          document.getElementById('customerZip').value = appointment.installationAddress.zip || '';
+        }
+
+        if (appointment.appointmentType) {
+          selectType(appointment.appointmentType);
+        }
+
+        if (appointment.orderId) loadOrderDetails();
+        if (appointment.scheduledDate) checkAvailability();
+      }
+
+      document.getElementById('modalTitle').textContent = appointment ? 'Edit Appointment' : 'Schedule Appointment';
+      document.getElementById('appointmentModal').classList.add('active');
+    }
+
+    function closeModal() {
+      document.getElementById('appointmentModal').classList.remove('active');
+    }
+
+    function editAppointment(id) {
+      const apt = appointments.find(a => a.id === id);
+      if (apt) openModal(apt);
+    }
+
+    async function deleteAppointment(id) {
+      if (!confirm('Are you sure you want to delete this appointment?')) return;
+      const result = await apiCall(`/appointments/${id}`, 'DELETE');
+      if (result.success) loadAppointments();
+      else alert(result.error || 'Failed to delete');
+    }
+
+    async function saveAppointment(e) {
+      e.preventDefault();
+      const id = document.getElementById('appointmentId').value;
+      const orderId = document.getElementById('orderId').value;
+      const technicianId = document.getElementById('technicianId').value;
+
+      if (!technicianId) {
+        alert('Please select a technician');
+        return;
+      }
+
+      const data = {
+        appointmentType: document.querySelector('input[name="appointmentType"]:checked').value,
+        orderId: orderId || null,
+        technicianId,
+        scheduledDate: document.getElementById('scheduledDate').value,
+        scheduledTime: document.getElementById('scheduledTime').value,
+        installationFee: document.getElementById('installationFee').value || 0,
+        notes: document.getElementById('notes').value,
+        customerName: document.getElementById('customerName').value,
+        customerPhone: document.getElementById('customerPhone').value,
+        customerEmail: document.getElementById('customerEmail').value,
+        issueDescription: document.getElementById('issueDescription').value,
+        installationAddress: {
+          address1: document.getElementById('customerAddress').value,
+          city: document.getElementById('customerCity').value,
+          state: document.getElementById('customerState').value,
+          zip: document.getElementById('customerZip').value
+        }
+      };
+
+      const result = await apiCall(id ? `/appointments/${id}` : '/appointments', id ? 'PUT' : 'POST', data);
+
+      if (result.success) {
+        closeModal();
+        loadData();
+      } else {
+        alert(result.error || 'Failed to save appointment');
+      }
+    }
+
+    document.getElementById('appointmentModal').addEventListener('click', e => {
+      if (e.target.id === 'appointmentModal') closeModal();
+    });
+  </script>
+</body>
+</html>

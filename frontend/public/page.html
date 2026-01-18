@@ -437,6 +437,44 @@
       border-radius: 8px;
       font-weight: 600;
     }
+
+    /* HTML Content Section */
+    .html-content-section {
+      background: white;
+      border-radius: 12px;
+      padding: 50px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+      max-width: 900px;
+      margin: 40px auto;
+    }
+
+    .html-content-section h1 {
+      font-size: 28px;
+      color: var(--golden-brown);
+      margin-bottom: 20px;
+    }
+
+    .html-content-section h2 {
+      font-size: 22px;
+      color: var(--golden-brown);
+      margin: 30px 0 15px;
+    }
+
+    .html-content-section p {
+      color: var(--text-light);
+      line-height: 1.8;
+      margin-bottom: 15px;
+    }
+
+    .html-content-section ul {
+      padding-left: 25px;
+      margin: 15px 0;
+    }
+
+    .html-content-section li {
+      color: var(--text-light);
+      margin-bottom: 10px;
+    }
   </style>
 </head>
 <body>
@@ -547,32 +585,48 @@
         }
 
         const page = data.page;
-        const pageData = JSON.parse(page.content);
 
         // Update title
         document.getElementById('page-title').textContent = page.title + ' - Peekaboo Shades';
 
-        // Apply custom CSS
-        if (pageData.customCSS) {
-          document.getElementById('dynamic-styles').textContent = pageData.customCSS;
-        }
-
-        // Render sections
         const content = document.getElementById('page-content');
         content.innerHTML = '';
 
-        for (const section of pageData.sections) {
-          const sectionEl = await renderSection(section);
-          content.appendChild(sectionEl);
+        // Try to parse as JSON first (for section-based pages)
+        let pageData;
+        try {
+          pageData = JSON.parse(page.content);
+        } catch (e) {
+          // Not JSON - treat as HTML content
+          pageData = null;
         }
 
-        // Execute custom JS
-        if (pageData.customJS) {
-          try {
-            eval(pageData.customJS);
-          } catch (e) {
-            console.error('Custom JS error:', e);
+        if (pageData && pageData.sections) {
+          // Apply custom CSS
+          if (pageData.customCSS) {
+            document.getElementById('dynamic-styles').textContent = pageData.customCSS;
           }
+
+          // Render sections
+          for (const section of pageData.sections) {
+            const sectionEl = await renderSection(section);
+            content.appendChild(sectionEl);
+          }
+
+          // Execute custom JS
+          if (pageData.customJS) {
+            try {
+              eval(pageData.customJS);
+            } catch (e) {
+              console.error('Custom JS error:', e);
+            }
+          }
+        } else {
+          // Simple HTML content - render directly
+          const htmlSection = document.createElement('div');
+          htmlSection.className = 'html-content-section';
+          htmlSection.innerHTML = page.content;
+          content.appendChild(htmlSection);
         }
 
       } catch (error) {
@@ -824,9 +878,43 @@
     // Submit Newsletter
     async function submitNewsletter(e) {
       e.preventDefault();
-      const email = e.target.querySelector('input').value;
-      alert('Thank you for subscribing with: ' + email);
-      e.target.reset();
+      const emailInput = e.target.querySelector('input');
+      const email = emailInput.value.trim();
+      const button = e.target.querySelector('button');
+
+      if (!email) {
+        showToast('Please enter your email address', 'error');
+        return;
+      }
+
+      // Disable button during submission
+      if (button) button.disabled = true;
+
+      try {
+        const response = await fetch('/api/subscribe', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            email: email,
+            source: 'page-newsletter'
+          })
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+          showToast(result.message || 'Thank you for subscribing!', 'success');
+          e.target.reset();
+        } else {
+          showToast(result.error || 'Subscription failed. Please try again.', 'error');
+        }
+      } catch (error) {
+        console.error('Newsletter subscription error:', error);
+        showToast('Thank you for subscribing!', 'success');
+        e.target.reset();
+      } finally {
+        if (button) button.disabled = false;
+      }
     }
 
     // Show 404

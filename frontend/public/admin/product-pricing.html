@@ -4,8 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Product Pricing - Peekaboo Shades Admin</title>
-  <link rel="stylesheet" href="css/admin.css">
-  <link rel="icon" type="image/png" href="/images/favicon.png">
+  <link rel="stylesheet" href="css/admin.css?v=1737200003">
+  <link rel="icon" type="image/jpeg" href="/images/peekabooshades_logo.jpeg">
   <style>
     .pricing-card {
       background: white;
@@ -284,55 +284,9 @@
 </head>
 <body>
   <div class="admin-layout">
-    <!-- Sidebar -->
+    <!-- Sidebar (dynamically populated by adminNavConfig.js) -->
     <aside class="admin-sidebar">
-      <div class="sidebar-header">
-        <a href="/admin/" class="sidebar-logo">
-          <img src="/images/peekabooshades_logo.jpeg" alt="Peekaboo Shades" style="height: 32px; width: auto; border-radius: 6px;">
-          <span>Peekaboo Shades</span>
-        </a>
-      </div>
-      <nav class="sidebar-nav">
-        <div class="nav-section">
-          <a href="/admin/" class="nav-item">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-            </svg>
-            <span>Dashboard</span>
-          </a>
-        </div>
-        <div class="nav-section">
-          <div class="nav-section-title">Catalog</div>
-          <a href="/admin/products.html" class="nav-item">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-            </svg>
-            <span>Products</span>
-          </a>
-          <a href="/admin/hardware-options.html" class="nav-item">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-            </svg>
-            <span>Hardware Options</span>
-          </a>
-          <a href="/admin/product-pricing.html" class="nav-item active">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            <span>Product Pricing</span>
-          </a>
-        </div>
-        <div class="nav-section">
-          <div class="nav-section-title">Sales</div>
-          <a href="/admin/orders.html" class="nav-item">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
-            </svg>
-            <span>Orders</span>
-          </a>
-        </div>
-      </nav>
+      <!-- Sidebar content will be injected dynamically -->
     </aside>
 
     <!-- Main Content -->
@@ -348,7 +302,7 @@
           </div>
         </div>
         <div class="header-right">
-          <select id="product-selector" class="filter-select" style="min-width: 250px;">
+          <select id="product-selector" class="filter-select" style="min-width: 300px; font-size: 16px; padding: 10px 15px; font-weight: 500; font-family: 'Montserrat', sans-serif; background-color: #8E6545; color: #fff; border: none; border-radius: 6px; cursor: pointer;">
             <option value="">Select a product...</option>
           </select>
         </div>
@@ -484,7 +438,8 @@
     </div>
   </div>
 
-  <script src="js/admin.js"></script>
+  <script src="js/adminNavConfig.js?v=1737200002"></script>
+  <script src="js/admin.js?v=1737100001"></script>
   <script>
     if (!Admin.Auth.requireAuth()) {
       // Will redirect
@@ -495,6 +450,7 @@
     let allProducts = [];
     let hardwareOptions = {};
     let currentProduct = null;
+    let currentProductType = 'roller'; // Track current product type for API calls
     let pendingChanges = {};
     let currentSection = 'all';
 
@@ -565,14 +521,36 @@
       select.addEventListener('change', function() {
         if (this.value) {
           loadProductPricing(this.value);
+          // Update URL without reload
+          const url = new URL(window.location);
+          url.searchParams.set('type', this.value.includes('zebra') ? 'zebra' : 'roller');
+          window.history.replaceState({}, '', url);
         }
       });
 
-      // Auto-select first product (Affordable Custom Roller Blinds)
-      const rollerBlinds = allProducts.find(p => p.slug === 'affordable-custom-roller-blinds');
-      if (rollerBlinds) {
-        select.value = rollerBlinds.slug;
-        loadProductPricing(rollerBlinds.slug);
+      // Check URL params for product type or search
+      const urlParams = new URLSearchParams(window.location.search);
+      const typeParam = urlParams.get('type');
+      const searchParam = urlParams.get('search');
+
+      let selectedProduct = null;
+
+      if (typeParam === 'zebra') {
+        // Find zebra product
+        selectedProduct = allProducts.find(p => p.slug.includes('zebra') || p.category_slug === 'zebra-shades');
+      } else if (typeParam === 'roller' || !typeParam) {
+        // Find roller product (default)
+        selectedProduct = allProducts.find(p => p.slug.includes('roller') || p.category_slug === 'roller-shades');
+      }
+
+      // Fallback if no match
+      if (!selectedProduct && allProducts.length > 0) {
+        selectedProduct = allProducts[0];
+      }
+
+      if (selectedProduct) {
+        select.value = selectedProduct.slug;
+        loadProductPricing(selectedProduct.slug);
       }
     }
 
@@ -586,9 +564,9 @@
       document.getElementById('summary-box').style.display = 'block';
 
       // Determine product type based on slug or category
-      let productType = 'roller';
+      currentProductType = 'roller';
       if (productSlug.includes('zebra') || product.category_slug === 'zebra-shades') {
-        productType = 'zebra';
+        currentProductType = 'zebra';
       }
 
       // Load motor brands, hardware options (includes accessories), and fabric prices in parallel
@@ -598,7 +576,7 @@
             headers: { 'Authorization': 'Bearer ' + Admin.Auth.getToken() }
           }),
           fetch('/api/product-content/hardware'),
-          fetch(`/api/admin/manufacturer-prices?productType=${productType}`, {
+          fetch(`/api/admin/manufacturer-prices?productType=${currentProductType}`, {
             headers: { 'Authorization': 'Bearer ' + Admin.Auth.getToken() }
           })
         ]);
@@ -1464,6 +1442,7 @@
                   'Authorization': 'Bearer ' + Admin.Auth.getToken()
                 },
                 body: JSON.stringify({
+                  productType: currentProductType,
                   pricePerSqMeter: changes.pricePerSqMeter,
                   manualMargin: changes.manualMargin,
                   pricePerSqMeterCordless: changes.pricePerSqMeterCordless,

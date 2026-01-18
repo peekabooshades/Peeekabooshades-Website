@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cohort Analysis - Peekaboo Shades Admin</title>
+  <link rel="stylesheet" href="/admin/css/admin.css?v=1737200003.0.28">
+  <script src="/admin/js/adminNavConfig.js?v=1737200002"></script>
+  <style>
+    .filters { display: flex; gap: 1rem; margin-bottom: 1.5rem; }
+    .filters select { padding: 0.5rem 1rem; border: 1px solid #ddd; border-radius: 6px; }
+    .cohort-table { background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); overflow-x: auto; }
+    .cohort-table h3 { margin: 0 0 1rem 0; }
+    table { width: 100%; border-collapse: collapse; min-width: 800px; }
+    th, td { padding: 0.75rem; text-align: center; border: 1px solid #eee; }
+    th { background: #f9f9f9; font-weight: 600; font-size: 0.8rem; color: #666; }
+    th:first-child, td:first-child { text-align: left; font-weight: 500; }
+    .cohort-cell { font-size: 0.85rem; }
+    .heat-0 { background: #fff; }
+    .heat-1 { background: #FEF3C7; }
+    .heat-2 { background: #FCD34D; }
+    .heat-3 { background: #F59E0B; }
+    .heat-4 { background: #D97706; color: white; }
+    .heat-5 { background: #8E6545; color: white; }
+    .legend { display: flex; gap: 1rem; margin-top: 1rem; justify-content: center; }
+    .legend-item { display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; }
+    .legend-color { width: 20px; height: 20px; border-radius: 4px; }
+    .insights-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-top: 1.5rem; }
+    .insight-card { background: white; padding: 1.25rem; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+    .insight-card h4 { margin: 0 0 0.5rem 0; font-size: 0.9rem; color: #666; }
+    .insight-card .value { font-size: 1.5rem; font-weight: 600; color: #8E6545; }
+    .btn-export { padding: 0.5rem 1rem; background: #E5E7EB; color: #374151; border: none; border-radius: 6px; cursor: pointer; }
+  </style>
+</head>
+<body>
+  <div class="admin-layout">
+    <aside class="admin-sidebar"></aside>
+    <main class="admin-main">
+      <header class="admin-header">
+        <h1>Cohort Analysis</h1>
+        <div class="header-actions">
+          <button class="btn-export" onclick="exportData()">Export CSV</button>
+        </div>
+      </header>
+      <div class="admin-content">
+        <div class="filters">
+          <select><option>Retention by Month</option><option>Revenue by Month</option><option>Orders by Month</option></select>
+          <select><option>2024</option><option>2023</option></select>
+          <select><option>All Customers</option><option>First-time</option><option>Returning</option></select>
+        </div>
+        <div class="cohort-table">
+          <h3>Customer Retention by Acquisition Cohort</h3>
+          <table>
+            <thead>
+              <tr>
+                <th>Cohort</th>
+                <th>Customers</th>
+                <th>Month 0</th>
+                <th>Month 1</th>
+                <th>Month 2</th>
+                <th>Month 3</th>
+                <th>Month 4</th>
+                <th>Month 5</th>
+                <th>Month 6</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr><td>Jan 2024</td><td>245</td><td class="cohort-cell heat-5">100%</td><td class="cohort-cell heat-3">42%</td><td class="cohort-cell heat-2">28%</td><td class="cohort-cell heat-2">22%</td><td class="cohort-cell heat-1">18%</td><td class="cohort-cell heat-1">15%</td><td class="cohort-cell heat-1">14%</td></tr>
+              <tr><td>Feb 2024</td><td>312</td><td class="cohort-cell heat-5">100%</td><td class="cohort-cell heat-3">45%</td><td class="cohort-cell heat-2">31%</td><td class="cohort-cell heat-2">24%</td><td class="cohort-cell heat-1">19%</td><td class="cohort-cell heat-1">16%</td><td class="cohort-cell heat-0">-</td></tr>
+              <tr><td>Mar 2024</td><td>287</td><td class="cohort-cell heat-5">100%</td><td class="cohort-cell heat-3">48%</td><td class="cohort-cell heat-2">33%</td><td class="cohort-cell heat-2">26%</td><td class="cohort-cell heat-1">21%</td><td class="cohort-cell heat-0">-</td><td class="cohort-cell heat-0">-</td></tr>
+              <tr><td>Apr 2024</td><td>334</td><td class="cohort-cell heat-5">100%</td><td class="cohort-cell heat-3">44%</td><td class="cohort-cell heat-2">29%</td><td class="cohort-cell heat-2">23%</td><td class="cohort-cell heat-0">-</td><td class="cohort-cell heat-0">-</td><td class="cohort-cell heat-0">-</td></tr>
+              <tr><td>May 2024</td><td>298</td><td class="cohort-cell heat-5">100%</td><td class="cohort-cell heat-3">46%</td><td class="cohort-cell heat-2">30%</td><td class="cohort-cell heat-0">-</td><td class="cohort-cell heat-0">-</td><td class="cohort-cell heat-0">-</td><td class="cohort-cell heat-0">-</td></tr>
+              <tr><td>Jun 2024</td><td>356</td><td class="cohort-cell heat-5">100%</td><td class="cohort-cell heat-3">47%</td><td class="cohort-cell heat-0">-</td><td class="cohort-cell heat-0">-</td><td class="cohort-cell heat-0">-</td><td class="cohort-cell heat-0">-</td><td class="cohort-cell heat-0">-</td></tr>
+            </tbody>
+          </table>
+          <div class="legend">
+            <div class="legend-item"><div class="legend-color heat-0"></div>0-10%</div>
+            <div class="legend-item"><div class="legend-color heat-1"></div>10-20%</div>
+            <div class="legend-item"><div class="legend-color heat-2"></div>20-35%</div>
+            <div class="legend-item"><div class="legend-color heat-3"></div>35-50%</div>
+            <div class="legend-item"><div class="legend-color heat-4"></div>50-75%</div>
+            <div class="legend-item"><div class="legend-color heat-5"></div>75-100%</div>
+          </div>
+        </div>
+        <div class="insights-grid">
+          <div class="insight-card"><h4>Avg 3-Month Retention</h4><div class="value">24%</div></div>
+          <div class="insight-card"><h4>Best Performing Cohort</h4><div class="value">Mar 2024</div></div>
+          <div class="insight-card"><h4>Avg LTV Growth</h4><div class="value">+18%</div></div>
+        </div>
+      </div>
+    </main>
+  </div>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      if (!localStorage.getItem('admin_token')) { window.location.href = '/admin/login.html'; return; }
+      AdminNavConfig.initSidebar('cohort-analysis');
+    });
+    function exportData() { alert('Exporting cohort data...'); }
+  </script>
+</body>
+</html>

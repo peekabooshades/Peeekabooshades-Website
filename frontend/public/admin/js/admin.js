@@ -669,6 +669,14 @@ const Utils = {
 
 // Sidebar Navigation Active State
 function initSidebarNav() {
+  // Use dynamic sidebar if AdminNavConfig is available
+  if (typeof AdminNavConfig !== 'undefined' && AdminNavConfig.initSidebar) {
+    const currentPageId = AdminNavConfig.getCurrentPageId();
+    AdminNavConfig.initSidebar(currentPageId);
+    return;
+  }
+
+  // Fallback: Highlight active nav item in static sidebar
   const currentPath = window.location.pathname;
   const navItems = document.querySelectorAll('.nav-item');
 
@@ -813,3 +821,28 @@ window.Admin = {
   Loading,
   Utils
 };
+
+// ============================================
+// LOAD AI ASSISTANT
+// ============================================
+(function loadAIAssistant() {
+  // AI Assistant temporarily disabled
+  return;
+
+  // Don't load on login page
+  if (window.location.pathname.includes('/admin/login')) return;
+
+  function loadScript() {
+    const script = document.createElement('script');
+    script.src = '/admin/js/ai-assistant.js';
+    script.async = true;
+    document.body.appendChild(script);
+  }
+
+  // Wait for DOM to be ready
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', loadScript);
+  } else {
+    loadScript();
+  }
+})();

@@ -4,27 +4,203 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Product Content - Peekaboo Shades Admin</title>
-  <link rel="stylesheet" href="css/admin.css">
+  <link rel="stylesheet" href="css/admin.css?v=1737200003">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <link rel="icon" type="image/png" href="/images/favicon.png">
+  <link rel="icon" type="image/jpeg" href="/images/peekabooshades_logo.jpeg">
   <style>
     .product-content-layout {
       display: grid;
-      grid-template-columns: 1fr 380px;
+      grid-template-columns: 1fr 400px;
       gap: 24px;
     }
 
-    @media (max-width: 1200px) {
+    @media (max-width: 1400px) {
       .product-content-layout {
         grid-template-columns: 1fr;
       }
+      .preview-column {
+        display: none;
+      }
     }
 
-    .content-section {
-      background: var(--admin-card);
-      border: 1px solid var(--admin-border);
+    /* Product Selector Hero */
+    .product-selector-hero {
+      background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+      border-radius: 16px;
+      padding: 24px;
+      margin-bottom: 24px;
+      display: grid;
+      grid-template-columns: 100px 1fr auto;
+      gap: 20px;
+      align-items: center;
+    }
+
+    .product-thumb {
+      width: 100px;
+      height: 100px;
+      background: #fff;
+      border-radius: 12px;
+      overflow: hidden;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .product-thumb img {
+      max-width: 100%;
+      max-height: 100%;
+      object-fit: cover;
+    }
+
+    .product-selector-info {
+      color: white;
+    }
+
+    .product-selector-label {
+      font-size: 12px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #8E6545;
+      margin-bottom: 8px;
+    }
+
+    .product-selector-dropdown {
+      background: rgba(255,255,255,0.1);
+      border: 1px solid rgba(255,255,255,0.2);
+      border-radius: 8px;
+      padding: 12px 40px 12px 16px;
+      color: white;
+      font-size: 18px;
+      font-weight: 600;
+      width: 100%;
+      max-width: 400px;
+      cursor: pointer;
+      appearance: none;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='white'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 12px center;
+      background-size: 20px;
+    }
+
+    .product-selector-dropdown option {
+      color: #1a1a1a;
+    }
+
+    .product-meta {
+      display: flex;
+      gap: 16px;
+      margin-top: 12px;
+    }
+
+    .product-meta-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      color: rgba(255,255,255,0.7);
+    }
+
+    .product-meta-item i {
+      color: #8E6545;
+    }
+
+    .product-selector-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .btn-hero {
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      text-decoration: none;
+      transition: all 0.2s;
+      white-space: nowrap;
+    }
+
+    .btn-hero-primary {
+      background: #8E6545;
+      color: white;
+      border: none;
+    }
+
+    .btn-hero-primary:hover {
+      background: #a67c5b;
+    }
+
+    .btn-hero-secondary {
+      background: rgba(255,255,255,0.1);
+      color: white;
+      border: 1px solid rgba(255,255,255,0.2);
+    }
+
+    .btn-hero-secondary:hover {
+      background: rgba(255,255,255,0.2);
+    }
+
+    /* Tab Navigation */
+    .content-tabs {
+      display: flex;
+      gap: 4px;
+      background: #f3f4f6;
+      padding: 4px;
       border-radius: 12px;
       margin-bottom: 24px;
+      overflow-x: auto;
+    }
+
+    .content-tab {
+      padding: 12px 20px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 500;
+      color: #6b7280;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      white-space: nowrap;
+      border: none;
+      background: transparent;
+    }
+
+    .content-tab:hover {
+      color: #1a1a1a;
+      background: rgba(255,255,255,0.5);
+    }
+
+    .content-tab.active {
+      background: white;
+      color: #1a1a1a;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+
+    .content-tab i {
+      font-size: 16px;
+    }
+
+    /* Tab Panels */
+    .tab-panel {
+      display: none;
+    }
+
+    .tab-panel.active {
+      display: block;
+    }
+
+    /* Content Section Cards */
+    .content-section {
+      background: var(--admin-card, #fff);
+      border: 1px solid var(--admin-border, #e5e7eb);
+      border-radius: 12px;
+      margin-bottom: 20px;
       overflow: hidden;
     }
 
@@ -33,7 +209,7 @@
       justify-content: space-between;
       align-items: center;
       padding: 16px 20px;
-      border-bottom: 1px solid var(--admin-border);
+      border-bottom: 1px solid var(--admin-border, #e5e7eb);
       background: #f9fafb;
       cursor: pointer;
       user-select: none;
@@ -57,6 +233,20 @@
       width: 20px;
     }
 
+    .section-badge {
+      font-size: 11px;
+      padding: 2px 8px;
+      border-radius: 10px;
+      background: #e5e7eb;
+      color: #6b7280;
+      margin-left: 8px;
+    }
+
+    .section-badge.required {
+      background: #fef3c7;
+      color: #92400e;
+    }
+
     .section-toggle {
       transition: transform 0.2s;
       color: #888;
@@ -74,10 +264,535 @@
       display: none;
     }
 
-    /* Preview Card */
+    /* Form Styles */
+    .form-row {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 16px;
+    }
+
+    .form-row-3 {
+      grid-template-columns: repeat(3, 1fr);
+    }
+
+    .form-row-4 {
+      grid-template-columns: repeat(4, 1fr);
+    }
+
+    @media (max-width: 768px) {
+      .form-row, .form-row-3, .form-row-4 {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .form-group {
+      margin-bottom: 16px;
+    }
+
+    .form-group:last-child {
+      margin-bottom: 0;
+    }
+
+    .form-label {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      font-weight: 500;
+      color: #374151;
+      margin-bottom: 6px;
+    }
+
+    .form-label .required-star {
+      color: #dc2626;
+    }
+
+    .form-label .info-icon {
+      color: #9ca3af;
+      cursor: help;
+      font-size: 12px;
+    }
+
+    .form-input, .form-textarea, .form-select {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid #d1d5db;
+      border-radius: 8px;
+      font-size: 14px;
+      transition: all 0.2s;
+      background: white;
+    }
+
+    .form-input:focus, .form-textarea:focus, .form-select:focus {
+      outline: none;
+      border-color: #8E6545;
+      box-shadow: 0 0 0 3px rgba(142, 101, 69, 0.1);
+    }
+
+    .form-textarea {
+      min-height: 100px;
+      resize: vertical;
+    }
+
+    .form-help {
+      font-size: 12px;
+      color: #6b7280;
+      margin-top: 4px;
+    }
+
+    .char-counter {
+      font-size: 11px;
+      color: #9ca3af;
+      text-align: right;
+      margin-top: 4px;
+    }
+
+    .char-counter.warning {
+      color: #f59e0b;
+    }
+
+    .char-counter.danger {
+      color: #dc2626;
+    }
+
+    /* Gallery Styles */
+    .gallery-grid {
+      display: grid;
+      grid-template-columns: 200px 1fr;
+      gap: 20px;
+    }
+
+    @media (max-width: 900px) {
+      .gallery-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    .main-image-upload {
+      aspect-ratio: 1;
+      border: 2px dashed #d1d5db;
+      border-radius: 12px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s;
+      background: #fafafa;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .main-image-upload:hover {
+      border-color: #8E6545;
+      background: #fdf8f5;
+    }
+
+    .main-image-upload.has-image {
+      border-style: solid;
+      border-color: #8E6545;
+    }
+
+    .main-image-upload img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .main-image-label {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: rgba(0,0,0,0.7);
+      color: white;
+      padding: 8px;
+      text-align: center;
+      font-size: 12px;
+      font-weight: 500;
+    }
+
+    .gallery-thumbnails {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+    }
+
+    .gallery-thumb {
+      aspect-ratio: 1;
+      border: 2px dashed #d1d5db;
+      border-radius: 8px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s;
+      background: #fafafa;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .gallery-thumb:hover {
+      border-color: #8E6545;
+    }
+
+    .gallery-thumb.has-image {
+      border-style: solid;
+      border-color: #e5e7eb;
+    }
+
+    .gallery-thumb img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .gallery-thumb .upload-icon {
+      font-size: 24px;
+      color: #9ca3af;
+    }
+
+    .gallery-thumb .thumb-label {
+      font-size: 10px;
+      color: #6b7280;
+      margin-top: 4px;
+    }
+
+    .remove-image-btn {
+      position: absolute;
+      top: 4px;
+      right: 4px;
+      width: 24px;
+      height: 24px;
+      background: rgba(220, 53, 69, 0.9);
+      color: white;
+      border: none;
+      border-radius: 50%;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      opacity: 0;
+      transition: opacity 0.2s;
+    }
+
+    .gallery-thumb:hover .remove-image-btn,
+    .main-image-upload:hover .remove-image-btn {
+      opacity: 1;
+    }
+
+    /* Image Type Badges */
+    .image-type-selector {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 12px;
+    }
+
+    .image-type-btn {
+      padding: 6px 12px;
+      border: 1px solid #d1d5db;
+      border-radius: 6px;
+      font-size: 12px;
+      background: white;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .image-type-btn:hover {
+      border-color: #8E6545;
+    }
+
+    .image-type-btn.active {
+      background: #8E6545;
+      color: white;
+      border-color: #8E6545;
+    }
+
+    /* Feature/Spec Cards */
+    .spec-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+      gap: 16px;
+    }
+
+    .spec-card {
+      background: #f9fafb;
+      border: 1px solid #e5e7eb;
+      border-radius: 10px;
+      padding: 16px;
+    }
+
+    .spec-card-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 12px;
+    }
+
+    .spec-card-icon {
+      width: 36px;
+      height: 36px;
+      background: #8E6545;
+      color: white;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .spec-card-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: #1a1a1a;
+    }
+
+    /* Toggle Switches */
+    .toggle-group {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 12px 0;
+      border-bottom: 1px solid #f3f4f6;
+    }
+
+    .toggle-group:last-child {
+      border-bottom: none;
+    }
+
+    .toggle-label {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .toggle-label-text {
+      font-size: 14px;
+      font-weight: 500;
+      color: #1a1a1a;
+    }
+
+    .toggle-label-desc {
+      font-size: 12px;
+      color: #6b7280;
+    }
+
+    .toggle-switch {
+      position: relative;
+      width: 48px;
+      height: 26px;
+    }
+
+    .toggle-switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .toggle-slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-color: #d1d5db;
+      transition: 0.3s;
+      border-radius: 26px;
+    }
+
+    .toggle-slider:before {
+      position: absolute;
+      content: "";
+      height: 20px;
+      width: 20px;
+      left: 3px;
+      bottom: 3px;
+      background-color: white;
+      transition: 0.3s;
+      border-radius: 50%;
+    }
+
+    .toggle-switch input:checked + .toggle-slider {
+      background-color: #8E6545;
+    }
+
+    .toggle-switch input:checked + .toggle-slider:before {
+      transform: translateX(22px);
+    }
+
+    /* Selling Points */
+    .selling-point-card {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 16px;
+      background: linear-gradient(135deg, #fdf8f5 0%, #fff 100%);
+      border: 1px solid #e5d4c8;
+      border-radius: 10px;
+      margin-bottom: 12px;
+    }
+
+    .selling-point-icon {
+      width: 44px;
+      height: 44px;
+      min-width: 44px;
+      background: #8E6545;
+      color: white;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+    }
+
+    .selling-point-content {
+      flex: 1;
+    }
+
+    .selling-point-content input {
+      width: 100%;
+      padding: 8px 10px;
+      border: 1px solid #d1d5db;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 500;
+      margin-bottom: 6px;
+    }
+
+    .selling-point-content textarea {
+      width: 100%;
+      padding: 8px 10px;
+      border: 1px solid #d1d5db;
+      border-radius: 6px;
+      font-size: 13px;
+      resize: none;
+      height: 60px;
+    }
+
+    .selling-point-actions {
+      display: flex;
+      gap: 4px;
+    }
+
+    .sp-action-btn {
+      width: 32px;
+      height: 32px;
+      border: none;
+      background: transparent;
+      color: #9ca3af;
+      cursor: pointer;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+    }
+
+    .sp-action-btn:hover {
+      background: #f3f4f6;
+      color: #1a1a1a;
+    }
+
+    .sp-action-btn.delete:hover {
+      background: #fee2e2;
+      color: #dc2626;
+    }
+
+    /* Add Button */
+    .add-item-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      width: 100%;
+      padding: 14px;
+      background: #f3f4f6;
+      border: 2px dashed #d1d5db;
+      border-radius: 10px;
+      color: #6b7280;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .add-item-btn:hover {
+      border-color: #8E6545;
+      color: #8E6545;
+      background: #fdf8f5;
+    }
+
+    /* Room Suitability */
+    .room-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      gap: 12px;
+    }
+
+    .room-card {
+      border: 2px solid #e5e7eb;
+      border-radius: 10px;
+      padding: 16px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .room-card:hover {
+      border-color: #8E6545;
+    }
+
+    .room-card.selected {
+      border-color: #8E6545;
+      background: #fdf8f5;
+    }
+
+    .room-card i {
+      font-size: 28px;
+      color: #8E6545;
+      margin-bottom: 8px;
+    }
+
+    .room-card-name {
+      font-size: 13px;
+      font-weight: 500;
+      color: #1a1a1a;
+    }
+
+    .room-card .check-icon {
+      position: absolute;
+      top: 8px;
+      right: 8px;
+      color: #22c55e;
+      display: none;
+    }
+
+    .room-card.selected .check-icon {
+      display: block;
+    }
+
+    /* Light Control Slider */
+    .light-control-visual {
+      background: linear-gradient(to right, #1a1a1a 0%, #f5f5dc 50%, #fffde7 100%);
+      height: 40px;
+      border-radius: 8px;
+      position: relative;
+      margin: 16px 0;
+    }
+
+    .light-control-labels {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      color: #6b7280;
+    }
+
+    /* Preview Panel */
     .preview-card {
       background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
-      border-radius: 12px;
+      border-radius: 16px;
       padding: 20px;
       color: white;
       position: sticky;
@@ -121,16 +836,38 @@
       border-radius: 8px;
       overflow: hidden;
       margin-bottom: 16px;
+      height: 500px;
     }
 
     .preview-iframe {
-      width: 100%;
-      height: 400px;
+      width: 200%;
+      height: 1000px;
       border: none;
       transform: scale(0.5);
       transform-origin: top left;
-      width: 200%;
-      height: 800px;
+    }
+
+    .preview-device-toggle {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      margin-bottom: 12px;
+    }
+
+    .device-btn {
+      padding: 8px 16px;
+      border: 1px solid rgba(255,255,255,0.2);
+      background: transparent;
+      color: rgba(255,255,255,0.6);
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .device-btn.active {
+      background: rgba(255,255,255,0.1);
+      color: white;
+      border-color: rgba(255,255,255,0.3);
     }
 
     .preview-info {
@@ -139,336 +876,72 @@
       text-align: center;
     }
 
-    /* Form Styles */
-    .form-row {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 16px;
-    }
-
-    @media (max-width: 768px) {
-      .form-row {
-        grid-template-columns: 1fr;
-      }
-    }
-
-    .form-group {
-      margin-bottom: 16px;
-    }
-
-    .form-group:last-child {
-      margin-bottom: 0;
-    }
-
-    .form-label {
-      display: block;
-      font-size: 13px;
-      font-weight: 500;
-      color: #374151;
-      margin-bottom: 6px;
-    }
-
-    .form-input, .form-textarea, .form-select {
-      width: 100%;
-      padding: 10px 12px;
-      border: 1px solid #d1d5db;
-      border-radius: 8px;
-      font-size: 14px;
-      transition: all 0.2s;
-    }
-
-    .form-input:focus, .form-textarea:focus, .form-select:focus {
-      outline: none;
-      border-color: #8E6545;
-      box-shadow: 0 0 0 3px rgba(142, 101, 69, 0.1);
-    }
-
-    .form-textarea {
-      min-height: 100px;
-      resize: vertical;
-    }
-
-    .form-help {
-      font-size: 12px;
-      color: #6b7280;
-      margin-top: 4px;
-    }
-
-    /* Image Upload */
-    .image-upload-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-      gap: 16px;
-    }
-
-    .image-upload-card {
-      border: 2px dashed #d1d5db;
+    /* Completeness Score */
+    .completeness-card {
+      background: rgba(255,255,255,0.05);
       border-radius: 10px;
-      padding: 12px;
-      text-align: center;
-      cursor: pointer;
-      transition: all 0.2s;
-      background: #fafafa;
+      padding: 16px;
+      margin-top: 16px;
     }
 
-    .image-upload-card:hover {
-      border-color: #8E6545;
-      background: #fdf8f5;
-    }
-
-    .image-upload-card.has-image {
-      border-style: solid;
-      border-color: #e5e7eb;
-    }
-
-    .image-preview {
-      width: 100%;
-      height: 120px;
-      background: #f3f4f6;
-      border-radius: 6px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      margin-bottom: 8px;
-      overflow: hidden;
-      position: relative;
-    }
-
-    .image-preview img {
-      max-width: 100%;
-      max-height: 100%;
-      object-fit: contain;
-    }
-
-    .image-preview .upload-icon {
-      font-size: 32px;
-      color: #8E6545;
-    }
-
-    .image-label {
-      font-size: 12px;
-      font-weight: 500;
-      color: #6b7280;
-    }
-
-    .remove-image-btn {
-      position: absolute;
-      top: 4px;
-      right: 4px;
-      width: 22px;
-      height: 22px;
-      background: rgba(220, 53, 69, 0.9);
-      color: white;
-      border: none;
-      border-radius: 50%;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 12px;
-      opacity: 0;
-      transition: opacity 0.2s;
-    }
-
-    .image-upload-card:hover .remove-image-btn {
-      opacity: 1;
-    }
-
-    /* Feature/Badge Items */
-    .items-list {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-    }
-
-    .item-row {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      padding: 10px 12px;
-      background: #f9fafb;
-      border-radius: 8px;
-      border: 1px solid #e5e7eb;
-    }
-
-    .item-row .drag-handle {
-      color: #9ca3af;
-      cursor: grab;
-    }
-
-    .item-row .icon-select {
-      width: 100px;
-    }
-
-    .item-row .text-input {
-      flex: 1;
-    }
-
-    .item-row .remove-btn {
-      width: 30px;
-      height: 30px;
-      background: transparent;
-      border: none;
-      color: #9ca3af;
-      cursor: pointer;
-      border-radius: 6px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: all 0.2s;
-    }
-
-    .item-row .remove-btn:hover {
-      background: #fee2e2;
-      color: #dc2626;
-    }
-
-    .add-item-btn {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      width: 100%;
-      padding: 12px;
-      background: #f3f4f6;
-      border: 2px dashed #d1d5db;
-      border-radius: 8px;
-      color: #6b7280;
-      font-size: 14px;
-      cursor: pointer;
-      transition: all 0.2s;
-    }
-
-    .add-item-btn:hover {
-      border-color: #8E6545;
-      color: #8E6545;
-      background: #fdf8f5;
-    }
-
-    /* Tags */
-    .tags-container {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 8px;
-      margin-bottom: 12px;
-    }
-
-    .tag {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      background: #e5e7eb;
-      padding: 6px 12px;
-      border-radius: 20px;
-      font-size: 13px;
-    }
-
-    .tag .remove-tag {
-      width: 16px;
-      height: 16px;
-      background: #9ca3af;
-      color: white;
-      border: none;
-      border-radius: 50%;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 10px;
-    }
-
-    .tag .remove-tag:hover {
-      background: #dc2626;
-    }
-
-    /* Action Buttons */
-    .section-actions {
-      display: flex;
-      justify-content: flex-end;
-      gap: 12px;
-      margin-top: 20px;
-      padding-top: 16px;
-      border-top: 1px solid #e5e7eb;
-    }
-
-    .btn {
-      padding: 10px 20px;
-      border-radius: 8px;
-      font-size: 14px;
-      font-weight: 500;
-      cursor: pointer;
-      transition: all 0.2s;
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .btn-primary {
-      background: #8E6545;
-      color: white;
-      border: none;
-    }
-
-    .btn-primary:hover {
-      background: #7a5539;
-    }
-
-    .btn-secondary {
-      background: white;
-      color: #374151;
-      border: 1px solid #d1d5db;
-    }
-
-    .btn-secondary:hover {
-      background: #f9fafb;
-    }
-
-    /* Product Selector */
-    .product-selector {
-      background: linear-gradient(135deg, #8E6545 0%, #a67c5b 100%);
-      border-radius: 12px;
-      padding: 20px;
-      margin-bottom: 24px;
-      color: white;
-    }
-
-    .product-selector-header {
+    .completeness-header {
       display: flex;
       justify-content: space-between;
       align-items: center;
       margin-bottom: 12px;
     }
 
-    .product-selector-title {
+    .completeness-label {
       font-size: 13px;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      opacity: 0.8;
+      color: rgba(255,255,255,0.8);
     }
 
-    .product-selector-dropdown {
-      background: rgba(255,255,255,0.15);
-      border: 1px solid rgba(255,255,255,0.2);
-      border-radius: 8px;
-      padding: 12px 16px;
-      color: white;
-      font-size: 16px;
-      font-weight: 600;
-      width: 100%;
-      cursor: pointer;
-      appearance: none;
-      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='white'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E");
-      background-repeat: no-repeat;
-      background-position: right 12px center;
-      background-size: 20px;
+    .completeness-score {
+      font-size: 18px;
+      font-weight: 700;
+      color: #22c55e;
     }
 
-    .product-selector-dropdown option {
-      color: #1a1a1a;
+    .completeness-bar {
+      height: 8px;
+      background: rgba(255,255,255,0.1);
+      border-radius: 4px;
+      overflow: hidden;
     }
 
-    /* Save All Banner */
+    .completeness-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #22c55e 0%, #86efac 100%);
+      border-radius: 4px;
+      transition: width 0.3s;
+    }
+
+    .completeness-items {
+      margin-top: 12px;
+    }
+
+    .completeness-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 12px;
+      color: rgba(255,255,255,0.6);
+      padding: 4px 0;
+    }
+
+    .completeness-item i {
+      width: 16px;
+    }
+
+    .completeness-item.done i {
+      color: #22c55e;
+    }
+
+    .completeness-item.pending i {
+      color: #f59e0b;
+    }
+
+    /* Save Banner */
     .save-banner {
       position: fixed;
       bottom: 0;
@@ -501,14 +974,44 @@
       gap: 12px;
     }
 
-    .save-banner .btn-save {
-      background: #22c55e;
-      color: white;
+    .btn {
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
       border: none;
-      padding: 10px 24px;
     }
 
-    .save-banner .btn-save:hover {
+    .btn-primary {
+      background: #8E6545;
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: #7a5539;
+    }
+
+    .btn-secondary {
+      background: white;
+      color: #374151;
+      border: 1px solid #d1d5db;
+    }
+
+    .btn-secondary:hover {
+      background: #f9fafb;
+    }
+
+    .btn-success {
+      background: #22c55e;
+      color: white;
+    }
+
+    .btn-success:hover {
       background: #16a34a;
     }
 
@@ -521,6 +1024,57 @@
     @media (max-width: 768px) {
       .save-banner {
         left: 0;
+      }
+      .product-selector-hero {
+        grid-template-columns: 1fr;
+        text-align: center;
+      }
+      .product-thumb {
+        margin: 0 auto;
+      }
+    }
+
+    /* Section Actions */
+    .section-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 12px;
+      margin-top: 20px;
+      padding-top: 16px;
+      border-top: 1px solid #e5e7eb;
+    }
+
+    /* Quick Stats */
+    .quick-stats {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+
+    .quick-stat {
+      background: white;
+      border: 1px solid #e5e7eb;
+      border-radius: 10px;
+      padding: 16px;
+      text-align: center;
+    }
+
+    .quick-stat-value {
+      font-size: 24px;
+      font-weight: 700;
+      color: #8E6545;
+    }
+
+    .quick-stat-label {
+      font-size: 12px;
+      color: #6b7280;
+      margin-top: 4px;
+    }
+
+    @media (max-width: 900px) {
+      .quick-stats {
+        grid-template-columns: repeat(2, 1fr);
       }
     }
   </style>
@@ -570,17 +1124,27 @@
             </svg>
             <span>Product Content</span>
           </a>
-          <a href="/admin/product-page-editor.html" class="nav-item">
+          <a href="/admin/page-builder.html" class="nav-item">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6z" />
             </svg>
-            <span>Page Editor</span>
+            <span>Page Builder</span>
           </a>
-          <a href="/admin/faqs.html" class="nav-item">
+        </div>
+
+        <div class="nav-section">
+          <div class="nav-section-title">Orders</div>
+          <a href="/admin/orders.html" class="nav-item">
             <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
             </svg>
-            <span>FAQs</span>
+            <span>Orders</span>
+          </a>
+          <a href="/admin/quotes.html" class="nav-item">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+            <span>Quotes</span>
           </a>
         </div>
 
@@ -609,230 +1173,611 @@
           </div>
         </div>
         <div class="header-right">
-          <a href="/product/affordable-custom-roller-blinds" target="_blank" class="btn btn-secondary" style="margin-right: 12px;">
-            <i class="fas fa-external-link-alt"></i> View Live Page
+          <button class="btn btn-secondary" onclick="openSampleOrderModal()" style="margin-right: 8px;">
+            <i class="fas fa-swatchbook"></i> Order Samples
+          </button>
+          <a href="#" id="viewLiveBtn" target="_blank" class="btn btn-secondary">
+            <i class="fas fa-external-link-alt"></i> View Live
           </a>
-          <div class="dropdown">
-            <div class="header-profile">
-              <div class="profile-avatar">A</div>
-              <span class="profile-name">Admin</span>
-            </div>
-          </div>
         </div>
       </header>
 
       <!-- Page Content -->
       <div class="admin-content">
-        <div class="page-header" style="margin-bottom: 24px;">
-          <h1 class="page-title">Product Content</h1>
-          <p style="color: #6b7280; margin-top: 4px;">Manage content for your product pages</p>
-        </div>
-
-        <!-- Product Selector -->
-        <div class="product-selector">
-          <div class="product-selector-header">
-            <span class="product-selector-title">Editing Product</span>
-            <a href="/admin/product-page-editor.html" style="color: white; font-size: 13px; opacity: 0.8;">
-              <i class="fas fa-wand-magic-sparkles"></i> Open Page Editor
+        <!-- Product Selector Hero -->
+        <div class="product-selector-hero">
+          <div class="product-thumb" id="productThumb">
+            <i class="fas fa-image" style="font-size: 32px; color: #ccc;"></i>
+          </div>
+          <div class="product-selector-info">
+            <div class="product-selector-label">Editing Product Content</div>
+            <select class="product-selector-dropdown" id="productSelector" onchange="loadProductContent()">
+              <!-- Products will be loaded here -->
+            </select>
+            <div class="product-meta">
+              <div class="product-meta-item">
+                <i class="fas fa-tag"></i>
+                <span id="productCategory">Roller Shades</span>
+              </div>
+              <div class="product-meta-item">
+                <i class="fas fa-palette"></i>
+                <span id="fabricCount">0 Fabrics</span>
+              </div>
+              <div class="product-meta-item">
+                <i class="fas fa-eye"></i>
+                <span id="productViews">0 views</span>
+              </div>
+            </div>
+          </div>
+          <div class="product-selector-actions">
+            <a href="#" id="editPricingBtn" class="btn-hero btn-hero-primary">
+              <i class="fas fa-dollar-sign"></i> Edit Pricing
+            </a>
+            <a href="/admin/product-page-editor.html" class="btn-hero btn-hero-secondary">
+              <i class="fas fa-wand-magic-sparkles"></i> Page Editor
             </a>
           </div>
-          <select class="product-selector-dropdown" id="productSelector" onchange="loadProductContent()">
-            <!-- Products will be loaded here -->
-          </select>
+        </div>
+
+        <!-- Quick Stats -->
+        <div class="quick-stats">
+          <div class="quick-stat">
+            <div class="quick-stat-value" id="statImages">0/5</div>
+            <div class="quick-stat-label">Gallery Images</div>
+          </div>
+          <div class="quick-stat">
+            <div class="quick-stat-value" id="statFeatures">0</div>
+            <div class="quick-stat-label">Selling Points</div>
+          </div>
+          <div class="quick-stat">
+            <div class="quick-stat-value" id="statSpecs">0</div>
+            <div class="quick-stat-label">Specifications</div>
+          </div>
+          <div class="quick-stat">
+            <div class="quick-stat-value" id="statScore">0%</div>
+            <div class="quick-stat-label">Content Score</div>
+          </div>
+        </div>
+
+        <!-- Tab Navigation -->
+        <div class="content-tabs">
+          <button class="content-tab active" onclick="switchTab('basic')" data-tab="basic">
+            <i class="fas fa-file-alt"></i> Basic Info
+          </button>
+          <button class="content-tab" onclick="switchTab('media')" data-tab="media">
+            <i class="fas fa-images"></i> Media Gallery
+          </button>
+          <button class="content-tab" onclick="switchTab('features')" data-tab="features">
+            <i class="fas fa-star"></i> Selling Points
+          </button>
+          <button class="content-tab" onclick="switchTab('specs')" data-tab="specs">
+            <i class="fas fa-ruler-combined"></i> Specifications
+          </button>
+          <button class="content-tab" onclick="switchTab('seo')" data-tab="seo">
+            <i class="fas fa-search"></i> SEO
+          </button>
         </div>
 
         <div class="product-content-layout">
-          <!-- Left Column - Content Sections -->
+          <!-- Left Column - Content Panels -->
           <div class="content-column">
-            <!-- Product Info Section -->
-            <div class="content-section" id="info-section">
-              <div class="section-header" onclick="toggleSection('info')">
-                <h2 class="section-title">
-                  <i class="fas fa-info-circle"></i>
-                  Product Information
-                </h2>
-                <i class="fas fa-chevron-down section-toggle"></i>
-              </div>
-              <div class="section-body" id="info-body">
-                <div class="form-group">
-                  <label class="form-label">Product Title</label>
-                  <input type="text" class="form-input" id="productTitle" placeholder="Enter product title" onchange="markUnsaved()">
+
+            <!-- Basic Info Tab -->
+            <div class="tab-panel active" id="panel-basic">
+              <!-- Product Title & Description -->
+              <div class="content-section">
+                <div class="section-header" onclick="toggleSection('basic-info')">
+                  <h2 class="section-title">
+                    <i class="fas fa-heading"></i>
+                    Title & Description
+                    <span class="section-badge required">Required</span>
+                  </h2>
+                  <i class="fas fa-chevron-down section-toggle"></i>
                 </div>
-                <div class="form-group">
-                  <label class="form-label">Short Description</label>
-                  <textarea class="form-textarea" id="productDescription" placeholder="Enter product description" onchange="markUnsaved()"></textarea>
-                  <p class="form-help">This appears below the title on the product page</p>
-                </div>
-                <div class="form-row">
+                <div class="section-body" id="basic-info-body">
                   <div class="form-group">
-                    <label class="form-label">Base Price ($)</label>
-                    <input type="number" class="form-input" id="productPrice" step="0.01" placeholder="0.00" onchange="markUnsaved()">
+                    <label class="form-label">
+                      Product Title <span class="required-star">*</span>
+                      <i class="fas fa-info-circle info-icon" title="Main product name shown on the page"></i>
+                    </label>
+                    <input type="text" class="form-input" id="productTitle" placeholder="e.g., Premium Roller Shades" onchange="markUnsaved()" maxlength="100">
+                    <div class="char-counter"><span id="titleCount">0</span>/100</div>
                   </div>
                   <div class="form-group">
-                    <label class="form-label">Sale Price ($)</label>
-                    <input type="number" class="form-input" id="productSalePrice" step="0.01" placeholder="Leave empty for no sale" onchange="markUnsaved()">
+                    <label class="form-label">
+                      Tagline / Subtitle
+                      <i class="fas fa-info-circle info-icon" title="Short catchy phrase below the title"></i>
+                    </label>
+                    <input type="text" class="form-input" id="productTagline" placeholder="e.g., Affordable Custom Window Treatments" onchange="markUnsaved()" maxlength="80">
+                    <div class="char-counter"><span id="taglineCount">0</span>/80</div>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">
+                      Short Description <span class="required-star">*</span>
+                    </label>
+                    <div style="margin-bottom: 8px;">
+                      <button type="button" style="background: linear-gradient(135deg, #8E6545 0%, #A67C5B 100%); color: white; border: none; padding: 8px 16px; border-radius: 6px; font-size: 12px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;" onclick="showContentTemplates('short')">
+                        <i class="fas fa-magic"></i> Use Catalogue Template
+                      </button>
+                    </div>
+                    <textarea class="form-textarea" id="productDescription" placeholder="Brief description that appears on the product page..." onchange="markUnsaved()" maxlength="500"></textarea>
+                    <div class="char-counter"><span id="descCount">0</span>/500</div>
+                    <p class="form-help">Highlight key benefits: light control, energy efficiency, style options</p>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">
+                      Long Description / Marketing Copy
+                    </label>
+                    <div style="margin-bottom: 8px;">
+                      <button type="button" style="background: linear-gradient(135deg, #8E6545 0%, #A67C5B 100%); color: white; border: none; padding: 8px 16px; border-radius: 6px; font-size: 12px; cursor: pointer; display: inline-flex; align-items: center; gap: 6px;" onclick="showContentTemplates('long')">
+                        <i class="fas fa-magic"></i> Use Catalogue Template
+                      </button>
+                    </div>
+                    <textarea class="form-textarea" id="productLongDescription" style="min-height: 150px;" placeholder="Detailed product description for customers who want to learn more..." onchange="markUnsaved()"></textarea>
                   </div>
                 </div>
-                <div class="section-actions">
-                  <button class="btn btn-primary" onclick="saveProductInfo()">
-                    <i class="fas fa-save"></i> Save Info
-                  </button>
+              </div>
+
+              <!-- Pricing Display -->
+              <div class="content-section">
+                <div class="section-header" onclick="toggleSection('pricing')">
+                  <h2 class="section-title">
+                    <i class="fas fa-tag"></i>
+                    Pricing Display
+                  </h2>
+                  <i class="fas fa-chevron-down section-toggle"></i>
+                </div>
+                <div class="section-body" id="pricing-body">
+                  <div class="form-row">
+                    <div class="form-group">
+                      <label class="form-label">"Starting At" Price ($)</label>
+                      <input type="number" class="form-input" id="productPrice" step="0.01" placeholder="0.00" onchange="markUnsaved()">
+                      <p class="form-help">Shown as "Starting at $XX" on product cards</p>
+                    </div>
+                    <div class="form-group">
+                      <label class="form-label">Compare At Price ($)</label>
+                      <input type="number" class="form-input" id="productComparePrice" step="0.01" placeholder="Original price for strike-through" onchange="markUnsaved()">
+                      <p class="form-help">Shows savings when set</p>
+                    </div>
+                  </div>
+                  <div class="form-row">
+                    <div class="form-group">
+                      <label class="form-label">Price Per Unit Label</label>
+                      <select class="form-select" id="priceUnitLabel" onchange="markUnsaved()">
+                        <option value="per blind">per blind</option>
+                        <option value="per shade">per shade</option>
+                        <option value="per sq ft">per sq ft</option>
+                        <option value="">No label</option>
+                      </select>
+                    </div>
+                    <div class="form-group">
+                      <label class="form-label">Promo Badge Text</label>
+                      <input type="text" class="form-input" id="promoBadge" placeholder="e.g., SALE, NEW, BEST SELLER" onchange="markUnsaved()">
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Light Control -->
+              <div class="content-section">
+                <div class="section-header" onclick="toggleSection('light-control')">
+                  <h2 class="section-title">
+                    <i class="fas fa-sun"></i>
+                    Light Control Options
+                  </h2>
+                  <i class="fas fa-chevron-down section-toggle"></i>
+                </div>
+                <div class="section-body" id="light-control-body">
+                  <p style="color: #6b7280; margin-bottom: 16px; font-size: 14px;">
+                    Select which light control options are available for this product
+                  </p>
+                  <div class="toggle-group">
+                    <div class="toggle-label">
+                      <span class="toggle-label-text">Light Filtering</span>
+                      <span class="toggle-label-desc">Softens and diffuses natural light while maintaining privacy</span>
+                    </div>
+                    <label class="toggle-switch">
+                      <input type="checkbox" id="optLightFiltering" checked onchange="markUnsaved()">
+                      <span class="toggle-slider"></span>
+                    </label>
+                  </div>
+                  <div class="toggle-group">
+                    <div class="toggle-label">
+                      <span class="toggle-label-text">Room Darkening</span>
+                      <span class="toggle-label-desc">Blocks most light, ideal for bedrooms</span>
+                    </div>
+                    <label class="toggle-switch">
+                      <input type="checkbox" id="optRoomDarkening" checked onchange="markUnsaved()">
+                      <span class="toggle-slider"></span>
+                    </label>
+                  </div>
+                  <div class="toggle-group">
+                    <div class="toggle-label">
+                      <span class="toggle-label-text">Blackout</span>
+                      <span class="toggle-label-desc">Maximum light blocking for complete darkness</span>
+                    </div>
+                    <label class="toggle-switch">
+                      <input type="checkbox" id="optBlackout" checked onchange="markUnsaved()">
+                      <span class="toggle-slider"></span>
+                    </label>
+                  </div>
+                  <div class="light-control-visual">
+                    <div style="position: absolute; left: 10%; top: 50%; transform: translateY(-50%); color: white; font-size: 11px;">Blackout</div>
+                    <div style="position: absolute; left: 45%; top: 50%; transform: translate(-50%, -50%); color: #333; font-size: 11px;">Room Darkening</div>
+                    <div style="position: absolute; right: 10%; top: 50%; transform: translateY(-50%); color: #333; font-size: 11px;">Light Filtering</div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Room Suitability -->
+              <div class="content-section">
+                <div class="section-header" onclick="toggleSection('rooms')">
+                  <h2 class="section-title">
+                    <i class="fas fa-home"></i>
+                    Recommended Rooms
+                  </h2>
+                  <i class="fas fa-chevron-down section-toggle"></i>
+                </div>
+                <div class="section-body" id="rooms-body">
+                  <p style="color: #6b7280; margin-bottom: 16px; font-size: 14px;">
+                    Select rooms where this product works best (shown in "Perfect For" section)
+                  </p>
+                  <div class="room-grid" id="roomGrid">
+                    <!-- Rooms will be rendered here -->
+                  </div>
                 </div>
               </div>
             </div>
 
-            <!-- Gallery Images Section -->
-            <div class="content-section" id="gallery-section">
-              <div class="section-header" onclick="toggleSection('gallery')">
-                <h2 class="section-title">
-                  <i class="fas fa-images"></i>
-                  Product Gallery
-                </h2>
-                <i class="fas fa-chevron-down section-toggle"></i>
-              </div>
-              <div class="section-body" id="gallery-body">
-                <p style="color: #6b7280; margin-bottom: 16px; font-size: 14px;">
-                  Upload images that will display in the product gallery. The first image will be the main product image.
-                </p>
-                <div class="image-upload-grid" id="galleryGrid">
-                  <!-- Default upload cards - will be replaced by JS -->
-                  <div class="image-upload-card" onclick="triggerImageUpload(0)">
-                    <div class="image-preview">
-                      <i class="fas fa-cloud-upload-alt upload-icon"></i>
-                      <span style="display: block; font-size: 11px; color: #6b7280; margin-top: 8px;">Click to Upload</span>
+            <!-- Media Gallery Tab -->
+            <div class="tab-panel" id="panel-media">
+              <div class="content-section">
+                <div class="section-header">
+                  <h2 class="section-title">
+                    <i class="fas fa-images"></i>
+                    Product Gallery
+                    <span class="section-badge required">Required</span>
+                  </h2>
+                </div>
+                <div class="section-body">
+                  <p style="color: #6b7280; margin-bottom: 16px; font-size: 14px;">
+                    Upload high-quality images. First image is the main product photo. Include room scenes and close-ups.
+                  </p>
+                  <div class="gallery-grid">
+                    <div class="main-image-upload" id="mainImageUpload" onclick="triggerImageUpload(0)">
+                      <i class="fas fa-cloud-upload-alt" style="font-size: 36px; color: #8E6545;"></i>
+                      <span style="font-size: 13px; color: #6b7280; margin-top: 8px;">Main Product Image</span>
+                      <span style="font-size: 11px; color: #9ca3af;">800x800px recommended</span>
                     </div>
-                    <span class="image-label">Main Image</span>
-                    <button type="button" class="btn btn-sm" style="margin-top: 8px; padding: 6px 12px; font-size: 11px; background: #8E6545; color: white; border: none; border-radius: 6px; cursor: pointer;">
-                      <i class="fas fa-upload"></i> Upload
-                    </button>
+                    <div>
+                      <div class="gallery-thumbnails" id="galleryThumbnails">
+                        <!-- Gallery slots will be rendered here -->
+                      </div>
+                      <div class="image-type-selector">
+                        <span style="font-size: 12px; color: #6b7280; margin-right: 8px;">Quick Add:</span>
+                        <button class="image-type-btn" onclick="showImageTypeGuide('room')">Room Scene</button>
+                        <button class="image-type-btn" onclick="showImageTypeGuide('closeup')">Close-up Detail</button>
+                        <button class="image-type-btn" onclick="showImageTypeGuide('lifestyle')">Lifestyle</button>
+                      </div>
+                    </div>
                   </div>
-                  <div class="image-upload-card" onclick="triggerImageUpload(1)">
-                    <div class="image-preview">
-                      <i class="fas fa-cloud-upload-alt upload-icon"></i>
-                      <span style="display: block; font-size: 11px; color: #6b7280; margin-top: 8px;">Click to Upload</span>
-                    </div>
-                    <span class="image-label">Gallery 2</span>
-                    <button type="button" class="btn btn-sm" style="margin-top: 8px; padding: 6px 12px; font-size: 11px; background: #8E6545; color: white; border: none; border-radius: 6px; cursor: pointer;">
-                      <i class="fas fa-upload"></i> Upload
+                  <div class="section-actions">
+                    <button class="btn btn-secondary" onclick="reorderGallery()">
+                      <i class="fas fa-arrows-alt"></i> Reorder
                     </button>
-                  </div>
-                  <div class="image-upload-card" onclick="triggerImageUpload(2)">
-                    <div class="image-preview">
-                      <i class="fas fa-cloud-upload-alt upload-icon"></i>
-                      <span style="display: block; font-size: 11px; color: #6b7280; margin-top: 8px;">Click to Upload</span>
-                    </div>
-                    <span class="image-label">Gallery 3</span>
-                    <button type="button" class="btn btn-sm" style="margin-top: 8px; padding: 6px 12px; font-size: 11px; background: #8E6545; color: white; border: none; border-radius: 6px; cursor: pointer;">
-                      <i class="fas fa-upload"></i> Upload
-                    </button>
-                  </div>
-                  <div class="image-upload-card" onclick="triggerImageUpload(3)">
-                    <div class="image-preview">
-                      <i class="fas fa-cloud-upload-alt upload-icon"></i>
-                      <span style="display: block; font-size: 11px; color: #6b7280; margin-top: 8px;">Click to Upload</span>
-                    </div>
-                    <span class="image-label">Gallery 4</span>
-                    <button type="button" class="btn btn-sm" style="margin-top: 8px; padding: 6px 12px; font-size: 11px; background: #8E6545; color: white; border: none; border-radius: 6px; cursor: pointer;">
-                      <i class="fas fa-upload"></i> Upload
-                    </button>
-                  </div>
-                  <div class="image-upload-card" onclick="triggerImageUpload(4)">
-                    <div class="image-preview">
-                      <i class="fas fa-cloud-upload-alt upload-icon"></i>
-                      <span style="display: block; font-size: 11px; color: #6b7280; margin-top: 8px;">Click to Upload</span>
-                    </div>
-                    <span class="image-label">Gallery 5</span>
-                    <button type="button" class="btn btn-sm" style="margin-top: 8px; padding: 6px 12px; font-size: 11px; background: #8E6545; color: white; border: none; border-radius: 6px; cursor: pointer;">
-                      <i class="fas fa-upload"></i> Upload
+                    <button class="btn btn-primary" onclick="saveGallery()">
+                      <i class="fas fa-save"></i> Save Gallery
                     </button>
                   </div>
                 </div>
-                <div class="section-actions">
-                  <button class="btn btn-primary" onclick="saveGallery()">
-                    <i class="fas fa-save"></i> Save Gallery
-                  </button>
+              </div>
+
+              <!-- Video Section -->
+              <div class="content-section">
+                <div class="section-header" onclick="toggleSection('video')">
+                  <h2 class="section-title">
+                    <i class="fas fa-video"></i>
+                    Product Video
+                  </h2>
+                  <i class="fas fa-chevron-down section-toggle"></i>
+                </div>
+                <div class="section-body" id="video-body">
+                  <div class="form-group">
+                    <label class="form-label">YouTube Video URL</label>
+                    <input type="url" class="form-input" id="productVideo" placeholder="https://www.youtube.com/watch?v=..." onchange="markUnsaved()">
+                    <p class="form-help">Product demo or installation video</p>
+                  </div>
                 </div>
               </div>
             </div>
 
-            <!-- Features Section -->
-            <div class="content-section" id="features-section">
-              <div class="section-header" onclick="toggleSection('features')">
-                <h2 class="section-title">
-                  <i class="fas fa-list-check"></i>
-                  Product Features
-                </h2>
-                <i class="fas fa-chevron-down section-toggle"></i>
-              </div>
-              <div class="section-body" id="features-body">
-                <p style="color: #6b7280; margin-bottom: 16px; font-size: 14px;">
-                  Highlight key features of your product
-                </p>
-                <div class="items-list" id="featuresList">
-                  <!-- Features will be rendered here -->
+            <!-- Selling Points Tab -->
+            <div class="tab-panel" id="panel-features">
+              <div class="content-section">
+                <div class="section-header">
+                  <h2 class="section-title">
+                    <i class="fas fa-star"></i>
+                    Key Selling Points
+                  </h2>
                 </div>
-                <button class="add-item-btn" onclick="addFeature()" style="margin-top: 12px;">
-                  <i class="fas fa-plus"></i> Add Feature
-                </button>
-                <div class="section-actions">
-                  <button class="btn btn-primary" onclick="saveFeatures()">
-                    <i class="fas fa-save"></i> Save Features
+                <div class="section-body">
+                  <p style="color: #6b7280; margin-bottom: 16px; font-size: 14px;">
+                    Highlight what makes this product special. These appear prominently on the product page.
+                  </p>
+                  <div id="sellingPointsList">
+                    <!-- Selling points will be rendered here -->
+                  </div>
+                  <button class="add-item-btn" onclick="addSellingPoint()" style="margin-top: 12px;">
+                    <i class="fas fa-plus"></i> Add Selling Point
                   </button>
+                  <div class="section-actions">
+                    <button class="btn btn-primary" onclick="saveSellingPoints()">
+                      <i class="fas fa-save"></i> Save Selling Points
+                    </button>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Trust Badges -->
+              <div class="content-section">
+                <div class="section-header" onclick="toggleSection('badges')">
+                  <h2 class="section-title">
+                    <i class="fas fa-shield-halved"></i>
+                    Trust Badges
+                  </h2>
+                  <i class="fas fa-chevron-down section-toggle"></i>
+                </div>
+                <div class="section-body" id="badges-body">
+                  <p style="color: #6b7280; margin-bottom: 16px; font-size: 14px;">
+                    Build customer confidence with trust signals
+                  </p>
+                  <div class="toggle-group">
+                    <div class="toggle-label">
+                      <span class="toggle-label-text"><i class="fas fa-truck" style="color: #8E6545; margin-right: 8px;"></i> Free Shipping</span>
+                      <span class="toggle-label-desc">Show free shipping badge</span>
+                    </div>
+                    <label class="toggle-switch">
+                      <input type="checkbox" id="badgeFreeShipping" checked onchange="markUnsaved()">
+                      <span class="toggle-slider"></span>
+                    </label>
+                  </div>
+                  <div class="toggle-group">
+                    <div class="toggle-label">
+                      <span class="toggle-label-text"><i class="fas fa-shield-alt" style="color: #8E6545; margin-right: 8px;"></i> Warranty</span>
+                      <span class="toggle-label-desc">Show warranty protection badge</span>
+                    </div>
+                    <label class="toggle-switch">
+                      <input type="checkbox" id="badgeWarranty" checked onchange="markUnsaved()">
+                      <span class="toggle-slider"></span>
+                    </label>
+                  </div>
+                  <div class="toggle-group">
+                    <div class="toggle-label">
+                      <span class="toggle-label-text"><i class="fas fa-swatchbook" style="color: #8E6545; margin-right: 8px;"></i> Free Samples</span>
+                      <span class="toggle-label-desc">Show free samples available badge</span>
+                    </div>
+                    <label class="toggle-switch">
+                      <input type="checkbox" id="badgeSamples" checked onchange="markUnsaved()">
+                      <span class="toggle-slider"></span>
+                    </label>
+                  </div>
+                  <div class="toggle-group">
+                    <div class="toggle-label">
+                      <span class="toggle-label-text"><i class="fas fa-undo" style="color: #8E6545; margin-right: 8px;"></i> Easy Returns</span>
+                      <span class="toggle-label-desc">Show satisfaction guarantee</span>
+                    </div>
+                    <label class="toggle-switch">
+                      <input type="checkbox" id="badgeReturns" checked onchange="markUnsaved()">
+                      <span class="toggle-slider"></span>
+                    </label>
+                  </div>
+                  <div class="toggle-group">
+                    <div class="toggle-label">
+                      <span class="toggle-label-text"><i class="fas fa-child" style="color: #8E6545; margin-right: 8px;"></i> Child Safe</span>
+                      <span class="toggle-label-desc">Show child safety certification</span>
+                    </div>
+                    <label class="toggle-switch">
+                      <input type="checkbox" id="badgeChildSafe" onchange="markUnsaved()">
+                      <span class="toggle-slider"></span>
+                    </label>
+                  </div>
+                  <div class="form-group" style="margin-top: 16px;">
+                    <label class="form-label">Warranty Duration</label>
+                    <select class="form-select" id="warrantyYears" onchange="markUnsaved()">
+                      <option value="1">1 Year Warranty</option>
+                      <option value="3">3 Year Warranty</option>
+                      <option value="5" selected>5 Year Warranty</option>
+                      <option value="10">10 Year Warranty</option>
+                      <option value="lifetime">Lifetime Warranty</option>
+                    </select>
+                  </div>
                 </div>
               </div>
             </div>
 
-            <!-- Trust Badges Section -->
-            <div class="content-section" id="badges-section">
-              <div class="section-header" onclick="toggleSection('badges')">
-                <h2 class="section-title">
-                  <i class="fas fa-shield-halved"></i>
-                  Trust Badges
-                </h2>
-                <i class="fas fa-chevron-down section-toggle"></i>
-              </div>
-              <div class="section-body" id="badges-body">
-                <p style="color: #6b7280; margin-bottom: 16px; font-size: 14px;">
-                  Build customer confidence with trust badges
-                </p>
-                <div class="items-list" id="badgesList">
-                  <!-- Badges will be rendered here -->
+            <!-- Specifications Tab -->
+            <div class="tab-panel" id="panel-specs">
+              <div class="content-section">
+                <div class="section-header">
+                  <h2 class="section-title">
+                    <i class="fas fa-ruler-combined"></i>
+                    Product Specifications
+                  </h2>
                 </div>
-                <button class="add-item-btn" onclick="addBadge()" style="margin-top: 12px;">
-                  <i class="fas fa-plus"></i> Add Badge
-                </button>
-                <div class="section-actions">
-                  <button class="btn btn-primary" onclick="saveBadges()">
-                    <i class="fas fa-save"></i> Save Badges
-                  </button>
+                <div class="section-body">
+                  <div class="spec-grid">
+                    <div class="spec-card">
+                      <div class="spec-card-header">
+                        <div class="spec-card-icon"><i class="fas fa-arrows-alt-h"></i></div>
+                        <div class="spec-card-title">Width Range</div>
+                      </div>
+                      <div class="form-row">
+                        <div class="form-group">
+                          <label class="form-label">Min Width</label>
+                          <input type="text" class="form-input" id="specMinWidth" placeholder='12"' onchange="markUnsaved()">
+                        </div>
+                        <div class="form-group">
+                          <label class="form-label">Max Width</label>
+                          <input type="text" class="form-input" id="specMaxWidth" placeholder='96"' onchange="markUnsaved()">
+                        </div>
+                      </div>
+                    </div>
+                    <div class="spec-card">
+                      <div class="spec-card-header">
+                        <div class="spec-card-icon"><i class="fas fa-arrows-alt-v"></i></div>
+                        <div class="spec-card-title">Height Range</div>
+                      </div>
+                      <div class="form-row">
+                        <div class="form-group">
+                          <label class="form-label">Min Height</label>
+                          <input type="text" class="form-input" id="specMinHeight" placeholder='12"' onchange="markUnsaved()">
+                        </div>
+                        <div class="form-group">
+                          <label class="form-label">Max Height</label>
+                          <input type="text" class="form-input" id="specMaxHeight" placeholder='120"' onchange="markUnsaved()">
+                        </div>
+                      </div>
+                    </div>
+                    <div class="spec-card">
+                      <div class="spec-card-header">
+                        <div class="spec-card-icon"><i class="fas fa-layer-group"></i></div>
+                        <div class="spec-card-title">Stack Height</div>
+                      </div>
+                      <div class="form-group">
+                        <label class="form-label">Approx. Stack</label>
+                        <input type="text" class="form-input" id="specStackHeight" placeholder="10% of height" onchange="markUnsaved()">
+                        <p class="form-help">When fully raised</p>
+                      </div>
+                    </div>
+                    <div class="spec-card">
+                      <div class="spec-card-header">
+                        <div class="spec-card-icon"><i class="fas fa-cube"></i></div>
+                        <div class="spec-card-title">Headrail</div>
+                      </div>
+                      <div class="form-group">
+                        <label class="form-label">Headrail Size</label>
+                        <input type="text" class="form-input" id="specHeadrail" placeholder='1.5" x 1.5"' onchange="markUnsaved()">
+                      </div>
+                    </div>
+                  </div>
+
+                  <h3 style="font-size: 15px; font-weight: 600; margin: 24px 0 16px; color: #1a1a1a;">
+                    <i class="fas fa-cog" style="color: #8E6545; margin-right: 8px;"></i>
+                    Mount Options
+                  </h3>
+                  <div class="toggle-group">
+                    <div class="toggle-label">
+                      <span class="toggle-label-text">Inside Mount</span>
+                      <span class="toggle-label-desc">Fits inside the window frame</span>
+                    </div>
+                    <label class="toggle-switch">
+                      <input type="checkbox" id="specInsideMount" checked onchange="markUnsaved()">
+                      <span class="toggle-slider"></span>
+                    </label>
+                  </div>
+                  <div class="toggle-group">
+                    <div class="toggle-label">
+                      <span class="toggle-label-text">Outside Mount</span>
+                      <span class="toggle-label-desc">Mounts on wall above window</span>
+                    </div>
+                    <label class="toggle-switch">
+                      <input type="checkbox" id="specOutsideMount" checked onchange="markUnsaved()">
+                      <span class="toggle-slider"></span>
+                    </label>
+                  </div>
+                  <div class="toggle-group">
+                    <div class="toggle-label">
+                      <span class="toggle-label-text">Ceiling Mount</span>
+                      <span class="toggle-label-desc">Mounts directly to ceiling</span>
+                    </div>
+                    <label class="toggle-switch">
+                      <input type="checkbox" id="specCeilingMount" onchange="markUnsaved()">
+                      <span class="toggle-slider"></span>
+                    </label>
+                  </div>
+
+                  <h3 style="font-size: 15px; font-weight: 600; margin: 24px 0 16px; color: #1a1a1a;">
+                    <i class="fas fa-tools" style="color: #8E6545; margin-right: 8px;"></i>
+                    Additional Specs
+                  </h3>
+                  <div class="form-row">
+                    <div class="form-group">
+                      <label class="form-label">Material</label>
+                      <input type="text" class="form-input" id="specMaterial" placeholder="100% Polyester" onchange="markUnsaved()">
+                    </div>
+                    <div class="form-group">
+                      <label class="form-label">Care Instructions</label>
+                      <input type="text" class="form-input" id="specCare" placeholder="Dust with soft cloth" onchange="markUnsaved()">
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Production Time</label>
+                    <input type="text" class="form-input" id="specProductionTime" placeholder="5-7 business days" onchange="markUnsaved()">
+                  </div>
+
+                  <div class="section-actions">
+                    <button class="btn btn-primary" onclick="saveSpecs()">
+                      <i class="fas fa-save"></i> Save Specifications
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
 
-            <!-- Room Labels Section -->
-            <div class="content-section" id="room-section">
-              <div class="section-header" onclick="toggleSection('room')">
-                <h2 class="section-title">
-                  <i class="fas fa-door-open"></i>
-                  Room Labels
-                </h2>
-                <i class="fas fa-chevron-down section-toggle"></i>
-              </div>
-              <div class="section-body" id="room-body">
-                <p style="color: #6b7280; margin-bottom: 16px; font-size: 14px;">
-                  Room options shown in the product configurator dropdown
-                </p>
-                <div class="tags-container" id="roomLabelsContainer">
-                  <!-- Tags will be rendered here -->
+            <!-- SEO Tab -->
+            <div class="tab-panel" id="panel-seo">
+              <div class="content-section">
+                <div class="section-header">
+                  <h2 class="section-title">
+                    <i class="fas fa-search"></i>
+                    Search Engine Optimization
+                  </h2>
                 </div>
-                <div style="display: flex; gap: 8px;">
-                  <input type="text" class="form-input" id="newRoomLabel" placeholder="Enter room name" style="flex: 1; max-width: 300px;">
-                  <button class="btn btn-primary" onclick="addRoomLabel()">
-                    <i class="fas fa-plus"></i> Add
-                  </button>
+                <div class="section-body">
+                  <div class="form-group">
+                    <label class="form-label">
+                      SEO Title
+                      <i class="fas fa-info-circle info-icon" title="Title shown in Google search results"></i>
+                    </label>
+                    <input type="text" class="form-input" id="seoTitle" placeholder="Roller Shades | Custom Window Blinds | Peekaboo Shades" onchange="markUnsaved()" maxlength="60">
+                    <div class="char-counter"><span id="seoTitleCount">0</span>/60</div>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Meta Description</label>
+                    <textarea class="form-textarea" id="seoDescription" placeholder="Shop custom roller shades at factory-direct prices. Free shipping, free samples, and 5-year warranty. Made to your exact measurements." onchange="markUnsaved()" maxlength="160"></textarea>
+                    <div class="char-counter"><span id="seoDescCount">0</span>/160</div>
+                    <p class="form-help">Appears in Google search results below the title</p>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">URL Slug</label>
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                      <span style="color: #6b7280; font-size: 14px;">/product/</span>
+                      <input type="text" class="form-input" id="seoSlug" placeholder="custom-roller-shades" onchange="markUnsaved()" style="flex: 1;">
+                    </div>
+                  </div>
+                  <div class="form-group">
+                    <label class="form-label">Focus Keywords</label>
+                    <input type="text" class="form-input" id="seoKeywords" placeholder="roller shades, custom blinds, window treatments" onchange="markUnsaved()">
+                    <p class="form-help">Comma-separated keywords for SEO optimization</p>
+                  </div>
+
+                  <!-- SEO Preview -->
+                  <div style="background: #f9fafb; border-radius: 10px; padding: 16px; margin-top: 20px;">
+                    <div style="font-size: 12px; color: #6b7280; margin-bottom: 12px; text-transform: uppercase; letter-spacing: 0.5px;">Google Preview</div>
+                    <div style="font-size: 18px; color: #1a0dab; margin-bottom: 4px;" id="seoPreviewTitle">Roller Shades | Peekaboo Shades</div>
+                    <div style="font-size: 14px; color: #006621; margin-bottom: 4px;" id="seoPreviewUrl">peekaboo-shades.com/product/roller-shades</div>
+                    <div style="font-size: 13px; color: #545454; line-height: 1.4;" id="seoPreviewDesc">Shop custom roller shades at factory-direct prices...</div>
+                  </div>
+
+                  <div class="section-actions">
+                    <button class="btn btn-primary" onclick="saveSeo()">
+                      <i class="fas fa-save"></i> Save SEO Settings
+                    </button>
+                  </div>
                 </div>
               </div>
             </div>
+
           </div>
 
           <!-- Right Column - Preview -->
@@ -842,20 +1787,38 @@
                 <span class="preview-title">
                   <i class="fas fa-eye"></i> Live Preview
                 </span>
-                <a href="/product/affordable-custom-roller-blinds" target="_blank" class="preview-link">
+                <a href="#" id="previewLink" target="_blank" class="preview-link">
                   <i class="fas fa-external-link-alt"></i> Open
                 </a>
               </div>
+              <div class="preview-device-toggle">
+                <button class="device-btn active" onclick="setPreviewDevice('desktop')">
+                  <i class="fas fa-desktop"></i>
+                </button>
+                <button class="device-btn" onclick="setPreviewDevice('mobile')">
+                  <i class="fas fa-mobile-alt"></i>
+                </button>
+              </div>
               <div class="preview-iframe-container">
-                <iframe
-                  id="previewIframe"
-                  src="/product/affordable-custom-roller-blinds"
-                  class="preview-iframe">
-                </iframe>
+                <iframe id="previewIframe" src="/product/affordable-custom-roller-blinds" class="preview-iframe"></iframe>
               </div>
               <p class="preview-info">
-                Changes are reflected after saving
+                <i class="fas fa-sync-alt"></i> Refresh preview after saving
               </p>
+
+              <!-- Completeness Score -->
+              <div class="completeness-card">
+                <div class="completeness-header">
+                  <span class="completeness-label">Content Completeness</span>
+                  <span class="completeness-score" id="completenessScore">0%</span>
+                </div>
+                <div class="completeness-bar">
+                  <div class="completeness-fill" id="completenessFill" style="width: 0%"></div>
+                </div>
+                <div class="completeness-items" id="completenessItems">
+                  <!-- Items will be rendered here -->
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -871,8 +1834,8 @@
     </span>
     <div class="save-banner-actions">
       <button class="btn btn-discard" onclick="discardChanges()">Discard</button>
-      <button class="btn btn-save" onclick="saveAllChanges()">
-        <i class="fas fa-save"></i> Save All
+      <button class="btn btn-success" onclick="saveAllChanges()">
+        <i class="fas fa-save"></i> Save All Changes
       </button>
     </div>
   </div>
@@ -880,48 +1843,110 @@
   <!-- Hidden file input for image uploads -->
   <input type="file" id="imageUploadInput" accept="image/*" style="display: none;" onchange="handleImageUpload(this)">
 
-  <script src="js/admin.js"></script>
+  <!-- Content Templates Modal -->
+  <div class="modal-overlay" id="contentTemplatesModal" style="display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center;">
+    <div style="background: white; border-radius: 16px; width: 90%; max-width: 800px; max-height: 85vh; overflow: hidden; display: flex; flex-direction: column;">
+      <div style="padding: 20px 24px; border-bottom: 1px solid #e5e7eb; display: flex; justify-content: space-between; align-items: center;">
+        <h3 style="margin: 0; font-size: 18px; font-weight: 600;">Product Description Templates (From Catalogue)</h3>
+        <button onclick="closeContentTemplates()" style="width: 32px; height: 32px; border: none; background: #f3f4f6; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center;">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div style="padding: 16px 24px; overflow-y: auto; flex: 1;" id="contentTemplatesBody">
+        <!-- Templates will be rendered here -->
+      </div>
+    </div>
+  </div>
+
+  <script src="js/admin.js?v=1737100001"></script>
   <script>
-    // State
+    // ============================================
+    // STATE
+    // ============================================
     let currentProduct = null;
     let hasUnsavedChanges = false;
     let currentUploadSlot = null;
 
     let productData = {
       title: '',
+      tagline: '',
       description: '',
+      longDescription: '',
       basePrice: 0,
-      salePrice: null,
+      comparePrice: null,
+      priceUnitLabel: 'per blind',
+      promoBadge: '',
       images: ['', '', '', '', ''],
-      features: [],
-      badges: [],
-      roomLabels: []
+      videoUrl: '',
+      sellingPoints: [],
+      badges: {
+        freeShipping: true,
+        warranty: true,
+        samples: true,
+        returns: true,
+        childSafe: false
+      },
+      warrantyYears: '5',
+      lightControl: {
+        lightFiltering: true,
+        roomDarkening: true,
+        blackout: true
+      },
+      rooms: [],
+      specs: {
+        minWidth: '',
+        maxWidth: '',
+        minHeight: '',
+        maxHeight: '',
+        stackHeight: '',
+        headrail: '',
+        insideMount: true,
+        outsideMount: true,
+        ceilingMount: false,
+        material: '',
+        care: '',
+        productionTime: ''
+      },
+      seo: {
+        title: '',
+        description: '',
+        slug: '',
+        keywords: ''
+      }
     };
 
-    const iconOptions = [
-      { value: 'fa-check', label: 'Check' },
-      { value: 'fa-star', label: 'Star' },
-      { value: 'fa-shield-alt', label: 'Shield' },
-      { value: 'fa-truck', label: 'Truck' },
-      { value: 'fa-undo', label: 'Return' },
-      { value: 'fa-heart', label: 'Heart' },
-      { value: 'fa-bolt', label: 'Bolt' },
-      { value: 'fa-leaf', label: 'Leaf' },
-      { value: 'fa-sun', label: 'Sun' },
-      { value: 'fa-moon', label: 'Moon' },
-      { value: 'fa-clock', label: 'Clock' },
-      { value: 'fa-tools', label: 'Tools' }
+    const roomOptions = [
+      { id: 'living-room', name: 'Living Room', icon: 'fa-couch' },
+      { id: 'bedroom', name: 'Bedroom', icon: 'fa-bed' },
+      { id: 'kitchen', name: 'Kitchen', icon: 'fa-utensils' },
+      { id: 'bathroom', name: 'Bathroom', icon: 'fa-bath' },
+      { id: 'office', name: 'Office', icon: 'fa-briefcase' },
+      { id: 'dining', name: 'Dining Room', icon: 'fa-chair' },
+      { id: 'nursery', name: 'Nursery', icon: 'fa-baby' },
+      { id: 'basement', name: 'Basement', icon: 'fa-house-chimney' }
     ];
 
-    // Initialize
+    const sellingPointIcons = [
+      'fa-check', 'fa-star', 'fa-shield-alt', 'fa-bolt', 'fa-leaf',
+      'fa-sun', 'fa-moon', 'fa-palette', 'fa-ruler', 'fa-tools',
+      'fa-hand-sparkles', 'fa-temperature-low', 'fa-volume-mute', 'fa-eye-slash'
+    ];
+
+    // ============================================
+    // INITIALIZATION
+    // ============================================
     document.addEventListener('DOMContentLoaded', async () => {
       if (!Admin.Auth.requireAuth()) return;
       await loadProducts();
       await loadProductContent();
-      setupEventListeners();
+      setupCharCounters();
+      renderRooms();
+      updateCompleteness();
     });
 
-    // Load products list
+    // ============================================
+    // PRODUCT LOADING
+    // ============================================
     async function loadProducts() {
       try {
         const data = await Admin.ProductsAPI.getAll();
@@ -936,7 +1961,6 @@
       }
     }
 
-    // Load content for selected product
     async function loadProductContent() {
       const slug = document.getElementById('productSelector').value;
       if (!slug) return;
@@ -945,12 +1969,30 @@
         // Load product basic info
         const productRes = await fetch(`/api/products/${slug}`);
         const productJson = await productRes.json();
+
         if (productJson.success) {
           currentProduct = productJson.data;
+
+          // Populate basic info
           document.getElementById('productTitle').value = currentProduct.name || '';
+          document.getElementById('productTagline').value = currentProduct.tagline || '';
           document.getElementById('productDescription').value = currentProduct.description || '';
+          document.getElementById('productLongDescription').value = currentProduct.long_description || '';
           document.getElementById('productPrice').value = currentProduct.base_price || '';
-          document.getElementById('productSalePrice').value = currentProduct.sale_price || '';
+          document.getElementById('productComparePrice').value = currentProduct.compare_price || '';
+          document.getElementById('promoBadge').value = currentProduct.promo_badge || '';
+          document.getElementById('productVideo').value = currentProduct.video_url || '';
+
+          // Update hero section
+          if (currentProduct.image_url) {
+            document.getElementById('productThumb').innerHTML = `<img src="${currentProduct.image_url}" alt="${currentProduct.name}">`;
+          }
+          document.getElementById('productCategory').textContent = currentProduct.category || 'Roller Shades';
+
+          // Update links
+          document.getElementById('viewLiveBtn').href = `/product/${slug}`;
+          document.getElementById('previewLink').href = `/product/${slug}`;
+          document.getElementById('editPricingBtn').href = `/admin/product-pricing.html?product=${slug}`;
 
           // Load images
           productData.images = ['', '', '', '', ''];
@@ -960,91 +2002,185 @@
               if (i < 4) productData.images[i + 1] = img;
             });
           }
+
+          // Load specs
+          if (currentProduct.specs) {
+            const specs = currentProduct.specs;
+            document.getElementById('specMinWidth').value = specs.minWidth || '';
+            document.getElementById('specMaxWidth').value = specs.maxWidth || '';
+            document.getElementById('specMinHeight').value = specs.minHeight || '';
+            document.getElementById('specMaxHeight').value = specs.maxHeight || '';
+            document.getElementById('specStackHeight').value = specs.stackHeight || '';
+            document.getElementById('specHeadrail').value = specs.headrail || '';
+            document.getElementById('specInsideMount').checked = specs.insideMount !== false;
+            document.getElementById('specOutsideMount').checked = specs.outsideMount !== false;
+            document.getElementById('specCeilingMount').checked = specs.ceilingMount === true;
+            document.getElementById('specMaterial').value = specs.material || '';
+            document.getElementById('specCare').value = specs.care || '';
+            document.getElementById('specProductionTime').value = specs.productionTime || '';
+          }
+
+          // Load SEO
+          if (currentProduct.seo) {
+            document.getElementById('seoTitle').value = currentProduct.seo.title || '';
+            document.getElementById('seoDescription').value = currentProduct.seo.description || '';
+            document.getElementById('seoKeywords').value = currentProduct.seo.keywords || '';
+          }
+          document.getElementById('seoSlug').value = slug;
+
+          // Load rooms
+          productData.rooms = currentProduct.recommended_rooms || ['living-room', 'bedroom', 'office'];
         }
 
-        // Load page sections for features and badges
+        // Load page sections for selling points
         const sectionsRes = await fetch(`/api/product-page-sections/${slug}`);
         const sectionsJson = await sectionsRes.json();
+
         if (sectionsJson.success && sectionsJson.sections) {
           const featuresSection = sectionsJson.sections.find(s => s.type === 'features');
-          const badgesSection = sectionsJson.sections.find(s => s.type === 'trust-badges');
-
-          productData.features = featuresSection?.data?.items || [
-            { icon: 'fa-check', text: 'Energy Efficient' },
-            { icon: 'fa-check', text: 'Custom Sizes' },
-            { icon: 'fa-check', text: 'Easy Installation' }
-          ];
-
-          productData.badges = badgesSection?.data?.items || [
-            { icon: 'fa-truck', text: 'Free Shipping' },
-            { icon: 'fa-shield-alt', text: '5 Year Warranty' },
-            { icon: 'fa-undo', text: 'Easy Returns' }
-          ];
+          productData.sellingPoints = featuresSection?.data?.items || getDefaultSellingPoints();
         } else {
-          // Set defaults
-          productData.features = [
-            { icon: 'fa-check', text: 'Energy Efficient' },
-            { icon: 'fa-check', text: 'Custom Sizes' },
-            { icon: 'fa-check', text: 'Easy Installation' }
-          ];
-          productData.badges = [
-            { icon: 'fa-truck', text: 'Free Shipping' },
-            { icon: 'fa-shield-alt', text: '5 Year Warranty' },
-            { icon: 'fa-undo', text: 'Easy Returns' }
-          ];
-        }
-
-        // Load room labels
-        try {
-          const roomRes = await Admin.API.get('/room-labels');
-          productData.roomLabels = roomRes.labels || ['Living Room', 'Bedroom', 'Kitchen', 'Bathroom', 'Office'];
-        } catch {
-          productData.roomLabels = ['Living Room', 'Bedroom', 'Kitchen', 'Bathroom', 'Office'];
+          productData.sellingPoints = getDefaultSellingPoints();
         }
 
         renderAll();
         updatePreview();
+        updateCompleteness();
+        updateCharCounters();
+        updateSeoPreview();
+        updateQuickStats();
+
       } catch (error) {
         console.error('Failed to load product content:', error);
         Admin.Toast.error('Failed to load product content');
       }
     }
 
-    // Render all sections
-    function renderAll() {
-      renderGallery();
-      renderFeatures();
-      renderBadges();
-      renderRoomLabels();
+    function getDefaultSellingPoints() {
+      return [
+        { icon: 'fa-sun', title: 'Light Control', description: 'Choose from light filtering to complete blackout options' },
+        { icon: 'fa-temperature-low', title: 'Energy Efficient', description: 'Helps insulate windows to reduce energy costs' },
+        { icon: 'fa-ruler', title: 'Custom Fit', description: 'Made to your exact window measurements' },
+        { icon: 'fa-tools', title: 'Easy Installation', description: 'Simple DIY installation with included hardware' }
+      ];
     }
 
-    // Render gallery
-    function renderGallery() {
-      const grid = document.getElementById('galleryGrid');
-      const labels = ['Main Image', 'Gallery 2', 'Gallery 3', 'Gallery 4', 'Gallery 5'];
+    // ============================================
+    // RENDERING
+    // ============================================
+    function renderAll() {
+      renderGallery();
+      renderSellingPoints();
+      renderRooms();
+    }
 
-      grid.innerHTML = productData.images.map((img, i) => `
-        <div class="image-upload-card ${img ? 'has-image' : ''}" onclick="triggerImageUpload(${i})">
-          <div class="image-preview">
+    function renderGallery() {
+      // Main image
+      const mainUpload = document.getElementById('mainImageUpload');
+      if (productData.images[0]) {
+        mainUpload.innerHTML = `
+          <img src="${productData.images[0]}" alt="Main product image">
+          <button class="remove-image-btn" onclick="event.stopPropagation(); removeImage(0);">
+            <i class="fas fa-times"></i>
+          </button>
+          <div class="main-image-label">Main Image</div>
+        `;
+        mainUpload.classList.add('has-image');
+      } else {
+        mainUpload.innerHTML = `
+          <i class="fas fa-cloud-upload-alt" style="font-size: 36px; color: #8E6545;"></i>
+          <span style="font-size: 13px; color: #6b7280; margin-top: 8px;">Main Product Image</span>
+          <span style="font-size: 11px; color: #9ca3af;">800x800px recommended</span>
+        `;
+        mainUpload.classList.remove('has-image');
+      }
+
+      // Thumbnails
+      const thumbsContainer = document.getElementById('galleryThumbnails');
+      const labels = ['Room Scene', 'Close-up', 'Detail', 'Lifestyle'];
+      thumbsContainer.innerHTML = [1, 2, 3, 4].map(i => {
+        const img = productData.images[i];
+        return `
+          <div class="gallery-thumb ${img ? 'has-image' : ''}" onclick="triggerImageUpload(${i})">
             ${img ? `
-              <img src="${img}" alt="${labels[i]}">
+              <img src="${img}" alt="Gallery ${i}">
               <button class="remove-image-btn" onclick="event.stopPropagation(); removeImage(${i});">
                 <i class="fas fa-times"></i>
               </button>
             ` : `
-              <i class="fas fa-cloud-upload-alt upload-icon"></i>
-              <span style="display: block; font-size: 11px; color: #6b7280; margin-top: 8px;">Click to Upload</span>
+              <i class="fas fa-plus upload-icon"></i>
+              <span class="thumb-label">${labels[i-1]}</span>
             `}
           </div>
-          <span class="image-label">${labels[i]}</span>
-          ${!img ? `<button type="button" class="btn btn-sm" style="margin-top: 8px; padding: 6px 12px; font-size: 11px; background: #8E6545; color: white; border: none; border-radius: 6px; cursor: pointer;">
-            <i class="fas fa-upload"></i> Upload
-          </button>` : ''}
+        `;
+      }).join('');
+    }
+
+    function renderSellingPoints() {
+      const container = document.getElementById('sellingPointsList');
+      container.innerHTML = productData.sellingPoints.map((sp, i) => `
+        <div class="selling-point-card">
+          <div class="selling-point-icon">
+            <i class="fas ${sp.icon}"></i>
+          </div>
+          <div class="selling-point-content">
+            <input type="text" value="${escapeHtml(sp.title)}"
+                   placeholder="Feature title"
+                   onchange="updateSellingPoint(${i}, 'title', this.value)">
+            <textarea placeholder="Brief description of this feature..."
+                      onchange="updateSellingPoint(${i}, 'description', this.value)">${escapeHtml(sp.description || '')}</textarea>
+          </div>
+          <div class="selling-point-actions">
+            <button class="sp-action-btn" onclick="changeSellingPointIcon(${i})" title="Change icon">
+              <i class="fas fa-palette"></i>
+            </button>
+            <button class="sp-action-btn delete" onclick="removeSellingPoint(${i})" title="Remove">
+              <i class="fas fa-trash"></i>
+            </button>
+          </div>
         </div>
       `).join('');
     }
 
-    // Image upload
+    function renderRooms() {
+      const container = document.getElementById('roomGrid');
+      container.innerHTML = roomOptions.map(room => `
+        <div class="room-card ${productData.rooms.includes(room.id) ? 'selected' : ''}"
+             onclick="toggleRoom('${room.id}')" style="position: relative;">
+          <i class="fas fa-check-circle check-icon"></i>
+          <i class="fas ${room.icon}"></i>
+          <div class="room-card-name">${room.name}</div>
+        </div>
+      `).join('');
+    }
+
+    // ============================================
+    // TAB NAVIGATION
+    // ============================================
+    function switchTab(tab) {
+      // Update tab buttons
+      document.querySelectorAll('.content-tab').forEach(btn => {
+        btn.classList.toggle('active', btn.dataset.tab === tab);
+      });
+
+      // Update panels
+      document.querySelectorAll('.tab-panel').forEach(panel => {
+        panel.classList.toggle('active', panel.id === `panel-${tab}`);
+      });
+    }
+
+    function toggleSection(section) {
+      const header = document.querySelector(`[onclick="toggleSection('${section}')"]`);
+      const body = document.getElementById(`${section}-body`);
+      if (header && body) {
+        header.classList.toggle('collapsed');
+        body.classList.toggle('collapsed');
+      }
+    }
+
+    // ============================================
+    // IMAGE HANDLING
+    // ============================================
     function triggerImageUpload(slot) {
       currentUploadSlot = slot;
       document.getElementById('imageUploadInput').click();
@@ -1052,8 +2188,6 @@
 
     async function handleImageUpload(input) {
       if (!input.files || !input.files[0]) return;
-
-      // Check if product is loaded
       if (!currentProduct || !currentProduct.id) {
         Admin.Toast.error('Please wait for product to load');
         input.value = '';
@@ -1072,16 +2206,15 @@
           body: formData
         });
         const result = await response.json();
-        console.log('Upload response:', result);
 
         if (result.success) {
           productData.images[currentUploadSlot] = result.url;
           renderGallery();
-          Admin.Toast.success('Image uploaded, saving...');
-          // Auto-save the gallery after successful upload
-          await saveGallery();
+          updateCompleteness();
+          updateQuickStats();
+          Admin.Toast.success('Image uploaded');
+          markUnsaved();
         } else {
-          // Show error message from server
           Admin.Toast.error(result.error || 'Failed to upload image');
         }
       } catch (error) {
@@ -1094,162 +2227,235 @@
     function removeImage(slot) {
       productData.images[slot] = '';
       renderGallery();
+      updateCompleteness();
+      updateQuickStats();
       markUnsaved();
     }
 
-    // Render features
-    function renderFeatures() {
-      const container = document.getElementById('featuresList');
-      container.innerHTML = productData.features.map((feature, i) => `
-        <div class="item-row">
-          <i class="fas fa-grip-vertical drag-handle"></i>
-          <select class="form-select icon-select" onchange="updateFeature(${i}, 'icon', this.value)">
-            ${iconOptions.map(opt =>
-              `<option value="${opt.value}" ${feature.icon === opt.value ? 'selected' : ''}>${opt.label}</option>`
-            ).join('')}
-          </select>
-          <input type="text" class="form-input text-input" value="${escapeHtml(feature.text)}"
-                 onchange="updateFeature(${i}, 'text', this.value)" placeholder="Feature text">
-          <button class="remove-btn" onclick="removeFeature(${i})">
-            <i class="fas fa-trash"></i>
-          </button>
+    function showImageTypeGuide(type) {
+      const guides = {
+        room: 'Upload a photo showing the product installed in a room setting',
+        closeup: 'Upload a detailed close-up of fabric texture or mechanism',
+        lifestyle: 'Upload a lifestyle photo with natural lighting'
+      };
+      Admin.Toast.info(guides[type]);
+    }
+
+    // ============================================
+    // SELLING POINTS
+    // ============================================
+    function addSellingPoint() {
+      productData.sellingPoints.push({
+        icon: 'fa-check',
+        title: '',
+        description: ''
+      });
+      renderSellingPoints();
+      markUnsaved();
+    }
+
+    function updateSellingPoint(index, key, value) {
+      productData.sellingPoints[index][key] = value;
+      markUnsaved();
+    }
+
+    function removeSellingPoint(index) {
+      productData.sellingPoints.splice(index, 1);
+      renderSellingPoints();
+      updateCompleteness();
+      updateQuickStats();
+      markUnsaved();
+    }
+
+    function changeSellingPointIcon(index) {
+      const currentIcon = productData.sellingPoints[index].icon;
+      const currentIdx = sellingPointIcons.indexOf(currentIcon);
+      const nextIdx = (currentIdx + 1) % sellingPointIcons.length;
+      productData.sellingPoints[index].icon = sellingPointIcons[nextIdx];
+      renderSellingPoints();
+      markUnsaved();
+    }
+
+    // ============================================
+    // ROOMS
+    // ============================================
+    function toggleRoom(roomId) {
+      const idx = productData.rooms.indexOf(roomId);
+      if (idx >= 0) {
+        productData.rooms.splice(idx, 1);
+      } else {
+        productData.rooms.push(roomId);
+      }
+      renderRooms();
+      markUnsaved();
+    }
+
+    // ============================================
+    // CHARACTER COUNTERS
+    // ============================================
+    function setupCharCounters() {
+      const counters = [
+        { input: 'productTitle', counter: 'titleCount' },
+        { input: 'productTagline', counter: 'taglineCount' },
+        { input: 'productDescription', counter: 'descCount' },
+        { input: 'seoTitle', counter: 'seoTitleCount' },
+        { input: 'seoDescription', counter: 'seoDescCount' }
+      ];
+
+      counters.forEach(({ input, counter }) => {
+        const inputEl = document.getElementById(input);
+        const counterEl = document.getElementById(counter);
+        if (inputEl && counterEl) {
+          inputEl.addEventListener('input', () => {
+            counterEl.textContent = inputEl.value.length;
+            const max = parseInt(inputEl.maxLength);
+            const parent = counterEl.parentElement;
+            parent.classList.remove('warning', 'danger');
+            if (inputEl.value.length > max * 0.9) {
+              parent.classList.add('danger');
+            } else if (inputEl.value.length > max * 0.7) {
+              parent.classList.add('warning');
+            }
+          });
+        }
+      });
+
+      // SEO preview updates
+      ['seoTitle', 'seoDescription', 'seoSlug'].forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.addEventListener('input', updateSeoPreview);
+      });
+    }
+
+    function updateCharCounters() {
+      document.getElementById('titleCount').textContent = document.getElementById('productTitle').value.length;
+      document.getElementById('taglineCount').textContent = document.getElementById('productTagline').value.length;
+      document.getElementById('descCount').textContent = document.getElementById('productDescription').value.length;
+      document.getElementById('seoTitleCount').textContent = document.getElementById('seoTitle').value.length;
+      document.getElementById('seoDescCount').textContent = document.getElementById('seoDescription').value.length;
+    }
+
+    function updateSeoPreview() {
+      const title = document.getElementById('seoTitle').value || document.getElementById('productTitle').value || 'Product Title';
+      const desc = document.getElementById('seoDescription').value || document.getElementById('productDescription').value || 'Product description...';
+      const slug = document.getElementById('seoSlug').value || 'product-slug';
+
+      document.getElementById('seoPreviewTitle').textContent = title + ' | Peekaboo Shades';
+      document.getElementById('seoPreviewUrl').textContent = `peekaboo-shades.com/product/${slug}`;
+      document.getElementById('seoPreviewDesc').textContent = desc.substring(0, 160);
+    }
+
+    // ============================================
+    // COMPLETENESS SCORE
+    // ============================================
+    function updateCompleteness() {
+      const checks = [
+        { name: 'Product title', done: !!document.getElementById('productTitle').value },
+        { name: 'Description', done: !!document.getElementById('productDescription').value },
+        { name: 'Main image', done: !!productData.images[0] },
+        { name: 'Gallery images (2+)', done: productData.images.filter(Boolean).length >= 3 },
+        { name: 'Selling points (3+)', done: productData.sellingPoints.length >= 3 },
+        { name: 'SEO title', done: !!document.getElementById('seoTitle').value },
+        { name: 'SEO description', done: !!document.getElementById('seoDescription').value },
+        { name: 'Room recommendations', done: productData.rooms.length >= 2 }
+      ];
+
+      const done = checks.filter(c => c.done).length;
+      const total = checks.length;
+      const score = Math.round((done / total) * 100);
+
+      document.getElementById('completenessScore').textContent = `${score}%`;
+      document.getElementById('completenessFill').style.width = `${score}%`;
+      document.getElementById('statScore').textContent = `${score}%`;
+
+      const itemsContainer = document.getElementById('completenessItems');
+      itemsContainer.innerHTML = checks.map(c => `
+        <div class="completeness-item ${c.done ? 'done' : 'pending'}">
+          <i class="fas ${c.done ? 'fa-check-circle' : 'fa-circle'}"></i>
+          <span>${c.name}</span>
         </div>
       `).join('');
     }
 
-    function addFeature() {
-      productData.features.push({ icon: 'fa-check', text: '' });
-      renderFeatures();
-      markUnsaved();
+    function updateQuickStats() {
+      const imageCount = productData.images.filter(Boolean).length;
+      document.getElementById('statImages').textContent = `${imageCount}/5`;
+      document.getElementById('statFeatures').textContent = productData.sellingPoints.length;
+
+      // Count filled specs
+      let specCount = 0;
+      ['specMinWidth', 'specMaxWidth', 'specMinHeight', 'specMaxHeight', 'specMaterial'].forEach(id => {
+        if (document.getElementById(id)?.value) specCount++;
+      });
+      document.getElementById('statSpecs').textContent = specCount;
     }
 
-    function updateFeature(index, key, value) {
-      productData.features[index][key] = value;
-      markUnsaved();
-    }
-
-    function removeFeature(index) {
-      productData.features.splice(index, 1);
-      renderFeatures();
-      markUnsaved();
-    }
-
-    // Render badges
-    function renderBadges() {
-      const container = document.getElementById('badgesList');
-      container.innerHTML = productData.badges.map((badge, i) => `
-        <div class="item-row">
-          <i class="fas fa-grip-vertical drag-handle"></i>
-          <select class="form-select icon-select" onchange="updateBadge(${i}, 'icon', this.value)">
-            ${iconOptions.map(opt =>
-              `<option value="${opt.value}" ${badge.icon === opt.value ? 'selected' : ''}>${opt.label}</option>`
-            ).join('')}
-          </select>
-          <input type="text" class="form-input text-input" value="${escapeHtml(badge.text)}"
-                 onchange="updateBadge(${i}, 'text', this.value)" placeholder="Badge text">
-          <button class="remove-btn" onclick="removeBadge(${i})">
-            <i class="fas fa-trash"></i>
-          </button>
-        </div>
-      `).join('');
-    }
-
-    function addBadge() {
-      productData.badges.push({ icon: 'fa-shield-alt', text: '' });
-      renderBadges();
-      markUnsaved();
-    }
-
-    function updateBadge(index, key, value) {
-      productData.badges[index][key] = value;
-      markUnsaved();
-    }
-
-    function removeBadge(index) {
-      productData.badges.splice(index, 1);
-      renderBadges();
-      markUnsaved();
-    }
-
-    // Render room labels
-    function renderRoomLabels() {
-      const container = document.getElementById('roomLabelsContainer');
-      if (!productData.roomLabels.length) {
-        container.innerHTML = '<span style="color: #9ca3af; font-size: 14px;">No room labels yet</span>';
-        return;
-      }
-      container.innerHTML = productData.roomLabels.map((label, i) => `
-        <span class="tag">
-          ${escapeHtml(label)}
-          <button class="remove-tag" onclick="removeRoomLabel(${i})">
-            <i class="fas fa-times"></i>
-          </button>
-        </span>
-      `).join('');
-    }
-
-    function addRoomLabel() {
-      const input = document.getElementById('newRoomLabel');
-      const label = input.value.trim();
-      if (!label) return;
-      if (productData.roomLabels.includes(label)) {
-        Admin.Toast.warning('Label already exists');
-        return;
-      }
-      productData.roomLabels.push(label);
-      input.value = '';
-      renderRoomLabels();
-      saveRoomLabels();
-    }
-
-    function removeRoomLabel(index) {
-      productData.roomLabels.splice(index, 1);
-      renderRoomLabels();
-      saveRoomLabels();
-    }
-
-    async function saveRoomLabels() {
-      try {
-        await Admin.API.put('/room-labels', { labels: productData.roomLabels });
-        Admin.Toast.success('Room labels saved');
-      } catch {
-        Admin.Toast.error('Failed to save room labels');
-      }
-    }
-
-    // Save functions
-    async function saveProductInfo() {
+    // ============================================
+    // PREVIEW
+    // ============================================
+    function updatePreview() {
       const slug = document.getElementById('productSelector').value;
+      const iframe = document.getElementById('previewIframe');
+      iframe.src = `/product/${slug}?t=${Date.now()}`;
+    }
+
+    function setPreviewDevice(device) {
+      document.querySelectorAll('.device-btn').forEach(btn => btn.classList.remove('active'));
+      event.target.closest('.device-btn').classList.add('active');
+
+      const container = document.querySelector('.preview-iframe-container');
+      const iframe = document.getElementById('previewIframe');
+
+      if (device === 'mobile') {
+        container.style.width = '375px';
+        container.style.margin = '0 auto';
+        iframe.style.width = '375px';
+        iframe.style.transform = 'scale(1)';
+        iframe.style.height = '500px';
+      } else {
+        container.style.width = '100%';
+        container.style.margin = '0';
+        iframe.style.width = '200%';
+        iframe.style.transform = 'scale(0.5)';
+        iframe.style.height = '1000px';
+      }
+    }
+
+    // ============================================
+    // SAVE FUNCTIONS
+    // ============================================
+    async function saveBasicInfo() {
       const data = {
         name: document.getElementById('productTitle').value,
+        tagline: document.getElementById('productTagline').value,
         description: document.getElementById('productDescription').value,
+        long_description: document.getElementById('productLongDescription').value,
         base_price: parseFloat(document.getElementById('productPrice').value) || 0,
-        sale_price: document.getElementById('productSalePrice').value ?
-          parseFloat(document.getElementById('productSalePrice').value) : null
+        compare_price: document.getElementById('productComparePrice').value ? parseFloat(document.getElementById('productComparePrice').value) : null,
+        promo_badge: document.getElementById('promoBadge').value,
+        video_url: document.getElementById('productVideo').value,
+        recommended_rooms: productData.rooms,
+        light_control: {
+          lightFiltering: document.getElementById('optLightFiltering').checked,
+          roomDarkening: document.getElementById('optRoomDarkening').checked,
+          blackout: document.getElementById('optBlackout').checked
+        }
       };
 
       try {
         await Admin.ProductsAPI.update(currentProduct.id, data);
-        Admin.Toast.success('Product info saved');
-        hideSaveBanner();
-        updatePreview();
+        Admin.Toast.success('Basic info saved');
+        return true;
       } catch (error) {
-        Admin.Toast.error('Failed to save product info');
+        Admin.Toast.error('Failed to save basic info');
+        return false;
       }
     }
 
     async function saveGallery() {
-      // Check if user is authenticated
-      if (!Admin.Auth.getToken()) {
-        Admin.Toast.error('Session expired. Redirecting to login...');
-        setTimeout(() => window.location.href = '/admin/login.html', 1500);
-        return;
-      }
-
       if (!currentProduct || !currentProduct.id) {
-        console.error('Cannot save gallery: currentProduct is', currentProduct);
-        Admin.Toast.error('Cannot save gallery: Product not loaded');
-        return;
+        Admin.Toast.error('Product not loaded');
+        return false;
       }
 
       const data = {
@@ -1257,88 +2463,110 @@
         gallery_images: productData.images.slice(1).filter(Boolean)
       };
 
-      console.log('Saving gallery for product:', currentProduct.id, 'with data:', data);
-
       try {
-        const result = await Admin.ProductsAPI.update(currentProduct.id, data);
-        // Check if result is null (means 401 - will redirect automatically)
-        if (result === null) {
-          Admin.Toast.error('Session expired. Redirecting to login...');
-          return;
-        }
-        console.log('Save result:', result);
+        await Admin.ProductsAPI.update(currentProduct.id, data);
         Admin.Toast.success('Gallery saved');
-        hideSaveBanner();
-        updatePreview();
+        return true;
       } catch (error) {
-        console.error('Failed to save gallery:', error);
-        Admin.Toast.error('Failed to save gallery: ' + (error.message || 'Unknown error'));
+        Admin.Toast.error('Failed to save gallery');
+        return false;
       }
     }
 
-    async function saveFeatures() {
+    async function saveSellingPoints() {
       const slug = document.getElementById('productSelector').value;
-      await saveSections(slug);
-      Admin.Toast.success('Features saved');
-    }
 
-    async function saveBadges() {
-      const slug = document.getElementById('productSelector').value;
-      await saveSections(slug);
-      Admin.Toast.success('Badges saved');
-    }
-
-    async function saveSections(slug) {
-      // Get existing sections or create new
       let sections = [];
       try {
         const res = await Admin.API.get(`/product-page-sections/${slug}`);
         if (res.success) sections = res.sections || [];
       } catch {}
 
-      // Update or add features section
-      let featuresIdx = sections.findIndex(s => s.type === 'features');
       const featuresSection = {
-        id: sections[featuresIdx]?.id || 'section-features-' + Date.now(),
+        id: 'section-features',
         type: 'features',
-        name: 'Product Features',
+        name: 'Selling Points',
         isVisible: true,
-        data: { title: 'Features', items: productData.features }
+        data: {
+          title: 'Why Choose Our Roller Shades',
+          items: productData.sellingPoints
+        }
       };
-      if (featuresIdx >= 0) {
-        sections[featuresIdx] = featuresSection;
+
+      const idx = sections.findIndex(s => s.type === 'features');
+      if (idx >= 0) {
+        sections[idx] = featuresSection;
       } else {
         sections.push(featuresSection);
       }
 
-      // Update or add badges section
-      let badgesIdx = sections.findIndex(s => s.type === 'trust-badges');
-      const badgesSection = {
-        id: sections[badgesIdx]?.id || 'section-badges-' + Date.now(),
-        type: 'trust-badges',
-        name: 'Trust Badges',
-        isVisible: true,
-        data: { items: productData.badges }
-      };
-      if (badgesIdx >= 0) {
-        sections[badgesIdx] = badgesSection;
-      } else {
-        sections.push(badgesSection);
+      try {
+        await Admin.API.put(`/product-page-sections/${slug}`, { sections });
+        Admin.Toast.success('Selling points saved');
+        return true;
+      } catch (error) {
+        Admin.Toast.error('Failed to save selling points');
+        return false;
       }
+    }
 
-      await Admin.API.put(`/product-page-sections/${slug}`, { sections });
-      hideSaveBanner();
-      updatePreview();
+    async function saveSpecs() {
+      const specs = {
+        minWidth: document.getElementById('specMinWidth').value,
+        maxWidth: document.getElementById('specMaxWidth').value,
+        minHeight: document.getElementById('specMinHeight').value,
+        maxHeight: document.getElementById('specMaxHeight').value,
+        stackHeight: document.getElementById('specStackHeight').value,
+        headrail: document.getElementById('specHeadrail').value,
+        insideMount: document.getElementById('specInsideMount').checked,
+        outsideMount: document.getElementById('specOutsideMount').checked,
+        ceilingMount: document.getElementById('specCeilingMount').checked,
+        material: document.getElementById('specMaterial').value,
+        care: document.getElementById('specCare').value,
+        productionTime: document.getElementById('specProductionTime').value
+      };
+
+      try {
+        await Admin.ProductsAPI.update(currentProduct.id, { specs });
+        Admin.Toast.success('Specifications saved');
+        return true;
+      } catch (error) {
+        Admin.Toast.error('Failed to save specifications');
+        return false;
+      }
+    }
+
+    async function saveSeo() {
+      const seo = {
+        title: document.getElementById('seoTitle').value,
+        description: document.getElementById('seoDescription').value,
+        keywords: document.getElementById('seoKeywords').value
+      };
+
+      const slug = document.getElementById('seoSlug').value;
+
+      try {
+        await Admin.ProductsAPI.update(currentProduct.id, { seo, slug });
+        Admin.Toast.success('SEO settings saved');
+        return true;
+      } catch (error) {
+        Admin.Toast.error('Failed to save SEO settings');
+        return false;
+      }
     }
 
     async function saveAllChanges() {
-      await saveProductInfo();
+      Admin.Toast.info('Saving all changes...');
+
+      await saveBasicInfo();
       await saveGallery();
-      const slug = document.getElementById('productSelector').value;
-      await saveSections(slug);
-      await saveRoomLabels();
-      Admin.Toast.success('All changes saved');
+      await saveSellingPoints();
+      await saveSpecs();
+      await saveSeo();
+
       hideSaveBanner();
+      updatePreview();
+      Admin.Toast.success('All changes saved!');
     }
 
     function discardChanges() {
@@ -1346,39 +2574,18 @@
       hideSaveBanner();
     }
 
-    // UI helpers
+    // ============================================
+    // UI HELPERS
+    // ============================================
     function markUnsaved() {
       hasUnsavedChanges = true;
       document.getElementById('saveBanner').classList.add('visible');
+      updateCompleteness();
     }
 
     function hideSaveBanner() {
       hasUnsavedChanges = false;
       document.getElementById('saveBanner').classList.remove('visible');
-    }
-
-    function toggleSection(section) {
-      const header = document.querySelector(`#${section}-section .section-header`);
-      const body = document.getElementById(`${section}-body`);
-      header.classList.toggle('collapsed');
-      body.classList.toggle('collapsed');
-    }
-
-    function updatePreview() {
-      const slug = document.getElementById('productSelector').value;
-      const iframe = document.getElementById('previewIframe');
-      const previewLink = document.querySelector('.preview-link');
-      const viewLiveBtn = document.querySelector('.header-right .btn-secondary');
-
-      const productUrl = `/product/${slug}`;
-      iframe.src = productUrl;
-
-      if (previewLink) {
-        previewLink.href = productUrl;
-      }
-      if (viewLiveBtn) {
-        viewLiveBtn.href = productUrl;
-      }
     }
 
     function escapeHtml(text) {
@@ -1387,23 +2594,426 @@
       return div.innerHTML;
     }
 
-    function setupEventListeners() {
-      // Enter key for room labels
-      document.getElementById('newRoomLabel').addEventListener('keypress', (e) => {
-        if (e.key === 'Enter') {
-          e.preventDefault();
-          addRoomLabel();
-        }
+    function openSampleOrderModal() {
+      Admin.Toast.info('Sample ordering feature coming soon!');
+    }
+
+    // Warn before leaving with unsaved changes
+    window.addEventListener('beforeunload', (e) => {
+      if (hasUnsavedChanges) {
+        e.preventDefault();
+        e.returnValue = '';
+      }
+    });
+
+    // ============================================
+    // PRODUCT CONTENT TEMPLATES (FROM CATALOGUE)
+    // ============================================
+    const productContentTemplates = {
+      'Roller Shades': {
+        short: 'Eco-friendly and durable roller shades with transparent, semi-blackout, and full blackout options. Features unique insulation, dust-proof, shading and light filtering design. Available in multiple valance styles with bead chain, cordless, and motorized control options.',
+        long: `Our premium Roller Shades combine style with functionality, offering the perfect solution for any window.
+
+PRODUCT FEATURES:
+- Eco-friendly and durable fabric options
+- Three shading effects: Transparent, Semi-blackout, Full blackout
+- Unique insulation and dust-proof design
+- Light filtering for comfortable ambiance
+
+AVAILABLE OPTIONS:
+- Valance Styles: Square V1/V2, Fabric wrapped SA/V3/S3, Curve white S2, Fabric inserted S1
+- Control Systems: Bead Chain (plastic/metal), Cordless, Motorized, Cordless-Motorized 2-in-1
+- Bottom Rail Colors: White, Gray, Black
+- Light Blockers: Aluminum U shape, Adhesive L shape
+
+CUSTOMIZABLE SIZES:
+- Width: 30cm to 300cm
+- Height: 50cm to 430cm
+
+SMART HOME READY:
+- Remote control with 3 preset modes
+- Voice control compatibility
+- Mobile APP access from anywhere`
+      },
+      'Zebra Shades': {
+        short: 'Versatile zebra shades with elegant light control through alternating sheer and solid fabric bands. Day & night options with cordless-motorized 2-in-1 control system. Available in a wide range of colors, textures, and prints.',
+        long: `Experience the perfect balance of style and light control with our Zebra Shades collection.
+
+PRODUCT FEATURES:
+- Versatile range of colors, textures, and prints
+- Simple yet elegant light control with open/close fabric layers
+- Day & night fabric options for perfect ambiance
+
+VALANCE OPTIONS:
+- Square V2, Fabric wrapped SA/S3/Z3
+- Curve white S2, Fabric inserted S1
+- Side cover colors: White, Gray, Black, Brown
+
+CONTROL SYSTEMS:
+- Cordless operation
+- Cordless-Motorized 2-in-1
+- Bead Chain (plastic/metal)
+- Bead Chain with Wand
+
+CUSTOMIZABLE SIZES:
+- 38mm Tube: Width 50-230cm, Height 50-330cm
+- L24 Cordless options: Width 50-180cm
+
+Available Bottom Rail: White, Gray, Black (Type A, Type C Fabric wrapped)`
+      },
+      'Honeycomb Shades': {
+        short: 'Energy-efficient honeycomb shades with superior insulation. Available in 16/20/26/38/45mm cell sizes with sheer, light filtering, and blackout options. Perfect for regular, odd-shaped, skylight, and sliding applications.',
+        long: `Our Honeycomb Shades offer the ultimate combination of energy efficiency and style.
+
+ENERGY-SAVING FEATURES:
+- Unique honeycomb structure for superior insulation
+- Reduces heating and cooling costs
+- Available in single cell and 38mm dual cell options
+
+CELL SIZES:
+- 16mm, 20mm, 26mm, 38mm, 45mm
+
+SHADING EFFECTS:
+- Sheer (light filtering with view-through)
+- Light Filtering (softens light, maintains privacy)
+- Blackout (complete light blocking)
+- Dual Cell options in Light Filtering and Blackout
+
+PRODUCT CATEGORIES:
+- Regular Shaped (standard windows)
+- Odd Shaped (custom geometric windows)
+- Skylight (roof windows)
+- Sliding Honeycomb (doors and windows)
+
+CONTROL SYSTEMS:
+- Cordless: Regular, Top Down Bottom Up, Day & Night
+- Motorized: AC Power, DC Power options
+- Continuous Loop, Cord Locked
+- Perfect Fit & Skylight options
+
+RAIL COLORS: Beige White, Gray, Black
+
+CUSTOM SIZES:
+- 26mm: Width 200-2800mm, Height 200-4000mm
+- 38/45mm: Width 200-2500mm, Height 300-3000mm`
+      },
+      'Outdoor Shades': {
+        short: 'Durable outdoor shades with waterproof, sunproof, and mildewproof properties. Windproof structure with flexible sunshade angle adjustment. Available in ZS-105, ZS-125, and double layer series with smart control options.',
+        long: `Built to withstand the elements, our Outdoor Shades provide lasting protection and style.
+
+DURABILITY FEATURES:
+- Waterproof, Sunproof, Mildewproof materials
+- Colors remain vivid and fade-resistant
+- Oxidation-resistant coating
+- Windproof structure design
+- Flexible sunshade angle adjustment
+
+SERIES OPTIONS:
+A. ZS-125 Series: Width 680-4000mm, Height 500-3000mm
+B. ZS-105 Series: Width 680-4500mm, Height 500-5600mm
+C. ZS Double Layer Series: Width 680-4000mm, Height 500-3000mm
+
+ROLL TUBE SIZES:
+- 95 DAT (2.5mm), 75 DAT (2.5mm), 78 SAT (2.5mm)
+- 73 SAT (1.2mm), 70 SAT (1.2mm)
+
+COLOR OPTIONS:
+Black, Coffee, Dark Gray, Metallic Gray, Light Gray, White
+
+SMART CONTROLS:
+- Remote Control (one-touch, 3 preset modes)
+- Voice Control (hands-free operation)
+- Mobile APP (remote access anywhere)
+- Wind-Light-Rain Sensor (automated adjustments)
+
+JOINT SOLUTIONS:
+- 90° Corner Joint Solution
+- Flat Surface Splice Solution
+- Square tube sizes: 38x38mm, 50x50mm, 80x80mm`
+      },
+      'Sheer Shades': {
+        short: 'Luxurious Shangri-la and Butterfly shades with adjustable fabric vanes and light-diffusing back panel. Combines drapery sophistication with shade functionality. Semi-blackout fabric available up to 4.3 meters.',
+        long: `Elevate your space with our elegant Sheer Shades collection.
+
+PRODUCT CATEGORIES:
+- Shangri-la Shades
+- Butterfly Shades
+
+LUXURY FEATURES:
+- Adjustable, softly contoured fabric vanes
+- Light-diffusing back panel
+- Softly filters light into the home
+- Combines drapery sophistication with shade functionality
+
+VALANCE OPTIONS:
+- Square V2, Fabric wrapped SA/S3
+- Curve white S2, Fabric inserted S1
+- Side cover: White, Gray, Black
+
+CONTROL SYSTEMS:
+- Bead Chain (plastic/metal)
+- Bead Chain with Wand
+- Motorized
+
+CUSTOMIZABLE SIZES:
+- Width: 40-230cm
+- Height: 50-250cm
+- Semi-blackout fabric up to 4.3 meters
+
+Bottom Rail: White, Gray, Black`
+      },
+      'Venetian Blinds': {
+        short: 'High strength aluminum venetian blinds with 180-degree blade adjustment. Environmental protection paint with moisture-proof and mildew proof coating. Available in matte and brushed finishes with multiple color options.',
+        long: `Classic style meets modern durability with our Venetian Blinds.
+
+ALUMINUM BLINDS FEATURES:
+- High strength elastic material (not easy to deform)
+- Wind and sun resistant
+- 180-degree blade flip adjustment
+- Environmental protection paint
+- Moisture-proof and mildew proof
+- Oil and water stain isolation
+
+SLAT OPTIONS:
+- C Shape: Visible hole or Invisible hole
+- L Shape available
+- Size: 26mm slats, 25mm bottom rail
+
+COLOR FINISHES:
+- Matte finish (92005 series)
+- Brushed finish (92006 series)
+- Light & Matte combinations
+
+CONTROL SYSTEMS:
+- Bead Chain (Plastic/Metal)
+- Cordless
+- Motorized
+
+CUSTOM SIZES:
+- Screw Fix: Width 30-260cm, Height 40-300cm
+- Screw Free/No Drill: Width 35-150cm, Height 40-300cm`
+      },
+      'Faux Wood Blinds': {
+        short: 'Premium faux wood blinds with original wood appearance. Waterproof, fireproof, and mildew proof - perfect for humid areas. UV protection with environmental sound insulation. Width: 50mm, Thickness: 2.8mm.',
+        long: `The elegance of wood with enhanced durability - our Faux Wood Blinds.
+
+PREMIUM FEATURES:
+- Original first-class wood appearance
+- Environmental sound insulation
+- Reduces air conditioning energy consumption
+- UV protection
+
+DURABILITY:
+- Waterproof (perfect for bathrooms/kitchens)
+- Fireproof
+- Mildew Proof
+
+SPECIFICATIONS:
+- Slat Width: 50mm
+- Thickness: 2.8mm
+
+CONTROL SYSTEMS:
+- Stay Cord
+- Bead Chain (plastic/metal)
+- Cordless
+- Motorized
+
+HEADRAIL & BOTTOM RAIL:
+- Type A (Stay Cord/Bead Chain/Motorized)
+- Type B (Cordless)
+
+CUSTOM SIZES:
+- Stay Cord: Width 30-240cm, Height up to 300cm, Max 5m²
+- Bead Chain: Width 50-200cm, Height up to 280cm, Max 4m²
+- Cordless: Width 50-200cm, Height up to 240cm, Max 4m²
+- Motorized: Width 50-200cm, Height up to 250cm, Max 4m²`
+      },
+      'Panel Track Blinds': {
+        short: 'Sleek gliding panels for large windows and sliding doors. Width range 45.8" to 220". Perfect for sliding doors, closet doors, window shades, and room dividers. Room darkening, light filtering, and blackout options.',
+        long: `Modern elegance for large spaces with our Panel Track Blinds.
+
+IDEAL APPLICATIONS:
+- Sliding Doors
+- Closet Doors
+- Window Shades
+- Room Dividers
+
+DESIGN FEATURES:
+- Sleek gliding panels with contemporary feel
+- Creates dramatic backdrop for windows
+- Panels stack tightly when open
+- Provides unobstructed views
+
+SHADING EFFECTS:
+- Room Darkening
+- Light Filtering
+- Blackout
+
+CUSTOMIZABLE SIZES:
+- Width: 45.8 inches to 220 inches
+
+VALANCE: Type C Fabric wrapped
+
+CONTROL: Retractable Wand
+
+INSTALLATION:
+- Ceiling Brackets
+- Wall Brackets
+
+MEASUREMENT TIPS:
+- Measure at least 3 points (top, mid, bottom)
+- Inside Mount: Use net width
+- Outside Mount: Add 6" extension to width
+- Minimum depth: 4 1/8 inches`
+      },
+      'Vertical Blinds': {
+        short: 'Vertical hanging blinds for large windows and sliding doors. Available in polyester, PVC, faux wood, and dream blinds. Electric track with smooth silence operation or manual bead chain/wand control.',
+        long: `Versatile and stylish, our Vertical Blinds suit any space.
+
+MATERIAL OPTIONS:
+- Polyester Vertical Blinds (fabric, easy to clean)
+- PVC Vertical Blinds (durable, moisture-resistant)
+- Faux Wood Vertical Blinds (elegant wood appearance)
+- Dream Blinds (unique aesthetic)
+
+All options available in vast array of fabrics, patterns, colors - sheer to opaque.
+
+ELECTRIC TRACK FEATURES:
+- Smooth silence track
+- Hidden motor design
+- Simple and beautiful appearance
+- Minimum curtain box width: 130mm
+- Aluminum alloy track with Nano-mute bar
+
+MANUAL TRACK OPTIONS:
+- Bead Chain control
+- Wand control
+- Pull beads/rope for opening/closing
+
+TRACK COMPATIBILITY:
+- Straight windows
+- L-shaped windows
+- U-shaped windows
+- PVC Curtain Box with Light Blocker
+
+OPEN-CLOSE DIRECTIONS:
+- To the Left
+- To the Right
+- Middle-Open (single track)
+- Middle-Open (double track)
+
+CUSTOMIZATION:
+- Arbitrary height adjustment available
+- Custom vane cutting and installation`
+      },
+      'Roman Shades': {
+        short: 'Elegantly tailored roman shades in flat or full folds. Transforming light for a more alluring space. Available in sheer, light filtering, and blackout options with bead chain, cordless, and motorized controls.',
+        long: `Timeless elegance with our Roman Shades collection.
+
+DESIGN FEATURES:
+- Elegantly tailored construction
+- Available in flat or full folds
+- Transforms light for a more alluring space
+
+FABRIC SHADING EFFECTS:
+- Sheer
+- Light Filtering
+- Blackout
+
+HEADRAIL OPTIONS:
+- Type A (Cordless system)
+- Type B (Bead chain system)
+- Type C (Motorized system)
+
+BOTTOM RAIL: Fabric Wrapped
+
+CONTROL SYSTEMS:
+- Bead Chain (plastic/metal)
+- Cordless
+- Motorized
+
+FOLDING EFFECT:
+- 20%, 50%, 80% fold positions available
+
+CUSTOMIZABLE SIZES (Screw Fix):
+- Bead Chain: Width 40-250cm, Height 50-450cm
+- Cordless: Width 40-240cm, Height 50-240cm
+- Motorized: Width 58-250cm, Height 50-450cm
+- Fabric deduction: -0.5cm
+
+SCREW FREE OPTIONS:
+- Cordless: Width 42-150cm, Height 50-240cm
+
+Note: Weight of accessories and fabrics (except upper beam) within 3.8kg`
+      }
+    };
+
+    let currentTemplateType = 'short';
+
+    function showContentTemplates(type) {
+      currentTemplateType = type;
+      const modal = document.getElementById('contentTemplatesModal');
+      const body = document.getElementById('contentTemplatesBody');
+
+      let html = '<p style="margin-bottom: 16px; color: #6b7280; font-size: 14px;">Select a template to insert into the ' + (type === 'short' ? 'short description' : 'long description') + ' field. All content sourced from official product catalogue.</p>';
+
+      Object.keys(productContentTemplates).forEach(productType => {
+        const template = productContentTemplates[productType];
+        const content = type === 'short' ? template.short : template.long;
+        const previewText = content.substring(0, 150) + (content.length > 150 ? '...' : '');
+
+        html += `
+          <div style="padding: 16px; border: 1px solid #e5e7eb; border-radius: 10px; margin-bottom: 12px; cursor: pointer; transition: all 0.2s;"
+               onmouseover="this.style.borderColor='#8E6545'; this.style.background='#fdf8f5';"
+               onmouseout="this.style.borderColor='#e5e7eb'; this.style.background='white';"
+               onclick="insertTemplate('${productType}')">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 16px;">
+              <div style="flex: 1;">
+                <h4 style="margin: 0 0 8px 0; font-size: 15px; font-weight: 600; color: #8E6545;">${productType}</h4>
+                <p style="margin: 0; font-size: 13px; color: #6b7280; line-height: 1.5;">${previewText}</p>
+              </div>
+              <button class="btn btn-primary" style="flex-shrink: 0; padding: 8px 16px; font-size: 12px;">
+                <i class="fas fa-plus"></i> Use
+              </button>
+            </div>
+          </div>
+        `;
       });
 
-      // Warn before leaving
-      window.addEventListener('beforeunload', (e) => {
-        if (hasUnsavedChanges) {
-          e.preventDefault();
-          e.returnValue = '';
-        }
-      });
+      body.innerHTML = html;
+      modal.style.display = 'flex';
     }
+
+    function closeContentTemplates() {
+      document.getElementById('contentTemplatesModal').style.display = 'none';
+    }
+
+    function insertTemplate(productType) {
+      const template = productContentTemplates[productType];
+      if (!template) return;
+
+      const content = currentTemplateType === 'short' ? template.short : template.long;
+      const fieldId = currentTemplateType === 'short' ? 'productDescription' : 'productLongDescription';
+      const field = document.getElementById(fieldId);
+
+      if (field) {
+        field.value = content;
+        markUnsaved();
+        if (currentTemplateType === 'short') {
+          document.getElementById('descCount').textContent = content.length;
+        }
+      }
+
+      closeContentTemplates();
+      Admin.Toast.success('Template applied! Remember to customize for your product.');
+    }
+
+    // Close modal when clicking outside
+    document.getElementById('contentTemplatesModal').addEventListener('click', function(e) {
+      if (e.target === this) {
+        closeContentTemplates();
+      }
+    });
   </script>
 </body>
 </html>

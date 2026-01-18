@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Footer Settings - Peekaboo Shades Admin</title>
+  <link rel="stylesheet" href="/admin/css/admin.css?v=1737200003.0.28">
+  <script src="/admin/js/adminNavConfig.js?v=1737200002"></script>
+  <style>
+    .footer-grid { display: grid; grid-template-columns: 1fr 400px; gap: 1.5rem; margin-top: 1.5rem; }
+    .settings-card { background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+    .settings-card h3 { margin: 0 0 1.5rem 0; }
+    .form-group { margin-bottom: 1.25rem; }
+    .form-group label { display: block; margin-bottom: 0.5rem; font-weight: 500; }
+    .form-group input, .form-group textarea { width: 100%; padding: 0.75rem; border: 1px solid #ddd; border-radius: 8px; }
+    .form-group textarea { resize: vertical; min-height: 80px; }
+    .toggle-row { display: flex; justify-content: space-between; align-items: center; padding: 0.75rem 0; border-bottom: 1px solid #eee; }
+    .toggle { position: relative; width: 50px; height: 26px; }
+    .toggle input { opacity: 0; width: 0; height: 0; }
+    .toggle .slider { position: absolute; cursor: pointer; inset: 0; background: #ddd; border-radius: 26px; transition: 0.3s; }
+    .toggle .slider:before { content: ""; position: absolute; height: 20px; width: 20px; left: 3px; bottom: 3px; background: white; border-radius: 50%; transition: 0.3s; }
+    .toggle input:checked + .slider { background: #10B981; }
+    .toggle input:checked + .slider:before { transform: translateX(24px); }
+    .btn-save { padding: 0.75rem 2rem; background: #8E6545; color: white; border: none; border-radius: 8px; cursor: pointer; }
+    .preview-footer { background: #1F2937; color: white; padding: 2rem; border-radius: 8px; }
+    .preview-footer h4 { margin: 0 0 0.5rem 0; font-size: 0.9rem; }
+    .preview-footer p { margin: 0; font-size: 0.85rem; color: #9CA3AF; }
+  </style>
+</head>
+<body>
+  <div class="admin-layout">
+    <aside class="admin-sidebar"></aside>
+    <main class="admin-main">
+      <header class="admin-header">
+        <h1>Footer Settings</h1>
+        <div class="header-actions"><button class="btn-save" onclick="saveSettings()">Save Changes</button></div>
+      </header>
+      <div class="admin-content">
+        <div class="footer-grid">
+          <div class="settings-card">
+            <h3>Footer Elements</h3>
+            <div class="toggle-row"><span>Show Newsletter Signup</span><label class="toggle"><input type="checkbox" checked><span class="slider"></span></label></div>
+            <div class="toggle-row"><span>Show Social Links</span><label class="toggle"><input type="checkbox" checked><span class="slider"></span></label></div>
+            <div class="toggle-row"><span>Show Payment Icons</span><label class="toggle"><input type="checkbox" checked><span class="slider"></span></label></div>
+            <div class="toggle-row"><span>Show Trust Badges</span><label class="toggle"><input type="checkbox" checked><span class="slider"></span></label></div>
+            <h3 style="margin-top: 2rem;">Contact Information</h3>
+            <div class="form-group"><label>Phone Number</label><input type="text" value="1-800-XXX-XXXX"></div>
+            <div class="form-group"><label>Email</label><input type="email" value="support@peekabooshades.com"></div>
+            <div class="form-group"><label>Address</label><textarea>Los Angeles, CA</textarea></div>
+            <h3 style="margin-top: 2rem;">Social Media Links</h3>
+            <div class="form-group"><label>Facebook</label><input type="url" placeholder="https://facebook.com/..."></div>
+            <div class="form-group"><label>Instagram</label><input type="url" placeholder="https://instagram.com/..."></div>
+            <div class="form-group"><label>Pinterest</label><input type="url" placeholder="https://pinterest.com/..."></div>
+          </div>
+          <div>
+            <div class="settings-card">
+              <h3>Footer Preview</h3>
+              <div class="preview-footer">
+                <div style="margin-bottom: 1.5rem;">
+                  <h4>Newsletter</h4>
+                  <p>Get design tips and exclusive offers</p>
+                  <div style="display: flex; gap: 0.5rem; margin-top: 0.5rem;">
+                    <input type="email" placeholder="Your email" style="flex: 1; padding: 0.5rem; border-radius: 4px; border: none;">
+                    <button style="padding: 0.5rem 1rem; background: #8E6545; color: white; border: none; border-radius: 4px;">Subscribe</button>
+                  </div>
+                </div>
+                <div style="display: flex; gap: 1rem; margin-bottom: 1rem;">
+                  <span style="font-size: 1.5rem;">📘</span>
+                  <span style="font-size: 1.5rem;">📷</span>
+                  <span style="font-size: 1.5rem;">📌</span>
+                </div>
+                <p style="border-top: 1px solid #374151; padding-top: 1rem;">© 2024 Peekaboo Shades. All rights reserved.</p>
+              </div>
+            </div>
+            <div class="settings-card" style="margin-top: 1rem;">
+              <h3>Copyright Text</h3>
+              <div class="form-group">
+                <textarea>© 2024 Peekaboo Shades. All rights reserved.</textarea>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      if (!localStorage.getItem('admin_token')) { window.location.href = '/admin/login.html'; return; }
+      AdminNavConfig.initSidebar('footer-settings');
+    });
+    function saveSettings() { alert('Footer settings saved!'); }
+  </script>
+</body>
+</html>

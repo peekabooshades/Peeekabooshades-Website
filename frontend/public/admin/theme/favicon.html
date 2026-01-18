@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Favicon & Icons - Peekaboo Shades Admin</title>
+  <link rel="stylesheet" href="/admin/css/admin.css?v=1737200003.0.28">
+  <script src="/admin/js/adminNavConfig.js?v=1737200002"></script>
+  <style>
+    .favicon-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-top: 1.5rem; }
+    .favicon-card { background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+    .favicon-card h3 { margin: 0 0 1.5rem 0; }
+    .upload-zone { border: 2px dashed #ddd; border-radius: 12px; padding: 2rem; text-align: center; cursor: pointer; }
+    .upload-zone:hover { border-color: #8E6545; }
+    .upload-zone p { margin: 0.5rem 0 0 0; font-size: 0.85rem; color: #666; }
+    .preview-row { display: flex; gap: 1.5rem; align-items: center; margin-top: 1.5rem; }
+    .preview-item { text-align: center; }
+    .preview-item .icon { background: #F9FAFB; padding: 1rem; border-radius: 8px; display: inline-flex; align-items: center; justify-content: center; }
+    .preview-item p { margin: 0.5rem 0 0 0; font-size: 0.8rem; color: #666; }
+    .btn-save { padding: 0.75rem 2rem; background: #8E6545; color: white; border: none; border-radius: 8px; cursor: pointer; }
+    .current-favicon { width: 64px; height: 64px; background: #8E6545; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: white; font-size: 1.5rem; font-weight: bold; }
+  </style>
+</head>
+<body>
+  <div class="admin-layout">
+    <aside class="admin-sidebar"></aside>
+    <main class="admin-main">
+      <header class="admin-header">
+        <h1>Favicon & Icons</h1>
+        <div class="header-actions"><button class="btn-save" onclick="saveSettings()">Save Changes</button></div>
+      </header>
+      <div class="admin-content">
+        <div class="favicon-grid">
+          <div class="favicon-card">
+            <h3>Favicon</h3>
+            <div class="upload-zone" onclick="uploadFavicon()">
+              <div class="current-favicon">PS</div>
+              <p>Click to upload new favicon (recommended: 32x32 or 64x64 PNG)</p>
+            </div>
+            <div class="preview-row">
+              <div class="preview-item"><div class="icon" style="width:16px;height:16px;background:#8E6545;"></div><p>16x16</p></div>
+              <div class="preview-item"><div class="icon" style="width:32px;height:32px;background:#8E6545;"></div><p>32x32</p></div>
+              <div class="preview-item"><div class="icon" style="width:48px;height:48px;background:#8E6545;"></div><p>48x48</p></div>
+            </div>
+          </div>
+          <div class="favicon-card">
+            <h3>Apple Touch Icon</h3>
+            <div class="upload-zone" onclick="uploadAppleIcon()">
+              <div class="current-favicon" style="width:120px;height:120px;font-size:2rem;border-radius:24px;">PS</div>
+              <p>Click to upload (180x180 PNG recommended)</p>
+            </div>
+          </div>
+          <div class="favicon-card">
+            <h3>Android/Chrome Icons</h3>
+            <div class="upload-zone" onclick="uploadAndroidIcon()">
+              <div class="current-favicon" style="width:96px;height:96px;font-size:1.5rem;border-radius:16px;">PS</div>
+              <p>Click to upload (192x192 and 512x512 PNG)</p>
+            </div>
+          </div>
+          <div class="favicon-card">
+            <h3>Social Share Image</h3>
+            <div class="upload-zone" onclick="uploadSocialImage()">
+              <div style="width:200px;height:100px;background:#F9FAFB;border-radius:8px;display:flex;align-items:center;justify-content:center;margin:0 auto;">
+                <span style="color:#666;">1200x630</span>
+              </div>
+              <p>Default image for social media shares</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      if (!localStorage.getItem('admin_token')) { window.location.href = '/admin/login.html'; return; }
+      AdminNavConfig.initSidebar('favicon-icons');
+    });
+    function saveSettings() { alert('Icons saved!'); }
+    function uploadFavicon() { alert('Opening file picker for favicon...'); }
+    function uploadAppleIcon() { alert('Opening file picker for Apple touch icon...'); }
+    function uploadAndroidIcon() { alert('Opening file picker for Android icons...'); }
+    function uploadSocialImage() { alert('Opening file picker for social image...'); }
+  </script>
+</body>
+</html>

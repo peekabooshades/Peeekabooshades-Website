@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Product Attributes - Peekaboo Shades Admin</title>
+  <link rel="stylesheet" href="/admin/css/admin.css?v=1737200003.0.28">
+  <script src="/admin/js/admin.js?v=1737100001"></script>
+  <script src="/admin/js/adminNavConfig.js?v=1737200002"></script>
+  <style>
+    .attributes-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 1.5rem; margin-top: 1.5rem; }
+    .attribute-card { background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+    .attribute-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
+    .attribute-name { font-size: 1.1rem; font-weight: 600; margin: 0; }
+    .attribute-type { padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.75rem; background: #DBEAFE; color: #1E40AF; }
+    .attribute-type.hardware { background: #FEF3C7; color: #92400E; }
+    .attribute-type.fabric { background: #D1FAE5; color: #065F46; }
+    .attribute-type.room { background: #E0E7FF; color: #3730A3; }
+    .attribute-values { display: flex; flex-wrap: wrap; gap: 0.5rem; margin: 1rem 0; }
+    .value-tag { padding: 0.35rem 0.75rem; background: #f5f5f5; border-radius: 6px; font-size: 0.85rem; display: flex; align-items: center; gap: 0.5rem; }
+    .value-tag .remove-btn { background: none; border: none; color: #991B1B; cursor: pointer; font-size: 1rem; line-height: 1; }
+    .attribute-meta { font-size: 0.85rem; color: #666; }
+    .attribute-actions { display: flex; gap: 0.5rem; margin-top: 1rem; padding-top: 1rem; border-top: 1px solid #eee; }
+    .btn-action { padding: 0.5rem 1rem; border: none; border-radius: 6px; cursor: pointer; font-size: 0.85rem; }
+    .btn-edit { background: #8E6545; color: white; }
+    .btn-add-value { background: #E5E7EB; color: #374151; }
+    .modal { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; }
+    .modal.active { display: flex; }
+    .modal-content { background: white; border-radius: 12px; padding: 2rem; max-width: 500px; width: 90%; }
+    .modal-header { display: flex; justify-content: space-between; margin-bottom: 1.5rem; }
+    .modal-header h2 { margin: 0; }
+    .modal-close { background: none; border: none; font-size: 1.5rem; cursor: pointer; }
+    .form-group { margin-bottom: 1.25rem; }
+    .form-group label { display: block; margin-bottom: 0.5rem; font-weight: 500; }
+    .form-group input, .form-group select { width: 100%; padding: 0.75rem; border: 1px solid #ddd; border-radius: 8px; }
+    .btn-submit { width: 100%; padding: 0.875rem; background: #8E6545; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; }
+    .loading { text-align: center; padding: 3rem; color: #666; }
+    .btn-primary { padding: 0.75rem 1.5rem; background: #8E6545; color: white; border: none; border-radius: 8px; cursor: pointer; }
+  </style>
+</head>
+<body>
+  <div class="admin-layout">
+    <aside class="admin-sidebar"></aside>
+    <main class="admin-main">
+      <header class="admin-header">
+        <h1>Product Attributes</h1>
+        <div class="header-actions">
+          <button class="btn-primary" onclick="refreshData()">Refresh</button>
+        </div>
+      </header>
+      <div class="admin-content">
+        <div class="loading" id="loadingState">Loading attributes...</div>
+        <div class="attributes-grid" id="attributesGrid" style="display: none;"></div>
+      </div>
+    </main>
+  </div>
+
+  <div class="modal" id="valueModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 id="modalTitle">Add Value</h2>
+        <button class="modal-close" onclick="closeModal()">&times;</button>
+      </div>
+      <form onsubmit="saveValue(event)">
+        <input type="hidden" id="attrCategory">
+        <div class="form-group">
+          <label id="valueLabel">New Value</label>
+          <input type="text" id="newValue" required placeholder="Enter new value">
+        </div>
+        <button type="submit" class="btn-submit">Add Value</button>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    let attributeData = {
+      roomLabels: [],
+      controlTypes: [],
+      mountTypes: [],
+      valanceTypes: [],
+      bottomRails: [],
+      filterTypes: [],
+      zebraControlTypes: [],
+      zebraValanceTypes: []
+    };
+
+    document.addEventListener('DOMContentLoaded', () => {
+      if (!localStorage.getItem('admin_token')) {
+        window.location.href = '/admin/login.html';
+        return;
+      }
+      AdminNavConfig.initSidebar('product-attributes');
+      loadAllAttributes();
+    });
+
+    async function loadAllAttributes() {
+      const token = localStorage.getItem('admin_token');
+      const headers = { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' };
+
+      try {
+        // Load room labels
+        const roomRes = await fetch('/api/admin/room-labels', { headers });
+        const roomData = await roomRes.json();
+        if (roomData.success) {
+          attributeData.roomLabels = roomData.labels || [];
+        }
+
+        // Load hardware options for control types
+        const hardwareRes = await fetch('/api/admin/hardware/controlType', { headers });
+        const hardwareData = await hardwareRes.json();
+        if (hardwareData.success) {
+          attributeData.controlTypes = hardwareData.options || [];
+        }
+
+        // Load mount types
+        const mountRes = await fetch('/api/admin/hardware/mountType', { headers });
+        const mountData = await mountRes.json();
+        if (mountData.success) {
+          attributeData.mountTypes = mountData.options || [];
+        }
+
+        // Load valance types (Roller)
+        const valanceRes = await fetch('/api/admin/hardware/valanceType', { headers });
+        const valanceData = await valanceRes.json();
+        if (valanceData.success) {
+          attributeData.valanceTypes = valanceData.options || [];
+        }
+
+        // Load bottom rails (Roller)
+        const railRes = await fetch('/api/admin/hardware/bottomRail', { headers });
+        const railData = await railRes.json();
+        if (railData.success) {
+          attributeData.bottomRails = railData.options || [];
+        }
+
+        // Load Zebra hardware options
+        try {
+          const zebraControlRes = await fetch('/api/admin/zebra/hardware/controlType', { headers });
+          const zebraControlData = await zebraControlRes.json();
+          if (zebraControlData.success) {
+            attributeData.zebraControlTypes = zebraControlData.options || [];
+          }
+
+          const zebraValanceRes = await fetch('/api/admin/zebra/hardware/valanceType', { headers });
+          const zebraValanceData = await zebraValanceRes.json();
+          if (zebraValanceData.success) {
+            attributeData.zebraValanceTypes = zebraValanceData.options || [];
+          }
+        } catch (e) {
+          console.log('Zebra hardware not available:', e);
+        }
+
+        // Load fabrics to get filter types
+        const fabricRes = await fetch('/api/admin/fabrics', { headers });
+        const fabricData = await fabricRes.json();
+        const fabrics = fabricData.data || fabricData.fabrics || [];
+        if (fabricData.success && fabrics.length > 0) {
+          const filterTypes = [...new Set(fabrics.map(f => f.filterType || f.light_control).filter(Boolean))];
+          attributeData.filterTypes = filterTypes;
+        }
+
+        document.getElementById('loadingState').style.display = 'none';
+        document.getElementById('attributesGrid').style.display = 'grid';
+        renderAttributes();
+      } catch (error) {
+        console.error('Error loading attributes:', error);
+        document.getElementById('loadingState').textContent = 'Error loading attributes. Please refresh.';
+      }
+    }
+
+    function refreshData() {
+      document.getElementById('loadingState').style.display = 'block';
+      document.getElementById('attributesGrid').style.display = 'none';
+      loadAllAttributes();
+    }
+
+    function renderAttributes() {
+      const grid = document.getElementById('attributesGrid');
+      grid.innerHTML = `
+        <!-- Section Header: Common -->
+        <div style="grid-column: 1 / -1; margin-bottom: -0.5rem;">
+          <h2 style="font-size: 1rem; color: #666; text-transform: uppercase; letter-spacing: 1px; border-bottom: 2px solid #8E6545; padding-bottom: 0.5rem;">
+            Common Attributes (All Products)
+          </h2>
+        </div>
+
+        <!-- Room Labels -->
+        <div class="attribute-card">
+          <div class="attribute-header">
+            <h3 class="attribute-name">Room Labels</h3>
+            <span class="attribute-type room">Room</span>
+          </div>
+          <div class="attribute-values">
+            ${attributeData.roomLabels.map(label => `
+              <span class="value-tag">
+                ${label}
+                <button class="remove-btn" onclick="removeRoomLabel('${label}')">&times;</button>
+              </span>
+            `).join('') || '<span class="value-tag" style="color:#999">No rooms defined</span>'}
+          </div>
+          <div class="attribute-meta">Used for shade room identification</div>
+          <div class="attribute-actions">
+            <button class="btn-action btn-add-value" onclick="openModal('roomLabels', 'Room Label')">+ Add Room</button>
+          </div>
+        </div>
+
+        <!-- Mount Types -->
+        <div class="attribute-card">
+          <div class="attribute-header">
+            <h3 class="attribute-name">Mount Types</h3>
+            <span class="attribute-type hardware">Hardware</span>
+          </div>
+          <div class="attribute-values">
+            ${attributeData.mountTypes.map(opt => `
+              <span class="value-tag">${opt.name || opt.label || opt}</span>
+            `).join('') || '<span class="value-tag">Inside Mount</span><span class="value-tag">Outside Mount</span>'}
+          </div>
+          <div class="attribute-meta">Managed in <a href="/admin/hardware-options.html">Hardware Options</a></div>
+        </div>
+
+        <!-- Light Filtering Types -->
+        <div class="attribute-card">
+          <div class="attribute-header">
+            <h3 class="attribute-name">Light Filtering Types</h3>
+            <span class="attribute-type fabric">Fabric</span>
+          </div>
+          <div class="attribute-values">
+            ${attributeData.filterTypes.length > 0
+              ? attributeData.filterTypes.map(type => `<span class="value-tag">${formatFilterType(type)}</span>`).join('')
+              : '<span class="value-tag">Blackout</span><span class="value-tag">Light Filtering</span><span class="value-tag">Room Darkening</span>'}
+          </div>
+          <div class="attribute-meta">Derived from <a href="/admin/fabrics.html">Fabric Library</a></div>
+        </div>
+
+        <!-- Section Header: Roller Shades -->
+        <div style="grid-column: 1 / -1; margin-top: 1rem; margin-bottom: -0.5rem;">
+          <h2 style="font-size: 1rem; color: #666; text-transform: uppercase; letter-spacing: 1px; border-bottom: 2px solid #3B82F6; padding-bottom: 0.5rem;">
+            🔵 Roller Shades Attributes
+          </h2>
+        </div>
+
+        <!-- Roller Control Types -->
+        <div class="attribute-card">
+          <div class="attribute-header">
+            <h3 class="attribute-name">Control Types</h3>
+            <span class="attribute-type hardware">Roller</span>
+          </div>
+          <div class="attribute-values">
+            ${attributeData.controlTypes.map(opt => `
+              <span class="value-tag">${opt.name || opt.label || opt}</span>
+            `).join('') || '<span class="value-tag" style="color:#999">No control types</span>'}
+          </div>
+          <div class="attribute-meta">Managed in <a href="/admin/hardware-options.html">Hardware Options</a></div>
+        </div>
+
+        <!-- Roller Valance Types -->
+        <div class="attribute-card">
+          <div class="attribute-header">
+            <h3 class="attribute-name">Valance Types</h3>
+            <span class="attribute-type hardware">Roller</span>
+          </div>
+          <div class="attribute-values">
+            ${attributeData.valanceTypes.map(opt => `
+              <span class="value-tag">${opt.name || opt.label || opt}</span>
+            `).join('') || '<span class="value-tag" style="color:#999">No valance types</span>'}
+          </div>
+          <div class="attribute-meta">Managed in <a href="/admin/hardware-options.html">Hardware Options</a></div>
+        </div>
+
+        <!-- Roller Bottom Rails -->
+        <div class="attribute-card">
+          <div class="attribute-header">
+            <h3 class="attribute-name">Bottom Rails</h3>
+            <span class="attribute-type hardware">Roller</span>
+          </div>
+          <div class="attribute-values">
+            ${attributeData.bottomRails.map(opt => `
+              <span class="value-tag">${opt.name || opt.label || opt}</span>
+            `).join('') || '<span class="value-tag" style="color:#999">No bottom rails</span>'}
+          </div>
+          <div class="attribute-meta">Managed in <a href="/admin/hardware-options.html">Hardware Options</a></div>
+        </div>
+
+        <!-- Section Header: Zebra Shades -->
+        <div style="grid-column: 1 / -1; margin-top: 1rem; margin-bottom: -0.5rem;">
+          <h2 style="font-size: 1rem; color: #666; text-transform: uppercase; letter-spacing: 1px; border-bottom: 2px solid #10B981; padding-bottom: 0.5rem;">
+            🟢 Zebra Shades Attributes
+          </h2>
+        </div>
+
+        <!-- Zebra Control Types -->
+        <div class="attribute-card">
+          <div class="attribute-header">
+            <h3 class="attribute-name">Control Types</h3>
+            <span class="attribute-type" style="background: #D1FAE5; color: #065F46;">Zebra</span>
+          </div>
+          <div class="attribute-values">
+            ${attributeData.zebraControlTypes.map(opt => `
+              <span class="value-tag">${opt.name || opt.label || opt}</span>
+            `).join('') || '<span class="value-tag" style="color:#999">Uses Roller control types</span>'}
+          </div>
+          <div class="attribute-meta">Managed in <a href="/admin/zebra-hardware.html">Zebra Hardware</a></div>
+        </div>
+
+        <!-- Zebra Valance Types -->
+        <div class="attribute-card">
+          <div class="attribute-header">
+            <h3 class="attribute-name">Valance Types</h3>
+            <span class="attribute-type" style="background: #D1FAE5; color: #065F46;">Zebra</span>
+          </div>
+          <div class="attribute-values">
+            ${attributeData.zebraValanceTypes.map(opt => `
+              <span class="value-tag">${opt.name || opt.label || opt}</span>
+            `).join('') || '<span class="value-tag" style="color:#999">Uses Roller valance types</span>'}
+          </div>
+          <div class="attribute-meta">Managed in <a href="/admin/zebra-hardware.html">Zebra Hardware</a></div>
+        </div>
+      `;
+    }
+
+    function formatFilterType(type) {
+      if (!type) return 'Unknown';
+      return type.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+    }
+
+    function openModal(category, label) {
+      document.getElementById('attrCategory').value = category;
+      document.getElementById('valueLabel').textContent = `New ${label}`;
+      document.getElementById('modalTitle').textContent = `Add ${label}`;
+      document.getElementById('newValue').value = '';
+      document.getElementById('valueModal').classList.add('active');
+    }
+
+    function closeModal() {
+      document.getElementById('valueModal').classList.remove('active');
+    }
+
+    async function saveValue(e) {
+      e.preventDefault();
+      const category = document.getElementById('attrCategory').value;
+      const value = document.getElementById('newValue').value.trim();
+
+      if (!value) return;
+
+      const token = localStorage.getItem('admin_token');
+      const headers = { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' };
+
+      try {
+        if (category === 'roomLabels') {
+          const newLabels = [...attributeData.roomLabels, value];
+          const res = await fetch('/api/admin/room-labels', {
+            method: 'PUT',
+            headers,
+            body: JSON.stringify({ labels: newLabels })
+          });
+          const data = await res.json();
+          if (data.success) {
+            attributeData.roomLabels = data.labels;
+            renderAttributes();
+            closeModal();
+            alert('Room label added successfully!');
+          } else {
+            alert('Failed to add room label: ' + (data.error || 'Unknown error'));
+          }
+        }
+      } catch (error) {
+        console.error('Error saving value:', error);
+        alert('Error saving value. Please try again.');
+      }
+    }
+
+    async function removeRoomLabel(label) {
+      if (!confirm(`Remove "${label}" from room labels?`)) return;
+
+      const token = localStorage.getItem('admin_token');
+      const headers = { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' };
+
+      try {
+        const newLabels = attributeData.roomLabels.filter(l => l !== label);
+        const res = await fetch('/api/admin/room-labels', {
+          method: 'PUT',
+          headers,
+          body: JSON.stringify({ labels: newLabels })
+        });
+        const data = await res.json();
+        if (data.success) {
+          attributeData.roomLabels = data.labels;
+          renderAttributes();
+        } else {
+          alert('Failed to remove room label');
+        }
+      } catch (error) {
+        console.error('Error removing label:', error);
+        alert('Error removing label. Please try again.');
+      }
+    }
+
+    document.getElementById('valueModal').addEventListener('click', e => {
+      if (e.target.id === 'valueModal') closeModal();
+    });
+  </script>
+</body>
+</html>

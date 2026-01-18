@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Production Reports - Peekaboo Shades Admin</title>
+  <link rel="stylesheet" href="/admin/css/admin.css?v=1737200003.0.28">
+  <script src="/admin/js/adminNavConfig.js?v=1737200002"></script>
+  <style>
+    .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1rem; margin-bottom: 1.5rem; }
+    .stat-card { background: white; border-radius: 12px; padding: 1.25rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+    .stat-card h3 { font-size: 0.8rem; color: #666; margin-bottom: 0.5rem; }
+    .stat-card .value { font-size: 1.75rem; font-weight: 700; color: #8E6545; }
+    .stat-card .subtitle { font-size: 0.8rem; color: #666; margin-top: 0.25rem; }
+    .report-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+    .report-card { background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+    .report-card h3 { margin: 0 0 1rem 0; font-size: 1rem; }
+    .report-card.full-width { grid-column: 1 / -1; }
+    .queue-item { display: flex; justify-content: space-between; align-items: center; padding: 0.75rem; background: #f9f9f9; border-radius: 6px; margin-bottom: 0.5rem; }
+    .queue-label { font-weight: 500; }
+    .queue-count { display: flex; align-items: center; gap: 0.5rem; }
+    .queue-badge { padding: 0.25rem 0.75rem; border-radius: 12px; font-weight: 600; font-size: 0.85rem; }
+    .queue-pending { background: #FEF3C7; color: #92400E; }
+    .queue-progress { background: #DBEAFE; color: #1E40AF; }
+    .queue-complete { background: #D1FAE5; color: #065F46; }
+    table { width: 100%; border-collapse: collapse; }
+    th { background: #f9f9f9; padding: 0.75rem; text-align: left; font-weight: 600; font-size: 0.8rem; color: #666; text-transform: uppercase; }
+    td { padding: 0.75rem; border-top: 1px solid #eee; font-size: 0.9rem; }
+    .status-badge { padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.75rem; font-weight: 500; }
+    .status-pending, .status-order_received { background: #FEF3C7; color: #92400E; }
+    .status-manufacturing, .status-cutting { background: #DBEAFE; color: #1E40AF; }
+    .status-assembly { background: #E0E7FF; color: #3730A3; }
+    .status-qa { background: #FEE2E2; color: #991B1B; }
+    .status-complete, .status-shipped, .status-delivered { background: #D1FAE5; color: #065F46; }
+    .filters { display: flex; gap: 0.75rem; margin-bottom: 1.5rem; }
+    .filters select, .filters input { padding: 0.5rem; border: 1px solid #ddd; border-radius: 6px; }
+    .btn-refresh { padding: 0.5rem 1rem; background: #8E6545; color: white; border: none; border-radius: 6px; cursor: pointer; }
+    .empty-state { text-align: center; padding: 2rem; color: #666; }
+    .loading { text-align: center; padding: 2rem; color: #666; }
+  </style>
+</head>
+<body>
+  <div class="admin-layout">
+    <aside class="admin-sidebar"></aside>
+    <main class="admin-main">
+      <header class="admin-header">
+        <h1>Production Reports</h1>
+        <div class="header-actions">
+          <button class="btn-refresh" onclick="loadReport()">Refresh Data</button>
+        </div>
+      </header>
+      <div class="admin-content">
+        <div class="filters">
+          <select id="timeRange" onchange="loadReport()">
+            <option value="7">Last 7 Days</option>
+            <option value="30" selected>Last 30 Days</option>
+            <option value="90">Last 90 Days</option>
+            <option value="365">Last Year</option>
+            <option value="all">All Time</option>
+          </select>
+          <select id="statusFilter" onchange="loadReport()">
+            <option value="">All Statuses</option>
+            <option value="order_received">Order Received</option>
+            <option value="manufacturing">Manufacturing</option>
+            <option value="qa">Quality Check</option>
+            <option value="shipped">Shipped</option>
+            <option value="delivered">Delivered</option>
+          </select>
+        </div>
+
+        <div class="stats">
+          <div class="stat-card">
+            <h3>Total Units</h3>
+            <div class="value" id="totalUnits">0</div>
+            <div class="subtitle">In selected period</div>
+          </div>
+          <div class="stat-card">
+            <h3>Orders in Production</h3>
+            <div class="value" id="inProduction">0</div>
+            <div class="subtitle">Manufacturing/QA</div>
+          </div>
+          <div class="stat-card">
+            <h3>Ready to Ship</h3>
+            <div class="value" id="readyToShip">0</div>
+            <div class="subtitle">Completed orders</div>
+          </div>
+          <div class="stat-card">
+            <h3>Delivered</h3>
+            <div class="value" id="deliveredCount">0</div>
+            <div class="subtitle">Successfully completed</div>
+          </div>
+        </div>
+
+        <div class="report-grid">
+          <div class="report-card">
+            <h3>Production Queue Status</h3>
+            <div id="queueStatus">
+              <div class="queue-item">
+                <span class="queue-label">Order Received</span>
+                <div class="queue-count"><span class="queue-badge queue-pending" id="queueReceived">0</span></div>
+              </div>
+              <div class="queue-item">
+                <span class="queue-label">Manufacturing</span>
+                <div class="queue-count"><span class="queue-badge queue-progress" id="queueManufacturing">0</span></div>
+              </div>
+              <div class="queue-item">
+                <span class="queue-label">Quality Check</span>
+                <div class="queue-count"><span class="queue-badge queue-progress" id="queueQA">0</span></div>
+              </div>
+              <div class="queue-item">
+                <span class="queue-label">Shipped</span>
+                <div class="queue-count"><span class="queue-badge queue-complete" id="queueShipped">0</span></div>
+              </div>
+              <div class="queue-item">
+                <span class="queue-label">Delivered</span>
+                <div class="queue-count"><span class="queue-badge queue-complete" id="queueDelivered">0</span></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="report-card">
+            <h3>Orders by Product Type</h3>
+            <div id="productTypeStats">
+              <div class="loading">Loading...</div>
+            </div>
+          </div>
+
+          <div class="report-card full-width">
+            <h3>Recent Orders</h3>
+            <div id="loadingState" class="loading">Loading...</div>
+            <table id="productionTable" style="display: none;">
+              <thead>
+                <tr>
+                  <th>Order #</th>
+                  <th>Product</th>
+                  <th>Qty</th>
+                  <th>Created</th>
+                  <th>Status</th>
+                  <th>Customer</th>
+                </tr>
+              </thead>
+              <tbody id="productionBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+  <script>
+    let orders = [];
+
+    document.addEventListener('DOMContentLoaded', () => {
+      if (!localStorage.getItem('admin_token')) { window.location.href = '/admin/login.html'; return; }
+      AdminNavConfig.initSidebar('production-reports');
+      loadReport();
+    });
+
+    async function loadReport() {
+      const token = localStorage.getItem('admin_token');
+      const headers = { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' };
+
+      document.getElementById('loadingState').style.display = 'block';
+      document.getElementById('productionTable').style.display = 'none';
+
+      try {
+        const res = await fetch('/api/admin/orders', { headers });
+        const data = await res.json();
+
+        if (data.success) {
+          orders = data.orders || [];
+        } else {
+          orders = [];
+        }
+      } catch (error) {
+        console.error('Error loading orders:', error);
+        orders = [];
+      }
+
+      calculateStats();
+      renderProductionTable();
+    }
+
+    function calculateStats() {
+      const timeRange = document.getElementById('timeRange').value;
+      const statusFilter = document.getElementById('statusFilter').value;
+
+      let filteredOrders = [...orders];
+
+      // Filter by date range
+      if (timeRange !== 'all') {
+        const cutoffDate = new Date();
+        cutoffDate.setDate(cutoffDate.getDate() - parseInt(timeRange));
+        filteredOrders = filteredOrders.filter(o => {
+          const orderDate = new Date(o.created_at || o.createdAt);
+          return orderDate >= cutoffDate;
+        });
+      }
+
+      // Filter by status
+      if (statusFilter) {
+        filteredOrders = filteredOrders.filter(o => o.status === statusFilter);
+      }
+
+      // Calculate totals
+      let totalUnits = 0;
+      let inProduction = 0;
+      let readyToShip = 0;
+      let delivered = 0;
+
+      const statusCounts = {
+        order_received: 0,
+        manufacturing: 0,
+        qa: 0,
+        shipped: 0,
+        delivered: 0
+      };
+
+      const productTypes = {};
+
+      filteredOrders.forEach(order => {
+        const itemCount = order.items?.reduce((sum, item) => sum + (item.quantity || 1), 0) || 1;
+        totalUnits += itemCount;
+
+        const status = order.status || 'order_received';
+        if (statusCounts.hasOwnProperty(status)) {
+          statusCounts[status]++;
+        }
+
+        if (status === 'manufacturing' || status === 'qa') {
+          inProduction++;
+        } else if (status === 'shipped') {
+          readyToShip++;
+        } else if (status === 'delivered') {
+          delivered++;
+        }
+
+        // Track product types
+        order.items?.forEach(item => {
+          const type = item.product_type || item.product_slug?.split('-')[0] || 'Other';
+          if (!productTypes[type]) {
+            productTypes[type] = { count: 0, units: 0 };
+          }
+          productTypes[type].count++;
+          productTypes[type].units += item.quantity || 1;
+        });
+      });
+
+      // Update stats
+      document.getElementById('totalUnits').textContent = totalUnits;
+      document.getElementById('inProduction').textContent = inProduction;
+      document.getElementById('readyToShip').textContent = readyToShip;
+      document.getElementById('deliveredCount').textContent = delivered;
+
+      // Update queue counts
+      document.getElementById('queueReceived').textContent = statusCounts.order_received;
+      document.getElementById('queueManufacturing').textContent = statusCounts.manufacturing;
+      document.getElementById('queueQA').textContent = statusCounts.qa;
+      document.getElementById('queueShipped').textContent = statusCounts.shipped;
+      document.getElementById('queueDelivered').textContent = statusCounts.delivered;
+
+      // Render product type stats
+      const productTypeContainer = document.getElementById('productTypeStats');
+      const sortedTypes = Object.entries(productTypes).sort((a, b) => b[1].units - a[1].units);
+
+      if (sortedTypes.length === 0) {
+        productTypeContainer.innerHTML = '<div class="empty-state">No orders in selected period</div>';
+      } else {
+        productTypeContainer.innerHTML = sortedTypes.map(([type, data]) => `
+          <div class="queue-item">
+            <span class="queue-label" style="text-transform: capitalize;">${type}</span>
+            <div class="queue-count">
+              <span class="queue-badge queue-progress">${data.units} units</span>
+            </div>
+          </div>
+        `).join('');
+      }
+    }
+
+    function renderProductionTable() {
+      const timeRange = document.getElementById('timeRange').value;
+      const statusFilter = document.getElementById('statusFilter').value;
+
+      let filteredOrders = [...orders];
+
+      // Filter by date range
+      if (timeRange !== 'all') {
+        const cutoffDate = new Date();
+        cutoffDate.setDate(cutoffDate.getDate() - parseInt(timeRange));
+        filteredOrders = filteredOrders.filter(o => {
+          const orderDate = new Date(o.created_at || o.createdAt);
+          return orderDate >= cutoffDate;
+        });
+      }
+
+      // Filter by status
+      if (statusFilter) {
+        filteredOrders = filteredOrders.filter(o => o.status === statusFilter);
+      }
+
+      // Sort by date descending
+      filteredOrders.sort((a, b) => new Date(b.created_at || b.createdAt) - new Date(a.created_at || a.createdAt));
+
+      document.getElementById('loadingState').style.display = 'none';
+      document.getElementById('productionTable').style.display = 'table';
+
+      const tbody = document.getElementById('productionBody');
+
+      if (filteredOrders.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" class="empty-state">No orders found for the selected period.</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = filteredOrders.slice(0, 50).map(order => {
+        const orderNumber = order.order_number || order.id?.slice(0, 12) || 'N/A';
+        const productName = order.items?.[0]?.product_name || order.items?.[0]?.productName || 'Custom Shade';
+        const qty = order.items?.reduce((sum, item) => sum + (item.quantity || 1), 0) || 1;
+        const created = new Date(order.created_at || order.createdAt).toLocaleDateString();
+        const status = order.status || 'order_received';
+        const customer = order.customer_name || order.customerName || 'Guest';
+
+        return `
+          <tr>
+            <td><strong>${orderNumber}</strong></td>
+            <td>${productName}</td>
+            <td>${qty}</td>
+            <td>${created}</td>
+            <td><span class="status-badge status-${status}">${formatStatus(status)}</span></td>
+            <td>${customer}</td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function formatStatus(status) {
+      const statusMap = {
+        'order_received': 'Order Received',
+        'manufacturing': 'Manufacturing',
+        'qa': 'Quality Check',
+        'shipped': 'Shipped',
+        'delivered': 'Delivered',
+        'pending': 'Pending'
+      };
+      return statusMap[status] || status.charAt(0).toUpperCase() + status.slice(1).replace(/_/g, ' ');
+    }
+  </script>
+</body>
+</html>

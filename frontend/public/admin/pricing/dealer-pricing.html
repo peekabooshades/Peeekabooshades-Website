@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dealer Pricing - Peekaboo Shades Admin</title>
+  <link rel="stylesheet" href="/admin/css/admin.css?v=1737200003.0.28">
+  <script src="/admin/js/adminNavConfig.js?v=1737200002"></script>
+  <style>
+    .pricing-tabs { display: flex; gap: 0; margin-bottom: 1.5rem; border-bottom: 2px solid #eee; }
+    .pricing-tab { padding: 1rem 1.5rem; background: none; border: none; cursor: pointer; font-weight: 500; color: #666; position: relative; }
+    .pricing-tab.active { color: #8E6545; }
+    .pricing-tab.active::after { content: ''; position: absolute; bottom: -2px; left: 0; right: 0; height: 2px; background: #8E6545; }
+    .dealer-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 1.5rem; }
+    .dealer-card { background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+    .dealer-header { display: flex; justify-content: space-between; align-items: start; margin-bottom: 1rem; }
+    .dealer-name { font-size: 1.1rem; font-weight: 600; margin: 0; }
+    .dealer-tier { padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.75rem; font-weight: 600; }
+    .tier-gold { background: #FEF3C7; color: #92400E; }
+    .tier-silver { background: #E5E7EB; color: #374151; }
+    .tier-bronze { background: #FED7AA; color: #9A3412; }
+    .tier-platinum { background: #E0E7FF; color: #4338CA; }
+    .dealer-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin: 1rem 0; padding: 1rem 0; border-top: 1px solid #eee; border-bottom: 1px solid #eee; }
+    .dealer-stat { text-align: center; }
+    .dealer-stat-value { font-size: 1.25rem; font-weight: 700; color: #8E6545; }
+    .dealer-stat-label { font-size: 0.75rem; color: #666; }
+    .dealer-actions { display: flex; gap: 0.5rem; }
+    .btn-action { flex: 1; padding: 0.5rem; border: none; border-radius: 6px; cursor: pointer; font-size: 0.85rem; }
+    .btn-edit { background: #8E6545; color: white; }
+    .btn-view { background: #E5E7EB; color: #374151; }
+    .tier-config { background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); margin-bottom: 1rem; }
+    .tier-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
+    .tier-title { display: flex; align-items: center; gap: 0.75rem; }
+    .tier-title h3 { margin: 0; }
+    .tier-badge { width: 24px; height: 24px; border-radius: 50%; }
+    .discount-row { display: flex; justify-content: space-between; align-items: center; padding: 0.75rem; background: #f9f9f9; border-radius: 6px; margin-bottom: 0.5rem; }
+    .discount-category { font-weight: 500; }
+    .discount-value { display: flex; align-items: center; gap: 0.5rem; }
+    .discount-value input { width: 60px; padding: 0.4rem; border: 1px solid #ddd; border-radius: 4px; text-align: center; }
+    .modal { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; }
+    .modal.active { display: flex; }
+    .modal-content { background: white; border-radius: 12px; padding: 2rem; max-width: 500px; width: 90%; }
+    .modal-header { display: flex; justify-content: space-between; margin-bottom: 1.5rem; }
+    .modal-header h2 { margin: 0; }
+    .modal-close { background: none; border: none; font-size: 1.5rem; cursor: pointer; }
+    .form-group { margin-bottom: 1.25rem; }
+    .form-group label { display: block; margin-bottom: 0.5rem; font-weight: 500; }
+    .form-group input, .form-group select { width: 100%; padding: 0.75rem; border: 1px solid #ddd; border-radius: 8px; }
+    .btn-submit { width: 100%; padding: 0.875rem; background: #8E6545; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; }
+  </style>
+</head>
+<body>
+  <div class="admin-layout">
+    <aside class="admin-sidebar"></aside>
+    <main class="admin-main">
+      <header class="admin-header">
+        <h1>Dealer Pricing</h1>
+        <div class="header-actions">
+          <button class="btn-primary" onclick="openModal()">+ Add Dealer</button>
+        </div>
+      </header>
+      <div class="admin-content">
+        <div class="pricing-tabs">
+          <button class="pricing-tab active" data-tab="dealers" onclick="setTab('dealers')">Dealers</button>
+          <button class="pricing-tab" data-tab="tiers" onclick="setTab('tiers')">Tier Configuration</button>
+        </div>
+        <div id="dealersView" class="dealer-grid"></div>
+        <div id="tiersView" style="display: none;"></div>
+      </div>
+    </main>
+  </div>
+  <div class="modal" id="dealerModal">
+    <div class="modal-content">
+      <div class="modal-header"><h2 id="modalTitle">Add Dealer</h2><button class="modal-close" onclick="closeModal()">&times;</button></div>
+      <form onsubmit="saveDealer(event)">
+        <input type="hidden" id="dealerId">
+        <div class="form-group"><label>Company Name</label><input type="text" id="dealerName" required></div>
+        <div class="form-group"><label>Contact Email</label><input type="email" id="dealerEmail" required></div>
+        <div class="form-group"><label>Pricing Tier</label>
+          <select id="dealerTier">
+            <option value="bronze">Bronze (10% off)</option>
+            <option value="silver">Silver (15% off)</option>
+            <option value="gold">Gold (20% off)</option>
+            <option value="platinum">Platinum (25% off)</option>
+          </select>
+        </div>
+        <div class="form-group"><label>Credit Limit ($)</label><input type="number" id="dealerCredit" value="5000" min="0"></div>
+        <div class="form-group"><label>Payment Terms</label>
+          <select id="dealerTerms">
+            <option value="prepaid">Prepaid</option>
+            <option value="net15">Net 15</option>
+            <option value="net30">Net 30</option>
+            <option value="net45">Net 45</option>
+          </select>
+        </div>
+        <button type="submit" class="btn-submit">Save Dealer</button>
+      </form>
+    </div>
+  </div>
+  <script>
+    let currentTab = 'dealers';
+    const tiers = {
+      bronze: { name: 'Bronze', color: '#FED7AA', discount: 10, minOrders: 0, categories: { fabrics: 10, hardware: 8, motors: 5 } },
+      silver: { name: 'Silver', color: '#E5E7EB', discount: 15, minOrders: 10, categories: { fabrics: 15, hardware: 12, motors: 10 } },
+      gold: { name: 'Gold', color: '#FEF3C7', discount: 20, minOrders: 25, categories: { fabrics: 20, hardware: 18, motors: 15 } },
+      platinum: { name: 'Platinum', color: '#E0E7FF', discount: 25, minOrders: 50, categories: { fabrics: 25, hardware: 22, motors: 20 } }
+    };
+
+    let dealers = [];
+
+    document.addEventListener('DOMContentLoaded', () => {
+      if (!localStorage.getItem('admin_token')) { window.location.href = '/admin/login.html'; return; }
+      AdminNavConfig.initSidebar('dealer-pricing');
+      loadDealers();
+      loadTiers();
+    });
+
+    async function loadDealers() {
+      const token = localStorage.getItem('admin_token');
+      const headers = { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' };
+
+      try {
+        const res = await fetch('/api/admin/dealers', { headers });
+        const data = await res.json();
+
+        if (data.success) {
+          dealers = data.dealers || data.data || [];
+        } else {
+          dealers = [];
+        }
+      } catch (error) {
+        console.error('Error loading dealers:', error);
+        dealers = [];
+      }
+      renderDealers();
+    }
+
+    async function loadTiers() {
+      const token = localStorage.getItem('admin_token');
+      const headers = { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' };
+
+      try {
+        const res = await fetch('/api/admin/pricing/dealer-tiers', { headers });
+        const data = await res.json();
+
+        if (data.success && data.tiers) {
+          Object.assign(tiers, data.tiers);
+        }
+      } catch (error) {
+        console.error('Error loading tiers:', error);
+      }
+      renderTiers();
+    }
+
+    function setTab(tab) {
+      currentTab = tab;
+      document.querySelectorAll('.pricing-tab').forEach(t => t.classList.toggle('active', t.dataset.tab === tab));
+      document.getElementById('dealersView').style.display = tab === 'dealers' ? 'grid' : 'none';
+      document.getElementById('tiersView').style.display = tab === 'tiers' ? 'block' : 'none';
+    }
+
+    function renderDealers() {
+      document.getElementById('dealersView').innerHTML = dealers.map(dealer => `
+        <div class="dealer-card">
+          <div class="dealer-header">
+            <h3 class="dealer-name">${dealer.name}</h3>
+            <span class="dealer-tier tier-${dealer.tier}">${tiers[dealer.tier].name}</span>
+          </div>
+          <div style="font-size: 0.9rem; color: #666; margin-bottom: 0.5rem;">${dealer.email}</div>
+          <div style="font-size: 0.85rem; color: #666;">Terms: ${dealer.terms} | Credit: $${dealer.creditLimit.toLocaleString()}</div>
+          <div class="dealer-stats">
+            <div class="dealer-stat">
+              <div class="dealer-stat-value">${dealer.totalOrders}</div>
+              <div class="dealer-stat-label">Orders</div>
+            </div>
+            <div class="dealer-stat">
+              <div class="dealer-stat-value">$${(dealer.totalSpent / 1000).toFixed(0)}K</div>
+              <div class="dealer-stat-label">Total Spent</div>
+            </div>
+            <div class="dealer-stat">
+              <div class="dealer-stat-value">${tiers[dealer.tier].discount}%</div>
+              <div class="dealer-stat-label">Discount</div>
+            </div>
+          </div>
+          <div class="dealer-actions">
+            <button class="btn-action btn-edit" onclick="editDealer('${dealer.id}')">Edit</button>
+            <button class="btn-action btn-view" onclick="viewOrders('${dealer.id}')">View Orders</button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function renderTiers() {
+      document.getElementById('tiersView').innerHTML = Object.entries(tiers).map(([key, tier]) => `
+        <div class="tier-config">
+          <div class="tier-header">
+            <div class="tier-title">
+              <span class="tier-badge" style="background: ${tier.color};"></span>
+              <h3>${tier.name} Tier</h3>
+            </div>
+            <span style="font-size: 0.9rem; color: #666;">Min Orders: ${tier.minOrders}</span>
+          </div>
+          <div class="discount-row">
+            <span class="discount-category">Fabrics</span>
+            <div class="discount-value">
+              <input type="number" value="${tier.categories.fabrics}" onchange="updateTierDiscount('${key}', 'fabrics', this.value)">
+              <span>% off</span>
+            </div>
+          </div>
+          <div class="discount-row">
+            <span class="discount-category">Hardware</span>
+            <div class="discount-value">
+              <input type="number" value="${tier.categories.hardware}" onchange="updateTierDiscount('${key}', 'hardware', this.value)">
+              <span>% off</span>
+            </div>
+          </div>
+          <div class="discount-row">
+            <span class="discount-category">Motors</span>
+            <div class="discount-value">
+              <input type="number" value="${tier.categories.motors}" onchange="updateTierDiscount('${key}', 'motors', this.value)">
+              <span>% off</span>
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    async function updateTierDiscount(tierKey, category, value) {
+      tiers[tierKey].categories[category] = parseInt(value);
+
+      const token = localStorage.getItem('admin_token');
+      const headers = { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' };
+
+      try {
+        await fetch('/api/admin/pricing/dealer-tiers', {
+          method: 'PUT',
+          headers,
+          body: JSON.stringify({ tiers })
+        });
+      } catch (error) {
+        console.error('Error saving tier discount:', error);
+      }
+    }
+
+    function openModal(dealer = null) {
+      document.getElementById('dealerId').value = dealer ? dealer.id : '';
+      document.getElementById('dealerName').value = dealer ? dealer.name : '';
+      document.getElementById('dealerEmail').value = dealer ? dealer.email : '';
+      document.getElementById('dealerTier').value = dealer ? dealer.tier : 'bronze';
+      document.getElementById('dealerCredit').value = dealer ? dealer.creditLimit : 5000;
+      document.getElementById('dealerTerms').value = dealer ? dealer.terms : 'prepaid';
+      document.getElementById('modalTitle').textContent = dealer ? 'Edit Dealer' : 'Add Dealer';
+      document.getElementById('dealerModal').classList.add('active');
+    }
+
+    function closeModal() { document.getElementById('dealerModal').classList.remove('active'); }
+
+    function editDealer(id) {
+      const dealer = dealers.find(d => d.id === id);
+      if (dealer) openModal(dealer);
+    }
+
+    function viewOrders(id) {
+      const dealer = dealers.find(d => d.id === id);
+      if (dealer) alert(`Viewing orders for ${dealer.name}\nTotal: ${dealer.totalOrders} orders`);
+    }
+
+    async function saveDealer(e) {
+      e.preventDefault();
+      const id = document.getElementById('dealerId').value;
+      const token = localStorage.getItem('admin_token');
+      const headers = { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' };
+
+      const dealerData = {
+        name: document.getElementById('dealerName').value,
+        email: document.getElementById('dealerEmail').value,
+        tier: document.getElementById('dealerTier').value,
+        creditLimit: parseInt(document.getElementById('dealerCredit').value),
+        terms: document.getElementById('dealerTerms').value
+      };
+
+      try {
+        let res;
+        if (id) {
+          res = await fetch(`/api/admin/dealers/${id}`, {
+            method: 'PUT',
+            headers,
+            body: JSON.stringify(dealerData)
+          });
+        } else {
+          res = await fetch('/api/admin/dealers', {
+            method: 'POST',
+            headers,
+            body: JSON.stringify(dealerData)
+          });
+        }
+
+        const data = await res.json();
+
+        if (data.success) {
+          closeModal();
+          loadDealers();
+          alert(id ? 'Dealer updated' : 'Dealer added');
+        } else {
+          alert('Failed to save dealer: ' + (data.error || 'Unknown error'));
+        }
+      } catch (error) {
+        console.error('Error saving dealer:', error);
+        alert('Error saving dealer. Please try again.');
+      }
+    }
+
+    document.getElementById('dealerModal').addEventListener('click', e => { if (e.target.id === 'dealerModal') closeModal(); });
+  </script>
+</body>
+</html>

@@ -4,55 +4,71 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Fabrics - Peekaboo Shades Admin</title>
-  <link rel="stylesheet" href="css/admin.css">
-  <link rel="icon" type="image/png" href="/images/favicon.png">
+  <link rel="stylesheet" href="css/admin.css?v=1737200003">
+  <link rel="icon" type="image/jpeg" href="/images/peekabooshades_logo.jpeg">
   <style>
+    /* Peekaboo Theme Colors */
+    :root {
+      --pk-primary: #8E6545;
+      --pk-primary-light: #A67C52;
+      --pk-primary-dark: #6B4D35;
+      --pk-success: #059669;
+      --pk-danger: #dc2626;
+    }
+
     .fabric-image {
       width: 50px;
       height: 50px;
       object-fit: cover;
-      border-radius: 6px;
-      border: 1px solid var(--admin-border);
+      border-radius: 8px;
+      border: 2px solid #e8e4e0;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     }
     .fabric-code {
       font-family: monospace;
-      font-weight: 600;
-      color: var(--admin-primary);
+      font-weight: 700;
+      color: var(--pk-primary);
+      font-size: 14px;
     }
     .filter-type-badge {
       display: inline-block;
-      padding: 4px 10px;
+      padding: 5px 12px;
       border-radius: 20px;
-      font-size: 12px;
-      font-weight: 500;
-      text-transform: capitalize;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
     }
     .filter-type-badge.blackout {
-      background: #1a1a2e;
+      background: linear-gradient(135deg, #1a1a2e 0%, #2d2d4a 100%);
       color: #fff;
     }
     .filter-type-badge.semi-blackout {
-      background: #4a4a6a;
+      background: linear-gradient(135deg, #4a4a6a 0%, #6a6a8a 100%);
       color: #fff;
     }
     .filter-type-badge.transparent {
-      background: #e8f4f8;
-      color: #0891b2;
+      background: linear-gradient(135deg, #e0f2fe 0%, #bae6fd 100%);
+      color: #0369a1;
     }
     .filter-type-badge.super-blackout {
-      background: #7c2d12;
+      background: linear-gradient(135deg, #7c2d12 0%, #9a3412 100%);
       color: #fff;
     }
+
+    /* Active/Inactive Toggle - Enhanced Visibility */
     .status-toggle {
       position: relative;
-      width: 44px;
-      height: 24px;
+      width: 52px;
+      height: 28px;
       cursor: pointer;
+      display: inline-block;
     }
     .status-toggle input {
       opacity: 0;
       width: 0;
       height: 0;
+      position: absolute;
     }
     .status-toggle .slider {
       position: absolute;
@@ -60,72 +76,229 @@
       left: 0;
       right: 0;
       bottom: 0;
-      background-color: #ccc;
-      border-radius: 24px;
-      transition: 0.3s;
+      background: linear-gradient(135deg, #e5e5e5 0%, #d4d4d4 100%);
+      border-radius: 28px;
+      transition: all 0.3s ease;
+      border: 2px solid #bbb;
+      box-shadow: inset 0 2px 4px rgba(0,0,0,0.1);
     }
     .status-toggle .slider:before {
       position: absolute;
       content: "";
-      height: 18px;
-      width: 18px;
-      left: 3px;
-      bottom: 3px;
-      background-color: white;
+      height: 20px;
+      width: 20px;
+      left: 2px;
+      bottom: 2px;
+      background: white;
       border-radius: 50%;
-      transition: 0.3s;
+      transition: all 0.3s ease;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
     }
     .status-toggle input:checked + .slider {
-      background-color: var(--admin-success);
+      background: linear-gradient(135deg, var(--pk-success) 0%, #10b981 100%);
+      border-color: var(--pk-success);
     }
     .status-toggle input:checked + .slider:before {
-      transform: translateX(20px);
+      transform: translateX(24px);
     }
+    /* Inactive state - more visible red */
+    .status-toggle input:not(:checked) + .slider {
+      background: linear-gradient(135deg, #fecaca 0%, #fca5a5 100%);
+      border-color: #f87171;
+    }
+
+    /* Filter Buttons - Peekaboo Theme */
     .filter-buttons {
       display: flex;
-      gap: 8px;
-      margin-bottom: 20px;
+      gap: 10px;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
     }
     .filter-btn {
-      padding: 8px 16px;
-      border: 1px solid var(--admin-border);
-      background: var(--admin-card);
-      border-radius: 6px;
+      padding: 10px 20px;
+      border: 2px solid #e8e4e0;
+      background: white;
+      border-radius: 25px;
       cursor: pointer;
-      font-size: 14px;
-      transition: all 0.2s;
+      font-size: 13px;
+      font-weight: 500;
+      transition: all 0.2s ease;
+      color: #6b7280;
     }
     .filter-btn:hover {
-      border-color: var(--admin-primary);
+      border-color: var(--pk-primary);
+      color: var(--pk-primary);
+      background: #faf6f3;
     }
     .filter-btn.active {
-      background: var(--admin-primary);
+      background: linear-gradient(135deg, var(--pk-primary) 0%, var(--pk-primary-light) 100%);
       color: white;
-      border-color: var(--admin-primary);
+      border-color: var(--pk-primary);
+      box-shadow: 0 4px 12px rgba(142, 101, 69, 0.3);
     }
     .filter-btn .count {
       display: inline-block;
       background: rgba(0,0,0,0.1);
-      padding: 2px 8px;
-      border-radius: 10px;
-      margin-left: 6px;
-      font-size: 12px;
+      padding: 3px 10px;
+      border-radius: 12px;
+      margin-left: 8px;
+      font-size: 11px;
+      font-weight: 600;
     }
     .filter-btn.active .count {
-      background: rgba(255,255,255,0.2);
+      background: rgba(255,255,255,0.25);
     }
+
+    /* Product Type Tabs - Peekaboo Theme */
+    .product-type-tabs {
+      border-bottom: 2px solid #e8e4e0 !important;
+    }
+    .product-tab {
+      position: relative;
+      padding: 14px 28px !important;
+      font-size: 14px !important;
+      transition: all 0.2s ease;
+    }
+    .product-tab.active {
+      color: var(--pk-primary) !important;
+      border-bottom-color: var(--pk-primary) !important;
+    }
+    .product-tab:hover:not(.active) {
+      color: var(--pk-primary-light) !important;
+      background: #faf6f3;
+    }
+    .product-tab span {
+      font-size: 11px !important;
+      padding: 3px 10px !important;
+    }
+    .product-tab.active span {
+      background: var(--pk-primary) !important;
+    }
+
+    /* Page Title - Peekaboo Theme */
+    .page-title {
+      color: var(--pk-primary) !important;
+      font-weight: 700;
+    }
+
+    /* Buttons - Peekaboo Theme */
+    .btn-primary {
+      background: linear-gradient(135deg, var(--pk-primary) 0%, var(--pk-primary-light) 100%) !important;
+      border-color: var(--pk-primary) !important;
+      box-shadow: 0 4px 12px rgba(142, 101, 69, 0.25);
+    }
+    .btn-primary:hover {
+      background: linear-gradient(135deg, var(--pk-primary-dark) 0%, var(--pk-primary) 100%) !important;
+    }
+    .btn-secondary {
+      border-color: var(--pk-primary) !important;
+      color: var(--pk-primary) !important;
+    }
+    .btn-secondary:hover {
+      background: #faf6f3 !important;
+    }
+
+    /* Action Buttons */
+    .action-buttons {
+      display: flex !important;
+      gap: 8px;
+      justify-content: center;
+    }
+    .action-btn {
+      display: inline-flex !important;
+      align-items: center;
+      justify-content: center;
+      width: 36px;
+      height: 36px;
+      border: 2px solid var(--pk-primary) !important;
+      background: white !important;
+      padding: 6px !important;
+      border-radius: 8px;
+      transition: all 0.2s ease;
+      cursor: pointer;
+      color: var(--pk-primary);
+    }
+    .action-btn:hover {
+      background: var(--pk-primary) !important;
+      color: white !important;
+    }
+    .action-btn.danger {
+      border-color: var(--pk-danger) !important;
+      color: var(--pk-danger);
+    }
+    .action-btn.danger:hover {
+      background: var(--pk-danger) !important;
+      color: white !important;
+    }
+    .action-btn svg {
+      width: 18px;
+      height: 18px;
+    }
+
+    /* Modal overlay fix */
+    .modal-overlay {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 9999;
+      align-items: center;
+      justify-content: center;
+    }
+    .modal-overlay.active {
+      display: flex !important;
+    }
+
+    /* Table Styling */
+    .admin-table th {
+      background: linear-gradient(135deg, #faf6f3 0%, #f5efe9 100%);
+      color: var(--pk-primary);
+      font-weight: 600;
+      text-transform: uppercase;
+      font-size: 11px;
+      letter-spacing: 0.5px;
+      border-bottom: 2px solid var(--pk-primary);
+    }
+    .admin-table td {
+      border-bottom: 1px solid #e8e4e0;
+      padding: 14px 12px;
+    }
+    .admin-table tr:hover {
+      background: #faf6f3;
+    }
+
+    /* Card styling */
+    .card {
+      border: 1px solid #e8e4e0;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    }
+
+    /* Status labels */
+    .status-label-active {
+      color: var(--pk-success);
+      font-weight: 600;
+    }
+    .status-label-inactive {
+      color: var(--pk-danger);
+      font-weight: 600;
+    }
+
     .image-preview {
       width: 100%;
       max-width: 200px;
       height: 120px;
-      border: 2px dashed var(--admin-border);
-      border-radius: 8px;
+      border: 2px dashed #e8e4e0;
+      border-radius: 12px;
       display: flex;
       align-items: center;
       justify-content: center;
       margin-top: 8px;
       overflow: hidden;
-      background: #f9fafb;
+      background: #faf6f3;
     }
     .image-preview img {
       max-width: 100%;
@@ -133,116 +306,47 @@
       object-fit: contain;
     }
     .image-preview-placeholder {
-      color: var(--admin-text-secondary);
+      color: var(--pk-primary-light);
       font-size: 13px;
+    }
+
+    /* Modal styling */
+    .modal-header {
+      background: linear-gradient(135deg, var(--pk-primary) 0%, var(--pk-primary-light) 100%);
+      color: white;
+      padding: 20px 24px;
+      border-radius: 12px 12px 0 0;
+    }
+    .modal-title {
+      color: white !important;
+    }
+    .modal-close {
+      color: white !important;
+    }
+    .modal-close:hover {
+      background: rgba(255,255,255,0.2) !important;
+    }
+
+    /* Form tabs */
+    .form-tab.active {
+      border-bottom-color: var(--pk-primary) !important;
+      color: var(--pk-primary) !important;
+    }
+    .form-tab:hover:not(.active) {
+      color: var(--pk-primary-light) !important;
+    }
+
+    /* Sidebar active item */
+    .nav-item.active {
+      background: linear-gradient(135deg, var(--pk-primary) 0%, var(--pk-primary-light) 100%) !important;
     }
   </style>
 </head>
 <body>
   <div class="admin-layout">
-    <!-- Sidebar -->
+    <!-- Sidebar (dynamically populated by adminNavConfig.js) -->
     <aside class="admin-sidebar">
-      <div class="sidebar-header">
-        <a href="/admin/" class="sidebar-logo">
-          <img src="/images/peekabooshades_logo.jpeg" alt="Peekaboo Shades" style="height: 32px; width: auto; border-radius: 6px;">
-          <span>Peekaboo Shades</span>
-        </a>
-      </div>
-
-      <nav class="sidebar-nav">
-        <div class="nav-section">
-          <a href="/admin/" class="nav-item">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-            </svg>
-            <span>Dashboard</span>
-          </a>
-        </div>
-
-        <div class="nav-section">
-          <div class="nav-section-title">Catalog</div>
-          <a href="/admin/products.html" class="nav-item">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-            </svg>
-            <span>Products</span>
-          </a>
-          <a href="/admin/categories.html" class="nav-item">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
-            </svg>
-            <span>Categories</span>
-          </a>
-          <a href="/admin/fabrics.html" class="nav-item active">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-            </svg>
-            <span>Fabrics</span>
-          </a>
-          <a href="/admin/hardware-options.html" class="nav-item">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-            </svg>
-            <span>Hardware Options</span>
-          </a>
-          <a href="/admin/accessories.html" class="nav-item">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 14v6m-3-3h6M6 10h2a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v2a2 2 0 002 2zm10 0h2a2 2 0 002-2V6a2 2 0 00-2-2h-2a2 2 0 00-2 2v2a2 2 0 002 2zM6 20h2a2 2 0 002-2v-2a2 2 0 00-2-2H6a2 2 0 00-2 2v2a2 2 0 002 2z" />
-            </svg>
-            <span>Accessories</span>
-          </a>
-        </div>
-
-        <div class="nav-section">
-          <div class="nav-section-title">Sales</div>
-          <a href="/admin/orders.html" class="nav-item">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
-            </svg>
-            <span>Orders</span>
-          </a>
-          <a href="/admin/quotes.html" class="nav-item">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-            </svg>
-            <span>Quotes</span>
-          </a>
-        </div>
-
-        <div class="nav-section">
-          <div class="nav-section-title">Content</div>
-          <a href="/admin/product-content.html" class="nav-item">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-            </svg>
-            <span>Product Content</span>
-          </a>
-          <a href="/admin/product-catalog.html" class="nav-item">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-            </svg>
-            <span>Product Catalog</span>
-          </a>
-          <a href="/admin/faqs.html" class="nav-item">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            <span>FAQs</span>
-          </a>
-        </div>
-
-        <div class="nav-section">
-          <div class="nav-section-title">Settings</div>
-          <a href="/admin/settings.html" class="nav-item">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-            </svg>
-            <span>Settings</span>
-          </a>
-        </div>
-      </nav>
+      <!-- Sidebar content will be injected dynamically -->
     </aside>
 
     <!-- Main Content -->
@@ -276,6 +380,12 @@
         <div class="page-header">
           <h1 class="page-title">Fabrics</h1>
           <div class="page-actions">
+            <button class="btn btn-secondary" onclick="openBulkUploadModal()">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+              </svg>
+              Bulk Upload
+            </button>
             <button class="btn btn-primary" onclick="openModal()">
               <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
@@ -484,59 +594,75 @@
 
           <!-- Details & Pricing Tab -->
           <div class="tab-content" id="tab-details" style="display: none;">
+            <h4 style="margin: 0 0 15px 0; font-size: 14px; color: var(--admin-primary);">Material Specifications</h4>
             <div class="form-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
               <div class="form-group">
-                <label class="form-label" for="fab-material">Material / Composition</label>
+                <label class="form-label" for="fab-material">Composition</label>
                 <input type="text" class="form-input" id="fab-material" placeholder="e.g., 100% Polyester">
               </div>
               <div class="form-group">
-                <label class="form-label" for="fab-weight">Fabric Weight</label>
-                <input type="text" class="form-input" id="fab-weight" placeholder="e.g., 280 gsm">
+                <label class="form-label" for="fab-weight">Weight (g/m²)</label>
+                <input type="text" class="form-input" id="fab-weight" placeholder="e.g., 160g/m²">
               </div>
             </div>
+            <div class="form-row" style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 16px;">
+              <div class="form-group">
+                <label class="form-label" for="fab-width">Width (cm)</label>
+                <input type="number" class="form-input" id="fab-width" placeholder="e.g., 280">
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="fab-thickness">Thickness</label>
+                <input type="text" class="form-input" id="fab-thickness" placeholder="e.g., 0.38mm">
+              </div>
+              <div class="form-group">
+                <label class="form-label" for="fab-repeat">Pattern Repeat</label>
+                <input type="text" class="form-input" id="fab-repeat" placeholder="e.g., 7.5*5cm">
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Material Properties</label>
+              <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 8px;">
+                <label style="display: flex; align-items: center; gap: 6px; cursor: pointer; padding: 8px 12px; border: 1px solid var(--admin-border); border-radius: 6px;">
+                  <input type="checkbox" id="feat-water" style="width: 16px; height: 16px;"> Waterproof
+                </label>
+                <label style="display: flex; align-items: center; gap: 6px; cursor: pointer; padding: 8px 12px; border: 1px solid var(--admin-border); border-radius: 6px;">
+                  <input type="checkbox" id="feat-fire" style="width: 16px; height: 16px;"> Fire Resistant
+                </label>
+                <label style="display: flex; align-items: center; gap: 6px; cursor: pointer; padding: 8px 12px; border: 1px solid var(--admin-border); border-radius: 6px;">
+                  <input type="checkbox" id="feat-mildew" style="width: 16px; height: 16px;"> Mildew Proof
+                </label>
+                <label style="display: flex; align-items: center; gap: 6px; cursor: pointer; padding: 8px 12px; border: 1px solid var(--admin-border); border-radius: 6px;">
+                  <input type="checkbox" id="feat-formaldehyde" style="width: 16px; height: 16px;"> Formaldehyde Free
+                </label>
+                <label style="display: flex; align-items: center; gap: 6px; cursor: pointer; padding: 8px 12px; border: 1px solid var(--admin-border); border-radius: 6px;">
+                  <input type="checkbox" id="feat-antibacteria" style="width: 16px; height: 16px;"> Anti-Bacterial
+                </label>
+                <label style="display: flex; align-items: center; gap: 6px; cursor: pointer; padding: 8px 12px; border: 1px solid var(--admin-border); border-radius: 6px;">
+                  <input type="checkbox" id="feat-uv" style="width: 16px; height: 16px;"> UV Protection
+                </label>
+              </div>
+            </div>
+            <hr style="margin: 20px 0; border: none; border-top: 1px solid var(--admin-border);">
+            <h4 style="margin: 0 0 15px 0; font-size: 14px; color: var(--admin-primary);">Other Details</h4>
             <div class="form-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
               <div class="form-group">
-                <label class="form-label" for="fab-width">Fabric Width</label>
-                <input type="text" class="form-input" id="fab-width" placeholder="e.g., 200 cm">
+                <label class="form-label" for="fab-color-family">Color Family</label>
+                <select class="form-input" id="fab-color-family">
+                  <option value="">Select color family...</option>
+                  <option value="white">White / Cream</option>
+                  <option value="gray">Gray / Silver</option>
+                  <option value="black">Black / Charcoal</option>
+                  <option value="brown">Brown / Tan</option>
+                  <option value="beige">Beige / Natural</option>
+                  <option value="blue">Blue</option>
+                  <option value="green">Green</option>
+                  <option value="red">Red / Burgundy</option>
+                  <option value="other">Other</option>
+                </select>
               </div>
               <div class="form-group">
                 <label class="form-label" for="fab-price-modifier">Price Modifier ($)</label>
                 <input type="number" class="form-input" id="fab-price-modifier" step="0.01" value="0" placeholder="Additional cost per sq ft">
-              </div>
-            </div>
-            <div class="form-group">
-              <label class="form-label" for="fab-color-family">Color Family</label>
-              <select class="form-input" id="fab-color-family">
-                <option value="">Select color family...</option>
-                <option value="white">White / Cream</option>
-                <option value="gray">Gray / Silver</option>
-                <option value="black">Black / Charcoal</option>
-                <option value="brown">Brown / Tan</option>
-                <option value="beige">Beige / Natural</option>
-                <option value="blue">Blue</option>
-                <option value="green">Green</option>
-                <option value="red">Red / Burgundy</option>
-                <option value="other">Other</option>
-              </select>
-            </div>
-            <div class="form-group">
-              <label class="form-label" for="fab-features">Features</label>
-              <div style="display: flex; flex-wrap: wrap; gap: 10px; margin-top: 8px;">
-                <label style="display: flex; align-items: center; gap: 6px; cursor: pointer;">
-                  <input type="checkbox" id="feat-uv" style="width: 16px; height: 16px;"> UV Protection
-                </label>
-                <label style="display: flex; align-items: center; gap: 6px; cursor: pointer;">
-                  <input type="checkbox" id="feat-fire" style="width: 16px; height: 16px;"> Fire Retardant
-                </label>
-                <label style="display: flex; align-items: center; gap: 6px; cursor: pointer;">
-                  <input type="checkbox" id="feat-water" style="width: 16px; height: 16px;"> Water Resistant
-                </label>
-                <label style="display: flex; align-items: center; gap: 6px; cursor: pointer;">
-                  <input type="checkbox" id="feat-eco" style="width: 16px; height: 16px;"> Eco-Friendly
-                </label>
-                <label style="display: flex; align-items: center; gap: 6px; cursor: pointer;">
-                  <input type="checkbox" id="feat-energy" style="width: 16px; height: 16px;"> Energy Efficient
-                </label>
               </div>
             </div>
             <div class="form-group">
@@ -595,7 +721,179 @@
     </div>
   </div>
 
-  <script src="js/admin.js"></script>
+  <!-- Bulk Upload Modal -->
+  <div class="modal-overlay" id="bulk-upload-modal">
+    <div class="modal" style="max-width: 600px;">
+      <div class="modal-header">
+        <h3 class="modal-title">Bulk Upload Fabrics</h3>
+        <button class="modal-close" onclick="closeBulkUploadModal()">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div style="background: #f0f9ff; border: 1px solid #bfdbfe; border-radius: 8px; padding: 16px; margin-bottom: 20px;">
+          <h4 style="margin: 0 0 8px 0; font-size: 14px; color: #1e40af;">CSV Template Format</h4>
+          <p style="font-size: 12px; color: #3b82f6; margin: 0 0 12px 0;">Download the template, fill in your fabric data, and upload it back.</p>
+          <button class="btn btn-secondary" onclick="downloadCSVTemplate()" style="font-size: 12px; padding: 8px 12px;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="margin-right: 6px;">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+            </svg>
+            Download CSV Template
+          </button>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Select Product Type</label>
+          <select class="form-input" id="bulk-product-type">
+            <option value="roller">Roller Shades</option>
+            <option value="zebra">Zebra Shades</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Upload CSV File</label>
+          <div id="csv-upload-area" style="border: 2px dashed var(--admin-border); border-radius: 8px; padding: 30px; text-align: center; cursor: pointer; transition: all 0.3s;" onclick="document.getElementById('csv-file-input').click()">
+            <input type="file" id="csv-file-input" accept=".csv" style="display: none;" onchange="handleCSVSelect(event)">
+            <svg xmlns="http://www.w3.org/2000/svg" width="40" height="40" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="color: var(--admin-text-secondary); margin-bottom: 10px;">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+            </svg>
+            <p style="color: var(--admin-text-secondary); margin: 0;" id="csv-upload-text">Click to select CSV file or drag & drop</p>
+          </div>
+        </div>
+
+        <div id="csv-preview" style="display: none; margin-top: 20px;">
+          <h4 style="margin: 0 0 10px 0; font-size: 14px;">Preview (<span id="csv-row-count">0</span> fabrics)</h4>
+          <div style="max-height: 200px; overflow-y: auto; border: 1px solid var(--admin-border); border-radius: 6px;">
+            <table class="admin-table" style="font-size: 12px;">
+              <thead>
+                <tr id="csv-preview-header"></tr>
+              </thead>
+              <tbody id="csv-preview-body"></tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" onclick="closeBulkUploadModal()">Cancel</button>
+        <button type="button" class="btn btn-primary" id="bulk-upload-btn" onclick="processBulkUpload()" disabled>
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="margin-right: 6px;">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+          </svg>
+          Upload Fabrics
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Zebra Fabric Edit Modal -->
+  <div class="modal-overlay" id="zebra-edit-modal">
+    <div class="modal" style="max-width: 700px; max-height: 90vh; overflow-y: auto;">
+      <div class="modal-header">
+        <h3 class="modal-title" id="zebra-modal-title">Edit Zebra Fabric</h3>
+        <button class="modal-close" onclick="closeZebraModal()">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+      <form id="zebra-fabric-form" onsubmit="saveZebraFabric(event)">
+        <div class="modal-body">
+          <div class="form-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+            <div class="form-group">
+              <label class="form-label" for="zebra-code">Fabric Code</label>
+              <input type="text" class="form-input" id="zebra-code" readonly style="background: #f3f4f6;">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="zebra-category">Category</label>
+              <select class="form-input" id="zebra-category">
+                <option value="semi-blackout">Semi-Blackout</option>
+                <option value="blackout">Blackout</option>
+                <option value="transparent">Transparent</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="zebra-name">Fabric Name</label>
+            <input type="text" class="form-input" id="zebra-name" placeholder="e.g., Zebra Semi-blackout 83003A">
+          </div>
+          <div class="form-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+            <div class="form-group">
+              <label class="form-label" for="zebra-composition">Composition</label>
+              <input type="text" class="form-input" id="zebra-composition" placeholder="e.g., 100% Polyester">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="zebra-weight">Weight</label>
+              <input type="text" class="form-input" id="zebra-weight" placeholder="e.g., 115g/m²">
+            </div>
+          </div>
+          <div class="form-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+            <div class="form-group">
+              <label class="form-label" for="zebra-width">Width (cm)</label>
+              <input type="number" class="form-input" id="zebra-width" placeholder="e.g., 300">
+            </div>
+            <div class="form-group">
+              <label class="form-label" for="zebra-repeat">Repeat</label>
+              <input type="text" class="form-input" id="zebra-repeat" placeholder="e.g., 7.5*5cm">
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label" for="zebra-image">Image URL</label>
+            <div style="display: flex; gap: 10px; align-items: flex-start;">
+              <input type="text" class="form-input" id="zebra-image" placeholder="/images/fabrics/zebra/code.png" style="flex: 1;">
+              <div id="zebra-image-preview" style="width: 80px; height: 80px; border: 2px solid #e8e4e0; border-radius: 8px; overflow: hidden; flex-shrink: 0;">
+                <img id="zebra-preview-img" src="" alt="Preview" style="width: 100%; height: 100%; object-fit: cover; display: none;">
+                <div id="zebra-preview-placeholder" style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; background: #f9fafb; color: #9ca3af; font-size: 10px;">No Image</div>
+              </div>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Features</label>
+            <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 8px;">
+              <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                <input type="checkbox" id="zebra-waterResistant" style="width: 18px; height: 18px; accent-color: var(--pk-primary);">
+                <span style="font-size: 13px;">Water Resistant</span>
+              </label>
+              <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                <input type="checkbox" id="zebra-fireResistant" style="width: 18px; height: 18px; accent-color: var(--pk-primary);">
+                <span style="font-size: 13px;">Fire Resistant</span>
+              </label>
+              <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                <input type="checkbox" id="zebra-mildewProof" style="width: 18px; height: 18px; accent-color: var(--pk-primary);">
+                <span style="font-size: 13px;">Mildew Proof</span>
+              </label>
+              <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                <input type="checkbox" id="zebra-formaldehydeFree" style="width: 18px; height: 18px; accent-color: var(--pk-primary);">
+                <span style="font-size: 13px;">Formaldehyde Free</span>
+              </label>
+              <label style="display: flex; align-items: center; gap: 8px; cursor: pointer;">
+                <input type="checkbox" id="zebra-antiBacteria" style="width: 18px; height: 18px; accent-color: var(--pk-primary);">
+                <span style="font-size: 13px;">Anti-Bacteria</span>
+              </label>
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Status</label>
+            <div style="padding-top: 8px;">
+              <label class="status-toggle">
+                <input type="checkbox" id="zebra-enabled" checked>
+                <span class="slider"></span>
+              </label>
+              <span style="margin-left: 10px; color: var(--admin-text-secondary);" id="zebra-status-label">Active</span>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" onclick="closeZebraModal()">Cancel</button>
+          <button type="submit" class="btn btn-primary">Save Changes</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="js/adminNavConfig.js?v=1737200002"></script>
+  <script src="js/admin.js?v=1737100001"></script>
   <script>
     // Require authentication
     if (!Admin.Auth.requireAuth()) {
@@ -609,14 +907,21 @@
     let currentFilter = 'all';
 
     async function loadFabrics() {
+      console.log('loadFabrics called');
       try {
         const data = await Admin.FabricsAPI.getAll();
+        console.log('Fabrics API response:', data);
         if (data.success) {
           allFabrics = data.fabrics || [];
+          console.log('Loaded fabrics:', allFabrics.length);
           updateCounts();
           filterFabrics(currentFilter);
+        } else {
+          console.error('Failed to load fabrics:', data.error);
+          Admin.Toast.error('Failed to load fabrics');
         }
       } catch (error) {
+        console.error('loadFabrics error:', error);
         Admin.Toast.error('Failed to load fabrics');
       }
     }
@@ -685,14 +990,19 @@
             </label>
           </td>
           <td>
-            <div class="action-buttons">
-              <button class="action-btn" title="Edit" onclick="editFabric('${fab.id}')">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <div style="display: flex; gap: 8px; justify-content: center;">
+              <button type="button" style="display: inline-flex; align-items: center; justify-content: center; width: 36px; height: 36px; border: 2px solid #8E6545; background: white; border-radius: 8px; cursor: pointer; color: #8E6545;" onclick="window.editFabric('${fab.id}')" title="Edit">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                 </svg>
               </button>
-              <button class="action-btn danger" title="Delete" onclick="deleteFabric('${fab.id}', '${Admin.Utils.escapeHtml(fab.code)}')">
-                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <button type="button" style="display: inline-flex; align-items: center; justify-content: center; width: 36px; height: 36px; border: 2px solid #8E6545; background: white; border-radius: 8px; cursor: pointer; color: #8E6545;" onclick="window.uploadRollerFabricImage('${fab.id}', '${fab.code}')" title="Upload Image">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+              </button>
+              <button type="button" style="display: inline-flex; align-items: center; justify-content: center; width: 36px; height: 36px; border: 2px solid #dc2626; background: white; border-radius: 8px; cursor: pointer; color: #dc2626;" onclick="window.deleteFabric('${fab.id}', '${fab.code}')" title="Delete">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                 </svg>
               </button>
@@ -855,73 +1165,108 @@
     // MODAL FUNCTIONS
     // ============================================
     function openModal(fabric = null) {
-      editingId = fabric ? fabric.id : null;
-      document.getElementById('modal-title').textContent = fabric ? 'Edit Fabric' : 'Add Fabric';
-      document.getElementById('save-btn').textContent = fabric ? 'Update Fabric' : 'Save Fabric';
+      try {
+        editingId = fabric ? fabric.id : null;
+        document.getElementById('modal-title').textContent = fabric ? 'Edit Fabric' : 'Add Fabric';
+        document.getElementById('save-btn').textContent = fabric ? 'Update Fabric' : 'Save Fabric';
 
-      // Reset to first tab
-      switchTab('basic');
+        // Reset to first tab
+        switchTab('basic');
 
-      // Basic Info
-      document.getElementById('fab-code').value = fabric?.code || '';
-      document.getElementById('fab-name').value = fabric?.name || '';
-      document.getElementById('fab-image').value = fabric?.imageUrl || '';
-      document.getElementById('fab-filter').value = fabric?.filterType || 'blackout';
-      document.getElementById('fab-order').value = fabric?.sortOrder || (allFabrics.length + 1);
-      document.getElementById('fab-active').checked = fabric?.isActive !== false;
-      document.getElementById('fab-featured').checked = fabric?.isFeatured || false;
-      document.getElementById('fab-description').value = fabric?.description || '';
+        // Basic Info
+        document.getElementById('fab-code').value = fabric?.code || '';
+        document.getElementById('fab-name').value = fabric?.name || '';
+        document.getElementById('fab-image').value = fabric?.imageUrl || '';
+        document.getElementById('fab-filter').value = fabric?.filterType || 'blackout';
+        document.getElementById('fab-order').value = fabric?.sortOrder || (allFabrics.length + 1);
+        document.getElementById('fab-active').checked = fabric?.isActive !== false;
+        document.getElementById('fab-featured').checked = fabric?.isFeatured || false;
+        document.getElementById('fab-description').value = fabric?.description || '';
 
-      // Details & Pricing
-      document.getElementById('fab-material').value = fabric?.material || '';
-      document.getElementById('fab-weight').value = fabric?.weight || '';
-      document.getElementById('fab-width').value = fabric?.width || '';
-      document.getElementById('fab-price-modifier').value = fabric?.priceModifier || 0;
-      document.getElementById('fab-color-family').value = fabric?.colorFamily || '';
-      document.getElementById('fab-care').value = fabric?.careInstructions || '';
-      document.getElementById('fab-warranty').value = fabric?.warranty || '';
+        // Details & Pricing
+        document.getElementById('fab-material').value = fabric?.material || '';
+        document.getElementById('fab-weight').value = fabric?.weight || '';
+        document.getElementById('fab-width').value = fabric?.width || '';
+        document.getElementById('fab-price-modifier').value = fabric?.priceModifier || 0;
+        document.getElementById('fab-color-family').value = fabric?.colorFamily || '';
+        document.getElementById('fab-care').value = fabric?.careInstructions || '';
+        document.getElementById('fab-warranty').value = fabric?.warranty || '';
 
-      // Features
-      document.getElementById('feat-uv').checked = fabric?.features?.uvProtection || false;
-      document.getElementById('feat-fire').checked = fabric?.features?.fireRetardant || false;
-      document.getElementById('feat-water').checked = fabric?.features?.waterResistant || false;
-      document.getElementById('feat-eco').checked = fabric?.features?.ecoFriendly || false;
-      document.getElementById('feat-energy').checked = fabric?.features?.energyEfficient || false;
+        // Features (use optional chaining for elements that may not exist)
+        const featUv = document.getElementById('feat-uv');
+        const featFire = document.getElementById('feat-fire');
+        const featWater = document.getElementById('feat-water');
+        const featEco = document.getElementById('feat-eco');
+        const featEnergy = document.getElementById('feat-energy');
+        if (featUv) featUv.checked = fabric?.features?.uvProtection || false;
+        if (featFire) featFire.checked = fabric?.features?.fireRetardant || false;
+        if (featWater) featWater.checked = fabric?.features?.waterResistant || false;
+        if (featEco) featEco.checked = fabric?.features?.ecoFriendly || false;
+        if (featEnergy) featEnergy.checked = fabric?.features?.energyEfficient || false;
 
-      // SEO
-      document.getElementById('fab-meta-title').value = fabric?.seo?.metaTitle || '';
-      document.getElementById('fab-meta-desc').value = fabric?.seo?.metaDescription || '';
-      document.getElementById('fab-keywords').value = fabric?.seo?.keywords || '';
-      document.getElementById('fab-slug').value = fabric?.seo?.slug || generateSlug(fabric?.name || '');
-      document.getElementById('fab-alt-text').value = fabric?.seo?.altText || '';
+        // SEO
+        document.getElementById('fab-meta-title').value = fabric?.seo?.metaTitle || '';
+        document.getElementById('fab-meta-desc').value = fabric?.seo?.metaDescription || '';
+        document.getElementById('fab-keywords').value = fabric?.seo?.keywords || '';
+        document.getElementById('fab-slug').value = fabric?.seo?.slug || generateSlug(fabric?.name || '');
+        document.getElementById('fab-alt-text').value = fabric?.seo?.altText || '';
 
-      // Update previews
-      if (fabric?.imageUrl) {
-        updateImagePreviewFromUrl();
-      } else {
-        document.getElementById('upload-placeholder').style.display = 'block';
-        document.getElementById('image-preview').style.display = 'none';
+        // Update previews
+        if (fabric?.imageUrl) {
+          updateImagePreviewFromUrl();
+        } else {
+          const placeholder = document.getElementById('upload-placeholder');
+          const preview = document.getElementById('image-preview');
+          if (placeholder) placeholder.style.display = 'block';
+          if (preview) preview.style.display = 'none';
+        }
+        updateStatusLabel();
+        updateFeaturedLabel();
+        updateSeoPreview();
+
+        // Show modal with inline styles to ensure visibility
+        const modal = document.getElementById('fabric-modal');
+        if (modal) {
+          modal.style.display = 'flex';
+          modal.style.position = 'fixed';
+          modal.style.top = '0';
+          modal.style.left = '0';
+          modal.style.right = '0';
+          modal.style.bottom = '0';
+          modal.style.background = 'rgba(0,0,0,0.5)';
+          modal.style.zIndex = '9999';
+          modal.style.alignItems = 'center';
+          modal.style.justifyContent = 'center';
+          modal.classList.add('active');
+          document.body.style.overflow = 'hidden';
+        }
+      } catch (err) {
+        console.error('Error in openModal:', err);
+        Admin.Toast.error('Failed to open edit modal');
       }
-      updateStatusLabel();
-      updateFeaturedLabel();
-      updateSeoPreview();
-
-      Admin.Modal.show('fabric-modal');
     }
 
     function closeModal() {
-      Admin.Modal.hide('fabric-modal');
+      const modal = document.getElementById('fabric-modal');
+      if (modal) {
+        modal.style.display = 'none';
+        modal.classList.remove('active');
+        document.body.style.overflow = '';
+      }
       editingId = null;
     }
 
-    function editFabric(id) {
+    // Expose to window for onclick handlers
+    window.editFabric = function(id) {
       const fabric = allFabrics.find(f => f.id === id);
       if (fabric) {
         openModal(fabric);
+      } else {
+        Admin.Toast.error('Fabric not found');
       }
-    }
+    };
 
-    async function deleteFabric(id, code) {
+    window.deleteFabric = async function(id, code) {
       const confirmed = await Admin.Modal.confirm(
         'Delete Fabric',
         `Are you sure you want to delete fabric "${code}"?`
@@ -938,7 +1283,7 @@
           Admin.Toast.error('Failed to delete fabric');
         }
       }
-    }
+    };
 
     async function toggleActive(id, isActive) {
       try {
@@ -953,6 +1298,48 @@
         loadFabrics(); // Reload to reset state
       }
     }
+
+    // Upload roller fabric image
+    window.uploadRollerFabricImage = function(id, code) {
+      console.log('uploadRollerFabricImage called:', id, code);
+      const input = document.createElement('input');
+      input.type = 'file';
+      input.accept = 'image/*';
+      input.onchange = async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+
+        try {
+          Admin.Toast.info('Uploading image...');
+          const formData = new FormData();
+          formData.append('image', file);
+          formData.append('fabricCode', code);
+
+          const response = await fetch('/api/admin/fabrics/upload-image', {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${Admin.Auth.getToken()}` },
+            body: formData
+          });
+
+          const data = await response.json();
+          if (data.success) {
+            Admin.Toast.success('Image uploaded successfully');
+            // Update local data
+            const fabric = allFabrics.find(f => f.id === id);
+            if (fabric) {
+              fabric.imageUrl = data.imageUrl;
+            }
+            filterFabrics(currentFilter); // Re-render
+          } else {
+            Admin.Toast.error(data.error || 'Failed to upload image');
+          }
+        } catch (error) {
+          console.error('Upload error:', error);
+          Admin.Toast.error('Failed to upload image');
+        }
+      };
+      input.click();
+    };
 
     function updateStatusLabel() {
       const isActive = document.getElementById('fab-active').checked;
@@ -1011,11 +1398,11 @@
 
           // Features
           features: {
-            uvProtection: document.getElementById('feat-uv').checked,
-            fireRetardant: document.getElementById('feat-fire').checked,
-            waterResistant: document.getElementById('feat-water').checked,
-            ecoFriendly: document.getElementById('feat-eco').checked,
-            energyEfficient: document.getElementById('feat-energy').checked
+            uvProtection: document.getElementById('feat-uv')?.checked || false,
+            fireRetardant: document.getElementById('feat-fire')?.checked || false,
+            waterResistant: document.getElementById('feat-water')?.checked || false,
+            ecoFriendly: document.getElementById('feat-eco')?.checked || false,
+            energyEfficient: document.getElementById('feat-energy')?.checked || false
           },
 
           // SEO
@@ -1169,13 +1556,13 @@
               </label>
             </td>
             <td>
-              <div class="action-buttons">
-                <button class="action-btn" title="Edit" onclick="editZebraFabric('${fab.code}')">
+              <div class="action-buttons" style="display: flex; gap: 8px;">
+                <button type="button" class="action-btn zebra-edit-btn" data-code="${fab.code}" title="Edit">
                   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                   </svg>
                 </button>
-                <button class="action-btn" title="Upload Image" onclick="uploadZebraFabricImage('${fab.code}')">
+                <button type="button" class="action-btn zebra-upload-btn" data-code="${fab.code}" title="Upload Image">
                   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
                   </svg>
@@ -1186,6 +1573,28 @@
         `;
       }).join('');
     }
+
+    // Global click handler for zebra fabric buttons (attached once to document)
+    document.addEventListener('click', function(e) {
+      const btn = e.target.closest('.zebra-edit-btn, .zebra-upload-btn');
+      if (!btn) return;
+
+      // Make sure it's in the zebra fabrics table
+      const table = btn.closest('#zebra-fabrics-table');
+      if (!table) return;
+
+      e.preventDefault();
+      e.stopPropagation();
+
+      const code = btn.dataset.code;
+      console.log('Zebra button clicked:', btn.className, 'code:', code);
+
+      if (btn.classList.contains('zebra-edit-btn')) {
+        editZebraFabric(code);
+      } else if (btn.classList.contains('zebra-upload-btn')) {
+        uploadZebraFabricImage(code);
+      }
+    });
 
     // Toggle zebra fabric active status
     async function toggleZebraFabricActive(code, enabled) {
@@ -1214,9 +1623,138 @@
       }
     }
 
-    // Edit zebra fabric (redirect to pricing page)
+    // Edit zebra fabric - open modal
+    let editingZebraCode = null;
+
     function editZebraFabric(code) {
-      window.location.href = `/admin/zebra-pricing.html?search=${code}`;
+      console.log('editZebraFabric called with code:', code);
+      console.log('allZebraFabrics count:', allZebraFabrics.length);
+      const fabric = allZebraFabrics.find(f => f.code === code);
+      console.log('Found zebra fabric:', fabric);
+      if (!fabric) {
+        Admin.Toast.error('Fabric not found');
+        return;
+      }
+
+      editingZebraCode = code;
+      document.getElementById('zebra-modal-title').textContent = `Edit Fabric: ${code}`;
+
+      // Fill form
+      document.getElementById('zebra-code').value = fabric.code || '';
+      document.getElementById('zebra-name').value = fabric.name || '';
+      document.getElementById('zebra-category').value = fabric.category || 'semi-blackout';
+      document.getElementById('zebra-composition').value = fabric.composition || '';
+      document.getElementById('zebra-weight').value = fabric.weight || '';
+      document.getElementById('zebra-width').value = fabric.width || '';
+      document.getElementById('zebra-repeat').value = fabric.repeat || '';
+      document.getElementById('zebra-image').value = fabric.image || '';
+
+      // Features
+      document.getElementById('zebra-waterResistant').checked = fabric.waterResistant || false;
+      document.getElementById('zebra-fireResistant').checked = fabric.fireResistant || false;
+      document.getElementById('zebra-mildewProof').checked = fabric.mildewProof || false;
+      document.getElementById('zebra-formaldehydeFree').checked = fabric.formaldehydeFree || false;
+      document.getElementById('zebra-antiBacteria').checked = fabric.antiBacteria || false;
+
+      // Status
+      document.getElementById('zebra-enabled').checked = fabric.enabled !== false;
+      updateZebraStatusLabel();
+
+      // Image preview
+      updateZebraImagePreview();
+
+      // Show modal
+      const modal = document.getElementById('zebra-edit-modal');
+      console.log('Showing zebra modal:', modal);
+      if (modal) {
+        modal.classList.add('active');
+        document.body.style.overflow = 'hidden';
+      }
+    }
+
+    function closeZebraModal() {
+      const modal = document.getElementById('zebra-edit-modal');
+      if (modal) {
+        modal.classList.remove('active');
+        document.body.style.overflow = '';
+      }
+      editingZebraCode = null;
+    }
+
+    function updateZebraStatusLabel() {
+      const enabled = document.getElementById('zebra-enabled').checked;
+      document.getElementById('zebra-status-label').textContent = enabled ? 'Active' : 'Inactive';
+    }
+
+    function updateZebraImagePreview() {
+      const imageUrl = document.getElementById('zebra-image').value;
+      const previewImg = document.getElementById('zebra-preview-img');
+      const placeholder = document.getElementById('zebra-preview-placeholder');
+
+      if (imageUrl) {
+        previewImg.src = imageUrl;
+        previewImg.style.display = 'block';
+        placeholder.style.display = 'none';
+        previewImg.onerror = () => {
+          previewImg.style.display = 'none';
+          placeholder.style.display = 'flex';
+        };
+      } else {
+        previewImg.style.display = 'none';
+        placeholder.style.display = 'flex';
+      }
+    }
+
+    // Add event listeners for zebra modal
+    document.getElementById('zebra-enabled')?.addEventListener('change', updateZebraStatusLabel);
+    document.getElementById('zebra-image')?.addEventListener('input', updateZebraImagePreview);
+
+    async function saveZebraFabric(event) {
+      event.preventDefault();
+
+      if (!editingZebraCode) {
+        Admin.Toast.error('No fabric selected');
+        return;
+      }
+
+      const fabricData = {
+        name: document.getElementById('zebra-name').value,
+        category: document.getElementById('zebra-category').value,
+        composition: document.getElementById('zebra-composition').value,
+        weight: document.getElementById('zebra-weight').value,
+        width: parseInt(document.getElementById('zebra-width').value) || 300,
+        repeat: document.getElementById('zebra-repeat').value,
+        image: document.getElementById('zebra-image').value,
+        waterResistant: document.getElementById('zebra-waterResistant').checked,
+        fireResistant: document.getElementById('zebra-fireResistant').checked,
+        mildewProof: document.getElementById('zebra-mildewProof').checked,
+        formaldehydeFree: document.getElementById('zebra-formaldehydeFree').checked,
+        antiBacteria: document.getElementById('zebra-antiBacteria').checked,
+        enabled: document.getElementById('zebra-enabled').checked
+      };
+
+      try {
+        const response = await fetch(`/api/admin/zebra/fabrics/${editingZebraCode}`, {
+          method: 'PUT',
+          headers: {
+            'Authorization': `Bearer ${Admin.Auth.getToken()}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(fabricData)
+        });
+
+        const data = await response.json();
+        if (data.success) {
+          Admin.Toast.success('Fabric updated successfully');
+          closeZebraModal();
+          loadZebraFabrics();
+        } else {
+          Admin.Toast.error(data.error || 'Failed to update fabric');
+        }
+      } catch (error) {
+        Admin.Toast.error('Failed to update fabric');
+        console.error('Error:', error);
+      }
     }
 
     // Upload zebra fabric image
@@ -1260,6 +1798,204 @@
         document.getElementById('roller-total-count').textContent = allFabrics.length;
       }, 1000);
     });
+
+    // ============================================
+    // BULK UPLOAD FUNCTIONS
+    // ============================================
+    let csvData = [];
+
+    function openBulkUploadModal() {
+      csvData = [];
+      document.getElementById('csv-preview').style.display = 'none';
+      document.getElementById('csv-file-input').value = '';
+      document.getElementById('csv-upload-text').textContent = 'Click to select CSV file or drag & drop';
+      document.getElementById('bulk-upload-btn').disabled = true;
+      Admin.Modal.show('bulk-upload-modal');
+    }
+
+    function closeBulkUploadModal() {
+      Admin.Modal.hide('bulk-upload-modal');
+    }
+
+    function downloadCSVTemplate() {
+      const productType = document.getElementById('bulk-product-type').value;
+      let headers, sampleRow;
+
+      if (productType === 'roller') {
+        headers = ['code', 'name', 'filterType', 'composition', 'weight', 'width', 'thickness', 'waterResistant', 'fireResistant', 'mildewProof', 'formaldehydeFree', 'antiBacteria', 'imageUrl', 'isActive'];
+        sampleRow = ['82032A', 'Premium White Blackout', 'blackout', '100% Polyester', '160g/m²', '280', '0.38mm', 'true', 'true', 'true', 'false', 'false', '/images/fabrics/82032A.png', 'true'];
+      } else {
+        headers = ['code', 'name', 'category', 'shadingType', 'composition', 'weight', 'width', 'repeat', 'waterResistant', 'fireResistant', 'mildewProof', 'formaldehydeFree', 'antiBacteria', 'imageUrl', 'enabled'];
+        sampleRow = ['83003A', 'Zebra Semi-Blackout Gray', 'semi-blackout', 'Semi blackout', '100% Polyester', '115g/m²', '300', '7.5*5cm', 'true', 'false', 'false', 'false', 'false', '/images/fabrics/zebra/83003A.png', 'true'];
+      }
+
+      const csvContent = [headers.join(','), sampleRow.join(',')].join('\n');
+      const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob);
+      link.download = `fabric_upload_template_${productType}.csv`;
+      link.click();
+      Admin.Toast.success('Template downloaded');
+    }
+
+    function handleCSVSelect(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      if (!file.name.endsWith('.csv')) {
+        Admin.Toast.error('Please select a CSV file');
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        try {
+          parseCSV(e.target.result);
+          document.getElementById('csv-upload-text').textContent = file.name;
+        } catch (error) {
+          Admin.Toast.error('Failed to parse CSV: ' + error.message);
+        }
+      };
+      reader.readAsText(file);
+    }
+
+    function parseCSV(content) {
+      const lines = content.split('\n').filter(line => line.trim());
+      if (lines.length < 2) {
+        Admin.Toast.error('CSV must have at least a header row and one data row');
+        return;
+      }
+
+      const headers = lines[0].split(',').map(h => h.trim().replace(/"/g, ''));
+      const rows = [];
+
+      for (let i = 1; i < lines.length; i++) {
+        const values = parseCSVLine(lines[i]);
+        if (values.length === headers.length) {
+          const row = {};
+          headers.forEach((header, index) => {
+            let value = values[index];
+            // Convert boolean strings
+            if (value === 'true') value = true;
+            else if (value === 'false') value = false;
+            row[header] = value;
+          });
+          rows.push(row);
+        }
+      }
+
+      if (rows.length === 0) {
+        Admin.Toast.error('No valid data rows found in CSV');
+        return;
+      }
+
+      csvData = rows;
+      showCSVPreview(headers, rows);
+    }
+
+    function parseCSVLine(line) {
+      const values = [];
+      let current = '';
+      let inQuotes = false;
+
+      for (let i = 0; i < line.length; i++) {
+        const char = line[i];
+        if (char === '"') {
+          inQuotes = !inQuotes;
+        } else if (char === ',' && !inQuotes) {
+          values.push(current.trim());
+          current = '';
+        } else {
+          current += char;
+        }
+      }
+      values.push(current.trim());
+      return values;
+    }
+
+    function showCSVPreview(headers, rows) {
+      document.getElementById('csv-row-count').textContent = rows.length;
+      document.getElementById('csv-preview-header').innerHTML = headers.slice(0, 6).map(h => `<th>${h}</th>`).join('') + '<th>...</th>';
+      document.getElementById('csv-preview-body').innerHTML = rows.slice(0, 5).map(row => {
+        const cells = headers.slice(0, 6).map(h => `<td>${row[h] ?? ''}</td>`).join('');
+        return `<tr>${cells}<td>...</td></tr>`;
+      }).join('') + (rows.length > 5 ? `<tr><td colspan="${Math.min(headers.length, 7)}" style="text-align: center; color: var(--admin-text-muted);">... and ${rows.length - 5} more rows</td></tr>` : '');
+
+      document.getElementById('csv-preview').style.display = 'block';
+      document.getElementById('bulk-upload-btn').disabled = false;
+    }
+
+    async function processBulkUpload() {
+      if (csvData.length === 0) {
+        Admin.Toast.error('No data to upload');
+        return;
+      }
+
+      const productType = document.getElementById('bulk-product-type').value;
+      const btn = document.getElementById('bulk-upload-btn');
+      btn.disabled = true;
+      btn.innerHTML = '<span class="spinner" style="width: 14px; height: 14px; margin-right: 6px;"></span> Uploading...';
+
+      try {
+        const endpoint = productType === 'roller'
+          ? '/api/admin/fabrics/bulk-upload'
+          : '/api/admin/zebra/fabrics/bulk-upload';
+
+        const response = await fetch(endpoint, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${Admin.Auth.getToken()}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ fabrics: csvData })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          Admin.Toast.success(`Successfully uploaded ${data.imported || csvData.length} fabrics`);
+          closeBulkUploadModal();
+          // Reload the appropriate section
+          if (productType === 'roller') {
+            loadFabrics();
+          } else {
+            loadZebraFabrics();
+          }
+        } else {
+          Admin.Toast.error(data.error || 'Failed to upload fabrics');
+        }
+      } catch (error) {
+        Admin.Toast.error('Upload failed: ' + error.message);
+      } finally {
+        btn.disabled = false;
+        btn.innerHTML = '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="margin-right: 6px;"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" /></svg> Upload Fabrics';
+      }
+    }
+
+    // Drag and drop for CSV upload
+    const csvUploadArea = document.getElementById('csv-upload-area');
+    if (csvUploadArea) {
+      csvUploadArea.addEventListener('dragover', (e) => {
+        e.preventDefault();
+        csvUploadArea.style.borderColor = 'var(--admin-primary)';
+        csvUploadArea.style.background = '#f0f7ff';
+      });
+      csvUploadArea.addEventListener('dragleave', (e) => {
+        e.preventDefault();
+        csvUploadArea.style.borderColor = 'var(--admin-border)';
+        csvUploadArea.style.background = 'transparent';
+      });
+      csvUploadArea.addEventListener('drop', (e) => {
+        e.preventDefault();
+        csvUploadArea.style.borderColor = 'var(--admin-border)';
+        csvUploadArea.style.background = 'transparent';
+        const files = e.dataTransfer.files;
+        if (files.length > 0) {
+          document.getElementById('csv-file-input').files = files;
+          handleCSVSelect({ target: { files } });
+        }
+      });
+    }
   </script>
 </body>
 </html>

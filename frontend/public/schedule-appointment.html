@@ -1,0 +1,1093 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Schedule Installation - Peekaboo Shades</title>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Montserrat', sans-serif;
+      background: linear-gradient(135deg, #f5f0ec 0%, #e8e0da 100%);
+      min-height: 100vh;
+    }
+
+    /* Header */
+    .header {
+      background: white;
+      padding: 1rem 2rem;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      text-decoration: none;
+      color: #1f2937;
+    }
+
+    .logo img {
+      height: 40px;
+      width: 40px;
+      border-radius: 8px;
+    }
+
+    .logo span {
+      font-weight: 700;
+      font-size: 1.1rem;
+    }
+
+    .header-nav {
+      display: flex;
+      gap: 1.5rem;
+    }
+
+    .header-nav a {
+      color: #6b7280;
+      text-decoration: none;
+      font-size: 0.9rem;
+      font-weight: 500;
+    }
+
+    .header-nav a:hover {
+      color: #8E6545;
+    }
+
+    /* Main Container */
+    .main-container {
+      max-width: 900px;
+      margin: 2rem auto;
+      padding: 0 1rem;
+    }
+
+    .page-title {
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
+    .page-title h1 {
+      font-size: 2rem;
+      color: #1f2937;
+      margin-bottom: 0.5rem;
+    }
+
+    .page-title p {
+      color: #6b7280;
+      font-size: 1rem;
+    }
+
+    /* Booking Steps */
+    .booking-steps {
+      display: flex;
+      justify-content: center;
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    .step {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem 1rem;
+      background: white;
+      border-radius: 25px;
+      font-size: 0.85rem;
+      color: #6b7280;
+    }
+
+    .step.active {
+      background: #8E6545;
+      color: white;
+    }
+
+    .step.completed {
+      background: #D1FAE5;
+      color: #065F46;
+    }
+
+    .step-number {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: #e5e7eb;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      font-size: 0.8rem;
+    }
+
+    .step.active .step-number {
+      background: rgba(255,255,255,0.3);
+    }
+
+    .step.completed .step-number {
+      background: #059669;
+      color: white;
+    }
+
+    /* Booking Card */
+    .booking-card {
+      background: white;
+      border-radius: 20px;
+      overflow: hidden;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.1);
+    }
+
+    .booking-card-header {
+      background: linear-gradient(135deg, #8E6545 0%, #A67C5B 100%);
+      padding: 1.5rem 2rem;
+      color: white;
+    }
+
+    .booking-card-header h2 {
+      font-size: 1.25rem;
+      margin-bottom: 0.25rem;
+    }
+
+    .booking-card-header p {
+      font-size: 0.9rem;
+      opacity: 0.9;
+    }
+
+    .booking-card-body {
+      padding: 2rem;
+    }
+
+    /* Appointment Type Selection */
+    .type-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    .type-card {
+      padding: 1.5rem;
+      border: 2px solid #e5e7eb;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-align: center;
+    }
+
+    .type-card:hover {
+      border-color: #8E6545;
+      background: #faf8f6;
+    }
+
+    .type-card.selected {
+      border-color: #8E6545;
+      background: #f5f0ec;
+    }
+
+    .type-card svg {
+      width: 40px;
+      height: 40px;
+      color: #8E6545;
+      margin-bottom: 0.75rem;
+    }
+
+    .type-card h3 {
+      font-size: 1rem;
+      color: #1f2937;
+      margin-bottom: 0.25rem;
+    }
+
+    .type-card p {
+      font-size: 0.8rem;
+      color: #6b7280;
+    }
+
+    /* Calendar */
+    .calendar-section {
+      margin-bottom: 2rem;
+    }
+
+    .calendar-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+
+    .calendar-header h3 {
+      font-size: 1.1rem;
+      color: #1f2937;
+    }
+
+    .calendar-nav {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .calendar-nav button {
+      width: 36px;
+      height: 36px;
+      border: 1px solid #e5e7eb;
+      background: white;
+      border-radius: 8px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .calendar-nav button:hover {
+      border-color: #8E6545;
+      color: #8E6545;
+    }
+
+    .calendar-grid {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 4px;
+    }
+
+    .calendar-day-header {
+      text-align: center;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: #6b7280;
+      padding: 0.5rem;
+      text-transform: uppercase;
+    }
+
+    .calendar-day {
+      aspect-ratio: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      transition: all 0.2s;
+      border: 2px solid transparent;
+    }
+
+    .calendar-day:hover:not(.disabled):not(.other-month) {
+      background: #faf8f6;
+      border-color: #8E6545;
+    }
+
+    .calendar-day.other-month {
+      color: #d1d5db;
+      cursor: default;
+    }
+
+    .calendar-day.today {
+      background: #faf8f6;
+      font-weight: 600;
+    }
+
+    .calendar-day.selected {
+      background: #8E6545;
+      color: white;
+    }
+
+    .calendar-day.disabled {
+      color: #d1d5db;
+      cursor: not-allowed;
+      text-decoration: line-through;
+    }
+
+    .calendar-day.has-slots {
+      position: relative;
+    }
+
+    .calendar-day.has-slots::after {
+      content: '';
+      position: absolute;
+      bottom: 4px;
+      width: 6px;
+      height: 6px;
+      background: #10B981;
+      border-radius: 50%;
+    }
+
+    .calendar-day.selected.has-slots::after {
+      background: white;
+    }
+
+    /* Time Slots */
+    .time-slots-section {
+      margin-bottom: 2rem;
+    }
+
+    .time-slots-section h3 {
+      font-size: 1rem;
+      color: #1f2937;
+      margin-bottom: 1rem;
+    }
+
+    .time-slots-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+      gap: 0.75rem;
+    }
+
+    .time-slot {
+      padding: 0.875rem;
+      border: 2px solid #e5e7eb;
+      border-radius: 10px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-size: 0.9rem;
+    }
+
+    .time-slot:hover {
+      border-color: #8E6545;
+      background: #faf8f6;
+    }
+
+    .time-slot.selected {
+      border-color: #8E6545;
+      background: #8E6545;
+      color: white;
+    }
+
+    .time-slot.unavailable {
+      background: #f3f4f6;
+      color: #9ca3af;
+      cursor: not-allowed;
+      text-decoration: line-through;
+    }
+
+    .no-slots {
+      text-align: center;
+      padding: 2rem;
+      color: #6b7280;
+      background: #faf8f6;
+      border-radius: 10px;
+    }
+
+    /* Form */
+    .form-section {
+      margin-bottom: 2rem;
+    }
+
+    .form-section h3 {
+      font-size: 1rem;
+      color: #1f2937;
+      margin-bottom: 1rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 2px solid #f0e6df;
+    }
+
+    .form-group {
+      margin-bottom: 1.25rem;
+    }
+
+    .form-group label {
+      display: block;
+      font-weight: 500;
+      color: #374151;
+      margin-bottom: 0.5rem;
+      font-size: 0.9rem;
+    }
+
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      width: 100%;
+      padding: 0.875rem 1rem;
+      border: 2px solid #e5e7eb;
+      border-radius: 10px;
+      font-size: 0.95rem;
+      font-family: inherit;
+      transition: all 0.2s;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+      outline: none;
+      border-color: #8E6545;
+      box-shadow: 0 0 0 3px rgba(142,101,69,0.1);
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+
+    /* Buttons */
+    .btn {
+      padding: 1rem 2rem;
+      border-radius: 10px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      font-family: inherit;
+      transition: all 0.2s;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #8E6545 0%, #A67C5B 100%);
+      color: white;
+      box-shadow: 0 4px 12px rgba(142, 101, 69, 0.3);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(142, 101, 69, 0.4);
+    }
+
+    .btn-primary:disabled {
+      opacity: 0.7;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .btn-outline {
+      background: white;
+      border: 2px solid #e5e7eb;
+      color: #374151;
+    }
+
+    .btn-outline:hover {
+      border-color: #8E6545;
+      color: #8E6545;
+    }
+
+    .form-actions {
+      display: flex;
+      justify-content: space-between;
+      gap: 1rem;
+      margin-top: 2rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid #f0e6df;
+    }
+
+    /* Summary */
+    .booking-summary {
+      background: #faf8f6;
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .booking-summary h3 {
+      font-size: 1rem;
+      color: #1f2937;
+      margin-bottom: 1rem;
+    }
+
+    .summary-item {
+      display: flex;
+      justify-content: space-between;
+      padding: 0.5rem 0;
+      border-bottom: 1px dashed #e5e7eb;
+    }
+
+    .summary-item:last-child {
+      border-bottom: none;
+    }
+
+    .summary-label {
+      color: #6b7280;
+      font-size: 0.9rem;
+    }
+
+    .summary-value {
+      font-weight: 500;
+      color: #1f2937;
+      font-size: 0.9rem;
+    }
+
+    /* Messages */
+    .message {
+      padding: 1rem;
+      border-radius: 10px;
+      margin-bottom: 1.5rem;
+      font-size: 0.9rem;
+    }
+
+    .message.success { background: #D1FAE5; border: 1px solid #A7F3D0; color: #065F46; }
+    .message.error { background: #FEE2E2; border: 1px solid #FECACA; color: #991B1B; }
+    .message.info { background: #DBEAFE; border: 1px solid #BFDBFE; color: #1D4ED8; }
+
+    /* Success Screen */
+    .success-screen {
+      text-align: center;
+      padding: 3rem;
+    }
+
+    .success-icon {
+      width: 80px;
+      height: 80px;
+      background: #D1FAE5;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 1.5rem;
+    }
+
+    .success-icon svg {
+      width: 40px;
+      height: 40px;
+      color: #059669;
+    }
+
+    .success-screen h2 {
+      font-size: 1.5rem;
+      color: #1f2937;
+      margin-bottom: 0.5rem;
+    }
+
+    .success-screen p {
+      color: #6b7280;
+      margin-bottom: 2rem;
+    }
+
+    /* Responsive */
+    @media (max-width: 600px) {
+      .form-row { grid-template-columns: 1fr; }
+      .booking-steps { flex-wrap: wrap; }
+      .type-grid { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <a href="/" class="logo">
+      <img src="/images/peekabooshades_logo.jpeg" alt="Peekaboo Shades">
+      <span>Peekaboo Shades</span>
+    </a>
+    <nav class="header-nav">
+      <a href="/">Home</a>
+      <a href="/shop.html">Shop</a>
+      <a href="/cart.html">Cart</a>
+    </nav>
+  </header>
+
+  <div class="main-container">
+    <div class="page-title">
+      <h1>Schedule Installation</h1>
+      <p>Book a professional installation appointment with our certified technicians</p>
+    </div>
+
+    <div class="booking-steps">
+      <div class="step active" id="step1">
+        <span class="step-number">1</span>
+        <span>Service Type</span>
+      </div>
+      <div class="step" id="step2">
+        <span class="step-number">2</span>
+        <span>Date & Time</span>
+      </div>
+      <div class="step" id="step3">
+        <span class="step-number">3</span>
+        <span>Your Details</span>
+      </div>
+      <div class="step" id="step4">
+        <span class="step-number">4</span>
+        <span>Confirm</span>
+      </div>
+    </div>
+
+    <div class="booking-card">
+      <!-- Step 1: Service Type -->
+      <div id="section1" class="booking-section">
+        <div class="booking-card-header">
+          <h2>Select Service Type</h2>
+          <p>What type of service do you need?</p>
+        </div>
+        <div class="booking-card-body">
+          <div class="type-grid">
+            <div class="type-card" data-type="new-installation" onclick="selectType(this)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+              <h3>New Installation</h3>
+              <p>Fresh installation for new blinds or shades</p>
+            </div>
+            <div class="type-card" data-type="repair" onclick="selectType(this)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+              <h3>Repair Service</h3>
+              <p>Fix issues with existing window treatments</p>
+            </div>
+            <div class="type-card" data-type="maintenance" onclick="selectType(this)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+              <h3>Maintenance</h3>
+              <p>Regular maintenance and adjustments</p>
+            </div>
+            <div class="type-card" data-type="consultation" onclick="selectType(this)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+              <h3>Consultation</h3>
+              <p>Get expert advice on window treatments</p>
+            </div>
+          </div>
+          <div class="form-actions">
+            <div></div>
+            <button class="btn btn-primary" onclick="goToStep(2)" id="nextStep1" disabled>Continue</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 2: Date & Time -->
+      <div id="section2" class="booking-section" style="display: none;">
+        <div class="booking-card-header">
+          <h2>Select Date & Time</h2>
+          <p>Choose an available appointment slot</p>
+        </div>
+        <div class="booking-card-body">
+          <div class="calendar-section">
+            <div class="calendar-header">
+              <h3 id="calendarMonth">January 2025</h3>
+              <div class="calendar-nav">
+                <button onclick="changeMonth(-1)"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg></button>
+                <button onclick="changeMonth(1)"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></button>
+              </div>
+            </div>
+            <div class="calendar-grid" id="calendarGrid"></div>
+          </div>
+
+          <div class="time-slots-section">
+            <h3>Available Time Slots</h3>
+            <div id="timeSlotsContainer">
+              <div class="no-slots">Please select a date to see available time slots</div>
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <button class="btn btn-outline" onclick="goToStep(1)">Back</button>
+            <button class="btn btn-primary" onclick="goToStep(3)" id="nextStep2" disabled>Continue</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 3: Customer Details -->
+      <div id="section3" class="booking-section" style="display: none;">
+        <div class="booking-card-header">
+          <h2>Your Details</h2>
+          <p>Enter your contact and address information</p>
+        </div>
+        <div class="booking-card-body">
+          <div class="form-section">
+            <h3>Contact Information</h3>
+            <div class="form-row">
+              <div class="form-group">
+                <label for="firstName">First Name *</label>
+                <input type="text" id="firstName" required>
+              </div>
+              <div class="form-group">
+                <label for="lastName">Last Name *</label>
+                <input type="text" id="lastName" required>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label for="customerEmail">Email Address *</label>
+                <input type="email" id="customerEmail" required>
+              </div>
+              <div class="form-group">
+                <label for="customerPhone">Phone Number *</label>
+                <input type="tel" id="customerPhone" required>
+              </div>
+            </div>
+          </div>
+
+          <div class="form-section">
+            <h3>Installation Address</h3>
+            <div class="form-group">
+              <label for="address1">Street Address *</label>
+              <input type="text" id="address1" required>
+            </div>
+            <div class="form-group">
+              <label for="address2">Apt, Suite, etc. (optional)</label>
+              <input type="text" id="address2">
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label for="city">City *</label>
+                <input type="text" id="city" required>
+              </div>
+              <div class="form-group">
+                <label for="state">State *</label>
+                <input type="text" id="state" required>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label for="zip">ZIP Code *</label>
+                <input type="text" id="zip" required>
+              </div>
+              <div class="form-group">
+                <label for="orderId">Order Number (if applicable)</label>
+                <input type="text" id="orderId" placeholder="e.g., ORD-12345678">
+              </div>
+            </div>
+          </div>
+
+          <div class="form-section">
+            <h3>Additional Notes</h3>
+            <div class="form-group">
+              <label for="notes">Special Instructions or Details</label>
+              <textarea id="notes" rows="3" placeholder="Any specific requirements or access instructions..."></textarea>
+            </div>
+          </div>
+
+          <div class="form-actions">
+            <button class="btn btn-outline" onclick="goToStep(2)">Back</button>
+            <button class="btn btn-primary" onclick="goToStep(4)">Review Booking</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Step 4: Confirmation -->
+      <div id="section4" class="booking-section" style="display: none;">
+        <div class="booking-card-header">
+          <h2>Confirm Your Booking</h2>
+          <p>Review your appointment details</p>
+        </div>
+        <div class="booking-card-body">
+          <div class="booking-summary">
+            <h3>Appointment Details</h3>
+            <div class="summary-item">
+              <span class="summary-label">Service Type</span>
+              <span class="summary-value" id="summaryType">-</span>
+            </div>
+            <div class="summary-item">
+              <span class="summary-label">Date</span>
+              <span class="summary-value" id="summaryDate">-</span>
+            </div>
+            <div class="summary-item">
+              <span class="summary-label">Time</span>
+              <span class="summary-value" id="summaryTime">-</span>
+            </div>
+          </div>
+
+          <div class="booking-summary">
+            <h3>Contact Information</h3>
+            <div class="summary-item">
+              <span class="summary-label">Name</span>
+              <span class="summary-value" id="summaryName">-</span>
+            </div>
+            <div class="summary-item">
+              <span class="summary-label">Email</span>
+              <span class="summary-value" id="summaryEmail">-</span>
+            </div>
+            <div class="summary-item">
+              <span class="summary-label">Phone</span>
+              <span class="summary-value" id="summaryPhone">-</span>
+            </div>
+          </div>
+
+          <div class="booking-summary">
+            <h3>Installation Address</h3>
+            <div class="summary-item">
+              <span class="summary-label">Address</span>
+              <span class="summary-value" id="summaryAddress">-</span>
+            </div>
+          </div>
+
+          <div id="confirmMessage"></div>
+
+          <div class="form-actions">
+            <button class="btn btn-outline" onclick="goToStep(3)">Back</button>
+            <button class="btn btn-primary" onclick="submitBooking()" id="submitBtn">Confirm Booking</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Success -->
+      <div id="successSection" class="booking-section" style="display: none;">
+        <div class="booking-card-body">
+          <div class="success-screen">
+            <div class="success-icon">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"/></svg>
+            </div>
+            <h2>Appointment Scheduled!</h2>
+            <p>Your appointment has been successfully booked. We'll send you a confirmation email shortly.</p>
+            <div class="booking-summary" style="text-align: left; max-width: 400px; margin: 0 auto;">
+              <div class="summary-item">
+                <span class="summary-label">Confirmation #</span>
+                <span class="summary-value" id="confirmationNumber">-</span>
+              </div>
+              <div class="summary-item">
+                <span class="summary-label">Date & Time</span>
+                <span class="summary-value" id="confirmDateTime">-</span>
+              </div>
+            </div>
+            <div style="margin-top: 2rem;">
+              <a href="/" class="btn btn-primary">Return to Home</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let bookingData = {
+      type: null,
+      date: null,
+      time: null,
+      customer: {}
+    };
+
+    let currentDate = new Date();
+    let availableSlots = {};
+    let technicians = [];
+
+    document.addEventListener('DOMContentLoaded', () => {
+      loadAvailability();
+      renderCalendar();
+    });
+
+    async function loadAvailability() {
+      try {
+        // Load available technicians and their availability
+        const response = await fetch('/api/technicians/available');
+        const result = await response.json();
+
+        if (result.success && result.technicians) {
+          technicians = result.technicians;
+          // Build available slots from all technicians
+          technicians.forEach(tech => {
+            if (tech.availability) {
+              tech.availability.forEach(avail => {
+                if (!availableSlots[avail.date]) {
+                  availableSlots[avail.date] = new Set();
+                }
+                avail.slots.forEach(slot => availableSlots[avail.date].add(slot));
+              });
+            }
+          });
+          renderCalendar();
+        }
+      } catch (error) {
+        console.error('Failed to load availability:', error);
+      }
+    }
+
+    function selectType(el) {
+      document.querySelectorAll('.type-card').forEach(c => c.classList.remove('selected'));
+      el.classList.add('selected');
+      bookingData.type = el.dataset.type;
+      document.getElementById('nextStep1').disabled = false;
+    }
+
+    function goToStep(step) {
+      // Hide all sections
+      document.querySelectorAll('.booking-section').forEach(s => s.style.display = 'none');
+
+      // Update steps UI
+      for (let i = 1; i <= 4; i++) {
+        const stepEl = document.getElementById(`step${i}`);
+        stepEl.classList.remove('active', 'completed');
+        if (i < step) stepEl.classList.add('completed');
+        if (i === step) stepEl.classList.add('active');
+      }
+
+      // Show current section
+      document.getElementById(`section${step}`).style.display = 'block';
+
+      // Update summary if going to step 4
+      if (step === 4) {
+        updateSummary();
+      }
+    }
+
+    function renderCalendar() {
+      const year = currentDate.getFullYear();
+      const month = currentDate.getMonth();
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+
+      document.getElementById('calendarMonth').textContent = currentDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+
+      const firstDay = new Date(year, month, 1).getDay();
+      const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+      let html = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(d =>
+        `<div class="calendar-day-header">${d}</div>`
+      ).join('');
+
+      // Previous month padding
+      const prevMonthDays = new Date(year, month, 0).getDate();
+      for (let i = firstDay - 1; i >= 0; i--) {
+        html += `<div class="calendar-day other-month">${prevMonthDays - i}</div>`;
+      }
+
+      // Current month days
+      for (let day = 1; day <= daysInMonth; day++) {
+        const date = new Date(year, month, day);
+        const dateStr = date.toISOString().split('T')[0];
+        const isToday = date.toDateString() === today.toDateString();
+        const isPast = date < today;
+        const isSelected = bookingData.date === dateStr;
+        const hasSlots = availableSlots[dateStr] && availableSlots[dateStr].size > 0;
+
+        let classes = ['calendar-day'];
+        if (isToday) classes.push('today');
+        if (isPast) classes.push('disabled');
+        if (isSelected) classes.push('selected');
+        if (hasSlots && !isPast) classes.push('has-slots');
+
+        html += `<div class="${classes.join(' ')}" onclick="${!isPast ? `selectDate('${dateStr}')` : ''}">${day}</div>`;
+      }
+
+      // Next month padding
+      const totalCells = firstDay + daysInMonth;
+      const remainingCells = totalCells % 7 === 0 ? 0 : 7 - (totalCells % 7);
+      for (let i = 1; i <= remainingCells; i++) {
+        html += `<div class="calendar-day other-month">${i}</div>`;
+      }
+
+      document.getElementById('calendarGrid').innerHTML = html;
+    }
+
+    function changeMonth(delta) {
+      currentDate.setMonth(currentDate.getMonth() + delta);
+      renderCalendar();
+    }
+
+    function selectDate(dateStr) {
+      bookingData.date = dateStr;
+      bookingData.time = null;
+      document.getElementById('nextStep2').disabled = true;
+      renderCalendar();
+      renderTimeSlots(dateStr);
+    }
+
+    function renderTimeSlots(dateStr) {
+      const container = document.getElementById('timeSlotsContainer');
+      const allSlots = ['8am-10am', '10am-12pm', '12pm-2pm', '2pm-4pm', '4pm-6pm'];
+      const available = availableSlots[dateStr] || new Set();
+
+      if (available.size === 0) {
+        container.innerHTML = `<div class="no-slots">No available slots for this date. Please select another date.</div>`;
+        return;
+      }
+
+      const slotLabels = {
+        '8am-10am': '8:00 AM - 10:00 AM',
+        '10am-12pm': '10:00 AM - 12:00 PM',
+        '12pm-2pm': '12:00 PM - 2:00 PM',
+        '2pm-4pm': '2:00 PM - 4:00 PM',
+        '4pm-6pm': '4:00 PM - 6:00 PM'
+      };
+
+      container.innerHTML = `<div class="time-slots-grid">
+        ${allSlots.map(slot => {
+          const isAvailable = available.has(slot);
+          const isSelected = bookingData.time === slot;
+          return `<div class="time-slot ${isAvailable ? '' : 'unavailable'} ${isSelected ? 'selected' : ''}"
+                       onclick="${isAvailable ? `selectTime('${slot}')` : ''}">${slotLabels[slot]}</div>`;
+        }).join('')}
+      </div>`;
+    }
+
+    function selectTime(slot) {
+      bookingData.time = slot;
+      document.getElementById('nextStep2').disabled = false;
+      renderTimeSlots(bookingData.date);
+    }
+
+    function updateSummary() {
+      const typeLabels = {
+        'new-installation': 'New Installation',
+        'repair': 'Repair Service',
+        'maintenance': 'Maintenance',
+        'consultation': 'Consultation'
+      };
+
+      const timeLabels = {
+        '8am-10am': '8:00 AM - 10:00 AM',
+        '10am-12pm': '10:00 AM - 12:00 PM',
+        '12pm-2pm': '12:00 PM - 2:00 PM',
+        '2pm-4pm': '2:00 PM - 4:00 PM',
+        '4pm-6pm': '4:00 PM - 6:00 PM'
+      };
+
+      document.getElementById('summaryType').textContent = typeLabels[bookingData.type] || bookingData.type;
+      document.getElementById('summaryDate').textContent = bookingData.date ? new Date(bookingData.date).toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' }) : '-';
+      document.getElementById('summaryTime').textContent = timeLabels[bookingData.time] || bookingData.time;
+
+      const firstName = document.getElementById('firstName').value;
+      const lastName = document.getElementById('lastName').value;
+      document.getElementById('summaryName').textContent = `${firstName} ${lastName}`;
+      document.getElementById('summaryEmail').textContent = document.getElementById('customerEmail').value;
+      document.getElementById('summaryPhone').textContent = document.getElementById('customerPhone').value;
+
+      const address = [
+        document.getElementById('address1').value,
+        document.getElementById('address2').value,
+        `${document.getElementById('city').value}, ${document.getElementById('state').value} ${document.getElementById('zip').value}`
+      ].filter(a => a).join(', ');
+      document.getElementById('summaryAddress').textContent = address;
+    }
+
+    async function submitBooking() {
+      const submitBtn = document.getElementById('submitBtn');
+      const messageEl = document.getElementById('confirmMessage');
+
+      submitBtn.disabled = true;
+      submitBtn.textContent = 'Submitting...';
+
+      const appointmentData = {
+        appointmentType: bookingData.type,
+        scheduledDate: bookingData.date,
+        scheduledTime: bookingData.time,
+        customerName: `${document.getElementById('firstName').value} ${document.getElementById('lastName').value}`,
+        customerEmail: document.getElementById('customerEmail').value,
+        customerPhone: document.getElementById('customerPhone').value,
+        installationAddress: {
+          address1: document.getElementById('address1').value,
+          address2: document.getElementById('address2').value,
+          city: document.getElementById('city').value,
+          state: document.getElementById('state').value,
+          zip: document.getElementById('zip').value
+        },
+        orderId: document.getElementById('orderId').value || null,
+        notes: document.getElementById('notes').value,
+        source: 'customer-booking'
+      };
+
+      try {
+        const response = await fetch('/api/appointments/book', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(appointmentData)
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+          // Show success screen
+          document.querySelectorAll('.booking-section').forEach(s => s.style.display = 'none');
+          document.getElementById('successSection').style.display = 'block';
+          document.getElementById('confirmationNumber').textContent = result.appointment.id;
+          document.getElementById('confirmDateTime').textContent = `${new Date(bookingData.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} at ${bookingData.time}`;
+
+          // Update all steps to completed
+          for (let i = 1; i <= 4; i++) {
+            document.getElementById(`step${i}`).classList.remove('active');
+            document.getElementById(`step${i}`).classList.add('completed');
+          }
+        } else {
+          messageEl.className = 'message error';
+          messageEl.textContent = result.error || 'Failed to book appointment. Please try again.';
+          messageEl.style.display = 'block';
+        }
+      } catch (error) {
+        messageEl.className = 'message error';
+        messageEl.textContent = 'Connection error. Please try again.';
+        messageEl.style.display = 'block';
+      } finally {
+        submitBtn.disabled = false;
+        submitBtn.textContent = 'Confirm Booking';
+      }
+    }
+  </script>
+</body>
+</html>

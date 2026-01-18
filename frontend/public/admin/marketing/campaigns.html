@@ -1,1280 +1,681 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Email Campaigns - Marketing | Peekaboo Shades Admin</title>
-    <link rel="stylesheet" href="../css/admin.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        .marketing-container {
-            display: flex;
-            min-height: 100vh;
-        }
-
-        .marketing-sidebar {
-            width: 240px;
-            background: #1a1a2e;
-            padding: 20px 0;
-            flex-shrink: 0;
-        }
-
-        .marketing-sidebar h3 {
-            color: #fff;
-            padding: 0 20px;
-            margin-bottom: 20px;
-            font-size: 14px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-
-        .marketing-nav {
-            list-style: none;
-            padding: 0;
-            margin: 0;
-        }
-
-        .marketing-nav li a {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            padding: 12px 20px;
-            color: #a0a0a0;
-            text-decoration: none;
-            transition: all 0.2s;
-        }
-
-        .marketing-nav li a:hover,
-        .marketing-nav li a.active {
-            background: rgba(255,255,255,0.1);
-            color: #fff;
-        }
-
-        .marketing-nav li a.active {
-            border-left: 3px solid #4a90d9;
-        }
-
-        .marketing-content {
-            flex: 1;
-            padding: 30px;
-            background: #f5f5f5;
-        }
-
-        .page-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 30px;
-        }
-
-        .page-header h1 {
-            margin: 0;
-            font-size: 24px;
-        }
-
-        .btn-primary {
-            background: #4a90d9;
-            color: #fff;
-            border: none;
-            padding: 12px 24px;
-            border-radius: 6px;
-            cursor: pointer;
-            font-size: 14px;
-            display: flex;
-            align-items: center;
-            gap: 8px;
-        }
-
-        .btn-primary:hover {
-            background: #3a7bc8;
-        }
-
-        .campaigns-filters {
-            display: flex;
-            gap: 15px;
-            margin-bottom: 20px;
-        }
-
-        .filter-tabs {
-            display: flex;
-            gap: 5px;
-        }
-
-        .filter-tab {
-            padding: 8px 16px;
-            border: 1px solid #ddd;
-            background: #fff;
-            border-radius: 20px;
-            cursor: pointer;
-            font-size: 13px;
-        }
-
-        .filter-tab.active {
-            background: #4a90d9;
-            color: #fff;
-            border-color: #4a90d9;
-        }
-
-        .search-box {
-            flex: 1;
-            max-width: 300px;
-            position: relative;
-        }
-
-        .search-box input {
-            width: 100%;
-            padding: 10px 15px 10px 40px;
-            border: 1px solid #ddd;
-            border-radius: 6px;
-            font-size: 14px;
-        }
-
-        .search-box i {
-            position: absolute;
-            left: 15px;
-            top: 50%;
-            transform: translateY(-50%);
-            color: #999;
-        }
-
-        .campaigns-table {
-            background: #fff;
-            border-radius: 8px;
-            overflow: hidden;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-
-        .campaigns-table table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-
-        .campaigns-table th,
-        .campaigns-table td {
-            padding: 15px;
-            text-align: left;
-            border-bottom: 1px solid #eee;
-        }
-
-        .campaigns-table th {
-            background: #f9f9f9;
-            font-weight: 600;
-            font-size: 13px;
-            color: #666;
-            text-transform: uppercase;
-        }
-
-        .campaign-name {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .campaign-icon {
-            width: 40px;
-            height: 40px;
-            background: #e8f0fc;
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #4a90d9;
-        }
-
-        .campaign-title {
-            font-weight: 500;
-        }
-
-        .campaign-subject {
-            font-size: 12px;
-            color: #888;
-            margin-top: 2px;
-        }
-
-        .status-badge {
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 500;
-        }
-
-        .status-draft {
-            background: #f0f0f0;
-            color: #666;
-        }
-
-        .status-scheduled {
-            background: #fff3cd;
-            color: #856404;
-        }
-
-        .status-sent {
-            background: #d4edda;
-            color: #155724;
-        }
-
-        .status-active {
-            background: #cce5ff;
-            color: #004085;
-        }
-
-        .campaign-stats {
-            display: flex;
-            gap: 20px;
-        }
-
-        .stat-item {
-            text-align: center;
-        }
-
-        .stat-value {
-            font-weight: 600;
-            font-size: 14px;
-        }
-
-        .stat-label {
-            font-size: 11px;
-            color: #888;
-        }
-
-        .actions-cell {
-            display: flex;
-            gap: 8px;
-        }
-
-        .btn-icon {
-            width: 32px;
-            height: 32px;
-            border: 1px solid #ddd;
-            background: #fff;
-            border-radius: 6px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: #666;
-        }
-
-        .btn-icon:hover {
-            background: #f5f5f5;
-        }
-
-        .btn-icon.danger:hover {
-            background: #fee;
-            color: #c00;
-            border-color: #fcc;
-        }
-
-        /* Campaign Editor Modal */
-        .modal-overlay {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            bottom: 0;
-            background: rgba(0,0,0,0.5);
-            z-index: 1000;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .modal-overlay.active {
-            display: flex;
-        }
-
-        .modal-content {
-            background: #fff;
-            border-radius: 12px;
-            width: 90%;
-            max-width: 900px;
-            max-height: 90vh;
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-        }
-
-        .modal-header {
-            padding: 20px;
-            border-bottom: 1px solid #eee;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .modal-header h2 {
-            margin: 0;
-            font-size: 18px;
-        }
-
-        .modal-close {
-            background: none;
-            border: none;
-            font-size: 24px;
-            cursor: pointer;
-            color: #666;
-        }
-
-        .modal-body {
-            padding: 20px;
-            overflow-y: auto;
-            flex: 1;
-        }
-
-        .modal-footer {
-            padding: 15px 20px;
-            border-top: 1px solid #eee;
-            display: flex;
-            justify-content: flex-end;
-            gap: 10px;
-        }
-
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        .form-group label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 500;
-            color: #333;
-        }
-
-        .form-group input,
-        .form-group select,
-        .form-group textarea {
-            width: 100%;
-            padding: 10px 15px;
-            border: 1px solid #ddd;
-            border-radius: 6px;
-            font-size: 14px;
-        }
-
-        .form-group textarea {
-            min-height: 100px;
-            resize: vertical;
-        }
-
-        .form-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-        }
-
-        .email-editor {
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            overflow: hidden;
-        }
-
-        .editor-toolbar {
-            padding: 10px;
-            background: #f9f9f9;
-            border-bottom: 1px solid #ddd;
-            display: flex;
-            gap: 5px;
-            flex-wrap: wrap;
-        }
-
-        .editor-toolbar button {
-            padding: 8px 12px;
-            border: 1px solid #ddd;
-            background: #fff;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 12px;
-        }
-
-        .editor-toolbar button:hover {
-            background: #f0f0f0;
-        }
-
-        .editor-content {
-            min-height: 300px;
-            padding: 20px;
-        }
-
-        .editor-content:focus {
-            outline: none;
-        }
-
-        .template-grid {
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            gap: 15px;
-            margin-top: 15px;
-        }
-
-        .template-card {
-            border: 2px solid #eee;
-            border-radius: 8px;
-            padding: 15px;
-            cursor: pointer;
-            text-align: center;
-        }
-
-        .template-card:hover {
-            border-color: #4a90d9;
-        }
-
-        .template-card.selected {
-            border-color: #4a90d9;
-            background: #f0f7ff;
-        }
-
-        .template-icon {
-            font-size: 32px;
-            margin-bottom: 10px;
-            color: #4a90d9;
-        }
-
-        .template-name {
-            font-weight: 500;
-            font-size: 14px;
-        }
-
-        .recipient-options {
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-
-        .recipient-option {
-            padding: 15px;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            gap: 12px;
-        }
-
-        .recipient-option:hover {
-            border-color: #4a90d9;
-        }
-
-        .recipient-option.selected {
-            border-color: #4a90d9;
-            background: #f0f7ff;
-        }
-
-        .recipient-option input[type="radio"] {
-            width: auto;
-        }
-
-        .btn-secondary {
-            background: #f0f0f0;
-            color: #333;
-            border: 1px solid #ddd;
-            padding: 10px 20px;
-            border-radius: 6px;
-            cursor: pointer;
-        }
-
-        .btn-secondary:hover {
-            background: #e5e5e5;
-        }
-
-        .empty-state {
-            text-align: center;
-            padding: 60px 20px;
-        }
-
-        .empty-state i {
-            font-size: 48px;
-            color: #ddd;
-            margin-bottom: 20px;
-        }
-
-        .empty-state h3 {
-            margin: 0 0 10px;
-            color: #333;
-        }
-
-        .empty-state p {
-            color: #888;
-            margin-bottom: 20px;
-        }
-
-        /* Steps indicator */
-        .steps-indicator {
-            display: flex;
-            justify-content: center;
-            margin-bottom: 30px;
-        }
-
-        .step {
-            display: flex;
-            align-items: center;
-        }
-
-        .step-number {
-            width: 30px;
-            height: 30px;
-            border-radius: 50%;
-            background: #e0e0e0;
-            color: #666;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 600;
-            font-size: 14px;
-        }
-
-        .step.active .step-number {
-            background: #4a90d9;
-            color: #fff;
-        }
-
-        .step.completed .step-number {
-            background: #28a745;
-            color: #fff;
-        }
-
-        .step-label {
-            margin-left: 8px;
-            font-size: 13px;
-            color: #666;
-        }
-
-        .step.active .step-label {
-            color: #4a90d9;
-            font-weight: 500;
-        }
-
-        .step-line {
-            width: 60px;
-            height: 2px;
-            background: #e0e0e0;
-            margin: 0 10px;
-        }
-
-        .step.completed + .step-line {
-            background: #28a745;
-        }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Email Campaigns - Peekaboo Shades Admin</title>
+  <link rel="stylesheet" href="../css/admin.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; }
+    .stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin-bottom: 24px; }
+    .stat-card { background: white; border: 1px solid #e5e7eb; border-radius: 12px; padding: 20px; }
+    .stat-card-value { font-size: 28px; font-weight: 700; color: #8E6545; }
+    .stat-card-label { font-size: 13px; color: #6b7280; margin-top: 4px; }
+    .campaigns-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 20px; }
+    .campaign-card { background: white; border: 1px solid #e5e7eb; border-radius: 12px; overflow: hidden; transition: all 0.2s; }
+    .campaign-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+    .campaign-header { padding: 20px; border-bottom: 1px solid #f3f4f6; }
+    .campaign-title { font-size: 16px; font-weight: 600; color: #1a1a1a; margin-bottom: 8px; }
+    .campaign-subject { font-size: 13px; color: #6b7280; }
+    .campaign-body { padding: 20px; }
+    .campaign-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-bottom: 16px; }
+    .campaign-stat { text-align: center; }
+    .campaign-stat-value { font-size: 18px; font-weight: 600; color: #8E6545; }
+    .campaign-stat-label { font-size: 11px; color: #6b7280; }
+    .campaign-footer { padding: 16px 20px; background: #f9fafb; display: flex; justify-content: space-between; align-items: center; }
+    .status-badge { display: inline-flex; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 500; }
+    .status-draft { background: #f3f4f6; color: #6b7280; }
+    .status-scheduled { background: #fef3c7; color: #92400e; }
+    .status-sent { background: #dcfce7; color: #166534; }
+    .action-btn { width: 32px; height: 32px; border: none; background: transparent; color: #9ca3af; cursor: pointer; border-radius: 6px; display: inline-flex; align-items: center; justify-content: center; }
+    .action-btn:hover { background: #f3f4f6; color: #374151; }
+    .action-btn.delete:hover { background: #fee2e2; color: #dc2626; }
+    .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 1000; opacity: 0; visibility: hidden; transition: all 0.3s; }
+    .modal-overlay.active { opacity: 1; visibility: visible; }
+    .modal { background: white; border-radius: 16px; width: 100%; max-width: 600px; max-height: 90vh; overflow-y: auto; }
+    .modal-header { display: flex; justify-content: space-between; align-items: center; padding: 20px 24px; border-bottom: 1px solid #e5e7eb; }
+    .modal-title { font-size: 18px; font-weight: 600; }
+    .modal-close { width: 32px; height: 32px; border: none; background: transparent; color: #9ca3af; cursor: pointer; }
+    .modal-body { padding: 24px; }
+    .form-group { margin-bottom: 20px; }
+    .form-label { display: block; font-size: 13px; font-weight: 500; color: #374151; margin-bottom: 6px; }
+    .form-input, .form-select, .form-textarea { width: 100%; padding: 10px 12px; border: 1px solid #d1d5db; border-radius: 8px; font-size: 14px; }
+    .form-textarea { min-height: 150px; resize: vertical; }
+    .form-input:focus, .form-select:focus, .form-textarea:focus { outline: none; border-color: #8E6545; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .modal-footer { display: flex; justify-content: flex-end; gap: 12px; padding: 16px 24px; border-top: 1px solid #e5e7eb; background: #f9fafb; }
+    .btn { padding: 10px 20px; border-radius: 8px; font-size: 14px; font-weight: 500; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; border: none; }
+    .btn-primary { background: #8E6545; color: white; }
+    .btn-primary:hover { background: #7a5539; }
+    .btn-secondary { background: white; color: #374151; border: 1px solid #d1d5db; }
+    .btn-success { background: #22c55e; color: white; }
+    .empty-state { text-align: center; padding: 60px 20px; color: #6b7280; }
+    .empty-state i { font-size: 48px; color: #d1d5db; margin-bottom: 16px; display: block; }
+    @media (max-width: 900px) { .stats-row { grid-template-columns: repeat(2, 1fr); } }
+  </style>
 </head>
 <body>
-    <div class="marketing-container">
-        <aside class="marketing-sidebar">
-            <h3>Marketing</h3>
-            <ul class="marketing-nav">
-                <li><a href="index.html"><i class="fas fa-chart-line"></i> Overview</a></li>
-                <li><a href="campaigns.html" class="active"><i class="fas fa-envelope"></i> Email Campaigns</a></li>
-                <li><a href="social.html"><i class="fas fa-share-alt"></i> Social Media</a></li>
-                <li><a href="promotions.html"><i class="fas fa-tags"></i> Promotions</a></li>
-                <li><a href="subscribers.html"><i class="fas fa-users"></i> Subscribers</a></li>
-                <li><a href="automations.html"><i class="fas fa-robot"></i> Automations</a></li>
-            </ul>
-            <div style="padding: 20px; margin-top: 30px;">
-                <a href="../index.html" style="color: #a0a0a0; text-decoration: none; font-size: 13px;">
-                    <i class="fas fa-arrow-left"></i> Back to Dashboard
-                </a>
-            </div>
-        </aside>
-
-        <main class="marketing-content">
-            <div class="page-header">
-                <h1>Email Campaigns</h1>
-                <button class="btn-primary" onclick="openCampaignEditor()">
-                    <i class="fas fa-plus"></i> Create Campaign
-                </button>
-            </div>
-
-            <div class="campaigns-filters">
-                <div class="filter-tabs">
-                    <button class="filter-tab active" data-filter="all">All</button>
-                    <button class="filter-tab" data-filter="draft">Drafts</button>
-                    <button class="filter-tab" data-filter="scheduled">Scheduled</button>
-                    <button class="filter-tab" data-filter="sent">Sent</button>
-                </div>
-                <div class="search-box">
-                    <i class="fas fa-search"></i>
-                    <input type="text" placeholder="Search campaigns..." id="searchInput">
-                </div>
-            </div>
-
-            <div class="campaigns-table" id="campaignsTable">
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Campaign</th>
-                            <th>Status</th>
-                            <th>Recipients</th>
-                            <th>Performance</th>
-                            <th>Date</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody id="campaignsList">
-                        <!-- Campaigns will be loaded here -->
-                    </tbody>
-                </table>
-            </div>
-
-            <div class="empty-state" id="emptyState" style="display: none;">
-                <i class="fas fa-envelope-open-text"></i>
-                <h3>No campaigns yet</h3>
-                <p>Create your first email campaign to start engaging with your customers.</p>
-                <button class="btn-primary" onclick="openCampaignEditor()">
-                    <i class="fas fa-plus"></i> Create Campaign
-                </button>
-            </div>
-        </main>
-    </div>
-
-    <!-- Campaign Editor Modal -->
-    <div class="modal-overlay" id="campaignModal">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h2 id="modalTitle">Create Email Campaign</h2>
-                <button class="modal-close" onclick="closeCampaignEditor()">&times;</button>
-            </div>
-            <div class="modal-body">
-                <div class="steps-indicator">
-                    <div class="step active" data-step="1">
-                        <span class="step-number">1</span>
-                        <span class="step-label">Setup</span>
-                    </div>
-                    <div class="step-line"></div>
-                    <div class="step" data-step="2">
-                        <span class="step-number">2</span>
-                        <span class="step-label">Recipients</span>
-                    </div>
-                    <div class="step-line"></div>
-                    <div class="step" data-step="3">
-                        <span class="step-number">3</span>
-                        <span class="step-label">Content</span>
-                    </div>
-                    <div class="step-line"></div>
-                    <div class="step" data-step="4">
-                        <span class="step-number">4</span>
-                        <span class="step-label">Review</span>
-                    </div>
-                </div>
-
-                <!-- Step 1: Setup -->
-                <div class="step-content" id="step1">
-                    <div class="form-group">
-                        <label>Campaign Name</label>
-                        <input type="text" id="campaignName" placeholder="e.g., Summer Sale Announcement">
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label>Email Subject</label>
-                            <input type="text" id="campaignSubject" placeholder="e.g., ☀️ Summer Sale - Up to 50% Off!">
-                        </div>
-                        <div class="form-group">
-                            <label>Preview Text</label>
-                            <input type="text" id="campaignPreview" placeholder="Text shown after subject in inbox">
-                        </div>
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label>From Name</label>
-                            <input type="text" id="fromName" value="Peekaboo Shades">
-                        </div>
-                        <div class="form-group">
-                            <label>Reply-To Email</label>
-                            <input type="email" id="replyTo" value="hello@peekabooshades.com">
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Step 2: Recipients -->
-                <div class="step-content" id="step2" style="display: none;">
-                    <div class="form-group">
-                        <label>Select Recipients</label>
-                        <div class="recipient-options">
-                            <label class="recipient-option selected">
-                                <input type="radio" name="recipients" value="all" checked>
-                                <div>
-                                    <strong>All Subscribers</strong>
-                                    <p style="margin: 5px 0 0; font-size: 13px; color: #666;">Send to everyone on your mailing list</p>
-                                </div>
-                            </label>
-                            <label class="recipient-option">
-                                <input type="radio" name="recipients" value="segment">
-                                <div>
-                                    <strong>Specific Segment</strong>
-                                    <p style="margin: 5px 0 0; font-size: 13px; color: #666;">Target customers based on criteria</p>
-                                </div>
-                            </label>
-                            <label class="recipient-option">
-                                <input type="radio" name="recipients" value="customers">
-                                <div>
-                                    <strong>Past Customers</strong>
-                                    <p style="margin: 5px 0 0; font-size: 13px; color: #666;">People who have made a purchase</p>
-                                </div>
-                            </label>
-                        </div>
-                    </div>
-
-                    <div class="form-group" id="segmentOptions" style="display: none;">
-                        <label>Segment Criteria</label>
-                        <select id="segmentSelect">
-                            <option value="">Select a segment...</option>
-                            <option value="new">New subscribers (last 30 days)</option>
-                            <option value="engaged">Highly engaged (opened last 3 emails)</option>
-                            <option value="inactive">Inactive (no opens in 90 days)</option>
-                            <option value="vip">VIP customers ($500+ spent)</option>
-                        </select>
-                    </div>
-                </div>
-
-                <!-- Step 3: Content -->
-                <div class="step-content" id="step3" style="display: none;">
-                    <div class="form-group">
-                        <label>Choose Template</label>
-                        <div class="template-grid">
-                            <div class="template-card selected" data-template="promotional">
-                                <div class="template-icon"><i class="fas fa-bullhorn"></i></div>
-                                <div class="template-name">Promotional</div>
-                            </div>
-                            <div class="template-card" data-template="newsletter">
-                                <div class="template-icon"><i class="fas fa-newspaper"></i></div>
-                                <div class="template-name">Newsletter</div>
-                            </div>
-                            <div class="template-card" data-template="announcement">
-                                <div class="template-icon"><i class="fas fa-megaphone"></i></div>
-                                <div class="template-name">Announcement</div>
-                            </div>
-                            <div class="template-card" data-template="product">
-                                <div class="template-icon"><i class="fas fa-box"></i></div>
-                                <div class="template-name">Product Launch</div>
-                            </div>
-                            <div class="template-card" data-template="blank">
-                                <div class="template-icon"><i class="fas fa-file"></i></div>
-                                <div class="template-name">Blank</div>
-                            </div>
-                            <div class="template-card" data-template="custom">
-                                <div class="template-icon"><i class="fas fa-code"></i></div>
-                                <div class="template-name">Custom HTML</div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label>Email Content</label>
-                        <div class="email-editor">
-                            <div class="editor-toolbar">
-                                <button onclick="formatText('bold')"><i class="fas fa-bold"></i></button>
-                                <button onclick="formatText('italic')"><i class="fas fa-italic"></i></button>
-                                <button onclick="formatText('underline')"><i class="fas fa-underline"></i></button>
-                                <button onclick="formatText('insertUnorderedList')"><i class="fas fa-list-ul"></i></button>
-                                <button onclick="formatText('insertOrderedList')"><i class="fas fa-list-ol"></i></button>
-                                <button onclick="insertLink()"><i class="fas fa-link"></i></button>
-                                <button onclick="insertImage()"><i class="fas fa-image"></i></button>
-                                <button onclick="insertButton()"><i class="fas fa-square"></i> Button</button>
-                                <button onclick="insertVariable()"><i class="fas fa-code"></i> Variable</button>
-                            </div>
-                            <div class="editor-content" id="emailContent" contenteditable="true">
-                                <h2>Hello {{first_name}},</h2>
-                                <p>We're excited to share our latest news with you!</p>
-                                <p>Add your content here...</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Step 4: Review -->
-                <div class="step-content" id="step4" style="display: none;">
-                    <div style="background: #f9f9f9; padding: 20px; border-radius: 8px; margin-bottom: 20px;">
-                        <h3 style="margin: 0 0 15px; font-size: 16px;">Campaign Summary</h3>
-                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
-                            <div>
-                                <p style="margin: 0; color: #666; font-size: 13px;">Campaign Name</p>
-                                <p style="margin: 5px 0 0; font-weight: 500;" id="reviewName">-</p>
-                            </div>
-                            <div>
-                                <p style="margin: 0; color: #666; font-size: 13px;">Subject Line</p>
-                                <p style="margin: 5px 0 0; font-weight: 500;" id="reviewSubject">-</p>
-                            </div>
-                            <div>
-                                <p style="margin: 0; color: #666; font-size: 13px;">Recipients</p>
-                                <p style="margin: 5px 0 0; font-weight: 500;" id="reviewRecipients">-</p>
-                            </div>
-                            <div>
-                                <p style="margin: 0; color: #666; font-size: 13px;">Template</p>
-                                <p style="margin: 5px 0 0; font-weight: 500;" id="reviewTemplate">-</p>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label>Send Options</label>
-                        <div class="recipient-options">
-                            <label class="recipient-option selected">
-                                <input type="radio" name="sendOption" value="now" checked>
-                                <div>
-                                    <strong>Send Now</strong>
-                                    <p style="margin: 5px 0 0; font-size: 13px; color: #666;">Send immediately after saving</p>
-                                </div>
-                            </label>
-                            <label class="recipient-option">
-                                <input type="radio" name="sendOption" value="schedule">
-                                <div>
-                                    <strong>Schedule for Later</strong>
-                                    <p style="margin: 5px 0 0; font-size: 13px; color: #666;">Choose a specific date and time</p>
-                                </div>
-                            </label>
-                            <label class="recipient-option">
-                                <input type="radio" name="sendOption" value="draft">
-                                <div>
-                                    <strong>Save as Draft</strong>
-                                    <p style="margin: 5px 0 0; font-size: 13px; color: #666;">Continue editing later</p>
-                                </div>
-                            </label>
-                        </div>
-                    </div>
-
-                    <div class="form-row" id="scheduleOptions" style="display: none;">
-                        <div class="form-group">
-                            <label>Date</label>
-                            <input type="date" id="scheduleDate">
-                        </div>
-                        <div class="form-group">
-                            <label>Time</label>
-                            <input type="time" id="scheduleTime">
-                        </div>
-                    </div>
-
-                    <div class="form-group">
-                        <label>Send Test Email</label>
-                        <div style="display: flex; gap: 10px;">
-                            <input type="email" id="testEmail" placeholder="your@email.com" style="flex: 1;">
-                            <button class="btn-secondary" onclick="sendTestEmail()">Send Test</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button class="btn-secondary" id="prevBtn" onclick="prevStep()" style="display: none;">Previous</button>
-                <button class="btn-primary" id="nextBtn" onclick="nextStep()">Next</button>
-            </div>
+  <div class="admin-layout">
+    <aside class="admin-sidebar">
+      <div class="sidebar-header">
+        <a href="/admin/" class="sidebar-logo">
+          <img src="/images/peekabooshades_logo.jpeg" alt="Peekaboo Shades" style="height: 32px; border-radius: 6px;">
+          <span>Peekaboo Shades</span>
+        </a>
+      </div>
+      <nav class="sidebar-nav">
+        <div class="nav-section">
+          <a href="/admin/" class="nav-item"><i class="fas fa-home"></i><span>Dashboard</span></a>
         </div>
+        <div class="nav-section">
+          <div class="nav-section-title">Marketing</div>
+          <a href="/admin/marketing/coupons.html" class="nav-item"><i class="fas fa-ticket-alt"></i><span>Coupon Codes</span></a>
+          <a href="/admin/marketing/campaigns.html" class="nav-item active"><i class="fas fa-envelope"></i><span>Email Campaigns</span></a>
+          <a href="/admin/marketing/subscribers.html" class="nav-item"><i class="fas fa-users"></i><span>Subscribers</span></a>
+        </div>
+        <div class="nav-section">
+          <div class="nav-section-title">Catalog</div>
+          <a href="/admin/products.html" class="nav-item"><i class="fas fa-box"></i><span>Products</span></a>
+        </div>
+      </nav>
+    </aside>
+    <main class="admin-main">
+      <header class="admin-header">
+        <div class="breadcrumb">
+          <a href="/admin/">Dashboard</a> / <span>Email Campaigns</span>
+        </div>
+      </header>
+      <div class="admin-content">
+        <div class="page-header">
+          <div>
+            <h1 style="font-size: 24px; font-weight: 600; margin-bottom: 4px;">Email Campaigns</h1>
+            <p style="color: #6b7280; font-size: 14px;">Create and manage email marketing campaigns</p>
+          </div>
+          <button class="btn btn-primary" onclick="openCreateModal()"><i class="fas fa-plus"></i> Create Campaign</button>
+        </div>
+        <div class="stats-row">
+          <div class="stat-card"><div class="stat-card-value" id="statTotal">0</div><div class="stat-card-label">Total Campaigns</div></div>
+          <div class="stat-card"><div class="stat-card-value" id="statSent">0</div><div class="stat-card-label">Sent</div></div>
+          <div class="stat-card"><div class="stat-card-value" id="statScheduled">0</div><div class="stat-card-label">Scheduled</div></div>
+          <div class="stat-card"><div class="stat-card-value" id="statDrafts">0</div><div class="stat-card-label">Drafts</div></div>
+        </div>
+        <div class="campaigns-grid" id="campaignsGrid">
+          <div class="empty-state"><i class="fas fa-envelope-open-text"></i><h3>No campaigns yet</h3><p>Create your first email campaign</p></div>
+        </div>
+
+        <!-- Email Templates Section based on Product Catalogue -->
+        <div style="margin-top: 40px;">
+          <h2 style="font-size: 20px; font-weight: 600; margin-bottom: 20px;">Email Templates (From Product Catalogue)</h2>
+          <div class="campaigns-grid" id="templatesGrid">
+            <div class="campaign-card" style="cursor: pointer;" onclick="useTemplate('roller')">
+              <div class="campaign-header">
+                <div class="campaign-title">Roller Shades Collection</div>
+                <div class="campaign-subject">Discover Our Eco-Friendly Roller Shades</div>
+              </div>
+              <div class="campaign-body">
+                <p style="font-size: 13px; color: #6b7280; margin-bottom: 12px;">Eco-friendly and durable fabric with transparent, semi-blackout, and full blackout options. Unique design with insulation, dust-proof, shading and light filtering features.</p>
+                <div style="font-size: 12px; color: #8E6545;">
+                  <strong>Features:</strong> Multiple valance styles (Square V1/V2, Fabric wrapped, Curve white) | Motorized & Cordless options | Width: 30-300cm | Height: 50-430cm
+                </div>
+              </div>
+              <div class="campaign-footer">
+                <span class="status-badge" style="background: #e8f4fd; color: #1e88e5;">Template</span>
+                <button class="btn btn-secondary" style="padding: 6px 12px; font-size: 12px;">Use Template</button>
+              </div>
+            </div>
+
+            <div class="campaign-card" style="cursor: pointer;" onclick="useTemplate('zebra')">
+              <div class="campaign-header">
+                <div class="campaign-title">Zebra Shades Collection</div>
+                <div class="campaign-subject">Versatile Light Control with Zebra Shades</div>
+              </div>
+              <div class="campaign-body">
+                <p style="font-size: 13px; color: #6b7280; margin-bottom: 12px;">Versatile range of colors, textures, and prints with simple yet elegant light control options. Open and close fabric layers for perfect lighting.</p>
+                <div style="font-size: 12px; color: #8E6545;">
+                  <strong>Features:</strong> Day & night fabric options | Fabric wrapped Z3 valance | Width: 50-230cm | Height: 50-330cm | Cordless-Motorized 2-in-1
+                </div>
+              </div>
+              <div class="campaign-footer">
+                <span class="status-badge" style="background: #e8f4fd; color: #1e88e5;">Template</span>
+                <button class="btn btn-secondary" style="padding: 6px 12px; font-size: 12px;">Use Template</button>
+              </div>
+            </div>
+
+            <div class="campaign-card" style="cursor: pointer;" onclick="useTemplate('honeycomb')">
+              <div class="campaign-header">
+                <div class="campaign-title">Honeycomb Shades - Energy Efficient</div>
+                <div class="campaign-subject">Superior Insulation with Honeycomb Shades</div>
+              </div>
+              <div class="campaign-body">
+                <p style="font-size: 13px; color: #6b7280; margin-bottom: 12px;">Honeycomb-like structure offering good insulation, light control in various styles. Options: Regular, Odd Shaped, Skylight, and Sliding. Great for comfort and privacy.</p>
+                <div style="font-size: 12px; color: #8E6545;">
+                  <strong>Cell Sizes:</strong> 16/20/26/38/45mm | <strong>Types:</strong> Sheer, Light Filtering, Blackout, Dual Cell | <strong>Control:</strong> Cordless, Motorized, Cord Locked, Continuous Loop
+                </div>
+              </div>
+              <div class="campaign-footer">
+                <span class="status-badge" style="background: #e8f4fd; color: #1e88e5;">Template</span>
+                <button class="btn btn-secondary" style="padding: 6px 12px; font-size: 12px;">Use Template</button>
+              </div>
+            </div>
+
+            <div class="campaign-card" style="cursor: pointer;" onclick="useTemplate('outdoor')">
+              <div class="campaign-header">
+                <div class="campaign-title">Outdoor Shades Collection</div>
+                <div class="campaign-subject">Durable Outdoor Shades - Waterproof & Sunproof</div>
+              </div>
+              <div class="campaign-body">
+                <p style="font-size: 13px; color: #6b7280; margin-bottom: 12px;">Made of durable materials with waterproof, sunproof, and mildewproof properties. Colors remain vivid. Windproof structure with flexible sunshade angle adjustment.</p>
+                <div style="font-size: 12px; color: #8E6545;">
+                  <strong>Series:</strong> ZS-105, ZS-125, Double Layer | <strong>Width:</strong> 680-4500mm | <strong>Height:</strong> 500-5600mm | <strong>Colors:</strong> Black, Coffee, Dark Gray, Metallic Gray, Light Gray, White
+                </div>
+              </div>
+              <div class="campaign-footer">
+                <span class="status-badge" style="background: #e8f4fd; color: #1e88e5;">Template</span>
+                <button class="btn btn-secondary" style="padding: 6px 12px; font-size: 12px;">Use Template</button>
+              </div>
+            </div>
+
+            <div class="campaign-card" style="cursor: pointer;" onclick="useTemplate('sheer')">
+              <div class="campaign-header">
+                <div class="campaign-title">Sheer Shades - Elegant Light Control</div>
+                <div class="campaign-subject">Luxurious Shangri-la & Butterfly Shades</div>
+              </div>
+              <div class="campaign-body">
+                <p style="font-size: 13px; color: #6b7280; margin-bottom: 12px;">Adjustable, softly contoured fabric vanes with light-diffusing back panel. Luxurious blinds that softly filter light, combining drapery sophistication with shade functionality.</p>
+                <div style="font-size: 12px; color: #8E6545;">
+                  <strong>Types:</strong> Shangri-la Shades, Butterfly Shades | <strong>Width:</strong> 40-230cm | <strong>Height:</strong> 50-250cm | Semi-blackout fabric up to 4.3 meters
+                </div>
+              </div>
+              <div class="campaign-footer">
+                <span class="status-badge" style="background: #e8f4fd; color: #1e88e5;">Template</span>
+                <button class="btn btn-secondary" style="padding: 6px 12px; font-size: 12px;">Use Template</button>
+              </div>
+            </div>
+
+            <div class="campaign-card" style="cursor: pointer;" onclick="useTemplate('venetian')">
+              <div class="campaign-header">
+                <div class="campaign-title">Venetian & Faux Wood Blinds</div>
+                <div class="campaign-subject">Classic Style with Modern Durability</div>
+              </div>
+              <div class="campaign-body">
+                <p style="font-size: 13px; color: #6b7280; margin-bottom: 12px;">High strength elastic aluminum blinds with 180-degree blade flip adjustment. Environmental protection paint, moisture-proof and mildew proof. Faux wood options are waterproof, fireproof, and mildew proof.</p>
+                <div style="font-size: 12px; color: #8E6545;">
+                  <strong>Aluminum:</strong> 26mm slats, C/L shape | <strong>Faux Wood:</strong> 50mm width, 2.8mm thickness | <strong>Control:</strong> Bead Chain, Cordless, Motorized, Stay Cord
+                </div>
+              </div>
+              <div class="campaign-footer">
+                <span class="status-badge" style="background: #e8f4fd; color: #1e88e5;">Template</span>
+                <button class="btn btn-secondary" style="padding: 6px 12px; font-size: 12px;">Use Template</button>
+              </div>
+            </div>
+
+            <div class="campaign-card" style="cursor: pointer;" onclick="useTemplate('paneltrack')">
+              <div class="campaign-header">
+                <div class="campaign-title">Panel Track Blinds</div>
+                <div class="campaign-subject">Modern Panels for Large Windows & Doors</div>
+              </div>
+              <div class="campaign-body">
+                <p style="font-size: 13px; color: #6b7280; margin-bottom: 12px;">Sleek gliding panels with contemporary feel. Perfect for short, tall or wide windows. Panels stack tightly and provide unobstructed views when open.</p>
+                <div style="font-size: 12px; color: #8E6545;">
+                  <strong>Width:</strong> 45.8" to 220" | <strong>Uses:</strong> Sliding Door, Closet Door, Window Shade, Room Divider | <strong>Effects:</strong> Room Darkening, Light Filtering, Blackout
+                </div>
+              </div>
+              <div class="campaign-footer">
+                <span class="status-badge" style="background: #e8f4fd; color: #1e88e5;">Template</span>
+                <button class="btn btn-secondary" style="padding: 6px 12px; font-size: 12px;">Use Template</button>
+              </div>
+            </div>
+
+            <div class="campaign-card" style="cursor: pointer;" onclick="useTemplate('vertical')">
+              <div class="campaign-header">
+                <div class="campaign-title">Vertical Blinds Collection</div>
+                <div class="campaign-subject">Versatile Vertical Blinds for Any Space</div>
+              </div>
+              <div class="campaign-body">
+                <p style="font-size: 13px; color: #6b7280; margin-bottom: 12px;">Vertical hanging design suitable for large windows and sliding doors. Panels can be easily slid open or closed for quick light and privacy control. Available in vast array of fabrics, patterns, and colors.</p>
+                <div style="font-size: 12px; color: #8E6545;">
+                  <strong>Types:</strong> Polyester, PVC, Faux Wood, Dream Blinds | <strong>Track:</strong> Electric or Manual (Bead Chain/Wand) | Smooth silence track with hidden motor
+                </div>
+              </div>
+              <div class="campaign-footer">
+                <span class="status-badge" style="background: #e8f4fd; color: #1e88e5;">Template</span>
+                <button class="btn btn-secondary" style="padding: 6px 12px; font-size: 12px;">Use Template</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+  <div class="modal-overlay" id="campaignModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h2 class="modal-title" id="modalTitle">Create Campaign</h2>
+        <button class="modal-close" onclick="closeModal()"><i class="fas fa-times"></i></button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="campaignId">
+        <div class="form-group"><label class="form-label">Campaign Name *</label><input type="text" class="form-input" id="campName" required placeholder="e.g., Summer Sale Announcement"></div>
+        <div class="form-group"><label class="form-label">Email Subject *</label><input type="text" class="form-input" id="campSubject" required placeholder="e.g., Don't miss our Summer Sale!"></div>
+        <div class="form-group"><label class="form-label">Preview Text</label><input type="text" class="form-input" id="campPreview" placeholder="Text shown in email preview"></div>
+        <div class="form-group"><label class="form-label">Email Content</label><textarea class="form-textarea" id="campContent" placeholder="Write your email content here..."></textarea></div>
+        <div class="form-row">
+          <div class="form-group"><label class="form-label">Status</label><select class="form-select" id="campStatus"><option value="draft">Draft</option><option value="scheduled">Scheduled</option><option value="sent">Sent</option></select></div>
+          <div class="form-group"><label class="form-label">Schedule Date</label><input type="datetime-local" class="form-input" id="campSchedule"></div>
+        </div>
+        <div class="form-group"><label class="form-label">Target Audience</label><select class="form-select" id="campAudience"><option value="all">All Subscribers</option><option value="newsletter">Newsletter Subscribers</option><option value="customers">Past Customers</option></select></div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+        <button class="btn btn-primary" onclick="saveCampaign()"><i class="fas fa-save"></i> Save</button>
+      </div>
     </div>
+  </div>
+  <script src="../js/admin.js?v=1737100001"></script>
+  <script>
+    let allCampaigns = [], editingId = null;
+    document.addEventListener('DOMContentLoaded', async () => { if (!Admin.Auth.requireAuth()) return; await loadCampaigns(); });
+    async function loadCampaigns() {
+      try {
+        const data = await Admin.API.get('/marketing/campaigns');
+        if (data.success) { allCampaigns = data.campaigns || []; renderCampaigns(); updateStats(); }
+      } catch (e) { Admin.Toast.error('Failed to load campaigns'); }
+    }
+    function renderCampaigns() {
+      const grid = document.getElementById('campaignsGrid');
+      if (allCampaigns.length === 0) { grid.innerHTML = '<div class="empty-state"><i class="fas fa-envelope-open-text"></i><h3>No campaigns yet</h3><p>Create your first email campaign</p></div>'; return; }
+      grid.innerHTML = allCampaigns.map(c => {
+        const sentCount = c.sentCount || 0, openRate = c.openRate || 0, clickRate = c.clickRate || 0;
+        return '<div class="campaign-card"><div class="campaign-header"><div class="campaign-title">' + (c.name||'Untitled') + '</div><div class="campaign-subject">' + (c.subject||'') + '</div></div>' +
+          '<div class="campaign-body"><div class="campaign-stats"><div class="campaign-stat"><div class="campaign-stat-value">' + sentCount + '</div><div class="campaign-stat-label">Sent</div></div>' +
+          '<div class="campaign-stat"><div class="campaign-stat-value">' + openRate + '%</div><div class="campaign-stat-label">Open Rate</div></div>' +
+          '<div class="campaign-stat"><div class="campaign-stat-value">' + clickRate + '%</div><div class="campaign-stat-label">Click Rate</div></div></div></div>' +
+          '<div class="campaign-footer"><span class="status-badge status-' + (c.status||'draft') + '">' + (c.status||'Draft').charAt(0).toUpperCase() + (c.status||'draft').slice(1) + '</span>' +
+          '<div><button class="action-btn" onclick="editCampaign(\'' + c.id + '\')"><i class="fas fa-edit"></i></button>' +
+          '<button class="action-btn delete" onclick="deleteCampaign(\'' + c.id + '\')"><i class="fas fa-trash"></i></button></div></div></div>';
+      }).join('');
+    }
+    function updateStats() {
+      document.getElementById('statTotal').textContent = allCampaigns.length;
+      document.getElementById('statSent').textContent = allCampaigns.filter(c => c.status === 'sent').length;
+      document.getElementById('statScheduled').textContent = allCampaigns.filter(c => c.status === 'scheduled').length;
+      document.getElementById('statDrafts').textContent = allCampaigns.filter(c => c.status === 'draft').length;
+    }
+    function openCreateModal() { editingId = null; document.getElementById('modalTitle').textContent = 'Create Campaign'; document.getElementById('campName').value = ''; document.getElementById('campSubject').value = ''; document.getElementById('campPreview').value = ''; document.getElementById('campContent').value = ''; document.getElementById('campStatus').value = 'draft'; document.getElementById('campSchedule').value = ''; document.getElementById('campAudience').value = 'all'; document.getElementById('campaignModal').classList.add('active'); }
+    function editCampaign(id) { const c = allCampaigns.find(x => x.id === id); if (!c) return; editingId = id; document.getElementById('modalTitle').textContent = 'Edit Campaign'; document.getElementById('campName').value = c.name || ''; document.getElementById('campSubject').value = c.subject || ''; document.getElementById('campPreview').value = c.previewText || ''; document.getElementById('campContent').value = c.content || ''; document.getElementById('campStatus').value = c.status || 'draft'; document.getElementById('campSchedule').value = c.scheduledAt ? c.scheduledAt.slice(0, 16) : ''; document.getElementById('campAudience').value = c.audience || 'all'; document.getElementById('campaignModal').classList.add('active'); }
+    function closeModal() { document.getElementById('campaignModal').classList.remove('active'); editingId = null; }
+    async function saveCampaign() {
+      const data = { name: document.getElementById('campName').value, subject: document.getElementById('campSubject').value, previewText: document.getElementById('campPreview').value, content: document.getElementById('campContent').value, status: document.getElementById('campStatus').value, scheduledAt: document.getElementById('campSchedule').value || null, audience: document.getElementById('campAudience').value };
+      try { if (editingId) { await Admin.API.put('/marketing/campaigns/'+editingId, data); Admin.Toast.success('Campaign updated'); } else { await Admin.API.post('/marketing/campaigns', data); Admin.Toast.success('Campaign created'); } closeModal(); await loadCampaigns(); } catch (e) { Admin.Toast.error(e.message||'Failed'); }
+    }
+    async function deleteCampaign(id) { if (!confirm('Delete this campaign?')) return; try { await Admin.API.delete('/marketing/campaigns/'+id); Admin.Toast.success('Deleted'); await loadCampaigns(); } catch (e) { Admin.Toast.error('Failed'); } }
 
-    <script>
-        let campaigns = [];
-        let editingId = null;
-        let currentStep = 1;
-        const totalSteps = 4;
+    // Email templates from Product Catalogue
+    const emailTemplates = {
+      roller: {
+        name: 'Roller Shades Collection Campaign',
+        subject: 'Discover Our Eco-Friendly Roller Shades - Perfect Light Control',
+        content: `Dear Valued Customer,
 
-        // Initialize
-        document.addEventListener('DOMContentLoaded', () => {
-            loadCampaigns();
-            initFilters();
-            initRecipientOptions();
-            initTemplateSelection();
-            initSendOptions();
-        });
+Transform your space with our premium Roller Shades collection!
 
-        function loadCampaigns() {
-            const token = localStorage.getItem('adminToken');
-            fetch('/api/admin/marketing/campaigns', {
-                headers: { 'Authorization': `Bearer ${token}` }
-            })
-            .then(res => res.json())
-            .then(data => {
-                campaigns = data.campaigns || [];
-                renderCampaigns();
-            })
-            .catch(err => {
-                console.error('Error loading campaigns:', err);
-                // Show sample data for demo
-                campaigns = [
-                    {
-                        id: '1',
-                        name: 'Summer Sale Announcement',
-                        subject: '☀️ Summer Sale - Up to 50% Off!',
-                        status: 'sent',
-                        recipients: 1250,
-                        sent: 1245,
-                        opened: 423,
-                        clicked: 156,
-                        date: '2024-06-15',
-                        template: 'promotional'
-                    },
-                    {
-                        id: '2',
-                        name: 'New Product Launch',
-                        subject: 'Introducing Our Latest Collection',
-                        status: 'scheduled',
-                        recipients: 1300,
-                        sent: 0,
-                        opened: 0,
-                        clicked: 0,
-                        date: '2024-06-20',
-                        template: 'product'
-                    },
-                    {
-                        id: '3',
-                        name: 'Weekly Newsletter',
-                        subject: 'This Week at Peekaboo Shades',
-                        status: 'draft',
-                        recipients: 0,
-                        sent: 0,
-                        opened: 0,
-                        clicked: 0,
-                        date: '2024-06-18',
-                        template: 'newsletter'
-                    }
-                ];
-                renderCampaigns();
-            });
-        }
+PRODUCT FEATURES:
+- Eco-friendly and durable fabric options
+- Three shading effects: Transparent, Semi-blackout, Full blackout
+- Unique insulation, dust-proof, and light filtering design
+- Multiple valance styles: Square V1/V2, Fabric wrapped SA/V3/S3, Curve white S2, Fabric inserted S1
 
-        function renderCampaigns(filter = 'all') {
-            const tbody = document.getElementById('campaignsList');
-            const emptyState = document.getElementById('emptyState');
-            const table = document.getElementById('campaignsTable');
+AVAILABLE OPTIONS:
+- Control Systems: Bead Chain, Cordless, Motorized, Cordless-Motorized 2-in-1
+- Bottom Rail: White, Gray, Black (Type A, C Fabric wrapped, D No-drilling)
+- Light Blockers: Aluminum U shape, Adhesive L shape
 
-            let filtered = campaigns;
-            if (filter !== 'all') {
-                filtered = campaigns.filter(c => c.status === filter);
-            }
+CUSTOMIZABLE SIZES:
+- Width: 30cm to 300cm
+- Height: 50cm to 430cm
+- Perfect for any window size
 
-            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-            if (searchTerm) {
-                filtered = filtered.filter(c =>
-                    c.name.toLowerCase().includes(searchTerm) ||
-                    c.subject.toLowerCase().includes(searchTerm)
-                );
-            }
+SMART HOME READY:
+- Remote control with 3 preset modes
+- Voice control compatibility
+- Mobile APP access from anywhere
+- Wind-Light-Rain Sensor available
 
-            if (filtered.length === 0) {
-                table.style.display = 'none';
-                emptyState.style.display = 'block';
-                return;
-            }
+Shop now and enjoy custom window treatments tailored to your needs!
 
-            table.style.display = 'block';
-            emptyState.style.display = 'none';
+Best regards,
+Peekaboo Shades Team`
+      },
+      zebra: {
+        name: 'Zebra Shades Collection Campaign',
+        subject: 'Elegant Light Control - Zebra Shades Now Available',
+        content: `Dear Valued Customer,
 
-            tbody.innerHTML = filtered.map(campaign => {
-                const openRate = campaign.sent > 0 ? Math.round((campaign.opened / campaign.sent) * 100) : 0;
-                const clickRate = campaign.opened > 0 ? Math.round((campaign.clicked / campaign.opened) * 100) : 0;
+Experience versatile light control with our Zebra Shades collection!
 
-                return `
-                    <tr>
-                        <td>
-                            <div class="campaign-name">
-                                <div class="campaign-icon">
-                                    <i class="fas fa-envelope"></i>
-                                </div>
-                                <div>
-                                    <div class="campaign-title">${campaign.name}</div>
-                                    <div class="campaign-subject">${campaign.subject}</div>
-                                </div>
-                            </div>
-                        </td>
-                        <td>
-                            <span class="status-badge status-${campaign.status}">${campaign.status}</span>
-                        </td>
-                        <td>${campaign.recipients.toLocaleString()}</td>
-                        <td>
-                            ${campaign.status === 'sent' ? `
-                                <div class="campaign-stats">
-                                    <div class="stat-item">
-                                        <div class="stat-value">${openRate}%</div>
-                                        <div class="stat-label">Opened</div>
-                                    </div>
-                                    <div class="stat-item">
-                                        <div class="stat-value">${clickRate}%</div>
-                                        <div class="stat-label">Clicked</div>
-                                    </div>
-                                </div>
-                            ` : '-'}
-                        </td>
-                        <td>${new Date(campaign.date).toLocaleDateString()}</td>
-                        <td>
-                            <div class="actions-cell">
-                                ${campaign.status === 'draft' ? `
-                                    <button class="btn-icon" onclick="editCampaign('${campaign.id}')" title="Edit">
-                                        <i class="fas fa-edit"></i>
-                                    </button>
-                                ` : `
-                                    <button class="btn-icon" onclick="viewCampaign('${campaign.id}')" title="View Report">
-                                        <i class="fas fa-chart-bar"></i>
-                                    </button>
-                                `}
-                                <button class="btn-icon" onclick="duplicateCampaign('${campaign.id}')" title="Duplicate">
-                                    <i class="fas fa-copy"></i>
-                                </button>
-                                <button class="btn-icon danger" onclick="deleteCampaign('${campaign.id}')" title="Delete">
-                                    <i class="fas fa-trash"></i>
-                                </button>
-                            </div>
-                        </td>
-                    </tr>
-                `;
-            }).join('');
-        }
+PRODUCT FEATURES:
+- Versatile range of colors, textures, and prints
+- Simple yet elegant light control with open/close fabric layers
+- Day & night fabric options for perfect ambiance
 
-        function initFilters() {
-            document.querySelectorAll('.filter-tab').forEach(tab => {
-                tab.addEventListener('click', () => {
-                    document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
-                    tab.classList.add('active');
-                    renderCampaigns(tab.dataset.filter);
-                });
-            });
+VALANCE OPTIONS:
+- Square V2, Fabric wrapped SA/S3/Z3
+- Curve white S2, Fabric inserted S1
+- Side cover colors: White, Gray, Black, Brown
 
-            document.getElementById('searchInput').addEventListener('input', () => {
-                const activeFilter = document.querySelector('.filter-tab.active').dataset.filter;
-                renderCampaigns(activeFilter);
-            });
-        }
+CONTROL SYSTEMS:
+- Cordless operation
+- Cordless-Motorized 2-in-1
+- Bead Chain (plastic/metal)
+- Bead Chain with Wand
 
-        function initRecipientOptions() {
-            document.querySelectorAll('input[name="recipients"]').forEach(radio => {
-                radio.addEventListener('change', (e) => {
-                    document.querySelectorAll('.recipient-option').forEach(opt => opt.classList.remove('selected'));
-                    e.target.closest('.recipient-option').classList.add('selected');
+CUSTOMIZABLE SIZES:
+- 38mm Tube: Width 50-230cm, Height 50-330cm
+- Perfect for L24 Cordless and Motorized options
 
-                    document.getElementById('segmentOptions').style.display =
-                        e.target.value === 'segment' ? 'block' : 'none';
-                });
-            });
-        }
+Available Bottom Rail: White, Gray, Black (Type A, Type C Fabric wrapped)
 
-        function initTemplateSelection() {
-            document.querySelectorAll('.template-card').forEach(card => {
-                card.addEventListener('click', () => {
-                    document.querySelectorAll('.template-card').forEach(c => c.classList.remove('selected'));
-                    card.classList.add('selected');
-                });
-            });
-        }
+Order your custom Zebra Shades today!
 
-        function initSendOptions() {
-            document.querySelectorAll('input[name="sendOption"]').forEach(radio => {
-                radio.addEventListener('change', (e) => {
-                    document.querySelectorAll('.recipient-option').forEach(opt => {
-                        if (opt.querySelector('input[name="sendOption"]')) {
-                            opt.classList.remove('selected');
-                        }
-                    });
-                    e.target.closest('.recipient-option').classList.add('selected');
+Best regards,
+Peekaboo Shades Team`
+      },
+      honeycomb: {
+        name: 'Honeycomb Shades Energy Efficient Campaign',
+        subject: 'Save Energy with Honeycomb Shades - Superior Insulation',
+        content: `Dear Valued Customer,
 
-                    document.getElementById('scheduleOptions').style.display =
-                        e.target.value === 'schedule' ? 'grid' : 'none';
-                });
-            });
-        }
+Discover the energy-saving benefits of our Honeycomb Shades!
 
-        function openCampaignEditor() {
-            editingId = null;
-            currentStep = 1;
-            document.getElementById('modalTitle').textContent = 'Create Email Campaign';
-            document.getElementById('campaignName').value = '';
-            document.getElementById('campaignSubject').value = '';
-            document.getElementById('campaignPreview').value = '';
-            document.getElementById('emailContent').innerHTML = `
-                <h2>Hello {{first_name}},</h2>
-                <p>We're excited to share our latest news with you!</p>
-                <p>Add your content here...</p>
-            `;
-            updateSteps();
-            document.getElementById('campaignModal').classList.add('active');
-        }
+PRODUCT FEATURES:
+- Honeycomb-like structure for superior insulation
+- Excellent light control and privacy
+- 4 style options: Regular, Odd Shaped, Skylight, Sliding
 
-        function closeCampaignEditor() {
-            document.getElementById('campaignModal').classList.remove('active');
-        }
+CELL SIZES AVAILABLE:
+- 16mm, 20mm, 26mm, 38mm, 45mm
+- 38mm Dual Cell for maximum insulation
 
-        function updateSteps() {
-            document.querySelectorAll('.step').forEach(step => {
-                const stepNum = parseInt(step.dataset.step);
-                step.classList.remove('active', 'completed');
-                if (stepNum === currentStep) {
-                    step.classList.add('active');
-                } else if (stepNum < currentStep) {
-                    step.classList.add('completed');
-                }
-            });
+SHADING EFFECTS:
+- Sheer
+- Light Filtering
+- Blackout
+- Dual Cell Light Filtering & Blackout
 
-            document.querySelectorAll('.step-content').forEach((content, i) => {
-                content.style.display = i + 1 === currentStep ? 'block' : 'none';
-            });
+CONTROL SYSTEMS:
+- Cordless: Regular, Top Down Bottom Up, Day & Night
+- Motorized: AC Power, DC Power options
+- Continuous Loop
+- Cord Locked
+- Perfect Fit & Skylight options
 
-            document.getElementById('prevBtn').style.display = currentStep > 1 ? 'inline-block' : 'none';
-            document.getElementById('nextBtn').textContent = currentStep === totalSteps ? 'Send Campaign' : 'Next';
+RAIL COLORS:
+- Beige White, Gray, Black
+- 26mm No Drill Blinds available
+- Electric No Drill options
 
-            if (currentStep === 4) {
-                updateReview();
-            }
-        }
+CUSTOM SIZES:
+- 26mm: Width 200-2800mm, Height 200-4000mm
+- 38/45mm: Width 200-2500mm, Height 300-3000mm
 
-        function nextStep() {
-            if (currentStep < totalSteps) {
-                currentStep++;
-                updateSteps();
-            } else {
-                saveCampaign();
-            }
-        }
+Upgrade your home's energy efficiency today!
 
-        function prevStep() {
-            if (currentStep > 1) {
-                currentStep--;
-                updateSteps();
-            }
-        }
+Best regards,
+Peekaboo Shades Team`
+      },
+      outdoor: {
+        name: 'Outdoor Shades Collection Campaign',
+        subject: 'Durable Outdoor Shades - Waterproof, Sunproof, Built to Last',
+        content: `Dear Valued Customer,
 
-        function updateReview() {
-            document.getElementById('reviewName').textContent = document.getElementById('campaignName').value || '-';
-            document.getElementById('reviewSubject').textContent = document.getElementById('campaignSubject').value || '-';
+Protect your outdoor space with our premium Outdoor Shades!
 
-            const recipientType = document.querySelector('input[name="recipients"]:checked').value;
-            const recipientLabels = {
-                'all': 'All Subscribers',
-                'segment': 'Specific Segment',
-                'customers': 'Past Customers'
-            };
-            document.getElementById('reviewRecipients').textContent = recipientLabels[recipientType];
+PRODUCT FEATURES:
+- Durable materials: Waterproof, Sunproof, Mildewproof
+- Colors remain vivid and fade-resistant
+- Windproof structure design
+- Flexible sunshade angle adjustment
 
-            const template = document.querySelector('.template-card.selected');
-            document.getElementById('reviewTemplate').textContent = template ? template.querySelector('.template-name').textContent : '-';
-        }
+SERIES OPTIONS:
+A. ZS-125 Series: Width 680-4000mm, Height 500-3000mm
+B. ZS-105 Series: Width 680-4500mm, Height 500-5600mm
+C. ZS Double Layer Series: Width 680-4000mm, Height 500-3000mm
 
-        function saveCampaign() {
-            const sendOption = document.querySelector('input[name="sendOption"]:checked').value;
-            const campaign = {
-                name: document.getElementById('campaignName').value,
-                subject: document.getElementById('campaignSubject').value,
-                previewText: document.getElementById('campaignPreview').value,
-                fromName: document.getElementById('fromName').value,
-                replyTo: document.getElementById('replyTo').value,
-                recipients: document.querySelector('input[name="recipients"]:checked').value,
-                template: document.querySelector('.template-card.selected')?.dataset.template,
-                content: document.getElementById('emailContent').innerHTML,
-                status: sendOption === 'draft' ? 'draft' : (sendOption === 'schedule' ? 'scheduled' : 'sent'),
-                scheduledDate: sendOption === 'schedule' ? `${document.getElementById('scheduleDate').value}T${document.getElementById('scheduleTime').value}` : null
-            };
+ROLL TUBE SIZES:
+- 95 DAT (2.5mm thickness)
+- 75 DAT (2.5mm thickness)
+- 78 SAT (2.5mm thickness)
+- 73 SAT (1.2mm thickness)
+- 70 SAT (1.2mm thickness)
 
-            const token = localStorage.getItem('adminToken');
-            const url = editingId ? `/api/admin/marketing/campaigns/${editingId}` : '/api/admin/marketing/campaigns';
-            const method = editingId ? 'PUT' : 'POST';
+COLOR OPTIONS:
+- Black, Coffee, Dark Gray
+- Metallic Gray, Light Gray, White
+- Consistent color across Valance, Tube, Side Rail, Bottom Rail
 
-            fetch(url, {
-                method,
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(campaign)
-            })
-            .then(res => res.json())
-            .then(data => {
-                closeCampaignEditor();
-                loadCampaigns();
-                alert(sendOption === 'now' ? 'Campaign sent successfully!' :
-                      sendOption === 'schedule' ? 'Campaign scheduled!' : 'Campaign saved as draft.');
-            })
-            .catch(err => {
-                console.error('Error saving campaign:', err);
-                // For demo, just close and show message
-                closeCampaignEditor();
-                alert('Campaign saved successfully!');
-            });
-        }
+SMART CONTROLS:
+- Remote Control with one-touch operation
+- Voice Control for hands-free operation
+- Mobile APP for remote access
+- Wind-Light-Rain Sensor for automated adjustments
 
-        function editCampaign(id) {
-            const campaign = campaigns.find(c => c.id === id);
-            if (!campaign) return;
+JOINT SOLUTIONS:
+- 90 Corner Joint Solution
+- Flat Surface Splice Solution
+- Square tube sizes: 38x38mm, 50x50mm, 80x80mm
 
-            editingId = id;
-            currentStep = 1;
-            document.getElementById('modalTitle').textContent = 'Edit Campaign';
-            document.getElementById('campaignName').value = campaign.name || '';
-            document.getElementById('campaignSubject').value = campaign.subject || '';
-            updateSteps();
-            document.getElementById('campaignModal').classList.add('active');
-        }
+Transform your outdoor living space today!
 
-        function duplicateCampaign(id) {
-            const campaign = campaigns.find(c => c.id === id);
-            if (!campaign) return;
+Best regards,
+Peekaboo Shades Team`
+      },
+      sheer: {
+        name: 'Sheer Shades Luxury Campaign',
+        subject: 'Luxurious Light - Shangri-la & Butterfly Shades',
+        content: `Dear Valued Customer,
 
-            editingId = null;
-            currentStep = 1;
-            document.getElementById('modalTitle').textContent = 'Duplicate Campaign';
-            document.getElementById('campaignName').value = `${campaign.name} (Copy)`;
-            document.getElementById('campaignSubject').value = campaign.subject || '';
-            updateSteps();
-            document.getElementById('campaignModal').classList.add('active');
-        }
+Experience luxury with our Sheer Shades collection!
 
-        function deleteCampaign(id) {
-            if (!confirm('Are you sure you want to delete this campaign?')) return;
+PRODUCT CATEGORIES:
+- Shangri-la Shades
+- Butterfly Shades
 
-            const token = localStorage.getItem('adminToken');
-            fetch(`/api/admin/marketing/campaigns/${id}`, {
-                method: 'DELETE',
-                headers: { 'Authorization': `Bearer ${token}` }
-            })
-            .then(() => loadCampaigns())
-            .catch(err => {
-                console.error('Error deleting campaign:', err);
-                campaigns = campaigns.filter(c => c.id !== id);
-                renderCampaigns();
-            });
-        }
+PRODUCT FEATURES:
+- Adjustable, softly contoured fabric vanes
+- Light-diffusing back panel
+- Luxurious blinds that softly filter light
+- Combines drapery sophistication with shade functionality
 
-        function viewCampaign(id) {
-            alert('Campaign analytics would open here');
-        }
+VALANCE OPTIONS:
+- Square V2, Fabric wrapped SA/S3
+- Curve white S2, Fabric inserted S1
+- Side cover: White, Gray, Black
 
-        function formatText(command) {
-            document.execCommand(command, false, null);
-        }
+CONTROL SYSTEMS:
+- Bead Chain (plastic/metal)
+- Bead Chain with Wand
+- Motorized
 
-        function insertLink() {
-            const url = prompt('Enter URL:');
-            if (url) {
-                document.execCommand('createLink', false, url);
-            }
-        }
+CUSTOMIZABLE SIZES:
+- Width: 40-230cm
+- Height: 50-250cm
+- Semi-blackout fabric available up to 4.3 meters
 
-        function insertImage() {
-            const url = prompt('Enter image URL:');
-            if (url) {
-                document.execCommand('insertImage', false, url);
-            }
-        }
+Bottom Rail: White, Gray, Black
 
-        function insertButton() {
-            const text = prompt('Button text:', 'Shop Now');
-            const url = prompt('Button URL:', 'https://');
-            if (text && url) {
-                const button = `<a href="${url}" style="display:inline-block;padding:12px 24px;background:#4a90d9;color:#fff;text-decoration:none;border-radius:6px;font-weight:bold;">${text}</a>`;
-                document.execCommand('insertHTML', false, button);
-            }
-        }
+Add elegance to your home with Sheer Shades!
 
-        function insertVariable() {
-            const variables = {
-                'first_name': 'Customer first name',
-                'last_name': 'Customer last name',
-                'email': 'Customer email',
-                'company': 'Company name'
-            };
-            const choice = prompt('Available variables: first_name, last_name, email, company\nEnter variable name:');
-            if (choice && variables[choice]) {
-                document.execCommand('insertText', false, `{{${choice}}}`);
-            }
-        }
+Best regards,
+Peekaboo Shades Team`
+      },
+      venetian: {
+        name: 'Venetian & Faux Wood Blinds Campaign',
+        subject: 'Classic Venetian & Faux Wood Blinds - Timeless Style',
+        content: `Dear Valued Customer,
 
-        function sendTestEmail() {
-            const email = document.getElementById('testEmail').value;
-            if (!email) {
-                alert('Please enter an email address');
-                return;
-            }
-            alert(`Test email would be sent to: ${email}`);
-        }
-    </script>
+Discover timeless elegance with our Venetian & Faux Wood Blinds!
+
+ALUMINUM BLINDS FEATURES:
+- High strength elastic, not easy to deform
+- Wind and sun resistant
+- 180-degree blade flip adjustment
+- Environmental protection paint
+- Moisture-proof and mildew proof
+- Oil and water stain isolation
+
+SLAT OPTIONS:
+- C Shape: Visible hole or Invisible hole
+- L Shape available
+- Size: 26mm slats, 25mm bottom rail
+
+COLOR SWATCHES:
+- Matte finish: Multiple options (92005 series)
+- Brushed finish: Multiple options (92006 series)
+- Light & Matte combinations available
+
+FAUX WOOD BLINDS FEATURES:
+- Original first-class wood appearance
+- Environmental sound insulation
+- Reduces air conditioning energy consumption
+- UV protection
+- Waterproof, Fireproof, Mildew Proof
+- Width: 50mm, Thickness: 2.8mm
+
+CONTROL SYSTEMS:
+- Stay Cord, Bead Chain, Cordless, Motorized
+
+CUSTOM SIZES:
+- Aluminum: Width 30-260cm, Height 40-300cm
+- Faux Wood: Width 30-240cm, Height up to 300cm, Max 5m area
+
+Bring classic style to your windows!
+
+Best regards,
+Peekaboo Shades Team`
+      },
+      paneltrack: {
+        name: 'Panel Track Blinds Campaign',
+        subject: 'Modern Panel Track Blinds - Perfect for Large Windows',
+        content: `Dear Valued Customer,
+
+Transform large spaces with our Panel Track Blinds!
+
+PRODUCT FEATURES:
+- Sleek gliding panels with contemporary feel
+- Creates dramatic backdrop for windows
+- Panels stack tightly when open
+- Provides unobstructed views
+
+APPLICATIONS:
+- Sliding Doors
+- Closet Doors
+- Window Shades
+- Room Dividers
+
+FABRIC SHADING EFFECTS:
+- Room Darkening
+- Light Filtering
+- Blackout
+
+CUSTOMIZABLE SIZES:
+- Width: 45.8 inches to 220 inches
+- Perfect for extra-wide windows
+
+VALANCE OPTIONS:
+- Type C Fabric wrapped
+
+CONTROL SYSTEMS:
+- Retractable Wand
+
+INSTALLATION:
+- Ceiling Brackets
+- Wall Brackets
+
+OPEN-CLOSE OPTIONS:
+- Multiple configurations available
+
+MEASUREMENT TIPS:
+- Measure at least 3 points (top, mid, bottom)
+- Inside mount: Use net width
+- Outside mount: Add 6" extension to width
+
+Create stunning focal points in your home!
+
+Best regards,
+Peekaboo Shades Team`
+      },
+      vertical: {
+        name: 'Vertical Blinds Collection Campaign',
+        subject: 'Versatile Vertical Blinds - Perfect for Any Room',
+        content: `Dear Valued Customer,
+
+Discover versatility with our Vertical Blinds collection!
+
+PRODUCT FEATURES:
+- Vertical hanging design
+- Suitable for large windows and sliding doors
+- Easy slide open/close operation
+- Quick light and privacy control
+- Vast array of fabrics, patterns, and colors
+- Sheer to opaque options
+
+MATERIAL OPTIONS:
+- Polyester Vertical Blinds
+- PVC Vertical Blinds
+- Faux Wood Vertical Blinds
+- Dream Blinds
+
+ELECTRIC TRACK FEATURES:
+- Smooth silence track
+- Hidden motor design
+- Simple and beautiful appearance
+- Minimum curtain box width: 130mm
+- Aluminum alloy track with Nano-mute bar
+
+MANUAL TRACK OPTIONS:
+- Bead Chain control
+- Wand control
+- Pull beads to regulate lighting
+- Pull rope for opening/closing
+
+TRACK COMPATIBILITY:
+- Straight windows
+- L-shaped windows
+- U-shaped windows
+- PVC Curtain Box with Light Blocker
+
+OPEN-CLOSE DIRECTIONS:
+- To the Left
+- To the Right
+- Middle-Open (single track)
+- Middle-Open (double track)
+
+CUSTOMIZATION:
+- Arbitrary height adjustment available
+- Remove vanes, cut fabric, insert round rod, clip fabric
+
+Perfect for modern living spaces!
+
+Best regards,
+Peekaboo Shades Team`
+      }
+    };
+
+    function useTemplate(templateId) {
+      const template = emailTemplates[templateId];
+      if (!template) return;
+
+      document.getElementById('campName').value = template.name;
+      document.getElementById('campSubject').value = template.subject;
+      document.getElementById('campContent').value = template.content;
+      document.getElementById('campPreview').value = template.subject.substring(0, 100);
+      document.getElementById('campStatus').value = 'draft';
+      document.getElementById('campAudience').value = 'all';
+      document.getElementById('modalTitle').textContent = 'Create Campaign from Template';
+      document.getElementById('campaignModal').classList.add('active');
+      editingId = null;
+    }
+  </script>
 </body>
 </html>

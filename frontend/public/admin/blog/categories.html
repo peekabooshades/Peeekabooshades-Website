@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Blog Categories - Peekaboo Shades Admin</title>
+  <link rel="stylesheet" href="/admin/css/admin.css?v=1737200003.0.28">
+  <script src="/admin/js/adminNavConfig.js?v=1737200002"></script>
+  <style>
+    .categories-grid { display: grid; grid-template-columns: 1fr 350px; gap: 1.5rem; margin-top: 1.5rem; }
+    .categories-card { background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+    .categories-card h3 { margin: 0 0 1rem 0; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { padding: 0.75rem; text-align: left; border-bottom: 1px solid #eee; }
+    th { font-weight: 600; color: #666; font-size: 0.85rem; }
+    .btn-edit { padding: 0.3rem 0.6rem; background: #E5E7EB; color: #374151; border: none; border-radius: 4px; cursor: pointer; font-size: 0.8rem; }
+    .btn-primary { padding: 0.75rem 1.5rem; background: #8E6545; color: white; border: none; border-radius: 8px; cursor: pointer; }
+    .form-group { margin-bottom: 1.25rem; }
+    .form-group label { display: block; margin-bottom: 0.5rem; font-weight: 500; }
+    .form-group input, .form-group textarea { width: 100%; padding: 0.75rem; border: 1px solid #ddd; border-radius: 8px; }
+    .form-group textarea { resize: vertical; min-height: 80px; }
+  </style>
+</head>
+<body>
+  <div class="admin-layout">
+    <aside class="admin-sidebar"></aside>
+    <main class="admin-main">
+      <header class="admin-header"><h1>Blog Categories</h1></header>
+      <div class="admin-content">
+        <div class="categories-grid">
+          <div class="categories-card">
+            <h3>All Categories</h3>
+            <table>
+              <thead><tr><th>Name</th><th>Slug</th><th>Posts</th><th></th></tr></thead>
+              <tbody>
+                <tr><td>Design Tips</td><td>/blog/design-tips</td><td>8</td><td><button class="btn-edit">Edit</button></td></tr>
+                <tr><td>Product Guides</td><td>/blog/product-guides</td><td>12</td><td><button class="btn-edit">Edit</button></td></tr>
+                <tr><td>Installation</td><td>/blog/installation</td><td>5</td><td><button class="btn-edit">Edit</button></td></tr>
+                <tr><td>Home Decor</td><td>/blog/home-decor</td><td>6</td><td><button class="btn-edit">Edit</button></td></tr>
+                <tr><td>News & Updates</td><td>/blog/news</td><td>3</td><td><button class="btn-edit">Edit</button></td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="categories-card">
+            <h3>Add New Category</h3>
+            <div class="form-group"><label>Category Name</label><input type="text" placeholder="e.g., Energy Efficiency"></div>
+            <div class="form-group"><label>Slug</label><input type="text" placeholder="energy-efficiency"></div>
+            <div class="form-group"><label>Description</label><textarea placeholder="Brief description for SEO"></textarea></div>
+            <button class="btn-primary" onclick="addCategory()">Add Category</button>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      if (!localStorage.getItem('admin_token')) { window.location.href = '/admin/login.html'; return; }
+      AdminNavConfig.initSidebar('blog-categories');
+    });
+    function addCategory() { alert('Category added!'); }
+  </script>
+</body>
+</html>

@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Profile - Technician Portal</title>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Montserrat', sans-serif; background: #f5f0ec; min-height: 100vh; }
+
+    .sidebar {
+      position: fixed; left: 0; top: 0; width: 260px; height: 100vh;
+      background: linear-gradient(180deg, #8E6545 0%, #6B4C35 100%);
+      color: white; padding: 1.5rem; overflow-y: auto; z-index: 100;
+    }
+    .sidebar-logo { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 2rem; padding-bottom: 1.5rem; border-bottom: 1px solid rgba(255,255,255,0.2); }
+    .sidebar-logo img { width: 44px; height: 44px; border-radius: 10px; background: white; padding: 4px; }
+    .sidebar-logo span { font-weight: 700; font-size: 1.1rem; }
+    .sidebar-nav { list-style: none; }
+    .sidebar-nav li { margin-bottom: 0.5rem; }
+    .sidebar-nav a { display: flex; align-items: center; gap: 0.75rem; padding: 0.875rem 1rem; color: rgba(255,255,255,0.8); text-decoration: none; border-radius: 10px; transition: all 0.2s; font-size: 0.95rem; }
+    .sidebar-nav a:hover { background: rgba(255,255,255,0.1); color: white; }
+    .sidebar-nav a.active { background: rgba(255,255,255,0.2); color: white; font-weight: 600; }
+    .sidebar-nav svg { width: 20px; height: 20px; }
+    .sidebar-user { position: absolute; bottom: 1.5rem; left: 1.5rem; right: 1.5rem; padding-top: 1rem; border-top: 1px solid rgba(255,255,255,0.2); }
+    .user-info { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.75rem; }
+    .user-avatar { width: 40px; height: 40px; border-radius: 50%; background: rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center; font-weight: 600; }
+    .user-details { flex: 1; min-width: 0; }
+    .user-name { font-weight: 600; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .user-status { font-size: 0.75rem; opacity: 0.8; }
+    .btn-logout { width: 100%; padding: 0.625rem; background: rgba(255,255,255,0.1); border: none; color: white; border-radius: 8px; cursor: pointer; font-size: 0.85rem; font-family: inherit; }
+    .btn-logout:hover { background: rgba(255,255,255,0.2); }
+
+    .main-content { margin-left: 260px; padding: 2rem; }
+    .page-header { margin-bottom: 2rem; }
+    .page-header h1 { font-size: 1.75rem; color: #1f2937; }
+
+    .profile-grid {
+      display: grid;
+      grid-template-columns: 300px 1fr;
+      gap: 2rem;
+    }
+
+    /* Profile Card */
+    .profile-card {
+      background: white;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    }
+
+    .profile-card-header {
+      background: linear-gradient(135deg, #8E6545 0%, #A67C5B 100%);
+      padding: 2rem;
+      text-align: center;
+      color: white;
+    }
+
+    .profile-avatar {
+      width: 100px;
+      height: 100px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2.5rem;
+      font-weight: 700;
+      margin: 0 auto 1rem;
+      border: 4px solid rgba(255,255,255,0.3);
+    }
+
+    .profile-name {
+      font-size: 1.25rem;
+      font-weight: 600;
+      margin-bottom: 0.25rem;
+    }
+
+    .profile-email {
+      font-size: 0.9rem;
+      opacity: 0.9;
+    }
+
+    .profile-status {
+      display: inline-block;
+      margin-top: 1rem;
+      padding: 0.35rem 1rem;
+      background: rgba(255,255,255,0.2);
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 500;
+    }
+
+    .profile-card-body {
+      padding: 1.5rem;
+    }
+
+    .profile-stat {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 0;
+      border-bottom: 1px solid #f0e6df;
+    }
+
+    .profile-stat:last-child {
+      border-bottom: none;
+    }
+
+    .profile-stat-label {
+      font-size: 0.9rem;
+      color: #6b7280;
+    }
+
+    .profile-stat-value {
+      font-weight: 600;
+      color: #1f2937;
+    }
+
+    /* Settings Sections */
+    .settings-section {
+      background: white;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+      margin-bottom: 1.5rem;
+    }
+
+    .settings-section-header {
+      padding: 1.25rem 1.5rem;
+      background: #faf8f6;
+      border-bottom: 1px solid #f0e6df;
+    }
+
+    .settings-section-header h2 {
+      font-size: 1rem;
+      color: #1f2937;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .settings-section-header svg {
+      width: 20px;
+      height: 20px;
+      color: #8E6545;
+    }
+
+    .settings-section-body {
+      padding: 1.5rem;
+    }
+
+    .form-group {
+      margin-bottom: 1.25rem;
+    }
+
+    .form-group:last-child {
+      margin-bottom: 0;
+    }
+
+    .form-group label {
+      display: block;
+      font-weight: 500;
+      color: #374151;
+      margin-bottom: 0.5rem;
+      font-size: 0.9rem;
+    }
+
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      width: 100%;
+      padding: 0.875rem 1rem;
+      border: 2px solid #e5e7eb;
+      border-radius: 10px;
+      font-size: 0.95rem;
+      font-family: inherit;
+      background: #fafafa;
+      transition: all 0.2s;
+    }
+
+    .form-group input:focus,
+    .form-group select:focus,
+    .form-group textarea:focus {
+      outline: none;
+      border-color: #8E6545;
+      background: white;
+      box-shadow: 0 0 0 3px rgba(142,101,69,0.1);
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+
+    .form-hint {
+      font-size: 0.8rem;
+      color: #6b7280;
+      margin-top: 0.35rem;
+    }
+
+    /* Specialty Tags */
+    .specialty-tags {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    .specialty-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem 1rem;
+      background: #f5f0ec;
+      border: 2px solid #e8e0da;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .specialty-tag input {
+      width: 16px;
+      height: 16px;
+      accent-color: #8E6545;
+    }
+
+    .specialty-tag:has(input:checked) {
+      background: #f5f0ec;
+      border-color: #8E6545;
+      color: #8E6545;
+    }
+
+    /* Buttons */
+    .btn {
+      padding: 0.875rem 1.5rem;
+      border-radius: 10px;
+      font-size: 0.95rem;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      font-family: inherit;
+      transition: all 0.2s;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #8E6545 0%, #A67C5B 100%);
+      color: white;
+      box-shadow: 0 4px 12px rgba(142, 101, 69, 0.3);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(142, 101, 69, 0.4);
+    }
+
+    .btn-outline {
+      background: white;
+      border: 2px solid #e5e7eb;
+      color: #374151;
+    }
+
+    .btn-outline:hover {
+      border-color: #8E6545;
+      color: #8E6545;
+    }
+
+    .btn-danger {
+      background: #FEE2E2;
+      color: #991B1B;
+      border: 2px solid #FECACA;
+    }
+
+    .btn-danger:hover {
+      background: #FECACA;
+    }
+
+    .form-actions {
+      display: flex;
+      gap: 1rem;
+      margin-top: 1.5rem;
+      padding-top: 1.5rem;
+      border-top: 1px solid #f0e6df;
+    }
+
+    /* Success/Error Messages */
+    .message {
+      padding: 1rem;
+      border-radius: 10px;
+      margin-bottom: 1rem;
+      font-size: 0.9rem;
+      display: none;
+    }
+
+    .message.show { display: block; }
+    .message.success { background: #D1FAE5; border: 1px solid #A7F3D0; color: #065F46; }
+    .message.error { background: #FEE2E2; border: 1px solid #FECACA; color: #991B1B; }
+
+    /* Mobile */
+    @media (max-width: 1024px) {
+      .profile-grid { grid-template-columns: 1fr; }
+    }
+
+    @media (max-width: 768px) {
+      .sidebar { transform: translateX(-100%); }
+      .main-content { margin-left: 0; }
+      .form-row { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <img src="/images/peekabooshades_logo.jpeg" alt="Peekaboo Shades">
+      <span>Technician Portal</span>
+    </div>
+    <ul class="sidebar-nav">
+      <li><a href="/technician/">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        Dashboard
+      </a></li>
+      <li><a href="/technician/appointments.html">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        Appointments
+      </a></li>
+      <li><a href="/technician/schedule.html">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        My Schedule
+      </a></li>
+      <li><a href="/technician/payments.html">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+        Payments
+      </a></li>
+      <li><a href="/technician/profile.html" class="active">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        Profile
+      </a></li>
+    </ul>
+    <div class="sidebar-user">
+      <div class="user-info">
+        <div class="user-avatar" id="sidebarAvatar">T</div>
+        <div class="user-details">
+          <div class="user-name" id="sidebarName">Technician</div>
+          <div class="user-status">Active</div>
+        </div>
+      </div>
+      <button class="btn-logout" onclick="logout()">Sign Out</button>
+    </div>
+  </aside>
+
+  <main class="main-content">
+    <div class="page-header">
+      <h1>My Profile</h1>
+    </div>
+
+    <div class="profile-grid">
+      <!-- Profile Card -->
+      <div>
+        <div class="profile-card">
+          <div class="profile-card-header">
+            <div class="profile-avatar" id="profileAvatar">T</div>
+            <div class="profile-name" id="profileName">Technician</div>
+            <div class="profile-email" id="profileEmail">technician@example.com</div>
+            <span class="profile-status" id="profileStatus">Active</span>
+          </div>
+          <div class="profile-card-body">
+            <div class="profile-stat">
+              <span class="profile-stat-label">Member Since</span>
+              <span class="profile-stat-value" id="memberSince">-</span>
+            </div>
+            <div class="profile-stat">
+              <span class="profile-stat-label">Jobs Completed</span>
+              <span class="profile-stat-value" id="jobsCompleted">0</span>
+            </div>
+            <div class="profile-stat">
+              <span class="profile-stat-label">Total Earnings</span>
+              <span class="profile-stat-value" id="totalEarnings">$0</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Settings -->
+      <div>
+        <!-- Personal Information -->
+        <div class="settings-section">
+          <div class="settings-section-header">
+            <h2>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+              Personal Information
+            </h2>
+          </div>
+          <div class="settings-section-body">
+            <div id="profileMessage" class="message"></div>
+            <form onsubmit="updateProfile(event)">
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="name">Full Name</label>
+                  <input type="text" id="name" placeholder="Your full name" required>
+                </div>
+                <div class="form-group">
+                  <label for="phone">Phone Number</label>
+                  <input type="tel" id="phone" placeholder="(555) 000-0000">
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="email">Email Address</label>
+                <input type="email" id="email" placeholder="you@example.com" disabled>
+                <div class="form-hint">Email cannot be changed. Contact admin for assistance.</div>
+              </div>
+              <div class="form-group">
+                <label for="serviceAreas">Service Areas</label>
+                <input type="text" id="serviceAreas" placeholder="e.g., Los Angeles, Orange County">
+                <div class="form-hint">Separate multiple areas with commas</div>
+              </div>
+              <div class="form-actions">
+                <button type="submit" class="btn btn-primary">Save Changes</button>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <!-- Specialties -->
+        <div class="settings-section">
+          <div class="settings-section-header">
+            <h2>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14.7 6.3a1 1 0 0 0 0 1.4l1.6 1.6a1 1 0 0 0 1.4 0l3.77-3.77a6 6 0 0 1-7.94 7.94l-6.91 6.91a2.12 2.12 0 0 1-3-3l6.91-6.91a6 6 0 0 1 7.94-7.94l-3.76 3.76z"/></svg>
+              Installation Specialties
+            </h2>
+          </div>
+          <div class="settings-section-body">
+            <div id="specialtiesMessage" class="message"></div>
+            <form onsubmit="updateSpecialties(event)">
+              <div class="specialty-tags">
+                <label class="specialty-tag">
+                  <input type="checkbox" name="specialties" value="roller-blinds">
+                  Roller Blinds
+                </label>
+                <label class="specialty-tag">
+                  <input type="checkbox" name="specialties" value="zebra-shades">
+                  Zebra Shades
+                </label>
+                <label class="specialty-tag">
+                  <input type="checkbox" name="specialties" value="roman-shades">
+                  Roman Shades
+                </label>
+                <label class="specialty-tag">
+                  <input type="checkbox" name="specialties" value="honeycomb">
+                  Honeycomb Shades
+                </label>
+                <label class="specialty-tag">
+                  <input type="checkbox" name="specialties" value="motorized">
+                  Motorized Systems
+                </label>
+                <label class="specialty-tag">
+                  <input type="checkbox" name="specialties" value="commercial">
+                  Commercial Install
+                </label>
+              </div>
+              <div class="form-actions">
+                <button type="submit" class="btn btn-primary">Update Specialties</button>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <!-- Change Password -->
+        <div class="settings-section">
+          <div class="settings-section-header">
+            <h2>
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+              Change Password
+            </h2>
+          </div>
+          <div class="settings-section-body">
+            <div id="passwordMessage" class="message"></div>
+            <form onsubmit="updatePassword(event)">
+              <div class="form-group">
+                <label for="currentPassword">Current Password</label>
+                <input type="password" id="currentPassword" placeholder="Enter current password" required>
+              </div>
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="newPassword">New Password</label>
+                  <input type="password" id="newPassword" placeholder="Enter new password" required>
+                </div>
+                <div class="form-group">
+                  <label for="confirmPassword">Confirm New Password</label>
+                  <input type="password" id="confirmPassword" placeholder="Confirm new password" required>
+                </div>
+              </div>
+              <div class="form-hint">Password must be at least 8 characters with one uppercase letter and one number.</div>
+              <div class="form-actions">
+                <button type="submit" class="btn btn-primary">Update Password</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    const API_BASE = '/api/technician';
+    let technicianData = null;
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const token = localStorage.getItem('technician_token');
+      if (!token) {
+        window.location.href = '/technician/login.html';
+        return;
+      }
+      loadProfile();
+    });
+
+    async function loadProfile() {
+      const token = localStorage.getItem('technician_token');
+      try {
+        const [verifyRes, dashboardRes] = await Promise.all([
+          fetch(`${API_BASE}/verify`, { headers: { 'Authorization': `Bearer ${token}` } }),
+          fetch(`${API_BASE}/dashboard`, { headers: { 'Authorization': `Bearer ${token}` } })
+        ]);
+
+        const verifyData = await verifyRes.json();
+        const dashboardData = await dashboardRes.json();
+
+        if (!verifyData.success) {
+          throw new Error('Invalid token');
+        }
+
+        technicianData = verifyData.technician;
+        localStorage.setItem('technician_data', JSON.stringify(technicianData));
+
+        // Update profile card
+        const name = technicianData.name || 'Technician';
+        const initials = name.split(' ').map(n => n[0]).join('').toUpperCase();
+
+        document.getElementById('profileAvatar').textContent = initials;
+        document.getElementById('profileName').textContent = name;
+        document.getElementById('profileEmail').textContent = technicianData.email || '';
+        document.getElementById('profileStatus').textContent = technicianData.status || 'Active';
+        document.getElementById('sidebarName').textContent = name;
+        document.getElementById('sidebarAvatar').textContent = initials;
+
+        // Member since
+        if (technicianData.createdAt) {
+          document.getElementById('memberSince').textContent = new Date(technicianData.createdAt).toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+        }
+
+        // Stats
+        if (dashboardData.success) {
+          document.getElementById('jobsCompleted').textContent = dashboardData.stats.completedJobs || 0;
+          document.getElementById('totalEarnings').textContent = `$${(dashboardData.stats.totalEarnings || 0).toLocaleString()}`;
+        }
+
+        // Fill forms
+        document.getElementById('name').value = technicianData.name || '';
+        document.getElementById('phone').value = technicianData.phone || '';
+        document.getElementById('email').value = technicianData.email || '';
+        document.getElementById('serviceAreas').value = (technicianData.serviceAreas || []).join(', ');
+
+        // Specialties
+        const specialties = technicianData.specialties || [];
+        document.querySelectorAll('input[name="specialties"]').forEach(cb => {
+          cb.checked = specialties.includes(cb.value);
+        });
+
+      } catch (error) {
+        console.error('Failed to load profile:', error);
+        localStorage.removeItem('technician_token');
+        window.location.href = '/technician/login.html';
+      }
+    }
+
+    async function updateProfile(e) {
+      e.preventDefault();
+      const token = localStorage.getItem('technician_token');
+      const messageEl = document.getElementById('profileMessage');
+
+      const serviceAreasRaw = document.getElementById('serviceAreas').value;
+      const serviceAreas = serviceAreasRaw ? serviceAreasRaw.split(',').map(s => s.trim()).filter(s => s) : [];
+
+      const data = {
+        name: document.getElementById('name').value,
+        phone: document.getElementById('phone').value,
+        serviceAreas
+      };
+
+      try {
+        const response = await fetch(`${API_BASE}/profile`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify(data)
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+          showMessage(messageEl, 'Profile updated successfully!', 'success');
+          loadProfile();
+        } else {
+          showMessage(messageEl, result.error || 'Failed to update profile', 'error');
+        }
+      } catch (error) {
+        showMessage(messageEl, 'Connection error. Please try again.', 'error');
+      }
+    }
+
+    async function updateSpecialties(e) {
+      e.preventDefault();
+      const token = localStorage.getItem('technician_token');
+      const messageEl = document.getElementById('specialtiesMessage');
+
+      const specialties = Array.from(document.querySelectorAll('input[name="specialties"]:checked')).map(cb => cb.value);
+
+      try {
+        const response = await fetch(`${API_BASE}/profile`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({ specialties })
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+          showMessage(messageEl, 'Specialties updated successfully!', 'success');
+        } else {
+          showMessage(messageEl, result.error || 'Failed to update specialties', 'error');
+        }
+      } catch (error) {
+        showMessage(messageEl, 'Connection error. Please try again.', 'error');
+      }
+    }
+
+    async function updatePassword(e) {
+      e.preventDefault();
+      const token = localStorage.getItem('technician_token');
+      const messageEl = document.getElementById('passwordMessage');
+
+      const currentPassword = document.getElementById('currentPassword').value;
+      const newPassword = document.getElementById('newPassword').value;
+      const confirmPassword = document.getElementById('confirmPassword').value;
+
+      // Validate
+      if (newPassword.length < 8) {
+        showMessage(messageEl, 'Password must be at least 8 characters', 'error');
+        return;
+      }
+
+      if (!/[A-Z]/.test(newPassword)) {
+        showMessage(messageEl, 'Password must contain an uppercase letter', 'error');
+        return;
+      }
+
+      if (!/[0-9]/.test(newPassword)) {
+        showMessage(messageEl, 'Password must contain a number', 'error');
+        return;
+      }
+
+      if (newPassword !== confirmPassword) {
+        showMessage(messageEl, 'Passwords do not match', 'error');
+        return;
+      }
+
+      try {
+        const response = await fetch(`${API_BASE}/password`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({ currentPassword, newPassword })
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+          showMessage(messageEl, 'Password updated successfully!', 'success');
+          document.getElementById('currentPassword').value = '';
+          document.getElementById('newPassword').value = '';
+          document.getElementById('confirmPassword').value = '';
+        } else {
+          showMessage(messageEl, result.error || 'Failed to update password', 'error');
+        }
+      } catch (error) {
+        showMessage(messageEl, 'Connection error. Please try again.', 'error');
+      }
+    }
+
+    function showMessage(el, text, type) {
+      el.textContent = text;
+      el.className = `message show ${type}`;
+      setTimeout(() => el.classList.remove('show'), 5000);
+    }
+
+    function logout() {
+      localStorage.removeItem('technician_token');
+      localStorage.removeItem('technician_data');
+      window.location.href = '/technician/login.html';
+    }
+  </script>
+</body>
+</html>

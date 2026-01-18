@@ -16,6 +16,7 @@ const MFR_ORDER_STATUSES = {
   PENDING: 'order_received',       // Ready to start manufacturing
   IN_PRODUCTION: 'manufacturing',  // In production
   QA: 'qa',                        // Quality assurance
+  READY_TO_SHIP: 'ready_to_ship',  // Ready to be shipped
   SHIPPED: 'shipped'
 };
 
@@ -23,7 +24,8 @@ const MFR_ORDER_STATUSES = {
 const MFR_VALID_TRANSITIONS = {
   'order_received': ['manufacturing'],
   'manufacturing': ['qa'],
-  'qa': ['shipped', 'manufacturing'],
+  'qa': ['ready_to_ship', 'manufacturing'],
+  'ready_to_ship': ['shipped', 'qa'],
   'shipped': []
 };
 
@@ -277,6 +279,8 @@ function updateOrderStatus(manufacturerId, orderId, newStatus, userId, notes = '
     order.production_started_at = now;
   } else if (newStatus === MFR_ORDER_STATUSES.QA) {
     order.qa_started_at = now;
+  } else if (newStatus === MFR_ORDER_STATUSES.READY_TO_SHIP) {
+    order.ready_to_ship_at = now;
   } else if (newStatus === MFR_ORDER_STATUSES.SHIPPED) {
     order.shipped_at = now;
   }
@@ -372,6 +376,7 @@ function getManufacturerStats(manufacturerId) {
     pending: mfrOrders.filter(o => o.status === MFR_ORDER_STATUSES.PENDING).length,
     inProduction: mfrOrders.filter(o => o.status === MFR_ORDER_STATUSES.IN_PRODUCTION).length,
     inQA: mfrOrders.filter(o => o.status === MFR_ORDER_STATUSES.QA).length,
+    readyToShip: mfrOrders.filter(o => o.status === MFR_ORDER_STATUSES.READY_TO_SHIP).length,
     shipped: mfrOrders.filter(o => o.status === MFR_ORDER_STATUSES.SHIPPED).length,
     totalActive: mfrOrders.filter(o => o.status !== MFR_ORDER_STATUSES.SHIPPED).length
   };

@@ -1,0 +1,337 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sales by Region - Peekaboo Shades Admin</title>
+  <link rel="stylesheet" href="/admin/css/admin.css?v=1737200003.0.28">
+  <script src="/admin/js/adminNavConfig.js?v=1737200002"></script>
+  <style>
+    .report-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
+    .date-range { display: flex; gap: 0.5rem; align-items: center; }
+    .date-range input { padding: 0.5rem; border: 1px solid #ddd; border-radius: 6px; }
+    .btn-export { padding: 0.5rem 1rem; background: #8E6545; color: white; border: none; border-radius: 6px; cursor: pointer; }
+    .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
+    .stat-card { background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+    .stat-card h3 { font-size: 0.85rem; color: #666; margin-bottom: 0.5rem; }
+    .stat-card .value { font-size: 2rem; font-weight: 700; color: #8E6545; }
+    .stat-card .change { font-size: 0.85rem; margin-top: 0.25rem; color: #666; }
+    .report-grid { display: grid; grid-template-columns: 1fr 400px; gap: 1.5rem; }
+    .map-container { background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+    .map-placeholder { height: 400px; background: linear-gradient(135deg, #f5f5f5, #e0e0e0); border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #666; }
+    .region-list { background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+    .region-list h3 { margin: 0 0 1rem 0; }
+    .region-item { display: flex; justify-content: space-between; align-items: center; padding: 1rem; border-bottom: 1px solid #eee; }
+    .region-item:last-child { border-bottom: none; }
+    .region-info { display: flex; align-items: center; gap: 0.75rem; }
+    .region-rank { width: 24px; height: 24px; background: #8E6545; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: 600; }
+    .region-name { font-weight: 500; }
+    .region-orders { font-size: 0.85rem; color: #666; }
+    .region-revenue { font-weight: 600; color: #8E6545; }
+    .detailed-table { background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.08); margin-top: 1.5rem; }
+    table { width: 100%; border-collapse: collapse; }
+    th { background: #f9f9f9; padding: 1rem; text-align: left; font-weight: 600; font-size: 0.85rem; color: #666; text-transform: uppercase; }
+    td { padding: 1rem; border-top: 1px solid #eee; }
+    .trend-bar { width: 100px; height: 8px; background: #e0e0e0; border-radius: 4px; overflow: hidden; }
+    .trend-fill { height: 100%; background: #8E6545; border-radius: 4px; }
+    .loading { text-align: center; padding: 2rem; color: #666; }
+    .empty-state { text-align: center; padding: 3rem; color: #666; }
+  </style>
+</head>
+<body>
+  <div class="admin-layout">
+    <aside class="admin-sidebar"></aside>
+    <main class="admin-main">
+      <header class="admin-header">
+        <h1>Sales by Region</h1>
+      </header>
+      <div class="admin-content">
+        <div class="report-header">
+          <div class="date-range">
+            <input type="date" id="startDate">
+            <span>to</span>
+            <input type="date" id="endDate">
+            <button onclick="loadReport()" style="padding: 0.5rem 1rem; background: #8E6545; color: white; border: none; border-radius: 6px; cursor: pointer;">Apply</button>
+          </div>
+          <button class="btn-export" onclick="exportReport()">Export CSV</button>
+        </div>
+        <div class="stats" id="statsContainer">
+          <div class="stat-card"><h3>Total Revenue</h3><div class="value" id="totalRevenue">$0</div></div>
+          <div class="stat-card"><h3>Total Orders</h3><div class="value" id="totalOrders">0</div></div>
+          <div class="stat-card"><h3>Avg Order Value</h3><div class="value" id="avgOrder">$0</div></div>
+          <div class="stat-card"><h3>Top Region</h3><div class="value" id="topRegion">-</div><div class="change" id="topRegionPercent"></div></div>
+        </div>
+        <div class="report-grid">
+          <div class="map-container">
+            <h3 style="margin: 0 0 1rem 0;">Geographic Distribution</h3>
+            <div class="map-placeholder" id="mapPlaceholder">Loading...</div>
+          </div>
+          <div class="region-list">
+            <h3>Top Regions</h3>
+            <div id="regionList"><div class="loading">Loading...</div></div>
+          </div>
+        </div>
+        <div class="detailed-table">
+          <table>
+            <thead>
+              <tr>
+                <th>Region</th>
+                <th>Orders</th>
+                <th>Revenue</th>
+                <th>Avg Order</th>
+                <th>% of Total</th>
+              </tr>
+            </thead>
+            <tbody id="detailedBody">
+              <tr><td colspan="5" class="loading">Loading...</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </main>
+  </div>
+  <script>
+    // State name mapping
+    const stateNames = {
+      'AL': 'Alabama', 'AK': 'Alaska', 'AZ': 'Arizona', 'AR': 'Arkansas', 'CA': 'California',
+      'CO': 'Colorado', 'CT': 'Connecticut', 'DE': 'Delaware', 'FL': 'Florida', 'GA': 'Georgia',
+      'HI': 'Hawaii', 'ID': 'Idaho', 'IL': 'Illinois', 'IN': 'Indiana', 'IA': 'Iowa',
+      'KS': 'Kansas', 'KY': 'Kentucky', 'LA': 'Louisiana', 'ME': 'Maine', 'MD': 'Maryland',
+      'MA': 'Massachusetts', 'MI': 'Michigan', 'MN': 'Minnesota', 'MS': 'Mississippi', 'MO': 'Missouri',
+      'MT': 'Montana', 'NE': 'Nebraska', 'NV': 'Nevada', 'NH': 'New Hampshire', 'NJ': 'New Jersey',
+      'NM': 'New Mexico', 'NY': 'New York', 'NC': 'North Carolina', 'ND': 'North Dakota', 'OH': 'Ohio',
+      'OK': 'Oklahoma', 'OR': 'Oregon', 'PA': 'Pennsylvania', 'RI': 'Rhode Island', 'SC': 'South Carolina',
+      'SD': 'South Dakota', 'TN': 'Tennessee', 'TX': 'Texas', 'UT': 'Utah', 'VT': 'Vermont',
+      'VA': 'Virginia', 'WA': 'Washington', 'WV': 'West Virginia', 'WI': 'Wisconsin', 'WY': 'Wyoming',
+      'DC': 'District of Columbia'
+    };
+
+    let regionData = [];
+    let orders = [];
+
+    document.addEventListener('DOMContentLoaded', () => {
+      if (!localStorage.getItem('admin_token')) { window.location.href = '/admin/login.html'; return; }
+      AdminNavConfig.initSidebar('sales-by-region');
+
+      // Set default date range (last 365 days)
+      const endDate = new Date();
+      const startDate = new Date();
+      startDate.setFullYear(startDate.getFullYear() - 1);
+      document.getElementById('startDate').value = startDate.toISOString().split('T')[0];
+      document.getElementById('endDate').value = endDate.toISOString().split('T')[0];
+
+      loadReport();
+    });
+
+    async function loadReport() {
+      const token = localStorage.getItem('admin_token');
+      const headers = { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' };
+
+      try {
+        const res = await fetch('/api/admin/orders', { headers });
+        const data = await res.json();
+
+        if (data.success) {
+          orders = data.orders || [];
+
+          // Filter by date range
+          const startDate = new Date(document.getElementById('startDate').value);
+          const endDate = new Date(document.getElementById('endDate').value);
+          endDate.setHours(23, 59, 59, 999);
+
+          const filteredOrders = orders.filter(o => {
+            const orderDate = new Date(o.created_at || o.createdAt);
+            return orderDate >= startDate && orderDate <= endDate;
+          });
+
+          calculateRegionData(filteredOrders);
+        } else {
+          orders = [];
+          calculateRegionData([]);
+        }
+      } catch (error) {
+        console.error('Error loading orders:', error);
+        orders = [];
+        calculateRegionData([]);
+      }
+    }
+
+    function extractStateFromAddress(order) {
+      // Try different address field formats
+      const address = order.shipping_address || order.shippingAddress || '';
+
+      // Try to extract state code from address string
+      // Format: "205 Blue Jasmine Trl, Georgetown, TX 78628, US"
+      const parts = address.split(',').map(p => p.trim());
+
+      for (const part of parts) {
+        // Check if part contains a state code (2 letters followed by optional zip)
+        const match = part.match(/^([A-Z]{2})(?:\s+\d{5})?$/);
+        if (match && stateNames[match[1]]) {
+          return match[1];
+        }
+      }
+
+      // Try to find state code anywhere in address
+      for (const stateCode of Object.keys(stateNames)) {
+        if (address.includes(`, ${stateCode} `) || address.includes(` ${stateCode},`)) {
+          return stateCode;
+        }
+      }
+
+      return null;
+    }
+
+    function calculateRegionData(filteredOrders) {
+      const regionMap = {};
+
+      filteredOrders.forEach(order => {
+        const stateCode = extractStateFromAddress(order);
+        if (!stateCode) return;
+
+        const stateName = stateNames[stateCode] || stateCode;
+
+        if (!regionMap[stateName]) {
+          regionMap[stateName] = { name: stateName, orders: 0, revenue: 0 };
+        }
+
+        regionMap[stateName].orders++;
+        regionMap[stateName].revenue += parseFloat(order.total || order.subtotal || 0);
+      });
+
+      // Convert to array and sort by revenue
+      regionData = Object.values(regionMap)
+        .sort((a, b) => b.revenue - a.revenue)
+        .map((r, idx) => ({
+          ...r,
+          rank: idx + 1,
+          avgOrder: r.orders > 0 ? Math.round(r.revenue / r.orders) : 0
+        }));
+
+      // Calculate totals
+      const totalRevenue = regionData.reduce((sum, r) => sum + r.revenue, 0);
+      const totalOrders = regionData.reduce((sum, r) => sum + r.orders, 0);
+
+      // Add percentTotal to each region
+      regionData = regionData.map(r => ({
+        ...r,
+        percentTotal: totalRevenue > 0 ? Math.round((r.revenue / totalRevenue) * 100) : 0
+      }));
+
+      updateStats(totalRevenue, totalOrders, regionData[0]);
+      renderRegions();
+      renderDetailedTable();
+      updateMap();
+    }
+
+    function updateStats(totalRevenue, totalOrders, topRegion) {
+      document.getElementById('totalRevenue').textContent = '$' + totalRevenue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      document.getElementById('totalOrders').textContent = totalOrders;
+      document.getElementById('avgOrder').textContent = totalOrders > 0
+        ? '$' + Math.round(totalRevenue / totalOrders).toLocaleString()
+        : '$0';
+
+      if (topRegion) {
+        document.getElementById('topRegion').textContent = topRegion.name;
+        document.getElementById('topRegionPercent').textContent = topRegion.percentTotal + '% of total sales';
+      } else {
+        document.getElementById('topRegion').textContent = '-';
+        document.getElementById('topRegionPercent').textContent = '';
+      }
+    }
+
+    function renderRegions() {
+      const container = document.getElementById('regionList');
+
+      if (regionData.length === 0) {
+        container.innerHTML = '<div class="empty-state">No orders found for the selected period.</div>';
+        return;
+      }
+
+      container.innerHTML = regionData.slice(0, 5).map(r => `
+        <div class="region-item">
+          <div class="region-info">
+            <span class="region-rank">${r.rank}</span>
+            <div>
+              <div class="region-name">${r.name}</div>
+              <div class="region-orders">${r.orders} order${r.orders !== 1 ? 's' : ''}</div>
+            </div>
+          </div>
+          <div class="region-revenue">$${r.revenue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</div>
+        </div>
+      `).join('');
+    }
+
+    function renderDetailedTable() {
+      const tbody = document.getElementById('detailedBody');
+
+      if (regionData.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" class="empty-state">No orders found for the selected period.</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = regionData.map(r => `
+        <tr>
+          <td><strong>${r.name}</strong></td>
+          <td>${r.orders}</td>
+          <td>$${r.revenue.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+          <td>$${r.avgOrder.toLocaleString()}</td>
+          <td>
+            <div style="display: flex; align-items: center; gap: 0.5rem;">
+              <div class="trend-bar"><div class="trend-fill" style="width: ${r.percentTotal}%;"></div></div>
+              <span>${r.percentTotal}%</span>
+            </div>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    function updateMap() {
+      const mapDiv = document.getElementById('mapPlaceholder');
+
+      if (regionData.length === 0) {
+        mapDiv.innerHTML = 'No geographic data available';
+        return;
+      }
+
+      // Show a text-based summary since we don't have a map library
+      const regionSummary = regionData.slice(0, 5).map(r =>
+        `<div style="padding: 0.5rem; background: white; margin: 0.25rem; border-radius: 4px; display: flex; justify-content: space-between;">
+          <span>${r.name}</span>
+          <strong>${r.percentTotal}%</strong>
+        </div>`
+      ).join('');
+
+      mapDiv.innerHTML = `
+        <div style="text-align: center;">
+          <div style="font-size: 3rem; margin-bottom: 1rem;">📍</div>
+          <div style="font-weight: 600; margin-bottom: 1rem;">Order Distribution</div>
+          <div style="max-width: 200px; margin: 0 auto;">
+            ${regionSummary || '<p>No data</p>'}
+          </div>
+        </div>
+      `;
+    }
+
+    function exportReport() {
+      if (regionData.length === 0) {
+        alert('No data to export');
+        return;
+      }
+
+      let csv = 'Region,Orders,Revenue,Avg Order,% of Total\n';
+      regionData.forEach(r => {
+        csv += `"${r.name}",${r.orders},${r.revenue.toFixed(2)},${r.avgOrder},${r.percentTotal}%\n`;
+      });
+
+      const blob = new Blob([csv], { type: 'text/csv' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `sales-by-region-${document.getElementById('startDate').value}-to-${document.getElementById('endDate').value}.csv`;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+  </script>
+</body>
+</html>

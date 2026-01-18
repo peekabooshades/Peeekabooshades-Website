@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Dealer Portal - Peekaboo Shades</title>
-  <link rel="icon" type="image/png" href="/images/favicon.png">
+  <link rel="icon" type="image/jpeg" href="/images/peekabooshades_logo.jpeg">
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
@@ -585,8 +585,42 @@
       window.location.href = '/dealer/login.html';
     }
 
-    function downloadPriceList() {
-      alert('Price list download coming soon!');
+    async function downloadPriceList() {
+      try {
+        const response = await fetch('/api/products');
+        const result = await response.json();
+
+        if (result.success && result.data?.length > 0) {
+          // Create CSV content with dealer pricing
+          const headers = ['Product Name', 'Category', 'Base Price', 'Description'];
+          const rows = result.data.map(product => [
+            product.name || '',
+            product.category || '',
+            '$' + (product.price || 0).toFixed(2),
+            (product.description || '').replace(/[\n\r]/g, ' ').substring(0, 100)
+          ]);
+
+          const csvContent = [headers, ...rows]
+            .map(row => row.map(cell => `"${(cell || '').toString().replace(/"/g, '""')}"`).join(','))
+            .join('\n');
+
+          // Download file
+          const blob = new Blob([csvContent], { type: 'text/csv' });
+          const downloadUrl = window.URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = downloadUrl;
+          a.download = `dealer_price_list_${new Date().toISOString().split('T')[0]}.csv`;
+          document.body.appendChild(a);
+          a.click();
+          document.body.removeChild(a);
+          window.URL.revokeObjectURL(downloadUrl);
+        } else {
+          alert('No products available to download.');
+        }
+      } catch (error) {
+        console.error('Download error:', error);
+        alert('Failed to download price list. Please try again.');
+      }
     }
 
     // Load data

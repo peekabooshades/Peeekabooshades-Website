@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Customer Reviews - Peekaboo Shades Admin</title>
+  <link rel="stylesheet" href="/admin/css/admin.css?v=1737200003.0.27">
+  <script src="/admin/js/adminNavConfig.js?v=1737200002"></script>
+  <style>
+    .reviews-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
+    .stat-card { background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+    .stat-card h3 { font-size: 0.85rem; color: #666; margin-bottom: 0.5rem; }
+    .stat-card .value { font-size: 2rem; font-weight: 700; color: #8E6545; }
+    .controls { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem; }
+    .search-box { display: flex; align-items: center; background: white; border: 1px solid #ddd; border-radius: 8px; padding: 0.5rem 1rem; min-width: 300px; }
+    .search-box input { border: none; outline: none; padding: 0.5rem; flex: 1; }
+    .filter-tabs { display: flex; gap: 0.5rem; }
+    .filter-tab { padding: 0.5rem 1rem; border: 1px solid #ddd; background: white; border-radius: 6px; cursor: pointer; }
+    .filter-tab.active { background: #8E6545; color: white; border-color: #8E6545; }
+    .reviews-list { display: grid; gap: 1rem; }
+    .review-card { background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+    .review-header { display: flex; justify-content: space-between; align-items: start; margin-bottom: 1rem; }
+    .reviewer-info { display: flex; align-items: center; gap: 1rem; }
+    .reviewer-avatar { width: 48px; height: 48px; border-radius: 50%; background: #8E6545; color: white; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 1.1rem; }
+    .reviewer-details h4 { margin: 0 0 0.25rem 0; }
+    .reviewer-details p { margin: 0; font-size: 0.85rem; color: #666; }
+    .review-rating { display: flex; gap: 0.15rem; }
+    .star { color: #F59E0B; }
+    .star.empty { color: #D1D5DB; }
+    .review-product { display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem; background: #f5f5f5; border-radius: 8px; margin-bottom: 1rem; }
+    .review-product img { width: 50px; height: 50px; object-fit: cover; border-radius: 6px; }
+    .review-content { color: #333; line-height: 1.6; margin-bottom: 1rem; }
+    .review-meta { display: flex; justify-content: space-between; align-items: center; font-size: 0.85rem; color: #666; padding-top: 1rem; border-top: 1px solid #eee; }
+    .review-status { padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.75rem; font-weight: 600; }
+    .status-pending { background: #FEF3C7; color: #92400E; }
+    .status-approved { background: #D1FAE5; color: #065F46; }
+    .status-rejected { background: #FEE2E2; color: #991B1B; }
+    .status-featured { background: #DBEAFE; color: #1E40AF; }
+    .review-actions { display: flex; gap: 0.5rem; }
+    .btn-action { padding: 0.4rem 0.75rem; border: none; border-radius: 6px; cursor: pointer; font-size: 0.8rem; }
+    .btn-approve { background: #10B981; color: white; }
+    .btn-reject { background: #EF4444; color: white; }
+    .btn-feature { background: #3B82F6; color: white; }
+    .btn-reply { background: #E5E7EB; color: #374151; }
+    .admin-reply { background: #EEF2FF; padding: 1rem; border-radius: 8px; margin-top: 1rem; border-left: 4px solid #6366F1; }
+    .admin-reply h5 { margin: 0 0 0.5rem 0; color: #4338CA; font-size: 0.85rem; }
+    .empty-state { text-align: center; padding: 4rem; color: #666; }
+    .modal { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; }
+    .modal.active { display: flex; }
+    .modal-content { background: white; border-radius: 12px; padding: 2rem; max-width: 500px; width: 90%; }
+    .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
+    .modal-header h2 { margin: 0; }
+    .modal-close { background: none; border: none; font-size: 1.5rem; cursor: pointer; }
+    .form-group { margin-bottom: 1.25rem; }
+    .form-group label { display: block; margin-bottom: 0.5rem; font-weight: 500; }
+    .form-group textarea { width: 100%; padding: 0.75rem; border: 1px solid #ddd; border-radius: 8px; min-height: 100px; }
+    .btn-submit { width: 100%; padding: 0.875rem; background: linear-gradient(135deg, #8E6545 0%, #A67C5B 100%); color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; transition: all 0.2s; }
+    .btn-submit:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(142,101,69,0.3); }
+    .btn-add-review {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.75rem 1.5rem;
+      background: linear-gradient(135deg, #8E6545 0%, #A67C5B 100%);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-weight: 600;
+      font-size: 0.95rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      box-shadow: 0 2px 8px rgba(142,101,69,0.25);
+    }
+    .btn-add-review:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(142,101,69,0.35);
+    }
+    .btn-add-review:active { transform: translateY(0); }
+    .btn-add-review svg { width: 18px; height: 18px; }
+  </style>
+</head>
+<body>
+  <div class="admin-layout">
+    <aside class="admin-sidebar"></aside>
+    <main class="admin-main">
+      <header class="admin-header">
+        <h1>Customer Reviews</h1>
+        <div class="header-actions">
+          <button class="btn-add-review" onclick="openAddModal()">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
+            </svg>
+            Add Review
+          </button>
+        </div>
+      </header>
+      <div class="admin-content">
+        <div class="reviews-stats">
+          <div class="stat-card"><h3>Total Reviews</h3><div class="value" id="stat-total">0</div></div>
+          <div class="stat-card"><h3>Average Rating</h3><div class="value" id="stat-avg">0.0</div></div>
+          <div class="stat-card"><h3>Pending</h3><div class="value" id="stat-pending">0</div></div>
+          <div class="stat-card"><h3>Featured</h3><div class="value" id="stat-featured">0</div></div>
+        </div>
+        <div class="controls">
+          <div class="search-box">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" width="20" height="20"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
+            <input type="text" placeholder="Search reviews..." id="searchInput" onkeyup="filterReviews()">
+          </div>
+          <div class="filter-tabs">
+            <button class="filter-tab active" data-filter="all" onclick="setFilter('all')">All</button>
+            <button class="filter-tab" data-filter="pending" onclick="setFilter('pending')">Pending</button>
+            <button class="filter-tab" data-filter="approved" onclick="setFilter('approved')">Approved</button>
+            <button class="filter-tab" data-filter="featured" onclick="setFilter('featured')">Featured</button>
+          </div>
+        </div>
+        <div class="reviews-list" id="reviewsList"></div>
+      </div>
+    </main>
+  </div>
+  <div class="modal" id="replyModal">
+    <div class="modal-content">
+      <div class="modal-header"><h2>Reply to Review</h2><button class="modal-close" onclick="closeModal('replyModal')">&times;</button></div>
+      <form onsubmit="submitReply(event)">
+        <input type="hidden" id="replyReviewId">
+        <div class="form-group"><label>Your Response</label><textarea id="replyText" placeholder="Thank you for your feedback..."></textarea></div>
+        <button type="submit" class="btn-submit">Post Reply</button>
+      </form>
+    </div>
+  </div>
+  <div class="modal" id="addModal">
+    <div class="modal-content">
+      <div class="modal-header"><h2>Add Review</h2><button class="modal-close" onclick="closeModal('addModal')">&times;</button></div>
+      <form onsubmit="submitAddReview(event)">
+        <div class="form-group"><label>Customer Name *</label><input type="text" id="addName" required placeholder="John Doe"></div>
+        <div class="form-group"><label>Customer Email</label><input type="email" id="addEmail" placeholder="john@example.com"></div>
+        <div class="form-group"><label>Product *</label>
+          <select id="addProduct">
+            <option value="Roller Shades">Roller Shades</option>
+            <option value="Zebra Blinds">Zebra Blinds</option>
+            <option value="Roman Shades">Roman Shades</option>
+            <option value="Motorized Blinds">Motorized Blinds</option>
+            <option value="Custom Blinds">Custom Blinds</option>
+          </select>
+        </div>
+        <div class="form-group"><label>Rating *</label>
+          <select id="addRating" required>
+            <option value="5">5 Stars - Excellent</option>
+            <option value="4">4 Stars - Good</option>
+            <option value="3">3 Stars - Average</option>
+            <option value="2">2 Stars - Poor</option>
+            <option value="1">1 Star - Terrible</option>
+          </select>
+        </div>
+        <div class="form-group"><label>Review Content *</label><textarea id="addContent" required placeholder="Share your experience..." rows="4"></textarea></div>
+        <div class="form-group"><label>Status</label>
+          <select id="addStatus">
+            <option value="approved">Approved</option>
+            <option value="pending">Pending</option>
+            <option value="featured">Featured</option>
+          </select>
+        </div>
+        <button type="submit" class="btn-submit">Add Review</button>
+      </form>
+    </div>
+  </div>
+  <script>
+    const token = localStorage.getItem('admin_token');
+    const headers = { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' };
+
+    let reviews = [];
+    let currentFilter = 'all';
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      if (!token) { window.location.href = '/admin/login.html'; return; }
+      AdminNavConfig.initSidebar('customer-reviews');
+      await loadReviews();
+    });
+
+    async function loadReviews() {
+      try {
+        const res = await fetch('/api/admin/reviews', { headers });
+        const data = await res.json();
+        reviews = data.success ? (data.reviews || []) : [];
+        updateStats();
+        renderReviews();
+      } catch (e) {
+        console.error('Error loading reviews:', e);
+        reviews = [];
+        updateStats();
+        renderReviews();
+      }
+    }
+
+    function updateStats() {
+      const total = reviews.length;
+      const avg = total > 0 ? (reviews.reduce((s, r) => s + r.rating, 0) / total).toFixed(1) : '0.0';
+      const pending = reviews.filter(r => r.status === 'pending').length;
+      const featured = reviews.filter(r => r.status === 'featured').length;
+      document.getElementById('stat-total').textContent = total;
+      document.getElementById('stat-avg').textContent = avg;
+      document.getElementById('stat-pending').textContent = pending;
+      document.getElementById('stat-featured').textContent = featured;
+    }
+
+    function renderReviews() {
+      const container = document.getElementById('reviewsList');
+      const search = document.getElementById('searchInput').value.toLowerCase();
+      let filtered = currentFilter === 'all' ? reviews : reviews.filter(r => r.status === currentFilter);
+      if (search) filtered = filtered.filter(r => r.customerName.toLowerCase().includes(search) || r.content.toLowerCase().includes(search) || (r.product || '').toLowerCase().includes(search));
+
+      if (filtered.length === 0) {
+        container.innerHTML = `
+          <div class="empty-state">
+            <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="none" viewBox="0 0 24 24" stroke="#8E6545" style="margin-bottom:1rem;opacity:0.6">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.5" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.519 4.674a1 1 0 00.95.69h4.915c.969 0 1.371 1.24.588 1.81l-3.976 2.888a1 1 0 00-.363 1.118l1.518 4.674c.3.922-.755 1.688-1.538 1.118l-3.976-2.888a1 1 0 00-1.176 0l-3.976 2.888c-.783.57-1.838-.197-1.538-1.118l1.518-4.674a1 1 0 00-.363-1.118l-3.976-2.888c-.784-.57-.38-1.81.588-1.81h4.914a1 1 0 00.951-.69l1.519-4.674z" />
+            </svg>
+            <h3>No Reviews Found</h3>
+            <p>${reviews.length === 0 ? 'Add your first customer review to get started.' : 'No reviews match your search or filter.'}</p>
+            ${reviews.length === 0 ? `
+              <button class="btn-add-review" onclick="openAddModal()" style="margin-top:1rem">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4" />
+                </svg>
+                Add Your First Review
+              </button>
+            ` : ''}
+          </div>`;
+        return;
+      }
+
+      container.innerHTML = filtered.map(review => `
+        <div class="review-card">
+          <div class="review-header">
+            <div class="reviewer-info">
+              <div class="reviewer-avatar">${(review.customerName || 'A').charAt(0)}</div>
+              <div class="reviewer-details">
+                <h4>${review.customerName || 'Anonymous'}</h4>
+                <p>${review.customerEmail || ''}</p>
+              </div>
+            </div>
+            <div style="text-align: right;">
+              <div class="review-rating">${renderStars(review.rating)}</div>
+              <span class="review-status status-${review.status}">${review.status}</span>
+            </div>
+          </div>
+          <div class="review-product">
+            <img src="/images/placeholder-product.jpg" alt="Product" onerror="this.style.display='none'">
+            <div><strong>${review.product || review.productName || 'Custom Blinds'}</strong></div>
+          </div>
+          <div class="review-content">"${review.content}"</div>
+          ${review.adminReply ? `<div class="admin-reply"><h5>Admin Response</h5><p>${review.adminReply}</p></div>` : ''}
+          <div class="review-meta">
+            <span>Submitted: ${formatDate(review.createdAt)}</span>
+            <div class="review-actions">
+              ${review.status === 'pending' ? `<button class="btn-action btn-approve" onclick="updateStatus('${review.id}', 'approved')">Approve</button><button class="btn-action btn-reject" onclick="updateStatus('${review.id}', 'rejected')">Reject</button>` : ''}
+              ${review.status === 'approved' ? `<button class="btn-action btn-feature" onclick="updateStatus('${review.id}', 'featured')">Feature</button>` : ''}
+              ${review.status === 'featured' ? `<button class="btn-action" style="background:#E5E7EB;color:#374151" onclick="updateStatus('${review.id}', 'approved')">Unfeature</button>` : ''}
+              ${!review.adminReply ? `<button class="btn-action btn-reply" onclick="openReplyModal('${review.id}')">Reply</button>` : ''}
+              <button class="btn-action btn-reject" onclick="deleteReview('${review.id}')">Delete</button>
+            </div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function renderStars(rating) {
+      return Array(5).fill(0).map((_, i) => `<span class="star ${i < rating ? '' : 'empty'}">★</span>`).join('');
+    }
+
+    function formatDate(d) { return new Date(d).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }); }
+    function setFilter(f) { currentFilter = f; document.querySelectorAll('.filter-tab').forEach(t => t.classList.toggle('active', t.dataset.filter === f)); renderReviews(); }
+    function filterReviews() { renderReviews(); }
+
+    async function updateStatus(id, status) {
+      try {
+        const res = await fetch(`/api/admin/reviews/${id}`, {
+          method: 'PUT',
+          headers,
+          body: JSON.stringify({ status })
+        });
+        const data = await res.json();
+        if (data.success) {
+          const review = reviews.find(r => r.id === id);
+          if (review) review.status = status;
+          renderReviews();
+          updateStats();
+          alert(`Review ${status}`);
+        } else {
+          alert('Failed to update: ' + (data.error || 'Unknown error'));
+        }
+      } catch (e) {
+        console.error('Error updating review:', e);
+        alert('Error updating review');
+      }
+    }
+
+    async function deleteReview(id) {
+      if (!confirm('Are you sure you want to delete this review?')) return;
+      try {
+        const res = await fetch(`/api/admin/reviews/${id}`, { method: 'DELETE', headers });
+        const data = await res.json();
+        if (data.success) {
+          reviews = reviews.filter(r => r.id !== id);
+          renderReviews();
+          updateStats();
+          alert('Review deleted');
+        } else {
+          alert('Failed to delete: ' + (data.error || 'Unknown error'));
+        }
+      } catch (e) {
+        console.error('Error deleting review:', e);
+        alert('Error deleting review');
+      }
+    }
+
+    function openReplyModal(id) {
+      document.getElementById('replyReviewId').value = id;
+      document.getElementById('replyText').value = '';
+      document.getElementById('replyModal').classList.add('active');
+    }
+
+    function openAddModal() {
+      document.getElementById('addName').value = '';
+      document.getElementById('addEmail').value = '';
+      document.getElementById('addProduct').value = 'Roller Shades';
+      document.getElementById('addRating').value = '5';
+      document.getElementById('addContent').value = '';
+      document.getElementById('addStatus').value = 'approved';
+      document.getElementById('addModal').classList.add('active');
+    }
+
+    function closeModal(modalId) { document.getElementById(modalId).classList.remove('active'); }
+
+    async function submitReply(e) {
+      e.preventDefault();
+      const id = document.getElementById('replyReviewId').value;
+      const reply = document.getElementById('replyText').value;
+      try {
+        const res = await fetch(`/api/admin/reviews/${id}`, {
+          method: 'PUT',
+          headers,
+          body: JSON.stringify({ adminReply: reply })
+        });
+        const data = await res.json();
+        if (data.success) {
+          const review = reviews.find(r => r.id === id);
+          if (review) review.adminReply = reply;
+          renderReviews();
+          closeModal('replyModal');
+          alert('Reply posted');
+        } else {
+          alert('Failed to post reply: ' + (data.error || 'Unknown error'));
+        }
+      } catch (e) {
+        console.error('Error posting reply:', e);
+        alert('Error posting reply');
+      }
+    }
+
+    async function submitAddReview(e) {
+      e.preventDefault();
+      const reviewData = {
+        customerName: document.getElementById('addName').value,
+        customerEmail: document.getElementById('addEmail').value,
+        product: document.getElementById('addProduct').value,
+        rating: parseInt(document.getElementById('addRating').value),
+        content: document.getElementById('addContent').value,
+        status: document.getElementById('addStatus').value
+      };
+
+      try {
+        const res = await fetch('/api/admin/reviews', {
+          method: 'POST',
+          headers,
+          body: JSON.stringify(reviewData)
+        });
+        const data = await res.json();
+        if (data.success) {
+          closeModal('addModal');
+          await loadReviews();
+          alert('Review added');
+        } else {
+          alert('Failed to add review: ' + (data.error || 'Unknown error'));
+        }
+      } catch (e) {
+        console.error('Error adding review:', e);
+        alert('Error adding review');
+      }
+    }
+
+    document.getElementById('replyModal').addEventListener('click', e => { if (e.target.id === 'replyModal') closeModal('replyModal'); });
+    document.getElementById('addModal').addEventListener('click', e => { if (e.target.id === 'addModal') closeModal('addModal'); });
+  </script>
+</body>
+</html>

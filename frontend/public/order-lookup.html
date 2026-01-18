@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Order Lookup - Peekaboo Shades</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --golden-brown: #8E6545;
+      --dark-brown: #8E6545;
+      --text-dark: #333333;
+      --text-light: #666666;
+      --bg-cream: #F8F6F3;
+      --bg-white: #FFFFFF;
+      --border-light: #E8E8E8;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Montserrat', sans-serif; font-size: 14px; line-height: 1.6; color: var(--text-dark); background-color: #F6F1EB; }
+    a { text-decoration: none; color: inherit; }
+    .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+
+    /* Top Bar */
+    .top-bar { background-color: var(--dark-brown); color: white; padding: 8px 0; font-size: 12px; }
+    .top-bar-container { max-width: 1400px; margin: 0 auto; padding: 0 40px; display: flex; justify-content: space-between; align-items: center; }
+    .top-bar-left { display: flex; gap: 20px; }
+    .top-bar-left span { display: flex; align-items: center; gap: 6px; }
+    .top-bar-right a { color: white; margin-left: 15px; }
+
+    /* Header */
+    .main-header { background-color: #FFFFFF; height: 70px; display: flex; align-items: center; border-bottom: 1px solid var(--border-light); }
+    .header-container { max-width: 1400px; width: 100%; margin: 0 auto; padding: 0 40px; display: flex; justify-content: space-between; align-items: center; }
+    .logo { display: flex; align-items: center; gap: 8px; }
+    .logo img { height: 45px; border-radius: 8px; }
+    .logo-text { font-size: 18px; font-weight: 700; color: var(--golden-brown); }
+    .main-nav { display: flex; gap: 30px; }
+    .main-nav a { font-size: 14px; font-weight: 500; color: var(--text-dark); transition: color 0.2s; }
+    .main-nav a:hover { color: var(--golden-brown); }
+
+    /* Page Content */
+    .page-header { background: linear-gradient(135deg, var(--golden-brown) 0%, #6B4E35 100%); padding: 60px 0; text-align: center; color: white; }
+    .page-header h1 { font-size: 36px; font-weight: 700; margin-bottom: 10px; }
+    .page-header p { font-size: 16px; opacity: 0.9; }
+
+    .lookup-section { padding: 60px 0; }
+    .lookup-card { max-width: 500px; margin: 0 auto; background: white; border-radius: 16px; padding: 40px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); }
+    .lookup-card h2 { font-size: 24px; margin-bottom: 10px; text-align: center; }
+    .lookup-card p { color: var(--text-light); text-align: center; margin-bottom: 30px; }
+
+    .form-group { margin-bottom: 20px; }
+    .form-group label { display: block; font-weight: 500; margin-bottom: 8px; }
+    .form-group input { width: 100%; padding: 14px 16px; border: 1px solid var(--border-light); border-radius: 8px; font-size: 14px; font-family: inherit; }
+    .form-group input:focus { outline: none; border-color: var(--golden-brown); }
+
+    .btn-lookup { width: 100%; padding: 16px; background: var(--golden-brown); color: white; border: none; border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer; transition: background 0.3s; }
+    .btn-lookup:hover { background: #7A5639; }
+
+    .order-result { margin-top: 30px; padding: 20px; background: var(--bg-cream); border-radius: 12px; display: none; }
+    .order-result.show { display: block; }
+    .order-result h3 { font-size: 18px; margin-bottom: 15px; color: var(--golden-brown); }
+    .order-detail { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid var(--border-light); }
+    .order-detail:last-child { border-bottom: none; }
+    .order-detail .label { color: var(--text-light); }
+    .order-detail .value { font-weight: 500; }
+
+    .error-message { color: #D72C0D; text-align: center; margin-top: 20px; padding: 15px; background: #FFF4F4; border-radius: 8px; display: none; }
+    .error-message.show { display: block; }
+
+    /* Footer */
+    .footer { background-color: #2C2C2C; color: white; padding: 50px 0 20px; margin-top: 60px; }
+    .footer-bottom { text-align: center; padding-top: 20px; border-top: 1px solid #444; color: #888; font-size: 13px; }
+  </style>
+</head>
+<body>
+  <!-- Top Bar -->
+  <div class="top-bar">
+    <div class="top-bar-container">
+      <div class="top-bar-left">
+        <span><i class="fas fa-phone"></i> +1 929-465-9549</span>
+        <span><i class="fas fa-envelope"></i> peekabooshades.pro@gmail.com</span>
+      </div>
+      <div class="top-bar-right">
+        <a href="/cart"><i class="fas fa-shopping-cart"></i> Cart</a>
+        <a href="/account"><i class="fas fa-user"></i> Account</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Header -->
+  <header class="main-header">
+    <div class="header-container">
+      <a href="/" class="logo">
+        <img src="/images/peekabooshades_logo.jpeg" alt="Peekaboo Shades">
+        <span class="logo-text">Peekaboo Shades</span>
+      </a>
+      <nav class="main-nav">
+        <a href="/shop">Shop</a>
+        <a href="/samples">Samples</a>
+        <a href="/guides/">Guides</a>
+        <a href="/contact">Contact</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Page Header -->
+  <section class="page-header">
+    <div class="container">
+      <h1>Order Lookup</h1>
+      <p>Track your order status and view order details</p>
+    </div>
+  </section>
+
+  <!-- Lookup Section -->
+  <section class="lookup-section">
+    <div class="container">
+      <div class="lookup-card">
+        <h2>Find Your Order</h2>
+        <p>Enter your order number and email to view your order status</p>
+
+        <form id="lookupForm">
+          <div class="form-group">
+            <label for="orderNumber">Order Number</label>
+            <input type="text" id="orderNumber" placeholder="e.g., ORD-2025-001" required>
+          </div>
+          <div class="form-group">
+            <label for="email">Email Address</label>
+            <input type="email" id="email" placeholder="Enter your email" required>
+          </div>
+          <button type="submit" class="btn-lookup">
+            <i class="fas fa-search"></i> Look Up Order
+          </button>
+        </form>
+
+        <div class="error-message" id="errorMessage"></div>
+
+        <div class="order-result" id="orderResult">
+          <h3><i class="fas fa-check-circle"></i> Order Found</h3>
+          <div class="order-detail">
+            <span class="label">Order Number</span>
+            <span class="value" id="resultOrderNumber">-</span>
+          </div>
+          <div class="order-detail">
+            <span class="label">Status</span>
+            <span class="value" id="resultStatus">-</span>
+          </div>
+          <div class="order-detail">
+            <span class="label">Order Date</span>
+            <span class="value" id="resultDate">-</span>
+          </div>
+          <div class="order-detail">
+            <span class="label">Total</span>
+            <span class="value" id="resultTotal">-</span>
+          </div>
+          <div class="order-detail">
+            <span class="label">Items</span>
+            <span class="value" id="resultItems">-</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-bottom">
+        &copy; 2025 Peekaboo Shades. All rights reserved.
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    document.getElementById('lookupForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+
+      const orderNumber = document.getElementById('orderNumber').value.trim();
+      const email = document.getElementById('email').value.trim();
+      const errorEl = document.getElementById('errorMessage');
+      const resultEl = document.getElementById('orderResult');
+
+      errorEl.classList.remove('show');
+      resultEl.classList.remove('show');
+
+      try {
+        const response = await fetch(`/api/orders/lookup?orderNumber=${encodeURIComponent(orderNumber)}&email=${encodeURIComponent(email)}`);
+        const data = await response.json();
+
+        if (data.success && data.order) {
+          document.getElementById('resultOrderNumber').textContent = data.order.order_number;
+          document.getElementById('resultStatus').textContent = data.order.status.replace(/_/g, ' ').toUpperCase();
+          document.getElementById('resultDate').textContent = new Date(data.order.created_at).toLocaleDateString();
+          document.getElementById('resultTotal').textContent = '$' + (data.order.pricing?.total || 0).toFixed(2);
+          document.getElementById('resultItems').textContent = (data.order.items?.length || 0) + ' item(s)';
+          resultEl.classList.add('show');
+        } else {
+          errorEl.textContent = data.error || 'Order not found. Please check your order number and email.';
+          errorEl.classList.add('show');
+        }
+      } catch (error) {
+        errorEl.textContent = 'Unable to look up order. Please try again later.';
+        errorEl.classList.add('show');
+      }
+    });
+  </script>
+</body>
+</html>

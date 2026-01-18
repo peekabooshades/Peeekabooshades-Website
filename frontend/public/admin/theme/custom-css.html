@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Custom CSS - Peekaboo Shades Admin</title>
+  <link rel="stylesheet" href="/admin/css/admin.css?v=1737200003.0.28">
+  <script src="/admin/js/adminNavConfig.js?v=1737200002"></script>
+  <style>
+    .editor-container { background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); margin-top: 1.5rem; }
+    .editor-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
+    .editor-header h3 { margin: 0; }
+    .code-editor { width: 100%; min-height: 500px; font-family: 'Monaco', 'Menlo', monospace; font-size: 14px; padding: 1rem; border: 1px solid #ddd; border-radius: 8px; background: #1e1e1e; color: #d4d4d4; resize: vertical; }
+    .btn-save { padding: 0.75rem 2rem; background: #8E6545; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; }
+    .btn-preview { padding: 0.75rem 1.5rem; background: #E5E7EB; color: #374151; border: none; border-radius: 8px; cursor: pointer; margin-right: 0.5rem; }
+    .btn-reset { padding: 0.75rem 1.5rem; background: #FEE2E2; color: #991B1B; border: none; border-radius: 8px; cursor: pointer; margin-right: 0.5rem; }
+    .info-box { background: #FEF3C7; border: 1px solid #F59E0B; border-radius: 8px; padding: 1rem; margin-bottom: 1rem; }
+    .info-box p { margin: 0; font-size: 0.9rem; color: #92400E; }
+    .snippets { margin-top: 1.5rem; }
+    .snippets h4 { margin: 0 0 1rem 0; }
+    .snippet-list { display: grid; grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)); gap: 1rem; }
+    .snippet-item { padding: 1rem; background: #f9f9f9; border-radius: 8px; cursor: pointer; }
+    .snippet-item:hover { background: #f0f0f0; }
+    .snippet-item h5 { margin: 0 0 0.5rem 0; }
+    .snippet-item p { margin: 0; font-size: 0.85rem; color: #666; }
+  </style>
+</head>
+<body>
+  <div class="admin-layout">
+    <aside class="admin-sidebar"></aside>
+    <main class="admin-main">
+      <header class="admin-header">
+        <h1>Custom CSS</h1>
+        <div class="header-actions">
+          <button class="btn-reset" onclick="resetCSS()">Reset</button>
+          <button class="btn-preview" onclick="previewCSS()">Preview</button>
+          <button class="btn-save" onclick="saveCSS()">Save Changes</button>
+        </div>
+      </header>
+      <div class="admin-content">
+        <div class="info-box">
+          <p><strong>Note:</strong> Custom CSS will be applied to all storefront pages. Use with caution as incorrect CSS can affect your site's appearance.</p>
+        </div>
+        <div class="editor-container">
+          <div class="editor-header">
+            <h3>CSS Editor</h3>
+            <span style="color: #666; font-size: 0.85rem;">Last saved: 2 hours ago</span>
+          </div>
+          <textarea class="code-editor" id="cssEditor" spellcheck="false">/* Custom CSS for Peekaboo Shades */
+
+/* Example: Change primary button color */
+.btn-primary {
+  background-color: #8E6545;
+}
+
+/* Example: Customize product card hover */
+.product-card:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+}
+
+/* Example: Hide sale badge */
+/* .sale-badge { display: none; } */
+
+/* Add your custom CSS below */
+</textarea>
+        </div>
+        <div class="snippets">
+          <h4>Quick Snippets</h4>
+          <div class="snippet-list">
+            <div class="snippet-item" onclick="insertSnippet('button')">
+              <h5>Custom Button Style</h5>
+              <p>Change button colors and hover effects</p>
+            </div>
+            <div class="snippet-item" onclick="insertSnippet('header')">
+              <h5>Header Modifications</h5>
+              <p>Customize header background and text</p>
+            </div>
+            <div class="snippet-item" onclick="insertSnippet('product')">
+              <h5>Product Card Style</h5>
+              <p>Modify product card appearance</p>
+            </div>
+            <div class="snippet-item" onclick="insertSnippet('footer')">
+              <h5>Footer Customization</h5>
+              <p>Style footer sections</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+  <script>
+    const snippets = {
+      button: `\n/* Custom Button Styles */\n.btn-primary {\n  background: linear-gradient(135deg, #8E6545 0%, #A67C5B 100%);\n  border-radius: 8px;\n  transition: all 0.3s ease;\n}\n.btn-primary:hover {\n  transform: translateY(-2px);\n  box-shadow: 0 4px 12px rgba(142,101,69,0.4);\n}\n`,
+      header: `\n/* Header Customization */\n.site-header {\n  background: white;\n  box-shadow: 0 2px 10px rgba(0,0,0,0.08);\n}\n.site-header .logo {\n  max-height: 50px;\n}\n`,
+      product: `\n/* Product Card Styles */\n.product-card {\n  border-radius: 12px;\n  overflow: hidden;\n  transition: transform 0.3s ease;\n}\n.product-card:hover {\n  transform: scale(1.02);\n}\n`,
+      footer: `\n/* Footer Styles */\n.site-footer {\n  background: #2D2D2D;\n  color: white;\n  padding: 3rem 0;\n}\n`
+    };
+    document.addEventListener('DOMContentLoaded', () => {
+      if (!localStorage.getItem('admin_token')) { window.location.href = '/admin/login.html'; return; }
+      AdminNavConfig.initSidebar('custom-css');
+    });
+    function insertSnippet(type) {
+      const editor = document.getElementById('cssEditor');
+      editor.value += snippets[type];
+      editor.scrollTop = editor.scrollHeight;
+    }
+    function previewCSS() { alert('Opening preview in new tab...'); window.open('/?preview=true', '_blank'); }
+    function resetCSS() { if(confirm('Reset all custom CSS?')) document.getElementById('cssEditor').value = '/* Custom CSS */\n'; }
+    function saveCSS() { alert('Custom CSS saved!'); }
+  </script>
+</body>
+</html>

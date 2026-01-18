@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Room Visualizer - Peekaboo Shades Admin</title>
+  <link rel="stylesheet" href="/admin/css/admin.css?v=1737200003.0.28">
+  <script src="/admin/js/adminNavConfig.js?v=1737200002"></script>
+  <style>
+    .visualizer-grid { display: grid; grid-template-columns: 1fr 350px; gap: 1.5rem; margin-top: 1.5rem; }
+    .visualizer-card { background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+    .visualizer-card h3 { margin: 0 0 1rem 0; }
+    .room-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; }
+    .room-item { position: relative; border-radius: 8px; overflow: hidden; cursor: pointer; }
+    .room-item img { width: 100%; height: 120px; object-fit: cover; background: #F9FAFB; display: block; }
+    .room-item .overlay { position: absolute; inset: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; opacity: 0; transition: 0.3s; }
+    .room-item:hover .overlay { opacity: 1; }
+    .room-item .overlay button { padding: 0.5rem 1rem; background: white; border: none; border-radius: 4px; cursor: pointer; }
+    .room-item .label { position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.7); color: white; padding: 0.5rem; font-size: 0.8rem; }
+    .btn-primary { padding: 0.75rem 1.5rem; background: #8E6545; color: white; border: none; border-radius: 8px; cursor: pointer; }
+    .upload-zone { border: 2px dashed #ddd; border-radius: 12px; padding: 2rem; text-align: center; cursor: pointer; }
+    .upload-zone:hover { border-color: #8E6545; }
+    .stat-row { display: flex; justify-content: space-between; padding: 0.75rem 0; border-bottom: 1px solid #eee; }
+  </style>
+</head>
+<body>
+  <div class="admin-layout">
+    <aside class="admin-sidebar"></aside>
+    <main class="admin-main">
+      <header class="admin-header">
+        <h1>Room Visualizer Images</h1>
+        <div class="header-actions"><button class="btn-primary" onclick="uploadRoom()">+ Add Room</button></div>
+      </header>
+      <div class="admin-content">
+        <div class="visualizer-grid">
+          <div class="visualizer-card">
+            <h3>Room Backgrounds</h3>
+            <div class="room-grid">
+              <div class="room-item">
+                <div style="width:100%;height:120px;background:linear-gradient(180deg,#E5E7EB,#D1D5DB);"></div>
+                <div class="label">Modern Living Room</div>
+                <div class="overlay"><button>Edit</button></div>
+              </div>
+              <div class="room-item">
+                <div style="width:100%;height:120px;background:linear-gradient(180deg,#FEF3C7,#FDE68A);"></div>
+                <div class="label">Bedroom - Warm</div>
+                <div class="overlay"><button>Edit</button></div>
+              </div>
+              <div class="room-item">
+                <div style="width:100%;height:120px;background:linear-gradient(180deg,#DBEAFE,#BFDBFE);"></div>
+                <div class="label">Home Office</div>
+                <div class="overlay"><button>Edit</button></div>
+              </div>
+              <div class="room-item">
+                <div style="width:100%;height:120px;background:linear-gradient(180deg,#D1FAE5,#A7F3D0);"></div>
+                <div class="label">Kitchen</div>
+                <div class="overlay"><button>Edit</button></div>
+              </div>
+              <div class="room-item">
+                <div style="width:100%;height:120px;background:linear-gradient(180deg,#E0E7FF,#C7D2FE);"></div>
+                <div class="label">Bathroom</div>
+                <div class="overlay"><button>Edit</button></div>
+              </div>
+              <div class="room-item">
+                <div style="width:100%;height:120px;background:linear-gradient(180deg,#FCE7F3,#FBCFE8);"></div>
+                <div class="label">Nursery</div>
+                <div class="overlay"><button>Edit</button></div>
+              </div>
+            </div>
+            <div class="upload-zone" style="margin-top: 1.5rem;" onclick="uploadRoom()">
+              <div style="font-size: 2rem; margin-bottom: 0.5rem;">📷</div>
+              <p style="margin: 0;">Click to upload new room image</p>
+              <p style="margin: 0.5rem 0 0 0; font-size: 0.85rem; color: #666;">Recommended: 1920x1080 JPG</p>
+            </div>
+          </div>
+          <div>
+            <div class="visualizer-card">
+              <h3>Visualizer Stats</h3>
+              <div class="stat-row"><span>Total Uses (30 days)</span><strong>2,456</strong></div>
+              <div class="stat-row"><span>Avg Session Time</span><strong>3m 24s</strong></div>
+              <div class="stat-row"><span>Conversion Rate</span><strong>4.2%</strong></div>
+              <div class="stat-row"><span>Most Popular Room</span><strong>Living Room</strong></div>
+            </div>
+            <div class="visualizer-card" style="margin-top: 1rem;">
+              <h3>Window Overlay Settings</h3>
+              <p style="font-size: 0.9rem; color: #666; margin: 0;">Configure where shades appear on each room image in the window position editor.</p>
+              <button class="btn-primary" style="margin-top: 1rem; width: 100%;" onclick="openEditor()">Open Position Editor</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      if (!localStorage.getItem('admin_token')) { window.location.href = '/admin/login.html'; return; }
+      AdminNavConfig.initSidebar('room-visualizer');
+    });
+    function uploadRoom() { alert('Opening room image upload...'); }
+    function openEditor() { alert('Opening window position editor...'); }
+  </script>
+</body>
+</html>

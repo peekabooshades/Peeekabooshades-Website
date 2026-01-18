@@ -4,83 +4,14 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>FAQs - Peekaboo Shades Admin</title>
-  <link rel="stylesheet" href="css/admin.css">
-  <link rel="icon" type="image/png" href="/images/favicon.png">
+  <link rel="stylesheet" href="css/admin.css?v=1737200003">
+  <link rel="icon" type="image/jpeg" href="/images/peekabooshades_logo.jpeg">
 </head>
 <body>
   <div class="admin-layout">
-    <!-- Sidebar -->
+    <!-- Sidebar (dynamically populated by adminNavConfig.js) -->
     <aside class="admin-sidebar">
-      <div class="sidebar-header">
-        <a href="/admin/" class="sidebar-logo">
-          <img src="/images/peekabooshades_logo.jpeg" alt="Peekaboo Shades" style="height: 32px; width: auto; border-radius: 6px;">
-          <span>Peekaboo Shades</span>
-        </a>
-      </div>
-
-      <nav class="sidebar-nav">
-        <div class="nav-section">
-          <a href="/admin/" class="nav-item">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-            </svg>
-            <span>Dashboard</span>
-          </a>
-        </div>
-
-        <div class="nav-section">
-          <div class="nav-section-title">Catalog</div>
-          <a href="/admin/products.html" class="nav-item">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-            </svg>
-            <span>Products</span>
-          </a>
-          <a href="/admin/categories.html" class="nav-item">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
-            </svg>
-            <span>Categories</span>
-          </a>
-        </div>
-
-        <div class="nav-section">
-          <div class="nav-section-title">Sales</div>
-          <a href="/admin/orders.html" class="nav-item">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
-            </svg>
-            <span>Orders</span>
-          </a>
-          <a href="/admin/quotes.html" class="nav-item">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-            </svg>
-            <span>Quotes</span>
-          </a>
-        </div>
-
-        <div class="nav-section">
-          <div class="nav-section-title">Content</div>
-          <a href="/admin/faqs.html" class="nav-item active">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            <span>FAQs</span>
-          </a>
-        </div>
-
-        <div class="nav-section">
-          <div class="nav-section-title">Settings</div>
-          <a href="/admin/settings.html" class="nav-item">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-            </svg>
-            <span>Settings</span>
-          </a>
-        </div>
-      </nav>
+      <!-- Sidebar content will be injected dynamically -->
     </aside>
 
     <!-- Main Content -->
@@ -130,6 +61,17 @@
             <p style="margin-top: 16px; color: var(--admin-text-secondary);">Loading FAQs...</p>
           </div>
         </div>
+
+        <!-- Suggested FAQs from Product Catalogue -->
+        <div style="margin-top: 40px;">
+          <div class="page-header" style="margin-bottom: 20px;">
+            <h2 style="font-size: 18px; font-weight: 600; color: var(--admin-text-primary);">Suggested FAQs (From Product Catalogue)</h2>
+            <p style="color: var(--admin-text-secondary); font-size: 14px;">Click "Add" to include these product-related FAQs. All information sourced from official catalogue.</p>
+          </div>
+          <div id="suggested-faqs" style="display: grid; gap: 16px;">
+            <!-- Suggested FAQs will be rendered here -->
+          </div>
+        </div>
       </div>
     </main>
   </div>
@@ -164,13 +106,149 @@
     </div>
   </div>
 
-  <script src="js/admin.js"></script>
+  <script src="js/adminNavConfig.js?v=1737200002"></script>
+  <script src="js/admin.js?v=1737100001"></script>
   <script>
+    // Suggested FAQs from Product Catalogue
+    const suggestedFAQs = [
+      // Roller Shades
+      {
+        category: 'Roller Shades',
+        question: 'What fabric shading effects are available for Roller Shades?',
+        answer: 'Our Roller Shades are available in three shading effects: Transparent (allows light while maintaining privacy), Semi-blackout (filters light while reducing glare), and Full blackout (blocks light completely for optimal room darkening). All fabrics are eco-friendly and durable with unique insulation, dust-proof, and light filtering properties.'
+      },
+      {
+        category: 'Roller Shades',
+        question: 'What are the available valance options for Roller Shades?',
+        answer: 'We offer multiple valance styles: Square V1 (with exclusive controller), Square V2, Fabric wrapped SA/V3/S3, Fabric inserted S1, Curve white S2, and Minimalist designs. Side cover colors available in White, Gray, and Black.'
+      },
+      {
+        category: 'Roller Shades',
+        question: 'What control systems are available for Roller Shades?',
+        answer: 'Our Roller Shades come with various control options: Bead Chain (plastic or metal), Cordless operation, Motorized with APP control, and Cordless-Motorized 2-in-1 with retractable wand. We also offer smart home integration with remote control (3 preset modes), voice control, and mobile APP access.'
+      },
+      {
+        category: 'Roller Shades',
+        question: 'What are the custom size ranges for Roller Shades?',
+        answer: 'Roller Shades can be customized in various sizes depending on the control system: Simple rolling (Width 50-230cm, Height 50-300cm), Curved plus (Width 50-230cm, Height 50-430cm), and Motorized options supporting even larger dimensions. Maximum height limits depend on fabric thickness - thinner fabric allows for greater height.'
+      },
+      // Zebra Shades
+      {
+        category: 'Zebra Shades',
+        question: 'What makes Zebra Shades unique?',
+        answer: 'Zebra Shades offer a versatile range of colors, textures, and prints with simple yet elegant light control options. The unique design features alternating sheer and solid fabric bands that can be adjusted to open (for light and view) or close (for privacy). Day & night fabric options available for perfect ambiance control.'
+      },
+      {
+        category: 'Zebra Shades',
+        question: 'What are the custom size options for Zebra Shades?',
+        answer: '38mm tube Zebra Shades are available in: Fabric inserted S1 (Width 50-230cm, Height 50-220cm), Square valance V2 (Width 50-230cm, Height 50-260cm), Curved plus (Width 50-230cm, Height 50-330cm), and Fabric wrapped S2/S3 (Width 50-230cm, Height 50-280cm). L24 Cordless options available with Width 50-180cm.'
+      },
+      // Honeycomb Shades
+      {
+        category: 'Honeycomb Shades',
+        question: 'What are the energy-saving benefits of Honeycomb Shades?',
+        answer: 'Honeycomb Shades feature a unique honeycomb-like structure that provides excellent insulation, helping to reduce heating and cooling costs. The cellular design traps air, creating an insulating barrier. Available in cell sizes: 16mm, 20mm, 26mm, 38mm, and 45mm, with 38mm Dual Cell option for maximum insulation.'
+      },
+      {
+        category: 'Honeycomb Shades',
+        question: 'What types of Honeycomb Shades are available?',
+        answer: 'We offer 4 main categories: Regular Shaped (standard windows), Odd Shaped (custom geometric windows), Skylight (roof windows), and Sliding Honeycomb (for sliding doors and windows). Control options include Cordless, Motorized, Cord Locked, and Continuous Loop. Special options like Top Down Bottom Up and Day & Night configurations available.'
+      },
+      {
+        category: 'Honeycomb Shades',
+        question: 'What shading effects are available for Honeycomb Shades?',
+        answer: 'Honeycomb Shades are available in: Sheer (light filtering with view-through), Light Filtering (softens light while maintaining privacy), Blackout (complete light blocking for bedrooms and media rooms), and Dual Cell options in both Light Filtering and Blackout. Rail colors available in Beige White, Gray, and Black.'
+      },
+      // Outdoor Shades
+      {
+        category: 'Outdoor Shades',
+        question: 'What makes Outdoor Shades weather-resistant?',
+        answer: 'Our Outdoor Shades are made of durable materials with waterproof, sunproof, and mildewproof properties. Colors remain vivid and do not fade easily. The windproof structure design allows flexible sunshade angle adjustment according to outdoor light and requirements. Oxidation-resistant coating ensures long-lasting durability.'
+      },
+      {
+        category: 'Outdoor Shades',
+        question: 'What size ranges are available for Outdoor Shades?',
+        answer: 'We offer three series: ZS-125 Series (Width 680-4000mm, Height 500-3000mm), ZS-105 Series (Width 680-4500mm, Height 500-5600mm), and ZS Double Layer Series (Width 680-4000mm, Height 500-3000mm). 5 roll tube sizes available: 95 DAT, 75 DAT, 78 SAT, 73 SAT, and 70 SAT with varying thicknesses.'
+      },
+      {
+        category: 'Outdoor Shades',
+        question: 'What smart control options are available for Outdoor Shades?',
+        answer: 'Smart control options include: Remote Control (one-touch operation with 3 preset modes for UV protection, sun shading, and thermal insulation), Voice Control (hands-free operation), Mobile APP (remote access from anywhere with cellular signal), and Wind-Light-Rain Sensor (automatically monitors conditions and syncs with smart hub for automated adjustments).'
+      },
+      // Measurement
+      {
+        category: 'Measurement',
+        question: 'How do I measure for Inside Mount installation?',
+        answer: 'For Inside Mount: Use a rigid measuring tape and ensure accuracy within 3mm. Measure Width at top, middle, and bottom positions (W1, W2, W3) and select the shortest measurement. Width of Blind = Width - 0.5cm. Height of Blind = Height. The depth (D) of the window hole should be more than 6cm for proper fit.'
+      },
+      {
+        category: 'Measurement',
+        question: 'How do I measure for Outside Mount installation?',
+        answer: 'For Outside Mount: Window frames protruding from the wall by more than 1cm are not suitable for outside mounting. Width of Blind = Width + 10cm (to ensure coverage). Height of Blind = Height + 15cm (for proper coverage above and below the window frame).'
+      },
+      // Sheer Shades
+      {
+        category: 'Sheer Shades',
+        question: 'What types of Sheer Shades are available?',
+        answer: 'We offer two main types: Shangri-la Shades and Butterfly Shades. Both feature adjustable, softly contoured fabric vanes with a light-diffusing back panel. These luxurious blinds softly filter light into the home and combine the sophistication of drapery with the functionality of shades.'
+      },
+      {
+        category: 'Sheer Shades',
+        question: 'What are the size options for Sheer Shades?',
+        answer: 'Sheer Shades (Shangri-la) can be customized: Width 40-230cm, Height 50-160cm to 50-250cm depending on valance type. Semi-blackout fabric can reach maximum sizes up to 4.3 meters for Curved plus valance. Available in Bead Chain and Motorized control options with fabric deduction of -2.4cm to -2.9cm depending on style.'
+      },
+      // Venetian Blinds
+      {
+        category: 'Venetian Blinds',
+        question: 'What are the features of Aluminum Venetian Blinds?',
+        answer: 'Our Aluminum Blinds feature: High strength elastic material (not easy to deform), wind and sun resistant, 180-degree blade flip adjustment for precise light control, environmental protection paint, moisture-proof and mildew proof coating, and isolation from oil and water stains. Available in C-shape (visible or invisible hole) and L-shape slat options.'
+      },
+      {
+        category: 'Venetian Blinds',
+        question: 'What makes Faux Wood Blinds a good choice?',
+        answer: 'Faux Wood Blinds offer: Original first-class wood appearance, environmental sound insulation, reduced air conditioning energy consumption, and UV protection. They are Waterproof, Fireproof, and Mildew Proof - perfect for humid areas like kitchens and bathrooms. Width: 50mm, Thickness: 2.8mm. Control options: Stay Cord, Bead Chain, Cordless, and Motorized.'
+      },
+      // Panel Track
+      {
+        category: 'Panel Track Blinds',
+        question: 'What are Panel Track Blinds best suited for?',
+        answer: 'Panel Track Blinds are ideal for: Sliding Doors, Closet Doors, Window Shades, and Room Dividers. The sleek gliding panels create a contemporary feel and dramatic backdrop. Width range: 45.8 inches to 220 inches. Panels stack tightly and provide unobstructed views when open. Shading effects: Room Darkening, Light Filtering, and Blackout.'
+      },
+      {
+        category: 'Panel Track Blinds',
+        question: 'How do I measure for Panel Track Blinds?',
+        answer: 'For Width: Measure at least 3 points (top, mid, bottom). For Inside Mount: Use net width (we consider installation clearance). For Outside Mount: Measure net width and add 6" extension total. For Height: Inside Mount uses net height; Outside Mount adds 8" extension total. Minimum depth required: 4 1/8 inches.'
+      },
+      // Vertical Blinds
+      {
+        category: 'Vertical Blinds',
+        question: 'What material options are available for Vertical Blinds?',
+        answer: 'Vertical Blinds are available in: Polyester (fabric, easy to clean), PVC (durable, moisture-resistant), Faux Wood (elegant wood appearance), and Dream Blinds (unique aesthetic). All options come in a vast array of fabrics, patterns, and colors, from sheer to opaque, suitable for any decor style.'
+      },
+      {
+        category: 'Vertical Blinds',
+        question: 'What are the track options for Vertical Blinds?',
+        answer: 'Electric Track: Smooth silence track with hidden motor, simple and beautiful design, minimum curtain box width 130mm, aluminum alloy track with Nano-mute bar. Manual Track: Bead Chain or Wand control options. Compatible with Straight, L-shaped, and U-shaped windows. PVC Curtain Box with Light Blocker available.'
+      },
+      // Control Systems
+      {
+        category: 'Control Systems',
+        question: 'What motorized control options are available?',
+        answer: 'Motorized options include: Standard Motorized (with AC or DC power), Cordless-Motorized 2-in-1 (manual backup with motorized convenience), and Smart Home integration. Smart features: Remote control with preset modes, voice control compatibility, mobile APP for anywhere access, and automated sensors (Wind-Light-Rain). Cable exit options: Top, Front, Rear, or Side.'
+      },
+      {
+        category: 'Control Systems',
+        question: 'What are the benefits of cordless blinds?',
+        answer: 'Cordless blinds offer: Enhanced child and pet safety (no hanging cords), clean and modern appearance, easy operation with gentle push/pull, available in various product lines (Roller, Zebra, Honeycomb, Venetian, Faux Wood). Cordless-Motorized 2-in-1 options provide both manual cordless operation and motorized convenience in one system.'
+      }
+    ];
+
     // Require authentication
     if (!Admin.Auth.requireAuth()) {
       // Will redirect
     } else {
       loadFAQs();
+      renderSuggestedFAQs();
     }
 
     let allFAQs = [];
@@ -300,6 +378,69 @@
         Admin.Toast.error(error.message || 'Failed to save FAQ');
       }
     });
+
+    // Render suggested FAQs from Product Catalogue
+    function renderSuggestedFAQs() {
+      const container = document.getElementById('suggested-faqs');
+      if (!container) return;
+
+      // Group by category
+      const groupedFAQs = {};
+      suggestedFAQs.forEach(faq => {
+        if (!groupedFAQs[faq.category]) {
+          groupedFAQs[faq.category] = [];
+        }
+        groupedFAQs[faq.category].push(faq);
+      });
+
+      let html = '';
+      Object.keys(groupedFAQs).forEach(category => {
+        html += `
+          <div class="card" style="margin-bottom: 0;">
+            <div class="card-header" style="background: linear-gradient(135deg, #8E6545 0%, #A67C5B 100%); color: white; padding: 12px 20px;">
+              <h4 style="margin: 0; font-size: 14px; font-weight: 600;">${Admin.Utils.escapeHtml(category)}</h4>
+            </div>
+            <div class="card-body" style="padding: 0;">
+              ${groupedFAQs[category].map((faq, idx) => `
+                <div style="padding: 16px 20px; border-bottom: 1px solid var(--admin-border); ${idx === groupedFAQs[category].length - 1 ? 'border-bottom: none;' : ''}">
+                  <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 16px;">
+                    <div style="flex: 1;">
+                      <p style="font-size: 14px; font-weight: 500; color: var(--admin-text-primary); margin: 0 0 8px 0;">${Admin.Utils.escapeHtml(faq.question)}</p>
+                      <p style="font-size: 13px; color: var(--admin-text-secondary); margin: 0; line-height: 1.5;">${Admin.Utils.escapeHtml(faq.answer).substring(0, 200)}...</p>
+                    </div>
+                    <button class="btn btn-primary" style="flex-shrink: 0; padding: 8px 16px; font-size: 12px;" onclick="addSuggestedFAQ(${suggestedFAQs.indexOf(faq)})">
+                      <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="margin-right: 4px;">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                      </svg>
+                      Add
+                    </button>
+                  </div>
+                </div>
+              `).join('')}
+            </div>
+          </div>
+        `;
+      });
+
+      container.innerHTML = html;
+    }
+
+    // Add a suggested FAQ
+    async function addSuggestedFAQ(index) {
+      const faq = suggestedFAQs[index];
+      if (!faq) return;
+
+      try {
+        await Admin.FAQsAPI.create({
+          question: faq.question,
+          answer: faq.answer
+        });
+        Admin.Toast.success('FAQ added successfully');
+        loadFAQs();
+      } catch (error) {
+        Admin.Toast.error(error.message || 'Failed to add FAQ');
+      }
+    }
   </script>
 </body>
 </html>

@@ -1,0 +1,641 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Refunds - Peekaboo Shades Admin</title>
+  <link rel="stylesheet" href="/admin/css/admin.css?v=1737200003.0.28">
+  <style>
+    .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
+    .stat-card { background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+    .stat-card h3 { font-size: 0.85rem; color: #666; margin-bottom: 0.5rem; text-transform: uppercase; }
+    .stat-card .value { font-size: 2rem; font-weight: 700; color: #8E6545; }
+    .stat-card .subtext { font-size: 0.8rem; color: #888; margin-top: 4px; }
+    .controls { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem; }
+    .filter-tabs { display: flex; gap: 0.5rem; }
+    .filter-tab { padding: 0.5rem 1rem; border: 1px solid #ddd; background: white; border-radius: 6px; cursor: pointer; transition: all 0.2s; }
+    .filter-tab.active { background: #8E6545; color: white; border-color: #8E6545; }
+    .filter-tab .count { background: #f3f4f6; padding: 2px 8px; border-radius: 10px; font-size: 11px; margin-left: 6px; }
+    .filter-tab.active .count { background: rgba(255,255,255,0.2); }
+    .refunds-list { display: grid; gap: 1rem; }
+    .refund-card { background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+    .refund-header { display: flex; justify-content: space-between; align-items: start; margin-bottom: 1rem; padding-bottom: 1rem; border-bottom: 1px solid #f0f0f0; }
+    .refund-id { font-size: 1.1rem; font-weight: 600; color: #333; }
+    .refund-order-link { font-size: 0.85rem; color: #8E6545; text-decoration: none; display: block; margin-top: 4px; }
+    .refund-order-link:hover { text-decoration: underline; }
+    .refund-amount { font-size: 1.5rem; font-weight: 700; color: #dc2626; }
+    .refund-content { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+    .refund-info h4 { font-size: 0.8rem; color: #666; margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 0.5px; }
+    .info-grid { display: grid; gap: 0.5rem; font-size: 0.9rem; }
+    .info-grid .label { color: #666; }
+    .info-grid .value { font-weight: 500; color: #333; }
+    .status-badge { padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; }
+    .status-pending { background: #FEF3C7; color: #92400E; }
+    .status-processing { background: #DBEAFE; color: #1E40AF; }
+    .status-completed { background: #D1FAE5; color: #065F46; }
+    .status-rejected { background: #FEE2E2; color: #991B1B; }
+    .refund-reason { background: #f9f9f9; padding: 1rem; border-radius: 8px; margin-top: 1rem; font-size: 0.9rem; }
+    .refund-reason strong { color: #555; }
+    .refund-actions { display: flex; gap: 0.5rem; margin-top: 1rem; padding-top: 1rem; border-top: 1px solid #eee; }
+    .btn-action { padding: 0.5rem 1rem; border: none; border-radius: 6px; cursor: pointer; font-size: 0.85rem; font-weight: 500; transition: all 0.2s; }
+    .btn-approve { background: #10B981; color: white; }
+    .btn-approve:hover { background: #059669; }
+    .btn-process { background: #8E6545; color: white; }
+    .btn-process:hover { background: #7a5639; }
+    .btn-reject { background: #FEE2E2; color: #991B1B; }
+    .btn-reject:hover { background: #FECACA; }
+    .btn-view { background: #E5E7EB; color: #374151; }
+    .btn-view:hover { background: #D1D5DB; }
+
+    /* Modal styles */
+    .modal { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; }
+    .modal.active { display: flex; }
+    .modal-content { background: white; border-radius: 12px; padding: 0; max-width: 600px; width: 90%; max-height: 90vh; overflow: hidden; }
+    .modal-header { display: flex; justify-content: space-between; align-items: center; padding: 1.25rem 1.5rem; background: linear-gradient(135deg, #8E6545 0%, #A67C5B 100%); color: white; }
+    .modal-header h2 { margin: 0; font-size: 1.25rem; }
+    .modal-close { background: none; border: none; font-size: 1.5rem; cursor: pointer; color: white; opacity: 0.8; }
+    .modal-close:hover { opacity: 1; }
+    .modal-body { padding: 1.5rem; max-height: calc(90vh - 140px); overflow-y: auto; }
+    .form-group { margin-bottom: 1.25rem; }
+    .form-group label { display: block; margin-bottom: 0.5rem; font-weight: 500; color: #333; font-size: 0.9rem; }
+    .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 0.75rem; border: 1px solid #ddd; border-radius: 8px; font-size: 0.95rem; }
+    .form-group input:focus, .form-group select:focus, .form-group textarea:focus { outline: none; border-color: #8E6545; }
+    .form-group .help-text { font-size: 0.8rem; color: #666; margin-top: 4px; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    .btn-submit { width: 100%; padding: 0.875rem; background: #8E6545; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 1rem; }
+    .btn-submit:hover { background: #7a5639; }
+    .btn-submit:disabled { background: #ccc; cursor: not-allowed; }
+
+    /* Order preview in modal */
+    .order-preview { background: #f8f9fa; border-radius: 8px; padding: 1rem; margin-bottom: 1rem; display: none; }
+    .order-preview.visible { display: block; }
+    .order-preview h4 { margin: 0 0 0.75rem 0; font-size: 0.9rem; color: #8E6545; }
+    .order-preview-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; font-size: 0.85rem; }
+    .order-preview-grid .label { color: #666; }
+    .order-preview-grid .value { font-weight: 500; }
+
+    .empty-state { text-align: center; padding: 4rem; color: #666; background: white; border-radius: 12px; }
+    .empty-state svg { width: 64px; height: 64px; color: #ccc; margin-bottom: 1rem; }
+    .empty-state h3 { margin-bottom: 0.5rem; color: #333; }
+
+    .ledger-note { background: #dbeafe; border-radius: 6px; padding: 0.75rem; margin-top: 1rem; font-size: 0.8rem; color: #1e40af; display: flex; align-items: center; gap: 8px; }
+    .ledger-note svg { flex-shrink: 0; }
+  </style>
+</head>
+<body>
+  <div class="admin-layout">
+    <aside class="admin-sidebar"></aside>
+    <main class="admin-main">
+      <header class="admin-header">
+        <div>
+          <h1 style="margin: 0;">Refunds</h1>
+          <p style="margin: 4px 0 0 0; font-size: 0.85rem; color: #666;">Manage order refunds and track accounting impact</p>
+        </div>
+        <div class="header-actions">
+          <button class="btn-primary" onclick="openModal()">
+            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+            </svg>
+            Issue Refund
+          </button>
+        </div>
+      </header>
+      <div class="admin-content">
+        <!-- Stats -->
+        <div class="stats">
+          <div class="stat-card">
+            <h3>Pending</h3>
+            <div class="value" id="stat-pending">0</div>
+            <div class="subtext">Awaiting approval</div>
+          </div>
+          <div class="stat-card">
+            <h3>Processing</h3>
+            <div class="value" id="stat-processing">0</div>
+            <div class="subtext">Being processed</div>
+          </div>
+          <div class="stat-card">
+            <h3>Completed</h3>
+            <div class="value" id="stat-completed">0</div>
+            <div class="subtext">This month</div>
+          </div>
+          <div class="stat-card">
+            <h3>Total Refunded</h3>
+            <div class="value" id="stat-total">$0</div>
+            <div class="subtext">All time</div>
+          </div>
+        </div>
+
+        <!-- Controls -->
+        <div class="controls">
+          <div class="filter-tabs">
+            <button class="filter-tab active" data-filter="all" onclick="setFilter('all')">All <span class="count" id="count-all">0</span></button>
+            <button class="filter-tab" data-filter="pending" onclick="setFilter('pending')">Pending <span class="count" id="count-pending">0</span></button>
+            <button class="filter-tab" data-filter="processing" onclick="setFilter('processing')">Processing <span class="count" id="count-processing">0</span></button>
+            <button class="filter-tab" data-filter="completed" onclick="setFilter('completed')">Completed <span class="count" id="count-completed">0</span></button>
+          </div>
+        </div>
+
+        <!-- Refunds List -->
+        <div class="refunds-list" id="refundsList">
+          <div class="empty-state">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <h3>No Refunds Found</h3>
+            <p>Refunds will appear here when processed</p>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Issue Refund Modal -->
+  <div class="modal" id="refundModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Issue Refund</h2>
+        <button class="modal-close" onclick="closeModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <form id="refundForm" onsubmit="createRefund(event)">
+          <div class="form-group">
+            <label>Select Order *</label>
+            <select name="orderId" id="orderSelect" required onchange="onOrderSelected()">
+              <option value="">-- Select an order --</option>
+            </select>
+            <div class="help-text">Only orders with status other than 'refunded' or 'cancelled' are shown</div>
+          </div>
+
+          <!-- Order Preview (auto-populated) -->
+          <div class="order-preview" id="orderPreview">
+            <h4>Order Details</h4>
+            <div class="order-preview-grid">
+              <span class="label">Order #:</span>
+              <span class="value" id="preview-orderNumber">-</span>
+              <span class="label">Customer:</span>
+              <span class="value" id="preview-customer">-</span>
+              <span class="label">Email:</span>
+              <span class="value" id="preview-email">-</span>
+              <span class="label">Order Total:</span>
+              <span class="value" id="preview-total">-</span>
+              <span class="label">Order Date:</span>
+              <span class="value" id="preview-date">-</span>
+              <span class="label">Current Status:</span>
+              <span class="value" id="preview-status">-</span>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>Refund Amount ($) *</label>
+              <input type="number" name="amount" id="refundAmount" step="0.01" min="0.01" required placeholder="0.00">
+              <div class="help-text">Max: <span id="maxRefundAmount">$0.00</span></div>
+            </div>
+            <div class="form-group">
+              <label>Refund Method *</label>
+              <select name="method" required>
+                <option value="original">Original Payment Method</option>
+                <option value="store_credit">Store Credit</option>
+                <option value="check">Check</option>
+                <option value="bank_transfer">Bank Transfer</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Reason *</label>
+            <select name="reason" required>
+              <option value="">Select reason...</option>
+              <option value="customer_request">Customer Request</option>
+              <option value="defective">Defective Product</option>
+              <option value="wrong_item">Wrong Item Shipped</option>
+              <option value="damaged">Damaged in Transit</option>
+              <option value="late_delivery">Late Delivery</option>
+              <option value="order_cancelled">Order Cancelled</option>
+              <option value="price_adjustment">Price Adjustment</option>
+              <option value="duplicate_charge">Duplicate Charge</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label>Notes</label>
+            <textarea name="notes" rows="3" placeholder="Additional notes about this refund..."></textarea>
+          </div>
+
+          <div class="ledger-note">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <span>This refund will create a ledger entry and update order status to "Refunded" when completed.</span>
+          </div>
+
+          <button type="submit" class="btn-submit" id="submitBtn" disabled>Issue Refund</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/adminNavConfig.js?v=1737200002"></script>
+  <script src="js/admin.js?v=1737100001"></script>
+  <script>
+    let refunds = [];
+    let orders = [];
+    let currentFilter = 'all';
+    let selectedOrder = null;
+
+    document.addEventListener('DOMContentLoaded', () => {
+      if (!localStorage.getItem('admin_token')) {
+        window.location.href = '/admin/login.html';
+        return;
+      }
+      AdminNavConfig.initSidebar('refunds');
+      loadData();
+    });
+
+    async function loadData() {
+      await Promise.all([loadRefunds(), loadOrders()]);
+    }
+
+    async function loadRefunds() {
+      const token = localStorage.getItem('admin_token');
+      try {
+        const res = await fetch('/api/admin/refunds', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const data = await res.json();
+        refunds = data.success ? (data.refunds || data.data || []) : [];
+      } catch (error) {
+        console.error('Error loading refunds:', error);
+        refunds = [];
+      }
+      updateStats();
+      updateCounts();
+      renderRefunds();
+    }
+
+    async function loadOrders() {
+      const token = localStorage.getItem('admin_token');
+      try {
+        const res = await fetch('/api/admin/orders?limit=500', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const data = await res.json();
+        // Filter out already refunded/cancelled orders
+        orders = (data.orders || []).filter(o =>
+          !['refunded', 'cancelled'].includes(o.status)
+        );
+        populateOrderSelect();
+      } catch (error) {
+        console.error('Error loading orders:', error);
+        orders = [];
+      }
+    }
+
+    function populateOrderSelect() {
+      const select = document.getElementById('orderSelect');
+      select.innerHTML = '<option value="">-- Select an order --</option>';
+
+      // Sort by date descending (newest first)
+      const sortedOrders = [...orders].sort((a, b) =>
+        new Date(b.created_at) - new Date(a.created_at)
+      );
+
+      sortedOrders.forEach(order => {
+        const orderNum = order.order_number || order.id.slice(0, 8).toUpperCase();
+        const customerName = order.customer_name || order.customer?.name || 'Guest';
+        const total = order.total || order.pricing?.total || 0;
+        const date = new Date(order.created_at).toLocaleDateString();
+
+        const option = document.createElement('option');
+        option.value = order.id;
+        option.textContent = `#${orderNum} - ${customerName} - $${total.toFixed(2)} (${date})`;
+        select.appendChild(option);
+      });
+    }
+
+    function onOrderSelected() {
+      const orderId = document.getElementById('orderSelect').value;
+      const preview = document.getElementById('orderPreview');
+      const submitBtn = document.getElementById('submitBtn');
+      const amountInput = document.getElementById('refundAmount');
+      const maxAmount = document.getElementById('maxRefundAmount');
+
+      if (!orderId) {
+        preview.classList.remove('visible');
+        selectedOrder = null;
+        submitBtn.disabled = true;
+        amountInput.value = '';
+        amountInput.max = '';
+        maxAmount.textContent = '$0.00';
+        return;
+      }
+
+      selectedOrder = orders.find(o => o.id === orderId);
+      if (!selectedOrder) return;
+
+      const orderNum = selectedOrder.order_number || selectedOrder.id.slice(0, 8).toUpperCase();
+      const customerName = selectedOrder.customer_name || selectedOrder.customer?.name || 'Guest';
+      const customerEmail = selectedOrder.customer_email || selectedOrder.customer?.email || '-';
+      const total = selectedOrder.total || selectedOrder.pricing?.total || 0;
+      const date = new Date(selectedOrder.created_at).toLocaleDateString();
+      const status = (selectedOrder.status || 'unknown').replace(/_/g, ' ');
+
+      document.getElementById('preview-orderNumber').textContent = orderNum;
+      document.getElementById('preview-customer').textContent = customerName;
+      document.getElementById('preview-email').textContent = customerEmail;
+      document.getElementById('preview-total').textContent = '$' + total.toFixed(2);
+      document.getElementById('preview-date').textContent = date;
+      document.getElementById('preview-status').textContent = status.charAt(0).toUpperCase() + status.slice(1);
+
+      // Set max refund amount
+      amountInput.max = total;
+      amountInput.value = total.toFixed(2);
+      maxAmount.textContent = '$' + total.toFixed(2);
+
+      preview.classList.add('visible');
+      submitBtn.disabled = false;
+    }
+
+    function updateStats() {
+      const pending = refunds.filter(r => r.status === 'pending').length;
+      const processing = refunds.filter(r => r.status === 'processing').length;
+      const completed = refunds.filter(r => r.status === 'completed').length;
+      const totalRefunded = refunds
+        .filter(r => r.status === 'completed')
+        .reduce((sum, r) => sum + (r.amount || 0), 0);
+
+      document.getElementById('stat-pending').textContent = pending;
+      document.getElementById('stat-processing').textContent = processing;
+      document.getElementById('stat-completed').textContent = completed;
+      document.getElementById('stat-total').textContent = '$' + totalRefunded.toFixed(2);
+    }
+
+    function updateCounts() {
+      document.getElementById('count-all').textContent = refunds.length;
+      document.getElementById('count-pending').textContent = refunds.filter(r => r.status === 'pending').length;
+      document.getElementById('count-processing').textContent = refunds.filter(r => r.status === 'processing').length;
+      document.getElementById('count-completed').textContent = refunds.filter(r => r.status === 'completed').length;
+    }
+
+    function renderRefunds() {
+      const container = document.getElementById('refundsList');
+      let filtered = currentFilter === 'all' ? refunds : refunds.filter(r => r.status === currentFilter);
+
+      if (filtered.length === 0) {
+        container.innerHTML = `
+          <div class="empty-state">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <h3>No ${currentFilter === 'all' ? '' : currentFilter} Refunds</h3>
+            <p>${currentFilter === 'all' ? 'No refunds have been issued yet.' : 'No refunds match this filter.'}</p>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = filtered.map(ref => `
+        <div class="refund-card">
+          <div class="refund-header">
+            <div>
+              <div class="refund-id">${ref.id}</div>
+              <a href="/admin/orders.html?id=${ref.orderId}" class="refund-order-link">
+                Order #${ref.orderNumber || ref.orderId?.slice(0, 8).toUpperCase() || 'N/A'}
+              </a>
+            </div>
+            <div style="text-align: right;">
+              <div class="refund-amount">-$${(ref.amount || 0).toFixed(2)}</div>
+              <span class="status-badge status-${ref.status}">${ref.status}</span>
+            </div>
+          </div>
+          <div class="refund-content">
+            <div class="refund-info">
+              <h4>Customer</h4>
+              <div class="info-grid">
+                <span class="label">Name:</span>
+                <span class="value">${escapeHtml(ref.customerName || '-')}</span>
+                <span class="label">Email:</span>
+                <span class="value">${escapeHtml(ref.customerEmail || '-')}</span>
+              </div>
+            </div>
+            <div class="refund-info">
+              <h4>Refund Details</h4>
+              <div class="info-grid">
+                <span class="label">Method:</span>
+                <span class="value">${formatMethod(ref.method)}</span>
+                <span class="label">Reason:</span>
+                <span class="value">${formatReason(ref.reason)}</span>
+                <span class="label">Date:</span>
+                <span class="value">${formatDate(ref.createdAt)}</span>
+                ${ref.completedAt ? `
+                  <span class="label">Completed:</span>
+                  <span class="value">${formatDate(ref.completedAt)}</span>
+                ` : ''}
+              </div>
+            </div>
+          </div>
+          ${ref.notes ? `<div class="refund-reason"><strong>Notes:</strong> ${escapeHtml(ref.notes)}</div>` : ''}
+          ${ref.ledgerEntryId ? `
+            <div class="ledger-note">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <span>Ledger entry recorded: ${ref.ledgerEntryId}</span>
+            </div>
+          ` : ''}
+          <div class="refund-actions">
+            ${ref.status === 'pending' ? `
+              <button class="btn-action btn-approve" onclick="updateStatus('${ref.id}', 'processing')">Approve</button>
+              <button class="btn-action btn-reject" onclick="updateStatus('${ref.id}', 'rejected')">Reject</button>
+            ` : ''}
+            ${ref.status === 'processing' ? `
+              <button class="btn-action btn-process" onclick="completeRefund('${ref.id}')">Mark Completed</button>
+            ` : ''}
+            <button class="btn-action btn-view" onclick="viewRefund('${ref.id}')">View Details</button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function escapeHtml(str) {
+      if (!str) return '';
+      return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+    }
+
+    function formatMethod(m) {
+      const methods = {
+        original: 'Original Payment',
+        store_credit: 'Store Credit',
+        check: 'Check',
+        bank_transfer: 'Bank Transfer'
+      };
+      return methods[m] || m || '-';
+    }
+
+    function formatReason(r) {
+      const reasons = {
+        customer_request: 'Customer Request',
+        defective: 'Defective Product',
+        wrong_item: 'Wrong Item Shipped',
+        damaged: 'Damaged in Transit',
+        late_delivery: 'Late Delivery',
+        order_cancelled: 'Order Cancelled',
+        price_adjustment: 'Price Adjustment',
+        duplicate_charge: 'Duplicate Charge',
+        other: 'Other'
+      };
+      return reasons[r] || r || '-';
+    }
+
+    function formatDate(d) {
+      if (!d) return '-';
+      return new Date(d).toLocaleDateString('en-US', {
+        month: 'short',
+        day: 'numeric',
+        year: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit'
+      });
+    }
+
+    function setFilter(f) {
+      currentFilter = f;
+      document.querySelectorAll('.filter-tab').forEach(t =>
+        t.classList.toggle('active', t.dataset.filter === f)
+      );
+      renderRefunds();
+    }
+
+    async function updateStatus(id, status) {
+      const token = localStorage.getItem('admin_token');
+      try {
+        const res = await fetch(`/api/admin/refunds/${id}`, {
+          method: 'PUT',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ status })
+        });
+        const data = await res.json();
+        if (data.success) {
+          await loadRefunds();
+          alert(`Refund ${status}`);
+        } else {
+          alert('Failed to update: ' + (data.error || 'Unknown error'));
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        alert('Error updating refund');
+      }
+    }
+
+    async function completeRefund(id) {
+      if (!confirm('Complete this refund? This will:\n- Mark refund as completed\n- Update order status to "refunded"\n- Create a ledger entry')) {
+        return;
+      }
+
+      const token = localStorage.getItem('admin_token');
+      try {
+        const res = await fetch(`/api/admin/refunds/${id}/complete`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          }
+        });
+        const data = await res.json();
+        if (data.success) {
+          await loadData(); // Reload both refunds and orders
+          alert('Refund completed successfully!\nOrder status updated and ledger entry created.');
+        } else {
+          alert('Failed: ' + (data.error || 'Unknown error'));
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        alert('Error completing refund');
+      }
+    }
+
+    function viewRefund(id) {
+      const ref = refunds.find(r => r.id === id);
+      if (!ref) return;
+
+      alert(`Refund Details:\n\nID: ${ref.id}\nOrder: ${ref.orderNumber || ref.orderId}\nAmount: $${(ref.amount || 0).toFixed(2)}\nStatus: ${ref.status}\nMethod: ${formatMethod(ref.method)}\nReason: ${formatReason(ref.reason)}\nCustomer: ${ref.customerName}\nEmail: ${ref.customerEmail}\nNotes: ${ref.notes || 'None'}\nCreated: ${formatDate(ref.createdAt)}${ref.completedAt ? '\nCompleted: ' + formatDate(ref.completedAt) : ''}`);
+    }
+
+    function openModal() {
+      document.getElementById('refundForm').reset();
+      document.getElementById('orderPreview').classList.remove('visible');
+      document.getElementById('submitBtn').disabled = true;
+      selectedOrder = null;
+      loadOrders().then(() => {
+        document.getElementById('refundModal').classList.add('active');
+      });
+    }
+
+    function closeModal() {
+      document.getElementById('refundModal').classList.remove('active');
+    }
+
+    async function createRefund(e) {
+      e.preventDefault();
+
+      if (!selectedOrder) {
+        alert('Please select an order');
+        return;
+      }
+
+      const form = e.target;
+      const token = localStorage.getItem('admin_token');
+
+      const refundData = {
+        orderId: selectedOrder.id,
+        orderNumber: selectedOrder.order_number || selectedOrder.id.slice(0, 8).toUpperCase(),
+        customerName: selectedOrder.customer_name || selectedOrder.customer?.name || 'Guest',
+        customerEmail: selectedOrder.customer_email || selectedOrder.customer?.email || '',
+        amount: parseFloat(form.amount.value),
+        method: form.method.value,
+        reason: form.reason.value,
+        notes: form.notes.value,
+        orderTotal: selectedOrder.total || selectedOrder.pricing?.total || 0
+      };
+
+      // Validate amount
+      if (refundData.amount > refundData.orderTotal) {
+        alert('Refund amount cannot exceed order total');
+        return;
+      }
+
+      try {
+        const res = await fetch('/api/admin/refunds', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(refundData)
+        });
+        const data = await res.json();
+
+        if (data.success) {
+          closeModal();
+          await loadData();
+          alert('Refund created successfully');
+        } else {
+          alert('Failed to create refund: ' + (data.error || 'Unknown error'));
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        alert('Error creating refund');
+      }
+    }
+
+    // Close modal on outside click
+    document.getElementById('refundModal').addEventListener('click', e => {
+      if (e.target.id === 'refundModal') closeModal();
+    });
+  </script>
+</body>
+</html>

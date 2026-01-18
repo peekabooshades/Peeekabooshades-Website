@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Warranty Information - Peekaboo Shades Admin</title>
+  <link rel="stylesheet" href="/admin/css/admin.css?v=1737200003.0.28">
+  <script src="/admin/js/adminNavConfig.js?v=1737200002"></script>
+  <style>
+    .warranty-grid { display: grid; gap: 1.5rem; margin-top: 1.5rem; }
+    .warranty-card { background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+    .warranty-card h3 { margin: 0 0 1rem 0; }
+    .warranty-table { width: 100%; border-collapse: collapse; }
+    .warranty-table th, .warranty-table td { padding: 1rem; text-align: left; border-bottom: 1px solid #eee; }
+    .warranty-table th { font-weight: 600; color: #666; background: #F9FAFB; }
+    .btn-primary { padding: 0.75rem 1.5rem; background: #8E6545; color: white; border: none; border-radius: 8px; cursor: pointer; }
+    .btn-edit { padding: 0.4rem 0.75rem; background: #E5E7EB; color: #374151; border: none; border-radius: 4px; cursor: pointer; font-size: 0.85rem; }
+    .coverage-badge { padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.75rem; font-weight: 600; }
+    .coverage-full { background: #D1FAE5; color: #065F46; }
+    .coverage-limited { background: #FEF3C7; color: #92400E; }
+  </style>
+</head>
+<body>
+  <div class="admin-layout">
+    <aside class="admin-sidebar"></aside>
+    <main class="admin-main">
+      <header class="admin-header">
+        <h1>Warranty Information</h1>
+        <div class="header-actions"><button class="btn-primary" onclick="saveAll()">Save Changes</button></div>
+      </header>
+      <div class="admin-content">
+        <div class="warranty-grid">
+          <div class="warranty-card">
+            <h3>Warranty Coverage by Product <button class="btn-edit" style="float:right;" onclick="editWarranty()">Edit</button></h3>
+            <table class="warranty-table">
+              <thead><tr><th>Product</th><th>Fabric</th><th>Hardware</th><th>Motor</th><th>Coverage</th></tr></thead>
+              <tbody>
+                <tr><td>Roller Shades</td><td>5 years</td><td>Lifetime</td><td>5 years</td><td><span class="coverage-badge coverage-full">Full</span></td></tr>
+                <tr><td>Zebra Blinds</td><td>5 years</td><td>Lifetime</td><td>5 years</td><td><span class="coverage-badge coverage-full">Full</span></td></tr>
+                <tr><td>Roman Shades</td><td>3 years</td><td>5 years</td><td>5 years</td><td><span class="coverage-badge coverage-limited">Limited</span></td></tr>
+                <tr><td>Motorized Components</td><td>-</td><td>-</td><td>5 years</td><td><span class="coverage-badge coverage-full">Full</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="warranty-card">
+            <h3>What's Covered</h3>
+            <ul style="margin:0; padding-left: 1.5rem; color: #666;">
+              <li>Manufacturing defects in fabric and materials</li>
+              <li>Hardware failures under normal use</li>
+              <li>Motor and electronic component failures</li>
+              <li>Fading beyond normal wear (fabric specific)</li>
+            </ul>
+            <h3 style="margin-top: 1.5rem;">What's Not Covered</h3>
+            <ul style="margin:0; padding-left: 1.5rem; color: #666;">
+              <li>Damage from improper installation</li>
+              <li>Damage from misuse or accidents</li>
+              <li>Normal wear and tear</li>
+              <li>Damage from improper cleaning</li>
+              <li>Commercial use (unless specified)</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      if (!localStorage.getItem('admin_token')) { window.location.href = '/admin/login.html'; return; }
+      AdminNavConfig.initSidebar('warranty-info');
+    });
+    function saveAll() { alert('Warranty info saved!'); }
+    function editWarranty() { alert('Opening warranty editor...'); }
+  </script>
+</body>
+</html>

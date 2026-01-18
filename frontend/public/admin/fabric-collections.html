@@ -1,0 +1,402 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fabric Collections - Peekaboo Shades Admin</title>
+  <link rel="stylesheet" href="/admin/css/admin.css?v=1737200003.0.28">
+  <script src="/admin/js/admin.js?v=1737100001"></script>
+  <script src="/admin/js/adminNavConfig.js?v=1737200002"></script>
+  <style>
+    .type-tabs { display: flex; gap: 0; margin-bottom: 1.5rem; border-bottom: 2px solid #e5e7eb; }
+    .type-tab { padding: 1rem 2rem; border: none; background: none; cursor: pointer; font-weight: 500; color: #666; position: relative; transition: all 0.2s; }
+    .type-tab:hover { color: #8E6545; }
+    .type-tab.active { color: #8E6545; }
+    .type-tab.active::after { content: ''; position: absolute; bottom: -2px; left: 0; right: 0; height: 2px; background: #8E6545; }
+    .type-tab .badge { margin-left: 0.5rem; padding: 0.15rem 0.5rem; border-radius: 10px; font-size: 0.75rem; }
+    .type-tab.roller .badge { background: #FEF3C7; color: #92400E; }
+    .type-tab.zebra .badge { background: #DBEAFE; color: #1E40AF; }
+
+    .collections-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 1.5rem; }
+    .collection-card { background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.08); transition: transform 0.2s, box-shadow 0.2s; }
+    .collection-card:hover { transform: translateY(-2px); box-shadow: 0 4px 16px rgba(0,0,0,0.12); }
+    .collection-image { height: 160px; background: linear-gradient(135deg, #f5f5f5, #e0e0e0); display: flex; align-items: center; justify-content: center; position: relative; }
+    .collection-image.roller { background: linear-gradient(135deg, #FEF3C7, #FCD34D); }
+    .collection-image.zebra { background: linear-gradient(135deg, #DBEAFE, #93C5FD); }
+    .collection-image img { width: 100%; height: 100%; object-fit: cover; }
+    .collection-badge { position: absolute; top: 1rem; right: 1rem; padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.75rem; font-weight: 600; }
+    .badge-active { background: #D1FAE5; color: #065F46; }
+    .badge-draft { background: #FEF3C7; color: #92400E; }
+    .collection-content { padding: 1.25rem; }
+    .collection-name { font-size: 1.15rem; font-weight: 600; margin: 0 0 0.5rem 0; }
+    .collection-desc { color: #666; font-size: 0.85rem; margin: 0 0 1rem 0; line-height: 1.4; }
+    .collection-stats { display: flex; gap: 1.5rem; margin-bottom: 1rem; }
+    .stat { display: flex; flex-direction: column; }
+    .stat-value { font-weight: 600; font-size: 1.1rem; }
+    .stat-label { font-size: 0.75rem; color: #666; }
+    .fabric-previews { display: flex; margin-bottom: 1rem; }
+    .fabric-preview { width: 36px; height: 36px; border-radius: 50%; border: 2px solid white; box-shadow: 0 1px 3px rgba(0,0,0,0.2); margin-left: -8px; background-size: cover; background-position: center; }
+    .fabric-preview:first-child { margin-left: 0; }
+    .fabric-more { width: 36px; height: 36px; border-radius: 50%; background: #f0f0f0; display: flex; align-items: center; justify-content: center; font-size: 0.7rem; color: #666; margin-left: -8px; border: 2px solid white; }
+    .collection-actions { display: flex; gap: 0.5rem; }
+    .btn-action { flex: 1; padding: 0.5rem; border: none; border-radius: 6px; cursor: pointer; font-size: 0.85rem; transition: background 0.2s; }
+    .btn-edit { background: #8E6545; color: white; }
+    .btn-edit:hover { background: #7a5539; }
+    .btn-delete { background: #FEE2E2; color: #991B1B; }
+    .btn-delete:hover { background: #FECACA; }
+
+    .modal-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; }
+    .modal-overlay.active { display: flex; }
+    .modal { background: white; border-radius: 12px; max-width: 650px; width: 95%; max-height: 90vh; overflow: hidden; display: flex; flex-direction: column; }
+    .modal-header { padding: 1.25rem 1.5rem; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; }
+    .modal-header h3 { margin: 0; font-size: 1.25rem; }
+    .modal-close { background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #666; }
+    .modal-body { padding: 1.5rem; overflow-y: auto; flex: 1; }
+    .modal-footer { padding: 1rem 1.5rem; border-top: 1px solid #eee; display: flex; gap: 0.75rem; justify-content: flex-end; }
+
+    .form-group { margin-bottom: 1.25rem; }
+    .form-group label { display: block; margin-bottom: 0.5rem; font-weight: 500; font-size: 0.9rem; }
+    .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 0.75rem; border: 1px solid #ddd; border-radius: 8px; font-size: 0.9rem; }
+    .form-group input:focus, .form-group select:focus, .form-group textarea:focus { outline: none; border-color: #8E6545; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    .fabric-selector { border: 1px solid #ddd; border-radius: 8px; padding: 0.75rem; max-height: 250px; overflow-y: auto; }
+    .fabric-checkbox { display: flex; align-items: center; gap: 0.75rem; padding: 0.5rem 0.75rem; border-radius: 6px; cursor: pointer; transition: background 0.2s; }
+    .fabric-checkbox:hover { background: #f5f5f5; }
+    .fabric-checkbox input { margin: 0; width: 18px; height: 18px; }
+    .fabric-swatch { width: 32px; height: 32px; border-radius: 6px; border: 1px solid #ddd; background-size: cover; background-position: center; }
+    .fabric-info { flex: 1; }
+    .fabric-info .name { font-weight: 500; font-size: 0.9rem; }
+    .fabric-info .code { font-size: 0.75rem; color: #666; }
+
+    .empty-state { text-align: center; padding: 4rem 2rem; color: #666; }
+    .empty-state h3 { margin: 1rem 0 0.5rem; color: #333; }
+    .loading { text-align: center; padding: 3rem; color: #666; }
+  </style>
+</head>
+<body>
+  <div class="admin-layout">
+    <aside class="admin-sidebar"></aside>
+    <main class="admin-main">
+      <header class="admin-header">
+        <h1>Fabric Collections</h1>
+        <div class="header-actions">
+          <button class="btn btn-secondary" onclick="refreshData()">Refresh</button>
+          <button class="btn btn-primary" onclick="openModal()">+ New Collection</button>
+        </div>
+      </header>
+      <div class="admin-content">
+        <!-- Type Tabs -->
+        <div class="type-tabs">
+          <button class="type-tab roller active" onclick="switchType('roller')">
+            Roller Shades <span class="badge" id="rollerCount">0</span>
+          </button>
+          <button class="type-tab zebra" onclick="switchType('zebra')">
+            Zebra Shades <span class="badge" id="zebraCount">0</span>
+          </button>
+        </div>
+
+        <div id="loadingState" class="loading">Loading collections...</div>
+        <div id="collectionsGrid" class="collections-grid" style="display: none;"></div>
+        <div id="emptyState" class="empty-state" style="display: none;">
+          <div style="font-size: 4rem;">🎨</div>
+          <h3>No collections yet</h3>
+          <p>Create your first collection to group fabrics together</p>
+          <button class="btn btn-primary" onclick="openModal()" style="margin-top: 1rem;">+ Create Collection</button>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Collection Modal -->
+  <div class="modal-overlay" id="collectionModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 id="modalTitle">New Collection</h3>
+        <button class="modal-close" onclick="closeModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <form id="collectionForm">
+          <input type="hidden" id="collectionId">
+          <input type="hidden" id="collectionType">
+
+          <div class="form-group">
+            <label>Collection Name *</label>
+            <input type="text" id="collectionName" required placeholder="e.g., Summer Neutrals">
+          </div>
+
+          <div class="form-group">
+            <label>Description</label>
+            <textarea id="collectionDesc" rows="2" placeholder="Describe this collection..."></textarea>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label>Status</label>
+              <select id="collectionStatus">
+                <option value="active">Active</option>
+                <option value="draft">Draft</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Sort Order</label>
+              <input type="number" id="collectionOrder" value="1" min="1">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label>Cover Image URL</label>
+            <input type="text" id="collectionImage" placeholder="/images/collections/...">
+          </div>
+
+          <div class="form-group">
+            <label>Select Fabrics</label>
+            <div class="fabric-selector" id="fabricSelector">
+              <div class="loading">Loading fabrics...</div>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+        <button class="btn btn-primary" onclick="saveCollection()">Save Collection</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let currentType = 'roller';
+    let collections = { roller: [], zebra: [] };
+    let availableFabrics = { roller: [], zebra: [] };
+    let editingId = null;
+
+    document.addEventListener('DOMContentLoaded', () => {
+      if (!localStorage.getItem('admin_token')) {
+        window.location.href = '/admin/login.html';
+        return;
+      }
+      AdminNavConfig.initSidebar('fabric-collections');
+      loadData();
+    });
+
+    async function loadData() {
+      const token = localStorage.getItem('admin_token');
+      const headers = { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' };
+
+      try {
+        // Load collections for both types
+        const collectionsRes = await fetch('/api/admin/fabric-collections', { headers });
+        const collectionsData = await collectionsRes.json();
+        if (collectionsData.success) {
+          collections = collectionsData.data || { roller: [], zebra: [] };
+        }
+
+        // Load available fabrics for both types
+        const [rollerFabricsRes, zebraFabricsRes] = await Promise.all([
+          fetch('/api/admin/fabric-collections/available-fabrics/roller', { headers }),
+          fetch('/api/admin/fabric-collections/available-fabrics/zebra', { headers })
+        ]);
+
+        const rollerFabricsData = await rollerFabricsRes.json();
+        const zebraFabricsData = await zebraFabricsRes.json();
+
+        if (rollerFabricsData.success) availableFabrics.roller = rollerFabricsData.data || [];
+        if (zebraFabricsData.success) availableFabrics.zebra = zebraFabricsData.data || [];
+
+        // Update counts
+        document.getElementById('rollerCount').textContent = collections.roller?.length || 0;
+        document.getElementById('zebraCount').textContent = collections.zebra?.length || 0;
+
+        document.getElementById('loadingState').style.display = 'none';
+        renderCollections();
+      } catch (error) {
+        console.error('Error loading data:', error);
+        document.getElementById('loadingState').textContent = 'Error loading data. Please refresh.';
+      }
+    }
+
+    function refreshData() {
+      document.getElementById('loadingState').style.display = 'block';
+      document.getElementById('collectionsGrid').style.display = 'none';
+      document.getElementById('emptyState').style.display = 'none';
+      loadData();
+    }
+
+    function switchType(type) {
+      currentType = type;
+      document.querySelectorAll('.type-tab').forEach(tab => tab.classList.remove('active'));
+      document.querySelector(`.type-tab.${type}`).classList.add('active');
+      renderCollections();
+    }
+
+    function renderCollections() {
+      const currentCollections = collections[currentType] || [];
+      const grid = document.getElementById('collectionsGrid');
+      const empty = document.getElementById('emptyState');
+
+      if (currentCollections.length === 0) {
+        grid.style.display = 'none';
+        empty.style.display = 'block';
+        return;
+      }
+
+      empty.style.display = 'none';
+      grid.style.display = 'grid';
+
+      grid.innerHTML = currentCollections.map(col => {
+        const fabrics = col.fabricDetails || [];
+        const fabricCount = col.fabricIds?.length || 0;
+
+        return `
+          <div class="collection-card">
+            <div class="collection-image ${currentType}">
+              ${col.image ? `<img src="${col.image}" alt="${col.name}">` : `<span style="font-size: 3rem;">${currentType === 'roller' ? '🌅' : '🦓'}</span>`}
+              <span class="collection-badge badge-${col.status}">${col.status}</span>
+            </div>
+            <div class="collection-content">
+              <h3 class="collection-name">${col.name}</h3>
+              <p class="collection-desc">${col.description || 'No description'}</p>
+              <div class="collection-stats">
+                <div class="stat"><span class="stat-value">${fabricCount}</span><span class="stat-label">Fabrics</span></div>
+              </div>
+              <div class="fabric-previews">
+                ${fabrics.slice(0, 6).map(f => `
+                  <div class="fabric-preview"
+                       style="background: ${f?.imageUrl ? `url(${f.imageUrl})` : (f?.color || '#ccc')}; background-size: cover;"
+                       title="${f?.name || 'Unknown'}"></div>
+                `).join('')}
+                ${fabricCount > 6 ? `<div class="fabric-more">+${fabricCount - 6}</div>` : ''}
+              </div>
+              <div class="collection-actions">
+                <button class="btn-action btn-edit" onclick="editCollection('${col.id}')">Edit</button>
+                <button class="btn-action btn-delete" onclick="deleteCollection('${col.id}')">Delete</button>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function openModal(col = null) {
+      editingId = col ? col.id : null;
+
+      document.getElementById('collectionId').value = col ? col.id : '';
+      document.getElementById('collectionType').value = currentType;
+      document.getElementById('collectionName').value = col ? col.name : '';
+      document.getElementById('collectionDesc').value = col ? col.description : '';
+      document.getElementById('collectionStatus').value = col ? col.status : 'active';
+      document.getElementById('collectionOrder').value = col ? col.order : (collections[currentType]?.length || 0) + 1;
+      document.getElementById('collectionImage').value = col ? col.image : '';
+      document.getElementById('modalTitle').textContent = col ? 'Edit Collection' : `New ${currentType === 'roller' ? 'Roller' : 'Zebra'} Collection`;
+
+      // Render fabric checkboxes
+      const fabrics = availableFabrics[currentType] || [];
+      const selectedIds = col ? (col.fabricIds || []) : [];
+
+      document.getElementById('fabricSelector').innerHTML = fabrics.length > 0
+        ? fabrics.map(f => `
+            <label class="fabric-checkbox">
+              <input type="checkbox" name="fabrics" value="${f.id}" ${selectedIds.includes(f.id) ? 'checked' : ''}>
+              <div class="fabric-swatch" style="background: ${f.imageUrl ? `url(${f.imageUrl})` : (f.color || '#ccc')}; background-size: cover;"></div>
+              <div class="fabric-info">
+                <div class="name">${f.name}</div>
+                <div class="code">${f.code} ${f.filterType ? `- ${f.filterType}` : ''} ${f.shadingType ? `- ${f.shadingType}` : ''}</div>
+              </div>
+            </label>
+          `).join('')
+        : '<p style="color: #666; text-align: center; padding: 1rem;">No fabrics available. Add fabrics first.</p>';
+
+      document.getElementById('collectionModal').classList.add('active');
+    }
+
+    function closeModal() {
+      document.getElementById('collectionModal').classList.remove('active');
+      editingId = null;
+    }
+
+    function editCollection(id) {
+      const col = collections[currentType].find(c => c.id === id);
+      if (col) openModal(col);
+    }
+
+    async function saveCollection() {
+      const name = document.getElementById('collectionName').value.trim();
+      if (!name) {
+        Admin.Toast.error('Collection name is required');
+        return;
+      }
+
+      const selectedFabrics = Array.from(document.querySelectorAll('input[name="fabrics"]:checked')).map(cb => cb.value);
+
+      const data = {
+        type: currentType,
+        name,
+        description: document.getElementById('collectionDesc').value.trim(),
+        status: document.getElementById('collectionStatus').value,
+        order: parseInt(document.getElementById('collectionOrder').value) || 1,
+        image: document.getElementById('collectionImage').value.trim(),
+        fabricIds: selectedFabrics
+      };
+
+      const token = localStorage.getItem('admin_token');
+      const headers = { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' };
+
+      try {
+        let res;
+        if (editingId) {
+          res = await fetch(`/api/admin/fabric-collections/${currentType}/${editingId}`, {
+            method: 'PUT',
+            headers,
+            body: JSON.stringify(data)
+          });
+        } else {
+          res = await fetch('/api/admin/fabric-collections', {
+            method: 'POST',
+            headers,
+            body: JSON.stringify(data)
+          });
+        }
+
+        const result = await res.json();
+        if (result.success) {
+          closeModal();
+          loadData();
+          Admin.Toast.success(editingId ? 'Collection updated' : 'Collection created');
+        } else {
+          Admin.Toast.error(result.error || 'Failed to save collection');
+        }
+      } catch (error) {
+        console.error('Error saving collection:', error);
+        Admin.Toast.error('Error saving collection');
+      }
+    }
+
+    async function deleteCollection(id) {
+      if (!confirm('Are you sure you want to delete this collection?')) return;
+
+      const token = localStorage.getItem('admin_token');
+      try {
+        const res = await fetch(`/api/admin/fabric-collections/${currentType}/${id}`, {
+          method: 'DELETE',
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+
+        const result = await res.json();
+        if (result.success) {
+          loadData();
+          Admin.Toast.success('Collection deleted');
+        } else {
+          Admin.Toast.error(result.error || 'Failed to delete collection');
+        }
+      } catch (error) {
+        console.error('Error deleting collection:', error);
+        Admin.Toast.error('Error deleting collection');
+      }
+    }
+
+    // Close modal on overlay click
+    document.getElementById('collectionModal').addEventListener('click', e => {
+      if (e.target.id === 'collectionModal') closeModal();
+    });
+  </script>
+</body>
+</html>

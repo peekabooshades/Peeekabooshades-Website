@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Low Performers - Peekaboo Shades Admin</title>
+  <link rel="stylesheet" href="/admin/css/admin.css?v=1737200003.0.28">
+  <script src="/admin/js/adminNavConfig.js?v=1737200002"></script>
+  <style>
+    .filters { display: flex; gap: 1rem; margin-bottom: 1.5rem; flex-wrap: wrap; }
+    .filters select, .filters input { padding: 0.5rem 1rem; border: 1px solid #ddd; border-radius: 6px; }
+    .products-table { background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { padding: 0.75rem; text-align: left; border-bottom: 1px solid #eee; }
+    th { font-weight: 600; color: #666; font-size: 0.85rem; }
+    .trend-down { color: #EF4444; display: flex; align-items: center; gap: 0.25rem; }
+    .status-badge { padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.75rem; }
+    .status-low { background: #FEE2E2; color: #991B1B; }
+    .status-medium { background: #FEF3C7; color: #92400E; }
+    .btn-action { padding: 0.4rem 0.75rem; background: #8E6545; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 0.8rem; }
+    .insight-cards { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 1.5rem; }
+    .insight-card { background: white; padding: 1.25rem; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+    .insight-card h4 { margin: 0 0 0.5rem 0; font-size: 0.85rem; color: #666; }
+    .insight-card .value { font-size: 1.5rem; font-weight: 600; color: #EF4444; }
+    .recommendation { background: #FEF3C7; padding: 1rem; border-radius: 8px; margin-top: 0.5rem; }
+  </style>
+</head>
+<body>
+  <div class="admin-layout">
+    <aside class="admin-sidebar"></aside>
+    <main class="admin-main">
+      <header class="admin-header">
+        <h1>Low Performing Products</h1>
+        <div class="header-actions">
+          <button class="btn-action" onclick="exportData()">Export Report</button>
+        </div>
+      </header>
+      <div class="admin-content">
+        <div class="insight-cards">
+          <div class="insight-card">
+            <h4>Products Below Threshold</h4>
+            <div class="value">12</div>
+          </div>
+          <div class="insight-card">
+            <h4>Avg Monthly Sales</h4>
+            <div class="value">$145</div>
+          </div>
+          <div class="insight-card">
+            <h4>Zero Sales (30 days)</h4>
+            <div class="value">5</div>
+          </div>
+          <div class="insight-card">
+            <h4>Revenue at Risk</h4>
+            <div class="value">$2,450</div>
+          </div>
+        </div>
+        <div class="filters">
+          <select id="timeRange">
+            <option value="30">Last 30 Days</option>
+            <option value="60">Last 60 Days</option>
+            <option value="90">Last 90 Days</option>
+          </select>
+          <select id="category">
+            <option value="">All Categories</option>
+            <option value="roller">Roller Shades</option>
+            <option value="zebra">Zebra Blinds</option>
+          </select>
+          <select id="threshold">
+            <option value="5">Less than 5 sales</option>
+            <option value="10">Less than 10 sales</option>
+            <option value="0">Zero sales</option>
+          </select>
+        </div>
+        <div class="products-table">
+          <table>
+            <thead>
+              <tr>
+                <th>Product</th>
+                <th>Category</th>
+                <th>Sales (30d)</th>
+                <th>Revenue</th>
+                <th>Trend</th>
+                <th>Status</th>
+                <th>Action</th>
+              </tr>
+            </thead>
+            <tbody id="productsTable">
+              <tr>
+                <td>Premium Velvet Blackout</td>
+                <td>Roller Shades</td>
+                <td>2</td>
+                <td>$289</td>
+                <td><span class="trend-down">-45%</span></td>
+                <td><span class="status-badge status-low">Critical</span></td>
+                <td><button class="btn-action" onclick="viewProduct('velvet')">Review</button></td>
+              </tr>
+              <tr>
+                <td>Linen Natural Light</td>
+                <td>Roller Shades</td>
+                <td>3</td>
+                <td>$412</td>
+                <td><span class="trend-down">-32%</span></td>
+                <td><span class="status-badge status-medium">Warning</span></td>
+                <td><button class="btn-action" onclick="viewProduct('linen')">Review</button></td>
+              </tr>
+              <tr>
+                <td>Bamboo Weave Natural</td>
+                <td>Woven Shades</td>
+                <td>0</td>
+                <td>$0</td>
+                <td><span class="trend-down">-100%</span></td>
+                <td><span class="status-badge status-low">Critical</span></td>
+                <td><button class="btn-action" onclick="viewProduct('bamboo')">Review</button></td>
+              </tr>
+              <tr>
+                <td>Classic White Faux Wood</td>
+                <td>Blinds</td>
+                <td>4</td>
+                <td>$556</td>
+                <td><span class="trend-down">-28%</span></td>
+                <td><span class="status-badge status-medium">Warning</span></td>
+                <td><button class="btn-action" onclick="viewProduct('faux')">Review</button></td>
+              </tr>
+            </tbody>
+          </table>
+          <div class="recommendation">
+            <strong>Recommendation:</strong> Consider running promotions, improving product images, or discontinuing products with zero sales for 60+ days.
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      if (!localStorage.getItem('admin_token')) { window.location.href = '/admin/login.html'; return; }
+      AdminNavConfig.initSidebar('low-performers');
+    });
+    function exportData() { alert('Exporting low performer report...'); }
+    function viewProduct(id) { window.location.href = `/admin/product-editor-v2.html?id=${id}`; }
+  </script>
+</body>
+</html>

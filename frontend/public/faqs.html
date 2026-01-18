@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Frequently Asked Questions - Peekaboo Shades</title>
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="icon" type="image/jpeg" href="/images/peekabooshades_logo.jpeg">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Montserrat', sans-serif;
+      background: #faf9f7;
+      color: #333;
+      line-height: 1.6;
+    }
+
+    /* Header */
+    .header {
+      background: white;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .header-content {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 15px 20px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      text-decoration: none;
+      color: #8E6545;
+      font-weight: 700;
+      font-size: 20px;
+    }
+
+    .logo img {
+      height: 40px;
+      border-radius: 6px;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 30px;
+    }
+
+    .nav-links a {
+      text-decoration: none;
+      color: #333;
+      font-weight: 500;
+      font-size: 14px;
+      transition: color 0.2s;
+    }
+
+    .nav-links a:hover {
+      color: #8E6545;
+    }
+
+    /* Hero Section */
+    .hero {
+      background: linear-gradient(135deg, #8E6545 0%, #A67C5B 100%);
+      color: white;
+      padding: 60px 20px;
+      text-align: center;
+    }
+
+    .hero h1 {
+      font-size: 36px;
+      font-weight: 700;
+      margin-bottom: 15px;
+    }
+
+    .hero p {
+      font-size: 18px;
+      opacity: 0.9;
+      max-width: 600px;
+      margin: 0 auto;
+    }
+
+    /* Main Content */
+    .main-content {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 50px 20px;
+    }
+
+    /* Search Box */
+    .search-box {
+      background: white;
+      border-radius: 12px;
+      padding: 20px;
+      margin-bottom: 40px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    }
+
+    .search-input {
+      width: 100%;
+      padding: 15px 20px;
+      border: 2px solid #e5e5e5;
+      border-radius: 8px;
+      font-size: 16px;
+      font-family: inherit;
+      transition: border-color 0.2s;
+    }
+
+    .search-input:focus {
+      outline: none;
+      border-color: #8E6545;
+    }
+
+    /* FAQ Categories */
+    .faq-categories {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-bottom: 30px;
+    }
+
+    .category-btn {
+      padding: 10px 20px;
+      border: 2px solid #e5e5e5;
+      background: white;
+      border-radius: 25px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+      font-family: inherit;
+    }
+
+    .category-btn:hover,
+    .category-btn.active {
+      border-color: #8E6545;
+      background: #8E6545;
+      color: white;
+    }
+
+    /* FAQ List */
+    .faq-list {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    .faq-item {
+      background: white;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+      transition: box-shadow 0.2s;
+    }
+
+    .faq-item:hover {
+      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+    }
+
+    .faq-question {
+      padding: 20px 25px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 16px;
+      color: #8E6545;
+      transition: all 0.2s;
+      border-left: 4px solid transparent;
+    }
+
+    .faq-question:hover {
+      background: #fdf8f5;
+      border-left-color: #8E6545;
+    }
+
+    .faq-item.open .faq-question {
+      background: linear-gradient(135deg, #8E6545 0%, #A67C5B 100%);
+      color: white;
+      border-left-color: #6d4c33;
+    }
+
+    .faq-question i {
+      color: #8E6545;
+      transition: transform 0.3s;
+    }
+
+    .faq-item.open .faq-question i {
+      transform: rotate(180deg);
+      color: white;
+    }
+
+    .faq-answer {
+      padding: 0 25px;
+      max-height: 0;
+      overflow: hidden;
+      transition: all 0.3s ease;
+    }
+
+    .faq-item.open .faq-answer {
+      padding: 0 25px 20px;
+      max-height: 500px;
+    }
+
+    .faq-answer p {
+      color: #666;
+      line-height: 1.8;
+    }
+
+    /* Loading State */
+    .loading {
+      text-align: center;
+      padding: 60px;
+      color: #666;
+    }
+
+    .loading i {
+      font-size: 40px;
+      color: #8E6545;
+      margin-bottom: 15px;
+      animation: spin 1s linear infinite;
+    }
+
+    @keyframes spin {
+      100% { transform: rotate(360deg); }
+    }
+
+    /* Empty State */
+    .empty-state {
+      text-align: center;
+      padding: 60px;
+      color: #666;
+    }
+
+    .empty-state i {
+      font-size: 50px;
+      color: #ddd;
+      margin-bottom: 20px;
+    }
+
+    /* Footer */
+    .footer {
+      background: #1a1a1a;
+      color: white;
+      padding: 40px 20px;
+      margin-top: 60px;
+    }
+
+    .footer-content {
+      max-width: 1200px;
+      margin: 0 auto;
+      text-align: center;
+    }
+
+    .footer a {
+      color: #8E6545;
+      text-decoration: none;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .hero h1 {
+        font-size: 28px;
+      }
+
+      .nav-links {
+        display: none;
+      }
+
+      .faq-question {
+        font-size: 14px;
+        padding: 15px 20px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Header -->
+  <header class="header">
+    <div class="header-content">
+      <a href="/" class="logo">
+        <img src="/images/peekabooshades_logo.jpeg" alt="Peekaboo Shades">
+        <span>Peekaboo Shades</span>
+      </a>
+      <nav class="nav-links">
+        <a href="/">Home</a>
+        <a href="/shop.html">Shop</a>
+        <a href="/faqs.html">FAQs</a>
+        <a href="/policies/contact.html">Contact</a>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Hero -->
+  <section class="hero">
+    <h1>Frequently Asked Questions</h1>
+    <p>Find answers to common questions about our products, ordering, and installation</p>
+  </section>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <!-- Search -->
+    <div class="search-box">
+      <input type="text" class="search-input" id="searchInput" placeholder="Search for answers..." oninput="filterFAQs()">
+    </div>
+
+    <!-- FAQ List -->
+    <div class="faq-list" id="faqList">
+      <div class="loading">
+        <i class="fas fa-spinner"></i>
+        <p>Loading FAQs...</p>
+      </div>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="footer-content">
+      <p>&copy; 2024 Peekaboo Shades. All rights reserved.</p>
+      <p style="margin-top: 10px;">
+        <a href="/">Home</a> |
+        <a href="/shop.html">Shop</a> |
+        <a href="/policies/contact.html">Contact Us</a>
+      </p>
+    </div>
+  </footer>
+
+  <script>
+    let allFAQs = [];
+
+    // Load FAQs on page load
+    document.addEventListener('DOMContentLoaded', loadFAQs);
+
+    async function loadFAQs() {
+      try {
+        const response = await fetch('/api/faqs');
+        const result = await response.json();
+
+        if (result.success && result.data) {
+          allFAQs = result.data;
+          renderFAQs(allFAQs);
+        } else {
+          showEmptyState();
+        }
+      } catch (error) {
+        console.error('Error loading FAQs:', error);
+        showEmptyState();
+      }
+    }
+
+    function renderFAQs(faqs) {
+      const container = document.getElementById('faqList');
+
+      if (!faqs || faqs.length === 0) {
+        showEmptyState();
+        return;
+      }
+
+      container.innerHTML = faqs.map((faq, index) => `
+        <div class="faq-item" onclick="toggleFAQ(this)">
+          <div class="faq-question">
+            <span>${escapeHtml(faq.question)}</span>
+            <i class="fas fa-chevron-down"></i>
+          </div>
+          <div class="faq-answer">
+            <p>${escapeHtml(faq.answer)}</p>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function toggleFAQ(element) {
+      // Close other open FAQs
+      document.querySelectorAll('.faq-item.open').forEach(item => {
+        if (item !== element) {
+          item.classList.remove('open');
+        }
+      });
+
+      // Toggle current FAQ
+      element.classList.toggle('open');
+    }
+
+    function filterFAQs() {
+      const searchTerm = document.getElementById('searchInput').value.toLowerCase().trim();
+
+      if (!searchTerm) {
+        renderFAQs(allFAQs);
+        return;
+      }
+
+      const filtered = allFAQs.filter(faq =>
+        faq.question.toLowerCase().includes(searchTerm) ||
+        faq.answer.toLowerCase().includes(searchTerm)
+      );
+
+      renderFAQs(filtered);
+    }
+
+    function showEmptyState() {
+      const container = document.getElementById('faqList');
+      container.innerHTML = `
+        <div class="empty-state">
+          <i class="fas fa-question-circle"></i>
+          <h3>No FAQs found</h3>
+          <p>We're working on adding more FAQs. Please check back later!</p>
+        </div>
+      `;
+    }
+
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+  </script>
+</body>
+</html>

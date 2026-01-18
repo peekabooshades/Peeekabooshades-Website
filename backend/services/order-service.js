@@ -437,6 +437,147 @@ function getOrderWithHistory(orderId) {
   return { ...order, statusHistory: history };
 }
 
+/**
+ * AUTO DELIVERY UPDATE
+ * Automatically transitions shipped orders to delivered after configured days
+ * @param {number} daysAfterShipment - Days to wait before auto-delivery (default: 7)
+ * @param {boolean} dryRun - If true, returns orders that would be updated without making changes
+ */
+function autoDeliveryUpdate(daysAfterShipment = 7, dryRun = false) {
+  const db = loadDatabase();
+  const now = new Date();
+  const cutoffDate = new Date(now.getTime() - (daysAfterShipment * 24 * 60 * 60 * 1000));
+
+  // Find shipped orders older than cutoff
+  const shippedOrders = (db.orders || []).filter(order => {
+    if (order.status !== ORDER_STATES.SHIPPED) return false;
+
+    // Check shipped_at timestamp
+    const shippedAt = order.shipped_at ? new Date(order.shipped_at) : null;
+    if (!shippedAt) {
+      // Fallback to updated_at if shipped_at not set
+      const updatedAt = new Date(order.updated_at);
+      return updatedAt <= cutoffDate;
+    }
+
+    return shippedAt <= cutoffDate;
+  });
+
+  if (dryRun) {
+    return {
+      dryRun: true,
+      ordersToUpdate: shippedOrders.map(o => ({
+        id: o.id,
+        orderNumber: o.order_number,
+        shippedAt: o.shipped_at || o.updated_at,
+        daysSinceShipment: Math.floor((now - new Date(o.shipped_at || o.updated_at)) / (24 * 60 * 60 * 1000)),
+        hasTracking: !!(o.shipping?.trackingNumber)
+      })),
+      count: shippedOrders.length
+    };
+  }
+
+  const results = {
+    updated: [],
+    failed: [],
+    totalProcessed: shippedOrders.length
+  };
+
+  for (const order of shippedOrders) {
+    try {
+      const previousStatus = order.status;
+      const nowIso = new Date().toISOString();
+
+      // Update order
+      const orderIndex = db.orders.findIndex(o => o.id === order.id);
+      db.orders[orderIndex].status = ORDER_STATES.DELIVERED;
+      db.orders[orderIndex].delivered_at = nowIso;
+      db.orders[orderIndex].updated_at = nowIso;
+      db.orders[orderIndex].auto_delivered = true;
+
+      // Record in status history
+      if (!db.orderStatusHistory) db.orderStatusHistory = [];
+      db.orderStatusHistory.push({
+        id: uuidv4(),
+        orderId: order.id,
+        orderNumber: order.order_number,
+        fromStatus: previousStatus,
+        toStatus: ORDER_STATES.DELIVERED,
+        changedBy: 'system',
+        changedByType: 'auto_delivery',
+        changedAt: nowIso,
+        reason: `Auto-delivered after ${daysAfterShipment} days since shipment`
+      });
+
+      results.updated.push({
+        id: order.id,
+        orderNumber: order.order_number,
+        shippedAt: order.shipped_at || order.updated_at,
+        deliveredAt: nowIso
+      });
+
+      // Audit log
+      auditLogger.log({
+        action: AUDIT_ACTIONS.ORDER_STATUS_CHANGE,
+        userId: 'system',
+        resourceType: 'order',
+        resourceId: order.id,
+        resourceName: order.order_number,
+        previousState: { status: previousStatus },
+        newState: { status: ORDER_STATES.DELIVERED },
+        metadata: {
+          reason: `Auto-delivery after ${daysAfterShipment} days`,
+          source: 'auto_delivery_job'
+        }
+      });
+    } catch (error) {
+      results.failed.push({
+        id: order.id,
+        orderNumber: order.order_number,
+        error: error.message
+      });
+    }
+  }
+
+  // Save all changes at once
+  if (results.updated.length > 0) {
+    saveDatabase(db);
+  }
+
+  return results;
+}
+
+/**
+ * Get shipped orders pending delivery update
+ */
+function getShippedOrdersPendingDelivery(daysThreshold = 7) {
+  const db = loadDatabase();
+  const now = new Date();
+  const cutoffDate = new Date(now.getTime() - (daysThreshold * 24 * 60 * 60 * 1000));
+
+  const shippedOrders = (db.orders || []).filter(order => {
+    if (order.status !== ORDER_STATES.SHIPPED) return false;
+    return true;
+  });
+
+  return shippedOrders.map(order => {
+    const shippedAt = new Date(order.shipped_at || order.updated_at);
+    const daysSinceShipment = Math.floor((now - shippedAt) / (24 * 60 * 60 * 1000));
+
+    return {
+      id: order.id,
+      orderNumber: order.order_number,
+      customerName: order.customer_name || order.customer?.name,
+      shippedAt: order.shipped_at || order.updated_at,
+      daysSinceShipment,
+      readyForAutoDelivery: shippedAt <= cutoffDate,
+      hasTracking: !!(order.shipping?.trackingNumber),
+      trackingNumber: order.shipping?.trackingNumber,
+      carrier: order.shipping?.carrier
+    };
+  });
+}
+
 module.exports = {
   ORDER_STATES,
   VALID_TRANSITIONS,
@@ -444,5 +585,7 @@ module.exports = {
   createOrderFromCart,
   transitionOrderStatus,
   simulateFakePayment,
-  getOrderWithHistory
+  getOrderWithHistory,
+  autoDeliveryUpdate,
+  getShippedOrdersPendingDelivery
 };

@@ -794,11 +794,57 @@
             }
         ];
 
-        document.addEventListener('DOMContentLoaded', () => {
-            promotions = samplePromotions;
-            renderPromotions();
+        document.addEventListener('DOMContentLoaded', async () => {
+            await loadPromotionsFromAPI();
             initEventListeners();
         });
+
+        async function loadPromotionsFromAPI() {
+            const token = localStorage.getItem('admin_token');
+            if (!token) {
+                window.location.href = '/admin/login.html';
+                return;
+            }
+
+            try {
+                const response = await fetch('/api/admin/marketing/promotions', {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                const data = await response.json();
+
+                if (data.success && (data.promotions || data.data)) {
+                    // Map API data to the format expected by the UI
+                    const promoData = data.promotions || data.data || [];
+                    promotions = promoData.map(p => ({
+                        id: p.id,
+                        code: p.code,
+                        type: p.type || 'percentage',
+                        value: p.discountPercent || p.discountAmount || 0,
+                        status: p.isActive ? 'active' : 'expired',
+                        usageCount: p.usedCount || 0,
+                        usageLimit: p.maxUses || null,
+                        startDate: p.startDate,
+                        endDate: p.endDate,
+                        minPurchase: p.minOrderAmount || 0
+                    }));
+
+                    // Recalculate status based on dates
+                    promotions = promotions.map(p => ({
+                        ...p,
+                        status: determineStatus(p.startDate, p.endDate)
+                    }));
+                } else {
+                    promotions = [];
+                }
+                renderPromotions();
+            } catch (error) {
+                console.error('Error loading promotions:', error);
+                promotions = [];
+                renderPromotions();
+            }
+        }
 
         function renderPromotions(filter = 'all') {
             const tbody = document.getElementById('promoList');
@@ -1148,5 +1194,6 @@
             return 'active';
         }
     </script>
+<script src="/admin/js/ai-assistant.js"></script>
 </body>
 </html>

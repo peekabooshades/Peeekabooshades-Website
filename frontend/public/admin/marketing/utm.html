@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>UTM Tracking - Peekaboo Shades Admin</title>
+  <link rel="stylesheet" href="/admin/css/admin.css?v=1737200003.0.28">
+  <script src="/admin/js/adminNavConfig.js?v=1737200002"></script>
+  <style>
+    .utm-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-top: 1.5rem; }
+    .utm-card { background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+    .utm-card h3 { margin: 0 0 1.5rem 0; }
+    .form-group { margin-bottom: 1.25rem; }
+    .form-group label { display: block; margin-bottom: 0.5rem; font-weight: 500; }
+    .form-group input, .form-group select { width: 100%; padding: 0.75rem; border: 1px solid #ddd; border-radius: 8px; }
+    .form-group .help-text { font-size: 0.85rem; color: #666; margin-top: 0.25rem; }
+    .btn-primary { padding: 0.75rem 1.5rem; background: #8E6545; color: white; border: none; border-radius: 8px; cursor: pointer; }
+    .btn-copy { padding: 0.5rem 1rem; background: #E5E7EB; color: #374151; border: none; border-radius: 6px; cursor: pointer; font-size: 0.85rem; }
+    .generated-url { background: #F9FAFB; padding: 1rem; border-radius: 8px; margin-top: 1rem; word-break: break-all; font-family: monospace; font-size: 0.85rem; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { padding: 0.75rem; text-align: left; border-bottom: 1px solid #eee; }
+    th { font-weight: 600; color: #666; font-size: 0.85rem; }
+    .source-badge { padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.75rem; }
+    .source-google { background: #DBEAFE; color: #1E40AF; }
+    .source-facebook { background: #E0E7FF; color: #3730A3; }
+    .source-email { background: #FEF3C7; color: #92400E; }
+    .source-direct { background: #D1FAE5; color: #065F46; }
+  </style>
+</head>
+<body>
+  <div class="admin-layout">
+    <aside class="admin-sidebar"></aside>
+    <main class="admin-main">
+      <header class="admin-header"><h1>UTM Tracking</h1></header>
+      <div class="admin-content">
+        <div class="utm-grid">
+          <div class="utm-card">
+            <h3>UTM Link Builder</h3>
+            <div class="form-group">
+              <label>Destination URL</label>
+              <input type="text" id="baseUrl" value="https://peekabooshades.com/shop.html" placeholder="https://peekabooshades.com/...">
+            </div>
+            <div class="form-group">
+              <label>Campaign Source (utm_source) *</label>
+              <select id="utmSource" onchange="generateUrl()">
+                <option value="">Select source...</option>
+                <option value="google">Google</option>
+                <option value="facebook">Facebook</option>
+                <option value="instagram">Instagram</option>
+                <option value="email">Email</option>
+                <option value="newsletter">Newsletter</option>
+              </select>
+              <p class="help-text">Where the traffic comes from (google, facebook, newsletter)</p>
+            </div>
+            <div class="form-group">
+              <label>Campaign Medium (utm_medium) *</label>
+              <select id="utmMedium" onchange="generateUrl()">
+                <option value="">Select medium...</option>
+                <option value="cpc">CPC (Paid Search)</option>
+                <option value="social">Social</option>
+                <option value="email">Email</option>
+                <option value="organic">Organic</option>
+                <option value="referral">Referral</option>
+              </select>
+              <p class="help-text">Marketing medium (cpc, social, email)</p>
+            </div>
+            <div class="form-group">
+              <label>Campaign Name (utm_campaign) *</label>
+              <input type="text" id="utmCampaign" placeholder="spring-sale-2024" onkeyup="generateUrl()">
+              <p class="help-text">Specific campaign name</p>
+            </div>
+            <div class="form-group">
+              <label>Campaign Content (utm_content)</label>
+              <input type="text" id="utmContent" placeholder="blackout-shades-banner" onkeyup="generateUrl()">
+              <p class="help-text">Optional: differentiate ads/links</p>
+            </div>
+            <div class="generated-url" id="generatedUrl">
+              Enter parameters above to generate URL
+            </div>
+            <div style="margin-top: 1rem; display: flex; gap: 0.5rem;">
+              <button class="btn-copy" onclick="copyUrl()">Copy URL</button>
+              <button class="btn-primary" onclick="saveLink()">Save Link</button>
+            </div>
+          </div>
+          <div class="utm-card">
+            <h3>Campaign Performance</h3>
+            <table>
+              <thead>
+                <tr><th>Source/Medium</th><th>Sessions</th><th>Orders</th><th>Revenue</th></tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td><span class="source-badge source-google">google/cpc</span></td>
+                  <td>1,245</td>
+                  <td>34</td>
+                  <td>$8,450</td>
+                </tr>
+                <tr>
+                  <td><span class="source-badge source-facebook">facebook/social</span></td>
+                  <td>892</td>
+                  <td>28</td>
+                  <td>$6,230</td>
+                </tr>
+                <tr>
+                  <td><span class="source-badge source-email">email/newsletter</span></td>
+                  <td>456</td>
+                  <td>22</td>
+                  <td>$5,890</td>
+                </tr>
+                <tr>
+                  <td><span class="source-badge source-direct">direct/none</span></td>
+                  <td>2,340</td>
+                  <td>45</td>
+                  <td>$12,450</td>
+                </tr>
+              </tbody>
+            </table>
+            <h3 style="margin-top: 2rem;">Saved Campaign Links</h3>
+            <table>
+              <thead><tr><th>Campaign</th><th>Created</th><th>Clicks</th></tr></thead>
+              <tbody>
+                <tr><td>spring-sale-2024</td><td>Jan 15</td><td>342</td></tr>
+                <tr><td>email-feb-promo</td><td>Feb 1</td><td>156</td></tr>
+                <tr><td>fb-retargeting</td><td>Feb 10</td><td>89</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      if (!localStorage.getItem('admin_token')) { window.location.href = '/admin/login.html'; return; }
+      AdminNavConfig.initSidebar('utm-tracking');
+    });
+    function generateUrl() {
+      const base = document.getElementById('baseUrl').value;
+      const source = document.getElementById('utmSource').value;
+      const medium = document.getElementById('utmMedium').value;
+      const campaign = document.getElementById('utmCampaign').value;
+      const content = document.getElementById('utmContent').value;
+      if (!source || !medium || !campaign) {
+        document.getElementById('generatedUrl').textContent = 'Enter required parameters above';
+        return;
+      }
+      let url = `${base}?utm_source=${source}&utm_medium=${medium}&utm_campaign=${campaign}`;
+      if (content) url += `&utm_content=${content}`;
+      document.getElementById('generatedUrl').textContent = url;
+    }
+    function copyUrl() {
+      const url = document.getElementById('generatedUrl').textContent;
+      navigator.clipboard.writeText(url);
+      alert('URL copied to clipboard!');
+    }
+    function saveLink() { alert('Campaign link saved!'); }
+  </script>
+</body>
+</html>

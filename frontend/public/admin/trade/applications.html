@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Trade Applications - Peekaboo Shades Admin</title>
+  <link rel="stylesheet" href="/admin/css/admin.css?v=1737200003.0.28">
+  <script src="/admin/js/adminNavConfig.js?v=1737200002"></script>
+  <style>
+    .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
+    .stat-card { background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+    .stat-card h3 { font-size: 0.85rem; color: #666; margin-bottom: 0.5rem; }
+    .stat-card .value { font-size: 2rem; font-weight: 700; color: #8E6545; }
+    .applications-list { display: grid; gap: 1rem; }
+    .application-card { background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+    .application-header { display: flex; justify-content: space-between; align-items: start; margin-bottom: 1rem; }
+    .applicant-info { display: flex; gap: 1rem; align-items: start; }
+    .applicant-avatar { width: 50px; height: 50px; border-radius: 50%; background: #8E6545; color: white; display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 1.1rem; }
+    .applicant-details h3 { margin: 0 0 0.25rem 0; font-size: 1.1rem; }
+    .applicant-details p { margin: 0; color: #666; font-size: 0.9rem; }
+    .application-type { padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.75rem; font-weight: 600; }
+    .type-designer { background: #E0E7FF; color: #4338CA; }
+    .type-contractor { background: #FEF3C7; color: #92400E; }
+    .type-architect { background: #D1FAE5; color: #065F46; }
+    .type-builder { background: #DBEAFE; color: #1E40AF; }
+    .application-content { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; margin: 1rem 0; padding: 1rem 0; border-top: 1px solid #eee; border-bottom: 1px solid #eee; }
+    .info-group h4 { font-size: 0.8rem; color: #666; margin: 0 0 0.25rem 0; text-transform: uppercase; }
+    .info-group p { margin: 0; }
+    .application-reason { background: #f9f9f9; padding: 1rem; border-radius: 8px; margin-bottom: 1rem; }
+    .application-reason h4 { font-size: 0.85rem; margin: 0 0 0.5rem 0; }
+    .application-reason p { margin: 0; color: #666; font-size: 0.9rem; }
+    .application-actions { display: flex; gap: 0.5rem; }
+    .btn-approve { padding: 0.5rem 1.5rem; background: #10B981; color: white; border: none; border-radius: 6px; cursor: pointer; font-weight: 500; }
+    .btn-reject { padding: 0.5rem 1.5rem; background: #FEE2E2; color: #991B1B; border: none; border-radius: 6px; cursor: pointer; }
+    .btn-review { padding: 0.5rem 1.5rem; background: #E5E7EB; color: #374151; border: none; border-radius: 6px; cursor: pointer; }
+    .submitted-date { font-size: 0.85rem; color: #666; }
+    .filter-tabs { display: flex; gap: 0.5rem; margin-bottom: 1.5rem; }
+    .filter-tab { padding: 0.5rem 1rem; border: 1px solid #ddd; background: white; border-radius: 6px; cursor: pointer; }
+    .filter-tab.active { background: #8E6545; color: white; border-color: #8E6545; }
+    .empty-state { text-align: center; padding: 4rem; color: #666; }
+  </style>
+</head>
+<body>
+  <div class="admin-layout">
+    <aside class="admin-sidebar"></aside>
+    <main class="admin-main">
+      <header class="admin-header">
+        <h1>Trade Applications</h1>
+      </header>
+      <div class="admin-content">
+        <div class="stats">
+          <div class="stat-card"><h3>Pending Review</h3><div class="value" id="stat-pending">0</div></div>
+          <div class="stat-card"><h3>Approved This Month</h3><div class="value" id="stat-approved">0</div></div>
+          <div class="stat-card"><h3>Rejected This Month</h3><div class="value" id="stat-rejected">0</div></div>
+          <div class="stat-card"><h3>Total Applications</h3><div class="value" id="stat-total">0</div></div>
+        </div>
+        <div class="filter-tabs">
+          <button class="filter-tab active" data-filter="pending" onclick="setFilter('pending')">Pending</button>
+          <button class="filter-tab" data-filter="approved" onclick="setFilter('approved')">Approved</button>
+          <button class="filter-tab" data-filter="rejected" onclick="setFilter('rejected')">Rejected</button>
+          <button class="filter-tab" data-filter="all" onclick="setFilter('all')">All</button>
+        </div>
+        <div class="applications-list" id="applicationsList"></div>
+      </div>
+    </main>
+  </div>
+  <script>
+    let currentFilter = 'pending';
+    let applications = [
+      {
+        id: 'app-1',
+        firstName: 'Amanda',
+        lastName: 'Foster',
+        email: 'amanda@fosterdesigns.com',
+        phone: '555-0401',
+        company: 'Foster Interior Designs',
+        type: 'designer',
+        website: 'https://fosterdesigns.com',
+        license: 'ASID-78901',
+        yearsExperience: 8,
+        annualRevenue: '$250,000 - $500,000',
+        reason: 'Looking to partner with quality window treatment suppliers for my residential design projects. I specialize in high-end home renovations in the Bay Area.',
+        status: 'pending',
+        submittedAt: '2024-01-20T14:30:00'
+      },
+      {
+        id: 'app-2',
+        firstName: 'Thomas',
+        lastName: 'Wright',
+        email: 'thomas@wrightbuilders.com',
+        phone: '555-0402',
+        company: 'Wright Builders Inc',
+        type: 'contractor',
+        website: 'https://wrightbuilders.com',
+        license: 'CA-567890',
+        yearsExperience: 15,
+        annualRevenue: '$1M - $5M',
+        reason: 'We build 20-30 custom homes per year and need a reliable window treatment partner for our clients.',
+        status: 'pending',
+        submittedAt: '2024-01-19T09:15:00'
+      },
+      {
+        id: 'app-3',
+        firstName: 'Rachel',
+        lastName: 'Kim',
+        email: 'rachel@kimarchitects.com',
+        phone: '555-0403',
+        company: 'Kim Architecture Studio',
+        type: 'architect',
+        website: 'https://kimarchitects.com',
+        license: 'AIA-34567',
+        yearsExperience: 12,
+        annualRevenue: '$500,000 - $1M',
+        reason: 'Seeking trade partnerships for specifying window treatments in commercial and residential projects.',
+        status: 'approved',
+        submittedAt: '2024-01-15T11:20:00',
+        reviewedAt: '2024-01-16T10:30:00'
+      },
+      {
+        id: 'app-4',
+        firstName: 'Marcus',
+        lastName: 'Johnson',
+        email: 'marcus@mjbuilding.com',
+        phone: '555-0404',
+        company: 'MJ Building Group',
+        type: 'builder',
+        website: '',
+        license: 'CA-890123',
+        yearsExperience: 5,
+        annualRevenue: 'Under $250,000',
+        reason: 'Starting to offer window treatments as part of our renovation services.',
+        status: 'rejected',
+        submittedAt: '2024-01-10T16:45:00',
+        reviewedAt: '2024-01-12T09:00:00',
+        rejectReason: 'Does not meet minimum annual revenue requirements.'
+      }
+    ];
+
+    document.addEventListener('DOMContentLoaded', () => {
+      if (!localStorage.getItem('admin_token')) { window.location.href = '/admin/login.html'; return; }
+      AdminNavConfig.initSidebar('trade-applications');
+      updateStats();
+      renderApplications();
+    });
+
+    function updateStats() {
+      document.getElementById('stat-pending').textContent = applications.filter(a => a.status === 'pending').length;
+      document.getElementById('stat-approved').textContent = applications.filter(a => a.status === 'approved').length;
+      document.getElementById('stat-rejected').textContent = applications.filter(a => a.status === 'rejected').length;
+      document.getElementById('stat-total').textContent = applications.length;
+    }
+
+    function setFilter(filter) {
+      currentFilter = filter;
+      document.querySelectorAll('.filter-tab').forEach(t => t.classList.toggle('active', t.dataset.filter === filter));
+      renderApplications();
+    }
+
+    function renderApplications() {
+      let filtered = currentFilter === 'all' ? applications : applications.filter(a => a.status === currentFilter);
+
+      if (filtered.length === 0) {
+        document.getElementById('applicationsList').innerHTML = '<div class="empty-state"><h3>No Applications Found</h3><p>No applications match the current filter.</p></div>';
+        return;
+      }
+
+      document.getElementById('applicationsList').innerHTML = filtered.map(app => `
+        <div class="application-card">
+          <div class="application-header">
+            <div class="applicant-info">
+              <div class="applicant-avatar">${app.firstName[0]}${app.lastName[0]}</div>
+              <div class="applicant-details">
+                <h3>${app.firstName} ${app.lastName}</h3>
+                <p>${app.company}</p>
+              </div>
+            </div>
+            <div style="text-align: right;">
+              <span class="application-type type-${app.type}">${app.type}</span>
+              <div class="submitted-date" style="margin-top: 0.5rem;">Submitted ${formatDate(app.submittedAt)}</div>
+            </div>
+          </div>
+          <div class="application-content">
+            <div class="info-group">
+              <h4>Contact</h4>
+              <p>${app.email}</p>
+              <p>${app.phone}</p>
+            </div>
+            <div class="info-group">
+              <h4>License</h4>
+              <p>${app.license || 'Not provided'}</p>
+            </div>
+            <div class="info-group">
+              <h4>Experience</h4>
+              <p>${app.yearsExperience} years</p>
+            </div>
+            <div class="info-group">
+              <h4>Annual Revenue</h4>
+              <p>${app.annualRevenue}</p>
+            </div>
+          </div>
+          <div class="application-reason">
+            <h4>Why they want to partner:</h4>
+            <p>${app.reason}</p>
+          </div>
+          ${app.status === 'rejected' && app.rejectReason ? `
+            <div style="background: #FEE2E2; padding: 1rem; border-radius: 8px; margin-bottom: 1rem;">
+              <strong style="color: #991B1B;">Rejection Reason:</strong>
+              <p style="margin: 0.25rem 0 0 0; color: #991B1B;">${app.rejectReason}</p>
+            </div>
+          ` : ''}
+          <div class="application-actions">
+            ${app.status === 'pending' ? `
+              <button class="btn-approve" onclick="approveApplication('${app.id}')">Approve</button>
+              <button class="btn-reject" onclick="rejectApplication('${app.id}')">Reject</button>
+              <button class="btn-review" onclick="requestMoreInfo('${app.id}')">Request Info</button>
+            ` : `
+              <button class="btn-review" onclick="viewDetails('${app.id}')">View Details</button>
+            `}
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function formatDate(d) {
+      const date = new Date(d);
+      return date.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    }
+
+    function approveApplication(id) {
+      const app = applications.find(a => a.id === id);
+      if (app && confirm(`Approve ${app.firstName} ${app.lastName}'s application?`)) {
+        app.status = 'approved';
+        app.reviewedAt = new Date().toISOString();
+        updateStats();
+        renderApplications();
+        alert('Application approved! Welcome email will be sent to the applicant.');
+      }
+    }
+
+    function rejectApplication(id) {
+      const app = applications.find(a => a.id === id);
+      if (app) {
+        const reason = prompt('Enter rejection reason:');
+        if (reason) {
+          app.status = 'rejected';
+          app.reviewedAt = new Date().toISOString();
+          app.rejectReason = reason;
+          updateStats();
+          renderApplications();
+          alert('Application rejected. Notification will be sent to the applicant.');
+        }
+      }
+    }
+
+    function requestMoreInfo(id) {
+      alert('Request for more information sent to applicant.');
+    }
+
+    function viewDetails(id) {
+      const app = applications.find(a => a.id === id);
+      if (app) {
+        alert(`Application Details:\n\nName: ${app.firstName} ${app.lastName}\nCompany: ${app.company}\nType: ${app.type}\nStatus: ${app.status}\nSubmitted: ${formatDate(app.submittedAt)}`);
+      }
+    }
+  </script>
+</body>
+</html>

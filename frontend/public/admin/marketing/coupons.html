@@ -1,0 +1,799 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Coupon Codes - Peekaboo Shades Admin</title>
+  <link rel="stylesheet" href="../css/admin.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="icon" type="image/jpeg" href="/images/peekabooshades_logo.jpeg">
+  <style>
+    .coupons-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+    }
+
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+
+    .stat-card {
+      background: white;
+      border: 1px solid #e5e7eb;
+      border-radius: 12px;
+      padding: 20px;
+    }
+
+    .stat-card-value {
+      font-size: 28px;
+      font-weight: 700;
+      color: #8E6545;
+    }
+
+    .stat-card-label {
+      font-size: 13px;
+      color: #6b7280;
+      margin-top: 4px;
+    }
+
+    .coupons-table {
+      background: white;
+      border: 1px solid #e5e7eb;
+      border-radius: 12px;
+      overflow: hidden;
+    }
+
+    .table-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 16px 20px;
+      border-bottom: 1px solid #e5e7eb;
+      background: #f9fafb;
+    }
+
+    .table-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: #1a1a1a;
+    }
+
+    .table-actions {
+      display: flex;
+      gap: 12px;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    th, td {
+      padding: 14px 20px;
+      text-align: left;
+      border-bottom: 1px solid #f3f4f6;
+    }
+
+    th {
+      font-size: 12px;
+      font-weight: 600;
+      color: #6b7280;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      background: #f9fafb;
+    }
+
+    td {
+      font-size: 14px;
+      color: #374151;
+    }
+
+    tr:hover {
+      background: #f9fafb;
+    }
+
+    .coupon-code {
+      font-family: monospace;
+      font-size: 14px;
+      font-weight: 600;
+      color: #8E6545;
+      background: #fdf8f5;
+      padding: 4px 10px;
+      border-radius: 4px;
+      letter-spacing: 0.5px;
+    }
+
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 12px;
+      font-weight: 500;
+    }
+
+    .status-active {
+      background: #dcfce7;
+      color: #166534;
+    }
+
+    .status-inactive {
+      background: #f3f4f6;
+      color: #6b7280;
+    }
+
+    .status-expired {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+
+    .discount-value {
+      font-weight: 600;
+      color: #22c55e;
+    }
+
+    .action-btn {
+      width: 32px;
+      height: 32px;
+      border: none;
+      background: transparent;
+      color: #9ca3af;
+      cursor: pointer;
+      border-radius: 6px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+    }
+
+    .action-btn:hover {
+      background: #f3f4f6;
+      color: #374151;
+    }
+
+    .action-btn.delete:hover {
+      background: #fee2e2;
+      color: #dc2626;
+    }
+
+    /* Modal Styles */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.3s;
+    }
+
+    .modal-overlay.active {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .modal {
+      background: white;
+      border-radius: 16px;
+      width: 100%;
+      max-width: 500px;
+      max-height: 90vh;
+      overflow-y: auto;
+      transform: translateY(20px);
+      transition: transform 0.3s;
+    }
+
+    .modal-overlay.active .modal {
+      transform: translateY(0);
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px 24px;
+      border-bottom: 1px solid #e5e7eb;
+    }
+
+    .modal-title {
+      font-size: 18px;
+      font-weight: 600;
+      color: #1a1a1a;
+    }
+
+    .modal-close {
+      width: 32px;
+      height: 32px;
+      border: none;
+      background: transparent;
+      color: #9ca3af;
+      cursor: pointer;
+      border-radius: 6px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .modal-close:hover {
+      background: #f3f4f6;
+      color: #374151;
+    }
+
+    .modal-body {
+      padding: 24px;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-label {
+      display: block;
+      font-size: 13px;
+      font-weight: 500;
+      color: #374151;
+      margin-bottom: 6px;
+    }
+
+    .form-input, .form-select {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid #d1d5db;
+      border-radius: 8px;
+      font-size: 14px;
+      transition: all 0.2s;
+    }
+
+    .form-input:focus, .form-select:focus {
+      outline: none;
+      border-color: #8E6545;
+      box-shadow: 0 0 0 3px rgba(142,101,69,0.1);
+    }
+
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+    }
+
+    .form-help {
+      font-size: 12px;
+      color: #6b7280;
+      margin-top: 4px;
+    }
+
+    .modal-footer {
+      display: flex;
+      justify-content: flex-end;
+      gap: 12px;
+      padding: 16px 24px;
+      border-top: 1px solid #e5e7eb;
+      background: #f9fafb;
+    }
+
+    .btn {
+      padding: 10px 20px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      border: none;
+    }
+
+    .btn-primary {
+      background: #8E6545;
+      color: white;
+    }
+
+    .btn-primary:hover {
+      background: #7a5539;
+    }
+
+    .btn-secondary {
+      background: white;
+      color: #374151;
+      border: 1px solid #d1d5db;
+    }
+
+    .btn-secondary:hover {
+      background: #f9fafb;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 60px 20px;
+      color: #6b7280;
+    }
+
+    .empty-state i {
+      font-size: 48px;
+      color: #d1d5db;
+      margin-bottom: 16px;
+    }
+
+    .empty-state h3 {
+      font-size: 18px;
+      font-weight: 600;
+      color: #374151;
+      margin-bottom: 8px;
+    }
+
+    @media (max-width: 900px) {
+      .stats-row {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+
+    @media (max-width: 600px) {
+      .stats-row {
+        grid-template-columns: 1fr;
+      }
+      .form-row {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="admin-layout">
+    <!-- Sidebar -->
+    <aside class="admin-sidebar">
+      <div class="sidebar-header">
+        <a href="/admin/" class="sidebar-logo">
+          <img src="/images/peekabooshades_logo.jpeg" alt="Peekaboo Shades" style="height: 32px; width: auto; border-radius: 6px;">
+          <span>Peekaboo Shades</span>
+        </a>
+      </div>
+
+      <nav class="sidebar-nav">
+        <div class="nav-section">
+          <a href="/admin/" class="nav-item">
+            <i class="fas fa-home"></i>
+            <span>Dashboard</span>
+          </a>
+        </div>
+
+        <div class="nav-section">
+          <div class="nav-section-title">Marketing</div>
+          <a href="/admin/marketing/coupons.html" class="nav-item active">
+            <i class="fas fa-ticket-alt"></i>
+            <span>Coupon Codes</span>
+          </a>
+          <a href="/admin/marketing/campaigns.html" class="nav-item">
+            <i class="fas fa-envelope"></i>
+            <span>Email Campaigns</span>
+          </a>
+          <a href="/admin/marketing/subscribers.html" class="nav-item">
+            <i class="fas fa-users"></i>
+            <span>Subscribers</span>
+          </a>
+        </div>
+
+        <div class="nav-section">
+          <div class="nav-section-title">Catalog</div>
+          <a href="/admin/products.html" class="nav-item">
+            <i class="fas fa-box"></i>
+            <span>Products</span>
+          </a>
+          <a href="/admin/fabrics.html" class="nav-item">
+            <i class="fas fa-palette"></i>
+            <span>Fabrics</span>
+          </a>
+        </div>
+
+        <div class="nav-section">
+          <div class="nav-section-title">Orders</div>
+          <a href="/admin/orders.html" class="nav-item">
+            <i class="fas fa-shopping-cart"></i>
+            <span>Orders</span>
+          </a>
+          <a href="/admin/quotes.html" class="nav-item">
+            <i class="fas fa-file-invoice"></i>
+            <span>Quotes</span>
+          </a>
+        </div>
+      </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="admin-main">
+      <header class="admin-header">
+        <div class="header-left">
+          <div class="breadcrumb">
+            <a href="/admin/">Dashboard</a>
+            <span class="breadcrumb-separator">/</span>
+            <a href="/admin/marketing/coupons.html">Marketing</a>
+            <span class="breadcrumb-separator">/</span>
+            <span class="breadcrumb-current">Coupon Codes</span>
+          </div>
+        </div>
+      </header>
+
+      <div class="admin-content">
+        <div class="coupons-header">
+          <div>
+            <h1 style="font-size: 24px; font-weight: 600; color: #1a1a1a; margin-bottom: 4px;">Coupon Codes</h1>
+            <p style="color: #6b7280; font-size: 14px;">Create and manage discount codes for your customers</p>
+          </div>
+          <button class="btn btn-primary" onclick="openCreateModal()">
+            <i class="fas fa-plus"></i> Create Coupon
+          </button>
+        </div>
+
+        <!-- Stats -->
+        <div class="stats-row">
+          <div class="stat-card">
+            <div class="stat-card-value" id="statTotal">0</div>
+            <div class="stat-card-label">Total Coupons</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-card-value" id="statActive">0</div>
+            <div class="stat-card-label">Active Coupons</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-card-value" id="statUsed">0</div>
+            <div class="stat-card-label">Times Used</div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-card-value" id="statSavings">$0</div>
+            <div class="stat-card-label">Total Savings Given</div>
+          </div>
+        </div>
+
+        <!-- Coupons Table -->
+        <div class="coupons-table">
+          <div class="table-header">
+            <span class="table-title">All Coupons</span>
+            <div class="table-actions">
+              <input type="text" placeholder="Search coupons..." style="padding: 8px 12px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 13px;" id="searchInput" oninput="filterCoupons()">
+            </div>
+          </div>
+          <div id="couponsTableBody">
+            <div class="empty-state">
+              <i class="fas fa-ticket-alt"></i>
+              <h3>No coupons yet</h3>
+              <p>Create your first coupon code to offer discounts</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Create/Edit Modal -->
+  <div class="modal-overlay" id="couponModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h2 class="modal-title" id="modalTitle">Create Coupon</h2>
+        <button class="modal-close" onclick="closeModal()">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
+      <div class="modal-body">
+        <form id="couponForm" onsubmit="saveCoupon(event)">
+          <input type="hidden" id="couponId">
+
+          <div class="form-group">
+            <label class="form-label">Coupon Code *</label>
+            <input type="text" class="form-input" id="couponCode" required placeholder="e.g., SAVE20" style="text-transform: uppercase;">
+            <p class="form-help">Customers will enter this code at checkout</p>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Description</label>
+            <input type="text" class="form-input" id="couponDescription" placeholder="e.g., 20% off summer sale">
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Discount Type *</label>
+              <select class="form-select" id="discountType" required onchange="toggleDiscountFields()">
+                <option value="percentage">Percentage (%)</option>
+                <option value="fixed">Fixed Amount ($)</option>
+                <option value="shipping">Free Shipping</option>
+              </select>
+            </div>
+            <div class="form-group" id="discountValueGroup">
+              <label class="form-label">Discount Value *</label>
+              <input type="number" class="form-input" id="discountValue" required min="0" step="0.01" placeholder="e.g., 20">
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Minimum Purchase ($)</label>
+              <input type="number" class="form-input" id="minPurchase" min="0" step="0.01" placeholder="0.00">
+              <p class="form-help">Leave empty for no minimum</p>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Usage Limit</label>
+              <input type="number" class="form-input" id="usageLimit" min="0" placeholder="Unlimited">
+              <p class="form-help">Leave empty for unlimited</p>
+            </div>
+          </div>
+
+          <div class="form-row">
+            <div class="form-group">
+              <label class="form-label">Start Date</label>
+              <input type="date" class="form-input" id="startDate">
+            </div>
+            <div class="form-group">
+              <label class="form-label">End Date</label>
+              <input type="date" class="form-input" id="endDate">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">Status</label>
+            <select class="form-select" id="couponStatus">
+              <option value="active">Active</option>
+              <option value="inactive">Inactive</option>
+            </select>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+        <button class="btn btn-primary" onclick="saveCoupon(event)">
+          <i class="fas fa-save"></i> Save Coupon
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script src="../js/adminNavConfig.js?v=1737200002"></script>
+  <script src="../js/admin.js?v=1737100001"></script>
+  <script>
+    let allCoupons = [];
+    let editingId = null;
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      if (!Admin.Auth.requireAuth()) return;
+      await loadCoupons();
+    });
+
+    async function loadCoupons() {
+      try {
+        const data = await Admin.API.get('/marketing/promotions');
+        if (data.success) {
+          allCoupons = data.data || data.promotions || [];
+          renderCoupons();
+          updateStats();
+        }
+      } catch (error) {
+        console.error('Failed to load coupons:', error);
+        Admin.Toast.error('Failed to load coupons');
+      }
+    }
+
+    function renderCoupons() {
+      const container = document.getElementById('couponsTableBody');
+
+      if (allCoupons.length === 0) {
+        container.innerHTML = `
+          <div class="empty-state">
+            <i class="fas fa-ticket-alt"></i>
+            <h3>No coupons yet</h3>
+            <p>Create your first coupon code to offer discounts</p>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = `
+        <table>
+          <thead>
+            <tr>
+              <th>Code</th>
+              <th>Discount</th>
+              <th>Min. Purchase</th>
+              <th>Used</th>
+              <th>Valid Period</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${allCoupons.map(coupon => {
+              const now = new Date();
+              let status = coupon.status || 'active';
+              if (coupon.endDate && new Date(coupon.endDate) < now) status = 'expired';
+
+              let discountText = '';
+              if (coupon.type === 'percentage') {
+                discountText = `${coupon.value}% OFF`;
+              } else if (coupon.type === 'fixed') {
+                discountText = `$${coupon.value} OFF`;
+              } else if (coupon.type === 'shipping') {
+                discountText = 'FREE SHIPPING';
+              }
+
+              const validPeriod = formatDateRange(coupon.startDate, coupon.endDate);
+
+              return `
+                <tr>
+                  <td><span class="coupon-code">${coupon.code}</span></td>
+                  <td><span class="discount-value">${discountText}</span></td>
+                  <td>${coupon.minPurchase ? `$${coupon.minPurchase}` : 'None'}</td>
+                  <td>${coupon.usageCount || 0}${coupon.usageLimit ? ` / ${coupon.usageLimit}` : ''}</td>
+                  <td>${validPeriod}</td>
+                  <td><span class="status-badge status-${status}">${status.charAt(0).toUpperCase() + status.slice(1)}</span></td>
+                  <td>
+                    <button class="action-btn" onclick="editCoupon('${coupon.id}')" title="Edit">
+                      <i class="fas fa-edit"></i>
+                    </button>
+                    <button class="action-btn" onclick="copyCouponCode('${coupon.code}')" title="Copy Code">
+                      <i class="fas fa-copy"></i>
+                    </button>
+                    <button class="action-btn delete" onclick="deleteCoupon('${coupon.id}')" title="Delete">
+                      <i class="fas fa-trash"></i>
+                    </button>
+                  </td>
+                </tr>
+              `;
+            }).join('')}
+          </tbody>
+        </table>
+      `;
+    }
+
+    function updateStats() {
+      document.getElementById('statTotal').textContent = allCoupons.length;
+      document.getElementById('statActive').textContent = allCoupons.filter(c => c.status === 'active').length;
+      document.getElementById('statUsed').textContent = allCoupons.reduce((sum, c) => sum + (c.usageCount || 0), 0);
+
+      // Estimate savings (simplified)
+      const totalSavings = allCoupons.reduce((sum, c) => {
+        if (c.type === 'fixed') return sum + (c.value * (c.usageCount || 0));
+        return sum;
+      }, 0);
+      document.getElementById('statSavings').textContent = `$${totalSavings.toFixed(0)}`;
+    }
+
+    function formatDateRange(start, end) {
+      if (!start && !end) return 'Always';
+      const formatDate = (d) => new Date(d).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+      if (start && end) return `${formatDate(start)} - ${formatDate(end)}`;
+      if (start) return `From ${formatDate(start)}`;
+      if (end) return `Until ${formatDate(end)}`;
+      return 'Always';
+    }
+
+    function openCreateModal() {
+      editingId = null;
+      document.getElementById('modalTitle').textContent = 'Create Coupon';
+      document.getElementById('couponForm').reset();
+      document.getElementById('couponModal').classList.add('active');
+      toggleDiscountFields();
+    }
+
+    function editCoupon(id) {
+      const coupon = allCoupons.find(c => c.id === id);
+      if (!coupon) return;
+
+      editingId = id;
+      document.getElementById('modalTitle').textContent = 'Edit Coupon';
+      document.getElementById('couponId').value = id;
+      document.getElementById('couponCode').value = coupon.code;
+      document.getElementById('couponDescription').value = coupon.description || '';
+      document.getElementById('discountType').value = coupon.type || 'percentage';
+      document.getElementById('discountValue').value = coupon.value || '';
+      document.getElementById('minPurchase').value = coupon.minPurchase || '';
+      document.getElementById('usageLimit').value = coupon.usageLimit || '';
+      document.getElementById('startDate').value = coupon.startDate ? coupon.startDate.split('T')[0] : '';
+      document.getElementById('endDate').value = coupon.endDate ? coupon.endDate.split('T')[0] : '';
+      document.getElementById('couponStatus').value = coupon.status || 'active';
+
+      document.getElementById('couponModal').classList.add('active');
+      toggleDiscountFields();
+    }
+
+    function closeModal() {
+      document.getElementById('couponModal').classList.remove('active');
+      editingId = null;
+    }
+
+    function toggleDiscountFields() {
+      const type = document.getElementById('discountType').value;
+      const valueGroup = document.getElementById('discountValueGroup');
+      if (type === 'shipping') {
+        valueGroup.style.display = 'none';
+        document.getElementById('discountValue').required = false;
+      } else {
+        valueGroup.style.display = 'block';
+        document.getElementById('discountValue').required = true;
+      }
+    }
+
+    async function saveCoupon(event) {
+      event.preventDefault();
+
+      const data = {
+        code: document.getElementById('couponCode').value.toUpperCase(),
+        description: document.getElementById('couponDescription').value,
+        type: document.getElementById('discountType').value,
+        value: parseFloat(document.getElementById('discountValue').value) || 0,
+        minPurchase: parseFloat(document.getElementById('minPurchase').value) || null,
+        usageLimit: parseInt(document.getElementById('usageLimit').value) || null,
+        startDate: document.getElementById('startDate').value || null,
+        endDate: document.getElementById('endDate').value || null,
+        status: document.getElementById('couponStatus').value
+      };
+
+      try {
+        if (editingId) {
+          await Admin.API.put(`/marketing/promotions/${editingId}`, data);
+          Admin.Toast.success('Coupon updated successfully');
+        } else {
+          await Admin.API.post('/marketing/promotions', data);
+          Admin.Toast.success('Coupon created successfully');
+        }
+        closeModal();
+        await loadCoupons();
+      } catch (error) {
+        Admin.Toast.error(error.message || 'Failed to save coupon');
+      }
+    }
+
+    async function deleteCoupon(id) {
+      if (!confirm('Are you sure you want to delete this coupon?')) return;
+
+      try {
+        await Admin.API.delete(`/marketing/promotions/${id}`);
+        Admin.Toast.success('Coupon deleted');
+        await loadCoupons();
+      } catch (error) {
+        Admin.Toast.error('Failed to delete coupon');
+      }
+    }
+
+    function copyCouponCode(code) {
+      navigator.clipboard.writeText(code);
+      Admin.Toast.success(`Copied: ${code}`);
+    }
+
+    function filterCoupons() {
+      const query = document.getElementById('searchInput').value.toLowerCase();
+      const filtered = allCoupons.filter(c =>
+        c.code.toLowerCase().includes(query) ||
+        (c.description && c.description.toLowerCase().includes(query))
+      );
+
+      // Re-render with filtered results
+      const container = document.getElementById('couponsTableBody');
+      if (filtered.length === 0) {
+        container.innerHTML = `
+          <div class="empty-state">
+            <i class="fas fa-search"></i>
+            <h3>No coupons found</h3>
+            <p>Try a different search term</p>
+          </div>
+        `;
+        return;
+      }
+
+      // Temporarily replace allCoupons for rendering
+      const temp = allCoupons;
+      allCoupons = filtered;
+      renderCoupons();
+      allCoupons = temp;
+    }
+  </script>
+</body>
+</html>

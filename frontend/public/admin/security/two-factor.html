@@ -363,6 +363,14 @@
                 <h1><i class="fas fa-mobile-alt" style="color: #667eea;"></i> Two-Factor Authentication</h1>
             </div>
 
+            <!-- UI Preview Banner -->
+            <div style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 15px 20px; border-radius: 8px; margin-bottom: 20px; display: flex; align-items: center; gap: 12px;">
+                <i class="fas fa-info-circle" style="font-size: 20px;"></i>
+                <div>
+                    <strong>UI Preview Only</strong> - This page demonstrates the Two-Factor Authentication interface. Backend integration is not enabled. Actions on this page will not affect your system.
+                </div>
+            </div>
+
             <div class="tfa-hero">
                 <div class="tfa-hero-icon">
                     <i class="fas fa-lock"></i>
@@ -636,10 +644,18 @@
                 currentStep++;
                 updateModalStep();
             } else {
-                // Complete setup
+                // Complete setup - UI Preview Only
                 closeSetupModal();
-                alert('Two-factor authentication has been enabled for your account!');
+                showPreviewNotice('Two-factor authentication setup completed (UI Preview Only - no backend integration)');
             }
+        }
+
+        function showPreviewNotice(message) {
+            const notice = document.createElement('div');
+            notice.style.cssText = 'position: fixed; top: 20px; right: 20px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 16px 24px; border-radius: 8px; z-index: 9999; max-width: 400px; box-shadow: 0 4px 12px rgba(0,0,0,0.2);';
+            notice.innerHTML = '<strong>UI Preview</strong><br>' + message;
+            document.body.appendChild(notice);
+            setTimeout(() => notice.remove(), 4000);
         }
 
         function updateModalStep() {
@@ -675,21 +691,22 @@
         }
 
         function reset2FA(userId) {
-            if (confirm('Reset 2FA for this user? They will need to set it up again.')) {
-                alert('2FA has been reset for this user');
+            if (confirm('Reset 2FA for this user? (UI Preview - no actual changes will be made)')) {
+                showPreviewNotice('2FA reset simulation - This is a UI preview only');
             }
         }
 
         function sendSetupEmail(email) {
-            alert(`Setup instructions sent to ${email}`);
+            showPreviewNotice(`Setup email preview - Would send to ${email} (UI Preview Only)`);
         }
 
         function enforceAllUsers() {
-            if (confirm('This will require all users to set up 2FA on their next login. Continue?')) {
+            if (confirm('This will require all users to set up 2FA on their next login. (UI Preview - no actual changes)')) {
                 document.getElementById('require2FA').checked = true;
-                alert('2FA is now required for all admin users');
+                showPreviewNotice('2FA enforcement enabled (UI Preview Only - no backend integration)');
             }
         }
     </script>
+<script src="/admin/js/ai-assistant.js"></script>
 </body>
 </html>

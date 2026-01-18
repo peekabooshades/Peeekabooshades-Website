@@ -244,6 +244,14 @@
                 <h1><i class="fas fa-key" style="color: #7b1fa2;"></i> SSO & Authentication Providers</h1>
             </div>
 
+            <!-- UI Preview Banner -->
+            <div style="background: linear-gradient(135deg, #7b1fa2 0%, #512da8 100%); color: white; padding: 15px 20px; border-radius: 8px; margin-bottom: 20px; display: flex; align-items: center; gap: 12px;">
+                <i class="fas fa-info-circle" style="font-size: 20px;"></i>
+                <div>
+                    <strong>UI Preview Only</strong> - This page demonstrates the SSO configuration interface. Backend integration is not enabled. Actions on this page will not affect your system.
+                </div>
+            </div>
+
             <div class="providers-grid">
                 <div class="provider-card connected" onclick="configureProvider('google')">
                     <div class="provider-icon google"><i class="fab fa-google"></i></div>
@@ -484,16 +492,24 @@ Metadata URL: https://admin.peekabooshades.com/.well-known/openid-configuration
             document.getElementById('providerModal').classList.remove('active');
         }
 
+        function showPreviewNotice(message) {
+            const notice = document.createElement('div');
+            notice.style.cssText = 'position: fixed; top: 20px; right: 20px; background: linear-gradient(135deg, #7b1fa2 0%, #512da8 100%); color: white; padding: 16px 24px; border-radius: 8px; z-index: 9999; max-width: 400px; box-shadow: 0 4px 12px rgba(0,0,0,0.2);';
+            notice.innerHTML = '<strong>UI Preview</strong><br>' + message;
+            document.body.appendChild(notice);
+            setTimeout(() => notice.remove(), 4000);
+        }
+
         function saveProvider() {
             const clientId = document.getElementById('clientId').value;
             const clientSecret = document.getElementById('clientSecret').value;
 
             if (!clientId || !clientSecret) {
-                alert('Please enter Client ID and Secret');
+                showPreviewNotice('Please enter Client ID and Secret');
                 return;
             }
 
-            alert(`${currentProvider} configuration saved!`);
+            showPreviewNotice(`${currentProvider} configuration saved (UI Preview Only - no backend integration)`);
             closeProviderModal();
         }
 
@@ -510,13 +526,14 @@ Metadata URL: https://admin.peekabooshades.com/.well-known/openid-configuration
             const key = document.getElementById('publicKey').value;
 
             if (!name || !key) {
-                alert('Please enter key name and public key');
+                showPreviewNotice('Please enter key name and public key');
                 return;
             }
 
-            alert('SSH key added successfully!');
+            showPreviewNotice('SSH key added (UI Preview Only - no backend integration)');
             closeSSHModal();
         }
     </script>
+<script src="/admin/js/ai-assistant.js"></script>
 </body>
 </html>

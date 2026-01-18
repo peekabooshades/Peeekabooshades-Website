@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sitemap - Peekaboo Shades Admin</title>
+  <link rel="stylesheet" href="/admin/css/admin.css?v=1737200003.0.28">
+  <script src="/admin/js/adminNavConfig.js?v=1737200002"></script>
+  <style>
+    .sitemap-grid { display: grid; grid-template-columns: 1fr 350px; gap: 1.5rem; margin-top: 1.5rem; }
+    .sitemap-card { background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+    .sitemap-card h3 { margin: 0 0 1rem 0; }
+    .url-list { max-height: 400px; overflow-y: auto; border: 1px solid #eee; border-radius: 8px; }
+    .url-item { padding: 0.75rem 1rem; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; }
+    .url-item:last-child { border-bottom: none; }
+    .url-path { font-family: monospace; font-size: 0.85rem; }
+    .url-meta { font-size: 0.75rem; color: #666; }
+    .toggle { position: relative; width: 40px; height: 20px; }
+    .toggle input { opacity: 0; width: 0; height: 0; }
+    .toggle .slider { position: absolute; cursor: pointer; inset: 0; background: #ddd; border-radius: 20px; transition: 0.3s; }
+    .toggle .slider:before { content: ""; position: absolute; height: 14px; width: 14px; left: 3px; bottom: 3px; background: white; border-radius: 50%; transition: 0.3s; }
+    .toggle input:checked + .slider { background: #10B981; }
+    .toggle input:checked + .slider:before { transform: translateX(20px); }
+    .btn-generate { width: 100%; padding: 0.75rem; background: #8E6545; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; margin-bottom: 1rem; }
+    .btn-submit { width: 100%; padding: 0.75rem; background: #E5E7EB; color: #374151; border: none; border-radius: 8px; cursor: pointer; }
+    .stat-row { display: flex; justify-content: space-between; padding: 0.5rem 0; border-bottom: 1px solid #eee; }
+    .stat-row:last-child { border-bottom: none; }
+  </style>
+</head>
+<body>
+  <div class="admin-layout">
+    <aside class="admin-sidebar"></aside>
+    <main class="admin-main">
+      <header class="admin-header"><h1>Sitemap Management</h1></header>
+      <div class="admin-content">
+        <div class="sitemap-grid">
+          <div class="sitemap-card">
+            <h3>Sitemap URLs</h3>
+            <div class="url-list">
+              <div class="url-item"><div><div class="url-path">/</div><div class="url-meta">Homepage • Daily</div></div><label class="toggle"><input type="checkbox" checked><span class="slider"></span></label></div>
+              <div class="url-item"><div><div class="url-path">/shop.html</div><div class="url-meta">Shop • Daily</div></div><label class="toggle"><input type="checkbox" checked><span class="slider"></span></label></div>
+              <div class="url-item"><div><div class="url-path">/product.html</div><div class="url-meta">Products • Weekly</div></div><label class="toggle"><input type="checkbox" checked><span class="slider"></span></label></div>
+              <div class="url-item"><div><div class="url-path">/samples.html</div><div class="url-meta">Samples • Monthly</div></div><label class="toggle"><input type="checkbox" checked><span class="slider"></span></label></div>
+              <div class="url-item"><div><div class="url-path">/policies/privacy</div><div class="url-meta">Policy • Monthly</div></div><label class="toggle"><input type="checkbox" checked><span class="slider"></span></label></div>
+            </div>
+          </div>
+          <div>
+            <div class="sitemap-card">
+              <h3>Generate Sitemap</h3>
+              <button class="btn-generate" onclick="generateSitemap()">Generate Sitemap</button>
+              <button class="btn-submit" onclick="submitSitemap()">Submit to Google</button>
+              <div style="margin-top: 1rem;">
+                <div class="stat-row"><span>Total URLs</span><strong>45</strong></div>
+                <div class="stat-row"><span>Last Generated</span><strong>Jan 15, 2024</strong></div>
+                <div class="stat-row"><span>Last Submitted</span><strong>Jan 10, 2024</strong></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      if (!localStorage.getItem('admin_token')) { window.location.href = '/admin/login.html'; return; }
+      AdminNavConfig.initSidebar('sitemap');
+    });
+    function generateSitemap() { alert('Sitemap generated!'); }
+    function submitSitemap() { alert('Sitemap submitted to search engines!'); }
+  </script>
+</body>
+</html>

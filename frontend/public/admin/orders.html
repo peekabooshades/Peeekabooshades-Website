@@ -4,8 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Orders - Peekaboo Shades Admin</title>
-  <link rel="stylesheet" href="css/admin.css">
-  <link rel="icon" type="image/png" href="/images/favicon.png">
+  <link rel="stylesheet" href="css/admin.css?v=1737200003">
+  <link rel="icon" type="image/jpeg" href="/images/peekabooshades_logo.jpeg">
   <style>
     .date-filter-btn {
       padding: 6px 12px;
@@ -31,78 +31,9 @@
 </head>
 <body>
   <div class="admin-layout">
-    <!-- Sidebar -->
+    <!-- Sidebar (dynamically populated by adminNavConfig.js) -->
     <aside class="admin-sidebar">
-      <div class="sidebar-header">
-        <a href="/admin/" class="sidebar-logo">
-          <img src="/images/peekabooshades_logo.jpeg" alt="Peekaboo Shades" style="height: 32px; width: auto; border-radius: 6px;">
-          <span>Peekaboo Shades</span>
-        </a>
-      </div>
-
-      <nav class="sidebar-nav">
-        <div class="nav-section">
-          <a href="/admin/" class="nav-item">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-            </svg>
-            <span>Dashboard</span>
-          </a>
-        </div>
-
-        <div class="nav-section">
-          <div class="nav-section-title">Catalog</div>
-          <a href="/admin/products.html" class="nav-item">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-            </svg>
-            <span>Products</span>
-          </a>
-          <a href="/admin/categories.html" class="nav-item">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
-            </svg>
-            <span>Categories</span>
-          </a>
-        </div>
-
-        <div class="nav-section">
-          <div class="nav-section-title">Sales</div>
-          <a href="/admin/orders.html" class="nav-item active">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
-            </svg>
-            <span>Orders</span>
-          </a>
-          <a href="/admin/quotes.html" class="nav-item">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-            </svg>
-            <span>Quotes</span>
-          </a>
-        </div>
-
-        <div class="nav-section">
-          <div class="nav-section-title">Content</div>
-          <a href="/admin/faqs.html" class="nav-item">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            <span>FAQs</span>
-          </a>
-        </div>
-
-        <div class="nav-section">
-          <div class="nav-section-title">Settings</div>
-          <a href="/admin/settings.html" class="nav-item">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-            </svg>
-            <span>Settings</span>
-          </a>
-        </div>
-      </nav>
+      <!-- Sidebar content will be injected dynamically -->
     </aside>
 
     <!-- Main Content -->
@@ -117,6 +48,12 @@
           </div>
         </div>
         <div class="header-right">
+          <button onclick="showAutoDeliveryModal()" class="btn btn-secondary" style="margin-right: 10px;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="margin-right: 4px;">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 8h14M5 8a2 2 0 110-4h14a2 2 0 110 4M5 8v10a2 2 0 002 2h10a2 2 0 002-2V8m-9 4h4" />
+            </svg>
+            Auto-Delivery
+          </button>
           <button onclick="Admin.AuthAPI.logout();" class="btn btn-logout" style="background: #dc3545; color: white; padding: 8px 16px; border: none; border-radius: 6px; cursor: pointer; font-size: 14px; margin-right: 10px;">
             Logout
           </button>
@@ -153,16 +90,7 @@
               <div class="filter-group">
                 <select id="status-filter" class="filter-select">
                   <option value="">All Status</option>
-                  <option value="order_placed">Order Placed</option>
-                  <option value="order_received">Order Received</option>
-                  <option value="manufacturing">Manufacturing</option>
-                  <option value="qa">QA</option>
-                  <option value="shipped">Shipped</option>
-                  <option value="delivered">Delivered</option>
-                  <option value="issue_reported">Issue Reported</option>
-                  <option value="refund_requested">Refund Requested</option>
-                  <option value="refunded">Refunded</option>
-                  <option value="cancelled">Cancelled</option>
+                  <!-- Options loaded dynamically from API -->
                 </select>
               </div>
               <div class="filter-group">
@@ -219,9 +147,71 @@
               </tbody>
             </table>
           </div>
+          <!-- Pagination -->
+          <div id="pagination-container" style="display: flex; justify-content: space-between; align-items: center; padding: 16px; border-top: 1px solid #e5e7eb;">
+            <div id="pagination-info" style="font-size: 13px; color: #6b7280;">Showing 0 of 0 orders</div>
+            <div id="pagination-controls" style="display: flex; gap: 8px; align-items: center;">
+              <button id="prev-page" class="btn btn-secondary" style="padding: 6px 12px; font-size: 13px;" disabled>Previous</button>
+              <span id="page-indicator" style="font-size: 13px; color: #374151;">Page 1 of 1</span>
+              <button id="next-page" class="btn btn-secondary" style="padding: 6px 12px; font-size: 13px;" disabled>Next</button>
+              <select id="page-size" style="padding: 6px 10px; border: 1px solid #ddd; border-radius: 6px; font-size: 13px;">
+                <option value="25">25 per page</option>
+                <option value="50">50 per page</option>
+                <option value="100">100 per page</option>
+              </select>
+            </div>
+          </div>
         </div>
       </div>
     </main>
+  </div>
+
+  <!-- Auto-Delivery Modal -->
+  <div class="modal-overlay" id="auto-delivery-modal">
+    <div class="modal" style="max-width: 600px;">
+      <div class="modal-header">
+        <h3 class="modal-title">Auto-Delivery Management</h3>
+        <button class="modal-close" onclick="Admin.Modal.hide('auto-delivery-modal')">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div style="background: #f0f9ff; border: 1px solid #bae6fd; border-radius: 8px; padding: 16px; margin-bottom: 20px;">
+          <h4 style="margin: 0 0 8px 0; color: #0369a1; font-size: 14px;">About Auto-Delivery</h4>
+          <p style="margin: 0; font-size: 13px; color: #0c4a6e;">
+            Automatically marks shipped orders as "Delivered" after a specified number of days.
+            This is useful when tracking information is not available or when carriers don't provide delivery confirmation.
+          </p>
+        </div>
+
+        <div class="form-group">
+          <label class="form-label">Days After Shipment</label>
+          <select id="auto-delivery-days" class="form-input" style="width: 200px;">
+            <option value="5">5 days</option>
+            <option value="7" selected>7 days (default)</option>
+            <option value="10">10 days</option>
+            <option value="14">14 days</option>
+          </select>
+        </div>
+
+        <div id="auto-delivery-preview" style="margin-top: 20px;">
+          <div style="text-align: center; padding: 20px; color: #6b7280;">
+            Click "Preview" to see orders that will be updated
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="Admin.Modal.hide('auto-delivery-modal')">Cancel</button>
+        <button class="btn btn-secondary" onclick="previewAutoDelivery()" id="btn-preview-delivery">
+          Preview
+        </button>
+        <button class="btn btn-primary" onclick="runAutoDelivery()" id="btn-run-delivery" disabled>
+          Run Auto-Delivery
+        </button>
+      </div>
+    </div>
   </div>
 
   <!-- Order Detail Modal -->
@@ -244,30 +234,120 @@
     </div>
   </div>
 
-  <script src="js/admin.js"></script>
+  <script src="js/adminNavConfig.js?v=1737200002"></script>
+  <script src="js/admin.js?v=1737100001"></script>
   <script>
+    // Store loaded statuses globally for use in status badges
+    let orderStatuses = [];
+
     // Require authentication
     if (!Admin.Auth.requireAuth()) {
       // Will redirect
     } else {
-      loadOrders();
+      initApp();
+    }
+
+    async function initApp() {
+      await loadOrderStatuses(); // Load statuses first
       initFilters();
+      initPagination();
+      loadOrders();
+    }
+
+    // Load order statuses from API
+    async function loadOrderStatuses() {
+      try {
+        const response = await fetch('/api/order-statuses');
+        const data = await response.json();
+
+        if (data.success && data.statuses) {
+          orderStatuses = data.statuses;
+          populateStatusFilter(data.statuses);
+        }
+      } catch (error) {
+        console.error('Failed to load order statuses:', error);
+        // Fallback to default statuses if API fails
+        const defaultStatuses = [
+          { id: 'order_placed', name: 'Order Placed' },
+          { id: 'order_received', name: 'Order Received' },
+          { id: 'manufacturing', name: 'Manufacturing' },
+          { id: 'qa', name: 'Quality Check' },
+          { id: 'shipped', name: 'Shipped' },
+          { id: 'delivered', name: 'Delivered' },
+          { id: 'issue_reported', name: 'Issue Reported' },
+          { id: 'refund_requested', name: 'Refund Requested' },
+          { id: 'refunded', name: 'Refunded' },
+          { id: 'cancelled', name: 'Cancelled' }
+        ];
+        orderStatuses = defaultStatuses;
+        populateStatusFilter(defaultStatuses);
+      }
+    }
+
+    // Populate status filter dropdown
+    function populateStatusFilter(statuses) {
+      const select = document.getElementById('status-filter');
+      // Keep the "All Status" option
+      select.innerHTML = '<option value="">All Status</option>';
+
+      statuses.forEach(status => {
+        const option = document.createElement('option');
+        option.value = status.id;
+        option.textContent = status.name;
+        select.appendChild(option);
+      });
     }
 
     let allOrders = [];
+    let currentPage = 1;
+    let pageSize = 25;
+    let totalOrders = 0;
+    let totalPages = 1;
 
     async function loadOrders() {
       try {
-        const data = await Admin.OrdersAPI.getAll();
+        // Build query params for server-side filtering
+        const params = new URLSearchParams();
+        params.append('page', currentPage);
+        params.append('limit', pageSize);
+
+        const search = document.getElementById('search-input').value;
+        const status = document.getElementById('status-filter').value;
+        const productType = document.getElementById('product-type-filter').value;
+        const dateFrom = document.getElementById('date-from').value;
+        const dateTo = document.getElementById('date-to').value;
+
+        if (search) params.append('search', search);
+        if (status) params.append('status', status);
+        if (productType) params.append('productType', productType);
+        if (dateFrom) params.append('startDate', dateFrom);
+        if (dateTo) params.append('endDate', dateTo);
+
+        // Use date preset if active
+        if (currentDatePreset > 0) {
+          const startDate = new Date();
+          startDate.setDate(startDate.getDate() - currentDatePreset);
+          params.append('startDate', startDate.toISOString().split('T')[0]);
+        }
+
+        const response = await fetch(`/api/admin/orders?${params}`, {
+          headers: { 'Authorization': `Bearer ${Admin.Auth.getToken()}` }
+        });
+        const data = await response.json();
+
         if (data.success) {
           allOrders = data.orders || [];
+          totalOrders = data.total || 0;
+          totalPages = data.pages || 1;
+          currentPage = data.page || 1;
           renderOrders(allOrders);
+          updatePagination();
         }
       } catch (error) {
         Admin.Toast.error('Failed to load orders');
         document.getElementById('orders-table').innerHTML = `
           <tr>
-            <td colspan="7" style="text-align: center; padding: 60px; color: var(--admin-text-secondary);">
+            <td colspan="8" style="text-align: center; padding: 60px; color: var(--admin-text-secondary);">
               Failed to load orders. <a href="#" onclick="loadOrders(); return false;">Try again</a>
             </td>
           </tr>
@@ -275,33 +355,121 @@
       }
     }
 
+    function initPagination() {
+      const prevBtn = document.getElementById('prev-page');
+      const nextBtn = document.getElementById('next-page');
+      const pageSizeSelect = document.getElementById('page-size');
+
+      prevBtn.addEventListener('click', () => {
+        if (currentPage > 1) {
+          currentPage--;
+          loadOrders();
+        }
+      });
+
+      nextBtn.addEventListener('click', () => {
+        if (currentPage < totalPages) {
+          currentPage++;
+          loadOrders();
+        }
+      });
+
+      pageSizeSelect.addEventListener('change', () => {
+        pageSize = parseInt(pageSizeSelect.value);
+        currentPage = 1; // Reset to first page
+        loadOrders();
+      });
+    }
+
+    function updatePagination() {
+      const prevBtn = document.getElementById('prev-page');
+      const nextBtn = document.getElementById('next-page');
+      const pageIndicator = document.getElementById('page-indicator');
+      const paginationInfo = document.getElementById('pagination-info');
+
+      prevBtn.disabled = currentPage <= 1;
+      nextBtn.disabled = currentPage >= totalPages;
+      pageIndicator.textContent = `Page ${currentPage} of ${totalPages}`;
+
+      const start = (currentPage - 1) * pageSize + 1;
+      const end = Math.min(currentPage * pageSize, totalOrders);
+      paginationInfo.textContent = `Showing ${totalOrders > 0 ? start : 0}-${end} of ${totalOrders} orders`;
+    }
+
     // Helper function to get product type from order items
     function getOrderProductType(order) {
       if (!order.items || order.items.length === 0) return 'unknown';
       const types = new Set();
       order.items.forEach(item => {
+        let foundType = false;
+
         // Check product_type field first
         if (item.product_type) {
-          types.add(item.product_type);
-        } else if (item.product_slug) {
-          // Derive from slug - only add if we can positively identify the type
-          if (item.product_slug.includes('zebra')) types.add('zebra');
-          else if (item.product_slug.includes('honeycomb') || item.product_slug.includes('cellular')) types.add('honeycomb');
-          else if (item.product_slug.includes('roman')) types.add('roman');
-          else if (item.product_slug.includes('roller')) types.add('roller');
-          // TICKET-004: Don't default to roller if we can't identify the type
-        } else if (item.configuration) {
-          // Check configuration for hints
+          types.add(item.product_type.toLowerCase());
+          foundType = true;
+        }
+
+        // Check product_slug
+        if (!foundType && item.product_slug) {
+          const slug = item.product_slug.toLowerCase();
+          if (slug.includes('zebra')) { types.add('zebra'); foundType = true; }
+          else if (slug.includes('honeycomb') || slug.includes('cellular')) { types.add('honeycomb'); foundType = true; }
+          else if (slug.includes('roman')) { types.add('roman'); foundType = true; }
+          else if (slug.includes('roller')) { types.add('roller'); foundType = true; }
+        }
+
+        // Check product_name
+        if (!foundType && item.product_name) {
+          const name = item.product_name.toLowerCase();
+          if (name.includes('zebra')) { types.add('zebra'); foundType = true; }
+          else if (name.includes('honeycomb') || name.includes('cellular')) { types.add('honeycomb'); foundType = true; }
+          else if (name.includes('roman')) { types.add('roman'); foundType = true; }
+          else if (name.includes('roller')) { types.add('roller'); foundType = true; }
+        }
+
+        // Check configuration for fabric code (83xxx = zebra, 82xxx = roller)
+        if (!foundType && item.configuration) {
           try {
             const cfg = typeof item.configuration === 'string' ? JSON.parse(item.configuration) : item.configuration;
-            if (cfg.productType) types.add(cfg.productType);
+            if (cfg.productType) {
+              types.add(cfg.productType.toLowerCase());
+              foundType = true;
+            } else if (cfg.fabricCode) {
+              // Fabric codes starting with 83 are Zebra, 82 are Roller
+              if (cfg.fabricCode.startsWith('83')) { types.add('zebra'); foundType = true; }
+              else if (cfg.fabricCode.startsWith('82')) { types.add('roller'); foundType = true; }
+            }
           } catch (e) { /* ignore parse errors */ }
         }
       });
-      // TICKET-004: Return 'unknown' instead of defaulting to 'roller'
+
       if (types.size === 0) return 'unknown';
       if (types.size === 1) return [...types][0];
       return 'mixed'; // Multiple product types in one order
+    }
+
+    // Generate status dropdown options from loaded statuses
+    function getStatusOptions(currentStatus) {
+      return orderStatuses.map(status =>
+        `<option value="${status.id}" ${currentStatus === status.id ? 'selected' : ''}>${status.name}</option>`
+      ).join('');
+    }
+
+    // Get status display info (name, color) from loaded statuses
+    function getStatusDisplay(statusId) {
+      const status = orderStatuses.find(s => s.id === statusId);
+      if (status) {
+        return { name: status.name, color: status.color };
+      }
+      // Fallback for unknown statuses
+      return { name: (statusId || 'Unknown').replace(/_/g, ' '), color: '#6B7280' };
+    }
+
+    // Generate status badge HTML
+    function getStatusBadgeHtml(statusId) {
+      const { name, color } = getStatusDisplay(statusId);
+      // Darken text color for better contrast
+      return `<span style="display: inline-block; padding: 6px 16px; background: ${color}22; color: ${color}; border-radius: 20px; font-size: 12px; font-weight: 600; text-transform: uppercase;">${name}</span>`;
     }
 
     // Get badge style for product type
@@ -358,21 +526,7 @@
           <td style="font-weight: 500;">${Admin.Utils.formatCurrency(total)}</td>
           <td>
             <select class="filter-select" style="min-width: 140px;" onchange="updateStatus('${order.id}', this.value)">
-              <option value="pending" ${order.status === 'pending' ? 'selected' : ''}>Pending</option>
-              <option value="order_placed" ${order.status === 'order_placed' ? 'selected' : ''}>Order Placed</option>
-              <option value="payment_received" ${order.status === 'payment_received' ? 'selected' : ''}>Payment Received</option>
-              <option value="order_received" ${order.status === 'order_received' ? 'selected' : ''}>Order Received</option>
-              <option value="sent_to_manufacturer" ${order.status === 'sent_to_manufacturer' ? 'selected' : ''}>Sent to Manufacturer</option>
-              <option value="manufacturing" ${order.status === 'manufacturing' ? 'selected' : ''}>Manufacturing</option>
-              <option value="qa" ${order.status === 'qa' ? 'selected' : ''}>QA</option>
-              <option value="shipped" ${order.status === 'shipped' ? 'selected' : ''}>Shipped</option>
-              <option value="delivered" ${order.status === 'delivered' ? 'selected' : ''}>Delivered</option>
-              <option value="closed" ${order.status === 'closed' ? 'selected' : ''}>Closed</option>
-              <option value="issue_reported" ${order.status === 'issue_reported' ? 'selected' : ''}>Issue Reported</option>
-              <option value="refund_requested" ${order.status === 'refund_requested' ? 'selected' : ''}>Refund Requested</option>
-              <option value="refunded" ${order.status === 'refunded' ? 'selected' : ''}>Refunded</option>
-              <option value="disputed" ${order.status === 'disputed' ? 'selected' : ''}>Disputed</option>
-              <option value="cancelled" ${order.status === 'cancelled' ? 'selected' : ''}>Cancelled</option>
+              ${getStatusOptions(order.status)}
             </select>
           </td>
           <td>
@@ -405,50 +559,10 @@
       const dateTo = document.getElementById('date-to');
       const dateFilterBtns = document.querySelectorAll('.date-filter-btn');
 
+      // Server-side filtering - reload from server with new params
       const applyFilters = Admin.Utils.debounce(() => {
-        const search = searchInput.value.toLowerCase();
-        const status = statusFilter.value;
-        const productType = productTypeFilter.value;
-
-        // Use preset date or manual date inputs
-        let fromDate = null;
-        let toDate = null;
-
-        if (currentDatePreset > 0) {
-          fromDate = new Date();
-          fromDate.setDate(fromDate.getDate() - currentDatePreset);
-          fromDate.setHours(0, 0, 0, 0);
-        } else {
-          fromDate = dateFrom.value ? new Date(dateFrom.value) : null;
-          toDate = dateTo.value ? new Date(dateTo.value + 'T23:59:59') : null;
-        }
-
-        const filtered = allOrders.filter(o => {
-          const matchesSearch = !search ||
-            (o.order_number && o.order_number.toLowerCase().includes(search)) ||
-            (o.customer_name && o.customer_name.toLowerCase().includes(search)) ||
-            (o.customer_email && o.customer_email.toLowerCase().includes(search));
-          const matchesStatus = !status || o.status === status;
-
-          // Product type filtering
-          let matchesProductType = true;
-          if (productType) {
-            const orderType = getOrderProductType(o);
-            matchesProductType = orderType === productType || (productType === 'mixed' && orderType === 'mixed');
-          }
-
-          // Date range filtering
-          let matchesDate = true;
-          if (fromDate || toDate) {
-            const orderDate = new Date(o.created_at);
-            if (fromDate && orderDate < fromDate) matchesDate = false;
-            if (toDate && orderDate > toDate) matchesDate = false;
-          }
-
-          return matchesSearch && matchesStatus && matchesProductType && matchesDate;
-        });
-
-        renderOrders(filtered);
+        currentPage = 1; // Reset to first page on filter change
+        loadOrders();
       }, 300);
 
       searchInput.addEventListener('input', applyFilters);
@@ -535,7 +649,7 @@
                 <p style="margin: 0; color: #6b7280; font-size: 14px;">Placed on ${Admin.Utils.formatDateTime(order.created_at)}</p>
               </div>
               <div style="text-align: right;">
-                <span style="display: inline-block; padding: 6px 16px; background: ${order.status === 'shipped' || order.status === 'delivered' ? '#d1fae5' : order.status === 'manufacturing' || order.status === 'qa' ? '#fef3c7' : '#e0e7ff'}; color: ${order.status === 'shipped' || order.status === 'delivered' ? '#065f46' : order.status === 'manufacturing' || order.status === 'qa' ? '#92400e' : '#3730a3'}; border-radius: 20px; font-size: 12px; font-weight: 600; text-transform: uppercase;">${order.status?.replace(/_/g, ' ') || 'Pending'}</span>
+                ${getStatusBadgeHtml(order.status)}
               </div>
             </div>
 
@@ -560,6 +674,79 @@
                 </tbody>
               </table>
             </div>
+
+            <!-- Payment Information Card -->
+            <div style="margin-bottom: 24px;">
+              <h5 style="margin-bottom: 12px; font-size: 13px; text-transform: uppercase; color: #8E6545; font-weight: 600; letter-spacing: 0.5px; display: flex; align-items: center; gap: 8px;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="#8E6545"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/></svg>
+                Payment Information
+              </h5>
+              <table style="width: 100%; border-collapse: collapse; border-radius: 8px; overflow: hidden; box-shadow: 0 1px 3px rgba(0,0,0,0.1);">
+                <thead>
+                  <tr style="background: linear-gradient(135deg, #8E6545 0%, #A67C5B 100%);">
+                    <th style="padding: 12px 16px; text-align: left; color: white; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; width: 150px;">Field</th>
+                    <th style="padding: 12px 16px; text-align: left; color: white; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;">Value</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr style="background: #fff;">
+                    <td style="padding: 10px 16px; border-bottom: 1px solid #e5e7eb; font-weight: 600; color: #374151;">Payment Method</td>
+                    <td style="padding: 10px 16px; border-bottom: 1px solid #e5e7eb; color: #1f2937;">
+                      ${order.payment?.method === 'card' || order.payment?.method === 'demo_card' ?
+                        '<span style="display: inline-flex; align-items: center; gap: 6px;"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/></svg> Credit Card' + (order.payment?.details?.isDemo ? ' <span style="background:#fef3c7;color:#92400e;padding:2px 6px;border-radius:4px;font-size:10px;">DEMO</span>' : '') + '</span>' :
+                        order.payment?.method === 'stripe' ? '<span style="color: #635BFF;">Stripe</span>' :
+                        order.payment?.method === 'paypal' ? '<span style="color: #003087;">PayPal</span>' :
+                        order.payment?.method === 'invoice' ? 'Pay by Invoice' :
+                        order.payment?.method || 'Not specified'}
+                    </td>
+                  </tr>
+                  <tr style="background: #fafafa;">
+                    <td style="padding: 10px 16px; border-bottom: 1px solid #e5e7eb; font-weight: 600; color: #374151;">Payment Status</td>
+                    <td style="padding: 10px 16px; border-bottom: 1px solid #e5e7eb;">
+                      ${order.payment?.status === 'paid' ?
+                        '<span style="background: #d1fae5; color: #065f46; padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 600;">PAID</span>' :
+                        order.payment?.status === 'pending' ?
+                        '<span style="background: #fef3c7; color: #92400e; padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 600;">PENDING</span>' :
+                        order.payment?.status === 'failed' ?
+                        '<span style="background: #fee2e2; color: #dc2626; padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 600;">FAILED</span>' :
+                        '<span style="background: #e5e7eb; color: #6b7280; padding: 4px 12px; border-radius: 12px; font-size: 12px; font-weight: 600;">N/A</span>'}
+                    </td>
+                  </tr>
+                  ${order.payment?.details?.transactionId ? `
+                  <tr style="background: #fff;">
+                    <td style="padding: 10px 16px; border-bottom: 1px solid #e5e7eb; font-weight: 600; color: #374151;">Transaction ID</td>
+                    <td style="padding: 10px 16px; border-bottom: 1px solid #e5e7eb; color: #1f2937; font-family: monospace; font-size: 13px;">${Admin.Utils.escapeHtml(order.payment.details.transactionId)}</td>
+                  </tr>` : ''}
+                  ${order.payment?.details?.last4 ? `
+                  <tr style="background: #fafafa;">
+                    <td style="padding: 10px 16px; border-bottom: 1px solid #e5e7eb; font-weight: 600; color: #374151;">Card Number</td>
+                    <td style="padding: 10px 16px; border-bottom: 1px solid #e5e7eb; color: #1f2937;">**** **** **** ${Admin.Utils.escapeHtml(order.payment.details.last4)}</td>
+                  </tr>` : ''}
+                  ${order.payment?.processedAt ? `
+                  <tr style="background: #fff;">
+                    <td style="padding: 10px 16px; font-weight: 600; color: #374151;">Processed At</td>
+                    <td style="padding: 10px 16px; color: #1f2937;">${Admin.Utils.formatDateTime(order.payment.processedAt)}</td>
+                  </tr>` : ''}
+                </tbody>
+              </table>
+            </div>
+
+            ${order.billing_address && typeof order.billing_address === 'object' ? `
+            <!-- Billing Address Card -->
+            <div style="margin-bottom: 24px;">
+              <h5 style="margin-bottom: 12px; font-size: 13px; text-transform: uppercase; color: #8E6545; font-weight: 600; letter-spacing: 0.5px; display: flex; align-items: center; gap: 8px;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="#8E6545"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                Billing Address
+              </h5>
+              <div style="background: #fff; border: 1px solid #e5e7eb; border-radius: 8px; padding: 16px; box-shadow: 0 1px 3px rgba(0,0,0,0.05);">
+                <p style="margin: 0; color: #1f2937; line-height: 1.6;">
+                  ${order.billing_address.line1 || order.billing_address.address1 ? Admin.Utils.escapeHtml(order.billing_address.line1 || order.billing_address.address1) + '<br>' : ''}
+                  ${order.billing_address.line2 || order.billing_address.address2 ? Admin.Utils.escapeHtml(order.billing_address.line2 || order.billing_address.address2) + '<br>' : ''}
+                  ${order.billing_address.city ? Admin.Utils.escapeHtml(order.billing_address.city) + ', ' : ''}${order.billing_address.state || ''} ${order.billing_address.postal_code || order.billing_address.zip || ''}<br>
+                  ${order.billing_address.country || 'USA'}
+                </p>
+              </div>
+            </div>` : ''}
 
             <!-- Order Items Card -->
             <div style="margin-bottom: 24px;">
@@ -833,6 +1020,138 @@
         } catch (error) {
           Admin.Toast.error('Failed to delete order');
         }
+      }
+    }
+
+    // ============================================
+    // AUTO-DELIVERY FUNCTIONS
+    // ============================================
+
+    let autoDeliveryOrders = [];
+
+    function showAutoDeliveryModal() {
+      document.getElementById('auto-delivery-preview').innerHTML = `
+        <div style="text-align: center; padding: 20px; color: #6b7280;">
+          Click "Preview" to see orders that will be updated
+        </div>
+      `;
+      document.getElementById('btn-run-delivery').disabled = true;
+      Admin.Modal.show('auto-delivery-modal');
+    }
+
+    async function previewAutoDelivery() {
+      const days = parseInt(document.getElementById('auto-delivery-days').value);
+      const previewContainer = document.getElementById('auto-delivery-preview');
+
+      previewContainer.innerHTML = `
+        <div style="text-align: center; padding: 20px;">
+          <div class="spinner"></div>
+          <p style="margin-top: 10px; color: #6b7280;">Loading shipped orders...</p>
+        </div>
+      `;
+
+      try {
+        const response = await fetch(`/api/admin/orders/shipped-pending?days=${days}`, {
+          headers: { 'Authorization': `Bearer ${Admin.Auth.getToken()}` }
+        });
+        const data = await response.json();
+
+        if (data.success) {
+          autoDeliveryOrders = data.orders.filter(o => o.readyForAutoDelivery);
+
+          if (autoDeliveryOrders.length === 0) {
+            previewContainer.innerHTML = `
+              <div style="text-align: center; padding: 20px; background: #f0fdf4; border-radius: 8px; color: #166534;">
+                <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="margin-bottom: 8px;">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                </svg>
+                <p style="margin: 0; font-weight: 500;">No orders ready for auto-delivery</p>
+                <p style="margin: 4px 0 0 0; font-size: 13px; color: #15803d;">
+                  All shipped orders are within the ${days}-day window.
+                </p>
+              </div>
+            `;
+            document.getElementById('btn-run-delivery').disabled = true;
+          } else {
+            previewContainer.innerHTML = `
+              <div style="background: #fef3c7; border-radius: 8px; padding: 12px; margin-bottom: 12px;">
+                <p style="margin: 0; font-weight: 500; color: #92400e;">
+                  ${autoDeliveryOrders.length} order(s) will be marked as Delivered
+                </p>
+              </div>
+              <div style="max-height: 200px; overflow-y: auto; border: 1px solid #e5e7eb; border-radius: 8px;">
+                <table style="width: 100%; border-collapse: collapse; font-size: 13px;">
+                  <thead>
+                    <tr style="background: #f9fafb;">
+                      <th style="padding: 8px; text-align: left; border-bottom: 1px solid #e5e7eb;">Order #</th>
+                      <th style="padding: 8px; text-align: left; border-bottom: 1px solid #e5e7eb;">Customer</th>
+                      <th style="padding: 8px; text-align: left; border-bottom: 1px solid #e5e7eb;">Shipped</th>
+                      <th style="padding: 8px; text-align: center; border-bottom: 1px solid #e5e7eb;">Days</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    ${autoDeliveryOrders.map(o => `
+                      <tr>
+                        <td style="padding: 8px; border-bottom: 1px solid #e5e7eb;">${Admin.Utils.escapeHtml(o.orderNumber)}</td>
+                        <td style="padding: 8px; border-bottom: 1px solid #e5e7eb;">${Admin.Utils.escapeHtml(o.customerName || '-')}</td>
+                        <td style="padding: 8px; border-bottom: 1px solid #e5e7eb;">${Admin.Utils.formatDate(o.shippedAt)}</td>
+                        <td style="padding: 8px; border-bottom: 1px solid #e5e7eb; text-align: center;">
+                          <span style="background: ${o.daysSinceShipment >= days ? '#fee2e2' : '#f3f4f6'}; padding: 2px 8px; border-radius: 12px; font-size: 12px;">
+                            ${o.daysSinceShipment}
+                          </span>
+                        </td>
+                      </tr>
+                    `).join('')}
+                  </tbody>
+                </table>
+              </div>
+            `;
+            document.getElementById('btn-run-delivery').disabled = false;
+          }
+        } else {
+          throw new Error(data.error);
+        }
+      } catch (error) {
+        previewContainer.innerHTML = `
+          <div style="text-align: center; padding: 20px; background: #fef2f2; border-radius: 8px; color: #dc2626;">
+            Failed to load orders: ${error.message}
+          </div>
+        `;
+        document.getElementById('btn-run-delivery').disabled = true;
+      }
+    }
+
+    async function runAutoDelivery() {
+      const days = parseInt(document.getElementById('auto-delivery-days').value);
+
+      const confirmed = await Admin.Modal.confirm(
+        'Confirm Auto-Delivery',
+        `This will mark ${autoDeliveryOrders.length} order(s) as "Delivered". This action cannot be undone. Continue?`
+      );
+
+      if (!confirmed) return;
+
+      try {
+        const response = await fetch('/api/admin/orders/auto-delivery', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${Admin.Auth.getToken()}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ days, dryRun: false })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          Admin.Toast.success(`${data.updated.length} orders marked as Delivered`);
+          Admin.Modal.hide('auto-delivery-modal');
+          loadOrders(); // Refresh the orders list
+        } else {
+          throw new Error(data.error);
+        }
+      } catch (error) {
+        Admin.Toast.error('Auto-delivery failed: ' + error.message);
       }
     }
   </script>

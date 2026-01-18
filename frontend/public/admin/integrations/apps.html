@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Third-Party Apps - Peekaboo Shades Admin</title>
+  <link rel="stylesheet" href="/admin/css/admin.css?v=1737200003.0.28">
+  <script src="/admin/js/adminNavConfig.js?v=1737200002"></script>
+  <style>
+    .apps-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem; margin-top: 1.5rem; }
+    .app-card { background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+    .app-header { display: flex; gap: 1rem; margin-bottom: 1rem; }
+    .app-icon { width: 48px; height: 48px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; }
+    .app-info h4 { margin: 0 0 0.25rem 0; }
+    .app-info p { margin: 0; font-size: 0.85rem; color: #666; }
+    .app-description { font-size: 0.9rem; color: #666; margin-bottom: 1rem; }
+    .app-actions { display: flex; justify-content: space-between; align-items: center; }
+    .status-badge { padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.75rem; }
+    .status-connected { background: #D1FAE5; color: #065F46; }
+    .status-available { background: #E5E7EB; color: #374151; }
+    .btn-connect { padding: 0.5rem 1rem; background: #8E6545; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 0.85rem; }
+    .btn-settings { padding: 0.5rem 1rem; background: #E5E7EB; color: #374151; border: none; border-radius: 6px; cursor: pointer; font-size: 0.85rem; }
+  </style>
+</head>
+<body>
+  <div class="admin-layout">
+    <aside class="admin-sidebar"></aside>
+    <main class="admin-main">
+      <header class="admin-header"><h1>Third-Party Apps</h1></header>
+      <div class="admin-content">
+        <div class="apps-grid">
+          <div class="app-card">
+            <div class="app-header">
+              <div class="app-icon" style="background:#635BFF;color:white;">S</div>
+              <div class="app-info"><h4>Stripe</h4><p>Payment Processing</p></div>
+            </div>
+            <p class="app-description">Accept credit cards, debit cards, and digital wallets.</p>
+            <div class="app-actions"><span class="status-badge status-connected">Connected</span><button class="btn-settings">Settings</button></div>
+          </div>
+          <div class="app-card">
+            <div class="app-header">
+              <div class="app-icon" style="background:#003087;color:white;">P</div>
+              <div class="app-info"><h4>PayPal</h4><p>Payment Processing</p></div>
+            </div>
+            <p class="app-description">Accept PayPal payments and Pay Later options.</p>
+            <div class="app-actions"><span class="status-badge status-connected">Connected</span><button class="btn-settings">Settings</button></div>
+          </div>
+          <div class="app-card">
+            <div class="app-header">
+              <div class="app-icon" style="background:#FF6200;color:white;">K</div>
+              <div class="app-info"><h4>Klaviyo</h4><p>Email Marketing</p></div>
+            </div>
+            <p class="app-description">Email automation and customer segmentation.</p>
+            <div class="app-actions"><span class="status-badge status-available">Available</span><button class="btn-connect">Connect</button></div>
+          </div>
+          <div class="app-card">
+            <div class="app-header">
+              <div class="app-icon" style="background:#4A154B;color:white;">S</div>
+              <div class="app-info"><h4>Slack</h4><p>Notifications</p></div>
+            </div>
+            <p class="app-description">Get order and customer notifications in Slack.</p>
+            <div class="app-actions"><span class="status-badge status-available">Available</span><button class="btn-connect">Connect</button></div>
+          </div>
+          <div class="app-card">
+            <div class="app-header">
+              <div class="app-icon" style="background:#00A4E4;color:white;">Q</div>
+              <div class="app-info"><h4>QuickBooks</h4><p>Accounting</p></div>
+            </div>
+            <p class="app-description">Sync orders and invoices to QuickBooks.</p>
+            <div class="app-actions"><span class="status-badge status-available">Available</span><button class="btn-connect">Connect</button></div>
+          </div>
+          <div class="app-card">
+            <div class="app-header">
+              <div class="app-icon" style="background:#4D148C;color:white;">F</div>
+              <div class="app-info"><h4>FedEx</h4><p>Shipping</p></div>
+            </div>
+            <p class="app-description">Real-time shipping rates and label printing.</p>
+            <div class="app-actions"><span class="status-badge status-connected">Connected</span><button class="btn-settings">Settings</button></div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      if (!localStorage.getItem('admin_token')) { window.location.href = '/admin/login.html'; return; }
+      AdminNavConfig.initSidebar('third-party-apps');
+    });
+  </script>
+</body>
+</html>

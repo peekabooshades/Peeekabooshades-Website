@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sales Reports - Peekaboo Shades Admin</title>
+  <link rel="stylesheet" href="../css/admin.css">
+  <link rel="icon" type="image/jpeg" href="/images/peekabooshades_logo.jpeg">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    .report-filters {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+      align-items: center;
+      margin-bottom: 24px;
+    }
+    .filter-group {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .filter-label {
+      font-size: 11px;
+      color: #6b7280;
+      text-transform: uppercase;
+      font-weight: 600;
+    }
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+    @media (max-width: 1024px) {
+      .stats-row { grid-template-columns: repeat(2, 1fr); }
+    }
+    .stat-card {
+      background: white;
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    .stat-card.primary { border-left: 4px solid #8E6545; }
+    .stat-card.success { border-left: 4px solid #10b981; }
+    .stat-card.warning { border-left: 4px solid #f59e0b; }
+    .stat-card.info { border-left: 4px solid #3b82f6; }
+    .stat-value {
+      font-size: 28px;
+      font-weight: 700;
+      color: #1f2937;
+    }
+    .stat-label {
+      font-size: 13px;
+      color: #6b7280;
+      margin-top: 4px;
+    }
+    .stat-change {
+      font-size: 12px;
+      margin-top: 8px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .stat-change.up { color: #10b981; }
+    .stat-change.down { color: #ef4444; }
+    .chart-container {
+      background: white;
+      border-radius: 12px;
+      padding: 24px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+      margin-bottom: 24px;
+    }
+    .chart-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+    .chart-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: #1f2937;
+    }
+    .chart-canvas {
+      height: 300px;
+    }
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    .data-table th {
+      text-align: left;
+      padding: 12px 16px;
+      background: #f9fafb;
+      font-size: 12px;
+      font-weight: 600;
+      color: #6b7280;
+      text-transform: uppercase;
+      border-bottom: 2px solid #e5e7eb;
+    }
+    .data-table td {
+      padding: 14px 16px;
+      border-bottom: 1px solid #f3f4f6;
+      font-size: 14px;
+    }
+    .data-table tr:hover td {
+      background: #fafafa;
+    }
+    .export-btns {
+      display: flex;
+      gap: 8px;
+    }
+  </style>
+</head>
+<body>
+  <div class="admin-layout">
+    <aside class="admin-sidebar"></aside>
+    <main class="admin-main">
+      <header class="admin-header">
+        <div class="header-left">
+          <div class="breadcrumb">
+            <a href="/admin/">Dashboard</a>
+            <span class="breadcrumb-separator">/</span>
+            <a href="/admin/analytics.html">Analytics</a>
+            <span class="breadcrumb-separator">/</span>
+            <span class="breadcrumb-current">Sales Reports</span>
+          </div>
+        </div>
+        <div class="header-right">
+          <button onclick="Admin.AuthAPI.logout();" class="btn btn-logout" style="background: #dc3545; color: white; padding: 8px 16px; border: none; border-radius: 6px;">Logout</button>
+        </div>
+      </header>
+
+      <div class="admin-content">
+        <div class="page-header" style="display: flex; justify-content: space-between; align-items: center;">
+          <div>
+            <h1 class="page-title">Sales Reports</h1>
+            <p style="color: #6b7280; margin-top: 4px;">Comprehensive sales analytics and trends</p>
+          </div>
+          <div class="export-btns">
+            <button onclick="exportCSV()" class="btn btn-secondary">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="margin-right: 4px;">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+              Export CSV
+            </button>
+            <button onclick="window.print()" class="btn btn-secondary">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="margin-right: 4px;">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+              </svg>
+              Print
+            </button>
+          </div>
+        </div>
+
+        <!-- Filters -->
+        <div class="card" style="margin-bottom: 24px;">
+          <div class="card-body" style="padding: 16px;">
+            <div class="report-filters">
+              <div class="filter-group">
+                <span class="filter-label">Date Range</span>
+                <select id="date-range" class="filter-select" onchange="loadReport()">
+                  <option value="7">Last 7 Days</option>
+                  <option value="30" selected>Last 30 Days</option>
+                  <option value="90">Last 90 Days</option>
+                  <option value="365">Last Year</option>
+                  <option value="all">All Time</option>
+                </select>
+              </div>
+              <div class="filter-group">
+                <span class="filter-label">From Date</span>
+                <input type="date" id="date-from" class="form-input" onchange="loadReport()">
+              </div>
+              <div class="filter-group">
+                <span class="filter-label">To Date</span>
+                <input type="date" id="date-to" class="form-input" onchange="loadReport()">
+              </div>
+              <div class="filter-group">
+                <span class="filter-label">Product Type</span>
+                <select id="product-type" class="filter-select" onchange="loadReport()">
+                  <option value="">All Products</option>
+                  <option value="roller">Roller Shades</option>
+                  <option value="zebra">Zebra Shades</option>
+                  <option value="honeycomb">Honeycomb Shades</option>
+                  <option value="roman">Roman Shades</option>
+                </select>
+              </div>
+              <div class="filter-group">
+                <span class="filter-label">Status</span>
+                <select id="status-filter" class="filter-select" onchange="loadReport()">
+                  <option value="">All Status</option>
+                  <option value="delivered">Delivered</option>
+                  <option value="shipped">Shipped</option>
+                  <option value="manufacturing">In Production</option>
+                </select>
+              </div>
+              <button onclick="loadReport()" class="btn btn-primary" style="margin-top: 18px;">Apply Filters</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Stats Row -->
+        <div class="stats-row">
+          <div class="stat-card primary">
+            <div class="stat-value" id="total-revenue">$0</div>
+            <div class="stat-label">Total Revenue</div>
+            <div class="stat-change up" id="revenue-change">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"/></svg>
+              <span>vs previous period</span>
+            </div>
+          </div>
+          <div class="stat-card success">
+            <div class="stat-value" id="total-orders">0</div>
+            <div class="stat-label">Total Orders</div>
+            <div class="stat-change up" id="orders-change">
+              <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 10l7-7m0 0l7 7m-7-7v18"/></svg>
+              <span>vs previous period</span>
+            </div>
+          </div>
+          <div class="stat-card warning">
+            <div class="stat-value" id="avg-order">$0</div>
+            <div class="stat-label">Average Order Value</div>
+            <div class="stat-change" id="aov-change">
+              <span>--</span>
+            </div>
+          </div>
+          <div class="stat-card info">
+            <div class="stat-value" id="total-items">0</div>
+            <div class="stat-label">Items Sold</div>
+            <div class="stat-change" id="items-change">
+              <span>--</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Sales Chart -->
+        <div class="chart-container">
+          <div class="chart-header">
+            <h3 class="chart-title">Sales Over Time</h3>
+            <select id="chart-type" class="filter-select" onchange="updateChart()">
+              <option value="revenue">Revenue</option>
+              <option value="orders">Order Count</option>
+              <option value="items">Items Sold</option>
+            </select>
+          </div>
+          <div class="chart-canvas">
+            <canvas id="sales-chart"></canvas>
+          </div>
+        </div>
+
+        <!-- Sales Table -->
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">Order Details</h3>
+            <span class="badge" id="order-count-badge" style="background: #8E6545; color: white;">0 orders</span>
+          </div>
+          <div class="table-container">
+            <table class="data-table">
+              <thead>
+                <tr>
+                  <th>Order #</th>
+                  <th>Date</th>
+                  <th>Customer</th>
+                  <th>Items</th>
+                  <th>Product Type</th>
+                  <th>Status</th>
+                  <th style="text-align: right;">Total</th>
+                </tr>
+              </thead>
+              <tbody id="orders-table">
+                <tr>
+                  <td colspan="7" style="text-align: center; padding: 40px; color: #6b7280;">Loading...</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="../js/adminNavConfig.js?v=1737200002"></script>
+  <script src="../js/admin.js?v=1737100001"></script>
+  <script>
+    if (!Admin.Auth.requireAuth()) {
+      // Redirect to login
+    } else {
+      loadReport();
+    }
+
+    let salesChart = null;
+    let reportData = { orders: [], totals: {} };
+
+    async function loadReport() {
+      try {
+        const dateRange = document.getElementById('date-range').value;
+        const dateFrom = document.getElementById('date-from').value;
+        const dateTo = document.getElementById('date-to').value;
+        const productType = document.getElementById('product-type').value;
+        const status = document.getElementById('status-filter').value;
+
+        // Build query params
+        const params = new URLSearchParams();
+        params.append('limit', '500');
+
+        if (dateFrom) params.append('startDate', dateFrom);
+        else if (dateRange !== 'all') {
+          const start = new Date();
+          start.setDate(start.getDate() - parseInt(dateRange));
+          params.append('startDate', start.toISOString().split('T')[0]);
+        }
+        if (dateTo) params.append('endDate', dateTo);
+        if (status) params.append('status', status);
+
+        const response = await fetch(`/api/admin/orders?${params}`, {
+          headers: { 'Authorization': `Bearer ${Admin.Auth.getToken()}` }
+        });
+        const data = await response.json();
+
+        let orders = data.success && data.orders ? data.orders : [];
+
+        // Filter by product type if specified
+        if (productType) {
+          orders = orders.filter(order => {
+            return order.items?.some(item => {
+              if (item.product_type === productType) return true;
+              if (item.product_slug?.includes(productType)) return true;
+              return false;
+            });
+          });
+        }
+
+        reportData.orders = orders;
+        calculateTotals();
+        renderStats();
+        renderChart();
+        renderTable();
+
+      } catch (error) {
+        console.error('Failed to load report:', error);
+        Admin.Toast.error('Failed to load report data');
+      }
+    }
+
+    function calculateTotals() {
+      const orders = reportData.orders;
+      let totalRevenue = 0;
+      let totalItems = 0;
+
+      orders.forEach(order => {
+        totalRevenue += order.total || order.pricing?.total || 0;
+        totalItems += order.items?.reduce((sum, item) => sum + item.quantity, 0) || 0;
+      });
+
+      reportData.totals = {
+        revenue: totalRevenue,
+        orders: orders.length,
+        avgOrder: orders.length > 0 ? totalRevenue / orders.length : 0,
+        items: totalItems
+      };
+    }
+
+    function renderStats() {
+      const t = reportData.totals;
+      document.getElementById('total-revenue').textContent = Admin.Utils.formatCurrency(t.revenue);
+      document.getElementById('total-orders').textContent = t.orders;
+      document.getElementById('avg-order').textContent = Admin.Utils.formatCurrency(t.avgOrder);
+      document.getElementById('total-items').textContent = t.items;
+      document.getElementById('order-count-badge').textContent = `${t.orders} orders`;
+    }
+
+    function renderChart() {
+      const ctx = document.getElementById('sales-chart').getContext('2d');
+      const chartType = document.getElementById('chart-type').value;
+
+      // Group orders by date
+      const dailyData = {};
+      reportData.orders.forEach(order => {
+        const date = new Date(order.created_at).toISOString().split('T')[0];
+        if (!dailyData[date]) {
+          dailyData[date] = { revenue: 0, orders: 0, items: 0 };
+        }
+        dailyData[date].revenue += order.total || order.pricing?.total || 0;
+        dailyData[date].orders += 1;
+        dailyData[date].items += order.items?.reduce((sum, item) => sum + item.quantity, 0) || 0;
+      });
+
+      const sortedDates = Object.keys(dailyData).sort();
+      const labels = sortedDates.map(d => new Date(d).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
+      const values = sortedDates.map(d => dailyData[d][chartType]);
+
+      if (salesChart) salesChart.destroy();
+
+      salesChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: labels,
+          datasets: [{
+            label: chartType === 'revenue' ? 'Revenue' : chartType === 'orders' ? 'Orders' : 'Items',
+            data: values,
+            borderColor: '#8E6545',
+            backgroundColor: 'rgba(142, 101, 69, 0.1)',
+            fill: true,
+            tension: 0.4
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false }
+          },
+          scales: {
+            y: {
+              beginAtZero: true,
+              ticks: {
+                callback: function(value) {
+                  return chartType === 'revenue' ? '$' + value.toLocaleString() : value;
+                }
+              }
+            }
+          }
+        }
+      });
+    }
+
+    function updateChart() {
+      renderChart();
+    }
+
+    function renderTable() {
+      const tbody = document.getElementById('orders-table');
+
+      if (reportData.orders.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="7" style="text-align: center; padding: 40px; color: #6b7280;">No orders found for the selected period</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = reportData.orders.map(order => {
+        const orderNumber = order.order_number || order.id.slice(0, 8).toUpperCase();
+        const customerName = order.customer_name || order.customer?.name || 'Guest';
+        const itemCount = order.items?.reduce((sum, item) => sum + item.quantity, 0) || 0;
+        const productType = getProductType(order);
+        const total = order.total || order.pricing?.total || 0;
+
+        const statusColors = {
+          'delivered': '#10b981',
+          'shipped': '#3b82f6',
+          'manufacturing': '#f59e0b',
+          'qa': '#8b5cf6',
+          'order_received': '#6366f1',
+          'pending': '#9ca3af'
+        };
+        const statusColor = statusColors[order.status] || '#6b7280';
+
+        return `
+          <tr>
+            <td><a href="/admin/orders.html" style="color: #8E6545; font-weight: 500;">#${orderNumber}</a></td>
+            <td>${Admin.Utils.formatDate(order.created_at)}</td>
+            <td>${Admin.Utils.escapeHtml(customerName)}</td>
+            <td>${itemCount}</td>
+            <td><span style="text-transform: capitalize;">${productType}</span></td>
+            <td><span style="color: ${statusColor}; font-weight: 500; text-transform: capitalize;">${order.status?.replace(/_/g, ' ')}</span></td>
+            <td style="text-align: right; font-weight: 600;">${Admin.Utils.formatCurrency(total)}</td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function getProductType(order) {
+      if (!order.items || order.items.length === 0) return 'unknown';
+      const types = new Set();
+      order.items.forEach(item => {
+        if (item.product_type) types.add(item.product_type);
+        else if (item.product_slug?.includes('zebra')) types.add('zebra');
+        else if (item.product_slug?.includes('roller')) types.add('roller');
+      });
+      if (types.size === 0) return 'unknown';
+      if (types.size === 1) return [...types][0];
+      return 'mixed';
+    }
+
+    function exportCSV() {
+      if (reportData.orders.length === 0) {
+        Admin.Toast.warning('No data to export');
+        return;
+      }
+
+      const headers = ['Order #', 'Date', 'Customer', 'Email', 'Items', 'Product Type', 'Status', 'Total'];
+      const rows = reportData.orders.map(order => [
+        order.order_number || order.id.slice(0, 8).toUpperCase(),
+        Admin.Utils.formatDate(order.created_at),
+        order.customer_name || order.customer?.name || 'Guest',
+        order.customer_email || order.customer?.email || '',
+        order.items?.reduce((sum, item) => sum + item.quantity, 0) || 0,
+        getProductType(order),
+        order.status,
+        order.total || order.pricing?.total || 0
+      ]);
+
+      const csvContent = [headers, ...rows].map(row => row.map(cell => `"${cell}"`).join(',')).join('\n');
+      const blob = new Blob([csvContent], { type: 'text/csv' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `sales-report-${new Date().toISOString().split('T')[0]}.csv`;
+      a.click();
+      URL.revokeObjectURL(url);
+      Admin.Toast.success('Report exported');
+    }
+  </script>
+</body>
+</html>

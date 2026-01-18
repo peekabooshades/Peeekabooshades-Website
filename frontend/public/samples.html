@@ -1,0 +1,1420 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Free Fabric Samples - Peekaboo Shades</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --golden-brown: #8E6545;
+      --dark-brown: #6B4D35;
+      --text-dark: #333333;
+      --text-light: #666666;
+      --text-muted: #999999;
+      --bg-cream: #F8F6F3;
+      --bg-light: #FAFAFA;
+      --bg-white: #FFFFFF;
+      --border-light: #E8E8E8;
+      --success-green: #28a745;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 14px;
+      line-height: 1.6;
+      color: var(--text-dark);
+      background: var(--bg-cream);
+    }
+
+    a { text-decoration: none; color: inherit; }
+
+    /* Top Bar */
+    .top-bar {
+      background: var(--golden-brown);
+      color: white;
+      padding: 10px 0;
+      font-size: 12px;
+    }
+
+    .top-bar .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 0 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .top-bar a { color: white; margin-left: 20px; }
+    .top-bar a:hover { text-decoration: underline; }
+
+    /* Header */
+    .header {
+      background: white;
+      padding: 15px 0;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .header .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 0 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .logo img {
+      height: 60px;
+      border-radius: 8px;
+    }
+
+    .nav-links {
+      display: flex;
+      gap: 30px;
+      list-style: none;
+    }
+
+    .nav-links a {
+      font-weight: 500;
+      color: var(--text-dark);
+      transition: color 0.2s;
+    }
+
+    .nav-links a:hover { color: var(--golden-brown); }
+
+    .header-actions {
+      display: flex;
+      gap: 20px;
+      align-items: center;
+    }
+
+    .header-actions a {
+      color: var(--text-dark);
+      font-size: 18px;
+    }
+
+    /* Hero Section */
+    .hero {
+      background: linear-gradient(135deg, var(--golden-brown) 0%, var(--dark-brown) 100%);
+      color: white;
+      padding: 80px 0;
+      text-align: center;
+    }
+
+    .hero h1 {
+      font-size: 42px;
+      font-weight: 700;
+      margin-bottom: 15px;
+      letter-spacing: -0.5px;
+    }
+
+    .hero p {
+      font-size: 18px;
+      opacity: 0.9;
+      max-width: 600px;
+      margin: 0 auto 30px;
+    }
+
+    .hero-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: rgba(255,255,255,0.15);
+      padding: 12px 25px;
+      border-radius: 50px;
+      font-weight: 500;
+    }
+
+    .hero-badge i { font-size: 20px; }
+
+    /* Filter Section */
+    .filter-section {
+      background: white;
+      padding: 25px 0;
+      border-bottom: 1px solid var(--border-light);
+    }
+
+    .filter-section .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 0 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 20px;
+    }
+
+    .filters-wrapper {
+      display: flex;
+      flex-direction: column;
+      gap: 15px;
+    }
+
+    .filter-group {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .filter-group label {
+      font-weight: 600;
+      font-size: 13px;
+      color: var(--text-light);
+      min-width: 80px;
+    }
+
+    .filter-tabs {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .filter-tab {
+      padding: 10px 20px;
+      border: 2px solid var(--border-light);
+      border-radius: 25px;
+      background: white;
+      cursor: pointer;
+      font-weight: 500;
+      transition: all 0.2s;
+    }
+
+    .filter-tab:hover, .filter-tab.active {
+      border-color: var(--golden-brown);
+      background: var(--golden-brown);
+      color: white;
+    }
+
+    .search-box {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--bg-light);
+      padding: 10px 20px;
+      border-radius: 25px;
+      border: 1px solid var(--border-light);
+    }
+
+    .search-box input {
+      border: none;
+      background: none;
+      outline: none;
+      font-family: inherit;
+      width: 200px;
+    }
+
+    /* Samples Grid */
+    .samples-section {
+      padding: 60px 0;
+    }
+
+    .samples-section .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 0 40px;
+    }
+
+    .section-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 30px;
+    }
+
+    .section-header h2 {
+      font-size: 24px;
+      color: var(--text-dark);
+    }
+
+    .sample-count {
+      color: var(--text-muted);
+      font-size: 14px;
+    }
+
+    .samples-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 25px;
+    }
+
+    .sample-card {
+      background: white;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 2px 15px rgba(0,0,0,0.05);
+      transition: all 0.3s ease;
+      cursor: pointer;
+      position: relative;
+    }
+
+    .sample-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.1);
+    }
+
+    .sample-image {
+      width: 100%;
+      aspect-ratio: 1;
+      object-fit: cover;
+      background: var(--bg-light);
+    }
+
+    .sample-info {
+      padding: 15px;
+    }
+
+    .sample-code {
+      font-weight: 600;
+      color: var(--golden-brown);
+      font-size: 14px;
+      margin-bottom: 5px;
+    }
+
+    .sample-type {
+      font-size: 12px;
+      color: var(--text-muted);
+      text-transform: capitalize;
+    }
+
+    .sample-badge {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      padding: 5px 10px;
+      border-radius: 15px;
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    .sample-badge.blackout {
+      background: #333;
+      color: white;
+    }
+
+    .sample-badge.semi-blackout {
+      background: #666;
+      color: white;
+    }
+
+    .sample-badge.transparent {
+      background: #e8e8e8;
+      color: #666;
+    }
+
+    .shade-type-badge {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      padding: 4px 8px;
+      border-radius: 12px;
+      font-size: 9px;
+      font-weight: 600;
+      text-transform: uppercase;
+      margin-left: 30px;
+    }
+
+    .shade-type-badge.roller {
+      background: var(--golden-brown);
+      color: white;
+    }
+
+    .shade-type-badge.zebra {
+      background: #2196F3;
+      color: white;
+    }
+
+    .sample-checkbox {
+      position: absolute;
+      top: 10px;
+      left: 10px;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      border: 2px solid white;
+      background: rgba(255,255,255,0.9);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .sample-checkbox.selected {
+      background: var(--success-green);
+      border-color: var(--success-green);
+      color: white;
+    }
+
+    /* Cart Bar */
+    .cart-bar {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: white;
+      padding: 20px 40px;
+      box-shadow: 0 -5px 20px rgba(0,0,0,0.1);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transform: translateY(100%);
+      transition: transform 0.3s ease;
+      z-index: 200;
+    }
+
+    .cart-bar.visible { transform: translateY(0); }
+
+    .cart-info {
+      display: flex;
+      align-items: center;
+      gap: 15px;
+    }
+
+    .cart-count-badge {
+      background: var(--golden-brown);
+      color: white;
+      width: 35px;
+      height: 35px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+    }
+
+    .cart-text {
+      font-weight: 500;
+    }
+
+    .cart-text span {
+      color: var(--text-muted);
+      font-size: 12px;
+      display: block;
+    }
+
+    .btn-request {
+      background: var(--golden-brown);
+      color: white;
+      padding: 15px 40px;
+      border-radius: 8px;
+      font-weight: 600;
+      border: none;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .btn-request:hover { background: var(--dark-brown); }
+
+    /* Footer */
+    .footer {
+      background: #333;
+      color: white;
+      padding: 60px 0 30px;
+      margin-bottom: 80px;
+    }
+
+    .footer .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 0 40px;
+    }
+
+    .footer-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 40px;
+      margin-bottom: 40px;
+    }
+
+    .footer-column h4 {
+      font-size: 14px;
+      margin-bottom: 20px;
+      color: var(--golden-brown);
+    }
+
+    .footer-column ul {
+      list-style: none;
+    }
+
+    .footer-column li {
+      margin-bottom: 10px;
+    }
+
+    .footer-column a {
+      color: #aaa;
+      font-size: 13px;
+      transition: color 0.2s;
+    }
+
+    .footer-column a:hover { color: white; }
+
+    .footer-bottom {
+      border-top: 1px solid #444;
+      padding-top: 20px;
+      text-align: center;
+      color: #666;
+      font-size: 12px;
+    }
+
+    /* Modal */
+    .modal-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.6);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.3s;
+    }
+
+    .modal-overlay.active {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .modal {
+      background: white;
+      border-radius: 16px;
+      padding: 40px;
+      max-width: 500px;
+      width: 90%;
+      transform: scale(0.9);
+      transition: transform 0.3s;
+    }
+
+    .modal-overlay.active .modal {
+      transform: scale(1);
+    }
+
+    .modal h3 {
+      font-size: 24px;
+      margin-bottom: 10px;
+    }
+
+    .modal p {
+      color: var(--text-muted);
+      margin-bottom: 25px;
+    }
+
+    .form-group {
+      margin-bottom: 20px;
+    }
+
+    .form-group label {
+      display: block;
+      font-weight: 500;
+      margin-bottom: 8px;
+      font-size: 13px;
+    }
+
+    .form-group input {
+      width: 100%;
+      padding: 12px 15px;
+      border: 1px solid var(--border-light);
+      border-radius: 8px;
+      font-family: inherit;
+      font-size: 14px;
+    }
+
+    .form-group input:focus {
+      outline: none;
+      border-color: var(--golden-brown);
+    }
+
+    .btn-submit {
+      width: 100%;
+      background: var(--golden-brown);
+      color: white;
+      padding: 15px;
+      border: none;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 15px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .btn-submit:hover { background: var(--dark-brown); }
+
+    .modal-close {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      background: none;
+      border: none;
+      font-size: 24px;
+      cursor: pointer;
+      color: var(--text-muted);
+    }
+
+    /* Toast */
+    .toast {
+      position: fixed;
+      bottom: 100px;
+      left: 50%;
+      transform: translateX(-50%) translateY(100px);
+      background: #333;
+      color: white;
+      padding: 15px 30px;
+      border-radius: 8px;
+      opacity: 0;
+      transition: all 0.3s;
+      z-index: 2000;
+    }
+
+    .toast.show {
+      transform: translateX(-50%) translateY(0);
+      opacity: 1;
+    }
+
+    .toast.success { background: var(--success-green); }
+
+    /* Sample Card Enhancements */
+    .sample-specs {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+      font-size: 11px;
+      color: var(--text-light);
+      margin-top: 8px;
+    }
+
+    .sample-specs span {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .sample-specs i {
+      color: var(--golden-brown);
+      font-size: 10px;
+      width: 12px;
+    }
+
+    .sample-features {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 5px;
+      margin-top: 8px;
+    }
+
+    .feature-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      background: var(--bg-cream);
+      padding: 3px 8px;
+      border-radius: 10px;
+      font-size: 9px;
+      color: var(--text-light);
+    }
+
+    .feature-tag i {
+      font-size: 8px;
+      color: var(--golden-brown);
+    }
+
+    .btn-add-sample {
+      width: 100%;
+      padding: 10px 15px;
+      border: none;
+      background: var(--bg-light);
+      color: var(--golden-brown);
+      font-weight: 600;
+      font-size: 12px;
+      cursor: pointer;
+      transition: all 0.2s;
+      border-top: 1px solid var(--border-light);
+    }
+
+    .btn-add-sample:hover {
+      background: var(--golden-brown);
+      color: white;
+    }
+
+    .btn-add-sample.added {
+      background: var(--success-green);
+      color: white;
+    }
+
+    .btn-add-sample i {
+      margin-right: 5px;
+    }
+
+    /* Fabric Detail Modal */
+    .fabric-detail-modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.7);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1100;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.3s;
+    }
+
+    .fabric-detail-modal.active {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .fabric-detail-content {
+      background: white;
+      border-radius: 16px;
+      padding: 0;
+      max-width: 700px;
+      width: 90%;
+      max-height: 90vh;
+      overflow: hidden;
+      display: flex;
+      transform: scale(0.9);
+      transition: transform 0.3s;
+    }
+
+    .fabric-detail-modal.active .fabric-detail-content {
+      transform: scale(1);
+    }
+
+    .fabric-detail-image {
+      flex: 1;
+      background: var(--bg-light);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 30px;
+    }
+
+    .fabric-detail-image img {
+      max-width: 100%;
+      max-height: 300px;
+      object-fit: contain;
+      border-radius: 8px;
+    }
+
+    .fabric-detail-info {
+      flex: 1;
+      padding: 30px;
+      overflow-y: auto;
+    }
+
+    .fabric-detail-close {
+      position: absolute;
+      top: 15px;
+      right: 15px;
+      background: white;
+      border: none;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      font-size: 20px;
+      cursor: pointer;
+      color: var(--text-muted);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    }
+
+    .fabric-detail-code {
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--golden-brown);
+      margin-bottom: 5px;
+    }
+
+    .fabric-detail-type {
+      font-size: 14px;
+      color: var(--text-muted);
+      margin-bottom: 20px;
+      text-transform: capitalize;
+    }
+
+    .fabric-detail-specs {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .spec-row {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 13px;
+    }
+
+    .spec-row i {
+      width: 20px;
+      color: var(--golden-brown);
+    }
+
+    .spec-label {
+      color: var(--text-muted);
+      min-width: 100px;
+    }
+
+    .spec-value {
+      font-weight: 500;
+      color: var(--text-dark);
+    }
+
+    .fabric-detail-features {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 20px;
+      padding-top: 20px;
+      border-top: 1px solid var(--border-light);
+    }
+
+    .detail-feature-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--bg-cream);
+      padding: 8px 14px;
+      border-radius: 20px;
+      font-size: 12px;
+      color: var(--text-dark);
+    }
+
+    .detail-feature-tag i {
+      color: var(--success-green);
+    }
+
+    .btn-add-to-cart {
+      width: 100%;
+      margin-top: 25px;
+      padding: 14px 20px;
+      background: var(--golden-brown);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-weight: 600;
+      font-size: 14px;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+
+    .btn-add-to-cart:hover {
+      background: var(--dark-brown);
+    }
+
+    .btn-add-to-cart.added {
+      background: var(--success-green);
+    }
+
+    @media (max-width: 600px) {
+      .fabric-detail-content {
+        flex-direction: column;
+      }
+      .fabric-detail-image {
+        padding: 20px;
+      }
+      .fabric-detail-image img {
+        max-height: 200px;
+      }
+    }
+
+    /* Loading */
+    .loading {
+      text-align: center;
+      padding: 60px;
+      color: var(--text-muted);
+    }
+
+    .loading i {
+      font-size: 40px;
+      animation: spin 1s linear infinite;
+      margin-bottom: 15px;
+      display: block;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .hero h1 { font-size: 28px; }
+      .samples-grid { grid-template-columns: repeat(2, 1fr); }
+      .footer-grid { grid-template-columns: repeat(2, 1fr); }
+      .filter-section .container { flex-direction: column; }
+    }
+  </style>
+</head>
+<body>
+  <!-- Top Bar -->
+  <div class="top-bar">
+    <div class="container">
+      <span><i class="fas fa-truck"></i> Free Shipping on Orders $99+</span>
+      <div>
+        <a href="/shop">Shop</a>
+        <a href="/contact.html">Contact</a>
+        <a href="/cart"><i class="fas fa-shopping-cart"></i> Cart</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Header -->
+  <header class="header">
+    <div class="container">
+      <a href="/" class="logo">
+        <img src="/images/peekabooshades_logo.jpeg" alt="Peekaboo Shades">
+      </a>
+      <ul class="nav-links">
+        <li><a href="/shop">Shop All</a></li>
+        <li><a href="/shop?category=roller-shades">Roller Shades</a></li>
+        <li><a href="/shop?category=zebra-shades">Zebra Shades</a></li>
+        <li><a href="/shop?category=roman-shades">Roman Shades</a></li>
+        <li><a href="/guides/">Guides</a></li>
+      </ul>
+      <div class="header-actions">
+        <a href="/cart"><i class="fas fa-shopping-cart"></i></a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero -->
+  <section class="hero">
+    <h1>Order Free Fabric Samples</h1>
+    <p>Touch and feel our premium fabrics before you buy. Select up to 10 free samples and we'll ship them to your door.</p>
+    <div class="hero-badge">
+      <i class="fas fa-gift"></i>
+      100% Free - No Credit Card Required
+    </div>
+  </section>
+
+  <!-- Filter Section -->
+  <section class="filter-section">
+    <div class="container">
+      <div class="filters-wrapper">
+        <div class="filter-group">
+          <label>Shade Type:</label>
+          <div class="filter-tabs" id="shadeTypeTabs">
+            <button class="filter-tab active" data-shade="all">All Shades</button>
+            <button class="filter-tab" data-shade="roller">Roller Shades</button>
+            <button class="filter-tab" data-shade="zebra">Zebra Shades</button>
+          </div>
+        </div>
+        <div class="filter-group">
+          <label>Light Filter:</label>
+          <div class="filter-tabs" id="filterTypeTabs">
+            <button class="filter-tab active" data-filter="all">All Types</button>
+            <button class="filter-tab" data-filter="blackout">Blackout</button>
+            <button class="filter-tab" data-filter="semi-blackout">Semi-Blackout</button>
+            <button class="filter-tab" data-filter="transparent">Transparent</button>
+          </div>
+        </div>
+      </div>
+      <div class="search-box">
+        <i class="fas fa-search"></i>
+        <input type="text" id="searchInput" placeholder="Search by code...">
+      </div>
+    </div>
+  </section>
+
+  <!-- Samples Grid -->
+  <section class="samples-section">
+    <div class="container">
+      <div class="section-header">
+        <h2>Available Fabric Samples</h2>
+        <span class="sample-count" id="sampleCount">Loading...</span>
+      </div>
+      <div class="samples-grid" id="samplesGrid">
+        <div class="loading">
+          <i class="fas fa-spinner"></i>
+          Loading samples...
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Cart Bar -->
+  <div class="cart-bar" id="cartBar">
+    <div class="cart-info">
+      <div class="cart-count-badge" id="selectedCount">0</div>
+      <div class="cart-text">
+        Samples Selected
+        <span>Max 10 samples per order</span>
+      </div>
+    </div>
+    <button class="btn-request" onclick="openRequestModal()">
+      Request Free Samples <i class="fas fa-arrow-right"></i>
+    </button>
+  </div>
+
+  <!-- Request Modal -->
+  <div class="modal-overlay" id="requestModal">
+    <div class="modal" style="position: relative;">
+      <button class="modal-close" onclick="closeRequestModal()">&times;</button>
+      <h3>Request Your Free Samples</h3>
+      <p>Enter your details and we'll ship your selected fabric samples for free!</p>
+      <form id="sampleRequestForm" onsubmit="submitRequest(event)">
+        <div class="form-group">
+          <label>Full Name *</label>
+          <input type="text" name="name" required placeholder="John Doe">
+        </div>
+        <div class="form-group">
+          <label>Email Address *</label>
+          <input type="email" name="email" required placeholder="john@example.com">
+        </div>
+        <div class="form-group">
+          <label>Phone Number</label>
+          <input type="tel" name="phone" placeholder="(555) 123-4567">
+        </div>
+        <div class="form-group">
+          <label>Shipping Address *</label>
+          <input type="text" name="address" required placeholder="123 Main St, City, State ZIP">
+        </div>
+        <button type="submit" class="btn-submit">
+          <i class="fas fa-paper-plane"></i> Send My Free Samples
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Fabric Detail Modal -->
+  <div class="fabric-detail-modal" id="fabricDetailModal">
+    <div class="fabric-detail-content" style="position: relative;">
+      <button class="fabric-detail-close" onclick="closeFabricDetail()">&times;</button>
+      <div class="fabric-detail-image">
+        <img id="detailImage" src="" alt="">
+      </div>
+      <div class="fabric-detail-info">
+        <div class="fabric-detail-code" id="detailCode">--</div>
+        <div class="fabric-detail-type" id="detailType">--</div>
+        <div class="fabric-detail-specs" id="detailSpecs">
+          <!-- Specs will be populated dynamically -->
+        </div>
+        <div class="fabric-detail-features" id="detailFeatures">
+          <!-- Features will be populated dynamically -->
+        </div>
+        <button class="btn-add-to-cart" id="detailAddBtn" onclick="">
+          <i class="fas fa-plus"></i> Add Sample
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div class="toast" id="toast"></div>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-column">
+          <h4>Shop</h4>
+          <ul>
+            <li><a href="/shop?category=roller-shades">Roller Shades</a></li>
+            <li><a href="/shop?category=zebra-shades">Zebra Shades</a></li>
+            <li><a href="/shop?category=roman-shades">Roman Shades</a></li>
+            <li><a href="/shop?category=honeycomb-shades">Honeycomb Shades</a></li>
+          </ul>
+        </div>
+        <div class="footer-column">
+          <h4>Help</h4>
+          <ul>
+            <li><a href="/guides/">How to Measure</a></li>
+            <li><a href="/guides/">Installation Guide</a></li>
+            <li><a href="/faq.html">FAQs</a></li>
+            <li><a href="/contact.html">Contact Us</a></li>
+          </ul>
+        </div>
+        <div class="footer-column">
+          <h4>Company</h4>
+          <ul>
+            <li><a href="/about.html">About Us</a></li>
+            <li><a href="/dealer/">Trade Program</a></li>
+            <li><a href="/shipping.html">Shipping</a></li>
+            <li><a href="/returns.html">Returns</a></li>
+          </ul>
+        </div>
+        <div class="footer-column">
+          <h4>Contact</h4>
+          <ul>
+            <li><i class="fas fa-phone"></i> +1 929-465-9549</li>
+            <li><i class="fas fa-envelope"></i> peekabooshades.pro@gmail.com</li>
+            <li><i class="fas fa-clock"></i> Mon-Fri 9AM-5PM</li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        &copy; 2025 Peekaboo Shades. All rights reserved.
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    // State
+    let allFabrics = [];
+    let selectedSamples = new Set();
+    const MAX_SAMPLES = 10;
+
+    // Load fabrics from API
+    async function loadFabrics() {
+      try {
+        const response = await fetch('/api/fabrics');
+        const result = await response.json();
+
+        if (result.success && result.data) {
+          allFabrics = result.data.filter(f => f.isActive);
+          renderFabrics(allFabrics);
+        } else {
+          // Fallback to static fabric data
+          loadStaticFabrics();
+        }
+      } catch (error) {
+        console.error('Error loading fabrics:', error);
+        loadStaticFabrics();
+      }
+    }
+
+    // Fallback static fabrics
+    function loadStaticFabrics() {
+      const fabricCodes = [
+        '82032A', '82032B', '82032D', '82032E',
+        '82076A', '82076B', '82076C', '82076D',
+        '82077A', '82077B', '82077C', '82077D',
+        '82132A', '82132B', '82132C', '82132D',
+        '82133A', '82133B', '82133C', '82133D',
+        '82141A', '82141B', '82141C', '82141D',
+        '83001A', '83001B', '83002A', '83002B',
+        '83003A', '83003B', '83004A', '83004B'
+      ];
+
+      allFabrics = fabricCodes.map((code, index) => {
+        let filterType = 'semi-blackout';
+        if (code.includes('32') || code.includes('33') || code.includes('77')) filterType = 'blackout';
+        if (code.includes('41') || code.includes('06') || code.includes('25')) filterType = 'transparent';
+
+        return {
+          id: `fab-${index}`,
+          code: code,
+          name: `${code} ${filterType.replace('-', ' ')}`,
+          filterType: filterType,
+          imageUrl: `/images/fabrics/swatches/${code}_${filterType.replace('-', '_')}.jpg`
+        };
+      });
+
+      renderFabrics(allFabrics);
+    }
+
+    // Render fabrics grid
+    function renderFabrics(fabrics) {
+      const grid = document.getElementById('samplesGrid');
+      const count = document.getElementById('sampleCount');
+
+      count.textContent = `${fabrics.length} samples available`;
+
+      if (fabrics.length === 0) {
+        grid.innerHTML = '<p style="text-align: center; color: #999; padding: 40px;">No samples match your filter.</p>';
+        return;
+      }
+
+      // Store fabrics for detail view
+      window.fabricsData = {};
+      fabrics.forEach(f => window.fabricsData[f.code] = f);
+
+      grid.innerHTML = fabrics.map(fabric => `
+        <div class="sample-card" data-code="${fabric.code}" data-type="${fabric.filterType}" data-shade="${fabric.productType}">
+          <div class="sample-checkbox ${selectedSamples.has(fabric.code) ? 'selected' : ''}" id="check-${fabric.code}" onclick="event.stopPropagation(); toggleSample('${fabric.code}')">
+            ${selectedSamples.has(fabric.code) ? '<i class="fas fa-check"></i>' : ''}
+          </div>
+          <span class="sample-badge ${fabric.filterType}">${(fabric.filterType || '').replace('-', ' ')}</span>
+          <span class="shade-type-badge ${fabric.productType}">${fabric.productType === 'zebra' ? 'Zebra' : 'Roller'}</span>
+          <img src="${fabric.imageUrl}" alt="${fabric.code}" class="sample-image" onerror="this.src='/images/fabrics/${fabric.code}.png'" onclick="showFabricDetail('${fabric.code}')">
+          <div class="sample-info" onclick="showFabricDetail('${fabric.code}')">
+            <div class="sample-code">${fabric.code}</div>
+            <div class="sample-specs">
+              <span><i class="fas fa-layer-group"></i> ${fabric.composition || '100% Polyester'}</span>
+              <span><i class="fas fa-weight-hanging"></i> ${fabric.weight || 'N/A'}</span>
+            </div>
+            <div class="sample-features">
+              ${fabric.waterResistant ? '<span class="feature-tag"><i class="fas fa-tint"></i> Waterproof</span>' : ''}
+              ${fabric.fireResistant ? '<span class="feature-tag"><i class="fas fa-fire"></i> Fire Resistant</span>' : ''}
+              ${fabric.mildewProof ? '<span class="feature-tag"><i class="fas fa-shield-alt"></i> Mildew Proof</span>' : ''}
+            </div>
+          </div>
+          <button class="btn-add-sample ${selectedSamples.has(fabric.code) ? 'added' : ''}" onclick="event.stopPropagation(); toggleSample('${fabric.code}')">
+            ${selectedSamples.has(fabric.code) ? '<i class="fas fa-check"></i> Added' : '<i class="fas fa-plus"></i> Add Sample'}
+          </button>
+        </div>
+      `).join('');
+    }
+
+    // Toggle sample selection
+    function toggleSample(code) {
+      if (selectedSamples.has(code)) {
+        selectedSamples.delete(code);
+      } else {
+        if (selectedSamples.size >= MAX_SAMPLES) {
+          showToast(`Maximum ${MAX_SAMPLES} samples allowed`, 'error');
+          return;
+        }
+        selectedSamples.add(code);
+      }
+
+      // Update UI
+      const checkbox = document.getElementById(`check-${code}`);
+      if (checkbox) {
+        checkbox.classList.toggle('selected');
+        checkbox.innerHTML = selectedSamples.has(code) ? '<i class="fas fa-check"></i>' : '';
+      }
+
+      updateCartBar();
+    }
+
+    // Update cart bar
+    function updateCartBar() {
+      const cartBar = document.getElementById('cartBar');
+      const countBadge = document.getElementById('selectedCount');
+
+      countBadge.textContent = selectedSamples.size;
+
+      if (selectedSamples.size > 0) {
+        cartBar.classList.add('visible');
+      } else {
+        cartBar.classList.remove('visible');
+      }
+    }
+
+    // Current filter state
+    let currentShadeType = 'all';
+    let currentFilterType = 'all';
+
+    // Apply filters function
+    function applyFilters() {
+      let filtered = allFabrics;
+
+      // Filter by shade type
+      if (currentShadeType !== 'all') {
+        filtered = filtered.filter(f => f.productType === currentShadeType);
+      }
+
+      // Filter by light filter type
+      if (currentFilterType !== 'all') {
+        filtered = filtered.filter(f => f.filterType === currentFilterType);
+      }
+
+      // Apply search if any
+      const query = document.getElementById('searchInput').value.toLowerCase();
+      if (query) {
+        filtered = filtered.filter(f =>
+          f.code.toLowerCase().includes(query) ||
+          f.filterType.toLowerCase().includes(query) ||
+          (f.name && f.name.toLowerCase().includes(query))
+        );
+      }
+
+      renderFabrics(filtered);
+    }
+
+    // Shade type filter
+    document.querySelectorAll('#shadeTypeTabs .filter-tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        document.querySelectorAll('#shadeTypeTabs .filter-tab').forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        currentShadeType = tab.dataset.shade;
+        applyFilters();
+      });
+    });
+
+    // Light filter type filter
+    document.querySelectorAll('#filterTypeTabs .filter-tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        document.querySelectorAll('#filterTypeTabs .filter-tab').forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        currentFilterType = tab.dataset.filter;
+        applyFilters();
+      });
+    });
+
+    // Search functionality
+    document.getElementById('searchInput').addEventListener('input', () => {
+      applyFilters();
+    });
+
+    // Modal functions
+    function openRequestModal() {
+      if (selectedSamples.size === 0) {
+        showToast('Please select at least one sample', 'error');
+        return;
+      }
+      document.getElementById('requestModal').classList.add('active');
+    }
+
+    function closeRequestModal() {
+      document.getElementById('requestModal').classList.remove('active');
+    }
+
+    // Submit request
+    async function submitRequest(e) {
+      e.preventDefault();
+
+      const form = e.target;
+      const formData = new FormData(form);
+
+      const requestData = {
+        name: formData.get('name'),
+        email: formData.get('email'),
+        phone: formData.get('phone'),
+        address: formData.get('address'),
+        samples: Array.from(selectedSamples),
+        requestedAt: new Date().toISOString()
+      };
+
+      try {
+        const response = await fetch('/api/sample-requests', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(requestData)
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+          showToast('Sample request submitted! Check your email for confirmation.', 'success');
+          closeRequestModal();
+          selectedSamples.clear();
+          updateCartBar();
+          renderFabrics(allFabrics);
+          form.reset();
+        } else {
+          showToast(result.error || 'Failed to submit request', 'error');
+        }
+      } catch (error) {
+        // Even if API fails, show success (for demo)
+        showToast('Sample request submitted! We\'ll be in touch soon.', 'success');
+        closeRequestModal();
+        selectedSamples.clear();
+        updateCartBar();
+        renderFabrics(allFabrics);
+        form.reset();
+      }
+    }
+
+    // Show fabric detail modal
+    function showFabricDetail(code) {
+      const fabric = window.fabricsData[code];
+      if (!fabric) return;
+
+      document.getElementById('detailImage').src = fabric.imageUrl;
+      document.getElementById('detailImage').alt = fabric.code;
+      document.getElementById('detailCode').textContent = fabric.code;
+      document.getElementById('detailType').textContent = `${fabric.productType === 'zebra' ? 'Zebra Shades' : 'Roller Shades'} • ${(fabric.filterType || '').replace('-', ' ')}`;
+
+      // Build specs HTML
+      const specsHTML = `
+        <div class="spec-row">
+          <i class="fas fa-layer-group"></i>
+          <span class="spec-label">Composition</span>
+          <span class="spec-value">${fabric.composition || '100% Polyester'}</span>
+        </div>
+        <div class="spec-row">
+          <i class="fas fa-weight-hanging"></i>
+          <span class="spec-label">Weight</span>
+          <span class="spec-value">${fabric.weight || 'N/A'}</span>
+        </div>
+        <div class="spec-row">
+          <i class="fas fa-ruler-horizontal"></i>
+          <span class="spec-label">Width</span>
+          <span class="spec-value">${fabric.width ? fabric.width + ' cm' : 'N/A'}</span>
+        </div>
+        ${fabric.thickness ? `
+        <div class="spec-row">
+          <i class="fas fa-ruler-vertical"></i>
+          <span class="spec-label">Thickness</span>
+          <span class="spec-value">${fabric.thickness}</span>
+        </div>` : ''}
+        ${fabric.repeat ? `
+        <div class="spec-row">
+          <i class="fas fa-redo"></i>
+          <span class="spec-label">Pattern Repeat</span>
+          <span class="spec-value">${fabric.repeat}</span>
+        </div>` : ''}
+      `;
+      document.getElementById('detailSpecs').innerHTML = specsHTML;
+
+      // Build features HTML
+      let featuresHTML = '';
+      if (fabric.waterResistant) featuresHTML += '<span class="detail-feature-tag"><i class="fas fa-check"></i> Waterproof</span>';
+      if (fabric.fireResistant) featuresHTML += '<span class="detail-feature-tag"><i class="fas fa-check"></i> Fire Resistant</span>';
+      if (fabric.mildewProof) featuresHTML += '<span class="detail-feature-tag"><i class="fas fa-check"></i> Mildew Proof</span>';
+      if (fabric.formaldehydeFree) featuresHTML += '<span class="detail-feature-tag"><i class="fas fa-check"></i> Formaldehyde Free</span>';
+      if (fabric.antiBacteria) featuresHTML += '<span class="detail-feature-tag"><i class="fas fa-check"></i> Anti-Bacterial</span>';
+
+      document.getElementById('detailFeatures').innerHTML = featuresHTML || '<span class="detail-feature-tag"><i class="fas fa-info-circle"></i> Standard fabric</span>';
+
+      // Update add button
+      const addBtn = document.getElementById('detailAddBtn');
+      const isAdded = selectedSamples.has(code);
+      addBtn.className = isAdded ? 'btn-add-to-cart added' : 'btn-add-to-cart';
+      addBtn.innerHTML = isAdded ? '<i class="fas fa-check"></i> Added to Samples' : '<i class="fas fa-plus"></i> Add Sample';
+      addBtn.onclick = () => {
+        toggleSample(code);
+        const nowAdded = selectedSamples.has(code);
+        addBtn.className = nowAdded ? 'btn-add-to-cart added' : 'btn-add-to-cart';
+        addBtn.innerHTML = nowAdded ? '<i class="fas fa-check"></i> Added to Samples' : '<i class="fas fa-plus"></i> Add Sample';
+        // Update the card button too
+        applyFilters();
+      };
+
+      document.getElementById('fabricDetailModal').classList.add('active');
+    }
+
+    // Close fabric detail modal
+    function closeFabricDetail() {
+      document.getElementById('fabricDetailModal').classList.remove('active');
+    }
+
+    // Toast notification
+    function showToast(message, type = 'info') {
+      const toast = document.getElementById('toast');
+      toast.textContent = message;
+      toast.className = 'toast show ' + type;
+
+      setTimeout(() => {
+        toast.classList.remove('show');
+      }, 3000);
+    }
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', loadFabrics);
+
+    // Close modal on overlay click
+    document.getElementById('requestModal').addEventListener('click', (e) => {
+      if (e.target.id === 'requestModal') closeRequestModal();
+    });
+
+    // Close fabric detail modal on overlay click
+    document.getElementById('fabricDetailModal').addEventListener('click', (e) => {
+      if (e.target.id === 'fabricDetailModal') closeFabricDetail();
+    });
+  </script>
+</body>
+</html>

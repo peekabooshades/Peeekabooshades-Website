@@ -147,9 +147,8 @@ class DatabaseIndex {
     this.buildIndex('products', 'id', db.products);
     this.buildIndex('products', 'slug', db.products);
 
-    // Manufacturer prices indexes
+    // Manufacturer prices indexes (single table for all product types)
     this.buildIndex('manufacturerPrices', 'fabricCode', db.manufacturerPrices);
-    this.buildIndex('zebraManufacturerPrices', 'fabricCode', db.zebraManufacturerPrices);
 
     // Admin users index
     this.buildIndex('adminUsers', 'email', db.adminUsers);

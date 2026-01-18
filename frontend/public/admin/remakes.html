@@ -1,0 +1,666 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Remakes - Peekaboo Shades Admin</title>
+  <link rel="stylesheet" href="/admin/css/admin.css?v=1737200003.0.26">
+  <script src="/admin/js/adminNavConfig.js?v=1737200002"></script>
+  <style>
+    .remake-stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+    .stat-card {
+      background: white;
+      border-radius: 12px;
+      padding: 1.5rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+    .stat-card h3 {
+      font-size: 0.85rem;
+      color: #666;
+      margin-bottom: 0.5rem;
+      text-transform: uppercase;
+    }
+    .stat-card .value {
+      font-size: 2rem;
+      font-weight: 700;
+      color: #8E6545;
+    }
+    .stat-card .trend {
+      font-size: 0.8rem;
+      color: #888;
+      margin-top: 0.25rem;
+    }
+    .controls {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+    .search-box {
+      display: flex;
+      align-items: center;
+      background: white;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 0.5rem 1rem;
+      min-width: 300px;
+    }
+    .search-box input {
+      border: none;
+      outline: none;
+      padding: 0.5rem;
+      flex: 1;
+    }
+    .filter-tabs {
+      display: flex;
+      gap: 0.5rem;
+    }
+    .filter-tab {
+      padding: 0.5rem 1rem;
+      border: 1px solid #ddd;
+      background: white;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.9rem;
+    }
+    .filter-tab.active {
+      background: #8E6545;
+      color: white;
+      border-color: #8E6545;
+    }
+    .remakes-list {
+      display: grid;
+      gap: 1rem;
+    }
+    .remake-card {
+      background: white;
+      border-radius: 12px;
+      padding: 1.5rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+    .remake-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: start;
+      margin-bottom: 1rem;
+    }
+    .remake-id {
+      font-size: 1.1rem;
+      font-weight: 600;
+      color: #333;
+    }
+    .status-badge {
+      padding: 0.25rem 0.75rem;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+    .status-pending { background: #FEF3C7; color: #92400E; }
+    .status-approved { background: #D1FAE5; color: #065F46; }
+    .status-in_production { background: #DBEAFE; color: #1E40AF; }
+    .status-shipped { background: #E0E7FF; color: #4338CA; }
+    .status-completed { background: #E5E7EB; color: #374151; }
+    .status-denied { background: #FEE2E2; color: #991B1B; }
+    .remake-content {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 2rem;
+    }
+    .remake-info h4 {
+      font-size: 0.85rem;
+      color: #666;
+      text-transform: uppercase;
+      margin-bottom: 0.75rem;
+    }
+    .info-grid {
+      display: grid;
+      gap: 0.5rem;
+    }
+    .info-row {
+      display: flex;
+      justify-content: space-between;
+      font-size: 0.9rem;
+    }
+    .info-row .label {
+      color: #666;
+    }
+    .info-row .value {
+      font-weight: 500;
+      color: #333;
+    }
+    .remake-reason {
+      background: #FEF3C7;
+      border-left: 4px solid #F59E0B;
+      padding: 1rem;
+      border-radius: 0 8px 8px 0;
+      margin-top: 1rem;
+    }
+    .remake-reason h5 {
+      margin: 0 0 0.5rem 0;
+      font-size: 0.85rem;
+      color: #92400E;
+    }
+    .remake-reason p {
+      margin: 0;
+      font-size: 0.9rem;
+      color: #78350F;
+    }
+    .remake-actions {
+      display: flex;
+      gap: 0.5rem;
+      margin-top: 1.5rem;
+      padding-top: 1rem;
+      border-top: 1px solid #eee;
+    }
+    .btn-action {
+      padding: 0.5rem 1rem;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      font-weight: 500;
+    }
+    .btn-approve { background: #10B981; color: white; }
+    .btn-production { background: #8E6545; color: white; }
+    .btn-ship { background: #6366F1; color: white; }
+    .btn-complete { background: #059669; color: white; }
+    .btn-deny { background: #FEE2E2; color: #991B1B; }
+    .btn-view { background: #E5E7EB; color: #374151; }
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+    }
+    .modal.active { display: flex; }
+    .modal-content {
+      background: white;
+      border-radius: 12px;
+      padding: 2rem;
+      max-width: 600px;
+      width: 90%;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+    }
+    .modal-header h2 { margin: 0; }
+    .modal-close {
+      background: none;
+      border: none;
+      font-size: 1.5rem;
+      cursor: pointer;
+    }
+    .form-group {
+      margin-bottom: 1.25rem;
+    }
+    .form-group label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 500;
+    }
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      width: 100%;
+      padding: 0.75rem;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      font-size: 0.95rem;
+    }
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+    .btn-submit {
+      width: 100%;
+      padding: 0.875rem;
+      background: #8E6545;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .empty-state {
+      text-align: center;
+      padding: 4rem;
+      color: #666;
+    }
+    .empty-state svg {
+      width: 80px;
+      height: 80px;
+      color: #ccc;
+      margin-bottom: 1rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="admin-layout">
+    <aside class="admin-sidebar"></aside>
+    <main class="admin-main">
+      <header class="admin-header">
+        <h1>Remakes</h1>
+        <div class="header-actions">
+          <button class="btn-primary" onclick="openModal()">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" width="20" height="20">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+            </svg>
+            Create Remake
+          </button>
+        </div>
+      </header>
+
+      <div class="admin-content">
+        <div class="remake-stats">
+          <div class="stat-card">
+            <h3>Pending Review</h3>
+            <div class="value" id="stat-pending">0</div>
+            <div class="trend">Need approval</div>
+          </div>
+          <div class="stat-card">
+            <h3>In Production</h3>
+            <div class="value" id="stat-production">0</div>
+            <div class="trend">Being manufactured</div>
+          </div>
+          <div class="stat-card">
+            <h3>Shipped</h3>
+            <div class="value" id="stat-shipped">0</div>
+            <div class="trend">In transit</div>
+          </div>
+          <div class="stat-card">
+            <h3>Remake Rate</h3>
+            <div class="value" id="stat-rate">0%</div>
+            <div class="trend">Last 30 days</div>
+          </div>
+        </div>
+
+        <div class="controls">
+          <div class="search-box">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" width="20" height="20">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+            <input type="text" placeholder="Search by order or remake ID..." id="searchInput" onkeyup="filterRemakes()">
+          </div>
+          <div class="filter-tabs">
+            <button class="filter-tab active" data-filter="all" onclick="setFilter('all')">All</button>
+            <button class="filter-tab" data-filter="pending" onclick="setFilter('pending')">Pending</button>
+            <button class="filter-tab" data-filter="approved" onclick="setFilter('approved')">Approved</button>
+            <button class="filter-tab" data-filter="in_production" onclick="setFilter('in_production')">In Production</button>
+            <button class="filter-tab" data-filter="shipped" onclick="setFilter('shipped')">Shipped</button>
+            <button class="filter-tab" data-filter="completed" onclick="setFilter('completed')">Completed</button>
+          </div>
+        </div>
+
+        <div class="remakes-list" id="remakesList">
+          <div class="empty-state">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
+            <h3>No Remakes</h3>
+            <p>Remake requests will appear here when items need to be reproduced.</p>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <div class="modal" id="remakeModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 id="modalTitle">Create Remake</h2>
+        <button class="modal-close" onclick="closeModal()">&times;</button>
+      </div>
+      <form id="remakeForm" onsubmit="saveRemake(event)">
+        <input type="hidden" name="id" id="remakeId">
+        <div class="form-row">
+          <div class="form-group">
+            <label>Original Order Number</label>
+            <input type="text" name="orderNumber" required placeholder="ORD-2024-001">
+          </div>
+          <div class="form-group">
+            <label>Customer Name</label>
+            <input type="text" name="customerName" required placeholder="Full name">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Product</label>
+          <input type="text" name="product" required placeholder="Product name and specs">
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Reason Category</label>
+            <select name="reasonCategory" required>
+              <option value="">Select reason...</option>
+              <option value="manufacturing_error">Manufacturing Error</option>
+              <option value="wrong_size">Wrong Size Produced</option>
+              <option value="wrong_fabric">Wrong Fabric Used</option>
+              <option value="wrong_color">Wrong Color</option>
+              <option value="damaged_shipping">Damaged in Shipping</option>
+              <option value="customer_error">Customer Measurement Error</option>
+              <option value="motor_defect">Motor Defect</option>
+              <option value="hardware_issue">Hardware Issue</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Priority</label>
+            <select name="priority" required>
+              <option value="normal">Normal</option>
+              <option value="high">High</option>
+              <option value="urgent">Urgent</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Detailed Description</label>
+          <textarea name="description" rows="3" required placeholder="Describe the issue in detail..."></textarea>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Cost to Remake ($)</label>
+            <input type="number" name="cost" min="0" step="0.01" placeholder="0.00">
+          </div>
+          <div class="form-group">
+            <label>Who Bears Cost</label>
+            <select name="costBearer">
+              <option value="company">Company (Our Error)</option>
+              <option value="customer">Customer (Their Error)</option>
+              <option value="manufacturer">Manufacturer</option>
+              <option value="shipping">Shipping Insurance</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Corrective Specifications</label>
+          <textarea name="correctiveSpecs" rows="2" placeholder="New measurements or specifications for the remake..."></textarea>
+        </div>
+        <button type="submit" class="btn-submit">Create Remake Request</button>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    const Admin = {
+      API: {
+        async get(endpoint) {
+          const token = localStorage.getItem('admin_token');
+          const response = await fetch(endpoint, { headers: { 'Authorization': `Bearer ${token}` } });
+          return response.json();
+        },
+        async post(endpoint, data) {
+          const token = localStorage.getItem('admin_token');
+          const response = await fetch(endpoint, {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+          });
+          return response.json();
+        },
+        async put(endpoint, data) {
+          const token = localStorage.getItem('admin_token');
+          const response = await fetch(endpoint, {
+            method: 'PUT',
+            headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+            body: JSON.stringify(data)
+          });
+          return response.json();
+        },
+        async delete(endpoint) {
+          const token = localStorage.getItem('admin_token');
+          const response = await fetch(endpoint, { method: 'DELETE', headers: { 'Authorization': `Bearer ${token}` } });
+          return response.json();
+        }
+      },
+      Toast: { show(message) { alert(message); } }
+    };
+
+    let remakes = [];
+    let currentFilter = 'all';
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      const token = localStorage.getItem('admin_token');
+      if (!token) { window.location.href = '/admin/login.html'; return; }
+      AdminNavConfig.initSidebar('remakes');
+      await loadData();
+    });
+
+    async function loadData() {
+      try {
+        const data = await Admin.API.get('/api/admin/remakes');
+        remakes = data.success ? (data.remakes || []) : [];
+        updateStats();
+        renderRemakes();
+      } catch (error) {
+        console.error('Error:', error);
+      }
+    }
+
+    function updateStats() {
+      const pending = remakes.filter(r => r.status === 'pending').length;
+      const production = remakes.filter(r => r.status === 'in_production').length;
+      const shipped = remakes.filter(r => r.status === 'shipped').length;
+
+      document.getElementById('stat-pending').textContent = pending;
+      document.getElementById('stat-production').textContent = production;
+      document.getElementById('stat-shipped').textContent = shipped;
+      document.getElementById('stat-rate').textContent = '2.3%';
+    }
+
+    function renderRemakes() {
+      const container = document.getElementById('remakesList');
+      const search = document.getElementById('searchInput').value.toLowerCase();
+
+      let filtered = currentFilter === 'all' ? remakes : remakes.filter(r => r.status === currentFilter);
+      if (search) {
+        filtered = filtered.filter(r =>
+          r.id.toLowerCase().includes(search) ||
+          r.orderNumber.toLowerCase().includes(search) ||
+          r.customerName.toLowerCase().includes(search)
+        );
+      }
+
+      if (filtered.length === 0) {
+        container.innerHTML = `
+          <div class="empty-state">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+            </svg>
+            <h3>No Remakes Found</h3>
+            <p>${currentFilter !== 'all' ? 'No remakes with this status.' : 'No remake requests yet.'}</p>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = filtered.map(remake => `
+        <div class="remake-card">
+          <div class="remake-header">
+            <span class="remake-id">${remake.id}</span>
+            <span class="status-badge status-${remake.status}">${formatStatus(remake.status)}</span>
+          </div>
+          <div class="remake-content">
+            <div class="remake-info">
+              <h4>Order Details</h4>
+              <div class="info-grid">
+                <div class="info-row"><span class="label">Original Order:</span><span class="value">${remake.orderNumber}</span></div>
+                <div class="info-row"><span class="label">Customer:</span><span class="value">${remake.customerName}</span></div>
+                <div class="info-row"><span class="label">Product:</span><span class="value">${remake.product}</span></div>
+                <div class="info-row"><span class="label">Priority:</span><span class="value">${remake.priority || 'Normal'}</span></div>
+              </div>
+            </div>
+            <div class="remake-info">
+              <h4>Remake Details</h4>
+              <div class="info-grid">
+                <div class="info-row"><span class="label">Reason:</span><span class="value">${formatReason(remake.reasonCategory)}</span></div>
+                <div class="info-row"><span class="label">Cost:</span><span class="value">$${remake.cost || '0.00'}</span></div>
+                <div class="info-row"><span class="label">Cost Bearer:</span><span class="value">${formatCostBearer(remake.costBearer)}</span></div>
+                <div class="info-row"><span class="label">Created:</span><span class="value">${formatDate(remake.createdAt)}</span></div>
+              </div>
+            </div>
+          </div>
+          <div class="remake-reason">
+            <h5>Issue Description</h5>
+            <p>${remake.description || 'No description provided'}</p>
+          </div>
+          <div class="remake-actions">
+            ${getActionButtons(remake)}
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function getActionButtons(remake) {
+      switch (remake.status) {
+        case 'pending':
+          return `
+            <button class="btn-action btn-approve" onclick="updateStatus('${remake.id}', 'approved')">Approve</button>
+            <button class="btn-action btn-deny" onclick="updateStatus('${remake.id}', 'denied')">Deny</button>
+          `;
+        case 'approved':
+          return `<button class="btn-action btn-production" onclick="updateStatus('${remake.id}', 'in_production')">Start Production</button>`;
+        case 'in_production':
+          return `<button class="btn-action btn-ship" onclick="updateStatus('${remake.id}', 'shipped')">Mark Shipped</button>`;
+        case 'shipped':
+          return `<button class="btn-action btn-complete" onclick="updateStatus('${remake.id}', 'completed')">Mark Completed</button>`;
+        default:
+          return `<button class="btn-action btn-view" onclick="viewRemake('${remake.id}')">View Details</button>`;
+      }
+    }
+
+    function formatStatus(status) {
+      return { 'pending': 'Pending', 'approved': 'Approved', 'in_production': 'In Production', 'shipped': 'Shipped', 'completed': 'Completed', 'denied': 'Denied' }[status] || status;
+    }
+
+    function formatReason(reason) {
+      return {
+        'manufacturing_error': 'Manufacturing Error',
+        'wrong_size': 'Wrong Size',
+        'wrong_fabric': 'Wrong Fabric',
+        'wrong_color': 'Wrong Color',
+        'damaged_shipping': 'Shipping Damage',
+        'customer_error': 'Customer Error',
+        'motor_defect': 'Motor Defect',
+        'hardware_issue': 'Hardware Issue',
+        'other': 'Other'
+      }[reason] || reason || 'N/A';
+    }
+
+    function formatCostBearer(bearer) {
+      return { 'company': 'Company', 'customer': 'Customer', 'manufacturer': 'Manufacturer', 'shipping': 'Shipping' }[bearer] || bearer || 'N/A';
+    }
+
+    function formatDate(dateStr) {
+      if (!dateStr) return 'N/A';
+      return new Date(dateStr).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+    }
+
+    function setFilter(filter) {
+      currentFilter = filter;
+      document.querySelectorAll('.filter-tab').forEach(t => t.classList.toggle('active', t.dataset.filter === filter));
+      renderRemakes();
+    }
+
+    function filterRemakes() { renderRemakes(); }
+
+    function openModal(remake = null) {
+      const form = document.getElementById('remakeForm');
+      form.reset();
+      document.getElementById('remakeId').value = '';
+      document.getElementById('modalTitle').textContent = 'Create Remake';
+
+      if (remake) {
+        document.getElementById('modalTitle').textContent = 'Edit Remake';
+        document.getElementById('remakeId').value = remake.id;
+        form.orderNumber.value = remake.orderNumber || '';
+        form.customerName.value = remake.customerName || '';
+        form.product.value = remake.product || '';
+        form.reasonCategory.value = remake.reasonCategory || '';
+        form.priority.value = remake.priority || 'normal';
+        form.description.value = remake.description || '';
+        form.cost.value = remake.cost || '';
+        form.costBearer.value = remake.costBearer || 'company';
+        form.correctiveSpecs.value = remake.correctiveSpecs || '';
+      }
+
+      document.getElementById('remakeModal').classList.add('active');
+    }
+
+    function closeModal() { document.getElementById('remakeModal').classList.remove('active'); }
+
+    function viewRemake(id) {
+      const remake = remakes.find(r => r.id === id);
+      if (remake) openModal(remake);
+    }
+
+    async function saveRemake(event) {
+      event.preventDefault();
+      const form = event.target;
+      const formData = new FormData(form);
+      const id = formData.get('id');
+
+      const data = {
+        orderNumber: formData.get('orderNumber'),
+        customerName: formData.get('customerName'),
+        product: formData.get('product'),
+        reasonCategory: formData.get('reasonCategory'),
+        priority: formData.get('priority'),
+        description: formData.get('description'),
+        cost: formData.get('cost'),
+        costBearer: formData.get('costBearer'),
+        correctiveSpecs: formData.get('correctiveSpecs'),
+        status: 'pending'
+      };
+
+      try {
+        const result = id
+          ? await Admin.API.put(`/api/admin/remakes/${id}`, data)
+          : await Admin.API.post('/api/admin/remakes', data);
+
+        if (result.success) {
+          Admin.Toast.show(id ? 'Remake updated' : 'Remake created');
+          closeModal();
+          await loadData();
+        }
+      } catch (error) {
+        Admin.Toast.show('Error saving remake');
+      }
+    }
+
+    async function updateStatus(id, status) {
+      try {
+        const result = await Admin.API.put(`/api/admin/remakes/${id}`, { status });
+        if (result.success) {
+          Admin.Toast.show(`Remake ${formatStatus(status).toLowerCase()}`);
+          await loadData();
+        }
+      } catch (error) {
+        Admin.Toast.show('Error updating status');
+      }
+    }
+
+    document.getElementById('remakeModal').addEventListener('click', e => {
+      if (e.target.id === 'remakeModal') closeModal();
+    });
+  </script>
+</body>
+</html>

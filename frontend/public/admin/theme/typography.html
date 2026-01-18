@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Typography - Peekaboo Shades Admin</title>
+  <link rel="stylesheet" href="/admin/css/admin.css?v=1737200003.0.28">
+  <script src="/admin/js/adminNavConfig.js?v=1737200002"></script>
+  <style>
+    .typography-grid { display: grid; grid-template-columns: 1fr 350px; gap: 1.5rem; margin-top: 1.5rem; }
+    .preview-card, .settings-card { background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+    .settings-card h3 { margin: 0 0 1rem 0; }
+    .form-group { margin-bottom: 1.25rem; }
+    .form-group label { display: block; margin-bottom: 0.5rem; font-weight: 500; }
+    .form-group select, .form-group input { width: 100%; padding: 0.75rem; border: 1px solid #ddd; border-radius: 8px; }
+    .font-preview { padding: 1.5rem; border: 1px solid #eee; border-radius: 8px; margin-bottom: 1rem; }
+    .font-preview h1 { margin: 0 0 0.5rem 0; }
+    .font-preview h2 { margin: 0 0 0.5rem 0; color: #8E6545; }
+    .font-preview p { margin: 0; color: #666; }
+    .btn-save { padding: 0.75rem 2rem; background: #8E6545; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; }
+  </style>
+</head>
+<body>
+  <div class="admin-layout">
+    <aside class="admin-sidebar"></aside>
+    <main class="admin-main">
+      <header class="admin-header">
+        <h1>Typography Settings</h1>
+        <div class="header-actions"><button class="btn-save" onclick="saveSettings()">Save Changes</button></div>
+      </header>
+      <div class="admin-content">
+        <div class="typography-grid">
+          <div class="preview-card">
+            <h3>Preview</h3>
+            <div class="font-preview" id="preview">
+              <h1>Premium Window Treatments</h1>
+              <h2>Custom Roller Shades</h2>
+              <p>Transform your space with our handcrafted window treatments, made to your exact specifications with premium fabrics and hardware.</p>
+            </div>
+          </div>
+          <div class="settings-card">
+            <h3>Font Settings</h3>
+            <div class="form-group">
+              <label>Heading Font</label>
+              <select id="headingFont" onchange="updatePreview()"><option value="Montserrat">Montserrat</option><option value="Playfair Display">Playfair Display</option><option value="Roboto">Roboto</option><option value="Open Sans">Open Sans</option></select>
+            </div>
+            <div class="form-group">
+              <label>Body Font</label>
+              <select id="bodyFont" onchange="updatePreview()"><option value="Montserrat">Montserrat</option><option value="Roboto">Roboto</option><option value="Open Sans">Open Sans</option><option value="Lato">Lato</option></select>
+            </div>
+            <div class="form-group">
+              <label>Base Font Size</label>
+              <select onchange="updatePreview()"><option value="14">14px</option><option value="16" selected>16px</option><option value="18">18px</option></select>
+            </div>
+            <div class="form-group">
+              <label>Heading Weight</label>
+              <select onchange="updatePreview()"><option value="600">Semi-Bold (600)</option><option value="700" selected>Bold (700)</option><option value="800">Extra Bold (800)</option></select>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      if (!localStorage.getItem('admin_token')) { window.location.href = '/admin/login.html'; return; }
+      AdminNavConfig.initSidebar('typography');
+    });
+    function updatePreview() { alert('Preview updated'); }
+    function saveSettings() { alert('Typography settings saved!'); }
+  </script>
+</body>
+</html>

@@ -7,7 +7,9 @@ const http = require('http');
 const multer = require('multer');
 const { v4: uuidv4 } = require('uuid');
 const bcrypt = require('bcryptjs');
-const { authMiddleware, generateToken, verifyToken } = require('./middleware/auth');
+const { authMiddleware, generateToken, verifyToken, JWT_SECRET } = require('./middleware/auth');
+const jwt = require('jsonwebtoken');
+const Anthropic = require('@anthropic-ai/sdk');
 
 // ============================================
 // ENTERPRISE SERVICES (Admin-Driven Architecture)
@@ -33,6 +35,7 @@ const dbIndex = require('./services/database-index');
 // CRM/OMS/FINANCE/ANALYTICS ROUTES
 // ============================================
 const crmRoutes = require('./routes/crm-routes');
+const paymentRoutes = require('./routes/payment-routes');
 
 // ============================================
 // DATABASE SCHEMA INITIALIZATION
@@ -313,19 +316,38 @@ app.use((req, res, next) => {
   next();
 });
 
+// Route redirects for clean URLs
+app.get('/samples', (req, res) => {
+  res.sendFile(path.join(__dirname, '../frontend/public/samples.html'));
+});
+
+app.get('/trade', (req, res) => {
+  res.redirect('/dealer/');
+});
+
+app.get('/help', (req, res) => {
+  res.redirect('/faq.html');
+});
+
 // Static files with cache headers
 app.use(express.static(path.join(__dirname, '../frontend/public'), {
-  maxAge: '1d', // Cache static files for 1 day
-  etag: true,
+  maxAge: '0', // No default cache
+  etag: false,
   lastModified: true,
   setHeaders: (res, filePath) => {
+    // NO cache for HTML files - always fresh
+    if (filePath.endsWith('.html')) {
+      res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+      res.setHeader('Pragma', 'no-cache');
+      res.setHeader('Expires', '0');
+    }
     // Longer cache for images
-    if (filePath.endsWith('.jpg') || filePath.endsWith('.png') || filePath.endsWith('.svg') || filePath.endsWith('.webp')) {
+    else if (filePath.endsWith('.jpg') || filePath.endsWith('.png') || filePath.endsWith('.svg') || filePath.endsWith('.webp') || filePath.endsWith('.jpeg')) {
       res.setHeader('Cache-Control', 'public, max-age=604800'); // 7 days
     }
     // Shorter cache for CSS/JS
-    if (filePath.endsWith('.css') || filePath.endsWith('.js')) {
-      res.setHeader('Cache-Control', 'public, max-age=86400'); // 1 day
+    else if (filePath.endsWith('.css') || filePath.endsWith('.js')) {
+      res.setHeader('Cache-Control', 'public, max-age=3600'); // 1 hour
     }
   }
 }));
@@ -344,6 +366,9 @@ app.use('/api/admin/crm', authMiddleware, crmRoutes);
 
 // Public order tracking (no auth, uses token verification)
 app.use('/api/public', crmRoutes);
+
+// Payment routes (public - handles its own validation)
+app.use('/api/payments', paymentRoutes);
 
 // ============================================
 // API ROUTES
@@ -665,12 +690,59 @@ app.post('/api/orders', (req, res) => {
     const db = loadDatabase();
     const {
       sessionId, customerName, customerEmail, customerPhone,
-      shippingAddress, subtotal, tax, shipping
+      shippingAddress, billingAddress, subtotal, tax, shipping,
+      paymentMethod, paymentDetails, paymentStatus
     } = req.body;
 
     const orderId = uuidv4();
     const orderNumber = 'ORD-' + Date.now().toString(36).toUpperCase();
     const total = subtotal + (tax || 0) + (shipping || 0);
+
+    // =====================================================
+    // CUSTOMER LINKING: Find or create customer by email/phone
+    // =====================================================
+    if (!db.customers) db.customers = [];
+
+    // First try to find by email
+    let customer = customerEmail
+      ? db.customers.find(c => c.email && c.email.toLowerCase() === customerEmail.toLowerCase())
+      : null;
+
+    // If not found by email, try to find by phone
+    if (!customer && customerPhone) {
+      const normalizedPhone = customerPhone.replace(/\D/g, '');
+      if (normalizedPhone) {
+        customer = db.customers.find(c => {
+          if (!c.phone) return false;
+          return c.phone.replace(/\D/g, '') === normalizedPhone;
+        });
+      }
+    }
+
+    // Create new customer only if not found by email or phone
+    if (!customer && (customerEmail || customerPhone)) {
+      const nameParts = (customerName || '').trim().split(' ');
+      customer = {
+        id: `cust-${uuidv4().slice(0, 8)}`,
+        email: customerEmail || '',
+        firstName: nameParts[0] || 'Customer',
+        lastName: nameParts.slice(1).join(' ') || '',
+        phone: customerPhone || '',
+        type: 'retail',
+        companyName: '',
+        addresses: shippingAddress ? [{ type: 'shipping', address: shippingAddress }] : [],
+        tags: [],
+        notes: 'Auto-created from order',
+        totalOrders: 0,
+        totalSpent: 0,
+        createdAt: new Date().toISOString(),
+        lastOrderAt: null
+      };
+      db.customers.push(customer);
+      console.log(`New customer created: ${customer.id} (${customerEmail || customerPhone})`);
+    }
+
+    const customerId = customer ? customer.id : null;
 
     // Get cart items
     const cartItems = db.cart.filter(item => item.session_id === sessionId);
@@ -709,15 +781,24 @@ app.post('/api/orders', (req, res) => {
     const order = {
       id: orderId,
       order_number: orderNumber,
+      customerId: customerId,  // Link to customer
       customer_name: customerName,
       customer_email: customerEmail,
       customer_phone: customerPhone,
       shipping_address: shippingAddress,
+      billing_address: billingAddress || shippingAddress,
       subtotal,
       tax: tax || 0,
       shipping: shipping || 0,
       total,
       status: 'pending',
+      // Payment information
+      payment: {
+        method: paymentMethod || 'invoice',
+        status: paymentStatus || 'pending',
+        details: paymentDetails || {},
+        processedAt: paymentStatus === 'paid' ? new Date().toISOString() : null
+      },
       items: cartItems.map(item => ({
         ...item,
         order_id: orderId
@@ -736,6 +817,16 @@ app.post('/api/orders', (req, res) => {
     };
 
     db.orders.push(order);
+
+    // Update customer stats if linked
+    if (customerId && customer) {
+      const custIndex = db.customers.findIndex(c => c.id === customerId);
+      if (custIndex >= 0) {
+        db.customers[custIndex].totalOrders = (db.customers[custIndex].totalOrders || 0) + 1;
+        db.customers[custIndex].totalSpent = (db.customers[custIndex].totalSpent || 0) + total;
+        db.customers[custIndex].lastOrderAt = new Date().toISOString();
+      }
+    }
 
     // Clear cart
     db.cart = db.cart.filter(item => item.session_id !== sessionId);
@@ -1431,7 +1522,13 @@ app.put('/api/admin/products/:id', authMiddleware, (req, res) => {
       return res.status(404).json({ success: false, error: 'Product not found' });
     }
 
-    const { name, slug, description, category_id, base_price, sale_price, is_featured, is_active, image_url, stock_status, is_discontinued } = req.body;
+    const {
+      name, slug, description, category_id, base_price, sale_price,
+      is_featured, is_active, image_url, stock_status, is_discontinued,
+      // New Product Content fields
+      tagline, long_description, compare_price, promo_badge, video_url,
+      specs, recommended_rooms, seo, light_control
+    } = req.body;
 
     // Check slug uniqueness (exclude current product)
     if (slug && slug !== db.products[productIndex].slug) {
@@ -1452,7 +1549,7 @@ app.put('/api/admin/products/:id', authMiddleware, (req, res) => {
       db.products[productIndex].category_slug = category.slug;
     }
 
-    // Update fields
+    // Update basic fields
     if (name) db.products[productIndex].name = name;
     if (slug) db.products[productIndex].slug = slug;
     if (description !== undefined) db.products[productIndex].description = description;
@@ -1462,7 +1559,8 @@ app.put('/api/admin/products/:id', authMiddleware, (req, res) => {
     if (is_active !== undefined) db.products[productIndex].is_active = is_active;
     if (image_url !== undefined) db.products[productIndex].image_url = image_url;
     if (req.body.gallery_images !== undefined) db.products[productIndex].gallery_images = req.body.gallery_images;
-    // New fields for stock and discontinued status
+
+    // Stock and discontinued status
     if (stock_status !== undefined) {
       if (!['in_stock', 'out_of_stock'].includes(stock_status)) {
         return res.status(400).json({ success: false, error: 'Invalid stock_status. Must be in_stock or out_of_stock' });
@@ -1470,6 +1568,52 @@ app.put('/api/admin/products/:id', authMiddleware, (req, res) => {
       db.products[productIndex].stock_status = stock_status;
     }
     if (is_discontinued !== undefined) db.products[productIndex].is_discontinued = Boolean(is_discontinued);
+
+    // ============================================
+    // NEW PRODUCT CONTENT FIELDS
+    // ============================================
+
+    // Tagline / Subtitle
+    if (tagline !== undefined) db.products[productIndex].tagline = tagline;
+
+    // Long description / Marketing copy
+    if (long_description !== undefined) db.products[productIndex].long_description = long_description;
+
+    // Compare at price (for showing savings)
+    if (compare_price !== undefined) db.products[productIndex].compare_price = compare_price ? parseFloat(compare_price) : null;
+
+    // Promo badge text (SALE, NEW, BEST SELLER)
+    if (promo_badge !== undefined) db.products[productIndex].promo_badge = promo_badge;
+
+    // Product video URL
+    if (video_url !== undefined) db.products[productIndex].video_url = video_url;
+
+    // Product specifications (width/height range, materials, mount options, etc.)
+    if (specs !== undefined) {
+      db.products[productIndex].specs = {
+        ...(db.products[productIndex].specs || {}),
+        ...specs
+      };
+    }
+
+    // Recommended rooms (living-room, bedroom, kitchen, etc.)
+    if (recommended_rooms !== undefined) db.products[productIndex].recommended_rooms = recommended_rooms;
+
+    // SEO fields (title, description, keywords)
+    if (seo !== undefined) {
+      db.products[productIndex].seo = {
+        ...(db.products[productIndex].seo || {}),
+        ...seo
+      };
+    }
+
+    // Light control options (lightFiltering, roomDarkening, blackout)
+    if (light_control !== undefined) {
+      db.products[productIndex].light_control = {
+        ...(db.products[productIndex].light_control || {}),
+        ...light_control
+      };
+    }
 
     db.products[productIndex].updated_at = new Date().toISOString();
     saveDatabase(db);
@@ -1545,7 +1689,7 @@ app.put('/api/admin/products/:id/featured', authMiddleware, (req, res) => {
 app.get('/api/admin/orders', authMiddleware, (req, res) => {
   try {
     const db = loadDatabase();
-    const { status, search } = req.query;
+    const { status, search, page, limit, startDate, endDate, productType } = req.query;
 
     let orders = [...(db.orders || [])].sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
 
@@ -1563,6 +1707,48 @@ app.get('/api/admin/orders', authMiddleware, (req, res) => {
       });
     }
 
+    // Date range filtering
+    if (startDate) {
+      const start = new Date(startDate);
+      orders = orders.filter(o => new Date(o.created_at) >= start);
+    }
+    if (endDate) {
+      const end = new Date(endDate + 'T23:59:59');
+      orders = orders.filter(o => new Date(o.created_at) <= end);
+    }
+
+    // Product type filtering
+    if (productType) {
+      orders = orders.filter(o => {
+        if (!o.items || o.items.length === 0) return false;
+        return o.items.some(item => {
+          // Check explicit product_type field
+          const type = (item.product_type || item.productType || '').toLowerCase();
+          if (type === productType) return true;
+
+          // Check product_slug
+          const slug = (item.product_slug || '').toLowerCase();
+          if (slug.includes(productType)) return true;
+
+          // Check product_name
+          const name = (item.product_name || '').toLowerCase();
+          if (name.includes(productType)) return true;
+
+          // Check fabric code in configuration
+          try {
+            const cfg = typeof item.configuration === 'string' ? JSON.parse(item.configuration) : (item.configuration || {});
+            if (cfg.productType && cfg.productType.toLowerCase() === productType) return true;
+            if (cfg.fabricCode) {
+              if (productType === 'zebra' && cfg.fabricCode.startsWith('83')) return true;
+              if (productType === 'roller' && cfg.fabricCode.startsWith('82')) return true;
+            }
+          } catch (e) { /* ignore */ }
+
+          return false;
+        });
+      });
+    }
+
     // Normalize order data for frontend compatibility
     const normalizedOrders = orders.map(o => ({
       ...o,
@@ -1572,7 +1758,21 @@ app.get('/api/admin/orders', authMiddleware, (req, res) => {
       total: o.total || o.pricing?.total || 0
     }));
 
-    res.json({ success: true, orders: normalizedOrders, total: normalizedOrders.length });
+    // Pagination
+    const total = normalizedOrders.length;
+    const pageNum = parseInt(page) || 1;
+    const pageSize = Math.min(parseInt(limit) || 25, 100); // Default 25, max 100
+    const start = (pageNum - 1) * pageSize;
+    const paginatedOrders = normalizedOrders.slice(start, start + pageSize);
+
+    res.json({
+      success: true,
+      orders: paginatedOrders,
+      total,
+      page: pageNum,
+      limit: pageSize,
+      pages: Math.ceil(total / pageSize)
+    });
   } catch (error) {
     res.status(500).json({ success: false, error: error.message });
   }
@@ -1764,6 +1964,179 @@ app.put('/api/admin/orders/:id/status', authMiddleware, (req, res) => {
   }
 });
 
+// ============================================
+// AUTO-DELIVERY UPDATE ENDPOINTS
+// ============================================
+
+// Get shipped orders pending delivery update
+app.get('/api/admin/orders/shipped-pending', authMiddleware, (req, res) => {
+  try {
+    const orderService = require('./services/order-service');
+    const daysThreshold = parseInt(req.query.days) || 7;
+    const orders = orderService.getShippedOrdersPendingDelivery(daysThreshold);
+
+    res.json({
+      success: true,
+      daysThreshold,
+      orders,
+      total: orders.length,
+      readyForAutoDelivery: orders.filter(o => o.readyForAutoDelivery).length
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Run auto-delivery update
+app.post('/api/admin/orders/auto-delivery', authMiddleware, (req, res) => {
+  try {
+    const orderService = require('./services/order-service');
+    const { days = 7, dryRun = false } = req.body;
+
+    const result = orderService.autoDeliveryUpdate(days, dryRun);
+
+    res.json({
+      success: true,
+      message: dryRun
+        ? `Dry run complete. ${result.count} orders would be updated.`
+        : `Auto-delivery complete. ${result.updated.length} orders updated.`,
+      ...result
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// ============================================
+// ORDER STATUS MANAGEMENT APIs
+// ============================================
+
+// Default order status configuration (derived from ORDER_STATES)
+const DEFAULT_ORDER_STATUS_CONFIG = [
+  { id: 'order_placed', name: 'Order Placed', color: '#F59E0B', type: 'pending', order: 1, triggers: ['email_customer'], description: 'Customer has placed the order' },
+  { id: 'order_received', name: 'Order Received', color: '#3B82F6', type: 'processing', order: 2, triggers: ['email_customer', 'email_admin'], description: 'Payment confirmed, order received' },
+  { id: 'manufacturing', name: 'Manufacturing', color: '#8B5CF6', type: 'processing', order: 3, triggers: [], description: 'Order is being manufactured' },
+  { id: 'qa', name: 'Quality Check', color: '#EC4899', type: 'processing', order: 4, triggers: [], description: 'Quality assurance inspection' },
+  { id: 'shipped', name: 'Shipped', color: '#10B981', type: 'processing', order: 5, triggers: ['email_customer', 'sms_customer'], description: 'Order has been shipped' },
+  { id: 'delivered', name: 'Delivered', color: '#10B981', type: 'completed', order: 6, triggers: ['email_customer'], description: 'Order delivered to customer' },
+  { id: 'issue_reported', name: 'Issue Reported', color: '#F97316', type: 'pending', order: 7, triggers: ['email_admin'], description: 'Customer reported an issue' },
+  { id: 'refund_requested', name: 'Refund Requested', color: '#EF4444', type: 'pending', order: 8, triggers: ['email_admin'], description: 'Customer requested a refund' },
+  { id: 'refunded', name: 'Refunded', color: '#EF4444', type: 'cancelled', order: 9, triggers: ['email_customer', 'email_admin'], description: 'Order has been refunded' },
+  { id: 'cancelled', name: 'Cancelled', color: '#6B7280', type: 'cancelled', order: 10, triggers: ['email_customer', 'email_admin'], description: 'Order has been cancelled' }
+];
+
+// Get all order statuses
+app.get('/api/admin/order-statuses', authMiddleware, (req, res) => {
+  try {
+    const db = loadDatabase();
+
+    // Check if custom statuses are configured
+    const customStatuses = db.systemConfig?.orderStatuses;
+    let statuses = customStatuses && customStatuses.length > 0
+      ? customStatuses
+      : DEFAULT_ORDER_STATUS_CONFIG;
+
+    // Get order counts for each status
+    const orders = db.orders || [];
+    statuses = statuses.map(status => ({
+      ...status,
+      count: orders.filter(o => o.status === status.id).length
+    }));
+
+    // Also return valid transitions from ORDER_STATES
+    const orderService = require('./services/order-service');
+    const validTransitions = orderService.VALID_TRANSITIONS || {};
+
+    res.json({
+      success: true,
+      statuses,
+      validTransitions,
+      isCustomized: !!(customStatuses && customStatuses.length > 0)
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Get public order statuses (for dropdowns etc)
+app.get('/api/order-statuses', (req, res) => {
+  try {
+    const db = loadDatabase();
+    const customStatuses = db.systemConfig?.orderStatuses;
+    const statuses = customStatuses && customStatuses.length > 0
+      ? customStatuses
+      : DEFAULT_ORDER_STATUS_CONFIG;
+
+    // Return only essential fields for public use
+    res.json({
+      success: true,
+      statuses: statuses.map(s => ({
+        id: s.id,
+        name: s.name,
+        color: s.color,
+        type: s.type
+      }))
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Update order statuses configuration
+app.put('/api/admin/order-statuses', authMiddleware, (req, res) => {
+  try {
+    const db = loadDatabase();
+    const { statuses } = req.body;
+
+    if (!Array.isArray(statuses)) {
+      return res.status(400).json({ success: false, error: 'Statuses must be an array' });
+    }
+
+    // Validate required fields
+    for (const status of statuses) {
+      if (!status.id || !status.name || !status.color || !status.type) {
+        return res.status(400).json({
+          success: false,
+          error: 'Each status must have id, name, color, and type'
+        });
+      }
+    }
+
+    if (!db.systemConfig) db.systemConfig = {};
+    db.systemConfig.orderStatuses = statuses.map(s => ({
+      id: s.id,
+      name: s.name,
+      color: s.color,
+      type: s.type,
+      order: s.order || 0,
+      triggers: s.triggers || [],
+      description: s.description || ''
+    }));
+
+    saveDatabase(db);
+
+    res.json({ success: true, message: 'Order statuses updated', statuses: db.systemConfig.orderStatuses });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Reset order statuses to defaults
+app.post('/api/admin/order-statuses/reset', authMiddleware, (req, res) => {
+  try {
+    const db = loadDatabase();
+
+    if (!db.systemConfig) db.systemConfig = {};
+    db.systemConfig.orderStatuses = [...DEFAULT_ORDER_STATUS_CONFIG];
+
+    saveDatabase(db);
+
+    res.json({ success: true, message: 'Order statuses reset to defaults', statuses: db.systemConfig.orderStatuses });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
 // Delete order
 app.delete('/api/admin/orders/:id', authMiddleware, (req, res) => {
   try {
@@ -1802,9 +2175,9 @@ app.get('/api/admin/quotes', authMiddleware, (req, res) => {
     if (search) {
       const searchLower = search.toLowerCase();
       quotes = quotes.filter(q =>
-        q.quote_number.toLowerCase().includes(searchLower) ||
-        q.customer_name.toLowerCase().includes(searchLower) ||
-        q.customer_email.toLowerCase().includes(searchLower)
+        (q.quote_number || '').toLowerCase().includes(searchLower) ||
+        (q.customer_name || '').toLowerCase().includes(searchLower) ||
+        (q.customer_email || '').toLowerCase().includes(searchLower)
       );
     }
 
@@ -2725,6 +3098,304 @@ app.get('/api/fabrics/zebra', (req, res) => {
 });
 
 // ============================================
+// FABRIC SAMPLES API (Public)
+// ============================================
+
+// Get all fabrics for samples page
+app.get('/api/fabrics', (req, res) => {
+  try {
+    const db = loadDatabase();
+
+    // Default material specs for roller fabrics
+    const defaultRollerSpecs = {
+      composition: '100% Polyester',
+      weight: '160g/m²',
+      width: 280,
+      thickness: '0.38mm',
+      waterResistant: true,
+      fireResistant: true,
+      mildewProof: true
+    };
+
+    // Combine fabrics from different sources
+    const rollerFabrics = (db.productContent?.fabrics || []).map(f => ({
+      id: f.id,
+      code: f.code,
+      name: f.name || f.code,
+      filterType: f.filterType || 'blackout',
+      productType: 'roller',
+      imageUrl: f.imageUrl || `/images/fabrics/swatches/${f.code}_${(f.filterType || 'blackout').replace('-', '_')}.jpg`,
+      isActive: f.isActive !== false,
+      // Material details
+      composition: f.composition || defaultRollerSpecs.composition,
+      weight: f.weight || defaultRollerSpecs.weight,
+      width: f.width || defaultRollerSpecs.width,
+      thickness: f.thickness || defaultRollerSpecs.thickness,
+      waterResistant: f.waterResistant ?? defaultRollerSpecs.waterResistant,
+      fireResistant: f.fireResistant ?? defaultRollerSpecs.fireResistant,
+      mildewProof: f.mildewProof ?? defaultRollerSpecs.mildewProof,
+      formaldehydeFree: f.formaldehydeFree ?? false,
+      antiBacteria: f.antiBacteria ?? false
+    }));
+
+    const zebraFabrics = (db.zebraFabrics || []).map(f => ({
+      id: f.id || `zebra-${f.code}`,
+      code: f.code,
+      name: f.name || f.code,
+      filterType: f.category || f.filterType || 'semi-blackout',
+      productType: 'zebra',
+      imageUrl: f.image || f.imageUrl || `/images/fabrics/zebra/${f.code}.png`,
+      isActive: f.enabled !== false && f.isActive !== false,
+      // Material details from zebra fabrics
+      composition: f.composition || '100% Polyester',
+      weight: f.weight || '115g/m²',
+      width: f.width || 300,
+      thickness: f.thickness || '',
+      repeat: f.repeat || '7.5*5cm',
+      waterResistant: f.waterResistant ?? true,
+      fireResistant: f.fireResistant ?? false,
+      mildewProof: f.mildewProof ?? false,
+      formaldehydeFree: f.formaldehydeFree ?? false,
+      antiBacteria: f.antiBacteria ?? false
+    }));
+
+    // Combine and filter active fabrics
+    const allFabrics = [...rollerFabrics, ...zebraFabrics].filter(f => f.isActive !== false);
+
+    res.json({ success: true, data: allFabrics });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Submit sample request
+app.post('/api/sample-requests', (req, res) => {
+  try {
+    const db = loadDatabase();
+    const { name, email, phone, address, samples } = req.body;
+
+    if (!name || !email || !address || !samples || samples.length === 0) {
+      return res.status(400).json({ success: false, error: 'Missing required fields' });
+    }
+
+    if (samples.length > 10) {
+      return res.status(400).json({ success: false, error: 'Maximum 10 samples allowed' });
+    }
+
+    // Initialize sampleRequests array if not exists
+    if (!db.sampleRequests) db.sampleRequests = [];
+
+    const request = {
+      id: 'SR-' + Date.now(),
+      name,
+      email,
+      phone: phone || '',
+      address,
+      samples,
+      status: 'pending',
+      requestedAt: new Date().toISOString()
+    };
+
+    db.sampleRequests.push(request);
+    saveDatabase(db);
+
+    res.json({ success: true, data: request, message: 'Sample request submitted successfully' });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// ============================================
+// SAMPLE INVENTORY API (Admin)
+// ============================================
+
+// Get sample inventory - generates from fabrics with stock tracking
+app.get('/api/admin/sample-inventory', authMiddleware, (req, res) => {
+  try {
+    const db = loadDatabase();
+
+    // Initialize sampleInventory if not exists
+    if (!db.sampleInventory) {
+      db.sampleInventory = {};
+    }
+
+    // Get all fabrics from different sources
+    const rollerFabrics = db.productContent?.fabrics || [];
+    const zebraFabrics = db.zebraFabrics || [];
+    const manufacturerPrices = db.manufacturerPrices || [];
+
+    // Helper to determine shade type from fabric code
+    const getShadeType = (fabricCode) => {
+      // Check manufacturerPrices for product type
+      const priceEntry = manufacturerPrices.find(mp => mp.fabricCode === fabricCode);
+      if (priceEntry && priceEntry.productType) {
+        return priceEntry.productType;
+      }
+      // Infer from fabric code patterns
+      if (fabricCode.startsWith('83')) return 'zebra';
+      if (fabricCode.startsWith('84')) return 'roman';
+      if (fabricCode.startsWith('85')) return 'honeycomb';
+      return 'roller'; // Default to roller (82xxx codes)
+    };
+
+    // Generate inventory from roller fabrics
+    const rollerInventory = rollerFabrics.map(fabric => {
+      const inv = db.sampleInventory[fabric.id || fabric.code] || {
+        stock: 50,
+        reserved: 0,
+        reorderPoint: 20,
+        lastRestock: new Date().toISOString()
+      };
+
+      return {
+        id: fabric.id || fabric.code,
+        name: fabric.name,
+        sku: fabric.code,
+        color: fabric.colorHex || '#8E6545',
+        imageUrl: fabric.imageUrl,
+        filterType: fabric.filterType,
+        shadeType: 'roller',
+        stock: inv.stock,
+        reserved: inv.reserved,
+        reorderPoint: inv.reorderPoint,
+        lastRestock: inv.lastRestock
+      };
+    });
+
+    // Generate inventory from zebra fabrics
+    const zebraInventory = zebraFabrics.filter(f => f.enabled !== false).map(fabric => {
+      const inv = db.sampleInventory[fabric.code] || {
+        stock: 50,
+        reserved: 0,
+        reorderPoint: 20,
+        lastRestock: new Date().toISOString()
+      };
+
+      return {
+        id: fabric.code,
+        name: fabric.name,
+        sku: fabric.code,
+        color: fabric.colorHex || '#6B8E23',
+        imageUrl: fabric.image,
+        filterType: fabric.category || fabric.shadingType,
+        shadeType: 'zebra',
+        stock: inv.stock,
+        reserved: inv.reserved,
+        reorderPoint: inv.reorderPoint,
+        lastRestock: inv.lastRestock
+      };
+    });
+
+    // Combine all inventories
+    const inventory = [...rollerInventory, ...zebraInventory];
+
+    res.json({ success: true, inventory });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Update sample inventory stock
+app.put('/api/admin/sample-inventory/:id', authMiddleware, (req, res) => {
+  try {
+    const db = loadDatabase();
+    const { id } = req.params;
+    const { stock, reserved, reorderPoint, addQuantity } = req.body;
+
+    if (!db.sampleInventory) {
+      db.sampleInventory = {};
+    }
+
+    // Get current inventory or create new
+    const current = db.sampleInventory[id] || {
+      stock: 50,
+      reserved: 0,
+      reorderPoint: 20,
+      lastRestock: new Date().toISOString()
+    };
+
+    // Update values
+    if (addQuantity) {
+      current.stock = (current.stock || 0) + addQuantity;
+      current.lastRestock = new Date().toISOString();
+    }
+    if (stock !== undefined) current.stock = stock;
+    if (reserved !== undefined) current.reserved = reserved;
+    if (reorderPoint !== undefined) current.reorderPoint = reorderPoint;
+
+    db.sampleInventory[id] = current;
+    saveDatabase(db);
+
+    res.json({ success: true, data: current });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Bulk restock samples
+app.post('/api/admin/sample-inventory/restock', authMiddleware, (req, res) => {
+  try {
+    const db = loadDatabase();
+    const { items } = req.body; // Array of { id, addQuantity }
+
+    if (!db.sampleInventory) {
+      db.sampleInventory = {};
+    }
+
+    items.forEach(item => {
+      const current = db.sampleInventory[item.id] || {
+        stock: 0,
+        reserved: 0,
+        reorderPoint: 20,
+        lastRestock: new Date().toISOString()
+      };
+      current.stock = (current.stock || 0) + item.addQuantity;
+      current.lastRestock = new Date().toISOString();
+      db.sampleInventory[item.id] = current;
+    });
+
+    saveDatabase(db);
+    res.json({ success: true, message: 'Inventory restocked successfully' });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Get sample requests (admin)
+app.get('/api/admin/sample-requests', authMiddleware, (req, res) => {
+  try {
+    const db = loadDatabase();
+    res.json({ success: true, data: db.sampleRequests || [] });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Update sample request status (admin)
+app.put('/api/admin/sample-requests/:id', authMiddleware, (req, res) => {
+  try {
+    const db = loadDatabase();
+    const { id } = req.params;
+    const { status } = req.body;
+
+    if (!db.sampleRequests) db.sampleRequests = [];
+
+    const index = db.sampleRequests.findIndex(r => r.id === id);
+    if (index === -1) {
+      return res.status(404).json({ success: false, error: 'Request not found' });
+    }
+
+    db.sampleRequests[index].status = status;
+    db.sampleRequests[index].updatedAt = new Date().toISOString();
+    saveDatabase(db);
+
+    res.json({ success: true, data: db.sampleRequests[index] });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// ============================================
 // PRODUCT CONTENT ADMIN API (Protected)
 // ============================================
 
@@ -2824,6 +3495,539 @@ app.put('/api/admin/fabrics/:id/toggle', authMiddleware, (req, res) => {
   }
 });
 
+// Bulk upload fabrics (roller)
+app.post('/api/admin/fabrics/bulk-upload', authMiddleware, (req, res) => {
+  try {
+    const db = loadDatabase();
+    if (!db.productContent) db.productContent = {};
+    if (!db.productContent.fabrics) db.productContent.fabrics = [];
+
+    const { fabrics } = req.body;
+    if (!fabrics || !Array.isArray(fabrics)) {
+      return res.status(400).json({ success: false, error: 'Invalid fabrics data' });
+    }
+
+    let imported = 0;
+    let updated = 0;
+
+    fabrics.forEach(fab => {
+      if (!fab.code) return;
+
+      const existingIndex = db.productContent.fabrics.findIndex(f => f.code === fab.code);
+      const fabricData = {
+        id: existingIndex >= 0 ? db.productContent.fabrics[existingIndex].id : `fab-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+        code: fab.code,
+        name: fab.name || `${fab.code} ${fab.filterType || 'Fabric'}`,
+        filterType: fab.filterType || 'blackout',
+        imageUrl: fab.imageUrl || `/images/fabrics/${fab.code}.png`,
+        isActive: fab.isActive !== false && fab.isActive !== 'false',
+        composition: fab.composition || '100% Polyester',
+        weight: fab.weight || '160g/m²',
+        width: fab.width || 280,
+        thickness: fab.thickness || '',
+        waterResistant: fab.waterResistant === true || fab.waterResistant === 'true',
+        fireResistant: fab.fireResistant === true || fab.fireResistant === 'true',
+        mildewProof: fab.mildewProof === true || fab.mildewProof === 'true',
+        formaldehydeFree: fab.formaldehydeFree === true || fab.formaldehydeFree === 'true',
+        antiBacteria: fab.antiBacteria === true || fab.antiBacteria === 'true',
+        updatedAt: new Date().toISOString()
+      };
+
+      if (existingIndex >= 0) {
+        db.productContent.fabrics[existingIndex] = { ...db.productContent.fabrics[existingIndex], ...fabricData };
+        updated++;
+      } else {
+        fabricData.createdAt = new Date().toISOString();
+        db.productContent.fabrics.push(fabricData);
+        imported++;
+      }
+    });
+
+    saveDatabase(db);
+    res.json({ success: true, imported, updated, total: db.productContent.fabrics.length });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Get all zebra fabrics (admin)
+app.get('/api/admin/zebra/fabrics', authMiddleware, (req, res) => {
+  try {
+    const db = loadDatabase();
+    res.json({ success: true, fabrics: db.zebraFabrics || [] });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Update a zebra fabric
+app.put('/api/admin/zebra/fabrics/:code', authMiddleware, (req, res) => {
+  try {
+    const db = loadDatabase();
+    if (!db.zebraFabrics) db.zebraFabrics = [];
+
+    const { code } = req.params;
+    const fabricIndex = db.zebraFabrics.findIndex(f => f.code === code);
+
+    if (fabricIndex === -1) {
+      return res.status(404).json({ success: false, error: 'Fabric not found' });
+    }
+
+    db.zebraFabrics[fabricIndex] = {
+      ...db.zebraFabrics[fabricIndex],
+      ...req.body,
+      code: code, // Ensure code doesn't change
+      updatedAt: new Date().toISOString()
+    };
+
+    saveDatabase(db);
+    res.json({ success: true, fabric: db.zebraFabrics[fabricIndex] });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Delete a zebra fabric
+app.delete('/api/admin/zebra/fabrics/:code', authMiddleware, (req, res) => {
+  try {
+    const db = loadDatabase();
+    if (!db.zebraFabrics) db.zebraFabrics = [];
+
+    const { code } = req.params;
+    const fabricIndex = db.zebraFabrics.findIndex(f => f.code === code);
+
+    if (fabricIndex === -1) {
+      return res.status(404).json({ success: false, error: 'Fabric not found' });
+    }
+
+    db.zebraFabrics.splice(fabricIndex, 1);
+    saveDatabase(db);
+    res.json({ success: true, message: 'Fabric deleted' });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// ============================================
+// FABRIC IMAGE UPLOAD ENDPOINTS
+// ============================================
+
+// Multer storage for roller fabric images
+const rollerFabricStorage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    const uploadPath = path.join(__dirname, '../frontend/public/images/fabrics/swatches');
+    if (!fs.existsSync(uploadPath)) {
+      fs.mkdirSync(uploadPath, { recursive: true });
+    }
+    cb(null, uploadPath);
+  },
+  filename: (req, file, cb) => {
+    const fabricCode = req.body.fabricCode || `fabric-${Date.now()}`;
+    const ext = path.extname(file.originalname).toLowerCase() || '.png';
+    cb(null, `${fabricCode}${ext}`);
+  }
+});
+
+const rollerFabricUpload = multer({
+  storage: rollerFabricStorage,
+  limits: { fileSize: 5 * 1024 * 1024 },
+  fileFilter: (req, file, cb) => {
+    const allowedTypes = /jpeg|jpg|png|gif|webp/;
+    const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
+    const mimetype = allowedTypes.test(file.mimetype);
+    if (extname && mimetype) {
+      cb(null, true);
+    } else {
+      cb(new Error('Only image files are allowed'));
+    }
+  }
+});
+
+// Upload roller fabric image
+app.post('/api/admin/fabrics/upload-image', authMiddleware, rollerFabricUpload.single('image'), (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ success: false, error: 'No image file uploaded' });
+    }
+
+    const fabricCode = req.body.fabricCode;
+    const imageUrl = `/images/fabrics/swatches/${req.file.filename}`;
+
+    // Update fabric in database if fabricCode provided
+    if (fabricCode) {
+      const db = loadDatabase();
+      if (db.productContent && db.productContent.fabrics) {
+        const fabricIndex = db.productContent.fabrics.findIndex(f => f.code === fabricCode || f.id === fabricCode);
+        if (fabricIndex >= 0) {
+          db.productContent.fabrics[fabricIndex].imageUrl = imageUrl;
+          saveDatabase(db);
+        }
+      }
+    }
+
+    res.json({
+      success: true,
+      imageUrl: imageUrl,
+      filename: req.file.filename
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Multer storage for zebra fabric images
+const zebraFabricStorage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    const uploadPath = path.join(__dirname, '../frontend/public/images/fabrics/zebra');
+    if (!fs.existsSync(uploadPath)) {
+      fs.mkdirSync(uploadPath, { recursive: true });
+    }
+    cb(null, uploadPath);
+  },
+  filename: (req, file, cb) => {
+    const fabricCode = req.body.fabricCode || `zebra-${Date.now()}`;
+    const ext = path.extname(file.originalname).toLowerCase() || '.png';
+    cb(null, `${fabricCode}${ext}`);
+  }
+});
+
+const zebraFabricUpload = multer({
+  storage: zebraFabricStorage,
+  limits: { fileSize: 5 * 1024 * 1024 },
+  fileFilter: (req, file, cb) => {
+    const allowedTypes = /jpeg|jpg|png|gif|webp/;
+    const extname = allowedTypes.test(path.extname(file.originalname).toLowerCase());
+    const mimetype = allowedTypes.test(file.mimetype);
+    if (extname && mimetype) {
+      cb(null, true);
+    } else {
+      cb(new Error('Only image files are allowed'));
+    }
+  }
+});
+
+// Upload zebra fabric image
+app.post('/api/admin/zebra/fabrics/upload-image', authMiddleware, zebraFabricUpload.single('image'), (req, res) => {
+  try {
+    if (!req.file) {
+      return res.status(400).json({ success: false, error: 'No image file uploaded' });
+    }
+
+    const fabricCode = req.body.fabricCode;
+    const imageUrl = `/images/fabrics/zebra/${req.file.filename}`;
+
+    // Update fabric in database
+    if (fabricCode) {
+      const db = loadDatabase();
+      if (db.zebraFabrics) {
+        const fabricIndex = db.zebraFabrics.findIndex(f => f.code === fabricCode);
+        if (fabricIndex >= 0) {
+          db.zebraFabrics[fabricIndex].image = imageUrl;
+          db.zebraFabrics[fabricIndex].hasImage = true;
+          db.zebraFabrics[fabricIndex].updatedAt = new Date().toISOString();
+          saveDatabase(db);
+        }
+      }
+    }
+
+    res.json({
+      success: true,
+      imageUrl: imageUrl,
+      filename: req.file.filename
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Bulk upload zebra fabrics
+app.post('/api/admin/zebra/fabrics/bulk-upload', authMiddleware, (req, res) => {
+  try {
+    const db = loadDatabase();
+    if (!db.zebraFabrics) db.zebraFabrics = [];
+
+    const { fabrics } = req.body;
+    if (!fabrics || !Array.isArray(fabrics)) {
+      return res.status(400).json({ success: false, error: 'Invalid fabrics data' });
+    }
+
+    let imported = 0;
+    let updated = 0;
+
+    fabrics.forEach(fab => {
+      if (!fab.code) return;
+
+      const existingIndex = db.zebraFabrics.findIndex(f => f.code === fab.code);
+      const fabricData = {
+        code: fab.code,
+        name: fab.name || `Zebra ${fab.category || 'Semi-blackout'} ${fab.code}`,
+        category: fab.category || 'semi-blackout',
+        shadingType: fab.shadingType || fab.category || 'Semi blackout',
+        composition: fab.composition || '100% Polyester',
+        weight: fab.weight || '115g/m²',
+        width: fab.width || 300,
+        thickness: fab.thickness || '',
+        repeat: fab.repeat || '7.5*5cm',
+        waterResistant: fab.waterResistant === true || fab.waterResistant === 'true',
+        fireResistant: fab.fireResistant === true || fab.fireResistant === 'true',
+        mildewProof: fab.mildewProof === true || fab.mildewProof === 'true',
+        formaldehydeFree: fab.formaldehydeFree === true || fab.formaldehydeFree === 'true',
+        antiBacteria: fab.antiBacteria === true || fab.antiBacteria === 'true',
+        image: fab.imageUrl || fab.image || `/images/fabrics/zebra/${fab.code}.png`,
+        hasImage: true,
+        enabled: fab.enabled !== false && fab.enabled !== 'false',
+        status: 'active',
+        updatedAt: new Date().toISOString()
+      };
+
+      if (existingIndex >= 0) {
+        db.zebraFabrics[existingIndex] = { ...db.zebraFabrics[existingIndex], ...fabricData };
+        updated++;
+      } else {
+        fabricData.createdAt = new Date().toISOString();
+        db.zebraFabrics.push(fabricData);
+        imported++;
+      }
+    });
+
+    saveDatabase(db);
+    res.json({ success: true, imported, updated, total: db.zebraFabrics.length });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// ============================================
+// PRODUCT SPECS API (Phase 3)
+// Specs Library with source evidence tracking
+// ============================================
+
+// Helper function to load specs data
+function loadSpecsData() {
+  try {
+    const specsPath = path.join(__dirname, 'data', 'product_specs.json');
+    if (fs.existsSync(specsPath)) {
+      return JSON.parse(fs.readFileSync(specsPath, 'utf-8'));
+    }
+    return { version: '1.0.0', products: {}, commonSpecs: {}, metadata: {} };
+  } catch (error) {
+    console.error('Error loading specs:', error);
+    return { version: '1.0.0', products: {}, commonSpecs: {}, metadata: {} };
+  }
+}
+
+// Helper function to save specs data
+function saveSpecsData(data) {
+  const specsPath = path.join(__dirname, 'data', 'product_specs.json');
+  data.metadata = data.metadata || {};
+  data.metadata.updatedAt = new Date().toISOString();
+  fs.writeFileSync(specsPath, JSON.stringify(data, null, 2));
+}
+
+// Helper function to load sources data
+function loadSourcesData() {
+  try {
+    const sourcesPath = path.join(__dirname, 'data', 'content_sources.json');
+    if (fs.existsSync(sourcesPath)) {
+      return JSON.parse(fs.readFileSync(sourcesPath, 'utf-8'));
+    }
+    return { version: '1.0.0', primarySources: {}, webSources: {}, fieldSources: {}, metadata: {} };
+  } catch (error) {
+    console.error('Error loading sources:', error);
+    return { version: '1.0.0', primarySources: {}, webSources: {}, fieldSources: {}, metadata: {} };
+  }
+}
+
+// Helper function to save sources data
+function saveSourcesData(data) {
+  const sourcesPath = path.join(__dirname, 'data', 'content_sources.json');
+  data.metadata = data.metadata || {};
+  data.metadata.updatedAt = new Date().toISOString();
+  fs.writeFileSync(sourcesPath, JSON.stringify(data, null, 2));
+}
+
+// PUBLIC: Get specs for a specific product type
+app.get('/api/specs', (req, res) => {
+  try {
+    const { productType } = req.query;
+    const specsData = loadSpecsData();
+
+    if (productType) {
+      const product = specsData.products[productType];
+      if (!product) {
+        return res.status(404).json({ success: false, error: 'Product type not found' });
+      }
+      res.json({
+        success: true,
+        data: product,
+        commonSpecs: specsData.commonSpecs
+      });
+    } else {
+      // Return all product types (summary)
+      const summary = Object.keys(specsData.products).map(key => ({
+        id: key,
+        name: specsData.products[key].name,
+        slug: specsData.products[key].slug
+      }));
+      res.json({ success: true, data: summary });
+    }
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// ADMIN: Get all specs (full data)
+app.get('/api/admin/specs', authMiddleware, (req, res) => {
+  try {
+    const specsData = loadSpecsData();
+    res.json({ success: true, data: specsData });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// ADMIN: Update specs
+app.put('/api/admin/specs', authMiddleware, (req, res) => {
+  try {
+    const { productType, specs } = req.body;
+
+    if (!productType || !specs) {
+      return res.status(400).json({ success: false, error: 'productType and specs required' });
+    }
+
+    const specsData = loadSpecsData();
+
+    if (!specsData.products[productType]) {
+      return res.status(404).json({ success: false, error: 'Product type not found' });
+    }
+
+    // Merge specs (deep merge for nested objects)
+    specsData.products[productType] = {
+      ...specsData.products[productType],
+      ...specs,
+      specifications: {
+        ...specsData.products[productType].specifications,
+        ...(specs.specifications || {})
+      },
+      materials: {
+        ...specsData.products[productType].materials,
+        ...(specs.materials || {})
+      },
+      installation: {
+        ...specsData.products[productType].installation,
+        ...(specs.installation || {})
+      }
+    };
+
+    saveSpecsData(specsData);
+    res.json({ success: true, data: specsData.products[productType] });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// ADMIN: Get all sources
+app.get('/api/admin/specs/sources', authMiddleware, (req, res) => {
+  try {
+    const sourcesData = loadSourcesData();
+    res.json({ success: true, data: sourcesData });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// ADMIN: Update sources for a specific field
+app.put('/api/admin/specs/sources', authMiddleware, (req, res) => {
+  try {
+    const { productType, fieldPath, source } = req.body;
+
+    if (!productType || !fieldPath || !source) {
+      return res.status(400).json({ success: false, error: 'productType, fieldPath, and source required' });
+    }
+
+    const sourcesData = loadSourcesData();
+
+    if (!sourcesData.fieldSources[productType]) {
+      sourcesData.fieldSources[productType] = {};
+    }
+
+    // Add or update the source for this field
+    sourcesData.fieldSources[productType][fieldPath] = {
+      ...source,
+      extractedAt: source.extractedAt || new Date().toISOString()
+    };
+
+    // If it's a web source, add to webSources registry
+    if (source.type === 'web' && source.url) {
+      const sourceId = `web-${Date.now()}`;
+      sourcesData.webSources[sourceId] = {
+        id: sourceId,
+        type: 'web',
+        url: source.url,
+        title: source.title || 'Web Source',
+        domain: new URL(source.url).hostname,
+        retrievedDate: source.retrievedDate || new Date().toISOString()
+      };
+      sourcesData.fieldSources[productType][fieldPath].sourceId = sourceId;
+    }
+
+    saveSourcesData(sourcesData);
+    res.json({ success: true, data: sourcesData.fieldSources[productType][fieldPath] });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// ADMIN: Add a new web source
+app.post('/api/admin/specs/sources/web', authMiddleware, (req, res) => {
+  try {
+    const { url, title, domain } = req.body;
+
+    if (!url) {
+      return res.status(400).json({ success: false, error: 'URL required' });
+    }
+
+    const sourcesData = loadSourcesData();
+    const sourceId = `web-${Date.now()}`;
+
+    sourcesData.webSources[sourceId] = {
+      id: sourceId,
+      type: 'web',
+      url,
+      title: title || 'Web Source',
+      domain: domain || new URL(url).hostname,
+      retrievedDate: new Date().toISOString()
+    };
+
+    saveSourcesData(sourcesData);
+    res.json({ success: true, data: sourcesData.webSources[sourceId] });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// ADMIN: Get sources for a specific product type
+app.get('/api/admin/specs/sources/:productType', authMiddleware, (req, res) => {
+  try {
+    const { productType } = req.params;
+    const sourcesData = loadSourcesData();
+
+    const productSources = sourcesData.fieldSources[productType] || {};
+
+    res.json({
+      success: true,
+      data: {
+        productType,
+        fieldSources: productSources,
+        primarySources: sourcesData.primarySources,
+        webSources: sourcesData.webSources
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
 // --- MOTOR BRANDS ---
 // Get all motor brands (public - for product page)
 app.get('/api/motor-brands', (req, res) => {
@@ -2852,17 +4056,20 @@ app.get('/api/admin/hardware', authMiddleware, (req, res) => {
 // Dynamic pricing per fabric code (manual/cordless per m²)
 // ============================================
 
-// Get all manufacturer fabric prices
+// Get all manufacturer fabric prices (single table for all product types)
 app.get('/api/admin/manufacturer-prices', authMiddleware, (req, res) => {
   try {
     const db = loadDatabase();
     const { productType, fabricCode, search } = req.query;
 
+    // All prices are now in a single manufacturerPrices table with productType field
     let prices = db.manufacturerPrices || [];
 
+    // Filter by product type if specified
     if (productType) {
       prices = prices.filter(p => p.productType === productType);
     }
+
     if (fabricCode) {
       prices = prices.filter(p => p.fabricCode === fabricCode);
     }
@@ -2884,7 +4091,15 @@ app.get('/api/admin/manufacturer-prices', authMiddleware, (req, res) => {
 app.get('/api/admin/manufacturer-prices/:fabricCode', authMiddleware, (req, res) => {
   try {
     const db = loadDatabase();
-    const price = (db.manufacturerPrices || []).find(p =>
+    const { productType } = req.query;
+
+    // All prices in single table, filter by productType if specified
+    let prices = db.manufacturerPrices || [];
+    if (productType) {
+      prices = prices.filter(p => p.productType === productType);
+    }
+
+    const price = prices.find(p =>
       p.fabricCode === req.params.fabricCode || p.id === req.params.fabricCode
     );
 
@@ -2902,17 +4117,29 @@ app.get('/api/admin/manufacturer-prices/:fabricCode', authMiddleware, (req, res)
 app.put('/api/admin/manufacturer-prices/:fabricCode', authMiddleware, (req, res) => {
   try {
     const db = loadDatabase();
+    const { productType, pricePerSqMeter, pricePerSqMeterCordless, margin, manualMargin, cordlessMargin } = req.body;
+
+    // All prices in single manufacturerPrices table
     if (!db.manufacturerPrices) db.manufacturerPrices = [];
 
-    const index = db.manufacturerPrices.findIndex(p =>
-      p.fabricCode === req.params.fabricCode || p.id === req.params.fabricCode
-    );
+    // Find by fabricCode and optionally productType for accuracy
+    let index = -1;
+    if (productType) {
+      index = db.manufacturerPrices.findIndex(p =>
+        (p.fabricCode === req.params.fabricCode || p.id === req.params.fabricCode) &&
+        p.productType === productType
+      );
+    }
+    // Fallback: find without productType filter
+    if (index === -1) {
+      index = db.manufacturerPrices.findIndex(p =>
+        p.fabricCode === req.params.fabricCode || p.id === req.params.fabricCode
+      );
+    }
 
     if (index === -1) {
       return res.status(404).json({ success: false, error: 'Fabric price not found' });
     }
-
-    const { pricePerSqMeter, pricePerSqMeterCordless, margin, manualMargin, cordlessMargin } = req.body;
 
     // Update only provided fields
     if (pricePerSqMeter !== undefined) {
@@ -3102,7 +4329,130 @@ app.delete('/api/admin/motor-brands/:id', authMiddleware, (req, res) => {
   }
 });
 
-// --- HARDWARE OPTIONS ---
+// --- HARDWARE OPTIONS BY SHADE TYPE ---
+// Unified hardware management for different shade types (roller, zebra, etc.)
+
+// Helper function to get hardware options path based on shade type
+function getHardwarePath(db, shadeType, category, createIfMissing = false) {
+  if (!db.productContent) db.productContent = {};
+
+  // For roller, use existing hardwareOptions for backward compatibility
+  if (shadeType === 'roller') {
+    if (createIfMissing) {
+      if (!db.productContent.hardwareOptions) db.productContent.hardwareOptions = {};
+      if (!db.productContent.hardwareOptions[category]) db.productContent.hardwareOptions[category] = [];
+    }
+    return db.productContent.hardwareOptions?.[category] || [];
+  }
+
+  // For other shade types (zebra, roman, etc.), use hardwareByType
+  if (createIfMissing) {
+    if (!db.productContent.hardwareByType) db.productContent.hardwareByType = {};
+    if (!db.productContent.hardwareByType[shadeType]) db.productContent.hardwareByType[shadeType] = {};
+    if (!db.productContent.hardwareByType[shadeType][category]) db.productContent.hardwareByType[shadeType][category] = [];
+  }
+  return db.productContent.hardwareByType?.[shadeType]?.[category] || [];
+}
+
+// GET hardware options by shade type and category
+app.get('/api/admin/hardware/:shadeType/:category', authMiddleware, (req, res) => {
+  try {
+    const { shadeType, category } = req.params;
+    const db = loadDatabase();
+    const options = getHardwarePath(db, shadeType, category);
+    res.json({ success: true, options, data: options });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// POST create hardware option
+app.post('/api/admin/hardware/:shadeType/:category', authMiddleware, (req, res) => {
+  try {
+    const { shadeType, category } = req.params;
+    const db = loadDatabase();
+
+    const newOption = {
+      id: `${shadeType}-${category}-${Date.now()}`,
+      ...req.body,
+      isActive: req.body.isActive !== false
+    };
+
+    // For roller, use existing hardwareOptions
+    if (shadeType === 'roller') {
+      if (!db.productContent) db.productContent = {};
+      if (!db.productContent.hardwareOptions) db.productContent.hardwareOptions = {};
+      if (!db.productContent.hardwareOptions[category]) db.productContent.hardwareOptions[category] = [];
+      db.productContent.hardwareOptions[category].push(newOption);
+    } else {
+      // For other shade types, use hardwareByType
+      if (!db.productContent) db.productContent = {};
+      if (!db.productContent.hardwareByType) db.productContent.hardwareByType = {};
+      if (!db.productContent.hardwareByType[shadeType]) db.productContent.hardwareByType[shadeType] = {};
+      if (!db.productContent.hardwareByType[shadeType][category]) db.productContent.hardwareByType[shadeType][category] = [];
+      db.productContent.hardwareByType[shadeType][category].push(newOption);
+    }
+
+    saveDatabase(db);
+    res.json({ success: true, option: newOption });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// PUT update hardware option
+app.put('/api/admin/hardware/:shadeType/:category/:id', authMiddleware, (req, res) => {
+  try {
+    const { shadeType, category, id } = req.params;
+    const db = loadDatabase();
+
+    let options;
+    if (shadeType === 'roller') {
+      options = db.productContent?.hardwareOptions?.[category];
+    } else {
+      options = db.productContent?.hardwareByType?.[shadeType]?.[category];
+    }
+
+    if (!options) return res.status(404).json({ success: false, error: 'Category not found' });
+
+    const index = options.findIndex(o => o.id === id);
+    if (index === -1) return res.status(404).json({ success: false, error: 'Option not found' });
+
+    options[index] = { ...options[index], ...req.body };
+    saveDatabase(db);
+    res.json({ success: true, option: options[index] });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// DELETE hardware option
+app.delete('/api/admin/hardware/:shadeType/:category/:id', authMiddleware, (req, res) => {
+  try {
+    const { shadeType, category, id } = req.params;
+    const db = loadDatabase();
+
+    let options;
+    if (shadeType === 'roller') {
+      options = db.productContent?.hardwareOptions?.[category];
+    } else {
+      options = db.productContent?.hardwareByType?.[shadeType]?.[category];
+    }
+
+    if (!options) return res.status(404).json({ success: false, error: 'Category not found' });
+
+    const index = options.findIndex(o => o.id === id);
+    if (index === -1) return res.status(404).json({ success: false, error: 'Option not found' });
+
+    options.splice(index, 1);
+    saveDatabase(db);
+    res.json({ success: true });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// --- LEGACY HARDWARE OPTIONS (backward compatibility) ---
 app.get('/api/admin/hardware/:category', authMiddleware, (req, res) => {
   try {
     const db = loadDatabase();
@@ -3127,36 +4477,6 @@ app.post('/api/admin/hardware/:category', authMiddleware, (req, res) => {
     db.productContent.hardwareOptions[req.params.category].push(newOption);
     saveDatabase(db);
     res.json({ success: true, option: newOption });
-  } catch (error) {
-    res.status(500).json({ success: false, error: error.message });
-  }
-});
-
-app.put('/api/admin/hardware/:category/:id', authMiddleware, (req, res) => {
-  try {
-    const db = loadDatabase();
-    const options = db.productContent?.hardwareOptions?.[req.params.category];
-    if (!options) return res.status(404).json({ success: false, error: 'Category not found' });
-    const index = options.findIndex(o => o.id === req.params.id);
-    if (index === -1) return res.status(404).json({ success: false, error: 'Option not found' });
-    options[index] = { ...options[index], ...req.body };
-    saveDatabase(db);
-    res.json({ success: true, option: options[index] });
-  } catch (error) {
-    res.status(500).json({ success: false, error: error.message });
-  }
-});
-
-app.delete('/api/admin/hardware/:category/:id', authMiddleware, (req, res) => {
-  try {
-    const db = loadDatabase();
-    const options = db.productContent?.hardwareOptions?.[req.params.category];
-    if (!options) return res.status(404).json({ success: false, error: 'Category not found' });
-    const index = options.findIndex(o => o.id === req.params.id);
-    if (index === -1) return res.status(404).json({ success: false, error: 'Option not found' });
-    options.splice(index, 1);
-    saveDatabase(db);
-    res.json({ success: true });
   } catch (error) {
     res.status(500).json({ success: false, error: error.message });
   }
@@ -3215,6 +4535,299 @@ app.delete('/api/admin/accessories/:id', authMiddleware, (req, res) => {
     accessories.splice(index, 1);
     saveDatabase(db);
     res.json({ success: true });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// ============================================
+// PRICING ENGINE APIs
+// Quantity Discounts, Dealer Pricing, Promotions
+// ============================================
+
+// --- QUANTITY DISCOUNTS ---
+app.get('/api/admin/pricing/quantity-discounts/:shadeType', authMiddleware, (req, res) => {
+  try {
+    const { shadeType } = req.params;
+    const db = loadDatabase();
+    if (!db.pricing) db.pricing = {};
+    if (!db.pricing.quantityDiscounts) db.pricing.quantityDiscounts = {};
+    const discounts = db.pricing.quantityDiscounts[shadeType] || [];
+    res.json({ success: true, discounts });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+app.post('/api/admin/pricing/quantity-discounts/:shadeType', authMiddleware, (req, res) => {
+  try {
+    const { shadeType } = req.params;
+    const db = loadDatabase();
+    if (!db.pricing) db.pricing = {};
+    if (!db.pricing.quantityDiscounts) db.pricing.quantityDiscounts = {};
+    if (!db.pricing.quantityDiscounts[shadeType]) db.pricing.quantityDiscounts[shadeType] = [];
+
+    const newDiscount = {
+      id: `qd-${shadeType}-${Date.now()}`,
+      ...req.body,
+      createdAt: new Date().toISOString()
+    };
+    db.pricing.quantityDiscounts[shadeType].push(newDiscount);
+    saveDatabase(db);
+    res.json({ success: true, discount: newDiscount });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+app.put('/api/admin/pricing/quantity-discounts/:shadeType/:id', authMiddleware, (req, res) => {
+  try {
+    const { shadeType, id } = req.params;
+    const db = loadDatabase();
+    const discounts = db.pricing?.quantityDiscounts?.[shadeType];
+    if (!discounts) return res.status(404).json({ success: false, error: 'Not found' });
+
+    const index = discounts.findIndex(d => d.id === id);
+    if (index === -1) return res.status(404).json({ success: false, error: 'Discount not found' });
+
+    discounts[index] = { ...discounts[index], ...req.body, updatedAt: new Date().toISOString() };
+    saveDatabase(db);
+    res.json({ success: true, discount: discounts[index] });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+app.delete('/api/admin/pricing/quantity-discounts/:shadeType/:id', authMiddleware, (req, res) => {
+  try {
+    const { shadeType, id } = req.params;
+    const db = loadDatabase();
+    const discounts = db.pricing?.quantityDiscounts?.[shadeType];
+    if (!discounts) return res.status(404).json({ success: false, error: 'Not found' });
+
+    const index = discounts.findIndex(d => d.id === id);
+    if (index === -1) return res.status(404).json({ success: false, error: 'Discount not found' });
+
+    discounts.splice(index, 1);
+    saveDatabase(db);
+    res.json({ success: true });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// --- DEALER PRICING TIERS ---
+app.get('/api/admin/pricing/dealer-tiers/:shadeType', authMiddleware, (req, res) => {
+  try {
+    const { shadeType } = req.params;
+    const db = loadDatabase();
+    if (!db.pricing) db.pricing = {};
+    if (!db.pricing.dealerTiers) db.pricing.dealerTiers = {};
+    const tiers = db.pricing.dealerTiers[shadeType] || [];
+    res.json({ success: true, tiers });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+app.post('/api/admin/pricing/dealer-tiers/:shadeType', authMiddleware, (req, res) => {
+  try {
+    const { shadeType } = req.params;
+    const db = loadDatabase();
+    if (!db.pricing) db.pricing = {};
+    if (!db.pricing.dealerTiers) db.pricing.dealerTiers = {};
+    if (!db.pricing.dealerTiers[shadeType]) db.pricing.dealerTiers[shadeType] = [];
+
+    const newTier = {
+      id: `dt-${shadeType}-${Date.now()}`,
+      ...req.body,
+      createdAt: new Date().toISOString()
+    };
+    db.pricing.dealerTiers[shadeType].push(newTier);
+    saveDatabase(db);
+    res.json({ success: true, tier: newTier });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+app.put('/api/admin/pricing/dealer-tiers/:shadeType/:id', authMiddleware, (req, res) => {
+  try {
+    const { shadeType, id } = req.params;
+    const db = loadDatabase();
+    const tiers = db.pricing?.dealerTiers?.[shadeType];
+    if (!tiers) return res.status(404).json({ success: false, error: 'Not found' });
+
+    const index = tiers.findIndex(t => t.id === id);
+    if (index === -1) return res.status(404).json({ success: false, error: 'Tier not found' });
+
+    tiers[index] = { ...tiers[index], ...req.body, updatedAt: new Date().toISOString() };
+    saveDatabase(db);
+    res.json({ success: true, tier: tiers[index] });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+app.delete('/api/admin/pricing/dealer-tiers/:shadeType/:id', authMiddleware, (req, res) => {
+  try {
+    const { shadeType, id } = req.params;
+    const db = loadDatabase();
+    const tiers = db.pricing?.dealerTiers?.[shadeType];
+    if (!tiers) return res.status(404).json({ success: false, error: 'Not found' });
+
+    const index = tiers.findIndex(t => t.id === id);
+    if (index === -1) return res.status(404).json({ success: false, error: 'Tier not found' });
+
+    tiers.splice(index, 1);
+    saveDatabase(db);
+    res.json({ success: true });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// --- PROMOTIONS ---
+app.get('/api/admin/pricing/promotions', authMiddleware, (req, res) => {
+  try {
+    const { shadeType } = req.query;
+    const db = loadDatabase();
+    if (!db.pricing) db.pricing = {};
+    let promotions = db.pricing.promotions || [];
+
+    // Filter by shade type if specified
+    if (shadeType && shadeType !== 'all') {
+      promotions = promotions.filter(p => p.appliesTo === shadeType || p.appliesTo === 'all');
+    }
+
+    res.json({ success: true, promotions });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+app.post('/api/admin/pricing/promotions', authMiddleware, (req, res) => {
+  try {
+    const db = loadDatabase();
+    if (!db.pricing) db.pricing = {};
+    if (!db.pricing.promotions) db.pricing.promotions = [];
+
+    // Check for duplicate code
+    const existingCode = db.pricing.promotions.find(p => p.code.toUpperCase() === req.body.code.toUpperCase());
+    if (existingCode) {
+      return res.status(400).json({ success: false, error: 'Promo code already exists' });
+    }
+
+    const newPromo = {
+      id: `promo-${Date.now()}`,
+      ...req.body,
+      code: req.body.code.toUpperCase(),
+      usedCount: 0,
+      createdAt: new Date().toISOString()
+    };
+    db.pricing.promotions.push(newPromo);
+    saveDatabase(db);
+    res.json({ success: true, promotion: newPromo });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+app.put('/api/admin/pricing/promotions/:id', authMiddleware, (req, res) => {
+  try {
+    const { id } = req.params;
+    const db = loadDatabase();
+    const promotions = db.pricing?.promotions;
+    if (!promotions) return res.status(404).json({ success: false, error: 'Not found' });
+
+    const index = promotions.findIndex(p => p.id === id);
+    if (index === -1) return res.status(404).json({ success: false, error: 'Promotion not found' });
+
+    // Check for duplicate code (excluding current promo)
+    if (req.body.code) {
+      const existingCode = promotions.find(p => p.id !== id && p.code.toUpperCase() === req.body.code.toUpperCase());
+      if (existingCode) {
+        return res.status(400).json({ success: false, error: 'Promo code already exists' });
+      }
+    }
+
+    promotions[index] = {
+      ...promotions[index],
+      ...req.body,
+      code: req.body.code ? req.body.code.toUpperCase() : promotions[index].code,
+      updatedAt: new Date().toISOString()
+    };
+    saveDatabase(db);
+    res.json({ success: true, promotion: promotions[index] });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+app.delete('/api/admin/pricing/promotions/:id', authMiddleware, (req, res) => {
+  try {
+    const { id } = req.params;
+    const db = loadDatabase();
+    const promotions = db.pricing?.promotions;
+    if (!promotions) return res.status(404).json({ success: false, error: 'Not found' });
+
+    const index = promotions.findIndex(p => p.id === id);
+    if (index === -1) return res.status(404).json({ success: false, error: 'Promotion not found' });
+
+    promotions.splice(index, 1);
+    saveDatabase(db);
+    res.json({ success: true });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Public endpoint to validate promo code at checkout
+app.post('/api/validate-promo', (req, res) => {
+  try {
+    const { code, shadeType, orderTotal } = req.body;
+    const db = loadDatabase();
+    const promotions = db.pricing?.promotions || [];
+
+    const promo = promotions.find(p =>
+      p.code.toUpperCase() === code.toUpperCase() &&
+      p.isActive &&
+      (p.appliesTo === 'all' || p.appliesTo === shadeType)
+    );
+
+    if (!promo) {
+      return res.json({ success: false, error: 'Invalid promo code' });
+    }
+
+    // Check dates
+    const now = new Date();
+    if (promo.startDate && new Date(promo.startDate) > now) {
+      return res.json({ success: false, error: 'Promo code not yet active' });
+    }
+    if (promo.endDate && new Date(promo.endDate) < now) {
+      return res.json({ success: false, error: 'Promo code has expired' });
+    }
+
+    // Check usage limit
+    if (promo.maxUses && promo.usedCount >= promo.maxUses) {
+      return res.json({ success: false, error: 'Promo code usage limit reached' });
+    }
+
+    // Check minimum order
+    if (promo.minOrderValue && orderTotal < promo.minOrderValue) {
+      return res.json({ success: false, error: `Minimum order of $${promo.minOrderValue} required` });
+    }
+
+    res.json({
+      success: true,
+      promotion: {
+        name: promo.name,
+        discountType: promo.discountType,
+        discountValue: promo.discountValue,
+        bogoBuy: promo.bogoBuy,
+        bogoGet: promo.bogoGet
+      }
+    });
   } catch (error) {
     res.status(500).json({ success: false, error: error.message });
   }
@@ -3334,6 +4947,94 @@ app.put('/api/admin/room-labels', authMiddleware, (req, res) => {
 });
 
 // ============================================
+// SEO: SITEMAP & ROBOTS.TXT
+// ============================================
+
+// Sitemap.xml
+app.get('/sitemap.xml', (req, res) => {
+  const baseUrl = 'https://peekabooshades.com';
+  const db = readDatabase();
+
+  // Static pages
+  const staticPages = [
+    { url: '/', priority: '1.0', changefreq: 'daily' },
+    { url: '/shop', priority: '0.9', changefreq: 'daily' },
+    { url: '/shop.html', priority: '0.9', changefreq: 'daily' },
+    { url: '/cart.html', priority: '0.5', changefreq: 'monthly' },
+    { url: '/policies/shipping.html', priority: '0.6', changefreq: 'monthly' },
+    { url: '/policies/returns.html', priority: '0.6', changefreq: 'monthly' },
+    { url: '/policies/warranty.html', priority: '0.6', changefreq: 'monthly' },
+    { url: '/policies/child-safety.html', priority: '0.6', changefreq: 'monthly' },
+    { url: '/policies/contact.html', priority: '0.7', changefreq: 'monthly' },
+    { url: '/faqs.html', priority: '0.6', changefreq: 'weekly' }
+  ];
+
+  // Product pages
+  const products = db.products || [];
+  const productPages = products
+    .filter(p => p.is_active && !p.is_discontinued)
+    .map(p => ({
+      url: `/product/${p.slug}`,
+      priority: '0.8',
+      changefreq: 'weekly',
+      lastmod: p.updated_at || new Date().toISOString()
+    }));
+
+  // Category pages
+  const categories = db.categories || [];
+  const categoryPages = categories.map(c => ({
+    url: `/shop?category=${c.slug}`,
+    priority: '0.7',
+    changefreq: 'weekly'
+  }));
+
+  // Generate XML
+  let xml = '<?xml version="1.0" encoding="UTF-8"?>\n';
+  xml += '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n';
+
+  [...staticPages, ...productPages, ...categoryPages].forEach(page => {
+    xml += '  <url>\n';
+    xml += `    <loc>${baseUrl}${page.url}</loc>\n`;
+    if (page.lastmod) {
+      xml += `    <lastmod>${page.lastmod.split('T')[0]}</lastmod>\n`;
+    }
+    xml += `    <changefreq>${page.changefreq}</changefreq>\n`;
+    xml += `    <priority>${page.priority}</priority>\n`;
+    xml += '  </url>\n';
+  });
+
+  xml += '</urlset>';
+
+  res.set('Content-Type', 'application/xml');
+  res.send(xml);
+});
+
+// Robots.txt
+app.get('/robots.txt', (req, res) => {
+  const baseUrl = 'https://peekabooshades.com';
+  const robots = `# Peekaboo Shades Robots.txt
+User-agent: *
+Allow: /
+
+# Disallow admin and API
+Disallow: /admin/
+Disallow: /api/
+Disallow: /dealer/
+Disallow: /manufacturer/
+
+# Disallow cart with parameters
+Disallow: /cart?*
+Disallow: /checkout?*
+
+# Sitemap
+Sitemap: ${baseUrl}/sitemap.xml
+`;
+
+  res.set('Content-Type', 'text/plain');
+  res.send(robots);
+});
+
+// ============================================
 // PAGE ROUTES
 // ============================================
 
@@ -3370,6 +5071,108 @@ app.get('/product/:slug', (req, res) => {
 // Cart page
 app.get('/cart', (req, res) => {
   res.sendFile(path.join(__dirname, '../frontend/public/cart.html'));
+});
+
+// FAQs page
+app.get('/faqs', (req, res) => {
+  res.sendFile(path.join(__dirname, '../frontend/public/faqs.html'));
+});
+
+// Warranty page
+app.get('/warranty', (req, res) => {
+  res.sendFile(path.join(__dirname, '../frontend/public/policies/warranty.html'));
+});
+
+// Contact page
+app.get('/contact', (req, res) => {
+  res.sendFile(path.join(__dirname, '../frontend/public/contact.html'));
+});
+
+// Account page
+app.get('/account', (req, res) => {
+  res.sendFile(path.join(__dirname, '../frontend/public/account.html'));
+});
+
+// Login page
+app.get('/login', (req, res) => {
+  res.sendFile(path.join(__dirname, '../frontend/public/login.html'));
+});
+
+// Signup page
+app.get('/signup', (req, res) => {
+  res.sendFile(path.join(__dirname, '../frontend/public/signup.html'));
+});
+
+// Warranty page
+app.get('/warranty', (req, res) => {
+  res.sendFile(path.join(__dirname, '../frontend/public/warranty.html'));
+});
+
+// About page (uses CMS page system)
+app.get('/about', (req, res) => {
+  res.sendFile(path.join(__dirname, '../frontend/public/page.html'));
+});
+
+// FAQs page (uses CMS page system)
+app.get('/faqs', (req, res) => {
+  res.sendFile(path.join(__dirname, '../frontend/public/page.html'));
+});
+
+// Measuring Guide page
+app.get('/measuring-guide', (req, res) => {
+  res.sendFile(path.join(__dirname, '../frontend/public/guides/how-to-measure-for-blinds.html'));
+});
+
+// Installation page
+app.get('/installation', (req, res) => {
+  res.sendFile(path.join(__dirname, '../frontend/public/guides/index.html'));
+});
+
+// Reviews page (uses CMS page system)
+app.get('/reviews', (req, res) => {
+  res.sendFile(path.join(__dirname, '../frontend/public/page.html'));
+});
+
+// Blog page
+app.get('/blog', (req, res) => {
+  res.sendFile(path.join(__dirname, '../frontend/public/blog.html'));
+});
+
+// Order lookup page
+app.get('/order-lookup', (req, res) => {
+  res.sendFile(path.join(__dirname, '../frontend/public/order-lookup.html'));
+});
+
+// Wholesale/Trade page
+app.get('/wholesale', (req, res) => {
+  res.sendFile(path.join(__dirname, '../frontend/public/trade.html'));
+});
+
+// Terms of Service
+app.get('/terms-of-service', (req, res) => {
+  res.sendFile(path.join(__dirname, '../frontend/public/policies/terms-of-service.html'));
+});
+
+// Privacy Policy
+app.get('/privacy-policy', (req, res) => {
+  res.sendFile(path.join(__dirname, '../frontend/public/policies/privacy-policy.html'));
+});
+
+// Guides clean URLs
+app.get('/guides/how-to-measure-for-blinds', (req, res) => {
+  res.sendFile(path.join(__dirname, '../frontend/public/guides/how-to-measure-for-blinds.html'));
+});
+
+app.get('/guides/zebra-vs-roller-shades', (req, res) => {
+  res.sendFile(path.join(__dirname, '../frontend/public/guides/zebra-vs-roller-shades.html'));
+});
+
+app.get('/guides/cordless-vs-motorized', (req, res) => {
+  res.sendFile(path.join(__dirname, '../frontend/public/guides/cordless-vs-motorized.html'));
+});
+
+app.get('/guides/blackout-shades-what-to-know', (req, res) => {
+  res.sendFile(path.join(__dirname, '../frontend/public/guides/blackout-shades-what-to-know.html'));
 });
 
 // ============================================
@@ -3740,6 +5543,591 @@ app.get('/api/admin/media/categories', authMiddleware, (req, res) => {
         id: key,
         ...value
       }))
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// ============================================
+// PRODUCT TAGS API
+// ============================================
+
+// Get all product tags
+app.get('/api/admin/product-tags', authMiddleware, (req, res) => {
+  try {
+    const db = loadDatabase();
+    if (!db.productTags) {
+      db.productTags = {
+        roller: ['New', 'Best Seller', 'Sale', 'Premium', 'Eco-Friendly'],
+        zebra: ['New', 'Best Seller', 'Sale', 'Premium', 'Popular'],
+        common: ['Featured', 'Limited Edition', 'Clearance']
+      };
+      saveDatabase(db);
+    }
+    res.json({ success: true, data: db.productTags });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Add a product tag
+app.post('/api/admin/product-tags', authMiddleware, (req, res) => {
+  try {
+    const { category, tag } = req.body;
+    if (!category || !tag) {
+      return res.status(400).json({ success: false, error: 'Category and tag name required' });
+    }
+
+    const db = loadDatabase();
+    if (!db.productTags) {
+      db.productTags = { roller: [], zebra: [], common: [] };
+    }
+    if (!db.productTags[category]) {
+      db.productTags[category] = [];
+    }
+
+    if (!db.productTags[category].includes(tag)) {
+      db.productTags[category].push(tag);
+      saveDatabase(db);
+    }
+
+    res.json({ success: true, data: db.productTags });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Delete a product tag
+app.delete('/api/admin/product-tags/:category/:tag', authMiddleware, (req, res) => {
+  try {
+    const { category, tag } = req.params;
+    const db = loadDatabase();
+
+    if (db.productTags && db.productTags[category]) {
+      db.productTags[category] = db.productTags[category].filter(t => t !== tag);
+      saveDatabase(db);
+    }
+
+    res.json({ success: true, data: db.productTags });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Get tags for a specific product
+app.get('/api/admin/products/:id/tags', authMiddleware, (req, res) => {
+  try {
+    const db = loadDatabase();
+    const product = db.products.find(p => p.id === req.params.id);
+    if (!product) {
+      return res.status(404).json({ success: false, error: 'Product not found' });
+    }
+    res.json({ success: true, data: product.tags || [] });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Update tags for a specific product
+app.put('/api/admin/products/:id/tags', authMiddleware, (req, res) => {
+  try {
+    const { tags } = req.body;
+    const db = loadDatabase();
+    const productIndex = db.products.findIndex(p => p.id === req.params.id);
+
+    if (productIndex === -1) {
+      return res.status(404).json({ success: false, error: 'Product not found' });
+    }
+
+    db.products[productIndex].tags = tags || [];
+    saveDatabase(db);
+
+    res.json({ success: true, data: db.products[productIndex] });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// PUBLIC: Get product tags (for frontend display)
+app.get('/api/product-tags', (req, res) => {
+  try {
+    const db = loadDatabase();
+    res.json({ success: true, data: db.productTags || {} });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// ============================================
+// FABRIC COLLECTIONS API
+// ============================================
+
+// Initialize default collections if not exist
+function initializeFabricCollections(db) {
+  if (!db.fabricCollections) {
+    db.fabricCollections = {
+      roller: [],
+      zebra: []
+    };
+  }
+  if (!db.fabricCollections.roller) db.fabricCollections.roller = [];
+  if (!db.fabricCollections.zebra) db.fabricCollections.zebra = [];
+  return db;
+}
+
+// Get all fabric collections (both roller and zebra)
+app.get('/api/admin/fabric-collections', authMiddleware, (req, res) => {
+  try {
+    let db = loadDatabase();
+    db = initializeFabricCollections(db);
+    saveDatabase(db);
+
+    // Get fabric details for each collection
+    const rollerFabrics = db.productContent?.fabrics || [];
+    const zebraFabrics = db.zebraFabrics || [];
+
+    const enrichCollection = (collection, fabrics) => ({
+      ...collection,
+      fabricDetails: (collection.fabricIds || []).map(id =>
+        fabrics.find(f => f.id === id || f.code === id)
+      ).filter(Boolean)
+    });
+
+    res.json({
+      success: true,
+      data: {
+        roller: db.fabricCollections.roller.map(c => enrichCollection(c, rollerFabrics)),
+        zebra: db.fabricCollections.zebra.map(c => enrichCollection(c, zebraFabrics))
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Get collections by type (roller or zebra)
+app.get('/api/admin/fabric-collections/:type', authMiddleware, (req, res) => {
+  try {
+    const { type } = req.params;
+    if (!['roller', 'zebra'].includes(type)) {
+      return res.status(400).json({ success: false, error: 'Type must be roller or zebra' });
+    }
+
+    let db = loadDatabase();
+    db = initializeFabricCollections(db);
+
+    const fabrics = type === 'roller'
+      ? (db.productContent?.fabrics || [])
+      : (db.zebraFabrics || []);
+
+    const collections = (db.fabricCollections[type] || []).map(collection => ({
+      ...collection,
+      fabricDetails: (collection.fabricIds || []).map(id =>
+        fabrics.find(f => f.id === id || f.code === id)
+      ).filter(Boolean)
+    }));
+
+    res.json({ success: true, data: collections });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Create a new fabric collection
+app.post('/api/admin/fabric-collections', authMiddleware, (req, res) => {
+  try {
+    const { type, name, description, fabricIds, status, image } = req.body;
+
+    if (!type || !['roller', 'zebra'].includes(type)) {
+      return res.status(400).json({ success: false, error: 'Type must be roller or zebra' });
+    }
+    if (!name) {
+      return res.status(400).json({ success: false, error: 'Collection name is required' });
+    }
+
+    let db = loadDatabase();
+    db = initializeFabricCollections(db);
+
+    const newCollection = {
+      id: `col-${Date.now()}`,
+      name,
+      description: description || '',
+      fabricIds: fabricIds || [],
+      status: status || 'active',
+      image: image || '',
+      order: db.fabricCollections[type].length + 1,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    };
+
+    db.fabricCollections[type].push(newCollection);
+    saveDatabase(db);
+
+    res.json({ success: true, data: newCollection });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Update a fabric collection
+app.put('/api/admin/fabric-collections/:type/:id', authMiddleware, (req, res) => {
+  try {
+    const { type, id } = req.params;
+    const { name, description, fabricIds, status, image, order } = req.body;
+
+    if (!['roller', 'zebra'].includes(type)) {
+      return res.status(400).json({ success: false, error: 'Type must be roller or zebra' });
+    }
+
+    let db = loadDatabase();
+    db = initializeFabricCollections(db);
+
+    const index = db.fabricCollections[type].findIndex(c => c.id === id);
+    if (index === -1) {
+      return res.status(404).json({ success: false, error: 'Collection not found' });
+    }
+
+    const updated = {
+      ...db.fabricCollections[type][index],
+      name: name ?? db.fabricCollections[type][index].name,
+      description: description ?? db.fabricCollections[type][index].description,
+      fabricIds: fabricIds ?? db.fabricCollections[type][index].fabricIds,
+      status: status ?? db.fabricCollections[type][index].status,
+      image: image ?? db.fabricCollections[type][index].image,
+      order: order ?? db.fabricCollections[type][index].order,
+      updatedAt: new Date().toISOString()
+    };
+
+    db.fabricCollections[type][index] = updated;
+    saveDatabase(db);
+
+    res.json({ success: true, data: updated });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Delete a fabric collection
+app.delete('/api/admin/fabric-collections/:type/:id', authMiddleware, (req, res) => {
+  try {
+    const { type, id } = req.params;
+
+    if (!['roller', 'zebra'].includes(type)) {
+      return res.status(400).json({ success: false, error: 'Type must be roller or zebra' });
+    }
+
+    let db = loadDatabase();
+    db = initializeFabricCollections(db);
+
+    const index = db.fabricCollections[type].findIndex(c => c.id === id);
+    if (index === -1) {
+      return res.status(404).json({ success: false, error: 'Collection not found' });
+    }
+
+    db.fabricCollections[type].splice(index, 1);
+    saveDatabase(db);
+
+    res.json({ success: true, message: 'Collection deleted' });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// PUBLIC: Get fabric collections for frontend
+app.get('/api/fabric-collections', (req, res) => {
+  try {
+    const db = loadDatabase();
+    const collections = db.fabricCollections || { roller: [], zebra: [] };
+
+    // Only return active collections with fabric details
+    const rollerFabrics = db.productContent?.fabrics || [];
+    const zebraFabrics = db.zebraFabrics || [];
+
+    const filterActive = (colls, fabrics) =>
+      colls.filter(c => c.status === 'active').map(c => ({
+        ...c,
+        fabricDetails: (c.fabricIds || []).map(id =>
+          fabrics.find(f => f.id === id || f.code === id)
+        ).filter(Boolean)
+      }));
+
+    res.json({
+      success: true,
+      data: {
+        roller: filterActive(collections.roller || [], rollerFabrics),
+        zebra: filterActive(collections.zebra || [], zebraFabrics)
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Get fabrics available for collections (helper endpoint)
+app.get('/api/admin/fabric-collections/available-fabrics/:type', authMiddleware, (req, res) => {
+  try {
+    const { type } = req.params;
+    const db = loadDatabase();
+
+    let fabrics = [];
+    if (type === 'roller') {
+      fabrics = (db.productContent?.fabrics || []).map(f => ({
+        id: f.id || f.code,
+        code: f.code,
+        name: f.name,
+        color: f.color || '#cccccc',
+        filterType: f.filterType,
+        imageUrl: f.imageUrl || f.swatchImage,
+        isActive: f.isActive !== false
+      }));
+    } else if (type === 'zebra') {
+      fabrics = (db.zebraFabrics || []).map(f => ({
+        id: f.id || f.code,
+        code: f.code,
+        name: f.name,
+        color: f.color || '#cccccc',
+        category: f.category,
+        shadingType: f.shadingType,
+        imageUrl: f.imageUrl,
+        enabled: f.enabled !== false
+      }));
+    }
+
+    res.json({ success: true, data: fabrics });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// ============================================
+// FABRIC ATTRIBUTES API
+// ============================================
+
+// Initialize default fabric attributes
+function initializeFabricAttributes(db) {
+  if (!db.fabricAttributes) {
+    db.fabricAttributes = {
+      roller: {
+        opacity: [
+          { id: 'op-1', name: 'Blackout (100%)', value: 100 },
+          { id: 'op-2', name: 'Room Darkening (85%)', value: 85 },
+          { id: 'op-3', name: 'Light Filtering (50%)', value: 50 },
+          { id: 'op-4', name: 'Sheer (15%)', value: 15 }
+        ],
+        material: [
+          { id: 'mat-1', name: 'Polyester' },
+          { id: 'mat-2', name: 'Linen Blend' },
+          { id: 'mat-3', name: 'Cotton' },
+          { id: 'mat-4', name: 'PVC/Vinyl' }
+        ],
+        color: [
+          { id: 'col-1', name: 'Whites & Creams', color: '#FFFFFF' },
+          { id: 'col-2', name: 'Grays', color: '#808080' },
+          { id: 'col-3', name: 'Tans & Beiges', color: '#D2B48C' },
+          { id: 'col-4', name: 'Blacks', color: '#000000' },
+          { id: 'col-5', name: 'Blues', color: '#4169E1' },
+          { id: 'col-6', name: 'Greens', color: '#228B22' }
+        ],
+        feature: [
+          { id: 'feat-1', name: 'Fire Retardant' },
+          { id: 'feat-2', name: 'UV Resistant' },
+          { id: 'feat-3', name: 'Moisture Resistant' },
+          { id: 'feat-4', name: 'Eco-Friendly' },
+          { id: 'feat-5', name: 'Thermal Insulating' }
+        ]
+      },
+      zebra: {
+        opacity: [
+          { id: 'zop-1', name: 'Blackout', value: 100 },
+          { id: 'zop-2', name: 'Semi-Sheer', value: 50 },
+          { id: 'zop-3', name: 'Sheer', value: 20 }
+        ],
+        material: [
+          { id: 'zmat-1', name: 'Polyester' },
+          { id: 'zmat-2', name: 'Polyester Blend' }
+        ],
+        color: [
+          { id: 'zcol-1', name: 'Whites & Creams', color: '#FFFFFF' },
+          { id: 'zcol-2', name: 'Grays', color: '#808080' },
+          { id: 'zcol-3', name: 'Tans & Beiges', color: '#D2B48C' },
+          { id: 'zcol-4', name: 'Blacks', color: '#000000' }
+        ],
+        feature: [
+          { id: 'zfeat-1', name: 'Fire Retardant' },
+          { id: 'zfeat-2', name: 'UV Resistant' },
+          { id: 'zfeat-3', name: 'Moisture Resistant' }
+        ],
+        pattern: [
+          { id: 'pat-1', name: 'Solid' },
+          { id: 'pat-2', name: 'Textured' },
+          { id: 'pat-3', name: 'Striped' }
+        ]
+      }
+    };
+    saveDatabase(db);
+  }
+  return db;
+}
+
+// Get all fabric attributes (both roller and zebra)
+app.get('/api/admin/fabric-attributes', authMiddleware, (req, res) => {
+  try {
+    let db = loadDatabase();
+    db = initializeFabricAttributes(db);
+
+    // Count fabrics for each attribute
+    const rollerFabrics = db.productContent?.fabrics || [];
+    const zebraFabrics = db.zebraFabrics || [];
+
+    const countFabrics = (attrs, fabrics, field) => {
+      return attrs.map(attr => ({
+        ...attr,
+        count: fabrics.filter(f => {
+          const value = f[field];
+          if (Array.isArray(value)) return value.includes(attr.name) || value.includes(attr.id);
+          return value === attr.name || value === attr.id;
+        }).length
+      }));
+    };
+
+    res.json({
+      success: true,
+      data: {
+        roller: db.fabricAttributes.roller,
+        zebra: db.fabricAttributes.zebra
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Get fabric attributes by type (roller or zebra)
+app.get('/api/admin/fabric-attributes/:type', authMiddleware, (req, res) => {
+  try {
+    const { type } = req.params;
+    if (!['roller', 'zebra'].includes(type)) {
+      return res.status(400).json({ success: false, error: 'Type must be roller or zebra' });
+    }
+
+    let db = loadDatabase();
+    db = initializeFabricAttributes(db);
+
+    res.json({ success: true, data: db.fabricAttributes[type] });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Add a fabric attribute
+app.post('/api/admin/fabric-attributes', authMiddleware, (req, res) => {
+  try {
+    const { type, category, name, color, value } = req.body;
+
+    if (!type || !['roller', 'zebra'].includes(type)) {
+      return res.status(400).json({ success: false, error: 'Type must be roller or zebra' });
+    }
+    if (!category || !name) {
+      return res.status(400).json({ success: false, error: 'Category and name are required' });
+    }
+
+    let db = loadDatabase();
+    db = initializeFabricAttributes(db);
+
+    if (!db.fabricAttributes[type][category]) {
+      db.fabricAttributes[type][category] = [];
+    }
+
+    const newAttr = {
+      id: `${category.substring(0, 3)}-${Date.now()}`,
+      name
+    };
+    if (color) newAttr.color = color;
+    if (value !== undefined) newAttr.value = value;
+
+    db.fabricAttributes[type][category].push(newAttr);
+    saveDatabase(db);
+
+    res.json({ success: true, data: newAttr });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Update a fabric attribute
+app.put('/api/admin/fabric-attributes/:type/:category/:id', authMiddleware, (req, res) => {
+  try {
+    const { type, category, id } = req.params;
+    const { name, color, value } = req.body;
+
+    if (!['roller', 'zebra'].includes(type)) {
+      return res.status(400).json({ success: false, error: 'Type must be roller or zebra' });
+    }
+
+    let db = loadDatabase();
+    db = initializeFabricAttributes(db);
+
+    const attrs = db.fabricAttributes[type]?.[category];
+    if (!attrs) {
+      return res.status(404).json({ success: false, error: 'Category not found' });
+    }
+
+    const index = attrs.findIndex(a => a.id === id);
+    if (index === -1) {
+      return res.status(404).json({ success: false, error: 'Attribute not found' });
+    }
+
+    if (name) attrs[index].name = name;
+    if (color !== undefined) attrs[index].color = color;
+    if (value !== undefined) attrs[index].value = value;
+
+    saveDatabase(db);
+
+    res.json({ success: true, data: attrs[index] });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Delete a fabric attribute
+app.delete('/api/admin/fabric-attributes/:type/:category/:id', authMiddleware, (req, res) => {
+  try {
+    const { type, category, id } = req.params;
+
+    if (!['roller', 'zebra'].includes(type)) {
+      return res.status(400).json({ success: false, error: 'Type must be roller or zebra' });
+    }
+
+    let db = loadDatabase();
+    db = initializeFabricAttributes(db);
+
+    const attrs = db.fabricAttributes[type]?.[category];
+    if (!attrs) {
+      return res.status(404).json({ success: false, error: 'Category not found' });
+    }
+
+    const index = attrs.findIndex(a => a.id === id);
+    if (index === -1) {
+      return res.status(404).json({ success: false, error: 'Attribute not found' });
+    }
+
+    attrs.splice(index, 1);
+    saveDatabase(db);
+
+    res.json({ success: true, message: 'Attribute deleted' });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// PUBLIC: Get fabric attributes for frontend filtering
+app.get('/api/fabric-attributes', (req, res) => {
+  try {
+    const db = loadDatabase();
+    res.json({
+      success: true,
+      data: db.fabricAttributes || { roller: {}, zebra: {} }
     });
   } catch (error) {
     res.status(500).json({ success: false, error: error.message });
@@ -5108,6 +7496,114 @@ app.get('/api/admin/ledger/summary', authMiddleware, (req, res) => {
   }
 });
 
+// Backfill missing ledger entries
+app.post('/api/admin/ledger/backfill', authMiddleware, (req, res) => {
+  try {
+    const { backfillOrderPricingAndLedger } = require('./services/ledger-service');
+    const results = backfillOrderPricingAndLedger();
+
+    res.json({
+      success: true,
+      message: `Backfill complete. Updated ${results.ordersUpdated} orders, created ${results.ledgerEntriesCreated} ledger entries.`,
+      ...results
+    });
+  } catch (error) {
+    console.error('Error backfilling ledger:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Profit report by date range
+app.get('/api/admin/reports/profit', authMiddleware, (req, res) => {
+  try {
+    const db = loadDatabase();
+    const { startDate, endDate, groupBy = 'day' } = req.query;
+
+    let orders = (db.orders || []).filter(o => {
+      if (!o.created_at) return false;
+      const orderDate = new Date(o.created_at);
+      if (startDate && orderDate < new Date(startDate)) return false;
+      if (endDate && orderDate > new Date(endDate + 'T23:59:59')) return false;
+      return true;
+    });
+
+    // Calculate profit per order
+    const { calculateItemManufacturerCost } = require('./services/ledger-service');
+    const orderProfits = orders.map(order => {
+      const revenue = order.pricing?.total || order.total || 0;
+      const tax = order.pricing?.tax || 0;
+      const manufacturerCost = order.items?.reduce((sum, item) => {
+        return sum + calculateItemManufacturerCost(item);
+      }, 0) || 0;
+      const profit = revenue - tax - manufacturerCost;
+
+      return {
+        orderId: order.id,
+        orderNumber: order.order_number,
+        date: order.created_at,
+        revenue,
+        tax,
+        manufacturerCost,
+        profit,
+        marginPercent: (revenue - tax) > 0 ? (profit / (revenue - tax)) * 100 : 0
+      };
+    });
+
+    // Group by period
+    const grouped = {};
+    orderProfits.forEach(op => {
+      const date = new Date(op.date);
+      let key;
+      if (groupBy === 'month') {
+        key = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
+      } else if (groupBy === 'week') {
+        const weekStart = new Date(date);
+        weekStart.setDate(date.getDate() - date.getDay());
+        key = weekStart.toISOString().split('T')[0];
+      } else {
+        key = date.toISOString().split('T')[0];
+      }
+
+      if (!grouped[key]) {
+        grouped[key] = { period: key, orders: 0, revenue: 0, tax: 0, manufacturerCost: 0, profit: 0 };
+      }
+      grouped[key].orders++;
+      grouped[key].revenue += op.revenue;
+      grouped[key].tax += op.tax;
+      grouped[key].manufacturerCost += op.manufacturerCost;
+      grouped[key].profit += op.profit;
+    });
+
+    // Sort by period
+    const periods = Object.values(grouped).sort((a, b) => a.period.localeCompare(b.period));
+
+    // Calculate totals
+    const totals = orderProfits.reduce((acc, op) => ({
+      orders: acc.orders + 1,
+      revenue: acc.revenue + op.revenue,
+      tax: acc.tax + op.tax,
+      manufacturerCost: acc.manufacturerCost + op.manufacturerCost,
+      profit: acc.profit + op.profit
+    }), { orders: 0, revenue: 0, tax: 0, manufacturerCost: 0, profit: 0 });
+
+    totals.marginPercent = (totals.revenue - totals.tax) > 0
+      ? (totals.profit / (totals.revenue - totals.tax)) * 100
+      : 0;
+
+    res.json({
+      success: true,
+      data: {
+        periods,
+        totals,
+        orderCount: orders.length
+      }
+    });
+  } catch (error) {
+    console.error('Error generating profit report:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
 // MARGIN MANAGEMENT ENDPOINTS (Admin Ticket 001)
 // ============================================
 
@@ -6367,9 +8863,23 @@ app.post('/api/admin/customers', authMiddleware, (req, res) => {
       return res.status(400).json({ success: false, error: 'Email, first name, and last name are required' });
     }
 
-    const existing = db.customers.find(c => c.email.toLowerCase() === email.toLowerCase());
-    if (existing) {
+    // Check for duplicate email
+    const existingEmail = db.customers.find(c => c.email && c.email.toLowerCase() === email.toLowerCase());
+    if (existingEmail) {
       return res.status(400).json({ success: false, error: 'Customer with this email already exists' });
+    }
+
+    // Check for duplicate phone number (if provided)
+    if (phone && phone.trim()) {
+      const normalizedPhone = phone.replace(/\D/g, ''); // Remove non-digits for comparison
+      const existingPhone = db.customers.find(c => {
+        if (!c.phone) return false;
+        const custPhone = c.phone.replace(/\D/g, '');
+        return custPhone && custPhone === normalizedPhone;
+      });
+      if (existingPhone) {
+        return res.status(400).json({ success: false, error: 'Customer with this phone number already exists' });
+      }
     }
 
     const customer = {
@@ -6408,6 +8918,30 @@ app.put('/api/admin/customers/:id', authMiddleware, (req, res) => {
 
     const { email, firstName, lastName, phone, type, companyName, addresses, tags, notes } = req.body;
     const customer = db.customers[customerIndex];
+
+    // Check for duplicate email (excluding current customer)
+    if (email && email.toLowerCase() !== (customer.email || '').toLowerCase()) {
+      const existingEmail = db.customers.find(c => c.id !== req.params.id && c.email && c.email.toLowerCase() === email.toLowerCase());
+      if (existingEmail) {
+        return res.status(400).json({ success: false, error: 'Another customer with this email already exists' });
+      }
+    }
+
+    // Check for duplicate phone (excluding current customer)
+    if (phone && phone.trim()) {
+      const normalizedPhone = phone.replace(/\D/g, '');
+      const currentPhone = (customer.phone || '').replace(/\D/g, '');
+      if (normalizedPhone !== currentPhone) {
+        const existingPhone = db.customers.find(c => {
+          if (c.id === req.params.id || !c.phone) return false;
+          const custPhone = c.phone.replace(/\D/g, '');
+          return custPhone && custPhone === normalizedPhone;
+        });
+        if (existingPhone) {
+          return res.status(400).json({ success: false, error: 'Another customer with this phone number already exists' });
+        }
+      }
+    }
 
     if (email) customer.email = email;
     if (firstName) customer.firstName = firstName;
@@ -6677,6 +9211,135 @@ app.get('/api/admin/abandoned-checkouts', authMiddleware, (req, res) => {
     const abandonedCheckouts = (db.abandonedCheckouts || [])
       .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
     res.json({ success: true, abandonedCheckouts });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Admin: Get single abandoned checkout
+app.get('/api/admin/abandoned-checkouts/:id', authMiddleware, (req, res) => {
+  try {
+    const db = loadDatabase();
+    const checkout = (db.abandonedCheckouts || []).find(c => c.id === req.params.id);
+    if (!checkout) {
+      return res.status(404).json({ success: false, error: 'Abandoned checkout not found' });
+    }
+    res.json({ success: true, checkout });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Admin: Send recovery email for abandoned checkout
+app.post('/api/admin/abandoned-checkouts/:id/send-recovery', authMiddleware, (req, res) => {
+  try {
+    const db = loadDatabase();
+    const checkoutIndex = (db.abandonedCheckouts || []).findIndex(c => c.id === req.params.id);
+    if (checkoutIndex === -1) {
+      return res.status(404).json({ success: false, error: 'Abandoned checkout not found' });
+    }
+
+    // Update checkout with recovery email sent status
+    db.abandonedCheckouts[checkoutIndex].recoveryEmailSent = true;
+    db.abandonedCheckouts[checkoutIndex].recoveryEmailSentAt = new Date().toISOString();
+    db.abandonedCheckouts[checkoutIndex].status = 'recovery_sent';
+    saveDatabase(db);
+
+    // In production, this would trigger an actual email
+    res.json({
+      success: true,
+      message: 'Recovery email queued for sending',
+      checkout: db.abandonedCheckouts[checkoutIndex]
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Admin: Convert abandoned checkout to draft order
+app.post('/api/admin/abandoned-checkouts/:id/convert-to-draft', authMiddleware, (req, res) => {
+  try {
+    const db = loadDatabase();
+    const checkoutIndex = (db.abandonedCheckouts || []).findIndex(c => c.id === req.params.id);
+    if (checkoutIndex === -1) {
+      return res.status(404).json({ success: false, error: 'Abandoned checkout not found' });
+    }
+
+    const checkout = db.abandonedCheckouts[checkoutIndex];
+
+    // Create draft order from abandoned checkout
+    const draftOrder = {
+      id: 'draft-' + Date.now(),
+      customerId: checkout.customerId || null,
+      customerEmail: checkout.email,
+      customerName: checkout.customerName || '',
+      customerPhone: checkout.phone || '',
+      items: checkout.items || [],
+      subtotal: checkout.subtotal || 0,
+      total: checkout.total || 0,
+      status: 'draft',
+      source: 'abandoned_checkout',
+      sourceId: checkout.id,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    };
+
+    if (!db.draftOrders) db.draftOrders = [];
+    db.draftOrders.push(draftOrder);
+
+    // Update checkout status
+    db.abandonedCheckouts[checkoutIndex].status = 'converted';
+    db.abandonedCheckouts[checkoutIndex].convertedToDraftId = draftOrder.id;
+    db.abandonedCheckouts[checkoutIndex].convertedAt = new Date().toISOString();
+
+    saveDatabase(db);
+
+    res.json({
+      success: true,
+      message: 'Converted to draft order',
+      draftOrder: draftOrder
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Admin: Update abandoned checkout status
+app.put('/api/admin/abandoned-checkouts/:id/status', authMiddleware, (req, res) => {
+  try {
+    const { status } = req.body;
+    const db = loadDatabase();
+    const checkoutIndex = (db.abandonedCheckouts || []).findIndex(c => c.id === req.params.id);
+    if (checkoutIndex === -1) {
+      return res.status(404).json({ success: false, error: 'Abandoned checkout not found' });
+    }
+
+    db.abandonedCheckouts[checkoutIndex].status = status;
+    db.abandonedCheckouts[checkoutIndex].updatedAt = new Date().toISOString();
+    saveDatabase(db);
+
+    res.json({
+      success: true,
+      checkout: db.abandonedCheckouts[checkoutIndex]
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Admin: Delete abandoned checkout
+app.delete('/api/admin/abandoned-checkouts/:id', authMiddleware, (req, res) => {
+  try {
+    const db = loadDatabase();
+    const checkoutIndex = (db.abandonedCheckouts || []).findIndex(c => c.id === req.params.id);
+    if (checkoutIndex === -1) {
+      return res.status(404).json({ success: false, error: 'Abandoned checkout not found' });
+    }
+
+    db.abandonedCheckouts.splice(checkoutIndex, 1);
+    saveDatabase(db);
+
+    res.json({ success: true, message: 'Abandoned checkout deleted' });
   } catch (error) {
     res.status(500).json({ success: false, error: error.message });
   }
@@ -10301,6 +12964,1196 @@ async function triggerWebhook(event, data) {
 }
 
 // ============================================================================
+// INSTALLERS MANAGEMENT API
+// ============================================================================
+
+// Get all installers
+app.get('/api/admin/installers', authMiddleware, (req, res) => {
+  try {
+    const db = loadDatabase();
+    res.json({ success: true, installers: db.installers || [] });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Get single installer
+app.get('/api/admin/installers/:id', authMiddleware, (req, res) => {
+  try {
+    const db = loadDatabase();
+    const installer = (db.installers || []).find(i => i.id === req.params.id);
+    if (!installer) {
+      return res.status(404).json({ success: false, error: 'Installer not found' });
+    }
+    res.json({ success: true, installer });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Create installer
+app.post('/api/admin/installers', authMiddleware, (req, res) => {
+  try {
+    const db = loadDatabase();
+    if (!db.installers) db.installers = [];
+
+    const installer = {
+      id: `inst-${Date.now()}`,
+      companyName: req.body.companyName,
+      contactName: req.body.contactName,
+      email: req.body.email,
+      phone: req.body.phone,
+      serviceAreas: req.body.serviceAreas || [],
+      zipCodes: req.body.zipCodes || [],
+      status: req.body.status || 'active',
+      certified: req.body.certified || false,
+      rating: 0,
+      completedJobs: 0,
+      createdAt: new Date().toISOString()
+    };
+
+    db.installers.push(installer);
+    saveDatabase(db);
+    res.json({ success: true, installer });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Update installer
+app.put('/api/admin/installers/:id', authMiddleware, (req, res) => {
+  try {
+    const db = loadDatabase();
+    const index = (db.installers || []).findIndex(i => i.id === req.params.id);
+    if (index === -1) {
+      return res.status(404).json({ success: false, error: 'Installer not found' });
+    }
+
+    db.installers[index] = {
+      ...db.installers[index],
+      ...req.body,
+      updatedAt: new Date().toISOString()
+    };
+    saveDatabase(db);
+    res.json({ success: true, installer: db.installers[index] });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Delete installer
+app.delete('/api/admin/installers/:id', authMiddleware, (req, res) => {
+  try {
+    const db = loadDatabase();
+    const index = (db.installers || []).findIndex(i => i.id === req.params.id);
+    if (index === -1) {
+      return res.status(404).json({ success: false, error: 'Installer not found' });
+    }
+
+    db.installers.splice(index, 1);
+    saveDatabase(db);
+    res.json({ success: true, message: 'Installer deleted' });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// ============================================================================
+// RETURNS & REFUNDS MANAGEMENT API
+// ============================================================================
+
+// Get all returns
+app.get('/api/admin/returns', authMiddleware, (req, res) => {
+  try {
+    const db = loadDatabase();
+    res.json({ success: true, returns: db.returns || [] });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Get single return
+app.get('/api/admin/returns/:id', authMiddleware, (req, res) => {
+  try {
+    const db = loadDatabase();
+    const returnItem = (db.returns || []).find(r => r.id === req.params.id);
+    if (!returnItem) {
+      return res.status(404).json({ success: false, error: 'Return not found' });
+    }
+    res.json({ success: true, return: returnItem });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Create return request
+app.post('/api/admin/returns', authMiddleware, (req, res) => {
+  try {
+    const db = loadDatabase();
+    if (!db.returns) db.returns = [];
+
+    const returnItem = {
+      id: `ret-${Date.now()}`,
+      orderId: req.body.orderId,
+      orderNumber: req.body.orderNumber,
+      customerId: req.body.customerId,
+      customerName: req.body.customerName,
+      customerEmail: req.body.customerEmail,
+      reason: req.body.reason,
+      reasonDetails: req.body.reasonDetails,
+      status: 'pending',
+      requestedAt: new Date().toISOString(),
+      items: req.body.items || [],
+      refundAmount: req.body.refundAmount || 0,
+      orderTotal: req.body.orderTotal || 0
+    };
+
+    db.returns.push(returnItem);
+    saveDatabase(db);
+    res.json({ success: true, return: returnItem });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Update return status
+app.put('/api/admin/returns/:id', authMiddleware, (req, res) => {
+  try {
+    const db = loadDatabase();
+    const index = (db.returns || []).findIndex(r => r.id === req.params.id);
+    if (index === -1) {
+      return res.status(404).json({ success: false, error: 'Return not found' });
+    }
+
+    const previousStatus = db.returns[index].status;
+    db.returns[index] = {
+      ...db.returns[index],
+      ...req.body,
+      updatedAt: new Date().toISOString()
+    };
+
+    // Add status change timestamps
+    if (req.body.status === 'approved' && previousStatus !== 'approved') {
+      db.returns[index].approvedAt = new Date().toISOString();
+    } else if (req.body.status === 'refunded' && previousStatus !== 'refunded') {
+      db.returns[index].refundedAt = new Date().toISOString();
+    }
+
+    saveDatabase(db);
+    res.json({ success: true, return: db.returns[index] });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Delete return
+app.delete('/api/admin/returns/:id', authMiddleware, (req, res) => {
+  try {
+    const db = loadDatabase();
+    const index = (db.returns || []).findIndex(r => r.id === req.params.id);
+    if (index === -1) {
+      return res.status(404).json({ success: false, error: 'Return not found' });
+    }
+
+    db.returns.splice(index, 1);
+    saveDatabase(db);
+    res.json({ success: true, message: 'Return deleted' });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Process refund for a return (with ledger entry and order status update)
+app.post('/api/admin/returns/:id/refund', authMiddleware, (req, res) => {
+  try {
+    const db = loadDatabase();
+    if (!db.returns) db.returns = [];
+    if (!db.ledgerEntries) db.ledgerEntries = [];
+
+    const returnIndex = db.returns.findIndex(r => r.id === req.params.id);
+    if (returnIndex === -1) {
+      return res.status(404).json({ success: false, error: 'Return not found' });
+    }
+
+    const returnItem = db.returns[returnIndex];
+
+    // Check if already refunded
+    if (returnItem.status === 'refunded') {
+      return res.status(400).json({ success: false, error: 'Return already refunded' });
+    }
+
+    // Check if approved
+    if (returnItem.status !== 'approved') {
+      return res.status(400).json({ success: false, error: 'Return must be approved before processing refund' });
+    }
+
+    const now = new Date().toISOString();
+    const refundAmount = returnItem.refundAmount || 0;
+
+    // 1. Update return status to refunded
+    returnItem.status = 'refunded';
+    returnItem.refundedAt = now;
+    returnItem.updatedAt = now;
+
+    // 2. Create ledger entry for the refund
+    const ledgerEntry = {
+      id: `ledger-return-refund-${Date.now()}`,
+      type: 'refund_paid',
+      orderId: returnItem.orderId,
+      orderNumber: returnItem.orderNumber,
+      returnId: returnItem.id,
+      amount: -Math.abs(refundAmount),
+      description: `Refund for return ${returnItem.id} - Order ${returnItem.orderNumber} - ${returnItem.reason || 'Customer return'}`,
+      debit: Math.abs(refundAmount),
+      credit: null,
+      createdAt: now,
+      metadata: {
+        returnReason: returnItem.reason,
+        customerName: returnItem.customerName,
+        customerEmail: returnItem.customerEmail
+      }
+    };
+    db.ledgerEntries.push(ledgerEntry);
+
+    // 3. Update order status to 'refunded'
+    if (returnItem.orderId) {
+      const orderIndex = (db.orders || []).findIndex(o => o.id === returnItem.orderId);
+      if (orderIndex !== -1) {
+        db.orders[orderIndex].status = 'refunded';
+        db.orders[orderIndex].refunded_at = now;
+        db.orders[orderIndex].return_id = returnItem.id;
+        db.orders[orderIndex].refund_amount = refundAmount;
+      }
+    }
+
+    // 4. Store ledger entry ID in return record
+    returnItem.ledgerEntryId = ledgerEntry.id;
+    db.returns[returnIndex] = returnItem;
+
+    saveDatabase(db);
+
+    res.json({
+      success: true,
+      return: returnItem,
+      ledgerEntry,
+      message: 'Refund processed, order status updated, and ledger entry created'
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// ============================================================================
+// WARRANTY CLAIMS MANAGEMENT API
+// ============================================================================
+
+// Get all warranty claims
+app.get('/api/admin/warranty-claims', authMiddleware, (req, res) => {
+  try {
+    const db = loadDatabase();
+    res.json({ success: true, warrantyClaims: db.warrantyClaims || [] });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Get single warranty claim
+app.get('/api/admin/warranty-claims/:id', authMiddleware, (req, res) => {
+  try {
+    const db = loadDatabase();
+    const claim = (db.warrantyClaims || []).find(c => c.id === req.params.id);
+    if (!claim) {
+      return res.status(404).json({ success: false, error: 'Warranty claim not found' });
+    }
+    res.json({ success: true, claim });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Create warranty claim
+app.post('/api/admin/warranty-claims', authMiddleware, (req, res) => {
+  try {
+    const db = loadDatabase();
+    if (!db.warrantyClaims) db.warrantyClaims = [];
+
+    const newClaim = {
+      id: `WC-${Date.now()}`,
+      ...req.body,
+      status: req.body.status || 'pending',
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    };
+
+    db.warrantyClaims.push(newClaim);
+    saveDatabase(db);
+    res.json({ success: true, claim: newClaim });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Update warranty claim
+app.put('/api/admin/warranty-claims/:id', authMiddleware, (req, res) => {
+  try {
+    const db = loadDatabase();
+    if (!db.warrantyClaims) db.warrantyClaims = [];
+
+    const index = db.warrantyClaims.findIndex(c => c.id === req.params.id);
+    if (index === -1) {
+      return res.status(404).json({ success: false, error: 'Warranty claim not found' });
+    }
+
+    const updatedClaim = {
+      ...db.warrantyClaims[index],
+      ...req.body,
+      updatedAt: new Date().toISOString()
+    };
+
+    // If status changed to resolved, add resolvedAt timestamp
+    if (req.body.status === 'resolved' && db.warrantyClaims[index].status !== 'resolved') {
+      updatedClaim.resolvedAt = new Date().toISOString();
+    }
+
+    db.warrantyClaims[index] = updatedClaim;
+    saveDatabase(db);
+    res.json({ success: true, claim: updatedClaim });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Delete warranty claim
+app.delete('/api/admin/warranty-claims/:id', authMiddleware, (req, res) => {
+  try {
+    const db = loadDatabase();
+    const index = (db.warrantyClaims || []).findIndex(c => c.id === req.params.id);
+    if (index === -1) {
+      return res.status(404).json({ success: false, error: 'Warranty claim not found' });
+    }
+
+    db.warrantyClaims.splice(index, 1);
+    saveDatabase(db);
+    res.json({ success: true, message: 'Warranty claim deleted' });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// ============================================================================
+// SERVICE AREAS MANAGEMENT API
+// ============================================================================
+
+// Get all service areas
+app.get('/api/admin/service-areas', authMiddleware, (req, res) => {
+  try {
+    const db = loadDatabase();
+    res.json({ success: true, serviceAreas: db.serviceAreas || [] });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Create service area
+app.post('/api/admin/service-areas', authMiddleware, (req, res) => {
+  try {
+    const db = loadDatabase();
+    if (!db.serviceAreas) db.serviceAreas = [];
+
+    const newArea = {
+      id: `SA-${Date.now()}`,
+      ...req.body,
+      createdAt: new Date().toISOString()
+    };
+
+    db.serviceAreas.push(newArea);
+    saveDatabase(db);
+    res.json({ success: true, serviceArea: newArea });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Update service area
+app.put('/api/admin/service-areas/:id', authMiddleware, (req, res) => {
+  try {
+    const db = loadDatabase();
+    if (!db.serviceAreas) db.serviceAreas = [];
+
+    const index = db.serviceAreas.findIndex(a => a.id === req.params.id);
+    if (index === -1) {
+      return res.status(404).json({ success: false, error: 'Service area not found' });
+    }
+
+    db.serviceAreas[index] = { ...db.serviceAreas[index], ...req.body };
+    saveDatabase(db);
+    res.json({ success: true, serviceArea: db.serviceAreas[index] });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Delete service area
+app.delete('/api/admin/service-areas/:id', authMiddleware, (req, res) => {
+  try {
+    const db = loadDatabase();
+    const index = (db.serviceAreas || []).findIndex(a => a.id === req.params.id);
+    if (index === -1) {
+      return res.status(404).json({ success: false, error: 'Service area not found' });
+    }
+
+    db.serviceAreas.splice(index, 1);
+    saveDatabase(db);
+    res.json({ success: true, message: 'Service area deleted' });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// ============================================================================
+// REMAKES MANAGEMENT API
+// ============================================================================
+
+// Get all remakes
+app.get('/api/admin/remakes', authMiddleware, (req, res) => {
+  try {
+    const db = loadDatabase();
+    res.json({ success: true, remakes: db.remakes || [] });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Create remake
+app.post('/api/admin/remakes', authMiddleware, (req, res) => {
+  try {
+    const db = loadDatabase();
+    if (!db.remakes) db.remakes = [];
+
+    const newRemake = {
+      id: `RMK-${Date.now()}`,
+      ...req.body,
+      status: req.body.status || 'pending',
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    };
+
+    db.remakes.push(newRemake);
+    saveDatabase(db);
+    res.json({ success: true, remake: newRemake });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Update remake
+app.put('/api/admin/remakes/:id', authMiddleware, (req, res) => {
+  try {
+    const db = loadDatabase();
+    if (!db.remakes) db.remakes = [];
+
+    const index = db.remakes.findIndex(r => r.id === req.params.id);
+    if (index === -1) {
+      return res.status(404).json({ success: false, error: 'Remake not found' });
+    }
+
+    db.remakes[index] = {
+      ...db.remakes[index],
+      ...req.body,
+      updatedAt: new Date().toISOString()
+    };
+    saveDatabase(db);
+    res.json({ success: true, remake: db.remakes[index] });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Delete remake
+app.delete('/api/admin/remakes/:id', authMiddleware, (req, res) => {
+  try {
+    const db = loadDatabase();
+    const index = (db.remakes || []).findIndex(r => r.id === req.params.id);
+    if (index === -1) {
+      return res.status(404).json({ success: false, error: 'Remake not found' });
+    }
+
+    db.remakes.splice(index, 1);
+    saveDatabase(db);
+    res.json({ success: true, message: 'Remake deleted' });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// ============================================================================
+// INSTALLATION SCHEDULING API
+// ============================================================================
+
+// Get all installations
+app.get('/api/admin/installations', authMiddleware, (req, res) => {
+  try {
+    const db = loadDatabase();
+    res.json({ success: true, installations: db.installations || [] });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Create installation
+app.post('/api/admin/installations', authMiddleware, (req, res) => {
+  try {
+    const db = loadDatabase();
+    if (!db.installations) db.installations = [];
+
+    const newInstallation = {
+      id: `INST-${Date.now()}`,
+      ...req.body,
+      status: req.body.status || 'scheduled',
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    };
+
+    db.installations.push(newInstallation);
+    saveDatabase(db);
+    res.json({ success: true, installation: newInstallation });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Update installation
+app.put('/api/admin/installations/:id', authMiddleware, (req, res) => {
+  try {
+    const db = loadDatabase();
+    if (!db.installations) db.installations = [];
+
+    const index = db.installations.findIndex(i => i.id === req.params.id);
+    if (index === -1) {
+      return res.status(404).json({ success: false, error: 'Installation not found' });
+    }
+
+    db.installations[index] = {
+      ...db.installations[index],
+      ...req.body,
+      updatedAt: new Date().toISOString()
+    };
+    saveDatabase(db);
+    res.json({ success: true, installation: db.installations[index] });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Delete installation
+app.delete('/api/admin/installations/:id', authMiddleware, (req, res) => {
+  try {
+    const db = loadDatabase();
+    const index = (db.installations || []).findIndex(i => i.id === req.params.id);
+    if (index === -1) {
+      return res.status(404).json({ success: false, error: 'Installation not found' });
+    }
+
+    db.installations.splice(index, 1);
+    saveDatabase(db);
+    res.json({ success: true, message: 'Installation deleted' });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// ============================================================================
+// EMAIL TEMPLATES API
+// ============================================================================
+
+// Get all email templates
+app.get('/api/admin/email-templates', authMiddleware, (req, res) => {
+  try {
+    const db = loadDatabase();
+    res.json({ success: true, templates: db.emailTemplates || [] });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Create email template
+app.post('/api/admin/email-templates', authMiddleware, (req, res) => {
+  try {
+    const db = loadDatabase();
+    if (!db.emailTemplates) db.emailTemplates = [];
+
+    const newTemplate = {
+      id: `ET-${Date.now()}`,
+      ...req.body,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    };
+
+    db.emailTemplates.push(newTemplate);
+    saveDatabase(db);
+    res.json({ success: true, template: newTemplate });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Update email template
+app.put('/api/admin/email-templates/:id', authMiddleware, (req, res) => {
+  try {
+    const db = loadDatabase();
+    if (!db.emailTemplates) db.emailTemplates = [];
+
+    const index = db.emailTemplates.findIndex(t => t.id === req.params.id);
+    if (index === -1) {
+      return res.status(404).json({ success: false, error: 'Email template not found' });
+    }
+
+    db.emailTemplates[index] = {
+      ...db.emailTemplates[index],
+      ...req.body,
+      updatedAt: new Date().toISOString()
+    };
+    saveDatabase(db);
+    res.json({ success: true, template: db.emailTemplates[index] });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Delete email template
+app.delete('/api/admin/email-templates/:id', authMiddleware, (req, res) => {
+  try {
+    const db = loadDatabase();
+    const index = (db.emailTemplates || []).findIndex(t => t.id === req.params.id);
+    if (index === -1) {
+      return res.status(404).json({ success: false, error: 'Email template not found' });
+    }
+
+    db.emailTemplates.splice(index, 1);
+    saveDatabase(db);
+    res.json({ success: true, message: 'Email template deleted' });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// ============================================================================
+// CUSTOMER REVIEWS API
+// ============================================================================
+
+app.get('/api/admin/reviews', authMiddleware, (req, res) => {
+  try {
+    const db = loadDatabase();
+    const reviews = db.reviews || [];
+    const products = db.products || [];
+
+    // Enrich reviews with product info
+    const enrichedReviews = reviews.map(review => {
+      const product = products.find(p => p.id === review.productId);
+      return {
+        ...review,
+        productName: product ? product.name : review.product || 'Unknown Product'
+      };
+    });
+
+    res.json({ success: true, reviews: enrichedReviews });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Admin can create a review
+app.post('/api/admin/reviews', authMiddleware, (req, res) => {
+  try {
+    const db = loadDatabase();
+    if (!db.reviews) db.reviews = [];
+
+    const { customerName, customerEmail, rating, productId, product, content, status } = req.body;
+
+    if (!customerName || !rating || !content) {
+      return res.status(400).json({ success: false, error: 'Customer name, rating, and content are required' });
+    }
+
+    const newReview = {
+      id: `rev-${Date.now()}`,
+      customerName,
+      customerEmail: customerEmail || '',
+      rating: parseInt(rating),
+      productId: productId || null,
+      product: product || 'Custom Blinds',
+      content,
+      status: status || 'approved',
+      createdAt: new Date().toISOString()
+    };
+
+    db.reviews.push(newReview);
+    saveDatabase(db);
+    res.json({ success: true, review: newReview });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+app.put('/api/admin/reviews/:id', authMiddleware, (req, res) => {
+  try {
+    const db = loadDatabase();
+    if (!db.reviews) db.reviews = [];
+    const index = db.reviews.findIndex(r => r.id === req.params.id);
+    if (index === -1) {
+      return res.status(404).json({ success: false, error: 'Review not found' });
+    }
+    db.reviews[index] = { ...db.reviews[index], ...req.body, updatedAt: new Date().toISOString() };
+    saveDatabase(db);
+    res.json({ success: true, review: db.reviews[index] });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+app.delete('/api/admin/reviews/:id', authMiddleware, (req, res) => {
+  try {
+    const db = loadDatabase();
+    if (!db.reviews) db.reviews = [];
+    const index = db.reviews.findIndex(r => r.id === req.params.id);
+    if (index === -1) {
+      return res.status(404).json({ success: false, error: 'Review not found' });
+    }
+    db.reviews.splice(index, 1);
+    saveDatabase(db);
+    res.json({ success: true, message: 'Review deleted' });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Public endpoint - get approved/featured reviews for a product (no auth required)
+app.get('/api/reviews', (req, res) => {
+  try {
+    const db = loadDatabase();
+    const { productId } = req.query;
+    let reviews = (db.reviews || []).filter(r => r.status === 'approved' || r.status === 'featured');
+
+    if (productId) {
+      reviews = reviews.filter(r => r.productId === productId);
+    }
+
+    // Sort by featured first, then by date
+    reviews.sort((a, b) => {
+      if (a.status === 'featured' && b.status !== 'featured') return -1;
+      if (b.status === 'featured' && a.status !== 'featured') return 1;
+      return new Date(b.createdAt) - new Date(a.createdAt);
+    });
+
+    res.json({ success: true, reviews });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Public endpoint - submit a review (requires verification before approval)
+app.post('/api/reviews', (req, res) => {
+  try {
+    const db = loadDatabase();
+    if (!db.reviews) db.reviews = [];
+
+    const { customerName, customerEmail, rating, productId, product, content, orderId } = req.body;
+
+    if (!customerName || !rating || !content) {
+      return res.status(400).json({ success: false, error: 'Name, rating, and review content are required' });
+    }
+
+    if (rating < 1 || rating > 5) {
+      return res.status(400).json({ success: false, error: 'Rating must be between 1 and 5' });
+    }
+
+    // Verify customer has ordered this product (optional - if orderId provided)
+    let verified = false;
+    if (orderId) {
+      const order = (db.orders || []).find(o =>
+        o.id === orderId || o.order_number === orderId
+      );
+      if (order && order.customer_email && customerEmail &&
+          order.customer_email.toLowerCase() === customerEmail.toLowerCase()) {
+        verified = true;
+      }
+    }
+
+    const newReview = {
+      id: `rev-${Date.now()}`,
+      customerName,
+      customerEmail: customerEmail || '',
+      rating: parseInt(rating),
+      productId: productId || null,
+      product: product || 'Custom Blinds',
+      content,
+      orderId: orderId || null,
+      verified,
+      status: 'pending', // All public reviews start as pending
+      createdAt: new Date().toISOString()
+    };
+
+    db.reviews.push(newReview);
+    saveDatabase(db);
+    res.json({ success: true, review: newReview, message: 'Thank you for your review! It will be visible after approval.' });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// ============================================================================
+// MEASUREMENT REQUESTS API
+// ============================================================================
+
+app.get('/api/admin/measurement-requests', authMiddleware, (req, res) => {
+  try {
+    const db = loadDatabase();
+    res.json({ success: true, measurementRequests: db.measurementRequests || [] });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+app.post('/api/admin/measurement-requests', authMiddleware, (req, res) => {
+  try {
+    const db = loadDatabase();
+    if (!db.measurementRequests) db.measurementRequests = [];
+    const newRequest = {
+      id: `MR-${Date.now()}`,
+      ...req.body,
+      status: 'pending',
+      createdAt: new Date().toISOString()
+    };
+    db.measurementRequests.push(newRequest);
+    saveDatabase(db);
+    res.json({ success: true, request: newRequest });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+app.put('/api/admin/measurement-requests/:id', authMiddleware, (req, res) => {
+  try {
+    const db = loadDatabase();
+    if (!db.measurementRequests) db.measurementRequests = [];
+    const index = db.measurementRequests.findIndex(r => r.id === req.params.id);
+    if (index === -1) {
+      return res.status(404).json({ success: false, error: 'Request not found' });
+    }
+    db.measurementRequests[index] = { ...db.measurementRequests[index], ...req.body, updatedAt: new Date().toISOString() };
+    saveDatabase(db);
+    res.json({ success: true, request: db.measurementRequests[index] });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// ============================================================================
+// REFUNDS API
+// ============================================================================
+
+app.get('/api/admin/refunds', authMiddleware, (req, res) => {
+  try {
+    const db = loadDatabase();
+    res.json({ success: true, refunds: db.refunds || [] });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+app.post('/api/admin/refunds', authMiddleware, (req, res) => {
+  try {
+    const db = loadDatabase();
+    if (!db.refunds) db.refunds = [];
+    const newRefund = {
+      id: `REF-${Date.now()}`,
+      ...req.body,
+      status: 'pending',
+      createdAt: new Date().toISOString()
+    };
+    db.refunds.push(newRefund);
+    saveDatabase(db);
+    res.json({ success: true, refund: newRefund });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+app.put('/api/admin/refunds/:id', authMiddleware, (req, res) => {
+  try {
+    const db = loadDatabase();
+    if (!db.refunds) db.refunds = [];
+    const index = db.refunds.findIndex(r => r.id === req.params.id);
+    if (index === -1) {
+      return res.status(404).json({ success: false, error: 'Refund not found' });
+    }
+    db.refunds[index] = { ...db.refunds[index], ...req.body, updatedAt: new Date().toISOString() };
+    saveDatabase(db);
+    res.json({ success: true, refund: db.refunds[index] });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Complete refund with ledger entry and order status update
+app.post('/api/admin/refunds/:id/complete', authMiddleware, (req, res) => {
+  try {
+    const db = loadDatabase();
+    if (!db.refunds) db.refunds = [];
+    if (!db.ledgerEntries) db.ledgerEntries = [];
+
+    const refundIndex = db.refunds.findIndex(r => r.id === req.params.id);
+    if (refundIndex === -1) {
+      return res.status(404).json({ success: false, error: 'Refund not found' });
+    }
+
+    const refund = db.refunds[refundIndex];
+
+    // Check if already completed
+    if (refund.status === 'completed') {
+      return res.status(400).json({ success: false, error: 'Refund already completed' });
+    }
+
+    const now = new Date().toISOString();
+
+    // 1. Update refund status to completed
+    refund.status = 'completed';
+    refund.completedAt = now;
+    refund.updatedAt = now;
+
+    // 2. Create ledger entry for the refund
+    const ledgerEntry = {
+      id: `ledger-refund-${Date.now()}`,
+      type: 'refund_paid',
+      orderId: refund.orderId,
+      orderNumber: refund.orderNumber,
+      refundId: refund.id,
+      amount: -Math.abs(refund.amount),
+      description: `Refund for order ${refund.orderNumber} - ${refund.reason || 'Customer refund'}`,
+      debit: Math.abs(refund.amount),
+      credit: null,
+      createdAt: now,
+      metadata: {
+        refundMethod: refund.method,
+        reason: refund.reason,
+        customerName: refund.customerName,
+        customerEmail: refund.customerEmail
+      }
+    };
+    db.ledgerEntries.push(ledgerEntry);
+
+    // 3. Update order status to 'refunded'
+    if (refund.orderId) {
+      const orderIndex = (db.orders || []).findIndex(o => o.id === refund.orderId);
+      if (orderIndex !== -1) {
+        db.orders[orderIndex].status = 'refunded';
+        db.orders[orderIndex].refunded_at = now;
+        db.orders[orderIndex].refund_id = refund.id;
+        db.orders[orderIndex].refund_amount = refund.amount;
+      }
+    }
+
+    // 4. Store ledger entry ID in refund record
+    refund.ledgerEntryId = ledgerEntry.id;
+    db.refunds[refundIndex] = refund;
+
+    saveDatabase(db);
+
+    res.json({
+      success: true,
+      refund,
+      ledgerEntry,
+      message: 'Refund completed, order status updated, and ledger entry created'
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// ============================================================================
+// CUSTOMER GROUPS API
+// ============================================================================
+
+app.get('/api/admin/customer-groups', authMiddleware, (req, res) => {
+  try {
+    const db = loadDatabase();
+    const groups = db.customerGroups || [];
+    const customers = db.customers || [];
+    const orders = db.orders || [];
+
+    // Calculate members and totalSpent for each group based on customer groupId or type
+    const enrichedGroups = groups.map(group => {
+      // Find customers that belong to this group (by groupId or by type match)
+      const groupMembers = customers.filter(c =>
+        c.groupId === group.id ||
+        (c.type && c.type.toLowerCase() === group.type.toLowerCase())
+      );
+
+      // Calculate total spent from orders by these customers
+      const memberIds = groupMembers.map(c => c.id);
+      const memberOrders = orders.filter(o => memberIds.includes(o.customerId));
+      const totalSpent = memberOrders.reduce((sum, o) => {
+        const orderTotal = o.total || (o.pricing ? o.pricing.total : 0) || 0;
+        return sum + orderTotal;
+      }, 0);
+
+      return {
+        ...group,
+        members: groupMembers.length,
+        totalSpent: Math.round(totalSpent * 100) / 100
+      };
+    });
+
+    res.json({ success: true, customerGroups: enrichedGroups });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+app.post('/api/admin/customer-groups', authMiddleware, (req, res) => {
+  try {
+    const db = loadDatabase();
+    if (!db.customerGroups) db.customerGroups = [];
+    const newGroup = {
+      id: `grp-${Date.now()}`,
+      ...req.body,
+      members: 0,
+      totalSpent: 0,
+      createdAt: new Date().toISOString()
+    };
+    db.customerGroups.push(newGroup);
+    saveDatabase(db);
+    res.json({ success: true, group: newGroup });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+app.put('/api/admin/customer-groups/:id', authMiddleware, (req, res) => {
+  try {
+    const db = loadDatabase();
+    if (!db.customerGroups) db.customerGroups = [];
+    const index = db.customerGroups.findIndex(g => g.id === req.params.id);
+    if (index === -1) {
+      return res.status(404).json({ success: false, error: 'Group not found' });
+    }
+    db.customerGroups[index] = { ...db.customerGroups[index], ...req.body, updatedAt: new Date().toISOString() };
+    saveDatabase(db);
+    res.json({ success: true, group: db.customerGroups[index] });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+app.delete('/api/admin/customer-groups/:id', authMiddleware, (req, res) => {
+  try {
+    const db = loadDatabase();
+    if (!db.customerGroups) db.customerGroups = [];
+    const index = db.customerGroups.findIndex(g => g.id === req.params.id);
+    if (index === -1) {
+      return res.status(404).json({ success: false, error: 'Group not found' });
+    }
+
+    // Remove groupId from customers that were in this group
+    const groupId = db.customerGroups[index].id;
+    (db.customers || []).forEach(c => {
+      if (c.groupId === groupId) {
+        delete c.groupId;
+      }
+    });
+
+    db.customerGroups.splice(index, 1);
+    saveDatabase(db);
+    res.json({ success: true, message: 'Group deleted' });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Get members of a customer group
+app.get('/api/admin/customer-groups/:id/members', authMiddleware, (req, res) => {
+  try {
+    const db = loadDatabase();
+    const groups = db.customerGroups || [];
+    const group = groups.find(g => g.id === req.params.id);
+
+    if (!group) {
+      return res.status(404).json({ success: false, error: 'Group not found' });
+    }
+
+    const customers = db.customers || [];
+    const orders = db.orders || [];
+
+    // Find customers that belong to this group (by groupId or by type match)
+    const groupMembers = customers.filter(c =>
+      c.groupId === group.id ||
+      (c.type && c.type.toLowerCase() === group.type.toLowerCase())
+    );
+
+    // Enrich with order data
+    const membersWithStats = groupMembers.map(member => {
+      const memberOrders = orders.filter(o => o.customerId === member.id);
+      const totalSpent = memberOrders.reduce((sum, o) => sum + (o.total || (o.pricing ? o.pricing.total : 0) || 0), 0);
+      return {
+        ...member,
+        totalOrders: memberOrders.length,
+        totalSpent: Math.round(totalSpent * 100) / 100
+      };
+    });
+
+    res.json({ success: true, group, members: membersWithStats });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// ============================================================================
+// TRACKING API
+// ============================================================================
+
+app.get('/api/admin/tracking', authMiddleware, (req, res) => {
+  try {
+    const db = loadDatabase();
+    res.json({ success: true, shipments: db.shipments || [] });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+app.post('/api/admin/tracking', authMiddleware, (req, res) => {
+  try {
+    const db = loadDatabase();
+    if (!db.shipments) db.shipments = [];
+    const newShipment = {
+      id: `ship-${Date.now()}`,
+      ...req.body,
+      timeline: [{ date: new Date().toISOString(), status: 'Label Created', location: 'Warehouse' }],
+      createdAt: new Date().toISOString()
+    };
+    db.shipments.push(newShipment);
+    saveDatabase(db);
+    res.json({ success: true, shipment: newShipment });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+app.put('/api/admin/tracking/:id', authMiddleware, (req, res) => {
+  try {
+    const db = loadDatabase();
+    if (!db.shipments) db.shipments = [];
+    const index = db.shipments.findIndex(s => s.id === req.params.id);
+    if (index === -1) {
+      return res.status(404).json({ success: false, error: 'Shipment not found' });
+    }
+    db.shipments[index] = { ...db.shipments[index], ...req.body };
+    saveDatabase(db);
+    res.json({ success: true, shipment: db.shipments[index] });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// ============================================================================
 // WEBHOOK MANAGEMENT API
 // ============================================================================
 
@@ -10639,6 +14492,37 @@ app.put('/api/admin/system-config/business-rules', authMiddleware, (req, res) =>
 });
 
 /**
+ * Update payment configuration
+ */
+app.put('/api/admin/system-config/payment', authMiddleware, (req, res) => {
+  try {
+    const db = loadDatabase();
+    const previousConfig = db.systemConfig?.payment;
+
+    if (!db.systemConfig) db.systemConfig = {};
+    db.systemConfig.payment = { ...db.systemConfig.payment, ...req.body };
+
+    saveDatabase(db);
+    systemConfig.invalidateCache();
+
+    // Log but mask sensitive keys
+    const sanitizedConfig = JSON.parse(JSON.stringify(db.systemConfig.payment));
+    if (sanitizedConfig.providers) {
+      sanitizedConfig.providers = sanitizedConfig.providers.map(p => ({
+        ...p,
+        apiKey: p.apiKey ? '***' + p.apiKey.slice(-4) : '',
+        secretKey: p.secretKey ? '***' + p.secretKey.slice(-4) : ''
+      }));
+    }
+    auditLogger.logConfigChange('payment', previousConfig ? '(previous config)' : null, sanitizedConfig, req.admin, req);
+
+    res.json({ success: true, message: 'Payment configuration updated', data: db.systemConfig.payment });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+/**
  * Get audit logs
  */
 app.get('/api/admin/audit-logs', authMiddleware, (req, res) => {
@@ -10693,12 +14577,1981 @@ app.get('/api/admin/realtime/stats', authMiddleware, (req, res) => {
   }
 });
 
+// ============================================
+// AI ASSISTANT (ADMIN COPILOT)
+// ============================================
+const aiConversations = new Map(); // Store conversation history
+
+// Demo responses for AI Assistant when no API key
+const DEMO_RESPONSES = {
+  orders: `**Orders Overview**
+
+You can manage orders at /admin/orders.html
+
+Order statuses flow:
+ORDER_PLACED → ORDER_RECEIVED → MANUFACTURING → QA → SHIPPED → DELIVERED
+
+Click any order to view full details including items, pricing, and customer info.`,
+
+  invoices: `**Invoices Overview**
+
+Invoices are auto-generated when orders are placed.
+
+Go to /admin/invoices.html to:
+- Filter by status (Pending, Sent, Paid)
+- Filter by shade type (Roller/Zebra)
+- View and print invoice details`,
+
+  pricing: `**Pricing Management**
+
+Fabric pricing pages:
+- **Roller**: /admin/product-pricing.html (161 fabrics)
+- **Zebra**: /admin/zebra-pricing.html (208 fabrics)
+
+Pricing formula:
+- Base = Fabric $/m² × Area (min 1.5 m²)
+- Roller margin: ~40%
+- Zebra margin: ~45%`,
+
+  customers: `**Customer Management**
+
+View customers at /admin/customers.html
+
+Each profile shows:
+- Contact info
+- Order history
+- Total spend`,
+
+  help: `**Admin Copilot Help**
+
+I can help with:
+- **Orders**: Status, details, pipeline
+- **Invoices**: Payments, generating
+- **Pricing**: Fabric costs, margins
+- **Customers**: Info, history
+- **Products**: Setup, configuration
+
+Ask me anything!`
+};
+
+function getDemoResponse(message, dbContext) {
+  const msg = message.toLowerCase();
+
+  if (msg.includes('order') && (msg.includes('today') || msg.includes('statistic') || msg.includes('status') || msg.includes('how many') || msg.includes('show'))) {
+    return `**Current Order Statistics**
+
+- Total Orders: **${dbContext.totalOrders}**
+- Pending Orders: **${dbContext.pendingOrders}**
+- Recent: ${dbContext.recentOrders.map(o => o.id).join(', ') || 'None'}
+
+View all at /admin/orders.html`;
+  }
+
+  if (msg.includes('invoice') && (msg.includes('pending') || msg.includes('unpaid') || msg.includes('show'))) {
+    return `**Invoice Status**
+
+- Total Invoices: **${dbContext.totalInvoices}**
+- Unpaid: **${dbContext.unpaidInvoices}**
+
+Manage at /admin/invoices.html`;
+  }
+
+  if (msg.includes('order')) return DEMO_RESPONSES.orders;
+  if (msg.includes('invoice')) return DEMO_RESPONSES.invoices;
+  if (msg.includes('price') || msg.includes('pricing') || msg.includes('cost') || msg.includes('margin')) return DEMO_RESPONSES.pricing;
+  if (msg.includes('customer')) return DEMO_RESPONSES.customers;
+  if (msg.includes('help') || msg.includes('what can') || msg.includes('hi') || msg.includes('hello')) return DEMO_RESPONSES.help;
+
+  return `I can help you with the admin portal!
+
+**Quick Stats:**
+- Orders: ${dbContext.totalOrders}
+- Invoices: ${dbContext.totalInvoices}
+- Customers: ${dbContext.totalCustomers}
+- Roller Fabrics: ${dbContext.rollerFabrics}
+- Zebra Fabrics: ${dbContext.zebraFabrics}
+
+Ask about orders, invoices, pricing, or customers!`;
+}
+
+// System prompt for Admin Copilot
+const ADMIN_COPILOT_SYSTEM_PROMPT = `You are PeekabooShades Admin Copilot — an evidence-based SME assistant for the PeekabooShades admin dashboard.
+
+## CORE RULES
+
+1) **Evidence-only**: Every answer must be grounded in real data from tools. Use get_orders, get_invoices, get_customers, get_analytics, get_fabric_price, get_dashboard_stats to fetch real data before answering.
+
+2) **No breaking changes**: Do NOT propose renaming APIs, changing data structures, or modifying business logic without explicit approval.
+
+3) **Permission gate**: For any changes (update_order_status, update_fabric_price, create_promotion), explain what will happen and ask for confirmation before executing.
+
+4) **SME scope**: Explain admin pages, buttons, endpoints, and data flows clearly.
+
+5) **QA mode**: When asked about bugs, provide reproduction steps, expected vs actual, and likely failure points.
+
+## DATABASE (JSON file - database.json)
+- orders: Customer orders with items, pricing, status
+- invoices: Auto-generated from orders
+- customers: Customer profiles
+- products: 5 products (Roller, Zebra shades)
+- manufacturerPrices: 161 roller fabric prices
+- zebraManufacturerPrices: 208 zebra fabric prices
+- motorBrands: AOK, Dooya motors
+- faqs, pages, blogPosts, settings, security, audit_logs
+
+## PRODUCT TYPES
+- Roller Shades: fabric codes 82xxx, ~40% margin
+- Zebra Shades: fabric codes 83xxx, ~45% margin
+
+## ORDER FLOW
+ORDER_PLACED → ORDER_RECEIVED → MANUFACTURING → QA → SHIPPED → DELIVERED
+
+## ALL ADMIN PAGES
+
+### Core Business
+- /admin/ - Dashboard with order pipeline DAG, stats
+- /admin/orders.html - Order list, status updates, Order Details modal
+- /admin/invoices.html - Invoice tracking, payments, print
+- /admin/quotes.html - Quote requests
+- /admin/customers.html - Customer list & profiles
+- /admin/draft-orders.html - Incomplete orders
+- /admin/abandoned-checkouts.html - Recovery opportunities
+
+### Products & Pricing
+- /admin/products.html - Product catalog
+- /admin/product-pricing.html - Roller fabric pricing (161 fabrics)
+- /admin/zebra-pricing.html - Zebra fabric pricing (208 fabrics)
+- /admin/fabrics.html - Fabric categories
+- /admin/hardware-options.html - Roller motors/hardware
+- /admin/zebra-hardware.html - Zebra motors/hardware
+- /admin/accessories.html - Smart Hub, USB Charger, etc
+- /admin/categories.html - Product categories
+
+### Content Management
+- /admin/pages.html - Static pages (About, Contact, etc)
+- /admin/faqs.html - FAQ management
+- /admin/blog/posts.html - Blog posts
+- /admin/media-library.html - Images & files
+
+### Online Store
+- /admin/online-store/homepage.html - Homepage settings
+- /admin/online-store/banners.html - Promotional banners
+- /admin/online-store/navigation.html - Menu structure
+- /admin/online-store/themes.html - Theme selection
+- /admin/theme-settings.html - Colors & fonts
+
+### Marketing
+- /admin/marketing/campaigns.html - Email campaigns
+- /admin/marketing/promotions.html - Discount codes
+- /admin/marketing/subscribers.html - Email list
+- /admin/marketing/social.html - Social posts
+
+### Security
+- /admin/security/users.html - Admin users
+- /admin/security/permissions.html - Role-based access
+- /admin/security/audit-logs.html - Activity tracking
+- /admin/security/sessions.html - Active sessions
+- /admin/security/firewall.html - IP blocking
+- /admin/security/api-security.html - API keys
+
+### System
+- /admin/analytics.html - Sales analytics
+- /admin/settings.html - General settings
+- /admin/system-config.html - System configuration
+
+## RESPONSE FORMAT
+1. **What you asked**: Restate the question
+2. **Evidence found**: Use tools to get real data
+3. **Explanation**: Clear answer with business context
+4. **Where to change it**: Exact pages/endpoints if applicable
+5. **How to test it**: QA steps if relevant
+
+## CAPABILITIES
+You can:
+- Fetch real data (orders, invoices, customers, analytics, prices)
+- Update order statuses (with permission)
+- Update fabric prices (with permission)
+- Create promotions (with permission)
+- Explain any admin page or feature
+- Help debug issues with step-by-step guidance
+
+Always fetch real data using tools before answering questions about counts, statuses, or specific records.`;
+
+// AI Copilot Tools for performing actions
+const AI_TOOLS = [
+  {
+    name: 'get_orders',
+    description: 'Get orders from database with optional filters',
+    input_schema: {
+      type: 'object',
+      properties: {
+        status: { type: 'string', description: 'Filter by status: ORDER_PLACED, ORDER_RECEIVED, MANUFACTURING, QA, SHIPPED, DELIVERED' },
+        limit: { type: 'number', description: 'Max number of orders to return (default 10)' }
+      }
+    }
+  },
+  {
+    name: 'get_order_details',
+    description: 'Get full details of a specific order',
+    input_schema: {
+      type: 'object',
+      properties: {
+        order_id: { type: 'string', description: 'Order ID or order number' }
+      },
+      required: ['order_id']
+    }
+  },
+  {
+    name: 'update_order_status',
+    description: 'Update the status of an order',
+    input_schema: {
+      type: 'object',
+      properties: {
+        order_id: { type: 'string', description: 'Order ID or order number' },
+        new_status: { type: 'string', description: 'New status: ORDER_RECEIVED, MANUFACTURING, QA, SHIPPED, DELIVERED' }
+      },
+      required: ['order_id', 'new_status']
+    }
+  },
+  {
+    name: 'get_invoices',
+    description: 'Get invoices with optional filters',
+    input_schema: {
+      type: 'object',
+      properties: {
+        status: { type: 'string', description: 'Filter by status: pending, sent, paid' },
+        limit: { type: 'number', description: 'Max number of invoices to return' }
+      }
+    }
+  },
+  {
+    name: 'get_customers',
+    description: 'Get customer list',
+    input_schema: {
+      type: 'object',
+      properties: {
+        limit: { type: 'number', description: 'Max customers to return' }
+      }
+    }
+  },
+  {
+    name: 'get_fabric_price',
+    description: 'Get price for a specific fabric code',
+    input_schema: {
+      type: 'object',
+      properties: {
+        fabric_code: { type: 'string', description: 'Fabric code like 82032B or 83001A' }
+      },
+      required: ['fabric_code']
+    }
+  },
+  {
+    name: 'update_fabric_price',
+    description: 'Update the price of a fabric',
+    input_schema: {
+      type: 'object',
+      properties: {
+        fabric_code: { type: 'string', description: 'Fabric code' },
+        new_price: { type: 'number', description: 'New price per square meter' }
+      },
+      required: ['fabric_code', 'new_price']
+    }
+  },
+  {
+    name: 'get_analytics',
+    description: 'Get analytics summary (sales, revenue, etc)',
+    input_schema: {
+      type: 'object',
+      properties: {
+        period: { type: 'string', description: 'Time period: today, week, month, all' }
+      }
+    }
+  },
+  {
+    name: 'create_promotion',
+    description: 'Create a new promotion/discount code',
+    input_schema: {
+      type: 'object',
+      properties: {
+        code: { type: 'string', description: 'Promotion code' },
+        discount_percent: { type: 'number', description: 'Discount percentage (e.g. 10 for 10%)' },
+        description: { type: 'string', description: 'Description of the promotion' }
+      },
+      required: ['code', 'discount_percent']
+    }
+  },
+  {
+    name: 'get_dashboard_stats',
+    description: 'Get overall dashboard statistics',
+    input_schema: {
+      type: 'object',
+      properties: {}
+    }
+  }
+];
+
+// Execute AI tool calls
+function executeAITool(toolName, toolInput) {
+  const db = loadDatabase();
+
+  switch (toolName) {
+    case 'get_orders': {
+      let orders = db.orders || [];
+      if (toolInput.status) {
+        orders = orders.filter(o => o.status === toolInput.status);
+      }
+      orders = orders.slice(-(toolInput.limit || 10));
+      return orders.map(o => ({
+        order_number: o.order_number || o.id,
+        status: o.status,
+        total: o.order_total || o.total,
+        customer: o.customer?.name || o.customer?.email,
+        date: o.created_at,
+        items: o.items?.length || 0
+      }));
+    }
+
+    case 'get_order_details': {
+      const order = db.orders?.find(o => o.order_number === toolInput.order_id || o.id === toolInput.order_id);
+      if (!order) return { error: 'Order not found' };
+      return order;
+    }
+
+    case 'update_order_status': {
+      const orderIndex = db.orders?.findIndex(o => o.order_number === toolInput.order_id || o.id === toolInput.order_id);
+      if (orderIndex === -1) return { error: 'Order not found' };
+
+      const validStatuses = ['ORDER_RECEIVED', 'MANUFACTURING', 'QA', 'SHIPPED', 'DELIVERED'];
+      if (!validStatuses.includes(toolInput.new_status)) {
+        return { error: 'Invalid status. Use: ' + validStatuses.join(', ') };
+      }
+
+      db.orders[orderIndex].status = toolInput.new_status;
+      db.orders[orderIndex].updated_at = new Date().toISOString();
+      saveDatabase(db);
+      return { success: true, message: `Order ${toolInput.order_id} updated to ${toolInput.new_status}` };
+    }
+
+    case 'get_invoices': {
+      let invoices = db.invoices || [];
+      if (toolInput.status) {
+        invoices = invoices.filter(i => i.status === toolInput.status);
+      }
+      invoices = invoices.slice(-(toolInput.limit || 10));
+      return invoices.map(i => ({
+        invoice_number: i.invoiceNumber,
+        order: i.orderId,
+        status: i.status,
+        total: i.totals?.grandTotal || i.total,
+        date: i.createdAt
+      }));
+    }
+
+    case 'get_customers': {
+      const customers = (db.customers || []).slice(-(toolInput.limit || 20));
+      return customers.map(c => ({
+        id: c.id,
+        name: c.name,
+        email: c.email,
+        orders: c.orderCount || 0,
+        totalSpent: c.totalSpent || 0
+      }));
+    }
+
+    case 'get_fabric_price': {
+      const code = toolInput.fabric_code;
+      const allPrices = db.manufacturerPrices || [];
+      const fabric = allPrices.find(f => f.fabricCode === code);
+      if (!fabric) return { error: 'Fabric not found' };
+      return { fabricCode: code, pricePerSqMeter: fabric.pricePerSqMeter, type: fabric.productType || 'roller' };
+    }
+
+    case 'update_fabric_price': {
+      const code = toolInput.fabric_code;
+      const fabricIndex = (db.manufacturerPrices || []).findIndex(f => f.fabricCode === code);
+      if (fabricIndex === -1) return { error: 'Fabric not found' };
+
+      db.manufacturerPrices[fabricIndex].pricePerSqMeter = toolInput.new_price;
+      saveDatabase(db);
+      return { success: true, message: `Fabric ${code} price updated to $${toolInput.new_price}/m²` };
+    }
+
+    case 'get_analytics': {
+      const orders = db.orders || [];
+      const totalRevenue = orders.reduce((sum, o) => sum + (o.order_total || o.total || 0), 0);
+      const totalOrders = orders.length;
+      const avgOrderValue = totalOrders > 0 ? totalRevenue / totalOrders : 0;
+
+      return {
+        totalOrders,
+        totalRevenue: totalRevenue.toFixed(2),
+        avgOrderValue: avgOrderValue.toFixed(2),
+        byStatus: {
+          placed: orders.filter(o => o.status === 'ORDER_PLACED').length,
+          manufacturing: orders.filter(o => o.status === 'MANUFACTURING').length,
+          shipped: orders.filter(o => o.status === 'SHIPPED').length,
+          delivered: orders.filter(o => o.status === 'DELIVERED').length
+        }
+      };
+    }
+
+    case 'create_promotion': {
+      if (!db.promotions) db.promotions = [];
+      const promo = {
+        id: uuidv4(),
+        code: toolInput.code.toUpperCase(),
+        discountPercent: toolInput.discount_percent,
+        description: toolInput.description || '',
+        active: true,
+        createdAt: new Date().toISOString()
+      };
+      db.promotions.push(promo);
+      saveDatabase(db);
+      return { success: true, message: `Promotion ${promo.code} created with ${promo.discountPercent}% discount` };
+    }
+
+    case 'get_dashboard_stats': {
+      return {
+        orders: db.orders?.length || 0,
+        pendingOrders: db.orders?.filter(o => ['ORDER_PLACED', 'ORDER_RECEIVED'].includes(o.status)).length || 0,
+        invoices: db.invoices?.length || 0,
+        unpaidInvoices: db.invoices?.filter(i => i.status !== 'paid').length || 0,
+        customers: db.customers?.length || 0,
+        totalFabrics: db.manufacturerPrices?.length || 0,
+        rollerFabrics: db.manufacturerPrices?.filter(p => p.productType === 'roller').length || 0,
+        zebraFabrics: db.manufacturerPrices?.filter(p => p.productType === 'zebra').length || 0,
+        products: db.products?.length || 0
+      };
+    }
+
+    default:
+      return { error: 'Unknown tool' };
+  }
+}
+
+app.post('/api/admin/ai-chat', authMiddleware, async (req, res) => {
+  try {
+    const { message, conversationId, currentPage, context } = req.body;
+
+    if (!message) {
+      return res.status(400).json({ success: false, error: 'Message is required' });
+    }
+
+    // Get database stats for context
+    const db = loadDatabase();
+    const dbContext = {
+      totalOrders: db.orders?.length || 0,
+      pendingOrders: db.orders?.filter(o => o.status === 'ORDER_PLACED' || o.status === 'ORDER_RECEIVED').length || 0,
+      totalInvoices: db.invoices?.length || 0,
+      unpaidInvoices: db.invoices?.filter(i => i.status === 'pending' || i.status === 'sent').length || 0,
+      totalCustomers: db.customers?.length || 0,
+      totalFabrics: db.manufacturerPrices?.length || 0,
+      rollerFabrics: db.manufacturerPrices?.filter(p => p.productType === 'roller').length || 0,
+      zebraFabrics: db.manufacturerPrices?.filter(p => p.productType === 'zebra').length || 0,
+      recentOrders: (db.orders || []).slice(-5).map(o => ({
+        id: o.order_number || o.id,
+        status: o.status,
+        total: o.order_total || o.total
+      }))
+    };
+
+    // Check for API key - use demo mode if not set
+    const apiKey = process.env.ANTHROPIC_API_KEY;
+    if (!apiKey) {
+      const demoResponse = getDemoResponse(message, dbContext);
+      return res.json({
+        success: true,
+        response: demoResponse,
+        conversationId: conversationId || uuidv4(),
+        demo: true
+      });
+    }
+
+    // Initialize Anthropic client
+    const anthropic = new Anthropic({ apiKey });
+
+    // Get or create conversation
+    let convId = conversationId || uuidv4();
+    let conversation = aiConversations.get(convId) || [];
+
+    // Build context message
+    const contextMessage = `
+Current page: ${currentPage || 'Unknown'}
+Database stats: ${JSON.stringify(dbContext, null, 2)}
+`;
+
+    // Add user message to conversation
+    conversation.push({
+      role: 'user',
+      content: message
+    });
+
+    // Keep conversation history reasonable
+    if (conversation.length > 20) {
+      conversation = conversation.slice(-20);
+    }
+
+    // Call Claude API with tools
+    let response = await anthropic.messages.create({
+      model: 'claude-sonnet-4-20250514',
+      max_tokens: 1024,
+      system: ADMIN_COPILOT_SYSTEM_PROMPT + '\n\n## Current Context\n' + contextMessage + '\n\nYou have tools to get real data and perform actions. Use them when the user asks for specific data or wants to make changes.',
+      tools: AI_TOOLS,
+      messages: conversation
+    });
+
+    // Process tool calls if any
+    let finalResponse = '';
+    let toolResults = [];
+
+    while (response.stop_reason === 'tool_use') {
+      const toolUseBlock = response.content.find(c => c.type === 'tool_use');
+      if (toolUseBlock) {
+        const toolResult = executeAITool(toolUseBlock.name, toolUseBlock.input);
+        toolResults.push({ tool: toolUseBlock.name, result: toolResult });
+
+        // Add assistant message with tool use
+        conversation.push({
+          role: 'assistant',
+          content: response.content
+        });
+
+        // Add tool result
+        conversation.push({
+          role: 'user',
+          content: [{
+            type: 'tool_result',
+            tool_use_id: toolUseBlock.id,
+            content: JSON.stringify(toolResult)
+          }]
+        });
+
+        // Continue conversation
+        response = await anthropic.messages.create({
+          model: 'claude-sonnet-4-20250514',
+          max_tokens: 1024,
+          system: ADMIN_COPILOT_SYSTEM_PROMPT + '\n\n## Current Context\n' + contextMessage,
+          tools: AI_TOOLS,
+          messages: conversation
+        });
+      } else {
+        break;
+      }
+    }
+
+    // Extract final text response
+    const textBlock = response.content.find(c => c.type === 'text');
+    finalResponse = textBlock ? textBlock.text : 'Action completed.';
+
+    // Add assistant response to conversation
+    conversation.push({
+      role: 'assistant',
+      content: finalResponse
+    });
+
+    // Store updated conversation
+    aiConversations.set(convId, conversation);
+
+    // Clean up old conversations (keep for 1 hour)
+    setTimeout(() => {
+      if (aiConversations.has(convId)) {
+        aiConversations.delete(convId);
+      }
+    }, 3600000);
+
+    res.json({
+      success: true,
+      response: finalResponse,
+      conversationId: convId,
+      actions: toolResults.length > 0 ? toolResults : undefined
+    });
+
+  } catch (error) {
+    console.error('AI Chat error:', error);
+    res.status(500).json({
+      success: false,
+      error: error.message || 'Failed to process AI request'
+    });
+  }
+});
+
+// ============================================
+// CUSTOMER AUTHENTICATION APIs
+// ============================================
+
+// Customer Registration
+app.post('/api/customer/register', async (req, res) => {
+  try {
+    const { firstName, lastName, email, phone, password, newsletter, source } = req.body;
+
+    // Validate required fields
+    if (!firstName || !lastName || !email || !password) {
+      return res.status(400).json({
+        success: false,
+        error: 'First name, last name, email, and password are required'
+      });
+    }
+
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({
+        success: false,
+        error: 'Please enter a valid email address'
+      });
+    }
+
+    // Validate password length
+    if (password.length < 8) {
+      return res.status(400).json({
+        success: false,
+        error: 'Password must be at least 8 characters long'
+      });
+    }
+
+    const db = loadDatabase();
+
+    // Check if email already exists in customers
+    const existingCustomer = db.customers?.find(c => c.email?.toLowerCase() === email.toLowerCase());
+    if (existingCustomer && existingCustomer.password) {
+      return res.status(400).json({
+        success: false,
+        error: 'An account with this email already exists. Please log in instead.'
+      });
+    }
+
+    // Hash password
+    const hashedPassword = await bcrypt.hash(password, 10);
+
+    // Create or update customer
+    const customerId = existingCustomer?.id || `cust-${uuidv4().slice(0, 8)}`;
+    const now = new Date().toISOString();
+
+    const customerData = {
+      id: customerId,
+      email: email.toLowerCase(),
+      firstName,
+      lastName,
+      phone: phone || '',
+      password: hashedPassword,
+      type: 'retail',
+      companyName: '',
+      addresses: [],
+      tags: ['website-signup'],
+      notes: source ? `Signed up via ${source}` : 'Signed up via website',
+      totalOrders: existingCustomer?.totalOrders || 0,
+      totalSpent: existingCustomer?.totalSpent || 0,
+      totalSavings: 0,
+      rewardPoints: 100, // Welcome bonus
+      newsletter: newsletter !== false,
+      createdAt: existingCustomer?.createdAt || now,
+      lastLoginAt: now,
+      updatedAt: now
+    };
+
+    // Update or add customer
+    if (existingCustomer) {
+      const index = db.customers.findIndex(c => c.id === customerId);
+      db.customers[index] = { ...existingCustomer, ...customerData };
+    } else {
+      if (!db.customers) db.customers = [];
+      db.customers.push(customerData);
+    }
+
+    saveDatabase(db);
+
+    // Generate JWT token
+    const token = jwt.sign(
+      {
+        id: customerId,
+        email: customerData.email,
+        firstName: customerData.firstName,
+        type: 'customer'
+      },
+      JWT_SECRET,
+      { expiresIn: '30d' }
+    );
+
+    // Return customer data (without password)
+    const { password: _, ...safeCustomerData } = customerData;
+
+    res.json({
+      success: true,
+      token,
+      customer: safeCustomerData,
+      message: 'Account created successfully! Welcome to Peekaboo Shades.'
+    });
+
+  } catch (error) {
+    console.error('Customer registration error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Failed to create account. Please try again.'
+    });
+  }
+});
+
+// Customer Login
+app.post('/api/customer/login', async (req, res) => {
+  try {
+    const { email, password, remember } = req.body;
+
+    if (!email || !password) {
+      return res.status(400).json({
+        success: false,
+        error: 'Email and password are required'
+      });
+    }
+
+    const db = loadDatabase();
+
+    // Find customer by email
+    const customer = db.customers?.find(c => c.email?.toLowerCase() === email.toLowerCase());
+
+    if (!customer) {
+      return res.status(401).json({
+        success: false,
+        error: 'No account found with this email address'
+      });
+    }
+
+    if (!customer.password) {
+      return res.status(401).json({
+        success: false,
+        error: 'This account was created through checkout. Please click "Forgot Password" to set a password.'
+      });
+    }
+
+    // Verify password
+    const isValidPassword = await bcrypt.compare(password, customer.password);
+    if (!isValidPassword) {
+      return res.status(401).json({
+        success: false,
+        error: 'Invalid password. Please try again.'
+      });
+    }
+
+    // Update last login
+    customer.lastLoginAt = new Date().toISOString();
+    saveDatabase(db);
+
+    // Generate JWT token
+    const tokenExpiry = remember ? '30d' : '24h';
+    const token = jwt.sign(
+      {
+        id: customer.id,
+        email: customer.email,
+        firstName: customer.firstName,
+        type: 'customer'
+      },
+      JWT_SECRET,
+      { expiresIn: tokenExpiry }
+    );
+
+    // Return customer data (without password)
+    const { password: _, ...safeCustomerData } = customer;
+
+    res.json({
+      success: true,
+      token,
+      customer: safeCustomerData
+    });
+
+  } catch (error) {
+    console.error('Customer login error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Login failed. Please try again.'
+    });
+  }
+});
+
+// Customer Auth Middleware
+const customerAuthMiddleware = (req, res, next) => {
+  try {
+    const authHeader = req.headers.authorization;
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      return res.status(401).json({ success: false, error: 'Authentication required' });
+    }
+
+    const token = authHeader.split(' ')[1];
+    const decoded = jwt.verify(token, JWT_SECRET);
+
+    if (decoded.type !== 'customer') {
+      return res.status(403).json({ success: false, error: 'Invalid token type' });
+    }
+
+    req.customer = decoded;
+    next();
+  } catch (error) {
+    return res.status(401).json({ success: false, error: 'Invalid or expired token' });
+  }
+};
+
+// Verify Customer Token
+app.get('/api/customer/verify', customerAuthMiddleware, (req, res) => {
+  res.json({ success: true, customer: req.customer });
+});
+
+// Get Customer Account
+app.get('/api/customer/account', customerAuthMiddleware, (req, res) => {
+  try {
+    const db = loadDatabase();
+    const customer = db.customers?.find(c => c.id === req.customer.id);
+
+    if (!customer) {
+      return res.status(404).json({ success: false, error: 'Customer not found' });
+    }
+
+    // Get customer orders
+    const orders = (db.orders || []).filter(o =>
+      o.customer_email?.toLowerCase() === customer.email?.toLowerCase()
+    );
+
+    // Calculate stats
+    const totalOrders = orders.length;
+    const totalSpent = orders.reduce((sum, o) => sum + (o.total || 0), 0);
+
+    // Update customer stats
+    customer.totalOrders = totalOrders;
+    customer.totalSpent = totalSpent;
+
+    // Return customer data (without password)
+    const { password: _, ...safeCustomerData } = customer;
+
+    res.json({
+      success: true,
+      customer: safeCustomerData
+    });
+  } catch (error) {
+    console.error('Get customer account error:', error);
+    res.status(500).json({ success: false, error: 'Failed to load account' });
+  }
+});
+
+// Get Customer Orders
+app.get('/api/customer/orders', customerAuthMiddleware, (req, res) => {
+  try {
+    const db = loadDatabase();
+    const customer = db.customers?.find(c => c.id === req.customer.id);
+
+    if (!customer) {
+      return res.status(404).json({ success: false, error: 'Customer not found' });
+    }
+
+    // Get customer orders
+    const orders = (db.orders || [])
+      .filter(o => o.customer_email?.toLowerCase() === customer.email?.toLowerCase())
+      .sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+
+    res.json({
+      success: true,
+      orders
+    });
+  } catch (error) {
+    console.error('Get customer orders error:', error);
+    res.status(500).json({ success: false, error: 'Failed to load orders' });
+  }
+});
+
+// Update Customer Profile
+app.put('/api/customer/profile', customerAuthMiddleware, (req, res) => {
+  try {
+    const { firstName, lastName, email, phone, newsletter } = req.body;
+    const db = loadDatabase();
+
+    const customerIndex = db.customers?.findIndex(c => c.id === req.customer.id);
+    if (customerIndex === -1) {
+      return res.status(404).json({ success: false, error: 'Customer not found' });
+    }
+
+    // Check if email is being changed to one that already exists
+    if (email && email.toLowerCase() !== db.customers[customerIndex].email?.toLowerCase()) {
+      const emailExists = db.customers.some(c =>
+        c.id !== req.customer.id && c.email?.toLowerCase() === email.toLowerCase()
+      );
+      if (emailExists) {
+        return res.status(400).json({ success: false, error: 'Email already in use' });
+      }
+    }
+
+    // Update customer
+    db.customers[customerIndex] = {
+      ...db.customers[customerIndex],
+      firstName: firstName || db.customers[customerIndex].firstName,
+      lastName: lastName || db.customers[customerIndex].lastName,
+      email: email?.toLowerCase() || db.customers[customerIndex].email,
+      phone: phone !== undefined ? phone : db.customers[customerIndex].phone,
+      newsletter: newsletter !== undefined ? newsletter : db.customers[customerIndex].newsletter,
+      updatedAt: new Date().toISOString()
+    };
+
+    saveDatabase(db);
+
+    const { password: _, ...safeCustomerData } = db.customers[customerIndex];
+
+    res.json({
+      success: true,
+      customer: safeCustomerData,
+      message: 'Profile updated successfully'
+    });
+  } catch (error) {
+    console.error('Update profile error:', error);
+    res.status(500).json({ success: false, error: 'Failed to update profile' });
+  }
+});
+
+// Change Customer Password
+app.post('/api/customer/change-password', customerAuthMiddleware, async (req, res) => {
+  try {
+    const { currentPassword, newPassword } = req.body;
+
+    if (!currentPassword || !newPassword) {
+      return res.status(400).json({
+        success: false,
+        error: 'Current password and new password are required'
+      });
+    }
+
+    if (newPassword.length < 8) {
+      return res.status(400).json({
+        success: false,
+        error: 'New password must be at least 8 characters long'
+      });
+    }
+
+    const db = loadDatabase();
+    const customerIndex = db.customers?.findIndex(c => c.id === req.customer.id);
+
+    if (customerIndex === -1) {
+      return res.status(404).json({ success: false, error: 'Customer not found' });
+    }
+
+    const customer = db.customers[customerIndex];
+
+    // Verify current password
+    const isValidPassword = await bcrypt.compare(currentPassword, customer.password);
+    if (!isValidPassword) {
+      return res.status(401).json({
+        success: false,
+        error: 'Current password is incorrect'
+      });
+    }
+
+    // Hash new password
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    db.customers[customerIndex].password = hashedPassword;
+    db.customers[customerIndex].updatedAt = new Date().toISOString();
+
+    saveDatabase(db);
+
+    res.json({
+      success: true,
+      message: 'Password changed successfully'
+    });
+  } catch (error) {
+    console.error('Change password error:', error);
+    res.status(500).json({ success: false, error: 'Failed to change password' });
+  }
+});
+
+// Customer Addresses
+app.get('/api/customer/addresses', customerAuthMiddleware, (req, res) => {
+  try {
+    const db = loadDatabase();
+    const customer = db.customers?.find(c => c.id === req.customer.id);
+
+    if (!customer) {
+      return res.status(404).json({ success: false, error: 'Customer not found' });
+    }
+
+    res.json({
+      success: true,
+      addresses: customer.addresses || []
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, error: 'Failed to load addresses' });
+  }
+});
+
+app.post('/api/customer/addresses', customerAuthMiddleware, (req, res) => {
+  try {
+    const { type, firstName, lastName, address1, address2, city, state, zip, country, phone, isDefault } = req.body;
+    const db = loadDatabase();
+
+    const customerIndex = db.customers?.findIndex(c => c.id === req.customer.id);
+    if (customerIndex === -1) {
+      return res.status(404).json({ success: false, error: 'Customer not found' });
+    }
+
+    if (!db.customers[customerIndex].addresses) {
+      db.customers[customerIndex].addresses = [];
+    }
+
+    // If this is default, remove default from others
+    if (isDefault) {
+      db.customers[customerIndex].addresses.forEach(a => a.default = false);
+    }
+
+    const newAddress = {
+      id: `addr-${uuidv4().slice(0, 8)}`,
+      type: type || 'shipping',
+      default: isDefault || db.customers[customerIndex].addresses.length === 0,
+      firstName,
+      lastName,
+      address1,
+      address2: address2 || '',
+      city,
+      state,
+      zip,
+      country: country || 'US',
+      phone: phone || ''
+    };
+
+    db.customers[customerIndex].addresses.push(newAddress);
+    saveDatabase(db);
+
+    res.json({
+      success: true,
+      address: newAddress,
+      message: 'Address added successfully'
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, error: 'Failed to add address' });
+  }
+});
+
+// ============================================
+// TECHNICIAN PORTAL API
+// ============================================
+
+// Initialize technicians in database
+function initTechnicians(db) {
+  if (!db.technicians) db.technicians = [];
+  if (!db.appointments) db.appointments = [];
+  if (!db.installationPayments) db.installationPayments = [];
+  return db;
+}
+
+// Technician Authentication Middleware
+const technicianAuthMiddleware = (req, res, next) => {
+  const token = req.headers.authorization?.replace('Bearer ', '');
+  if (!token) {
+    return res.status(401).json({ success: false, error: 'Technician authentication required' });
+  }
+  try {
+    const decoded = jwt.verify(token, JWT_SECRET);
+    if (decoded.role !== 'technician') {
+      return res.status(403).json({ success: false, error: 'Technician access required' });
+    }
+    req.technician = decoded;
+    next();
+  } catch (error) {
+    return res.status(401).json({ success: false, error: 'Invalid or expired token' });
+  }
+};
+
+// ---- ADMIN: Technician Management ----
+
+// Get all technicians (Admin)
+app.get('/api/admin/technicians', authMiddleware, (req, res) => {
+  try {
+    let db = loadDatabase();
+    db = initTechnicians(db);
+
+    const techniciansWithStats = db.technicians.map(tech => {
+      const completedAppointments = db.appointments.filter(a =>
+        a.technicianId === tech.id && a.status === 'completed'
+      );
+      const totalRevenue = completedAppointments.reduce((sum, a) => sum + (a.installationFee || 0), 0);
+      const pendingAppointments = db.appointments.filter(a =>
+        a.technicianId === tech.id && ['scheduled', 'confirmed'].includes(a.status)
+      ).length;
+
+      return {
+        ...tech,
+        password: undefined,
+        completedJobs: completedAppointments.length,
+        totalRevenue,
+        pendingJobs: pendingAppointments
+      };
+    });
+
+    res.json({ success: true, technicians: techniciansWithStats });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Get single technician (Admin)
+app.get('/api/admin/technicians/:id', authMiddleware, (req, res) => {
+  try {
+    let db = loadDatabase();
+    db = initTechnicians(db);
+    const technician = db.technicians.find(t => t.id === req.params.id);
+    if (!technician) {
+      return res.status(404).json({ success: false, error: 'Technician not found' });
+    }
+    res.json({ success: true, technician: { ...technician, password: undefined } });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Create technician (Admin)
+app.post('/api/admin/technicians', authMiddleware, async (req, res) => {
+  try {
+    let db = loadDatabase();
+    db = initTechnicians(db);
+    const { name, email, phone, specialties, serviceAreas, status, notes } = req.body;
+
+    if (db.technicians.some(t => t.email === email)) {
+      return res.status(400).json({ success: false, error: 'Email already registered' });
+    }
+
+    const tempPassword = `Tech${Date.now().toString().slice(-6)}`;
+    const hashedPassword = await bcrypt.hash(tempPassword, 10);
+
+    const newTechnician = {
+      id: `tech-${uuidv4().slice(0, 8)}`,
+      name,
+      email,
+      phone: phone || '',
+      password: hashedPassword,
+      specialties: specialties || [],
+      serviceAreas: serviceAreas || [],
+      status: status || 'pending',
+      notes: notes || '',
+      availability: [],
+      rating: 0,
+      reviewCount: 0,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    };
+
+    db.technicians.push(newTechnician);
+    saveDatabase(db);
+
+    res.json({
+      success: true,
+      technician: { ...newTechnician, password: undefined },
+      tempPassword
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Update technician (Admin)
+app.put('/api/admin/technicians/:id', authMiddleware, (req, res) => {
+  try {
+    let db = loadDatabase();
+    db = initTechnicians(db);
+    const index = db.technicians.findIndex(t => t.id === req.params.id);
+    if (index === -1) {
+      return res.status(404).json({ success: false, error: 'Technician not found' });
+    }
+
+    const { name, email, phone, specialties, serviceAreas, status, notes } = req.body;
+    db.technicians[index] = {
+      ...db.technicians[index],
+      name: name || db.technicians[index].name,
+      email: email || db.technicians[index].email,
+      phone: phone !== undefined ? phone : db.technicians[index].phone,
+      specialties: specialties || db.technicians[index].specialties,
+      serviceAreas: serviceAreas || db.technicians[index].serviceAreas,
+      status: status || db.technicians[index].status,
+      notes: notes !== undefined ? notes : db.technicians[index].notes,
+      updatedAt: new Date().toISOString()
+    };
+
+    saveDatabase(db);
+    res.json({ success: true, technician: { ...db.technicians[index], password: undefined } });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Delete technician (Admin)
+app.delete('/api/admin/technicians/:id', authMiddleware, (req, res) => {
+  try {
+    let db = loadDatabase();
+    db = initTechnicians(db);
+    const index = db.technicians.findIndex(t => t.id === req.params.id);
+    if (index === -1) {
+      return res.status(404).json({ success: false, error: 'Technician not found' });
+    }
+    db.technicians.splice(index, 1);
+    saveDatabase(db);
+    res.json({ success: true, message: 'Technician deleted' });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// ---- ADMIN: Appointments Management ----
+
+// Get all appointments (Admin)
+app.get('/api/admin/appointments', authMiddleware, (req, res) => {
+  try {
+    let db = loadDatabase();
+    db = initTechnicians(db);
+    const { status, technicianId, startDate, endDate } = req.query;
+    let appointments = db.appointments || [];
+
+    if (status) appointments = appointments.filter(a => a.status === status);
+    if (technicianId) appointments = appointments.filter(a => a.technicianId === technicianId);
+    if (startDate) appointments = appointments.filter(a => new Date(a.scheduledDate) >= new Date(startDate));
+    if (endDate) appointments = appointments.filter(a => new Date(a.scheduledDate) <= new Date(endDate));
+
+    const enriched = appointments.map(apt => {
+      const order = db.orders?.find(o => o.id === apt.orderId);
+      const technician = db.technicians?.find(t => t.id === apt.technicianId);
+      const customer = db.customers?.find(c => c.id === apt.customerId);
+      return {
+        ...apt,
+        order: order ? { id: order.id, total: order.totals?.total, status: order.status } : null,
+        technician: technician ? { id: technician.id, name: technician.name, phone: technician.phone } : null,
+        customer: customer ? { id: customer.id, name: `${customer.firstName} ${customer.lastName}`, phone: customer.phone, email: customer.email } : null
+      };
+    });
+
+    res.json({ success: true, appointments: enriched });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Create appointment (Admin)
+app.post('/api/admin/appointments', authMiddleware, (req, res) => {
+  try {
+    let db = loadDatabase();
+    db = initTechnicians(db);
+    const { orderId, technicianId, customerId, scheduledDate, scheduledTime, installationAddress, notes, installationFee, appointmentType, customerName, customerPhone, customerEmail, issueDescription } = req.body;
+
+    // For repairs without order, orderId can be null
+    let order = null;
+    if (orderId) {
+      order = db.orders?.find(o => o.id === orderId);
+      if (!order) {
+        return res.status(404).json({ success: false, error: 'Order not found' });
+      }
+    }
+
+    // Validate appointment type
+    const validTypes = ['new-installation', 'repair', 'maintenance', 'consultation', 'other'];
+    const type = validTypes.includes(appointmentType) ? appointmentType : 'new-installation';
+
+    const newAppointment = {
+      id: `apt-${uuidv4().slice(0, 8)}`,
+      appointmentType: type,
+      orderId: orderId || null,
+      technicianId,
+      customerId: customerId || order?.customer_id || null,
+      customerName: customerName || (order?.customer ? `${order.customer.firstName} ${order.customer.lastName}` : ''),
+      customerPhone: customerPhone || '',
+      customerEmail: customerEmail || '',
+      scheduledDate,
+      scheduledTime,
+      installationAddress: installationAddress || order?.shipping || {},
+      issueDescription: issueDescription || '',
+      notes: notes || '',
+      installationFee: parseFloat(installationFee) || 0,
+      status: 'scheduled',
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    };
+
+    db.appointments.push(newAppointment);
+
+    // Link to order if exists
+    if (orderId) {
+      const orderIndex = db.orders.findIndex(o => o.id === orderId);
+      if (orderIndex >= 0) {
+        db.orders[orderIndex].appointmentId = newAppointment.id;
+        db.orders[orderIndex].installationScheduled = true;
+      }
+    }
+
+    saveDatabase(db);
+    res.json({ success: true, appointment: newAppointment });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Update appointment (Admin)
+app.put('/api/admin/appointments/:id', authMiddleware, (req, res) => {
+  try {
+    let db = loadDatabase();
+    db = initTechnicians(db);
+    const index = db.appointments.findIndex(a => a.id === req.params.id);
+    if (index === -1) {
+      return res.status(404).json({ success: false, error: 'Appointment not found' });
+    }
+
+    const { status, scheduledDate, scheduledTime, technicianId, notes, installationFee, appointmentType, issueDescription, customerName, customerPhone, customerEmail, installationAddress } = req.body;
+    db.appointments[index] = {
+      ...db.appointments[index],
+      status: status || db.appointments[index].status,
+      appointmentType: appointmentType || db.appointments[index].appointmentType,
+      scheduledDate: scheduledDate || db.appointments[index].scheduledDate,
+      scheduledTime: scheduledTime || db.appointments[index].scheduledTime,
+      technicianId: technicianId || db.appointments[index].technicianId,
+      customerName: customerName !== undefined ? customerName : db.appointments[index].customerName,
+      customerPhone: customerPhone !== undefined ? customerPhone : db.appointments[index].customerPhone,
+      customerEmail: customerEmail !== undefined ? customerEmail : db.appointments[index].customerEmail,
+      installationAddress: installationAddress || db.appointments[index].installationAddress,
+      issueDescription: issueDescription !== undefined ? issueDescription : db.appointments[index].issueDescription,
+      notes: notes !== undefined ? notes : db.appointments[index].notes,
+      installationFee: installationFee !== undefined ? parseFloat(installationFee) : db.appointments[index].installationFee,
+      updatedAt: new Date().toISOString()
+    };
+
+    saveDatabase(db);
+    res.json({ success: true, appointment: db.appointments[index] });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Delete appointment (Admin)
+app.delete('/api/admin/appointments/:id', authMiddleware, (req, res) => {
+  try {
+    let db = loadDatabase();
+    db = initTechnicians(db);
+    const index = db.appointments.findIndex(a => a.id === req.params.id);
+    if (index === -1) {
+      return res.status(404).json({ success: false, error: 'Appointment not found' });
+    }
+
+    const appointment = db.appointments[index];
+    const orderIndex = db.orders?.findIndex(o => o.id === appointment.orderId);
+    if (orderIndex >= 0) {
+      delete db.orders[orderIndex].appointmentId;
+      db.orders[orderIndex].installationScheduled = false;
+    }
+
+    db.appointments.splice(index, 1);
+    saveDatabase(db);
+    res.json({ success: true, message: 'Appointment deleted' });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// ---- ADMIN: Installation Payments ----
+
+app.get('/api/admin/installation-payments', authMiddleware, (req, res) => {
+  try {
+    let db = loadDatabase();
+    db = initTechnicians(db);
+    const payments = db.installationPayments || [];
+
+    const enriched = payments.map(p => {
+      const order = db.orders?.find(o => o.id === p.orderId);
+      const technician = db.technicians?.find(t => t.id === p.technicianId);
+      return {
+        ...p,
+        order: order ? { id: order.id, total: order.totals?.total } : null,
+        technician: technician ? { id: technician.id, name: technician.name } : null
+      };
+    });
+
+    res.json({ success: true, payments: enriched });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+app.post('/api/admin/installation-payments', authMiddleware, (req, res) => {
+  try {
+    let db = loadDatabase();
+    db = initTechnicians(db);
+    const { orderId, appointmentId, technicianId, amount, paymentMethod, notes } = req.body;
+
+    const newPayment = {
+      id: `ipay-${uuidv4().slice(0, 8)}`,
+      orderId,
+      appointmentId,
+      technicianId,
+      amount: parseFloat(amount),
+      paymentMethod: paymentMethod || 'cash',
+      notes: notes || '',
+      recordedAt: new Date().toISOString()
+    };
+
+    db.installationPayments.push(newPayment);
+
+    const orderIndex = db.orders?.findIndex(o => o.id === orderId);
+    if (orderIndex >= 0) {
+      if (!db.orders[orderIndex].extraExpenses) {
+        db.orders[orderIndex].extraExpenses = [];
+      }
+      db.orders[orderIndex].extraExpenses.push({
+        type: 'installation_payment',
+        description: `Installation fee (${paymentMethod})`,
+        amount: parseFloat(amount),
+        paymentId: newPayment.id,
+        date: newPayment.recordedAt
+      });
+
+      const totalExtras = db.orders[orderIndex].extraExpenses.reduce((sum, e) => sum + e.amount, 0);
+      db.orders[orderIndex].totals = {
+        ...db.orders[orderIndex].totals,
+        extraExpenses: totalExtras,
+        grandTotal: (db.orders[orderIndex].totals?.total || 0) + totalExtras
+      };
+    }
+
+    saveDatabase(db);
+    res.json({ success: true, payment: newPayment });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// ---- TECHNICIAN PORTAL APIs ----
+
+// Technician Signup
+app.post('/api/technician/signup', async (req, res) => {
+  try {
+    let db = loadDatabase();
+    db = initTechnicians(db);
+    const { name, email, password, phone, specialties, serviceAreas } = req.body;
+
+    if (!name || !email || !password) {
+      return res.status(400).json({ success: false, error: 'Name, email and password are required' });
+    }
+
+    if (db.technicians.some(t => t.email === email)) {
+      return res.status(400).json({ success: false, error: 'Email already registered' });
+    }
+
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const newTechnician = {
+      id: `tech-${uuidv4().slice(0, 8)}`,
+      name,
+      email,
+      phone: phone || '',
+      password: hashedPassword,
+      specialties: specialties || [],
+      serviceAreas: serviceAreas || [],
+      status: 'pending',
+      availability: [],
+      rating: 0,
+      reviewCount: 0,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    };
+
+    db.technicians.push(newTechnician);
+    saveDatabase(db);
+
+    res.json({
+      success: true,
+      message: 'Registration successful. Please wait for admin approval.',
+      technician: { ...newTechnician, password: undefined }
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Technician Login
+app.post('/api/technician/login', async (req, res) => {
+  try {
+    let db = loadDatabase();
+    db = initTechnicians(db);
+    const { email, password } = req.body;
+
+    const technician = db.technicians.find(t => t.email === email);
+    if (!technician) {
+      return res.status(401).json({ success: false, error: 'Invalid email or password' });
+    }
+
+    const isValid = await bcrypt.compare(password, technician.password);
+    if (!isValid) {
+      return res.status(401).json({ success: false, error: 'Invalid email or password' });
+    }
+
+    if (technician.status === 'pending') {
+      return res.status(403).json({ success: false, error: 'Your account is pending approval' });
+    }
+    if (technician.status === 'inactive') {
+      return res.status(403).json({ success: false, error: 'Your account has been deactivated' });
+    }
+
+    const token = jwt.sign(
+      { id: technician.id, email: technician.email, role: 'technician' },
+      JWT_SECRET,
+      { expiresIn: '7d' }
+    );
+
+    res.json({
+      success: true,
+      token,
+      technician: { ...technician, password: undefined }
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Verify technician token
+app.get('/api/technician/verify', technicianAuthMiddleware, (req, res) => {
+  try {
+    const db = loadDatabase();
+    const technician = db.technicians?.find(t => t.id === req.technician.id);
+    if (!technician) {
+      return res.status(404).json({ success: false, error: 'Technician not found' });
+    }
+    res.json({ success: true, technician: { ...technician, password: undefined } });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Technician Dashboard
+app.get('/api/technician/dashboard', technicianAuthMiddleware, (req, res) => {
+  try {
+    let db = loadDatabase();
+    db = initTechnicians(db);
+
+    const techId = req.technician.id;
+    const today = new Date().toISOString().split('T')[0];
+
+    const myAppointments = db.appointments.filter(a => a.technicianId === techId);
+    const todayAppointments = myAppointments.filter(a => a.scheduledDate === today);
+    const upcomingAppointments = myAppointments.filter(a =>
+      new Date(a.scheduledDate) >= new Date(today) && ['scheduled', 'confirmed'].includes(a.status)
+    ).sort((a, b) => new Date(a.scheduledDate) - new Date(b.scheduledDate));
+    const completedJobs = myAppointments.filter(a => a.status === 'completed');
+    const totalEarnings = completedJobs.reduce((sum, a) => sum + (a.installationFee || 0), 0);
+
+    const technician = db.technicians.find(t => t.id === techId);
+
+    res.json({
+      success: true,
+      stats: {
+        todayAppointments: todayAppointments.length,
+        upcomingAppointments: upcomingAppointments.length,
+        completedJobs: completedJobs.length,
+        totalEarnings,
+        rating: technician?.rating || 0,
+        reviewCount: technician?.reviewCount || 0
+      },
+      todaySchedule: todayAppointments,
+      upcoming: upcomingAppointments.slice(0, 5)
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Get technician's appointments
+app.get('/api/technician/appointments', technicianAuthMiddleware, (req, res) => {
+  try {
+    let db = loadDatabase();
+    db = initTechnicians(db);
+    const { status, startDate, endDate } = req.query;
+    let appointments = db.appointments.filter(a => a.technicianId === req.technician.id);
+
+    if (status) appointments = appointments.filter(a => a.status === status);
+    if (startDate) appointments = appointments.filter(a => new Date(a.scheduledDate) >= new Date(startDate));
+    if (endDate) appointments = appointments.filter(a => new Date(a.scheduledDate) <= new Date(endDate));
+
+    const enriched = appointments.map(apt => {
+      const order = db.orders?.find(o => o.id === apt.orderId);
+      const customer = db.customers?.find(c => c.id === apt.customerId);
+      return {
+        ...apt,
+        order: order ? {
+          id: order.id,
+          items: order.items,
+          total: order.totals?.total,
+          trackingNumber: order.trackingNumber
+        } : null,
+        customer: customer ? {
+          name: `${customer.firstName} ${customer.lastName}`,
+          phone: customer.phone,
+          email: customer.email
+        } : null
+      };
+    }).sort((a, b) => new Date(a.scheduledDate) - new Date(b.scheduledDate));
+
+    res.json({ success: true, appointments: enriched });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Update appointment status (Technician)
+app.put('/api/technician/appointments/:id/status', technicianAuthMiddleware, (req, res) => {
+  try {
+    let db = loadDatabase();
+    db = initTechnicians(db);
+
+    const appointment = db.appointments.find(a => a.id === req.params.id);
+    if (!appointment) {
+      return res.status(404).json({ success: false, error: 'Appointment not found' });
+    }
+    if (appointment.technicianId !== req.technician.id) {
+      return res.status(403).json({ success: false, error: 'Not authorized' });
+    }
+
+    const { status, completionNotes, photos } = req.body;
+    const index = db.appointments.findIndex(a => a.id === req.params.id);
+
+    db.appointments[index] = {
+      ...db.appointments[index],
+      status,
+      completionNotes: completionNotes || db.appointments[index].completionNotes,
+      completionPhotos: photos || db.appointments[index].completionPhotos,
+      completedAt: status === 'completed' ? new Date().toISOString() : db.appointments[index].completedAt,
+      updatedAt: new Date().toISOString()
+    };
+
+    saveDatabase(db);
+    res.json({ success: true, appointment: db.appointments[index] });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Technician Availability
+app.get('/api/technician/availability', technicianAuthMiddleware, (req, res) => {
+  try {
+    const db = loadDatabase();
+    const technician = db.technicians?.find(t => t.id === req.technician.id);
+    if (!technician) {
+      return res.status(404).json({ success: false, error: 'Technician not found' });
+    }
+    res.json({ success: true, availability: technician.availability || [] });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+app.put('/api/technician/availability', technicianAuthMiddleware, (req, res) => {
+  try {
+    let db = loadDatabase();
+    db = initTechnicians(db);
+    const { availability } = req.body;
+
+    const index = db.technicians.findIndex(t => t.id === req.technician.id);
+    if (index === -1) {
+      return res.status(404).json({ success: false, error: 'Technician not found' });
+    }
+
+    db.technicians[index].availability = availability;
+    db.technicians[index].updatedAt = new Date().toISOString();
+
+    saveDatabase(db);
+    res.json({ success: true, availability: db.technicians[index].availability });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Record payment (Technician)
+app.post('/api/technician/record-payment', technicianAuthMiddleware, (req, res) => {
+  try {
+    let db = loadDatabase();
+    db = initTechnicians(db);
+    const { appointmentId, amount, paymentMethod, notes } = req.body;
+
+    const appointment = db.appointments.find(a => a.id === appointmentId);
+    if (!appointment) {
+      return res.status(404).json({ success: false, error: 'Appointment not found' });
+    }
+    if (appointment.technicianId !== req.technician.id) {
+      return res.status(403).json({ success: false, error: 'Not authorized' });
+    }
+
+    const newPayment = {
+      id: `ipay-${uuidv4().slice(0, 8)}`,
+      orderId: appointment.orderId,
+      appointmentId,
+      technicianId: req.technician.id,
+      amount: parseFloat(amount),
+      paymentMethod: paymentMethod || 'cash',
+      notes: notes || '',
+      recordedAt: new Date().toISOString()
+    };
+
+    db.installationPayments.push(newPayment);
+
+    const orderIndex = db.orders?.findIndex(o => o.id === appointment.orderId);
+    if (orderIndex >= 0) {
+      if (!db.orders[orderIndex].extraExpenses) {
+        db.orders[orderIndex].extraExpenses = [];
+      }
+      db.orders[orderIndex].extraExpenses.push({
+        type: 'installation_payment',
+        description: `Installation fee (${paymentMethod}) - Collected by technician`,
+        amount: parseFloat(amount),
+        paymentId: newPayment.id,
+        date: newPayment.recordedAt
+      });
+    }
+
+    saveDatabase(db);
+    res.json({ success: true, payment: newPayment });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Update technician profile
+app.put('/api/technician/profile', technicianAuthMiddleware, (req, res) => {
+  try {
+    let db = loadDatabase();
+    db = initTechnicians(db);
+    const index = db.technicians.findIndex(t => t.id === req.technician.id);
+    if (index === -1) {
+      return res.status(404).json({ success: false, error: 'Technician not found' });
+    }
+
+    const { name, phone, specialties, serviceAreas } = req.body;
+    db.technicians[index] = {
+      ...db.technicians[index],
+      name: name || db.technicians[index].name,
+      phone: phone !== undefined ? phone : db.technicians[index].phone,
+      specialties: specialties || db.technicians[index].specialties,
+      serviceAreas: serviceAreas || db.technicians[index].serviceAreas,
+      updatedAt: new Date().toISOString()
+    };
+
+    saveDatabase(db);
+    res.json({ success: true, technician: { ...db.technicians[index], password: undefined } });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Change technician password
+app.put('/api/technician/password', technicianAuthMiddleware, async (req, res) => {
+  try {
+    let db = loadDatabase();
+    db = initTechnicians(db);
+    const { currentPassword, newPassword } = req.body;
+
+    const index = db.technicians.findIndex(t => t.id === req.technician.id);
+    if (index === -1) {
+      return res.status(404).json({ success: false, error: 'Technician not found' });
+    }
+
+    const isValid = await bcrypt.compare(currentPassword, db.technicians[index].password);
+    if (!isValid) {
+      return res.status(400).json({ success: false, error: 'Current password is incorrect' });
+    }
+
+    db.technicians[index].password = await bcrypt.hash(newPassword, 10);
+    db.technicians[index].updatedAt = new Date().toISOString();
+
+    saveDatabase(db);
+    res.json({ success: true, message: 'Password updated successfully' });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Orders ready for installation
+app.get('/api/admin/orders/ready-for-installation', authMiddleware, (req, res) => {
+  try {
+    const db = loadDatabase();
+    const orders = db.orders?.filter(o =>
+      ['shipped', 'delivered'].includes(o.status) && !o.installationScheduled
+    ) || [];
+
+    const enriched = orders.map(order => {
+      const customer = db.customers?.find(c => c.id === order.customer_id);
+      return {
+        ...order,
+        customer: customer ? {
+          name: `${customer.firstName} ${customer.lastName}`,
+          phone: customer.phone,
+          email: customer.email
+        } : null
+      };
+    });
+
+    res.json({ success: true, orders: enriched });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Available technicians for a date
+app.get('/api/admin/technicians/available', authMiddleware, (req, res) => {
+  try {
+    let db = loadDatabase();
+    db = initTechnicians(db);
+    const { date, timeSlot } = req.query;
+
+    const availableTechnicians = db.technicians.filter(t => {
+      if (t.status !== 'active') return false;
+      const dateAvail = t.availability?.find(a => a.date === date);
+      if (!dateAvail) return true;
+      if (timeSlot && dateAvail.slots) {
+        return dateAvail.slots.includes(timeSlot);
+      }
+      return dateAvail.slots?.length > 0;
+    });
+
+    res.json({ success: true, technicians: availableTechnicians.map(t => ({ ...t, password: undefined })) });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// ============================================
+// CUSTOMER APPOINTMENT BOOKING (PUBLIC)
+// ============================================
+
+// Get available technicians for customer booking (Public - no auth required)
+app.get('/api/technicians/available', (req, res) => {
+  try {
+    let db = loadDatabase();
+    db = initTechnicians(db);
+
+    // Only return active technicians with their availability
+    const availableTechnicians = db.technicians.filter(t => t.status === 'active');
+
+    // Return minimal info for customers
+    const technicianData = availableTechnicians.map(t => ({
+      id: t.id,
+      name: t.name,
+      specialties: t.specialties || [],
+      serviceAreas: t.serviceAreas || [],
+      availability: t.availability || []
+    }));
+
+    res.json({ success: true, technicians: technicianData });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Customer appointment booking (Public)
+app.post('/api/appointments/book', (req, res) => {
+  try {
+    let db = loadDatabase();
+    db = initTechnicians(db);
+
+    const {
+      appointmentType,
+      scheduledDate,
+      scheduledTime,
+      customerName,
+      customerEmail,
+      customerPhone,
+      installationAddress,
+      orderId,
+      notes,
+      source
+    } = req.body;
+
+    // Validate required fields
+    if (!appointmentType || !scheduledDate || !scheduledTime || !customerName || !customerEmail || !customerPhone) {
+      return res.status(400).json({
+        success: false,
+        error: 'Missing required fields: appointmentType, scheduledDate, scheduledTime, customerName, customerEmail, customerPhone'
+      });
+    }
+
+    // Validate appointment type
+    const validTypes = ['new-installation', 'repair', 'maintenance', 'consultation', 'other'];
+    if (!validTypes.includes(appointmentType)) {
+      return res.status(400).json({ success: false, error: 'Invalid appointment type' });
+    }
+
+    // Find an available technician for the requested time slot
+    const availableTechnicians = db.technicians.filter(t => {
+      if (t.status !== 'active') return false;
+      const dateAvail = t.availability?.find(a => a.date === scheduledDate);
+      if (!dateAvail) return false;
+      return dateAvail.slots?.includes(scheduledTime);
+    });
+
+    // Auto-assign first available technician (or leave unassigned for admin to assign)
+    const assignedTechnician = availableTechnicians.length > 0 ? availableTechnicians[0] : null;
+
+    // If order ID provided, validate it exists
+    let order = null;
+    if (orderId) {
+      order = db.orders?.find(o => o.id === orderId || o.orderNumber === orderId);
+    }
+
+    const newAppointment = {
+      id: `apt-${uuidv4().slice(0, 8)}`,
+      appointmentType,
+      orderId: order?.id || null,
+      technicianId: assignedTechnician?.id || null,
+      technicianName: assignedTechnician?.name || 'Pending Assignment',
+      customerId: order?.customer_id || null,
+      customerName,
+      customerEmail,
+      customerPhone,
+      scheduledDate,
+      scheduledTime,
+      installationAddress: installationAddress || {},
+      notes: notes || '',
+      source: source || 'customer-booking',
+      status: 'scheduled',
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    };
+
+    db.appointments.push(newAppointment);
+    saveDatabase(db);
+
+    res.json({
+      success: true,
+      appointment: newAppointment,
+      message: assignedTechnician
+        ? `Appointment booked with ${assignedTechnician.name}`
+        : 'Appointment request submitted. A technician will be assigned shortly.'
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Get appointment status (Public - customer can check their appointment)
+app.get('/api/appointments/:id/status', (req, res) => {
+  try {
+    const db = loadDatabase();
+    const appointment = db.appointments?.find(a => a.id === req.params.id);
+
+    if (!appointment) {
+      return res.status(404).json({ success: false, error: 'Appointment not found' });
+    }
+
+    // Return limited info for public access
+    res.json({
+      success: true,
+      appointment: {
+        id: appointment.id,
+        status: appointment.status,
+        scheduledDate: appointment.scheduledDate,
+        scheduledTime: appointment.scheduledTime,
+        appointmentType: appointment.appointmentType,
+        technicianName: appointment.technicianName || 'Pending Assignment'
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
 // Start server
 server.listen(PORT, () => {
   console.log(`
 ╔════════════════════════════════════════════════════════════╗
 ║                                                            ║
-║     🏠 PEEKABOO SHADES - E-commerce Platform              ║
+║     PEEKABOO SHADES - E-commerce Platform                 ║
 ║                                                            ║
 ║     Server running on: http://localhost:${PORT}              ║
 ║     WebSocket:         ws://localhost:${PORT}/ws             ║
@@ -10709,6 +16562,7 @@ server.listen(PORT, () => {
 ║     • Product:  http://localhost:${PORT}/product/[slug]      ║
 ║     • Cart:     http://localhost:${PORT}/cart                ║
 ║     • Admin:    http://localhost:${PORT}/admin               ║
+║     • Tech:     http://localhost:${PORT}/technician          ║
 ║                                                            ║
 ╚════════════════════════════════════════════════════════════╝
   `);

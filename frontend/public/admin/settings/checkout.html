@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Checkout Settings - Peekaboo Shades Admin</title>
+  <link rel="stylesheet" href="/admin/css/admin.css?v=1737200003.0.28">
+  <script src="/admin/js/admin.js?v=1737100001"></script>
+  <script src="/admin/js/adminNavConfig.js?v=1737200002"></script>
+  <style>
+    .settings-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-top: 1.5rem; }
+    .settings-card { background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+    .settings-card h3 { margin: 0 0 1rem 0; }
+    .setting-row { display: flex; justify-content: space-between; align-items: center; padding: 1rem 0; border-bottom: 1px solid #eee; }
+    .setting-row:last-child { border-bottom: none; }
+    .setting-info h4 { margin: 0 0 0.25rem 0; }
+    .setting-info p { margin: 0; font-size: 0.85rem; color: #666; }
+    .toggle { position: relative; width: 48px; height: 24px; }
+    .toggle input { opacity: 0; width: 0; height: 0; }
+    .toggle .slider { position: absolute; cursor: pointer; inset: 0; background: #ddd; border-radius: 24px; transition: 0.3s; }
+    .toggle .slider:before { content: ""; position: absolute; height: 18px; width: 18px; left: 3px; bottom: 3px; background: white; border-radius: 50%; transition: 0.3s; }
+    .toggle input:checked + .slider { background: #10B981; }
+    .toggle input:checked + .slider:before { transform: translateX(24px); }
+    .form-group { margin-bottom: 1rem; }
+    .form-group label { display: block; margin-bottom: 0.5rem; font-weight: 500; }
+    .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 0.75rem; border: 1px solid #ddd; border-radius: 8px; }
+    .btn-save { padding: 0.75rem 2rem; background: #8E6545; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; }
+    .full-width { grid-column: 1 / -1; }
+    .loading { text-align: center; padding: 3rem; color: #666; }
+  </style>
+</head>
+<body>
+  <div class="admin-layout">
+    <aside class="admin-sidebar"></aside>
+    <main class="admin-main">
+      <header class="admin-header">
+        <h1>Checkout Settings</h1>
+        <div class="header-actions">
+          <button class="btn-save" onclick="saveSettings()">Save Settings</button>
+        </div>
+      </header>
+      <div class="admin-content">
+        <div class="loading" id="loadingState">Loading checkout settings...</div>
+        <div class="settings-grid" id="settingsContent" style="display: none;">
+          <div class="settings-card">
+            <h3>Checkout Options</h3>
+            <div class="setting-row">
+              <div class="setting-info">
+                <h4>Guest Checkout</h4>
+                <p>Allow customers to checkout without account</p>
+              </div>
+              <label class="toggle"><input type="checkbox" id="guestCheckout"><span class="slider"></span></label>
+            </div>
+            <div class="setting-row">
+              <div class="setting-info">
+                <h4>Express Checkout</h4>
+                <p>Enable one-page checkout experience</p>
+              </div>
+              <label class="toggle"><input type="checkbox" id="expressCheckout"><span class="slider"></span></label>
+            </div>
+            <div class="setting-row">
+              <div class="setting-info">
+                <h4>Order Notes</h4>
+                <p>Allow customers to add special instructions</p>
+              </div>
+              <label class="toggle"><input type="checkbox" id="orderNotes"><span class="slider"></span></label>
+            </div>
+          </div>
+          <div class="settings-card">
+            <h3>Address Options</h3>
+            <div class="setting-row">
+              <div class="setting-info">
+                <h4>Address Autocomplete</h4>
+                <p>Use Google Places for address suggestions</p>
+              </div>
+              <label class="toggle"><input type="checkbox" id="addressAutocomplete"><span class="slider"></span></label>
+            </div>
+            <div class="setting-row">
+              <div class="setting-info">
+                <h4>Phone Number Required</h4>
+                <p>Require phone for delivery coordination</p>
+              </div>
+              <label class="toggle"><input type="checkbox" id="phoneRequired"><span class="slider"></span></label>
+            </div>
+            <div class="setting-row">
+              <div class="setting-info">
+                <h4>Company Name Field</h4>
+                <p>Show company name in address form</p>
+              </div>
+              <label class="toggle"><input type="checkbox" id="companyField"><span class="slider"></span></label>
+            </div>
+          </div>
+          <div class="settings-card full-width">
+            <h3>Checkout Messages</h3>
+            <div class="form-group">
+              <label>Order Confirmation Message</label>
+              <textarea rows="3" id="confirmationMessage" placeholder="Thank you for your order! Your custom window treatments are being prepared."></textarea>
+            </div>
+            <div class="form-group">
+              <label>Cart Abandonment Message</label>
+              <textarea rows="2" id="abandonmentMessage" placeholder="Don't forget about your items!"></textarea>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+  <script>
+    let checkoutConfig = {};
+
+    document.addEventListener('DOMContentLoaded', () => {
+      if (!localStorage.getItem('admin_token')) { window.location.href = '/admin/login.html'; return; }
+      AdminNavConfig.initSidebar('checkout-settings');
+      loadCheckoutConfig();
+    });
+
+    async function loadCheckoutConfig() {
+      const token = localStorage.getItem('admin_token');
+      const headers = { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' };
+
+      try {
+        const res = await fetch('/api/admin/system-config', { headers });
+        const data = await res.json();
+
+        if (data.success && data.data) {
+          checkoutConfig = data.data.checkout || {};
+
+          // Set toggle values
+          document.getElementById('guestCheckout').checked = checkoutConfig.guestCheckout !== false;
+          document.getElementById('expressCheckout').checked = checkoutConfig.expressCheckout !== false;
+          document.getElementById('orderNotes').checked = checkoutConfig.orderNotes !== false;
+          document.getElementById('addressAutocomplete').checked = checkoutConfig.addressAutocomplete !== false;
+          document.getElementById('phoneRequired').checked = checkoutConfig.phoneRequired !== false;
+          document.getElementById('companyField').checked = checkoutConfig.companyField === true;
+
+          // Set messages
+          document.getElementById('confirmationMessage').value = checkoutConfig.confirmationMessage ||
+            'Thank you for your order! Your custom window treatments will be handcrafted and shipped within 7-10 business days.';
+          document.getElementById('abandonmentMessage').value = checkoutConfig.abandonmentMessage ||
+            'You have items waiting in your cart. Complete your order today and enjoy free shipping on orders over $200!';
+
+          document.getElementById('loadingState').style.display = 'none';
+          document.getElementById('settingsContent').style.display = 'grid';
+        } else {
+          // Use defaults
+          setDefaults();
+        }
+      } catch (error) {
+        console.error('Error loading checkout config:', error);
+        setDefaults();
+      }
+    }
+
+    function setDefaults() {
+      document.getElementById('guestCheckout').checked = true;
+      document.getElementById('expressCheckout').checked = true;
+      document.getElementById('orderNotes').checked = true;
+      document.getElementById('addressAutocomplete').checked = true;
+      document.getElementById('phoneRequired').checked = true;
+      document.getElementById('companyField').checked = false;
+      document.getElementById('confirmationMessage').value =
+        'Thank you for your order! Your custom window treatments will be handcrafted and shipped within 7-10 business days.';
+      document.getElementById('abandonmentMessage').value =
+        'You have items waiting in your cart. Complete your order today and enjoy free shipping on orders over $200!';
+
+      document.getElementById('loadingState').style.display = 'none';
+      document.getElementById('settingsContent').style.display = 'grid';
+    }
+
+    async function saveSettings() {
+      const token = localStorage.getItem('admin_token');
+      const headers = { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' };
+
+      const updatedConfig = {
+        ...checkoutConfig,
+        guestCheckout: document.getElementById('guestCheckout').checked,
+        expressCheckout: document.getElementById('expressCheckout').checked,
+        orderNotes: document.getElementById('orderNotes').checked,
+        addressAutocomplete: document.getElementById('addressAutocomplete').checked,
+        phoneRequired: document.getElementById('phoneRequired').checked,
+        companyField: document.getElementById('companyField').checked,
+        confirmationMessage: document.getElementById('confirmationMessage').value,
+        abandonmentMessage: document.getElementById('abandonmentMessage').value
+      };
+
+      try {
+        const res = await fetch('/api/admin/system-config/checkout', {
+          method: 'PUT',
+          headers,
+          body: JSON.stringify(updatedConfig)
+        });
+        const data = await res.json();
+
+        if (data.success) {
+          Admin.Toast.success('Checkout settings saved successfully');
+        } else {
+          Admin.Toast.error('Failed to save: ' + (data.error || 'Unknown error'));
+        }
+      } catch (error) {
+        console.error('Error saving checkout config:', error);
+        Admin.Toast.error('Error saving checkout settings');
+      }
+    }
+  </script>
+</body>
+</html>

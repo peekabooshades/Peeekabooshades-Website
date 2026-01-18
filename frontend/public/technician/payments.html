@@ -1,0 +1,650 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Payments - Technician Portal</title>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Montserrat', sans-serif; background: #f5f0ec; min-height: 100vh; }
+
+    .sidebar {
+      position: fixed; left: 0; top: 0; width: 260px; height: 100vh;
+      background: linear-gradient(180deg, #8E6545 0%, #6B4C35 100%);
+      color: white; padding: 1.5rem; overflow-y: auto; z-index: 100;
+    }
+    .sidebar-logo { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 2rem; padding-bottom: 1.5rem; border-bottom: 1px solid rgba(255,255,255,0.2); }
+    .sidebar-logo img { width: 44px; height: 44px; border-radius: 10px; background: white; padding: 4px; }
+    .sidebar-logo span { font-weight: 700; font-size: 1.1rem; }
+    .sidebar-nav { list-style: none; }
+    .sidebar-nav li { margin-bottom: 0.5rem; }
+    .sidebar-nav a { display: flex; align-items: center; gap: 0.75rem; padding: 0.875rem 1rem; color: rgba(255,255,255,0.8); text-decoration: none; border-radius: 10px; transition: all 0.2s; font-size: 0.95rem; }
+    .sidebar-nav a:hover { background: rgba(255,255,255,0.1); color: white; }
+    .sidebar-nav a.active { background: rgba(255,255,255,0.2); color: white; font-weight: 600; }
+    .sidebar-nav svg { width: 20px; height: 20px; }
+    .sidebar-user { position: absolute; bottom: 1.5rem; left: 1.5rem; right: 1.5rem; padding-top: 1rem; border-top: 1px solid rgba(255,255,255,0.2); }
+    .user-info { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.75rem; }
+    .user-avatar { width: 40px; height: 40px; border-radius: 50%; background: rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center; font-weight: 600; }
+    .user-details { flex: 1; min-width: 0; }
+    .user-name { font-weight: 600; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .user-status { font-size: 0.75rem; opacity: 0.8; }
+    .btn-logout { width: 100%; padding: 0.625rem; background: rgba(255,255,255,0.1); border: none; color: white; border-radius: 8px; cursor: pointer; font-size: 0.85rem; font-family: inherit; }
+    .btn-logout:hover { background: rgba(255,255,255,0.2); }
+
+    .main-content { margin-left: 260px; padding: 2rem; }
+    .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; }
+    .page-header h1 { font-size: 1.75rem; color: #1f2937; }
+
+    /* Stats Grid */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .stat-card {
+      background: white;
+      border-radius: 16px;
+      padding: 1.5rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    }
+
+    .stat-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+
+    .stat-card h3 {
+      font-size: 0.85rem;
+      color: #6b7280;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .stat-icon {
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .stat-icon svg { width: 24px; height: 24px; }
+    .stat-icon.green { background: #D1FAE5; color: #059669; }
+    .stat-icon.blue { background: #DBEAFE; color: #2563EB; }
+    .stat-icon.yellow { background: #FEF3C7; color: #D97706; }
+    .stat-icon.purple { background: #EDE9FE; color: #7C3AED; }
+
+    .stat-value {
+      font-size: 2rem;
+      font-weight: 700;
+      color: #1f2937;
+    }
+
+    .stat-value.currency::before {
+      content: '$';
+      font-size: 1.25rem;
+    }
+
+    .stat-change {
+      font-size: 0.8rem;
+      margin-top: 0.5rem;
+    }
+
+    .stat-change.positive { color: #059669; }
+    .stat-change.negative { color: #DC2626; }
+
+    /* Filters */
+    .filters {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      margin-bottom: 1.5rem;
+    }
+
+    .filter-select, .filter-input {
+      padding: 0.75rem 1rem;
+      border: 2px solid #e5e7eb;
+      border-radius: 10px;
+      font-size: 0.95rem;
+      background: white;
+      font-family: inherit;
+    }
+
+    .filter-select:focus, .filter-input:focus {
+      outline: none;
+      border-color: #8E6545;
+    }
+
+    /* Payments Table */
+    .payments-card {
+      background: white;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    }
+
+    .payments-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1.25rem 1.5rem;
+      background: linear-gradient(135deg, #8E6545 0%, #A67C5B 100%);
+      color: white;
+    }
+
+    .payments-card-header h2 {
+      font-size: 1.1rem;
+    }
+
+    .payments-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .payments-table th,
+    .payments-table td {
+      padding: 1rem 1.5rem;
+      text-align: left;
+      border-bottom: 1px solid #f0e6df;
+    }
+
+    .payments-table th {
+      background: #faf8f6;
+      font-size: 0.75rem;
+      font-weight: 600;
+      color: #6b7280;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .payments-table td {
+      font-size: 0.9rem;
+      color: #374151;
+    }
+
+    .payments-table tr:hover {
+      background: #faf8f6;
+    }
+
+    .payment-amount {
+      font-weight: 600;
+      color: #059669;
+    }
+
+    .payment-method {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.3rem 0.75rem;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 500;
+    }
+
+    .payment-method.cash { background: #D1FAE5; color: #065F46; }
+    .payment-method.card { background: #DBEAFE; color: #1D4ED8; }
+    .payment-method.check { background: #FEF3C7; color: #92400E; }
+
+    .payment-method svg { width: 14px; height: 14px; }
+
+    .status-badge {
+      display: inline-block;
+      padding: 0.3rem 0.75rem;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+
+    .status-pending { background: #FEF3C7; color: #92400E; }
+    .status-completed { background: #D1FAE5; color: #065F46; }
+    .status-failed { background: #FEE2E2; color: #991B1B; }
+
+    .empty-state {
+      text-align: center;
+      padding: 4rem 2rem;
+      color: #6b7280;
+    }
+
+    .empty-state svg {
+      width: 64px;
+      height: 64px;
+      margin-bottom: 1rem;
+      opacity: 0.5;
+    }
+
+    .empty-state h3 {
+      color: #374151;
+      margin-bottom: 0.5rem;
+    }
+
+    /* Summary Cards */
+    .summary-section {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 1.5rem;
+      margin-top: 2rem;
+    }
+
+    .summary-card {
+      background: white;
+      border-radius: 16px;
+      padding: 1.5rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    }
+
+    .summary-card h3 {
+      font-size: 1rem;
+      color: #1f2937;
+      margin-bottom: 1rem;
+      padding-bottom: 0.75rem;
+      border-bottom: 2px solid #f0e6df;
+    }
+
+    .summary-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 0.75rem 0;
+      border-bottom: 1px solid #f5f0ec;
+    }
+
+    .summary-item:last-child {
+      border-bottom: none;
+    }
+
+    .summary-item-label {
+      font-size: 0.9rem;
+      color: #6b7280;
+    }
+
+    .summary-item-value {
+      font-size: 0.95rem;
+      font-weight: 600;
+      color: #1f2937;
+    }
+
+    .summary-item-value.highlight {
+      color: #059669;
+    }
+
+    /* Mobile */
+    @media (max-width: 900px) {
+      .sidebar { transform: translateX(-100%); transition: transform 0.3s; }
+      .sidebar.open { transform: translateX(0); }
+      .main-content { margin-left: 0; }
+      .payments-table { display: block; overflow-x: auto; }
+      .mobile-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 1.5rem;
+        padding: 1rem;
+        background: white;
+        margin: -2rem -2rem 2rem;
+        border-bottom: 1px solid #e5e7eb;
+      }
+    }
+
+    @media (min-width: 901px) {
+      .mobile-header { display: none; }
+    }
+  </style>
+</head>
+<body>
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <img src="/images/peekabooshades_logo.jpeg" alt="Peekaboo Shades">
+      <span>Technician Portal</span>
+    </div>
+    <ul class="sidebar-nav">
+      <li><a href="/technician/">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        Dashboard
+      </a></li>
+      <li><a href="/technician/appointments.html">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        Appointments
+      </a></li>
+      <li><a href="/technician/schedule.html">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        My Schedule
+      </a></li>
+      <li><a href="/technician/payments.html" class="active">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+        Payments
+      </a></li>
+      <li><a href="/technician/profile.html">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        Profile
+      </a></li>
+    </ul>
+    <div class="sidebar-user">
+      <div class="user-info">
+        <div class="user-avatar" id="userAvatar">T</div>
+        <div class="user-details">
+          <div class="user-name" id="userName">Technician</div>
+          <div class="user-status">Active</div>
+        </div>
+      </div>
+      <button class="btn-logout" onclick="logout()">Sign Out</button>
+    </div>
+  </aside>
+
+  <main class="main-content">
+    <div class="mobile-header">
+      <button class="menu-toggle" onclick="toggleSidebar()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+      </button>
+      <h1>Payments</h1>
+      <div style="width: 40px;"></div>
+    </div>
+
+    <div class="page-header">
+      <h1>My Payments</h1>
+    </div>
+
+    <!-- Stats -->
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-card-header">
+          <h3>Total Earnings</h3>
+          <div class="stat-icon green">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+          </div>
+        </div>
+        <div class="stat-value currency" id="totalEarnings">0</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card-header">
+          <h3>This Month</h3>
+          <div class="stat-icon blue">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+          </div>
+        </div>
+        <div class="stat-value currency" id="monthEarnings">0</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card-header">
+          <h3>Pending</h3>
+          <div class="stat-icon yellow">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          </div>
+        </div>
+        <div class="stat-value currency" id="pendingAmount">0</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-card-header">
+          <h3>Jobs Completed</h3>
+          <div class="stat-icon purple">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+          </div>
+        </div>
+        <div class="stat-value" id="jobsCompleted">0</div>
+      </div>
+    </div>
+
+    <!-- Filters -->
+    <div class="filters">
+      <select class="filter-select" id="methodFilter" onchange="loadPayments()">
+        <option value="">All Methods</option>
+        <option value="cash">Cash</option>
+        <option value="card">Card</option>
+        <option value="check">Check</option>
+      </select>
+      <input type="month" class="filter-input" id="monthFilter" onchange="loadPayments()">
+    </div>
+
+    <!-- Payments Table -->
+    <div class="payments-card">
+      <div class="payments-card-header">
+        <h2>Payment History</h2>
+      </div>
+      <div id="paymentsContainer">
+        <table class="payments-table">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Order / Appointment</th>
+              <th>Customer</th>
+              <th>Method</th>
+              <th>Amount</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody id="paymentsTableBody">
+            <tr>
+              <td colspan="6">
+                <div class="empty-state">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+                  <h3>Loading payments...</h3>
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Summary Section -->
+    <div class="summary-section">
+      <div class="summary-card">
+        <h3>Earnings by Method</h3>
+        <div id="methodSummary">
+          <div class="summary-item">
+            <span class="summary-item-label">Cash</span>
+            <span class="summary-item-value" id="cashTotal">$0.00</span>
+          </div>
+          <div class="summary-item">
+            <span class="summary-item-label">Card</span>
+            <span class="summary-item-value" id="cardTotal">$0.00</span>
+          </div>
+          <div class="summary-item">
+            <span class="summary-item-label">Check</span>
+            <span class="summary-item-value" id="checkTotal">$0.00</span>
+          </div>
+        </div>
+      </div>
+      <div class="summary-card">
+        <h3>Recent Activity</h3>
+        <div id="recentActivity">
+          <div class="empty-state" style="padding: 2rem;">
+            <p>No recent activity</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    const API_BASE = '/api/technician';
+    let payments = [];
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const token = localStorage.getItem('technician_token');
+      if (!token) {
+        window.location.href = '/technician/login.html';
+        return;
+      }
+      loadUserInfo();
+      loadPayments();
+
+      // Set default month filter to current month
+      const now = new Date();
+      document.getElementById('monthFilter').value = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
+    });
+
+    function loadUserInfo() {
+      const data = JSON.parse(localStorage.getItem('technician_data') || '{}');
+      if (data.name) {
+        document.getElementById('userName').textContent = data.name;
+        document.getElementById('userAvatar').textContent = data.name.split(' ').map(n => n[0]).join('').toUpperCase();
+      }
+    }
+
+    async function loadPayments() {
+      const token = localStorage.getItem('technician_token');
+      const method = document.getElementById('methodFilter').value;
+      const month = document.getElementById('monthFilter').value;
+
+      try {
+        // Load dashboard for stats
+        const dashboardRes = await fetch(`${API_BASE}/dashboard`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const dashboardData = await dashboardRes.json();
+
+        if (dashboardData.success) {
+          document.getElementById('totalEarnings').textContent = (dashboardData.stats.totalEarnings || 0).toLocaleString();
+          document.getElementById('jobsCompleted').textContent = dashboardData.stats.completedJobs || 0;
+        }
+
+        // Load appointments to get payment info
+        const apptRes = await fetch(`${API_BASE}/appointments?status=completed`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const apptData = await apptRes.json();
+
+        if (apptData.success) {
+          // Extract payment info from appointments
+          payments = apptData.appointments
+            .filter(apt => apt.paymentRecorded || apt.installationFee > 0)
+            .map(apt => ({
+              id: apt.id,
+              date: apt.paymentDate || apt.completedAt || apt.updatedAt,
+              orderId: apt.orderId,
+              appointmentId: apt.id,
+              customerName: apt.customerName || apt.customer?.name || 'Customer',
+              method: apt.paymentMethod || 'cash',
+              amount: apt.paymentAmount || apt.installationFee || 0,
+              status: apt.paymentRecorded ? 'completed' : 'pending',
+              notes: apt.paymentNotes || ''
+            }));
+
+          // Apply filters
+          if (method) {
+            payments = payments.filter(p => p.method === method);
+          }
+
+          if (month) {
+            const [year, mon] = month.split('-');
+            payments = payments.filter(p => {
+              const payDate = new Date(p.date);
+              return payDate.getFullYear() === parseInt(year) && payDate.getMonth() + 1 === parseInt(mon);
+            });
+          }
+
+          renderPayments();
+          calculateSummary();
+        }
+      } catch (error) {
+        console.error('Failed to load payments:', error);
+        document.getElementById('paymentsTableBody').innerHTML = `
+          <tr>
+            <td colspan="6">
+              <div class="empty-state">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
+                <h3>Failed to load payments</h3>
+                <p>Please try refreshing the page</p>
+              </div>
+            </td>
+          </tr>
+        `;
+      }
+    }
+
+    function renderPayments() {
+      const tbody = document.getElementById('paymentsTableBody');
+
+      if (payments.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="6">
+              <div class="empty-state">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+                <h3>No Payments Found</h3>
+                <p>Payments will appear here after you complete jobs</p>
+              </div>
+            </td>
+          </tr>
+        `;
+        return;
+      }
+
+      tbody.innerHTML = payments.map(payment => `
+        <tr>
+          <td>${formatDate(payment.date)}</td>
+          <td>
+            <div style="font-weight: 500;">${payment.orderId ? `Order #${payment.orderId.slice(-8)}` : 'N/A'}</div>
+            <div style="font-size: 0.8rem; color: #6b7280;">Apt: ${payment.appointmentId.slice(-8)}</div>
+          </td>
+          <td>${payment.customerName}</td>
+          <td>
+            <span class="payment-method ${payment.method}">
+              ${getMethodIcon(payment.method)}
+              ${payment.method.charAt(0).toUpperCase() + payment.method.slice(1)}
+            </span>
+          </td>
+          <td class="payment-amount">$${payment.amount.toFixed(2)}</td>
+          <td><span class="status-badge status-${payment.status}">${payment.status}</span></td>
+        </tr>
+      `).join('');
+    }
+
+    function calculateSummary() {
+      const cashTotal = payments.filter(p => p.method === 'cash').reduce((sum, p) => sum + p.amount, 0);
+      const cardTotal = payments.filter(p => p.method === 'card').reduce((sum, p) => sum + p.amount, 0);
+      const checkTotal = payments.filter(p => p.method === 'check').reduce((sum, p) => sum + p.amount, 0);
+      const pendingTotal = payments.filter(p => p.status === 'pending').reduce((sum, p) => sum + p.amount, 0);
+      const monthTotal = payments.reduce((sum, p) => sum + p.amount, 0);
+
+      document.getElementById('cashTotal').textContent = `$${cashTotal.toFixed(2)}`;
+      document.getElementById('cardTotal').textContent = `$${cardTotal.toFixed(2)}`;
+      document.getElementById('checkTotal').textContent = `$${checkTotal.toFixed(2)}`;
+      document.getElementById('pendingAmount').textContent = pendingTotal.toLocaleString();
+      document.getElementById('monthEarnings').textContent = monthTotal.toLocaleString();
+
+      // Recent activity
+      const recent = payments.slice(0, 5);
+      if (recent.length > 0) {
+        document.getElementById('recentActivity').innerHTML = recent.map(p => `
+          <div class="summary-item">
+            <span class="summary-item-label">${formatDate(p.date)} - ${p.customerName}</span>
+            <span class="summary-item-value highlight">+$${p.amount.toFixed(2)}</span>
+          </div>
+        `).join('');
+      }
+    }
+
+    function formatDate(dateStr) {
+      if (!dateStr) return 'N/A';
+      return new Date(dateStr).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+    }
+
+    function getMethodIcon(method) {
+      const icons = {
+        cash: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2"/><path d="M6 12h.01M18 12h.01"/></svg>',
+        card: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>',
+        check: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>'
+      };
+      return icons[method] || icons.cash;
+    }
+
+    function toggleSidebar() {
+      document.getElementById('sidebar').classList.toggle('open');
+    }
+
+    function logout() {
+      localStorage.removeItem('technician_token');
+      localStorage.removeItem('technician_data');
+      window.location.href = '/technician/login.html';
+    }
+  </script>
+</body>
+</html>

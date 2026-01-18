@@ -855,11 +855,46 @@
             }
         ];
 
-        document.addEventListener('DOMContentLoaded', () => {
-            automations = sampleAutomations;
-            renderAutomations();
+        document.addEventListener('DOMContentLoaded', async () => {
+            const token = localStorage.getItem('admin_token');
+            if (!token) {
+                window.location.href = '/admin/login.html';
+                return;
+            }
+            await loadAutomationsFromAPI();
             initEventListeners();
         });
+
+        async function loadAutomationsFromAPI() {
+            try {
+                const token = localStorage.getItem('admin_token');
+                const response = await fetch('/api/admin/marketing/automations', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const data = await response.json();
+                if (data.success && (data.automations || data.data)) {
+                    automations = data.automations || data.data || [];
+                } else {
+                    automations = [];
+                }
+                renderAutomations();
+                updateStats();
+            } catch (error) {
+                console.error('Error loading automations:', error);
+                automations = [];
+                renderAutomations();
+            }
+        }
+
+        function updateStats() {
+            const active = automations.filter(a => a.active).length;
+            const totalSent = automations.reduce((sum, a) => sum + (a.stats?.sent || 0), 0);
+            const totalRevenue = automations.reduce((sum, a) => sum + (a.stats?.revenue || 0), 0);
+
+            document.getElementById('stat-active').textContent = active;
+            document.getElementById('stat-sent').textContent = totalSent.toLocaleString();
+            document.getElementById('stat-revenue').textContent = '$' + totalRevenue.toLocaleString();
+        }
 
         function renderAutomations() {
             const container = document.getElementById('automationsList');
@@ -1225,5 +1260,6 @@
             alert('Automation saved successfully!');
         }
     </script>
+<script src="/admin/js/ai-assistant.js"></script>
 </body>
 </html>

@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quantity Discounts - Peekaboo Shades Admin</title>
+  <link rel="stylesheet" href="css/admin.css?v=1737200003">
+  <link rel="icon" type="image/jpeg" href="/images/peekabooshades_logo.jpeg">
+  <style>
+    .shade-type-tabs { display: flex; gap: 0; margin-bottom: 1.5rem; border-bottom: 2px solid #e5e7eb; }
+    .shade-type-tab { padding: 1rem 2rem; border: none; background: none; cursor: pointer; font-weight: 600; font-size: 15px; color: #666; position: relative; transition: all 0.2s; }
+    .shade-type-tab:hover { color: #8E6545; }
+    .shade-type-tab.active { color: #8E6545; }
+    .shade-type-tab.active::after { content: ''; position: absolute; bottom: -2px; left: 0; right: 0; height: 2px; background: #8E6545; }
+    .shade-type-tab.roller.active::after { background: #92400E; }
+    .shade-type-tab.zebra.active::after { background: #1E40AF; }
+
+    .discount-card { background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); margin-bottom: 1rem; }
+    .discount-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
+    .discount-title { font-size: 1.1rem; font-weight: 600; }
+    .discount-badge { padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; }
+    .discount-badge.active { background: #DEF7EC; color: #03543F; }
+    .discount-badge.inactive { background: #F3F4F6; color: #6B7280; }
+
+    .tier-table { width: 100%; border-collapse: collapse; margin-top: 1rem; }
+    .tier-table th, .tier-table td { padding: 12px; text-align: left; border-bottom: 1px solid #E5E7EB; }
+    .tier-table th { background: #F9FAFB; font-weight: 600; color: #374151; font-size: 13px; }
+    .tier-table td { font-size: 14px; }
+    .tier-input { width: 80px; padding: 6px 10px; border: 1px solid #ddd; border-radius: 6px; text-align: center; }
+    .tier-input:focus { border-color: #8E6545; outline: none; }
+
+    .empty-state { text-align: center; padding: 60px 20px; }
+    .empty-state-icon { width: 64px; height: 64px; margin-bottom: 1rem; color: #9CA3AF; }
+
+    .info-box { background: #F0F9FF; border: 1px solid #BAE6FD; border-radius: 8px; padding: 1rem; margin-bottom: 1.5rem; }
+    .info-box h4 { margin: 0 0 0.5rem 0; color: #0369A1; font-size: 14px; }
+    .info-box p { margin: 0; color: #0C4A6E; font-size: 13px; }
+  </style>
+</head>
+<body>
+  <div class="admin-layout">
+    <aside class="admin-sidebar"></aside>
+    <main class="admin-main">
+      <header class="admin-header">
+        <div class="header-left">
+          <div class="breadcrumb">
+            <a href="/admin/">Dashboard</a>
+            <span class="breadcrumb-separator">/</span>
+            <span class="breadcrumb-current">Quantity Discounts</span>
+          </div>
+        </div>
+        <div class="header-right">
+          <button class="btn btn-primary" onclick="openModal()">+ Add Discount Tier</button>
+        </div>
+      </header>
+
+      <div class="admin-content">
+        <div class="page-header">
+          <h1 class="page-title">Quantity Discounts</h1>
+          <p style="color: var(--admin-text-secondary); margin-top: 5px;">Set up bulk order discounts for different shade types</p>
+        </div>
+
+        <div class="info-box">
+          <h4>How Quantity Discounts Work</h4>
+          <p>Customers ordering multiple shades get automatic discounts based on quantity tiers. For example: 2-4 shades = 5% off, 5-9 shades = 10% off, 10+ shades = 15% off.</p>
+        </div>
+
+        <!-- Shade Type Tabs -->
+        <div class="shade-type-tabs">
+          <button class="shade-type-tab roller active" onclick="switchShadeType('roller')">Roller Shades</button>
+          <button class="shade-type-tab zebra" onclick="switchShadeType('zebra')">Zebra Shades</button>
+        </div>
+
+        <!-- Content -->
+        <div id="discounts-container">
+          <div class="card" style="text-align: center; padding: 60px;">
+            <div class="spinner"></div>
+            <p style="margin-top: 16px; color: var(--admin-text-secondary);">Loading discounts...</p>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Add/Edit Modal -->
+  <div class="modal-overlay" id="discount-modal">
+    <div class="modal" style="max-width: 500px;">
+      <div class="modal-header">
+        <h3 class="modal-title" id="modal-title">Add Discount Tier</h3>
+        <button class="modal-close" onclick="closeModal()">&times;</button>
+      </div>
+      <form id="discount-form" onsubmit="saveDiscount(event)">
+        <div class="modal-body">
+          <div class="form-group">
+            <label class="form-label">Tier Name *</label>
+            <input type="text" class="form-input" id="tier-name" required placeholder="e.g., Small Bulk Order">
+          </div>
+          <div class="form-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+            <div class="form-group">
+              <label class="form-label">Min Quantity *</label>
+              <input type="number" class="form-input" id="min-qty" required min="1" placeholder="2">
+            </div>
+            <div class="form-group">
+              <label class="form-label">Max Quantity</label>
+              <input type="number" class="form-input" id="max-qty" placeholder="Leave empty for unlimited">
+            </div>
+          </div>
+          <div class="form-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+            <div class="form-group">
+              <label class="form-label">Discount Type *</label>
+              <select class="form-input" id="discount-type">
+                <option value="percentage">Percentage (%)</option>
+                <option value="fixed">Fixed Amount ($)</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Discount Value *</label>
+              <input type="number" class="form-input" id="discount-value" required min="0" step="0.01" placeholder="10">
+            </div>
+          </div>
+          <div class="form-group">
+            <label class="form-label">Status</label>
+            <div style="padding-top: 8px;">
+              <label class="status-toggle">
+                <input type="checkbox" id="tier-active" checked>
+                <span class="slider"></span>
+              </label>
+              <span style="margin-left: 8px; color: var(--admin-text-secondary);" id="status-label">Active</span>
+            </div>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+          <button type="submit" class="btn btn-primary" id="save-btn">Save Tier</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <script src="js/adminNavConfig.js?v=1737200002"></script>
+  <script src="js/admin.js?v=1737100001"></script>
+  <script>
+    let currentShadeType = 'roller';
+    let discounts = [];
+    let editingId = null;
+
+    // Initialize
+    if (!Admin.Auth.requireAuth()) {
+      // Redirect
+    } else {
+      loadDiscounts();
+    }
+
+    function switchShadeType(type) {
+      currentShadeType = type;
+      document.querySelectorAll('.shade-type-tab').forEach(tab => {
+        tab.classList.toggle('active', tab.classList.contains(type));
+      });
+      loadDiscounts();
+    }
+
+    async function loadDiscounts() {
+      const container = document.getElementById('discounts-container');
+      container.innerHTML = `<div class="card" style="text-align: center; padding: 60px;"><div class="spinner"></div><p style="margin-top: 16px; color: var(--admin-text-secondary);">Loading discounts...</p></div>`;
+
+      try {
+        const token = localStorage.getItem('admin_token');
+        const res = await fetch(`/api/admin/pricing/quantity-discounts/${currentShadeType}`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const data = await res.json();
+
+        if (data.success) {
+          discounts = data.discounts || [];
+          renderDiscounts();
+        }
+      } catch (error) {
+        container.innerHTML = `<div class="card" style="text-align: center; padding: 60px; color: var(--admin-danger);">Failed to load discounts</div>`;
+      }
+    }
+
+    function renderDiscounts() {
+      const container = document.getElementById('discounts-container');
+      const shadeLabel = currentShadeType === 'roller' ? 'Roller Shades' : 'Zebra Shades';
+
+      if (discounts.length === 0) {
+        container.innerHTML = `
+          <div class="card empty-state">
+            <svg class="empty-state-icon" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+            <h3>No quantity discounts yet</h3>
+            <p style="color: var(--admin-text-secondary);">Add discount tiers for ${shadeLabel} to encourage bulk orders</p>
+            <button class="btn btn-primary" style="margin-top: 1rem;" onclick="openModal()">+ Add First Discount Tier</button>
+          </div>
+        `;
+        return;
+      }
+
+      // Sort by min quantity
+      discounts.sort((a, b) => a.minQty - b.minQty);
+
+      container.innerHTML = `
+        <div class="card">
+          <div class="discount-header">
+            <h2 class="discount-title">${shadeLabel} Quantity Discounts</h2>
+            <span class="discount-badge ${discounts.some(d => d.isActive) ? 'active' : 'inactive'}">
+              ${discounts.filter(d => d.isActive).length} Active Tiers
+            </span>
+          </div>
+          <table class="tier-table">
+            <thead>
+              <tr>
+                <th>Tier Name</th>
+                <th>Quantity Range</th>
+                <th>Discount</th>
+                <th>Status</th>
+                <th style="width: 100px;">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              ${discounts.map(d => `
+                <tr>
+                  <td><strong>${d.name}</strong></td>
+                  <td>${d.minQty} - ${d.maxQty || '∞'} shades</td>
+                  <td style="color: #059669; font-weight: 600;">
+                    ${d.discountType === 'percentage' ? d.discountValue + '%' : '$' + d.discountValue.toFixed(2)} off
+                  </td>
+                  <td>
+                    <span class="discount-badge ${d.isActive ? 'active' : 'inactive'}">
+                      ${d.isActive ? 'Active' : 'Inactive'}
+                    </span>
+                  </td>
+                  <td>
+                    <div class="action-buttons">
+                      <button class="action-btn" title="Edit" onclick="editDiscount('${d.id}')">
+                        <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                        </svg>
+                      </button>
+                      <button class="action-btn danger" title="Delete" onclick="deleteDiscount('${d.id}')">
+                        <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                        </svg>
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              `).join('')}
+            </tbody>
+          </table>
+        </div>
+      `;
+    }
+
+    function openModal(discount = null) {
+      editingId = discount ? discount.id : null;
+      document.getElementById('modal-title').textContent = discount ? 'Edit Discount Tier' : 'Add Discount Tier';
+      document.getElementById('save-btn').textContent = discount ? 'Update Tier' : 'Save Tier';
+
+      document.getElementById('tier-name').value = discount?.name || '';
+      document.getElementById('min-qty').value = discount?.minQty || '';
+      document.getElementById('max-qty').value = discount?.maxQty || '';
+      document.getElementById('discount-type').value = discount?.discountType || 'percentage';
+      document.getElementById('discount-value').value = discount?.discountValue || '';
+      document.getElementById('tier-active').checked = discount?.isActive !== false;
+      document.getElementById('status-label').textContent = document.getElementById('tier-active').checked ? 'Active' : 'Inactive';
+
+      Admin.Modal.show('discount-modal');
+    }
+
+    function closeModal() {
+      Admin.Modal.hide('discount-modal');
+      editingId = null;
+    }
+
+    function editDiscount(id) {
+      const discount = discounts.find(d => d.id === id);
+      if (discount) openModal(discount);
+    }
+
+    async function saveDiscount(e) {
+      e.preventDefault();
+      const saveBtn = document.getElementById('save-btn');
+      saveBtn.disabled = true;
+      saveBtn.textContent = 'Saving...';
+
+      try {
+        const token = localStorage.getItem('admin_token');
+        const data = {
+          name: document.getElementById('tier-name').value.trim(),
+          minQty: parseInt(document.getElementById('min-qty').value),
+          maxQty: document.getElementById('max-qty').value ? parseInt(document.getElementById('max-qty').value) : null,
+          discountType: document.getElementById('discount-type').value,
+          discountValue: parseFloat(document.getElementById('discount-value').value),
+          isActive: document.getElementById('tier-active').checked,
+          shadeType: currentShadeType
+        };
+
+        const url = editingId
+          ? `/api/admin/pricing/quantity-discounts/${currentShadeType}/${editingId}`
+          : `/api/admin/pricing/quantity-discounts/${currentShadeType}`;
+
+        const res = await fetch(url, {
+          method: editingId ? 'PUT' : 'POST',
+          headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
+        });
+        const result = await res.json();
+
+        if (result.success) {
+          Admin.Toast.success(editingId ? 'Discount tier updated' : 'Discount tier created');
+          closeModal();
+          loadDiscounts();
+        } else {
+          Admin.Toast.error(result.error || 'Failed to save');
+        }
+      } catch (error) {
+        Admin.Toast.error('Error saving discount tier');
+      } finally {
+        saveBtn.disabled = false;
+        saveBtn.textContent = editingId ? 'Update Tier' : 'Save Tier';
+      }
+    }
+
+    async function deleteDiscount(id) {
+      if (!confirm('Delete this discount tier?')) return;
+
+      try {
+        const token = localStorage.getItem('admin_token');
+        const res = await fetch(`/api/admin/pricing/quantity-discounts/${currentShadeType}/${id}`, {
+          method: 'DELETE',
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const result = await res.json();
+
+        if (result.success) {
+          Admin.Toast.success('Discount tier deleted');
+          loadDiscounts();
+        } else {
+          Admin.Toast.error(result.error || 'Failed to delete');
+        }
+      } catch (error) {
+        Admin.Toast.error('Error deleting discount tier');
+      }
+    }
+
+    // Toggle status label
+    document.getElementById('tier-active')?.addEventListener('change', function() {
+      document.getElementById('status-label').textContent = this.checked ? 'Active' : 'Inactive';
+    });
+  </script>
+</body>
+</html>

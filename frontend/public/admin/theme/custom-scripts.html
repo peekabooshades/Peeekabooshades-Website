@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Custom Scripts - Peekaboo Shades Admin</title>
+  <link rel="stylesheet" href="/admin/css/admin.css?v=1737200003.0.28">
+  <script src="/admin/js/adminNavConfig.js?v=1737200002"></script>
+  <style>
+    .scripts-grid { display: grid; gap: 1.5rem; margin-top: 1.5rem; }
+    .scripts-card { background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+    .scripts-card h3 { margin: 0 0 1rem 0; display: flex; justify-content: space-between; align-items: center; }
+    .form-group { margin-bottom: 1.25rem; }
+    .form-group label { display: block; margin-bottom: 0.5rem; font-weight: 500; }
+    .form-group textarea { width: 100%; padding: 1rem; border: 1px solid #ddd; border-radius: 8px; font-family: monospace; font-size: 0.85rem; min-height: 150px; background: #1F2937; color: #10B981; }
+    .form-group .help-text { font-size: 0.85rem; color: #666; margin-top: 0.25rem; }
+    .btn-save { padding: 0.75rem 2rem; background: #8E6545; color: white; border: none; border-radius: 8px; cursor: pointer; }
+    .warning-box { background: #FEF3C7; padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem; color: #92400E; font-size: 0.9rem; }
+    .tag { padding: 0.25rem 0.5rem; background: #E5E7EB; border-radius: 4px; font-size: 0.75rem; color: #666; }
+  </style>
+</head>
+<body>
+  <div class="admin-layout">
+    <aside class="admin-sidebar"></aside>
+    <main class="admin-main">
+      <header class="admin-header">
+        <h1>Custom Scripts</h1>
+        <div class="header-actions"><button class="btn-save" onclick="saveScripts()">Save Changes</button></div>
+      </header>
+      <div class="admin-content">
+        <div class="warning-box">
+          <strong>Warning:</strong> Custom scripts can affect site performance and functionality. Only add trusted code from verified sources.
+        </div>
+        <div class="scripts-grid">
+          <div class="scripts-card">
+            <h3>Head Scripts <span class="tag">&lt;head&gt;</span></h3>
+            <div class="form-group">
+              <label>Scripts to inject in &lt;head&gt;</label>
+              <textarea placeholder="<!-- Analytics, tracking pixels, etc. -->
+<script>
+  // Your code here
+</script>"><!-- Google Analytics -->
+<script async src="https://www.googletagmanager.com/gtag/js?id=GA_TRACKING_ID"></script>
+<script>
+  window.dataLayer = window.dataLayer || [];
+  function gtag(){dataLayer.push(arguments);}
+  gtag('js', new Date());
+  gtag('config', 'GA_TRACKING_ID');
+</script></textarea>
+              <p class="help-text">Add analytics, meta tags, or other scripts that should load early</p>
+            </div>
+          </div>
+          <div class="scripts-card">
+            <h3>Body Scripts (Start) <span class="tag">&lt;body&gt; start</span></h3>
+            <div class="form-group">
+              <label>Scripts to inject at start of &lt;body&gt;</label>
+              <textarea placeholder="<!-- GTM noscript, etc. -->"><!-- Google Tag Manager (noscript) -->
+<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-XXXX"
+height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript></textarea>
+              <p class="help-text">Scripts that need to load immediately after body opens</p>
+            </div>
+          </div>
+          <div class="scripts-card">
+            <h3>Body Scripts (End) <span class="tag">&lt;/body&gt;</span></h3>
+            <div class="form-group">
+              <label>Scripts to inject before &lt;/body&gt;</label>
+              <textarea placeholder="<!-- Chat widgets, conversion tracking, etc. -->"><!-- Live Chat Widget -->
+<script>
+  // Chat widget code here
+</script></textarea>
+              <p class="help-text">Chat widgets, deferred scripts, conversion tracking</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      if (!localStorage.getItem('admin_token')) { window.location.href = '/admin/login.html'; return; }
+      AdminNavConfig.initSidebar('custom-scripts');
+    });
+    function saveScripts() { alert('Custom scripts saved!'); }
+  </script>
+</body>
+</html>

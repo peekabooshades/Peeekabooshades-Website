@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Flash Sales - Peekaboo Shades Admin</title>
+  <link rel="stylesheet" href="/admin/css/admin.css?v=1737200003.0.28">
+  <script src="/admin/js/adminNavConfig.js?v=1737200002"></script>
+  <style>
+    .sales-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(400px, 1fr)); gap: 1.5rem; margin-top: 1.5rem; }
+    .sale-card { background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+    .sale-banner { padding: 1.5rem; background: linear-gradient(135deg, #8E6545, #6d4c35); color: white; }
+    .sale-banner.active { background: linear-gradient(135deg, #10B981, #059669); }
+    .sale-banner.scheduled { background: linear-gradient(135deg, #3B82F6, #2563EB); }
+    .sale-banner.ended { background: linear-gradient(135deg, #6B7280, #4B5563); }
+    .sale-status { display: inline-block; padding: 0.25rem 0.75rem; background: rgba(255,255,255,0.2); border-radius: 20px; font-size: 0.75rem; font-weight: 600; margin-bottom: 0.5rem; }
+    .sale-name { font-size: 1.25rem; font-weight: 700; margin: 0 0 0.5rem 0; }
+    .sale-discount { font-size: 2rem; font-weight: 800; }
+    .countdown { display: flex; gap: 1rem; margin-top: 1rem; }
+    .countdown-item { text-align: center; }
+    .countdown-value { font-size: 1.5rem; font-weight: 700; background: rgba(255,255,255,0.2); padding: 0.5rem 0.75rem; border-radius: 6px; }
+    .countdown-label { font-size: 0.7rem; text-transform: uppercase; margin-top: 0.25rem; }
+    .sale-content { padding: 1.5rem; }
+    .sale-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-bottom: 1rem; }
+    .sale-stat { text-align: center; }
+    .sale-stat-value { font-size: 1.25rem; font-weight: 700; color: #8E6545; }
+    .sale-stat-label { font-size: 0.75rem; color: #666; }
+    .sale-dates { font-size: 0.9rem; color: #666; margin-bottom: 1rem; }
+    .sale-products { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-bottom: 1rem; }
+    .product-tag { padding: 0.25rem 0.5rem; background: #f0f0f0; border-radius: 4px; font-size: 0.8rem; }
+    .sale-actions { display: flex; gap: 0.5rem; }
+    .btn-action { flex: 1; padding: 0.5rem; border: none; border-radius: 6px; cursor: pointer; font-size: 0.85rem; }
+    .btn-edit { background: #8E6545; color: white; }
+    .btn-end { background: #FEE2E2; color: #991B1B; }
+    .btn-duplicate { background: #E5E7EB; color: #374151; }
+    .modal { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; }
+    .modal.active { display: flex; }
+    .modal-content { background: white; border-radius: 12px; padding: 2rem; max-width: 600px; width: 90%; max-height: 90vh; overflow-y: auto; }
+    .modal-header { display: flex; justify-content: space-between; margin-bottom: 1.5rem; }
+    .modal-header h2 { margin: 0; }
+    .modal-close { background: none; border: none; font-size: 1.5rem; cursor: pointer; }
+    .form-group { margin-bottom: 1.25rem; }
+    .form-group label { display: block; margin-bottom: 0.5rem; font-weight: 500; }
+    .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 0.75rem; border: 1px solid #ddd; border-radius: 8px; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    .btn-submit { width: 100%; padding: 0.875rem; background: #8E6545; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; }
+  </style>
+</head>
+<body>
+  <div class="admin-layout">
+    <aside class="admin-sidebar"></aside>
+    <main class="admin-main">
+      <header class="admin-header">
+        <h1>Flash Sales</h1>
+        <div class="header-actions">
+          <button class="btn-primary" onclick="openModal()">+ Create Flash Sale</button>
+        </div>
+      </header>
+      <div class="admin-content">
+        <div class="sales-grid" id="salesGrid"></div>
+      </div>
+    </main>
+  </div>
+  <div class="modal" id="saleModal">
+    <div class="modal-content">
+      <div class="modal-header"><h2 id="modalTitle">Create Flash Sale</h2><button class="modal-close" onclick="closeModal()">&times;</button></div>
+      <form onsubmit="saveSale(event)">
+        <input type="hidden" id="saleId">
+        <div class="form-group"><label>Sale Name</label><input type="text" id="saleName" required placeholder="e.g., Weekend Flash Sale"></div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Discount Type</label>
+            <select id="discountType">
+              <option value="percentage">Percentage Off</option>
+              <option value="fixed">Fixed Amount Off</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Discount Value</label>
+            <input type="number" id="discountValue" required step="0.01">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label>Start Date & Time</label><input type="datetime-local" id="startDate" required></div>
+          <div class="form-group"><label>End Date & Time</label><input type="datetime-local" id="endDate" required></div>
+        </div>
+        <div class="form-group">
+          <label>Apply To</label>
+          <select id="applyTo">
+            <option value="all">All Products</option>
+            <option value="category">Specific Categories</option>
+            <option value="products">Specific Products</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Products/Categories (comma-separated)</label>
+          <input type="text" id="productList" placeholder="e.g., Roller Shades, Cellular Shades">
+        </div>
+        <div class="form-group">
+          <label>Sale Banner Message</label>
+          <input type="text" id="bannerMessage" placeholder="e.g., LIMITED TIME ONLY!">
+        </div>
+        <button type="submit" class="btn-submit">Save Flash Sale</button>
+      </form>
+    </div>
+  </div>
+  <script>
+    let sales = [
+      { id: 's-1', name: 'Weekend Flash Sale', discountType: 'percentage', discountValue: 25, startDate: new Date(Date.now() - 86400000).toISOString(), endDate: new Date(Date.now() + 86400000).toISOString(), applyTo: 'all', products: [], bannerMessage: 'FLASH SALE!', status: 'active', orders: 45, revenue: 12500 },
+      { id: 's-2', name: 'Motorized Monday', discountType: 'fixed', discountValue: 100, startDate: new Date(Date.now() + 3*86400000).toISOString(), endDate: new Date(Date.now() + 4*86400000).toISOString(), applyTo: 'category', products: ['Motorized Shades'], bannerMessage: '$100 OFF MOTORS', status: 'scheduled', orders: 0, revenue: 0 },
+      { id: 's-3', name: 'New Year Blowout', discountType: 'percentage', discountValue: 30, startDate: new Date('2024-01-01').toISOString(), endDate: new Date('2024-01-07').toISOString(), applyTo: 'all', products: [], bannerMessage: 'NEW YEAR SALE', status: 'ended', orders: 156, revenue: 45200 }
+    ];
+
+    document.addEventListener('DOMContentLoaded', () => {
+      if (!localStorage.getItem('admin_token')) { window.location.href = '/admin/login.html'; return; }
+      AdminNavConfig.initSidebar('flash-sales');
+      renderSales();
+      setInterval(updateCountdowns, 1000);
+    });
+
+    function getStatus(sale) {
+      const now = new Date();
+      const start = new Date(sale.startDate);
+      const end = new Date(sale.endDate);
+      if (now < start) return 'scheduled';
+      if (now > end) return 'ended';
+      return 'active';
+    }
+
+    function renderSales() {
+      document.getElementById('salesGrid').innerHTML = sales.map(sale => {
+        const status = getStatus(sale);
+        return `
+          <div class="sale-card">
+            <div class="sale-banner ${status}">
+              <span class="sale-status">${status.toUpperCase()}</span>
+              <h3 class="sale-name">${sale.name}</h3>
+              <div class="sale-discount">${sale.discountType === 'percentage' ? sale.discountValue + '% OFF' : '$' + sale.discountValue + ' OFF'}</div>
+              ${status === 'active' ? `
+                <div class="countdown" data-end="${sale.endDate}">
+                  <div class="countdown-item"><div class="countdown-value" data-unit="hours">00</div><div class="countdown-label">Hours</div></div>
+                  <div class="countdown-item"><div class="countdown-value" data-unit="minutes">00</div><div class="countdown-label">Mins</div></div>
+                  <div class="countdown-item"><div class="countdown-value" data-unit="seconds">00</div><div class="countdown-label">Secs</div></div>
+                </div>
+              ` : ''}
+            </div>
+            <div class="sale-content">
+              <div class="sale-stats">
+                <div class="sale-stat"><div class="sale-stat-value">${sale.orders}</div><div class="sale-stat-label">Orders</div></div>
+                <div class="sale-stat"><div class="sale-stat-value">$${(sale.revenue/1000).toFixed(1)}K</div><div class="sale-stat-label">Revenue</div></div>
+                <div class="sale-stat"><div class="sale-stat-value">${sale.discountValue}${sale.discountType === 'percentage' ? '%' : '$'}</div><div class="sale-stat-label">Discount</div></div>
+              </div>
+              <div class="sale-dates">
+                📅 ${formatDate(sale.startDate)} - ${formatDate(sale.endDate)}
+              </div>
+              <div class="sale-products">
+                ${sale.applyTo === 'all' ? '<span class="product-tag">All Products</span>' : sale.products.map(p => `<span class="product-tag">${p}</span>`).join('')}
+              </div>
+              <div class="sale-actions">
+                <button class="btn-action btn-edit" onclick="editSale('${sale.id}')">Edit</button>
+                ${status === 'active' ? `<button class="btn-action btn-end" onclick="endSale('${sale.id}')">End Early</button>` : ''}
+                <button class="btn-action btn-duplicate" onclick="duplicateSale('${sale.id}')">Duplicate</button>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+      updateCountdowns();
+    }
+
+    function formatDate(d) {
+      return new Date(d).toLocaleDateString('en-US', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+    }
+
+    function updateCountdowns() {
+      document.querySelectorAll('.countdown').forEach(cd => {
+        const end = new Date(cd.dataset.end);
+        const now = new Date();
+        const diff = Math.max(0, end - now);
+
+        const hours = Math.floor(diff / 3600000);
+        const minutes = Math.floor((diff % 3600000) / 60000);
+        const seconds = Math.floor((diff % 60000) / 1000);
+
+        const hoursEl = cd.querySelector('[data-unit="hours"]');
+        const minsEl = cd.querySelector('[data-unit="minutes"]');
+        const secsEl = cd.querySelector('[data-unit="seconds"]');
+
+        if (hoursEl) hoursEl.textContent = String(hours).padStart(2, '0');
+        if (minsEl) minsEl.textContent = String(minutes).padStart(2, '0');
+        if (secsEl) secsEl.textContent = String(seconds).padStart(2, '0');
+      });
+    }
+
+    function openModal(sale = null) {
+      document.getElementById('saleId').value = sale ? sale.id : '';
+      document.getElementById('saleName').value = sale ? sale.name : '';
+      document.getElementById('discountType').value = sale ? sale.discountType : 'percentage';
+      document.getElementById('discountValue').value = sale ? sale.discountValue : '';
+      document.getElementById('startDate').value = sale ? sale.startDate.slice(0, 16) : '';
+      document.getElementById('endDate').value = sale ? sale.endDate.slice(0, 16) : '';
+      document.getElementById('applyTo').value = sale ? sale.applyTo : 'all';
+      document.getElementById('productList').value = sale ? sale.products.join(', ') : '';
+      document.getElementById('bannerMessage').value = sale ? sale.bannerMessage : '';
+      document.getElementById('modalTitle').textContent = sale ? 'Edit Flash Sale' : 'Create Flash Sale';
+      document.getElementById('saleModal').classList.add('active');
+    }
+
+    function closeModal() { document.getElementById('saleModal').classList.remove('active'); }
+
+    function editSale(id) {
+      const sale = sales.find(s => s.id === id);
+      if (sale) openModal(sale);
+    }
+
+    function endSale(id) {
+      if (confirm('End this flash sale early?')) {
+        const sale = sales.find(s => s.id === id);
+        if (sale) {
+          sale.endDate = new Date().toISOString();
+          renderSales();
+        }
+      }
+    }
+
+    function duplicateSale(id) {
+      const sale = sales.find(s => s.id === id);
+      if (sale) {
+        const newSale = { ...sale, id: 's-' + Date.now(), name: sale.name + ' (Copy)', orders: 0, revenue: 0 };
+        sales.push(newSale);
+        renderSales();
+        alert('Sale duplicated!');
+      }
+    }
+
+    function saveSale(e) {
+      e.preventDefault();
+      const id = document.getElementById('saleId').value;
+      const data = {
+        name: document.getElementById('saleName').value,
+        discountType: document.getElementById('discountType').value,
+        discountValue: parseFloat(document.getElementById('discountValue').value),
+        startDate: new Date(document.getElementById('startDate').value).toISOString(),
+        endDate: new Date(document.getElementById('endDate').value).toISOString(),
+        applyTo: document.getElementById('applyTo').value,
+        products: document.getElementById('productList').value.split(',').map(p => p.trim()).filter(p => p),
+        bannerMessage: document.getElementById('bannerMessage').value
+      };
+
+      if (id) {
+        const idx = sales.findIndex(s => s.id === id);
+        if (idx >= 0) sales[idx] = { ...sales[idx], ...data };
+      } else {
+        data.id = 's-' + Date.now();
+        data.orders = 0;
+        data.revenue = 0;
+        sales.push(data);
+      }
+
+      closeModal();
+      renderSales();
+      alert(id ? 'Flash sale updated' : 'Flash sale created');
+    }
+
+    document.getElementById('saleModal').addEventListener('click', e => { if (e.target.id === 'saleModal') closeModal(); });
+  </script>
+</body>
+</html>

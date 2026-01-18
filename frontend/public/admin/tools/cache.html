@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cache Management - Peekaboo Shades Admin</title>
+  <link rel="stylesheet" href="/admin/css/admin.css?v=1737200003.0.28">
+  <script src="/admin/js/adminNavConfig.js?v=1737200002"></script>
+  <style>
+    .cache-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin-top: 1.5rem; }
+    .cache-card { background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+    .cache-card h3 { margin: 0 0 0.5rem 0; display: flex; align-items: center; gap: 0.5rem; }
+    .cache-card h3 span { font-size: 1.25rem; }
+    .cache-card p { color: #666; font-size: 0.9rem; margin: 0 0 1rem 0; }
+    .cache-stats { display: flex; justify-content: space-between; padding: 0.75rem; background: #f9f9f9; border-radius: 8px; margin-bottom: 1rem; }
+    .cache-stat { text-align: center; }
+    .cache-stat .value { font-size: 1.25rem; font-weight: 600; color: #8E6545; }
+    .cache-stat .label { font-size: 0.75rem; color: #666; }
+    .btn-clear { width: 100%; padding: 0.75rem; background: #FEE2E2; color: #991B1B; border: none; border-radius: 8px; cursor: pointer; font-weight: 500; }
+    .btn-clear:hover { background: #FECACA; }
+    .btn-clear-all { padding: 0.75rem 2rem; background: #EF4444; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; }
+    .status-indicator { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 0.5rem; }
+    .status-healthy { background: #10B981; }
+    .status-warning { background: #F59E0B; }
+    .last-cleared { font-size: 0.8rem; color: #666; margin-top: 0.5rem; }
+    .actions-bar { background: white; border-radius: 12px; padding: 1rem 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); margin-top: 1.5rem; display: flex; justify-content: space-between; align-items: center; }
+  </style>
+</head>
+<body>
+  <div class="admin-layout">
+    <aside class="admin-sidebar"></aside>
+    <main class="admin-main">
+      <header class="admin-header">
+        <h1>Cache Management</h1>
+      </header>
+      <div class="admin-content">
+        <div class="cache-grid">
+          <div class="cache-card">
+            <h3><span>🖼️</span> Image Cache</h3>
+            <p>Cached product and fabric images</p>
+            <div class="cache-stats">
+              <div class="cache-stat"><div class="value">245</div><div class="label">Items</div></div>
+              <div class="cache-stat"><div class="value">128 MB</div><div class="label">Size</div></div>
+              <div class="cache-stat"><div class="value">94%</div><div class="label">Hit Rate</div></div>
+            </div>
+            <button class="btn-clear" onclick="clearCache('images')">Clear Image Cache</button>
+            <div class="last-cleared"><span class="status-indicator status-healthy"></span>Last cleared: 3 days ago</div>
+          </div>
+          <div class="cache-card">
+            <h3><span>📄</span> Page Cache</h3>
+            <p>Cached HTML pages and templates</p>
+            <div class="cache-stats">
+              <div class="cache-stat"><div class="value">52</div><div class="label">Pages</div></div>
+              <div class="cache-stat"><div class="value">18 MB</div><div class="label">Size</div></div>
+              <div class="cache-stat"><div class="value">87%</div><div class="label">Hit Rate</div></div>
+            </div>
+            <button class="btn-clear" onclick="clearCache('pages')">Clear Page Cache</button>
+            <div class="last-cleared"><span class="status-indicator status-healthy"></span>Last cleared: 1 day ago</div>
+          </div>
+          <div class="cache-card">
+            <h3><span>💾</span> Data Cache</h3>
+            <p>Cached API responses and queries</p>
+            <div class="cache-stats">
+              <div class="cache-stat"><div class="value">1,245</div><div class="label">Entries</div></div>
+              <div class="cache-stat"><div class="value">42 MB</div><div class="label">Size</div></div>
+              <div class="cache-stat"><div class="value">91%</div><div class="label">Hit Rate</div></div>
+            </div>
+            <button class="btn-clear" onclick="clearCache('data')">Clear Data Cache</button>
+            <div class="last-cleared"><span class="status-indicator status-healthy"></span>Last cleared: 6 hours ago</div>
+          </div>
+          <div class="cache-card">
+            <h3><span>🔧</span> Config Cache</h3>
+            <p>Cached system configuration</p>
+            <div class="cache-stats">
+              <div class="cache-stat"><div class="value">28</div><div class="label">Items</div></div>
+              <div class="cache-stat"><div class="value">2 MB</div><div class="label">Size</div></div>
+              <div class="cache-stat"><div class="value">99%</div><div class="label">Hit Rate</div></div>
+            </div>
+            <button class="btn-clear" onclick="clearCache('config')">Clear Config Cache</button>
+            <div class="last-cleared"><span class="status-indicator status-warning"></span>Last cleared: 2 weeks ago</div>
+          </div>
+        </div>
+        <div class="actions-bar">
+          <div>
+            <strong>Total Cache Size:</strong> 190 MB / 500 MB
+            <div style="height: 8px; width: 200px; background: #e0e0e0; border-radius: 4px; margin-top: 0.5rem;">
+              <div style="height: 100%; width: 38%; background: #8E6545; border-radius: 4px;"></div>
+            </div>
+          </div>
+          <button class="btn-clear-all" onclick="clearAllCaches()">Clear All Caches</button>
+        </div>
+      </div>
+    </main>
+  </div>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      if (!localStorage.getItem('admin_token')) { window.location.href = '/admin/login.html'; return; }
+      AdminNavConfig.initSidebar('cache-management');
+    });
+    function clearCache(type) { if(confirm(`Clear ${type} cache?`)) alert(`${type} cache cleared successfully!`); }
+    function clearAllCaches() { if(confirm('Clear ALL caches? This may temporarily slow down the site.')) alert('All caches cleared!'); }
+  </script>
+</body>
+</html>

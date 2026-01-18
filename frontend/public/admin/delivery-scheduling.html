@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Delivery Scheduling - Peekaboo Shades Admin</title>
+  <link rel="stylesheet" href="/admin/css/admin.css?v=1737200003.0.28">
+  <script src="/admin/js/adminNavConfig.js?v=1737200002"></script>
+  <style>
+    .schedule-grid { display: grid; grid-template-columns: 300px 1fr; gap: 1.5rem; margin-top: 1.5rem; }
+    .schedule-card { background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+    .schedule-card h3 { margin: 0 0 1rem 0; }
+    .delivery-item { padding: 0.75rem; background: #F9FAFB; border-radius: 8px; margin-bottom: 0.5rem; cursor: pointer; }
+    .delivery-item:hover { background: #E5E7EB; }
+    .delivery-item .time { font-weight: 600; margin-bottom: 0.25rem; }
+    .delivery-item .details { font-size: 0.85rem; color: #666; }
+    .calendar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
+    .calendar-nav { display: flex; gap: 0.5rem; }
+    .calendar-nav button { padding: 0.5rem; background: #E5E7EB; border: none; border-radius: 4px; cursor: pointer; }
+    .calendar { display: grid; grid-template-columns: repeat(7, 1fr); gap: 2px; }
+    .calendar-day { padding: 0.5rem; text-align: center; background: #F9FAFB; min-height: 80px; }
+    .calendar-day.header { font-weight: 600; min-height: auto; background: #E5E7EB; }
+    .calendar-day .date { font-weight: 500; margin-bottom: 0.25rem; }
+    .calendar-day .count { font-size: 0.75rem; color: #8E6545; background: #FEF3C7; padding: 0.25rem 0.5rem; border-radius: 4px; }
+    .btn-primary { padding: 0.75rem 1.5rem; background: #8E6545; color: white; border: none; border-radius: 8px; cursor: pointer; }
+  </style>
+</head>
+<body>
+  <div class="admin-layout">
+    <aside class="admin-sidebar"></aside>
+    <main class="admin-main">
+      <header class="admin-header">
+        <h1>Delivery Scheduling</h1>
+        <div class="header-actions"><button class="btn-primary" onclick="scheduleDelivery()">+ Schedule Delivery</button></div>
+      </header>
+      <div class="admin-content">
+        <div class="schedule-grid">
+          <div class="schedule-card">
+            <h3>Today's Deliveries</h3>
+            <div class="delivery-item" onclick="viewDelivery(1)">
+              <div class="time">9:00 AM - 11:00 AM</div>
+              <div class="details">Order #1089 • Johnson • 3 shades</div>
+            </div>
+            <div class="delivery-item" onclick="viewDelivery(2)">
+              <div class="time">11:00 AM - 1:00 PM</div>
+              <div class="details">Order #1091 • Smith • 5 shades</div>
+            </div>
+            <div class="delivery-item" onclick="viewDelivery(3)">
+              <div class="time">2:00 PM - 4:00 PM</div>
+              <div class="details">Order #1092 • Williams • 2 shades</div>
+            </div>
+            <h3 style="margin-top: 1.5rem;">Tomorrow</h3>
+            <div class="delivery-item" onclick="viewDelivery(4)">
+              <div class="time">10:00 AM - 12:00 PM</div>
+              <div class="details">Order #1093 • Davis • 4 shades</div>
+            </div>
+            <div class="delivery-item" onclick="viewDelivery(5)">
+              <div class="time">1:00 PM - 3:00 PM</div>
+              <div class="details">Order #1094 • Miller • 6 shades</div>
+            </div>
+          </div>
+          <div class="schedule-card">
+            <div class="calendar-header">
+              <h3 style="margin: 0;">January 2024</h3>
+              <div class="calendar-nav">
+                <button>&lt;</button>
+                <button>&gt;</button>
+              </div>
+            </div>
+            <div class="calendar">
+              <div class="calendar-day header">Sun</div>
+              <div class="calendar-day header">Mon</div>
+              <div class="calendar-day header">Tue</div>
+              <div class="calendar-day header">Wed</div>
+              <div class="calendar-day header">Thu</div>
+              <div class="calendar-day header">Fri</div>
+              <div class="calendar-day header">Sat</div>
+              <div class="calendar-day"></div>
+              <div class="calendar-day"><div class="date">15</div><span class="count">2</span></div>
+              <div class="calendar-day"><div class="date">16</div><span class="count">3</span></div>
+              <div class="calendar-day"><div class="date">17</div><span class="count">2</span></div>
+              <div class="calendar-day"><div class="date">18</div><span class="count">4</span></div>
+              <div class="calendar-day"><div class="date">19</div><span class="count">1</span></div>
+              <div class="calendar-day"><div class="date">20</div></div>
+              <div class="calendar-day"><div class="date">21</div></div>
+              <div class="calendar-day"><div class="date">22</div><span class="count">3</span></div>
+              <div class="calendar-day"><div class="date">23</div><span class="count">2</span></div>
+              <div class="calendar-day"><div class="date">24</div><span class="count">5</span></div>
+              <div class="calendar-day"><div class="date">25</div><span class="count">3</span></div>
+              <div class="calendar-day"><div class="date">26</div><span class="count">2</span></div>
+              <div class="calendar-day"><div class="date">27</div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      if (!localStorage.getItem('admin_token')) { window.location.href = '/admin/login.html'; return; }
+      AdminNavConfig.initSidebar('delivery-scheduling');
+    });
+    function scheduleDelivery() { alert('Opening delivery scheduler...'); }
+    function viewDelivery(id) { alert(`Viewing delivery #${id}`); }
+  </script>
+</body>
+</html>

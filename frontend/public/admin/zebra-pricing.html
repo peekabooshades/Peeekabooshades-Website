@@ -4,9 +4,14 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Zebra Shades Pricing - Peekaboo Shades Admin</title>
-  <link rel="stylesheet" href="css/admin.css">
+  <!-- Redirect to consolidated pricing page -->
+  <script>
+    window.location.replace('/admin/product-pricing.html?type=zebra' + window.location.search.replace('?', '&'));
+  </script>
+  <meta http-equiv="refresh" content="0;url=/admin/product-pricing.html?type=zebra">
+  <link rel="stylesheet" href="css/admin.css?v=1737200003">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <link rel="icon" type="image/png" href="/images/favicon.png">
+  <link rel="icon" type="image/jpeg" href="/images/peekabooshades_logo.jpeg">
   <style>
     .pricing-header {
       display: flex;
@@ -221,39 +226,9 @@
 </head>
 <body>
   <div class="admin-layout">
-    <!-- Sidebar -->
+    <!-- Sidebar (dynamically populated by adminNavConfig.js) -->
     <aside class="admin-sidebar">
-      <div class="sidebar-header">
-        <a href="/admin/" class="sidebar-logo">
-          <img src="/images/peekabooshades_logo.jpeg" alt="Peekaboo Shades" style="height: 32px; border-radius: 6px;">
-          <span>Peekaboo Shades</span>
-        </a>
-      </div>
-      <nav class="sidebar-nav">
-        <div class="nav-section">
-          <a href="/admin/" class="nav-item">
-            <i class="fas fa-home"></i> <span>Dashboard</span>
-          </a>
-        </div>
-        <div class="nav-section">
-          <div class="nav-section-title">Catalog</div>
-          <a href="/admin/products.html" class="nav-item">
-            <i class="fas fa-box"></i> <span>Products</span>
-          </a>
-          <a href="/admin/fabrics.html" class="nav-item">
-            <i class="fas fa-swatchbook"></i> <span>Fabrics</span>
-          </a>
-        </div>
-        <div class="nav-section">
-          <div class="nav-section-title">Pricing</div>
-          <a href="/admin/product-pricing.html" class="nav-item">
-            <i class="fas fa-tags"></i> <span>Roller Blinds</span>
-          </a>
-          <a href="/admin/zebra-pricing.html" class="nav-item active">
-            <i class="fas fa-tags"></i> <span>Zebra Shades</span>
-          </a>
-        </div>
-      </nav>
+      <!-- Sidebar content will be injected dynamically -->
     </aside>
 
     <!-- Main Content -->
@@ -393,7 +368,8 @@
     <span id="toastMessage">Saved!</span>
   </div>
 
-  <script src="js/admin.js"></script>
+  <script src="js/adminNavConfig.js?v=1737200002"></script>
+  <script src="js/admin.js?v=1737100001"></script>
   <script>
     if (!Admin.Auth.requireAuth()) { /* redirects */ }
     const token = Admin.Auth.getToken();

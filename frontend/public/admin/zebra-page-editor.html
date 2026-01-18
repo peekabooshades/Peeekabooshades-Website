@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Zebra Page Editor - Admin</title>
-  <link rel="stylesheet" href="css/admin.css">
+  <link rel="stylesheet" href="css/admin.css?v=1737200003">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
     .editor-container {
@@ -285,7 +285,7 @@
       <nav class="sidebar-nav">
         <a href="/admin/" class="nav-item"><i class="fas fa-home"></i> Dashboard</a>
         <a href="/admin/products.html" class="nav-item"><i class="fas fa-box"></i> Products</a>
-        <a href="/admin/zebra-pricing.html" class="nav-item"><i class="fas fa-dollar-sign"></i> Zebra Pricing</a>
+        <a href="/admin/product-pricing.html?type=zebra" class="nav-item"><i class="fas fa-dollar-sign"></i> Zebra Pricing</a>
         <a href="/admin/zebra-page-editor.html" class="nav-item active"><i class="fas fa-edit"></i> Zebra Page Editor</a>
         <a href="/admin/fabrics.html" class="nav-item"><i class="fas fa-palette"></i> Fabrics</a>
         <a href="/admin/orders.html" class="nav-item"><i class="fas fa-shopping-cart"></i> Orders</a>
@@ -469,7 +469,7 @@
             <i class="fas fa-chevron-down"></i>
           </div>
           <div class="section-content">
-            <p style="color: #6b7280; margin-bottom: 15px;">These fabrics are displayed on the product page. Manage pricing in <a href="/admin/zebra-pricing.html">Zebra Pricing</a>.</p>
+            <p style="color: #6b7280; margin-bottom: 15px;">These fabrics are displayed on the product page. Manage pricing in <a href="/admin/product-pricing.html?type=zebra">Zebra Pricing</a>.</p>
             <div class="fabric-grid" id="fabricGrid">
               <!-- Populated by JavaScript -->
             </div>
@@ -558,7 +558,7 @@
 
   <div class="toast" id="toast">Changes saved successfully!</div>
 
-  <script src="js/admin.js"></script>
+  <script src="js/admin.js?v=1737100001"></script>
   <script>
     // Auth check
     if (!Admin.Auth.requireAuth()) {

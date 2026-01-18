@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Landing Pages - Peekaboo Shades Admin</title>
+  <link rel="stylesheet" href="/admin/css/admin.css?v=1737200003.0.28">
+  <script src="/admin/js/adminNavConfig.js?v=1737200002"></script>
+  <style>
+    .pages-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 1.5rem; margin-top: 1.5rem; }
+    .page-card { background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+    .page-preview { height: 180px; background: linear-gradient(135deg, #8E6545, #A67C5B); display: flex; align-items: center; justify-content: center; color: white; }
+    .page-content { padding: 1.5rem; }
+    .page-content h3 { margin: 0 0 0.5rem 0; }
+    .page-content p { color: #666; font-size: 0.9rem; margin: 0 0 1rem 0; }
+    .page-meta { display: flex; justify-content: space-between; align-items: center; padding-top: 1rem; border-top: 1px solid #eee; }
+    .page-meta .stats { font-size: 0.85rem; color: #666; }
+    .status-badge { padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.75rem; }
+    .status-live { background: #D1FAE5; color: #065F46; }
+    .status-draft { background: #FEF3C7; color: #92400E; }
+    .btn-edit { padding: 0.4rem 0.75rem; background: #8E6545; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 0.85rem; }
+    .btn-primary { padding: 0.75rem 1.5rem; background: #8E6545; color: white; border: none; border-radius: 8px; cursor: pointer; }
+  </style>
+</head>
+<body>
+  <div class="admin-layout">
+    <aside class="admin-sidebar"></aside>
+    <main class="admin-main">
+      <header class="admin-header">
+        <h1>Landing Pages</h1>
+        <div class="header-actions"><button class="btn-primary" onclick="createPage()">+ New Landing Page</button></div>
+      </header>
+      <div class="admin-content">
+        <div class="pages-grid">
+          <div class="page-card">
+            <div class="page-preview"><span style="font-size:3rem;">🌸</span></div>
+            <div class="page-content">
+              <h3>Spring Sale 2024</h3>
+              <p>Seasonal promotion landing page with 20% off all roller shades.</p>
+              <div class="page-meta">
+                <span class="stats">1,245 visits • 3.2% conversion</span>
+                <div><span class="status-badge status-live">Live</span> <button class="btn-edit" onclick="editPage('spring')">Edit</button></div>
+              </div>
+            </div>
+          </div>
+          <div class="page-card">
+            <div class="page-preview"><span style="font-size:3rem;">🏠</span></div>
+            <div class="page-content">
+              <h3>Free In-Home Consultation</h3>
+              <p>Lead generation page for professional measurement services.</p>
+              <div class="page-meta">
+                <span class="stats">892 visits • 8.5% conversion</span>
+                <div><span class="status-badge status-live">Live</span> <button class="btn-edit" onclick="editPage('consultation')">Edit</button></div>
+              </div>
+            </div>
+          </div>
+          <div class="page-card">
+            <div class="page-preview"><span style="font-size:3rem;">🏢</span></div>
+            <div class="page-content">
+              <h3>Trade Program Sign-Up</h3>
+              <p>B2B landing page for interior designers and contractors.</p>
+              <div class="page-meta">
+                <span class="stats">456 visits • 12.1% conversion</span>
+                <div><span class="status-badge status-live">Live</span> <button class="btn-edit" onclick="editPage('trade')">Edit</button></div>
+              </div>
+            </div>
+          </div>
+          <div class="page-card">
+            <div class="page-preview"><span style="font-size:3rem;">⚡</span></div>
+            <div class="page-content">
+              <h3>Smart Home Collection</h3>
+              <p>Motorized shades landing page targeting tech-savvy customers.</p>
+              <div class="page-meta">
+                <span class="stats">Draft</span>
+                <div><span class="status-badge status-draft">Draft</span> <button class="btn-edit" onclick="editPage('smart')">Edit</button></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      if (!localStorage.getItem('admin_token')) { window.location.href = '/admin/login.html'; return; }
+      AdminNavConfig.initSidebar('landing-pages');
+    });
+    function createPage() { window.location.href = '/admin/page-builder.html?type=landing'; }
+    function editPage(id) { window.location.href = `/admin/page-builder.html?id=${id}`; }
+  </script>
+</body>
+</html>

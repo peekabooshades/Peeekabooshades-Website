@@ -1,0 +1,114 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Footer Menu - Peekaboo Shades Admin</title>
+  <link rel="stylesheet" href="/admin/css/admin.css?v=1737200003.0.28">
+  <script src="/admin/js/adminNavConfig.js?v=1737200002"></script>
+  <style>
+    .nav-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1.5rem; margin-top: 1.5rem; }
+    .nav-column { background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+    .nav-column h3 { margin: 0 0 1rem 0; font-size: 1rem; display: flex; justify-content: space-between; align-items: center; }
+    .nav-item { display: flex; justify-content: space-between; align-items: center; padding: 0.5rem; background: #F9FAFB; border-radius: 6px; margin-bottom: 0.5rem; cursor: grab; }
+    .nav-item .label { font-size: 0.9rem; }
+    .nav-item .actions { display: flex; gap: 0.25rem; }
+    .nav-item .btn-icon { width: 24px; height: 24px; border: none; background: none; cursor: pointer; font-size: 0.8rem; }
+    .btn-add { padding: 0.5rem; width: 100%; background: #E5E7EB; color: #374151; border: none; border-radius: 6px; cursor: pointer; margin-top: 0.5rem; font-size: 0.85rem; }
+    .btn-primary { padding: 0.75rem 1.5rem; background: #8E6545; color: white; border: none; border-radius: 8px; cursor: pointer; }
+    .preview-section { background: #1F2937; padding: 2rem; border-radius: 12px; margin-top: 1.5rem; }
+    .preview-footer { display: grid; grid-template-columns: repeat(4, 1fr); gap: 2rem; }
+    .preview-column h4 { color: white; margin: 0 0 1rem 0; font-size: 0.9rem; }
+    .preview-column a { display: block; color: #9CA3AF; text-decoration: none; font-size: 0.85rem; margin-bottom: 0.5rem; }
+    .edit-icon { cursor: pointer; opacity: 0.7; }
+    .edit-icon:hover { opacity: 1; }
+  </style>
+</head>
+<body>
+  <div class="admin-layout">
+    <aside class="admin-sidebar"></aside>
+    <main class="admin-main">
+      <header class="admin-header">
+        <h1>Footer Menu</h1>
+        <div class="header-actions"><button class="btn-primary" onclick="saveChanges()">Save Changes</button></div>
+      </header>
+      <div class="admin-content">
+        <div class="nav-grid">
+          <div class="nav-column">
+            <h3>Products <span class="edit-icon" onclick="editColumn('products')">✏️</span></h3>
+            <div class="nav-item"><span class="label">Roller Shades</span><div class="actions"><button class="btn-icon">↑</button><button class="btn-icon">↓</button><button class="btn-icon">×</button></div></div>
+            <div class="nav-item"><span class="label">Zebra Blinds</span><div class="actions"><button class="btn-icon">↑</button><button class="btn-icon">↓</button><button class="btn-icon">×</button></div></div>
+            <div class="nav-item"><span class="label">Motorized Shades</span><div class="actions"><button class="btn-icon">↑</button><button class="btn-icon">↓</button><button class="btn-icon">×</button></div></div>
+            <div class="nav-item"><span class="label">Roman Shades</span><div class="actions"><button class="btn-icon">↑</button><button class="btn-icon">↓</button><button class="btn-icon">×</button></div></div>
+            <button class="btn-add" onclick="addLink('products')">+ Add Link</button>
+          </div>
+          <div class="nav-column">
+            <h3>Help & Support <span class="edit-icon" onclick="editColumn('support')">✏️</span></h3>
+            <div class="nav-item"><span class="label">How to Measure</span><div class="actions"><button class="btn-icon">↑</button><button class="btn-icon">↓</button><button class="btn-icon">×</button></div></div>
+            <div class="nav-item"><span class="label">Installation Guides</span><div class="actions"><button class="btn-icon">↑</button><button class="btn-icon">↓</button><button class="btn-icon">×</button></div></div>
+            <div class="nav-item"><span class="label">FAQs</span><div class="actions"><button class="btn-icon">↑</button><button class="btn-icon">↓</button><button class="btn-icon">×</button></div></div>
+            <div class="nav-item"><span class="label">Contact Us</span><div class="actions"><button class="btn-icon">↑</button><button class="btn-icon">↓</button><button class="btn-icon">×</button></div></div>
+            <button class="btn-add" onclick="addLink('support')">+ Add Link</button>
+          </div>
+          <div class="nav-column">
+            <h3>Company <span class="edit-icon" onclick="editColumn('company')">✏️</span></h3>
+            <div class="nav-item"><span class="label">About Us</span><div class="actions"><button class="btn-icon">↑</button><button class="btn-icon">↓</button><button class="btn-icon">×</button></div></div>
+            <div class="nav-item"><span class="label">Trade Program</span><div class="actions"><button class="btn-icon">↑</button><button class="btn-icon">↓</button><button class="btn-icon">×</button></div></div>
+            <div class="nav-item"><span class="label">Reviews</span><div class="actions"><button class="btn-icon">↑</button><button class="btn-icon">↓</button><button class="btn-icon">×</button></div></div>
+            <button class="btn-add" onclick="addLink('company')">+ Add Link</button>
+          </div>
+          <div class="nav-column">
+            <h3>Policies <span class="edit-icon" onclick="editColumn('policies')">✏️</span></h3>
+            <div class="nav-item"><span class="label">Shipping Policy</span><div class="actions"><button class="btn-icon">↑</button><button class="btn-icon">↓</button><button class="btn-icon">×</button></div></div>
+            <div class="nav-item"><span class="label">Return Policy</span><div class="actions"><button class="btn-icon">↑</button><button class="btn-icon">↓</button><button class="btn-icon">×</button></div></div>
+            <div class="nav-item"><span class="label">Privacy Policy</span><div class="actions"><button class="btn-icon">↑</button><button class="btn-icon">↓</button><button class="btn-icon">×</button></div></div>
+            <div class="nav-item"><span class="label">Terms of Service</span><div class="actions"><button class="btn-icon">↑</button><button class="btn-icon">↓</button><button class="btn-icon">×</button></div></div>
+            <button class="btn-add" onclick="addLink('policies')">+ Add Link</button>
+          </div>
+        </div>
+        <div class="preview-section">
+          <h3 style="color: white; margin: 0 0 1.5rem 0;">Footer Preview</h3>
+          <div class="preview-footer">
+            <div class="preview-column">
+              <h4>Products</h4>
+              <a href="#">Roller Shades</a>
+              <a href="#">Zebra Blinds</a>
+              <a href="#">Motorized Shades</a>
+              <a href="#">Roman Shades</a>
+            </div>
+            <div class="preview-column">
+              <h4>Help & Support</h4>
+              <a href="#">How to Measure</a>
+              <a href="#">Installation Guides</a>
+              <a href="#">FAQs</a>
+              <a href="#">Contact Us</a>
+            </div>
+            <div class="preview-column">
+              <h4>Company</h4>
+              <a href="#">About Us</a>
+              <a href="#">Trade Program</a>
+              <a href="#">Reviews</a>
+            </div>
+            <div class="preview-column">
+              <h4>Policies</h4>
+              <a href="#">Shipping Policy</a>
+              <a href="#">Return Policy</a>
+              <a href="#">Privacy Policy</a>
+              <a href="#">Terms of Service</a>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      if (!localStorage.getItem('admin_token')) { window.location.href = '/admin/login.html'; return; }
+      AdminNavConfig.initSidebar('footer-menu');
+    });
+    function saveChanges() { alert('Footer menu saved!'); }
+    function addLink(column) { alert(`Adding link to ${column} column`); }
+    function editColumn(column) { alert(`Editing ${column} column title`); }
+  </script>
+</body>
+</html>

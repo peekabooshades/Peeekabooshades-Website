@@ -697,6 +697,17 @@
                             <!-- Posts will be loaded here -->
                         </div>
                     </div>
+
+                    <!-- Suggested Posts from Product Catalogue -->
+                    <div class="posts-feed" style="margin-top: 30px; background: linear-gradient(135deg, #fdf8f5 0%, #fff 100%); border: 2px solid #8E6545; border-radius: 12px; padding: 20px;">
+                        <h3 style="color: #8E6545; display: flex; align-items: center; gap: 10px;">
+                            <i class="fas fa-magic"></i> Suggested Posts (From Product Catalogue)
+                        </h3>
+                        <p style="font-size: 13px; color: #666; margin-bottom: 16px;">Click to copy any post to the composer. All content from official product catalogue.</p>
+                        <div id="suggestedPostsFeed">
+                            <!-- Will be rendered by JS -->
+                        </div>
+                    </div>
                 </div>
 
                 <div class="side-column">
@@ -755,19 +766,20 @@
             { id: 'tiktok', name: 'TikTok', icon: 'fab fa-tiktok', handle: '@peekabooshades', connected: false }
         ];
 
+        // Sample posts from Product Catalogue
         const samplePosts = [
             {
                 id: '1',
-                content: 'Summer is here! Check out our new collection of sheer curtains perfect for letting in that beautiful natural light. ☀️ #homedecor #curtains',
+                content: 'Transform your space with our eco-friendly Roller Shades! Available in transparent, semi-blackout, and full blackout options. Perfect insulation, dust-proof & light filtering. Custom sizes: Width 30-300cm, Height 50-430cm. #RollerShades #WindowTreatments #HomeDecor',
                 platforms: ['facebook', 'instagram', 'twitter'],
-                media: ['https://via.placeholder.com/200x200'],
+                media: [],
                 status: 'published',
                 date: '2024-06-15T10:30:00',
                 stats: { likes: 145, comments: 23, shares: 12 }
             },
             {
                 id: '2',
-                content: 'New arrivals dropping next week! Stay tuned for something special. 🎉',
+                content: 'NEW: Zebra Shades with versatile light control! Open and close fabric layers for the perfect ambiance. Day & night options available. Cordless-Motorized 2-in-1 control. #ZebraShades #SmartHome #ModernLiving',
                 platforms: ['instagram', 'twitter'],
                 media: [],
                 status: 'scheduled',
@@ -776,23 +788,133 @@
             },
             {
                 id: '3',
-                content: 'Behind the scenes at our workshop...',
+                content: 'Save energy with Honeycomb Shades! Superior insulation with honeycomb structure. Available in 16/20/26/38/45mm cell sizes. Sheer, Light Filtering & Blackout options. #EnergyEfficient #Honeycomb #GreenHome',
                 platforms: ['instagram'],
-                media: ['https://via.placeholder.com/200x200', 'https://via.placeholder.com/200x200'],
+                media: [],
                 status: 'draft',
                 date: '2024-06-18T09:00:00',
                 stats: {}
             }
         ];
 
-        document.addEventListener('DOMContentLoaded', () => {
-            accounts = platformData;
-            posts = samplePosts;
+        // Suggested posts from Product Catalogue (ready to use)
+        const suggestedPosts = [
+            {
+                category: 'Roller Shades',
+                posts: [
+                    'Eco-friendly Roller Shades with unique insulation, dust-proof & light filtering design. Multiple valance styles available! #RollerShades #EcoFriendly',
+                    'Control your light perfectly! Our Roller Shades come with Bead Chain, Cordless, Motorized & 2-in-1 options. Smart home ready with voice control! #SmartBlinds',
+                    'Custom Roller Shades: Width 30-300cm, Height 50-430cm. Forward or Reverse Roll, Rectangular or Sloping Cill options. Get yours today! #CustomBlinds'
+                ]
+            },
+            {
+                category: 'Zebra Shades',
+                posts: [
+                    'Zebra Shades: Elegant light control at your fingertips! Open/close fabric layers for perfect lighting. Day & night options available. #ZebraShades',
+                    'Versatile colors, textures & prints! Our Zebra Shades collection offers sophisticated style with simple operation. #InteriorDesign #WindowDecor',
+                    'Cordless-Motorized 2-in-1: The best of both worlds! Zebra Shades with ultimate convenience. Width 50-230cm, Height 50-330cm. #ModernLiving'
+                ]
+            },
+            {
+                category: 'Honeycomb Shades',
+                posts: [
+                    'Energy efficiency meets style! Honeycomb Shades with superior insulation. Cell sizes: 16/20/26/38/45mm. Sheer, Light Filtering & Blackout! #Honeycomb',
+                    '4 style options: Regular, Odd Shaped, Skylight & Sliding Honeycomb Shades. Perfect for any window! #CustomBlinds #EnergyEfficient',
+                    'Top Down Bottom Up & Day/Night options! Honeycomb Shades with Cordless, Motorized & Continuous Loop controls. #SmartHome #WindowTreatments'
+                ]
+            },
+            {
+                category: 'Outdoor Shades',
+                posts: [
+                    'Built to last! Outdoor Shades: Waterproof, Sunproof & Mildewproof. Colors stay vivid. Windproof structure! #OutdoorLiving #PatioShades',
+                    'ZS-105 & ZS-125 Series: Extra large sizes up to 4.5m wide x 5.6m tall! 6 colors: Black, Coffee, Dark Gray, Metallic Gray, Light Gray, White. #OutdoorShades',
+                    'Smart outdoor living! Remote control, voice control, mobile app & Wind-Light-Rain sensor for automated adjustments. #SmartPatio #OutdoorAutomation'
+                ]
+            },
+            {
+                category: 'Sheer Shades',
+                posts: [
+                    'Luxury meets functionality! Shangri-la & Butterfly Shades with softly contoured fabric vanes & light-diffusing back panel. #SheerShades #LuxuryLiving',
+                    'Drapery sophistication + shade functionality = Sheer Shades! Adjustable vanes for perfect light control. Width 40-230cm, Height 50-250cm. #ElegantHome',
+                    'Semi-blackout fabric available up to 4.3 meters! Our Sheer Shades combine luxury with practicality. #InteriorDesign #WindowDecor'
+                ]
+            },
+            {
+                category: 'Venetian Blinds',
+                posts: [
+                    'Classic style! Aluminum Venetian Blinds: 180-degree blade flip, moisture-proof, wind & sun resistant. Multiple matte & brushed finishes! #VenetianBlinds',
+                    'Faux Wood Blinds: Waterproof, Fireproof & Mildew Proof! UV protection with original wood appearance. 50mm width, Stay Cord to Motorized options. #FauxWood',
+                    'High strength elastic aluminum slats - not easy to deform! C-shape & L-shape options with visible or invisible holes. #QualityBlinds #HomeDecor'
+                ]
+            },
+            {
+                category: 'Panel Track Blinds',
+                posts: [
+                    'Modern & sleek! Panel Track Blinds for large windows & sliding doors. Width 45.8" to 220"! Perfect as room dividers too. #PanelTrack #ModernDesign',
+                    'Dramatic backdrop for any window! Panel Track Blinds stack tightly for unobstructed views. Room Darkening, Light Filtering & Blackout options. #LargeWindows',
+                    'Sliding doors, closet doors, window shades or room dividers - Panel Track Blinds do it all! Ceiling or wall mount options. #VersatileBlinds'
+                ]
+            },
+            {
+                category: 'Vertical Blinds',
+                posts: [
+                    'Perfect for large windows! Vertical Blinds: Polyester, PVC, Faux Wood & Dream Blinds. Vast array of fabrics, patterns & colors! #VerticalBlinds',
+                    'Electric track with smooth silence operation! Hidden motor, simple & beautiful. Nano-mute bar technology. #SmartBlinds #ModernLiving',
+                    'Open to Left, Right or Middle! Vertical Blinds with arbitrary height adjustment. Compatible with straight, L-shaped & U-shaped windows. #CustomBlinds'
+                ]
+            }
+        ];
+
+        document.addEventListener('DOMContentLoaded', async () => {
+            const token = localStorage.getItem('admin_token');
+            if (!token) {
+                window.location.href = '/admin/login.html';
+                return;
+            }
+            await loadSocialDataFromAPI();
             renderAccounts();
             renderPlatformSelector();
             renderPosts();
+            renderSuggestedPosts();
             initEventListeners();
         });
+
+        async function loadSocialDataFromAPI() {
+            try {
+                const token = localStorage.getItem('admin_token');
+
+                // Load social accounts
+                const accountsResponse = await fetch('/api/admin/marketing/social-accounts', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const accountsData = await accountsResponse.json();
+                if (accountsData.success) {
+                    const dbAccounts = accountsData.accounts || accountsData.data || [];
+                    // Merge with platform data to show all platforms
+                    accounts = platformData.map(p => {
+                        const dbAccount = dbAccounts.find(a => a.platform === p.id);
+                        return dbAccount ? { ...p, ...dbAccount, connected: true } : p;
+                    });
+                } else {
+                    accounts = platformData;
+                }
+
+                // Load social posts
+                const postsResponse = await fetch('/api/admin/marketing/social-posts', {
+                    headers: { 'Authorization': `Bearer ${token}` }
+                });
+                const postsData = await postsResponse.json();
+                if (postsData.success) {
+                    posts = postsData.posts || postsData.data || [];
+                } else {
+                    posts = [];
+                }
+            } catch (error) {
+                console.error('Error loading social data:', error);
+                accounts = platformData;
+                posts = [];
+            }
+        }
 
         function renderAccounts() {
             const container = document.getElementById('accountsList');
@@ -1111,6 +1233,53 @@
             document.getElementById('scheduleDate').value = '';
             document.getElementById('scheduleTime').value = '';
         }
+
+        function renderSuggestedPosts() {
+            const container = document.getElementById('suggestedPostsFeed');
+            if (!container) return;
+
+            let html = '';
+            suggestedPosts.forEach(category => {
+                html += `
+                    <div style="margin-bottom: 20px;">
+                        <h4 style="font-size: 14px; color: #8E6545; margin-bottom: 10px; padding-bottom: 8px; border-bottom: 1px solid #eee;">
+                            <i class="fas fa-tag"></i> ${category.category}
+                        </h4>
+                        <div style="display: flex; flex-direction: column; gap: 8px;">
+                            ${category.posts.map((post, idx) => `
+                                <div class="suggested-post-item"
+                                     style="padding: 12px; background: #f9f9f9; border-radius: 8px; cursor: pointer; transition: all 0.2s; border: 1px solid #eee;"
+                                     onclick="useSuggestedPost('${escapeHtml(post)}')"
+                                     onmouseover="this.style.background='#f0f7ff'; this.style.borderColor='#4a90d9';"
+                                     onmouseout="this.style.background='#f9f9f9'; this.style.borderColor='#eee';">
+                                    <p style="margin: 0; font-size: 13px; line-height: 1.5; color: #333;">${post}</p>
+                                    <span style="display: inline-block; margin-top: 8px; font-size: 11px; color: #4a90d9;">
+                                        <i class="fas fa-copy"></i> Click to use this post
+                                    </span>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html;
+        }
+
+        function escapeHtml(text) {
+            return text.replace(/'/g, "\\'").replace(/"/g, '\\"');
+        }
+
+        function useSuggestedPost(content) {
+            document.getElementById('postContent').value = content;
+            updateCharCount();
+            document.getElementById('postContent').focus();
+            window.scrollTo({
+                top: document.getElementById('composer').offsetTop - 100,
+                behavior: 'smooth'
+            });
+        }
     </script>
+<script src="/admin/js/ai-assistant.js"></script>
 </body>
 </html>

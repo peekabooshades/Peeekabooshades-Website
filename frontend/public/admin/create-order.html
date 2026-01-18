@@ -1,0 +1,1221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Create Order - Peekaboo Shades Admin</title>
+  <link rel="stylesheet" href="/admin/css/admin.css?v=1737200003.0.28">
+  <script src="/admin/js/adminNavConfig.js?v=1737200002"></script>
+  <style>
+    .order-layout { display: grid; grid-template-columns: 1fr 400px; gap: 1.5rem; margin-top: 1.5rem; }
+    .order-form { display: flex; flex-direction: column; gap: 1.5rem; }
+    .order-summary { position: sticky; top: 1rem; height: fit-content; }
+    .form-section { background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+    .section-title { font-size: 1.1rem; font-weight: 600; margin: 0 0 1rem 0; display: flex; justify-content: space-between; align-items: center; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    .form-group { margin-bottom: 1rem; }
+    .form-group label { display: block; margin-bottom: 0.5rem; font-weight: 500; font-size: 0.9rem; }
+    .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 0.75rem; border: 1px solid #ddd; border-radius: 8px; }
+    .line-items { border: 1px solid #eee; border-radius: 8px; overflow: hidden; }
+    .line-item { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr auto; gap: 0.75rem; padding: 1rem; border-bottom: 1px solid #eee; align-items: center; }
+    .line-item:last-child { border-bottom: none; }
+    .line-item-header { background: #f9f9f9; font-weight: 600; font-size: 0.85rem; }
+    .line-item input, .line-item select { padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px; }
+    .btn-remove-item { background: none; border: none; color: #EF4444; cursor: pointer; font-size: 1.2rem; }
+    .btn-add-item { width: 100%; padding: 0.75rem; background: none; border: 1px dashed #ccc; border-radius: 8px; cursor: pointer; margin-top: 1rem; }
+    .btn-add-item:hover { background: #f9f9f9; }
+    .summary-card { background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+    .summary-row { display: flex; justify-content: space-between; padding: 0.75rem 0; border-bottom: 1px solid #eee; }
+    .summary-row:last-child { border-bottom: none; }
+    .summary-row.total { font-size: 1.25rem; font-weight: 700; color: #8E6545; border-top: 2px solid #eee; margin-top: 0.5rem; padding-top: 1rem; }
+    .btn-submit-order { width: 100%; padding: 1rem; background: #8E6545; color: white; border: none; border-radius: 8px; font-weight: 600; font-size: 1rem; cursor: pointer; margin-top: 1rem; }
+    .btn-save-draft { width: 100%; padding: 0.75rem; background: #E5E7EB; color: #374151; border: none; border-radius: 8px; cursor: pointer; margin-top: 0.5rem; }
+    .customer-search { position: relative; }
+    .customer-results { position: absolute; top: 100%; left: 0; right: 0; background: white; border: 1px solid #ddd; border-radius: 8px; max-height: 200px; overflow-y: auto; z-index: 10; display: none; }
+    .customer-results.show { display: block; }
+    .customer-result { padding: 0.75rem; cursor: pointer; border-bottom: 1px solid #eee; }
+    .customer-result:hover { background: #f5f5f5; }
+    .selected-customer { background: #f0f9f0; padding: 1rem; border-radius: 8px; margin-bottom: 1rem; display: flex; justify-content: space-between; align-items: center; }
+  </style>
+</head>
+<body>
+  <div class="admin-layout">
+    <aside class="admin-sidebar"></aside>
+    <main class="admin-main">
+      <header class="admin-header">
+        <h1>Create Order</h1>
+      </header>
+      <div class="admin-content">
+        <div class="order-layout">
+          <div class="order-form">
+            <div class="form-section">
+              <h3 class="section-title">Customer Information</h3>
+              <div class="customer-search">
+                <div class="form-group">
+                  <label>Search Customer</label>
+                  <input type="text" id="customerSearch" placeholder="Search by name, email, or phone..." oninput="searchCustomer(this.value)">
+                </div>
+                <div class="customer-results" id="customerResults"></div>
+              </div>
+              <div id="selectedCustomer" style="display: none;"></div>
+              <div id="newCustomerForm">
+                <div class="form-row">
+                  <div class="form-group"><label>First Name</label><input type="text" id="firstName"></div>
+                  <div class="form-group"><label>Last Name</label><input type="text" id="lastName"></div>
+                </div>
+                <div class="form-row">
+                  <div class="form-group"><label>Email</label><input type="email" id="email"></div>
+                  <div class="form-group"><label>Phone</label><input type="tel" id="phone"></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-section">
+              <h3 class="section-title">Shipping Address</h3>
+              <div class="form-group"><label>Street Address</label><input type="text" id="address1"></div>
+              <div class="form-group"><label>Apt/Suite</label><input type="text" id="address2"></div>
+              <div class="form-row">
+                <div class="form-group"><label>City</label><input type="text" id="city"></div>
+                <div class="form-group"><label>State</label><input type="text" id="state"></div>
+              </div>
+              <div class="form-row">
+                <div class="form-group"><label>ZIP Code</label><input type="text" id="zip"></div>
+                <div class="form-group"><label>Country</label><select id="country"><option value="US">United States</option><option value="CA">Canada</option></select></div>
+              </div>
+            </div>
+
+            <div class="form-section">
+              <h3 class="section-title">
+                Line Items
+                <div style="display: flex; gap: 0.5rem;">
+                  <button type="button" class="btn-primary" onclick="openProductModal()" style="padding: 0.4rem 0.75rem; font-size: 0.85rem;">+ Add Product</button>
+                  <button type="button" class="btn-secondary" onclick="openBulkUploadModal()" style="padding: 0.4rem 0.75rem; font-size: 0.85rem; background: #E5E7EB; border: none; border-radius: 6px; cursor: pointer;">📁 Bulk Upload</button>
+                </div>
+              </h3>
+              <div class="line-items">
+                <div class="line-item line-item-header">
+                  <span>Product</span>
+                  <span>Dimensions</span>
+                  <span>Qty</span>
+                  <span>Price</span>
+                  <span></span>
+                </div>
+                <div id="lineItemsContainer"></div>
+              </div>
+              <button type="button" class="btn-add-item" onclick="openProductModal()">+ Add Another Item</button>
+            </div>
+
+            <div class="form-section">
+              <h3 class="section-title">Order Notes</h3>
+              <div class="form-group">
+                <label>Internal Notes (not visible to customer)</label>
+                <textarea id="internalNotes" rows="2"></textarea>
+              </div>
+              <div class="form-group">
+                <label>Customer Notes</label>
+                <textarea id="customerNotes" rows="2"></textarea>
+              </div>
+            </div>
+          </div>
+
+          <div class="order-summary">
+            <div class="summary-card">
+              <h3 class="section-title">Order Summary</h3>
+              <div class="summary-row"><span>Subtotal</span><span id="subtotal">$0.00</span></div>
+              <div class="summary-row"><span>Discount</span><span id="discount">-$0.00</span></div>
+              <div class="summary-row"><span>Shipping</span><span id="shipping">$0.00</span></div>
+              <div class="summary-row"><span>Tax</span><span id="tax">$0.00</span></div>
+              <div class="summary-row total"><span>Total</span><span id="total">$0.00</span></div>
+
+              <div class="form-group" style="margin-top: 1rem;">
+                <label>Apply Discount</label>
+                <div style="display: flex; gap: 0.5rem;">
+                  <input type="text" id="discountCode" placeholder="Coupon code">
+                  <button onclick="applyDiscount()" style="padding: 0.5rem 1rem; background: #E5E7EB; border: none; border-radius: 6px; cursor: pointer;">Apply</button>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label>Payment Method</label>
+                <select id="paymentMethod">
+                  <option value="pending">Mark as Pending</option>
+                  <option value="paid">Mark as Paid</option>
+                  <option value="invoice">Send Invoice</option>
+                </select>
+              </div>
+
+              <button type="button" class="btn-submit-order" onclick="submitOrder()">Create Order</button>
+              <button type="button" class="btn-save-draft" onclick="saveDraft()">Save as Draft</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Product Selection Modal - Elegant Design -->
+  <div class="modal" id="productModal" style="display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.6); z-index:1000; align-items:center; justify-content:center;">
+    <div class="modal-content" style="background:white; border-radius:16px; width:95%; max-width:950px; max-height:92vh; overflow:hidden; display:flex; flex-direction:column; box-shadow:0 25px 50px -12px rgba(0,0,0,0.25);">
+
+      <!-- Modal Header -->
+      <div class="modal-header" style="padding:1.75rem 2rem; background:linear-gradient(135deg, #8E6545 0%, #A67B5B 100%); display:flex; justify-content:space-between; align-items:center;">
+        <h2 style="margin:0; font-size:1.5rem; font-weight:700; color:white; font-family:'Montserrat',sans-serif; letter-spacing:-0.5px;">Add Product to Order</h2>
+        <button onclick="closeProductModal()" style="background:rgba(255,255,255,0.2); border:none; width:40px; height:40px; border-radius:50%; cursor:pointer; color:white; font-size:1.5rem; display:flex; align-items:center; justify-content:center; transition:background 0.2s;">&times;</button>
+      </div>
+
+      <!-- Product Type Tabs -->
+      <div style="padding:0 2rem; background:#faf8f6; border-bottom:1px solid #e8e4e0;">
+        <div class="product-tabs" style="display:flex; gap:0;">
+          <button class="product-tab active" data-type="roller" onclick="selectProductType('roller')" style="padding:16px 28px; background:transparent; border:none; border-bottom:3px solid #8E6545; font-family:'Montserrat',sans-serif; font-size:15px; font-weight:600; color:#8E6545; cursor:pointer; transition:all 0.2s;">Roller Shades</button>
+          <button class="product-tab" data-type="zebra" onclick="selectProductType('zebra')" style="padding:16px 28px; background:transparent; border:none; border-bottom:3px solid transparent; font-family:'Montserrat',sans-serif; font-size:15px; font-weight:500; color:#888; cursor:pointer; transition:all 0.2s;">Zebra Shades</button>
+        </div>
+      </div>
+
+      <!-- Modal Body -->
+      <div class="modal-body" style="padding:2rem; overflow-y:auto; flex:1; max-height:58vh; background:#faf8f6;">
+
+        <!-- Section: Fabric Selection -->
+        <div style="background:white; padding:1.5rem; border-radius:12px; margin-bottom:1.25rem; box-shadow:0 2px 8px rgba(0,0,0,0.04); border:1px solid #f0ebe6;">
+          <h3 style="margin:0 0 1.25rem 0; font-size:1rem; font-weight:700; color:#8E6545; text-transform:uppercase; letter-spacing:0.5px; font-family:'Montserrat',sans-serif; display:flex; align-items:center; gap:8px;">
+            <span style="width:24px; height:24px; background:#8E6545; border-radius:50%; display:flex; align-items:center; justify-content:center; color:white; font-size:12px;">1</span>
+            Select Fabric
+          </h3>
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:1.25rem;">
+            <div>
+              <label style="display:block; margin-bottom:0.5rem; font-weight:600; font-size:14px; color:#333;">Fabric *</label>
+              <select id="modalFabricSelect" style="width:100%; padding:14px 16px; border:2px solid #e8e4e0; border-radius:10px; font-family:'Montserrat',sans-serif; font-size:15px; background:white; cursor:pointer; transition:border-color 0.2s;" onchange="updateModalPrice()">
+                <option value="">Choose a fabric...</option>
+              </select>
+            </div>
+            <div>
+              <label style="display:block; margin-bottom:0.5rem; font-weight:600; font-size:14px; color:#333;">Light Filtering</label>
+              <select id="modalLightFiltering" style="width:100%; padding:14px 16px; border:2px solid #e8e4e0; border-radius:10px; font-family:'Montserrat',sans-serif; font-size:15px; background:white; cursor:pointer;">
+                <option value="blackout">Blackout</option>
+                <option value="light-filtering">Light Filtering</option>
+                <option value="sheer">Sheer</option>
+                <option value="room-darkening">Room Darkening</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Section: Dimensions -->
+        <div style="background:white; padding:1.5rem; border-radius:12px; margin-bottom:1.25rem; box-shadow:0 2px 8px rgba(0,0,0,0.04); border:1px solid #f0ebe6;">
+          <h3 style="margin:0 0 1.25rem 0; font-size:1rem; font-weight:700; color:#8E6545; text-transform:uppercase; letter-spacing:0.5px; font-family:'Montserrat',sans-serif; display:flex; align-items:center; gap:8px;">
+            <span style="width:24px; height:24px; background:#8E6545; border-radius:50%; display:flex; align-items:center; justify-content:center; color:white; font-size:12px;">2</span>
+            Dimensions & Details
+          </h3>
+          <div style="display:grid; grid-template-columns:1fr 1fr 1fr 1fr; gap:1.25rem;">
+            <div>
+              <label style="display:block; margin-bottom:0.5rem; font-weight:600; font-size:14px; color:#333;">Width (in) *</label>
+              <input type="number" id="modalWidth" value="36" min="12" max="96" style="width:100%; padding:14px 16px; border:2px solid #e8e4e0; border-radius:10px; font-family:'Montserrat',sans-serif; font-size:15px; text-align:center; font-weight:600;" onchange="updateModalPrice()">
+            </div>
+            <div>
+              <label style="display:block; margin-bottom:0.5rem; font-weight:600; font-size:14px; color:#333;">Height (in) *</label>
+              <input type="number" id="modalHeight" value="48" min="12" max="120" style="width:100%; padding:14px 16px; border:2px solid #e8e4e0; border-radius:10px; font-family:'Montserrat',sans-serif; font-size:15px; text-align:center; font-weight:600;" onchange="updateModalPrice()">
+            </div>
+            <div>
+              <label style="display:block; margin-bottom:0.5rem; font-weight:600; font-size:14px; color:#333;">Quantity</label>
+              <input type="number" id="modalQty" value="1" min="1" style="width:100%; padding:14px 16px; border:2px solid #e8e4e0; border-radius:10px; font-family:'Montserrat',sans-serif; font-size:15px; text-align:center; font-weight:600;" onchange="updateModalPrice()">
+            </div>
+            <div>
+              <label style="display:block; margin-bottom:0.5rem; font-weight:600; font-size:14px; color:#333;">Room Label</label>
+              <select id="modalRoomLabel" style="width:100%; padding:14px 16px; border:2px solid #e8e4e0; border-radius:10px; font-family:'Montserrat',sans-serif; font-size:14px; background:white; cursor:pointer;">
+                <option value="">Select...</option>
+                <option value="Master Bedroom">Master Bedroom</option>
+                <option value="Guest Bedroom">Guest Bedroom</option>
+                <option value="Living Room">Living Room</option>
+                <option value="Dining Room">Dining Room</option>
+                <option value="Kitchen">Kitchen</option>
+                <option value="Bathroom">Bathroom</option>
+                <option value="Office">Office</option>
+                <option value="Other">Other</option>
+              </select>
+            </div>
+          </div>
+        </div>
+
+        <!-- Section: Control Type -->
+        <div style="background:white; padding:1.5rem; border-radius:12px; margin-bottom:1.25rem; box-shadow:0 2px 8px rgba(0,0,0,0.04); border:1px solid #f0ebe6;">
+          <h3 style="margin:0 0 1.25rem 0; font-size:1rem; font-weight:700; color:#8E6545; text-transform:uppercase; letter-spacing:0.5px; font-family:'Montserrat',sans-serif; display:flex; align-items:center; gap:8px;">
+            <span style="width:24px; height:24px; background:#8E6545; border-radius:50%; display:flex; align-items:center; justify-content:center; color:white; font-size:12px;">3</span>
+            Control & Mount
+          </h3>
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:1.25rem;">
+            <div>
+              <label style="display:block; margin-bottom:0.5rem; font-weight:600; font-size:14px; color:#333;">Control Type *</label>
+              <select id="modalControlType" style="width:100%; padding:14px 16px; border:2px solid #e8e4e0; border-radius:10px; font-family:'Montserrat',sans-serif; font-size:15px; background:white; cursor:pointer;" onchange="handleControlTypeChange()">
+                <option value="manual">Manual (Bead Chain)</option>
+                <option value="cordless">Cordless</option>
+                <option value="motorized">Motorized</option>
+              </select>
+            </div>
+            <div>
+              <label style="display:block; margin-bottom:0.5rem; font-weight:600; font-size:14px; color:#333;">Mount Type</label>
+              <select id="modalMountType" style="width:100%; padding:14px 16px; border:2px solid #e8e4e0; border-radius:10px; font-family:'Montserrat',sans-serif; font-size:15px; background:white; cursor:pointer;">
+                <option value="inside">Inside Mount</option>
+                <option value="outside">Outside Mount</option>
+              </select>
+            </div>
+          </div>
+
+          <!-- Chain Options (Manual) -->
+          <div id="chainOptions" style="margin-top:1.25rem; padding:1.25rem; background:linear-gradient(135deg, #faf6f3 0%, #f5efe9 100%); border-radius:10px; border-left:4px solid #8E6545;">
+            <h4 style="margin:0 0 1rem 0; font-size:14px; font-weight:700; color:#6B4D35;">Chain Options</h4>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem;">
+              <div>
+                <label style="display:block; margin-bottom:0.5rem; font-weight:600; font-size:13px; color:#555;">Chain Type</label>
+                <select id="modalChainType" style="width:100%; padding:12px 14px; border:2px solid #e8e4e0; border-radius:8px; font-family:'Montserrat',sans-serif; font-size:14px; background:white;" onchange="updateModalPrice()">
+                  <option value="bead-chain-plastic">Plastic Bead Chain (Standard)</option>
+                  <option value="bead-chain-metal">Metal Bead Chain (+$5)</option>
+                </select>
+              </div>
+              <div>
+                <label style="display:block; margin-bottom:0.5rem; font-weight:600; font-size:13px; color:#555;">Chain Side</label>
+                <select id="modalChainSide" style="width:100%; padding:12px 14px; border:2px solid #e8e4e0; border-radius:8px; font-family:'Montserrat',sans-serif; font-size:14px; background:white;">
+                  <option value="left">Left</option>
+                  <option value="right">Right</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <!-- Motor Options (Motorized) -->
+          <div id="motorOptions" style="display:none; margin-top:1.25rem; padding:1.25rem; background:linear-gradient(135deg, #fff8f0 0%, #fff5eb 100%); border-radius:10px; border-left:4px solid #D97706;">
+            <h4 style="margin:0 0 1rem 0; font-size:14px; font-weight:700; color:#92400e;">Motor Options</h4>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-bottom:1rem;">
+              <div>
+                <label style="display:block; margin-bottom:0.5rem; font-weight:600; font-size:13px; color:#555;">Motor Brand</label>
+                <select id="modalMotorBrand" style="width:100%; padding:12px 14px; border:2px solid #e8e4e0; border-radius:8px; font-family:'Montserrat',sans-serif; font-size:14px; background:white;" onchange="updateModalPrice()">
+                  <option value="aok">AOK Motor</option>
+                  <option value="dooya">Dooya Motor</option>
+                </select>
+              </div>
+              <div>
+                <label style="display:block; margin-bottom:0.5rem; font-weight:600; font-size:13px; color:#555;">Motor Type</label>
+                <select id="modalMotorType" style="width:100%; padding:12px 14px; border:2px solid #e8e4e0; border-radius:8px; font-family:'Montserrat',sans-serif; font-size:14px; background:white;" onchange="updateModalPrice()">
+                  <option value="battery">Battery</option>
+                  <option value="plugin-wire">Plugin Wire</option>
+                  <option value="solar-powered">Solar Powered</option>
+                </select>
+              </div>
+            </div>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:1rem; margin-bottom:1rem;">
+              <div>
+                <label style="display:block; margin-bottom:0.5rem; font-weight:600; font-size:13px; color:#555;">Remote Type</label>
+                <select id="modalRemoteType" style="width:100%; padding:12px 14px; border:2px solid #e8e4e0; border-radius:8px; font-family:'Montserrat',sans-serif; font-size:14px; background:white;" onchange="updateModalPrice()">
+                  <option value="single-channel">Single Channel</option>
+                  <option value="6-channel">6 Channel (+$15)</option>
+                  <option value="15-channel">15 Channel (+$25)</option>
+                </select>
+              </div>
+              <div>
+                <label style="display:block; margin-bottom:0.5rem; font-weight:600; font-size:13px; color:#555;">Motor Location</label>
+                <select id="modalMotorLocation" style="width:100%; padding:12px 14px; border:2px solid #e8e4e0; border-radius:8px; font-family:'Montserrat',sans-serif; font-size:14px; background:white;">
+                  <option value="left">Left</option>
+                  <option value="right">Right</option>
+                </select>
+              </div>
+            </div>
+            <div style="display:grid; grid-template-columns:1fr 1fr 1fr; gap:1rem;">
+              <div>
+                <label style="display:block; margin-bottom:0.5rem; font-weight:600; font-size:13px; color:#555;">Solar Panel</label>
+                <select id="modalSolarPanel" style="width:100%; padding:12px 14px; border:2px solid #e8e4e0; border-radius:8px; font-family:'Montserrat',sans-serif; font-size:14px; background:white;" onchange="updateModalPrice()">
+                  <option value="no">No</option>
+                  <option value="yes">Yes (+$35)</option>
+                </select>
+              </div>
+              <div>
+                <label style="display:block; margin-bottom:0.5rem; font-weight:600; font-size:13px; color:#555;">Smart Hub</label>
+                <select id="modalSmartHub" style="width:100%; padding:12px 14px; border:2px solid #e8e4e0; border-radius:8px; font-family:'Montserrat',sans-serif; font-size:14px; background:white;" onchange="updateModalPrice()">
+                  <option value="0">None</option>
+                  <option value="1">1 (+$45)</option>
+                  <option value="2">2 (+$90)</option>
+                </select>
+              </div>
+              <div>
+                <label style="display:block; margin-bottom:0.5rem; font-weight:600; font-size:13px; color:#555;">USB Charger</label>
+                <select id="modalUsbCharger" style="width:100%; padding:12px 14px; border:2px solid #e8e4e0; border-radius:8px; font-family:'Montserrat',sans-serif; font-size:14px; background:white;" onchange="updateModalPrice()">
+                  <option value="0">None</option>
+                  <option value="1">1 (+$15)</option>
+                  <option value="2">2 (+$30)</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Section: Hardware Options -->
+        <div style="background:white; padding:1.5rem; border-radius:12px; margin-bottom:1.25rem; box-shadow:0 2px 8px rgba(0,0,0,0.04); border:1px solid #f0ebe6;">
+          <h3 style="margin:0 0 1.25rem 0; font-size:1rem; font-weight:700; color:#8E6545; text-transform:uppercase; letter-spacing:0.5px; font-family:'Montserrat',sans-serif; display:flex; align-items:center; gap:8px;">
+            <span style="width:24px; height:24px; background:#8E6545; border-radius:50%; display:flex; align-items:center; justify-content:center; color:white; font-size:12px;">4</span>
+            Hardware Options
+          </h3>
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:1.25rem; margin-bottom:1rem;">
+            <div>
+              <label style="display:block; margin-bottom:0.5rem; font-weight:600; font-size:14px; color:#333;">Valance/Cassette Type</label>
+              <select id="modalValanceType" style="width:100%; padding:14px 16px; border:2px solid #e8e4e0; border-radius:10px; font-family:'Montserrat',sans-serif; font-size:14px; background:white; cursor:pointer;" onchange="updateModalPrice()">
+                <option value="square-v2">Square Cassette V2 (Standard)</option>
+                <option value="round-v1">Round Cassette V1</option>
+                <option value="fabric-wrapped-v3">Fabric Wrapped V3 (+$12)</option>
+                <option value="open-roll">Open Roll (No Valance)</option>
+              </select>
+            </div>
+            <div>
+              <label style="display:block; margin-bottom:0.5rem; font-weight:600; font-size:14px; color:#333;">Bottom Bar Type</label>
+              <select id="modalBottomBar" style="width:100%; padding:14px 16px; border:2px solid #e8e4e0; border-radius:10px; font-family:'Montserrat',sans-serif; font-size:14px; background:white; cursor:pointer;" onchange="updateModalPrice()">
+                <option value="type-a-waterdrop">Type A - Waterdrop (Standard)</option>
+                <option value="type-b-streamlined">Type B - Streamlined</option>
+                <option value="type-c-fabric-wrapped">Type C - Fabric Wrapped (+$8)</option>
+                <option value="type-d-square">Type D - Square</option>
+              </select>
+            </div>
+          </div>
+          <div style="display:grid; grid-template-columns:1fr 1fr; gap:1.25rem;">
+            <div>
+              <label style="display:block; margin-bottom:0.5rem; font-weight:600; font-size:14px; color:#333;">Roller Type</label>
+              <select id="modalRollerType" style="width:100%; padding:14px 16px; border:2px solid #e8e4e0; border-radius:10px; font-family:'Montserrat',sans-serif; font-size:14px; background:white; cursor:pointer;">
+                <option value="forward-roll">Forward Roll (Standard)</option>
+                <option value="reverse-roll">Reverse Roll</option>
+              </select>
+            </div>
+            <div>
+              <label style="display:block; margin-bottom:0.5rem; font-weight:600; font-size:14px; color:#333;">Side Cover Color</label>
+              <select id="modalSideCover" style="width:100%; padding:14px 16px; border:2px solid #e8e4e0; border-radius:10px; font-family:'Montserrat',sans-serif; font-size:14px; background:white; cursor:pointer;">
+                <option value="white">White</option>
+                <option value="gray">Gray</option>
+                <option value="black">Black</option>
+              </select>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Price Summary Footer -->
+      <div style="background:linear-gradient(135deg, #8E6545 0%, #6B4D35 100%); padding:1.5rem 2rem; border-top:none;">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <div style="color:white;">
+            <div style="font-size:13px; opacity:0.8; margin-bottom:4px; text-transform:uppercase; letter-spacing:0.5px;">Customer Price</div>
+            <div id="modalPriceBreakdown" style="font-size:12px; opacity:0.7;"></div>
+          </div>
+          <div style="text-align:right;">
+            <div id="modalEstimatedPrice" style="font-size:2.25rem; font-weight:800; color:white; font-family:'Montserrat',sans-serif; letter-spacing:-1px;" data-unit-price="" data-pricing-data="">$0.00</div>
+            <div id="modalPriceStatus" style="font-size:12px; color:rgba(255,255,255,0.7);"></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Modal Footer Actions -->
+      <div class="modal-footer" style="padding:1.25rem 2rem; background:white; border-top:1px solid #f0ebe6; display:flex; justify-content:flex-end; gap:1rem;">
+        <button onclick="closeProductModal()" style="padding:14px 28px; background:#f3f4f6; border:none; border-radius:10px; cursor:pointer; font-family:'Montserrat',sans-serif; font-size:15px; font-weight:600; color:#666; transition:all 0.2s;">Cancel</button>
+        <button onclick="addProductToOrder()" style="padding:14px 32px; background:linear-gradient(135deg, #8E6545 0%, #A67B5B 100%); color:white; border:none; border-radius:10px; cursor:pointer; font-family:'Montserrat',sans-serif; font-size:15px; font-weight:700; transition:all 0.2s; box-shadow:0 4px 14px rgba(142,101,69,0.35);">Add to Order</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Bulk Upload Modal -->
+  <div class="modal" id="bulkUploadModal" style="display:none; position:fixed; top:0; left:0; right:0; bottom:0; background:rgba(0,0,0,0.5); z-index:1000; align-items:center; justify-content:center;">
+    <div class="modal-content" style="background:white; border-radius:12px; width:90%; max-width:700px; max-height:90vh; overflow:hidden;">
+      <div class="modal-header" style="padding:1.5rem; border-bottom:1px solid #eee; display:flex; justify-content:space-between; align-items:center;">
+        <h2 style="margin:0; font-size:1.25rem;">Bulk Upload Order Items</h2>
+        <button onclick="closeBulkUploadModal()" style="background:none; border:none; font-size:1.5rem; cursor:pointer;">&times;</button>
+      </div>
+      <div class="modal-body" style="padding:1.5rem;">
+        <div style="background:#f9f9f9; padding:1rem; border-radius:8px; margin-bottom:1.5rem;">
+          <h4 style="margin:0 0 0.5rem 0;">CSV Format Instructions:</h4>
+          <p style="margin:0; font-size:0.9rem; color:#666;">Upload a CSV file with the following columns (required columns marked with *):</p>
+          <code style="display:block; background:#fff; padding:0.75rem; border-radius:4px; margin-top:0.5rem; font-size:0.75rem; overflow-x:auto; white-space:nowrap;">
+            product_type*, fabric_code*, width*, height*, quantity, room_label, control_type, mount_type, light_filtering, valance_type, bottom_bar, roller_type, side_cover, chain_type, chain_side, motor_brand, motor_type, remote_type, motor_location, solar_panel, smart_hub_qty, usb_charger_qty
+          </code>
+          <div style="margin-top:0.75rem; font-size:0.8rem; color:#666; display:grid; grid-template-columns:1fr 1fr; gap:0.5rem;">
+            <div><strong>product_type:</strong> roller, zebra</div>
+            <div><strong>control_type:</strong> manual, cordless, motorized</div>
+            <div><strong>mount_type:</strong> inside, outside</div>
+            <div><strong>light_filtering:</strong> blackout, light-filtering, sheer</div>
+            <div><strong>valance_type:</strong> square-v2, round-v1, fabric-wrapped-v3, open-roll</div>
+            <div><strong>bottom_bar:</strong> type-a-waterdrop, type-b-streamlined, type-c-fabric-wrapped, type-d-square</div>
+            <div><strong>roller_type:</strong> forward-roll, reverse-roll</div>
+            <div><strong>side_cover:</strong> white, gray, black</div>
+            <div><strong>chain_type:</strong> bead-chain-plastic, bead-chain-metal</div>
+            <div><strong>chain_side:</strong> left, right</div>
+            <div><strong>motor_brand:</strong> aok, dooya</div>
+            <div><strong>motor_type:</strong> battery, plugin-wire, solar-powered</div>
+          </div>
+        </div>
+        <div style="margin-bottom:1.5rem;">
+          <label style="display:block; margin-bottom:0.5rem; font-weight:500;">Select Product Type</label>
+          <select id="bulkProductType" style="width:100%; padding:0.75rem; border:1px solid #ddd; border-radius:8px; font-family:'Montserrat',sans-serif;">
+            <option value="roller">Roller Shades</option>
+            <option value="zebra">Zebra Shades</option>
+          </select>
+        </div>
+        <div style="border:2px dashed #ddd; border-radius:8px; padding:2rem; text-align:center; margin-bottom:1rem;">
+          <input type="file" id="bulkFileInput" accept=".csv" style="display:none;" onchange="handleBulkFile(this)">
+          <button onclick="document.getElementById('bulkFileInput').click()" style="padding:0.75rem 1.5rem; background:#8E6545; color:white; border:none; border-radius:8px; cursor:pointer; font-weight:500;">
+            📁 Choose CSV File
+          </button>
+          <p style="margin:0.75rem 0 0 0; color:#666; font-size:0.9rem;" id="bulkFileName">No file selected</p>
+        </div>
+        <div id="bulkPreview" style="display:none; max-height:200px; overflow:auto; border:1px solid #eee; border-radius:8px;">
+          <table style="width:100%; border-collapse:collapse; font-size:0.85rem;">
+            <thead id="bulkPreviewHead"></thead>
+            <tbody id="bulkPreviewBody"></tbody>
+          </table>
+        </div>
+        <button onclick="downloadTemplate()" style="margin-top:1rem; padding:0.5rem 1rem; background:none; border:1px solid #8E6545; color:#8E6545; border-radius:6px; cursor:pointer; font-size:0.9rem;">
+          ⬇️ Download CSV Template
+        </button>
+      </div>
+      <div class="modal-footer" style="padding:1rem 1.5rem; border-top:1px solid #eee; display:flex; justify-content:flex-end; gap:0.75rem;">
+        <button onclick="closeBulkUploadModal()" style="padding:0.75rem 1.5rem; background:#E5E7EB; border:none; border-radius:8px; cursor:pointer;">Cancel</button>
+        <button onclick="processBulkUpload()" id="bulkUploadBtn" style="padding:0.75rem 1.5rem; background:#8E6545; color:white; border:none; border-radius:8px; cursor:pointer; font-weight:600;" disabled>Import Items</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let customers = [];
+    let lineItems = [];
+    let selectedCustomerId = null;
+    let products = [];
+    let rollerFabrics = [];
+    let zebraFabrics = [];
+    let manufacturerPrices = [];
+    let currentProductType = 'roller';
+    let bulkData = [];
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      if (!localStorage.getItem('admin_token')) { window.location.href = '/admin/login.html'; return; }
+      AdminNavConfig.initSidebar('create-order');
+      await Promise.all([loadCustomers(), loadProducts(), loadFabrics(), loadPricing()]);
+      renderLineItems();
+    });
+
+    async function loadProducts() {
+      try {
+        const res = await fetch('/api/products');
+        const data = await res.json();
+        if (data.success) products = data.data || [];
+      } catch (e) { console.error('Error loading products:', e); }
+    }
+
+    async function loadFabrics() {
+      const token = localStorage.getItem('admin_token');
+      const headers = { 'Authorization': `Bearer ${token}` };
+      try {
+        // Load roller fabrics
+        const rollerRes = await fetch('/api/admin/fabrics', { headers });
+        const rollerData = await rollerRes.json();
+        if (rollerData.success) rollerFabrics = rollerData.fabrics || [];
+
+        // Load zebra fabrics
+        const zebraRes = await fetch('/api/admin/zebra-fabrics', { headers });
+        const zebraData = await zebraRes.json();
+        if (zebraData.success) zebraFabrics = zebraData.fabrics || [];
+      } catch (e) { console.error('Error loading fabrics:', e); }
+    }
+
+    async function loadPricing() {
+      const token = localStorage.getItem('admin_token');
+      const headers = { 'Authorization': `Bearer ${token}` };
+      try {
+        const res = await fetch('/api/admin/manufacturer-prices', { headers });
+        const data = await res.json();
+        if (data.success) manufacturerPrices = data.prices || [];
+      } catch (e) { console.error('Error loading pricing:', e); }
+    }
+
+    async function loadCustomers() {
+      const token = localStorage.getItem('admin_token');
+      const headers = { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' };
+
+      try {
+        const res = await fetch('/api/admin/customers', { headers });
+        const data = await res.json();
+
+        if (data.success) {
+          customers = data.data || data.customers || [];
+        } else {
+          customers = [];
+        }
+      } catch (error) {
+        console.error('Error loading customers:', error);
+        customers = [];
+      }
+    }
+
+    function searchCustomer(query) {
+      const results = document.getElementById('customerResults');
+      if (query.length < 2) { results.classList.remove('show'); return; }
+
+      const filtered = customers.filter(c => {
+        const name = (c.name || `${c.firstName || ''} ${c.lastName || ''}`).toLowerCase();
+        const email = (c.email || '').toLowerCase();
+        const phone = (c.phone || '').toLowerCase();
+        const q = query.toLowerCase();
+        return name.includes(q) || email.includes(q) || phone.includes(q);
+      });
+
+      if (filtered.length === 0) {
+        results.innerHTML = '<div class="customer-result" style="color: #666;">No customers found - enter new customer details below</div>';
+      } else {
+        results.innerHTML = filtered.slice(0, 10).map(c => {
+          const name = c.name || `${c.firstName || ''} ${c.lastName || ''}`.trim() || 'Unnamed';
+          return `<div class="customer-result" onclick="selectCustomer('${c.id}')">${escapeHtml(name)} - ${escapeHtml(c.email || 'No email')}</div>`;
+        }).join('');
+      }
+      results.classList.add('show');
+    }
+
+    function selectCustomer(id) {
+      const customer = customers.find(c => c.id === id);
+      if (customer) {
+        selectedCustomerId = id;
+        const name = customer.name || `${customer.firstName || ''} ${customer.lastName || ''}`.trim() || 'Unnamed';
+
+        document.getElementById('selectedCustomer').style.display = 'block';
+        document.getElementById('selectedCustomer').innerHTML = `
+          <div class="selected-customer">
+            <div>
+              <strong>${escapeHtml(name)}</strong><br>
+              <span style="color: #666;">${escapeHtml(customer.email || 'No email')}</span>
+            </div>
+            <button onclick="clearCustomer()" style="background: none; border: none; cursor: pointer; color: #666; font-size: 1.2rem;">&times;</button>
+          </div>
+        `;
+        document.getElementById('newCustomerForm').style.display = 'none';
+        document.getElementById('customerResults').classList.remove('show');
+        document.getElementById('customerSearch').value = '';
+
+        // Populate address if available
+        if (customer.address) {
+          const parts = customer.address.split(',').map(p => p.trim());
+          if (parts[0]) document.getElementById('address1').value = parts[0];
+          if (parts[1]) document.getElementById('city').value = parts[1];
+          if (parts[2]) {
+            const stateZip = parts[2].split(' ');
+            if (stateZip[0]) document.getElementById('state').value = stateZip[0];
+            if (stateZip[1]) document.getElementById('zip').value = stateZip[1];
+          }
+        }
+      }
+    }
+
+    function clearCustomer() {
+      selectedCustomerId = null;
+      document.getElementById('selectedCustomer').style.display = 'none';
+      document.getElementById('newCustomerForm').style.display = 'block';
+    }
+
+    function escapeHtml(text) {
+      if (!text) return '';
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    function openProductModal() {
+      document.getElementById('productModal').style.display = 'flex';
+      selectProductType('roller');
+      handleControlTypeChange();
+    }
+
+    function closeProductModal() {
+      document.getElementById('productModal').style.display = 'none';
+    }
+
+    function handleControlTypeChange() {
+      const controlType = document.getElementById('modalControlType').value;
+      document.getElementById('chainOptions').style.display = controlType === 'manual' ? 'block' : 'none';
+      document.getElementById('motorOptions').style.display = controlType === 'motorized' ? 'block' : 'none';
+      updateModalPrice();
+    }
+
+    function selectProductType(type) {
+      currentProductType = type;
+      document.querySelectorAll('.product-tab').forEach(tab => {
+        const isActive = tab.dataset.type === type;
+        tab.style.fontWeight = isActive ? '600' : '500';
+        tab.style.color = isActive ? '#8E6545' : '#888';
+        tab.style.borderBottom = isActive ? '3px solid #8E6545' : '3px solid transparent';
+        tab.classList.toggle('active', isActive);
+      });
+      populateFabricSelect();
+      updateModalPrice();
+    }
+
+    function populateFabricSelect() {
+      const select = document.getElementById('modalFabricSelect');
+      const fabrics = currentProductType === 'zebra' ? zebraFabrics : rollerFabrics;
+
+      select.innerHTML = '<option value="">Choose a fabric...</option>';
+      fabrics.forEach(f => {
+        if (f.isActive !== false && f.enabled !== false) {
+          const name = f.name || f.code;
+          const code = f.code;
+          const filterType = f.filterType || f.category || '';
+          select.innerHTML += `<option value="${code}">${name} ${filterType ? '(' + filterType + ')' : ''}</option>`;
+        }
+      });
+    }
+
+    let priceUpdateTimeout = null;
+
+    async function updateModalPrice() {
+      const fabricCode = document.getElementById('modalFabricSelect').value;
+      const width = parseFloat(document.getElementById('modalWidth').value) || 36;
+      const height = parseFloat(document.getElementById('modalHeight').value) || 48;
+      const qty = parseInt(document.getElementById('modalQty').value) || 1;
+      const controlType = document.getElementById('modalControlType').value;
+
+      const priceEl = document.getElementById('modalEstimatedPrice');
+      const breakdownEl = document.getElementById('modalPriceBreakdown');
+      const statusEl = document.getElementById('modalPriceStatus');
+
+      if (!fabricCode) {
+        priceEl.textContent = '$0.00';
+        breakdownEl.textContent = 'Select a fabric to see pricing';
+        statusEl.textContent = '';
+        priceEl.dataset.unitPrice = '';
+        priceEl.dataset.pricingData = '';
+        return;
+      }
+
+      // Debounce API calls
+      if (priceUpdateTimeout) clearTimeout(priceUpdateTimeout);
+      priceEl.textContent = '...';
+      statusEl.textContent = 'Calculating price';
+      breakdownEl.textContent = '';
+
+      priceUpdateTimeout = setTimeout(async () => {
+        try {
+          // Build options object for pricing API
+          const options = {
+            controlType: controlType === 'manual' ? 'chain' : controlType,
+            mountType: document.getElementById('modalMountType').value,
+            valanceType: document.getElementById('modalValanceType').value,
+            bottomRail: document.getElementById('modalBottomBar').value,
+            rollerType: document.getElementById('modalRollerType').value
+          };
+
+          // Add chain options for manual control
+          if (controlType === 'manual') {
+            options.chainType = document.getElementById('modalChainType').value;
+            options.chainSide = document.getElementById('modalChainSide').value;
+          }
+
+          // Add motor options for motorized control
+          if (controlType === 'motorized') {
+            options.motorBrand = document.getElementById('modalMotorBrand').value;
+            options.motorType = document.getElementById('modalMotorType').value;
+            options.remoteType = document.getElementById('modalRemoteType').value;
+            options.motorLocation = document.getElementById('modalMotorLocation').value;
+            options.solarPanel = document.getElementById('modalSolarPanel').value;
+            options.smartHubQty = parseInt(document.getElementById('modalSmartHub').value) || 0;
+            options.usbChargerQty = parseInt(document.getElementById('modalUsbCharger').value) || 0;
+          }
+
+          const productSlug = currentProductType === 'zebra' ? 'zebra-shades' : 'roller-shades';
+
+          // Call the customer pricing API
+          const response = await fetch('/api/v1/pricing/calculate', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              productSlug,
+              productType: currentProductType,
+              width,
+              height,
+              quantity: qty,
+              fabricCode,
+              options
+            })
+          });
+
+          const result = await response.json();
+
+          if (result.success && result.pricing) {
+            const totalPrice = result.pricing.lineTotal || 0;
+            const unitPrice = result.pricing.unitPrice || 0;
+            const optionsTotal = result.pricing.options?.total || 0;
+
+            priceEl.textContent = '$' + totalPrice.toFixed(2);
+            priceEl.dataset.unitPrice = unitPrice;
+            priceEl.dataset.pricingData = JSON.stringify(result.pricing);
+
+            // Build breakdown text
+            let breakdown = `$${unitPrice.toFixed(2)}/unit`;
+            if (qty > 1) breakdown += ` × ${qty}`;
+            if (optionsTotal > 0) breakdown += ` (incl. $${optionsTotal.toFixed(2)} options)`;
+            breakdownEl.textContent = breakdown;
+
+            statusEl.textContent = 'Price from server';
+          } else {
+            console.error('Pricing API error:', result.error);
+            priceEl.textContent = '$0.00';
+            breakdownEl.textContent = 'Unable to calculate price';
+            statusEl.textContent = result.error || 'Pricing error';
+            priceEl.dataset.unitPrice = '';
+            priceEl.dataset.pricingData = '';
+          }
+        } catch (error) {
+          console.error('Failed to calculate price:', error);
+          priceEl.textContent = '$0.00';
+          breakdownEl.textContent = 'Connection error';
+          statusEl.textContent = 'Check server connection';
+          priceEl.dataset.unitPrice = '';
+          priceEl.dataset.pricingData = '';
+        }
+      }, 300);
+    }
+
+    function addProductToOrder() {
+      const fabricCode = document.getElementById('modalFabricSelect').value;
+      if (!fabricCode) {
+        alert('Please select a fabric');
+        return;
+      }
+
+      const priceEl = document.getElementById('modalEstimatedPrice');
+      const priceText = priceEl.textContent;
+      if (priceText === 'Calculating...' || priceText === '$0.00') {
+        alert('Please wait for price calculation to complete');
+        return;
+      }
+
+      const fabrics = currentProductType === 'zebra' ? zebraFabrics : rollerFabrics;
+      const fabric = fabrics.find(f => f.code === fabricCode);
+      const fabricName = fabric ? (fabric.name || fabric.code) : fabricCode;
+
+      const width = document.getElementById('modalWidth').value;
+      const height = document.getElementById('modalHeight').value;
+      const qty = parseInt(document.getElementById('modalQty').value) || 1;
+      const roomLabel = document.getElementById('modalRoomLabel').value || '';
+      const controlType = document.getElementById('modalControlType').value;
+      const mountType = document.getElementById('modalMountType').value;
+
+      // Get calculated price from API (stored in dataset)
+      const unitPrice = parseFloat(priceEl.dataset.unitPrice) || 0;
+      const pricingData = priceEl.dataset.pricingData ? JSON.parse(priceEl.dataset.pricingData) : null;
+
+      const productName = currentProductType === 'zebra' ? 'Zebra Shade' : 'Roller Shade';
+
+      // Build full configuration
+      const lightFiltering = document.getElementById('modalLightFiltering').value;
+      const configuration = {
+        fabricCode,
+        controlType,
+        mountType,
+        lightFiltering,
+        valanceType: document.getElementById('modalValanceType').value,
+        bottomBar: document.getElementById('modalBottomBar').value,
+        rollerType: document.getElementById('modalRollerType').value,
+        sideCoverColor: document.getElementById('modalSideCover').value
+      };
+
+      if (controlType === 'manual') {
+        configuration.chainType = document.getElementById('modalChainType').value;
+        configuration.chainSide = document.getElementById('modalChainSide').value;
+      }
+
+      if (controlType === 'motorized') {
+        configuration.motorBrand = document.getElementById('modalMotorBrand').value;
+        configuration.motorType = document.getElementById('modalMotorType').value;
+        configuration.remoteType = document.getElementById('modalRemoteType').value;
+        configuration.motorLocation = document.getElementById('modalMotorLocation').value;
+        configuration.solarPanel = document.getElementById('modalSolarPanel').value;
+        configuration.smartHubQty = parseInt(document.getElementById('modalSmartHub').value) || 0;
+        configuration.usbChargerQty = parseInt(document.getElementById('modalUsbCharger').value) || 0;
+      }
+
+      // Store pricing data from API
+      if (pricingData) {
+        configuration.pricingData = pricingData;
+      }
+
+      lineItems.push({
+        id: 'item-' + Date.now(),
+        product: `${productName} - ${fabricName}`,
+        productType: currentProductType,
+        fabricCode: fabricCode,
+        width: width,
+        height: height,
+        qty: qty,
+        price: unitPrice,
+        roomLabel: roomLabel,
+        controlType: controlType,
+        mountType: mountType,
+        configuration: configuration
+      });
+
+      renderLineItems();
+      updateSummary();
+      closeProductModal();
+    }
+
+    // Bulk Upload Functions
+    function openBulkUploadModal() {
+      document.getElementById('bulkUploadModal').style.display = 'flex';
+      bulkData = [];
+      document.getElementById('bulkFileName').textContent = 'No file selected';
+      document.getElementById('bulkPreview').style.display = 'none';
+      document.getElementById('bulkUploadBtn').disabled = true;
+    }
+
+    function closeBulkUploadModal() {
+      document.getElementById('bulkUploadModal').style.display = 'none';
+    }
+
+    function handleBulkFile(input) {
+      const file = input.files[0];
+      if (!file) return;
+
+      document.getElementById('bulkFileName').textContent = file.name;
+
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        const text = e.target.result;
+        const lines = text.split('\n').filter(line => line.trim());
+
+        if (lines.length < 2) {
+          alert('CSV file must have a header row and at least one data row');
+          return;
+        }
+
+        const headers = lines[0].split(',').map(h => h.trim().toLowerCase());
+        bulkData = [];
+
+        for (let i = 1; i < lines.length; i++) {
+          const values = lines[i].split(',').map(v => v.trim());
+          const row = {};
+          headers.forEach((h, idx) => { row[h] = values[idx] || ''; });
+          bulkData.push(row);
+        }
+
+        // Show preview
+        const previewHead = document.getElementById('bulkPreviewHead');
+        const previewBody = document.getElementById('bulkPreviewBody');
+
+        previewHead.innerHTML = '<tr>' + headers.map(h => `<th style="padding:8px; background:#f9f9f9; text-align:left; border-bottom:1px solid #eee;">${h}</th>`).join('') + '</tr>';
+        previewBody.innerHTML = bulkData.slice(0, 5).map(row =>
+          '<tr>' + headers.map(h => `<td style="padding:8px; border-bottom:1px solid #eee;">${row[h] || ''}</td>`).join('') + '</tr>'
+        ).join('');
+
+        if (bulkData.length > 5) {
+          previewBody.innerHTML += `<tr><td colspan="${headers.length}" style="padding:8px; color:#666; text-align:center;">... and ${bulkData.length - 5} more rows</td></tr>`;
+        }
+
+        document.getElementById('bulkPreview').style.display = 'block';
+        document.getElementById('bulkUploadBtn').disabled = false;
+      };
+      reader.readAsText(file);
+    }
+
+    async function processBulkUpload() {
+      if (bulkData.length === 0) {
+        alert('No data to import');
+        return;
+      }
+
+      const defaultProductType = document.getElementById('bulkProductType').value;
+      const importBtn = document.getElementById('bulkUploadBtn');
+      importBtn.disabled = true;
+      importBtn.textContent = 'Importing...';
+
+      let successCount = 0;
+      let errorCount = 0;
+
+      for (const row of bulkData) {
+        const type = row.product_type || defaultProductType;
+        const fabricCode = row.fabric_code || '';
+        const width = parseFloat(row.width) || 36;
+        const height = parseFloat(row.height) || 48;
+        const qty = parseInt(row.quantity) || 1;
+        const roomLabel = row.room_label || '';
+        const controlType = row.control_type || 'manual';
+        const mountType = row.mount_type || 'inside';
+
+        // Hardware options from CSV
+        const lightFiltering = row.light_filtering || 'blackout';
+        const valanceType = row.valance_type || 'square-v2';
+        const bottomBar = row.bottom_bar || 'type-a-waterdrop';
+        const rollerType = row.roller_type || 'forward-roll';
+        const sideCover = row.side_cover || 'white';
+
+        // Chain options
+        const chainType = row.chain_type || 'bead-chain-plastic';
+        const chainSide = row.chain_side || 'left';
+
+        // Motor options
+        const motorBrand = row.motor_brand || 'aok';
+        const motorType = row.motor_type || 'battery';
+        const remoteType = row.remote_type || 'single-channel';
+        const motorLocation = row.motor_location || 'right';
+        const solarPanel = row.solar_panel || 'no';
+        const smartHubQty = parseInt(row.smart_hub_qty) || 0;
+        const usbChargerQty = parseInt(row.usb_charger_qty) || 0;
+
+        // Build options for pricing API
+        const options = {
+          controlType: controlType === 'manual' ? 'chain' : controlType,
+          mountType,
+          valanceType,
+          bottomRail: bottomBar,
+          rollerType
+        };
+
+        if (controlType === 'manual') {
+          options.chainType = chainType;
+          options.chainSide = chainSide;
+        }
+
+        if (controlType === 'motorized') {
+          options.motorBrand = motorBrand;
+          options.motorType = motorType;
+          options.remoteType = remoteType;
+          options.motorLocation = motorLocation;
+          options.solarPanel = solarPanel;
+          options.smartHubQty = smartHubQty;
+          options.usbChargerQty = usbChargerQty;
+        }
+
+        const productSlug = type === 'zebra' ? 'zebra-shades' : 'roller-shades';
+        const productName = type === 'zebra' ? 'Zebra Shade' : 'Roller Shade';
+
+        // Call the customer pricing API
+        let unitPrice = 0;
+        let pricingData = null;
+
+        try {
+          const response = await fetch('/api/v1/pricing/calculate', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              productSlug,
+              productType: type,
+              width,
+              height,
+              quantity: qty,
+              fabricCode,
+              options
+            })
+          });
+
+          const result = await response.json();
+
+          if (result.success && result.pricing) {
+            unitPrice = result.pricing.unitPrice || 0;
+            pricingData = result.pricing;
+            successCount++;
+          } else {
+            console.error('Pricing API error for', fabricCode, ':', result.error);
+            errorCount++;
+            continue; // Skip this item if pricing fails
+          }
+        } catch (error) {
+          console.error('Failed to get price for', fabricCode, ':', error);
+          errorCount++;
+          continue;
+        }
+
+        // Build configuration object
+        const configuration = {
+          fabricCode,
+          controlType,
+          mountType,
+          lightFiltering,
+          valanceType,
+          bottomBar,
+          rollerType,
+          sideCoverColor: sideCover,
+          pricingData // Store full pricing breakdown
+        };
+
+        if (controlType === 'manual') {
+          configuration.chainType = chainType;
+          configuration.chainSide = chainSide;
+        }
+
+        if (controlType === 'motorized') {
+          configuration.motorBrand = motorBrand;
+          configuration.motorType = motorType;
+          configuration.remoteType = remoteType;
+          configuration.motorLocation = motorLocation;
+          configuration.solarPanel = solarPanel;
+          configuration.smartHubQty = smartHubQty;
+          configuration.usbChargerQty = usbChargerQty;
+        }
+
+        lineItems.push({
+          id: 'item-' + Date.now() + '-' + Math.random().toString(36).substr(2, 5),
+          product: `${productName} - ${fabricCode}`,
+          productType: type,
+          fabricCode: fabricCode,
+          width: width,
+          height: height,
+          qty: qty,
+          price: unitPrice,
+          roomLabel: roomLabel,
+          controlType: controlType,
+          mountType: mountType,
+          configuration: configuration
+        });
+      }
+
+      renderLineItems();
+      updateSummary();
+      closeBulkUploadModal();
+
+      if (errorCount > 0) {
+        alert(`Imported ${successCount} items. ${errorCount} items failed (check console for details).`);
+      } else {
+        alert(`Successfully imported ${successCount} items with customer pricing!`);
+      }
+
+      importBtn.disabled = false;
+      importBtn.textContent = 'Import Items';
+    }
+
+    function downloadTemplate() {
+      const headers = 'product_type,fabric_code,width,height,quantity,room_label,control_type,mount_type,light_filtering,valance_type,bottom_bar,roller_type,side_cover,chain_type,chain_side,motor_brand,motor_type,remote_type,motor_location,solar_panel,smart_hub_qty,usb_charger_qty';
+      const row1 = 'roller,82032A,36,48,1,Living Room,manual,inside,blackout,square-v2,type-a-waterdrop,forward-roll,white,bead-chain-plastic,left,,,,,,,';
+      const row2 = 'zebra,83003A,42,60,2,Master Bedroom,motorized,outside,light-filtering,fabric-wrapped-v3,type-c-fabric-wrapped,reverse-roll,gray,,,aok,battery,single-channel,right,no,1,0';
+      const csv = headers + '\n' + row1 + '\n' + row2;
+      const blob = new Blob([csv], { type: 'text/csv' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'order_items_template.csv';
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+
+    function renderLineItems() {
+      const container = document.getElementById('lineItemsContainer');
+      if (lineItems.length === 0) {
+        container.innerHTML = '<div style="padding: 2rem; text-align: center; color: #666;">No items added yet. Click "+ Add Product" or "Bulk Upload" to add items.</div>';
+        return;
+      }
+
+      container.innerHTML = lineItems.map(item => `
+        <div class="line-item" style="grid-template-columns: 2fr 1fr 1fr 1fr auto;">
+          <div>
+            <strong>${escapeHtml(item.product)}</strong>
+            ${item.roomLabel ? `<br><small style="color:#666;">${escapeHtml(item.roomLabel)}</small>` : ''}
+            <br><small style="color:#888;">${item.controlType || 'manual'} | ${item.mountType || 'inside'} mount${item.configuration?.lightFiltering ? ' | ' + item.configuration.lightFiltering : ''}</small>
+          </div>
+          <span>${item.width}" x ${item.height}"</span>
+          <input type="number" value="${item.qty}" min="1" style="width: 60px;" onchange="updateQty('${item.id}', this.value)">
+          <span style="font-weight:600;">$${(item.price * item.qty).toFixed(2)}</span>
+          <button class="btn-remove-item" onclick="removeItem('${item.id}')">&times;</button>
+        </div>
+      `).join('');
+    }
+
+    function updateQty(id, qty) {
+      const item = lineItems.find(i => i.id === id);
+      if (item) { item.qty = parseInt(qty); updateSummary(); }
+    }
+
+    function removeItem(id) {
+      lineItems = lineItems.filter(i => i.id !== id);
+      renderLineItems();
+      updateSummary();
+    }
+
+    function updateSummary() {
+      const subtotal = lineItems.reduce((sum, item) => sum + (item.price * item.qty), 0);
+      const shipping = subtotal > 500 ? 0 : 29.99;
+      const tax = subtotal * 0.08;
+      const total = subtotal + shipping + tax;
+
+      document.getElementById('subtotal').textContent = '$' + subtotal.toFixed(2);
+      document.getElementById('shipping').textContent = shipping === 0 ? 'FREE' : '$' + shipping.toFixed(2);
+      document.getElementById('tax').textContent = '$' + tax.toFixed(2);
+      document.getElementById('total').textContent = '$' + total.toFixed(2);
+    }
+
+    function applyDiscount() {
+      const code = document.getElementById('discountCode').value;
+      if (code) {
+        alert('Discount code "' + code + '" applied!');
+        document.getElementById('discount').textContent = '-$25.00';
+      }
+    }
+
+    async function submitOrder() {
+      if (lineItems.length === 0) {
+        alert('Please add at least one item to the order');
+        return;
+      }
+
+      const token = localStorage.getItem('admin_token');
+      const headers = { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' };
+
+      const orderData = {
+        customer_name: selectedCustomerId
+          ? (customers.find(c => c.id === selectedCustomerId)?.name || `${document.getElementById('firstName').value} ${document.getElementById('lastName').value}`)
+          : `${document.getElementById('firstName').value} ${document.getElementById('lastName').value}`,
+        customer_email: selectedCustomerId
+          ? customers.find(c => c.id === selectedCustomerId)?.email
+          : document.getElementById('email').value,
+        customer_phone: document.getElementById('phone').value,
+        shipping_address: `${document.getElementById('address1').value}, ${document.getElementById('city').value}, ${document.getElementById('state').value} ${document.getElementById('zip').value}`,
+        items: lineItems.map(item => ({
+          product_name: item.product,
+          product_type: item.productType || 'roller',
+          fabric_code: item.fabricCode || '',
+          width: item.width,
+          height: item.height,
+          quantity: item.qty,
+          unit_price: item.price,
+          line_total: item.price * item.qty,
+          room_label: item.roomLabel || '',
+          control_type: item.controlType || 'manual',
+          mount_type: item.mountType || 'inside',
+          configuration: item.configuration ? JSON.stringify(item.configuration) : null
+        })),
+        subtotal: lineItems.reduce((sum, item) => sum + (item.price * item.qty), 0),
+        shipping: lineItems.reduce((sum, item) => sum + (item.price * item.qty), 0) > 500 ? 0 : 29.99,
+        tax: lineItems.reduce((sum, item) => sum + (item.price * item.qty), 0) * 0.08,
+        total: 0,
+        payment_method: document.getElementById('paymentMethod').value,
+        internal_notes: document.getElementById('internalNotes').value,
+        customer_notes: document.getElementById('customerNotes').value,
+        status: 'order_received'
+      };
+
+      orderData.total = orderData.subtotal + orderData.shipping + orderData.tax;
+
+      try {
+        const res = await fetch('/api/admin/orders', {
+          method: 'POST',
+          headers,
+          body: JSON.stringify(orderData)
+        });
+
+        const result = await res.json();
+        if (result.success) {
+          alert('Order created successfully!');
+          window.location.href = '/admin/orders.html';
+        } else {
+          alert('Failed to create order: ' + (result.error || 'Unknown error'));
+        }
+      } catch (error) {
+        console.error('Error creating order:', error);
+        alert('Error creating order. Please try again.');
+      }
+    }
+
+    function saveDraft() {
+      alert('Draft order functionality - coming soon!');
+    }
+
+    document.addEventListener('click', e => {
+      if (!e.target.closest('.customer-search')) {
+        document.getElementById('customerResults').classList.remove('show');
+      }
+    });
+  </script>
+</body>
+</html>

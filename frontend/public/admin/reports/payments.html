@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Payment Methods Report - Peekaboo Shades Admin</title>
+  <link rel="stylesheet" href="/admin/css/admin.css?v=1737200003.0.28">
+  <script src="/admin/js/adminNavConfig.js?v=1737200002"></script>
+  <style>
+    .metrics-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 1.5rem; }
+    .metric-card { background: white; padding: 1.5rem; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); text-align: center; }
+    .metric-card h4 { margin: 0 0 0.5rem 0; font-size: 0.85rem; color: #666; }
+    .metric-card .value { font-size: 1.75rem; font-weight: 600; color: #8E6545; }
+    .reports-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+    .report-card { background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+    .report-card h3 { margin: 0 0 1rem 0; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { padding: 0.75rem; text-align: left; border-bottom: 1px solid #eee; }
+    th { font-weight: 600; color: #666; font-size: 0.85rem; }
+    .payment-bar { display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.75rem; }
+    .payment-name { min-width: 120px; font-size: 0.9rem; display: flex; align-items: center; gap: 0.5rem; }
+    .payment-fill { height: 24px; background: #8E6545; border-radius: 4px; display: flex; align-items: center; justify-content: flex-end; padding-right: 0.75rem; color: white; font-size: 0.85rem; font-weight: 500; }
+    .payment-icon { width: 24px; height: 24px; }
+  </style>
+</head>
+<body>
+  <div class="admin-layout">
+    <aside class="admin-sidebar"></aside>
+    <main class="admin-main">
+      <header class="admin-header"><h1>Payment Methods Report</h1></header>
+      <div class="admin-content">
+        <div class="metrics-row">
+          <div class="metric-card">
+            <h4>Total Collected</h4>
+            <div class="value">$127,450</div>
+          </div>
+          <div class="metric-card">
+            <h4>Transactions</h4>
+            <div class="value">562</div>
+          </div>
+          <div class="metric-card">
+            <h4>Avg Order Value</h4>
+            <div class="value">$226.78</div>
+          </div>
+          <div class="metric-card">
+            <h4>Processing Fees</h4>
+            <div class="value">$3,824</div>
+          </div>
+        </div>
+        <div class="reports-grid">
+          <div class="report-card">
+            <h3>Payment Method Distribution</h3>
+            <div class="payment-bar">
+              <span class="payment-name">Credit Card</span>
+              <div class="payment-fill" style="width: 200px; background: #1a1f71;">62%</div>
+            </div>
+            <div class="payment-bar">
+              <span class="payment-name">PayPal</span>
+              <div class="payment-fill" style="width: 80px; background: #003087;">24%</div>
+            </div>
+            <div class="payment-bar">
+              <span class="payment-name">Shop Pay</span>
+              <div class="payment-fill" style="width: 30px; background: #5a31f4;">9%</div>
+            </div>
+            <div class="payment-bar">
+              <span class="payment-name">Invoice/Net30</span>
+              <div class="payment-fill" style="width: 15px; background: #8E6545;">5%</div>
+            </div>
+          </div>
+          <div class="report-card">
+            <h3>Revenue by Payment Method</h3>
+            <table>
+              <thead><tr><th>Method</th><th>Revenue</th><th>Orders</th><th>Avg Order</th></tr></thead>
+              <tbody>
+                <tr><td>Credit Card</td><td>$79,020</td><td>348</td><td>$227.07</td></tr>
+                <tr><td>PayPal</td><td>$30,588</td><td>135</td><td>$226.58</td></tr>
+                <tr><td>Shop Pay</td><td>$11,471</td><td>51</td><td>$224.92</td></tr>
+                <tr><td>Invoice (B2B)</td><td>$6,371</td><td>28</td><td>$227.54</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="report-card">
+            <h3>Credit Card Breakdown</h3>
+            <table>
+              <thead><tr><th>Card Type</th><th>Transactions</th><th>Amount</th><th>Fee Rate</th></tr></thead>
+              <tbody>
+                <tr><td>Visa</td><td>186</td><td>$42,150</td><td>2.9%</td></tr>
+                <tr><td>Mastercard</td><td>98</td><td>$22,340</td><td>2.9%</td></tr>
+                <tr><td>Amex</td><td>42</td><td>$10,230</td><td>3.5%</td></tr>
+                <tr><td>Discover</td><td>22</td><td>$4,300</td><td>2.9%</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="report-card">
+            <h3>B2B/Trade Payments</h3>
+            <table>
+              <thead><tr><th>Payment Type</th><th>Amount</th><th>Orders</th><th>Status</th></tr></thead>
+              <tbody>
+                <tr><td>Net 30 Invoice</td><td>$4,250</td><td>18</td><td style="color:#10B981;">Paid</td></tr>
+                <tr><td>Net 30 Invoice</td><td>$1,890</td><td>8</td><td style="color:#F59E0B;">Pending</td></tr>
+                <tr><td>Net 30 Invoice</td><td>$231</td><td>2</td><td style="color:#EF4444;">Overdue</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      if (!localStorage.getItem('admin_token')) { window.location.href = '/admin/login.html'; return; }
+      AdminNavConfig.initSidebar('payment-methods');
+    });
+  </script>
+</body>
+</html>

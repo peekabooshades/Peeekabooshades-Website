@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sample Conversion - Peekaboo Shades Admin</title>
+  <link rel="stylesheet" href="/admin/css/admin.css?v=1737200003.0.28">
+  <script src="/admin/js/adminNavConfig.js?v=1737200002"></script>
+  <style>
+    .metrics-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 1.5rem; }
+    .metric-card { background: white; padding: 1.5rem; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); text-align: center; }
+    .metric-card h4 { margin: 0 0 0.5rem 0; font-size: 0.85rem; color: #666; }
+    .metric-card .value { font-size: 2rem; font-weight: 600; color: #8E6545; }
+    .metric-card .subtitle { font-size: 0.8rem; color: #666; margin-top: 0.25rem; }
+    .conversion-card { background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); margin-bottom: 1.5rem; }
+    .conversion-card h3 { margin: 0 0 1rem 0; }
+    .funnel { display: flex; flex-direction: column; gap: 0.5rem; }
+    .funnel-step { display: flex; align-items: center; gap: 1rem; padding: 1rem; background: #F9FAFB; border-radius: 8px; }
+    .funnel-step .step-num { width: 32px; height: 32px; background: #8E6545; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 600; }
+    .funnel-step .step-info { flex: 1; }
+    .funnel-step .step-name { font-weight: 600; }
+    .funnel-step .step-count { color: #666; font-size: 0.9rem; }
+    .funnel-step .step-rate { font-weight: 600; color: #8E6545; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { padding: 0.75rem; text-align: left; border-bottom: 1px solid #eee; }
+    th { font-weight: 600; color: #666; font-size: 0.85rem; }
+    .fabric-thumb { width: 40px; height: 40px; border-radius: 6px; background: #eee; }
+    .loading { text-align: center; padding: 2rem; color: #666; }
+    .empty-state { text-align: center; padding: 3rem; color: #666; }
+    .filters { display: flex; gap: 0.75rem; margin-bottom: 1.5rem; }
+    .filters select { padding: 0.5rem; border: 1px solid #ddd; border-radius: 6px; }
+  </style>
+</head>
+<body>
+  <div class="admin-layout">
+    <aside class="admin-sidebar"></aside>
+    <main class="admin-main">
+      <header class="admin-header"><h1>Sample Conversion Report</h1></header>
+      <div class="admin-content">
+        <div class="filters">
+          <select id="timeRange" onchange="loadReport()">
+            <option value="30" selected>Last 30 Days</option>
+            <option value="90">Last 90 Days</option>
+            <option value="365">Last Year</option>
+            <option value="all">All Time</option>
+          </select>
+        </div>
+
+        <div id="loadingState" class="loading">Loading...</div>
+
+        <div id="reportContent" style="display: none;">
+          <div class="metrics-grid">
+            <div class="metric-card">
+              <h4>Samples Requested</h4>
+              <div class="value" id="samplesRequested">0</div>
+              <div class="subtitle">In selected period</div>
+            </div>
+            <div class="metric-card">
+              <h4>Conversion Rate</h4>
+              <div class="value" id="conversionRate">0%</div>
+              <div class="subtitle">Samples to orders</div>
+            </div>
+            <div class="metric-card">
+              <h4>Avg Days to Convert</h4>
+              <div class="value" id="avgDaysConvert">--</div>
+              <div class="subtitle">Sample to order</div>
+            </div>
+            <div class="metric-card">
+              <h4>Revenue from Samples</h4>
+              <div class="value" id="sampleRevenue">$0</div>
+              <div class="subtitle">Converted orders value</div>
+            </div>
+          </div>
+
+          <div class="conversion-card">
+            <h3>Sample to Order Funnel</h3>
+            <div class="funnel" id="funnelContainer">
+              <div class="empty-state">No funnel data available</div>
+            </div>
+          </div>
+
+          <div class="conversion-card">
+            <h3>Sample Requests by Fabric</h3>
+            <table id="fabricTable">
+              <thead>
+                <tr>
+                  <th>Fabric</th>
+                  <th>Samples</th>
+                  <th>Orders</th>
+                  <th>Conversion Rate</th>
+                  <th>Total Revenue</th>
+                </tr>
+              </thead>
+              <tbody id="fabricTableBody">
+                <tr><td colspan="5" class="empty-state">No fabric data available</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+  <script>
+    let sampleRequests = [];
+    let orders = [];
+
+    document.addEventListener('DOMContentLoaded', () => {
+      if (!localStorage.getItem('admin_token')) { window.location.href = '/admin/login.html'; return; }
+      AdminNavConfig.initSidebar('sample-conversion');
+      loadReport();
+    });
+
+    async function loadReport() {
+      const token = localStorage.getItem('admin_token');
+      const headers = { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' };
+
+      document.getElementById('loadingState').style.display = 'block';
+      document.getElementById('reportContent').style.display = 'none';
+
+      try {
+        // Fetch sample requests and orders
+        const [samplesRes, ordersRes] = await Promise.all([
+          fetch('/api/admin/sample-requests', { headers }),
+          fetch('/api/admin/orders', { headers })
+        ]);
+
+        const samplesData = await samplesRes.json();
+        const ordersData = await ordersRes.json();
+
+        sampleRequests = samplesData.success ? (samplesData.data || samplesData.sampleRequests || []) : [];
+        orders = ordersData.success ? (ordersData.orders || []) : [];
+
+        calculateStats();
+        renderReport();
+      } catch (error) {
+        console.error('Error loading report:', error);
+        sampleRequests = [];
+        orders = [];
+        calculateStats();
+        renderReport();
+      }
+    }
+
+    function calculateStats() {
+      const timeRange = document.getElementById('timeRange').value;
+
+      // Filter by date range
+      let filteredSamples = [...sampleRequests];
+      let filteredOrders = [...orders];
+
+      if (timeRange !== 'all') {
+        const cutoffDate = new Date();
+        cutoffDate.setDate(cutoffDate.getDate() - parseInt(timeRange));
+
+        filteredSamples = filteredSamples.filter(s => {
+          const date = new Date(s.created_at || s.createdAt);
+          return date >= cutoffDate;
+        });
+
+        filteredOrders = filteredOrders.filter(o => {
+          const date = new Date(o.created_at || o.createdAt);
+          return date >= cutoffDate;
+        });
+      }
+
+      // Build sample-to-order correlation
+      // A sample is considered converted if the same customer email placed an order after requesting a sample
+      const sampleEmails = new Map();
+      filteredSamples.forEach(sample => {
+        const email = sample.email || sample.customer_email;
+        if (email) {
+          if (!sampleEmails.has(email)) {
+            sampleEmails.set(email, []);
+          }
+          sampleEmails.set(email, [...sampleEmails.get(email), sample]);
+        }
+      });
+
+      let convertedCount = 0;
+      let totalRevenue = 0;
+      let totalDaysToConvert = 0;
+      let conversionsWithDays = 0;
+
+      const fabricStats = {};
+
+      // Track which samples converted
+      filteredOrders.forEach(order => {
+        const orderEmail = order.customer_email || order.email;
+        if (orderEmail && sampleEmails.has(orderEmail)) {
+          const customerSamples = sampleEmails.get(orderEmail);
+          const orderDate = new Date(order.created_at || order.createdAt);
+
+          customerSamples.forEach(sample => {
+            const sampleDate = new Date(sample.created_at || sample.createdAt);
+            if (orderDate > sampleDate) {
+              convertedCount++;
+              totalRevenue += order.total || order.pricing?.total || 0;
+
+              const daysDiff = Math.floor((orderDate - sampleDate) / (1000 * 60 * 60 * 24));
+              if (daysDiff >= 0 && daysDiff < 365) {
+                totalDaysToConvert += daysDiff;
+                conversionsWithDays++;
+              }
+            }
+          });
+        }
+      });
+
+      // Aggregate by fabric
+      filteredSamples.forEach(sample => {
+        const fabrics = sample.fabrics || sample.selectedFabrics || [];
+        fabrics.forEach(fabric => {
+          const fabricName = fabric.name || fabric.fabricName || fabric;
+          if (!fabricStats[fabricName]) {
+            fabricStats[fabricName] = { samples: 0, orders: 0, revenue: 0 };
+          }
+          fabricStats[fabricName].samples++;
+        });
+      });
+
+      // Store calculated data
+      window.reportData = {
+        totalSamples: filteredSamples.length,
+        convertedCount,
+        conversionRate: filteredSamples.length > 0 ? ((convertedCount / filteredSamples.length) * 100) : 0,
+        avgDaysToConvert: conversionsWithDays > 0 ? (totalDaysToConvert / conversionsWithDays) : null,
+        totalRevenue,
+        fabricStats: Object.entries(fabricStats)
+          .map(([name, data]) => ({ name, ...data }))
+          .sort((a, b) => b.samples - a.samples)
+      };
+    }
+
+    function renderReport() {
+      document.getElementById('loadingState').style.display = 'none';
+      document.getElementById('reportContent').style.display = 'block';
+
+      const data = window.reportData;
+
+      // Update metrics
+      document.getElementById('samplesRequested').textContent = data.totalSamples;
+      document.getElementById('conversionRate').textContent = data.conversionRate.toFixed(1) + '%';
+      document.getElementById('avgDaysConvert').textContent = data.avgDaysToConvert !== null ? data.avgDaysToConvert.toFixed(1) : '--';
+      document.getElementById('sampleRevenue').textContent = '$' + data.totalRevenue.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+
+      // Render funnel
+      renderFunnel(data);
+
+      // Render fabric table
+      renderFabricTable(data);
+    }
+
+    function renderFunnel(data) {
+      const container = document.getElementById('funnelContainer');
+
+      if (data.totalSamples === 0) {
+        container.innerHTML = '<div class="empty-state">No sample requests found for the selected period.</div>';
+        return;
+      }
+
+      const steps = [
+        { num: 1, name: 'Samples Requested', count: data.totalSamples, rate: 100 },
+        { num: 2, name: 'Samples Shipped', count: data.totalSamples, rate: 100 }, // Assuming all requested are shipped
+        { num: 3, name: 'Converted to Orders', count: data.convertedCount, rate: data.conversionRate }
+      ];
+
+      container.innerHTML = steps.map(step => `
+        <div class="funnel-step">
+          <div class="step-num">${step.num}</div>
+          <div class="step-info">
+            <div class="step-name">${step.name}</div>
+            <div class="step-count">${step.count} ${step.count === 1 ? 'request' : 'requests'}</div>
+          </div>
+          <div class="step-rate">${step.rate.toFixed(0)}%</div>
+        </div>
+      `).join('');
+    }
+
+    function renderFabricTable(data) {
+      const tbody = document.getElementById('fabricTableBody');
+
+      if (data.fabricStats.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" class="empty-state">No fabric data available</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = data.fabricStats.slice(0, 10).map(fabric => {
+        const conversionRate = fabric.samples > 0 ? ((fabric.orders / fabric.samples) * 100) : 0;
+        return `
+          <tr>
+            <td>
+              <div style="display: flex; align-items: center; gap: 0.75rem;">
+                <div class="fabric-thumb" style="background: #ccc;"></div>
+                ${escapeHtml(fabric.name)}
+              </div>
+            </td>
+            <td>${fabric.samples}</td>
+            <td>${fabric.orders}</td>
+            <td><strong>${conversionRate.toFixed(0)}%</strong></td>
+            <td>$${fabric.revenue.toLocaleString()}</td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function escapeHtml(text) {
+      if (!text) return '';
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Fabric Attributes - Peekaboo Shades Admin</title>
+  <link rel="stylesheet" href="/admin/css/admin.css?v=1737200003.0.28">
+  <script src="/admin/js/admin.js?v=1737100001"></script>
+  <script src="/admin/js/adminNavConfig.js?v=1737200002"></script>
+  <style>
+    .type-tabs { display: flex; gap: 0; margin-bottom: 1.5rem; border-bottom: 2px solid #e5e7eb; }
+    .type-tab { padding: 1rem 2rem; border: none; background: none; cursor: pointer; font-weight: 500; color: #666; position: relative; }
+    .type-tab:hover { color: #8E6545; }
+    .type-tab.active { color: #8E6545; }
+    .type-tab.active::after { content: ''; position: absolute; bottom: -2px; left: 0; right: 0; height: 2px; background: #8E6545; }
+    .type-tab.roller.active::after { background: #92400E; }
+    .type-tab.zebra.active::after { background: #1E40AF; }
+
+    .attributes-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.5rem; }
+    .attr-card { background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+    .attr-card h3 { margin: 0 0 1rem 0; display: flex; justify-content: space-between; align-items: center; font-size: 1rem; }
+    .attr-card h3 .title { display: flex; align-items: center; gap: 0.5rem; }
+    .attr-list { max-height: 300px; overflow-y: auto; }
+    .attr-item { display: flex; justify-content: space-between; align-items: center; padding: 0.75rem; background: #F9FAFB; border-radius: 6px; margin-bottom: 0.5rem; }
+    .attr-item:hover { background: #F3F4F6; }
+    .attr-item .info { display: flex; align-items: center; gap: 0.5rem; }
+    .attr-item .name { font-weight: 500; }
+    .attr-item .actions { display: flex; gap: 0.25rem; }
+    .btn-add { padding: 0.4rem 0.8rem; background: #8E6545; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 0.8rem; }
+    .btn-add:hover { background: #7a5539; }
+    .btn-sm { padding: 0.25rem 0.5rem; border: none; border-radius: 4px; cursor: pointer; font-size: 0.75rem; }
+    .btn-edit { background: #E5E7EB; color: #374151; }
+    .btn-delete { background: #FEE2E2; color: #991B1B; }
+    .color-dot { width: 20px; height: 20px; border-radius: 50%; display: inline-block; border: 1px solid #ddd; }
+    .loading { text-align: center; padding: 2rem; color: #666; }
+
+    .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; }
+    .modal-overlay.active { display: flex; }
+    .modal { background: white; border-radius: 12px; max-width: 400px; width: 95%; }
+    .modal-header { padding: 1rem 1.5rem; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; }
+    .modal-header h3 { margin: 0; }
+    .modal-close { background: none; border: none; font-size: 1.5rem; cursor: pointer; }
+    .modal-body { padding: 1.5rem; }
+    .modal-footer { padding: 1rem 1.5rem; border-top: 1px solid #eee; display: flex; gap: 0.5rem; justify-content: flex-end; }
+    .form-group { margin-bottom: 1rem; }
+    .form-group label { display: block; margin-bottom: 0.5rem; font-weight: 500; }
+    .form-group input, .form-group select { width: 100%; padding: 0.75rem; border: 1px solid #ddd; border-radius: 8px; }
+  </style>
+</head>
+<body>
+  <div class="admin-layout">
+    <aside class="admin-sidebar"></aside>
+    <main class="admin-main">
+      <header class="admin-header">
+        <h1>Fabric Attributes</h1>
+        <div class="header-actions">
+          <button class="btn btn-secondary" onclick="loadData()">Refresh</button>
+        </div>
+      </header>
+      <div class="admin-content">
+        <div class="type-tabs">
+          <button class="type-tab roller active" onclick="switchType('roller')">Roller Shades</button>
+          <button class="type-tab zebra" onclick="switchType('zebra')">Zebra Shades</button>
+        </div>
+        <div id="loadingState" class="loading">Loading attributes...</div>
+        <div id="attributesGrid" class="attributes-grid" style="display: none;"></div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Add/Edit Modal -->
+  <div class="modal-overlay" id="attrModal">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 id="modalTitle">Add Attribute</h3>
+        <button class="modal-close" onclick="closeModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="editId">
+        <input type="hidden" id="editCategory">
+        <div class="form-group">
+          <label>Name *</label>
+          <input type="text" id="attrName" placeholder="e.g., Blackout (100%)">
+        </div>
+        <div class="form-group" id="colorGroup" style="display: none;">
+          <label>Color</label>
+          <input type="color" id="attrColor" value="#808080">
+        </div>
+        <div class="form-group" id="valueGroup" style="display: none;">
+          <label>Value (for opacity %)</label>
+          <input type="number" id="attrValue" min="0" max="100" placeholder="e.g., 100">
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+        <button class="btn btn-primary" onclick="saveAttr()">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let currentType = 'roller';
+    let attributes = { roller: {}, zebra: {} };
+
+    document.addEventListener('DOMContentLoaded', () => {
+      if (!localStorage.getItem('admin_token')) { window.location.href = '/admin/login.html'; return; }
+      AdminNavConfig.initSidebar('fabric-attributes');
+      loadData();
+    });
+
+    async function loadData() {
+      const token = localStorage.getItem('admin_token');
+      try {
+        const res = await fetch('/api/admin/fabric-attributes', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const data = await res.json();
+        if (data.success) {
+          attributes = data.data || { roller: {}, zebra: {} };
+        }
+        document.getElementById('loadingState').style.display = 'none';
+        document.getElementById('attributesGrid').style.display = 'grid';
+        renderAttributes();
+      } catch (error) {
+        console.error('Error:', error);
+        document.getElementById('loadingState').textContent = 'Error loading data';
+      }
+    }
+
+    function switchType(type) {
+      currentType = type;
+      document.querySelectorAll('.type-tab').forEach(t => t.classList.remove('active'));
+      document.querySelector(`.type-tab.${type}`).classList.add('active');
+      renderAttributes();
+    }
+
+    function renderAttributes() {
+      const data = attributes[currentType] || {};
+      const categories = [
+        { key: 'opacity', title: 'Opacity Levels', icon: '☀️', showColor: false, showValue: true },
+        { key: 'material', title: 'Material Types', icon: '🧵', showColor: false, showValue: false },
+        { key: 'color', title: 'Color Families', icon: '🎨', showColor: true, showValue: false },
+        { key: 'feature', title: 'Special Features', icon: '✨', showColor: false, showValue: false }
+      ];
+      if (currentType === 'zebra') {
+        categories.push({ key: 'pattern', title: 'Patterns', icon: '📐', showColor: false, showValue: false });
+      }
+
+      document.getElementById('attributesGrid').innerHTML = categories.map(cat => {
+        const items = data[cat.key] || [];
+        return `
+          <div class="attr-card">
+            <h3>
+              <span class="title">${cat.icon} ${cat.title}</span>
+              <button class="btn-add" onclick="openModal('${cat.key}')">+ Add</button>
+            </h3>
+            <div class="attr-list">
+              ${items.length > 0 ? items.map(item => `
+                <div class="attr-item">
+                  <div class="info">
+                    ${cat.showColor ? `<span class="color-dot" style="background:${item.color || '#ccc'}"></span>` : ''}
+                    <span class="name">${item.name}</span>
+                  </div>
+                  <div class="actions">
+                    <button class="btn-sm btn-edit" onclick="editAttr('${cat.key}', '${item.id}')">Edit</button>
+                    <button class="btn-sm btn-delete" onclick="deleteAttr('${cat.key}', '${item.id}')">Delete</button>
+                  </div>
+                </div>
+              `).join('') : '<p style="color: #999; text-align: center; padding: 1rem;">No attributes yet</p>'}
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function openModal(category, item = null) {
+      document.getElementById('editId').value = item ? item.id : '';
+      document.getElementById('editCategory').value = category;
+      document.getElementById('attrName').value = item ? item.name : '';
+      document.getElementById('attrColor').value = item?.color || '#808080';
+      document.getElementById('attrValue').value = item?.value || '';
+
+      document.getElementById('colorGroup').style.display = category === 'color' ? 'block' : 'none';
+      document.getElementById('valueGroup').style.display = category === 'opacity' ? 'block' : 'none';
+      document.getElementById('modalTitle').textContent = item ? 'Edit Attribute' : 'Add Attribute';
+
+      document.getElementById('attrModal').classList.add('active');
+    }
+
+    function closeModal() {
+      document.getElementById('attrModal').classList.remove('active');
+    }
+
+    function editAttr(category, id) {
+      const items = attributes[currentType]?.[category] || [];
+      const item = items.find(i => i.id === id);
+      if (item) openModal(category, item);
+    }
+
+    async function saveAttr() {
+      const id = document.getElementById('editId').value;
+      const category = document.getElementById('editCategory').value;
+      const name = document.getElementById('attrName').value.trim();
+
+      if (!name) { Admin.Toast.error('Name is required'); return; }
+
+      const token = localStorage.getItem('admin_token');
+      const body = { type: currentType, category, name };
+
+      if (category === 'color') body.color = document.getElementById('attrColor').value;
+      if (category === 'opacity') body.value = parseInt(document.getElementById('attrValue').value) || 0;
+
+      try {
+        const url = id
+          ? `/api/admin/fabric-attributes/${currentType}/${category}/${id}`
+          : '/api/admin/fabric-attributes';
+
+        const res = await fetch(url, {
+          method: id ? 'PUT' : 'POST',
+          headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+          body: JSON.stringify(body)
+        });
+        const data = await res.json();
+
+        if (data.success) {
+          closeModal();
+          loadData();
+          Admin.Toast.success(id ? 'Attribute updated' : 'Attribute added');
+        } else {
+          Admin.Toast.error(data.error || 'Failed to save');
+        }
+      } catch (error) {
+        Admin.Toast.error('Error saving attribute');
+      }
+    }
+
+    async function deleteAttr(category, id) {
+      if (!confirm('Delete this attribute?')) return;
+
+      const token = localStorage.getItem('admin_token');
+      try {
+        const res = await fetch(`/api/admin/fabric-attributes/${currentType}/${category}/${id}`, {
+          method: 'DELETE',
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const data = await res.json();
+
+        if (data.success) {
+          loadData();
+          Admin.Toast.success('Attribute deleted');
+        } else {
+          Admin.Toast.error(data.error || 'Failed to delete');
+        }
+      } catch (error) {
+        Admin.Toast.error('Error deleting attribute');
+      }
+    }
+
+    document.getElementById('attrModal').addEventListener('click', e => {
+      if (e.target.id === 'attrModal') closeModal();
+    });
+  </script>
+</body>
+</html>

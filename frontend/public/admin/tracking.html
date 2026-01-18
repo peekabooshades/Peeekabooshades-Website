@@ -1,0 +1,374 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tracking Updates - Peekaboo Shades Admin</title>
+  <link rel="stylesheet" href="/admin/css/admin.css?v=1737200003.0.27">
+  <script src="/admin/js/adminNavConfig.js?v=1737200002"></script>
+  <style>
+    .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
+    .stat-card { background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+    .stat-card h3 { font-size: 0.85rem; color: #666; margin-bottom: 0.5rem; }
+    .stat-card .value { font-size: 2rem; font-weight: 700; color: #8E6545; }
+    .controls { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem; }
+    .search-box { display: flex; align-items: center; background: white; border: 1px solid #ddd; border-radius: 8px; padding: 0.5rem 1rem; flex: 1; max-width: 400px; }
+    .search-box input { border: none; outline: none; padding: 0.5rem; flex: 1; }
+    .shipments-list { display: grid; gap: 1rem; }
+    .shipment-card { background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+    .shipment-header { display: flex; justify-content: space-between; align-items: start; margin-bottom: 1rem; }
+    .shipment-order { font-size: 1.1rem; font-weight: 600; }
+    .shipment-customer { font-size: 0.9rem; color: #666; }
+    .tracking-number { font-family: monospace; background: #f5f5f5; padding: 0.5rem 1rem; border-radius: 6px; display: inline-block; margin: 0.5rem 0; }
+    .carrier-badge { padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.75rem; font-weight: 600; background: #DBEAFE; color: #1E40AF; }
+    .status-badge { padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.75rem; font-weight: 600; }
+    .status-label_created { background: #E5E7EB; color: #374151; }
+    .status-in_transit { background: #FEF3C7; color: #92400E; }
+    .status-out_for_delivery { background: #DBEAFE; color: #1E40AF; }
+    .status-delivered, .status-shipped { background: #D1FAE5; color: #065F46; }
+    .status-exception { background: #FEE2E2; color: #991B1B; }
+    .status-order_received, .status-manufacturing { background: #E0E7FF; color: #4338CA; }
+    .tracking-timeline { margin: 1rem 0; padding-left: 1.5rem; border-left: 2px solid #E5E7EB; }
+    .timeline-event { padding: 0.75rem 0; position: relative; }
+    .timeline-event::before { content: ''; position: absolute; left: -1.65rem; top: 1rem; width: 10px; height: 10px; border-radius: 50%; background: #8E6545; }
+    .timeline-event.current::before { background: #10B981; box-shadow: 0 0 0 4px rgba(16, 185, 129, 0.2); }
+    .timeline-date { font-size: 0.8rem; color: #888; }
+    .timeline-status { font-weight: 500; }
+    .timeline-location { font-size: 0.85rem; color: #666; }
+    .shipment-actions { display: flex; gap: 0.5rem; margin-top: 1rem; padding-top: 1rem; border-top: 1px solid #eee; }
+    .btn-action { padding: 0.5rem 1rem; border: none; border-radius: 6px; cursor: pointer; font-size: 0.85rem; }
+    .btn-update { background: #8E6545; color: white; }
+    .btn-notify { background: #3B82F6; color: white; }
+    .btn-track { background: #E5E7EB; color: #374151; text-decoration: none; }
+    .modal { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; }
+    .modal.active { display: flex; }
+    .modal-content { background: white; border-radius: 12px; padding: 2rem; max-width: 500px; width: 90%; }
+    .modal-header { display: flex; justify-content: space-between; margin-bottom: 1.5rem; }
+    .modal-header h2 { margin: 0; }
+    .modal-close { background: none; border: none; font-size: 1.5rem; cursor: pointer; }
+    .form-group { margin-bottom: 1.25rem; }
+    .form-group label { display: block; margin-bottom: 0.5rem; font-weight: 500; }
+    .form-group input, .form-group select { width: 100%; padding: 0.75rem; border: 1px solid #ddd; border-radius: 8px; }
+    .btn-submit { width: 100%; padding: 0.875rem; background: #8E6545; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; }
+    .empty-state { text-align: center; padding: 4rem; color: #666; }
+    .loading { text-align: center; padding: 2rem; color: #666; }
+  </style>
+</head>
+<body>
+  <div class="admin-layout">
+    <aside class="admin-sidebar"></aside>
+    <main class="admin-main">
+      <header class="admin-header">
+        <h1>Tracking Updates</h1>
+        <div class="header-actions">
+          <button class="btn-primary" onclick="openModal()">+ Add Tracking</button>
+        </div>
+      </header>
+      <div class="admin-content">
+        <div class="stats">
+          <div class="stat-card"><h3>In Transit / Manufacturing</h3><div class="value" id="stat-transit">0</div></div>
+          <div class="stat-card"><h3>Shipped</h3><div class="value" id="stat-shipped">0</div></div>
+          <div class="stat-card"><h3>Delivered</h3><div class="value" id="stat-delivered">0</div></div>
+          <div class="stat-card"><h3>Order Received</h3><div class="value" id="stat-received">0</div></div>
+        </div>
+        <div class="controls">
+          <div class="search-box">
+            <input type="text" placeholder="Search by order # or tracking #..." id="searchInput" onkeyup="filterShipments()">
+          </div>
+        </div>
+        <div id="loadingState" class="loading">Loading...</div>
+        <div class="shipments-list" id="shipmentsList" style="display: none;"></div>
+      </div>
+    </main>
+  </div>
+  <div class="modal" id="trackingModal">
+    <div class="modal-content">
+      <div class="modal-header"><h2>Add Tracking</h2><button class="modal-close" onclick="closeModal()">&times;</button></div>
+      <form onsubmit="saveTracking(event)">
+        <div class="form-group"><label>Order Number</label>
+          <select name="orderNumber" id="orderSelect" required>
+            <option value="">Select an order...</option>
+          </select>
+        </div>
+        <div class="form-group"><label>Carrier</label>
+          <select name="carrier" required>
+            <option value="ups">UPS</option>
+            <option value="fedex">FedEx</option>
+            <option value="usps">USPS</option>
+            <option value="freight">Freight</option>
+          </select>
+        </div>
+        <div class="form-group"><label>Tracking Number</label><input type="text" name="trackingNumber" required placeholder="1Z999AA10123456784"></div>
+        <button type="submit" class="btn-submit">Save Tracking</button>
+      </form>
+    </div>
+  </div>
+  <script>
+    let orders = [];
+    let shipments = [];
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      const token = localStorage.getItem('admin_token');
+      if (!token) { window.location.href = '/admin/login.html'; return; }
+      AdminNavConfig.initSidebar('tracking-updates');
+      loadShipments();
+    });
+
+    async function loadShipments() {
+      const token = localStorage.getItem('admin_token');
+      const headers = { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' };
+
+      document.getElementById('loadingState').style.display = 'block';
+      document.getElementById('shipmentsList').style.display = 'none';
+
+      try {
+        const res = await fetch('/api/admin/orders', { headers });
+        const data = await res.json();
+
+        if (data.success) {
+          orders = data.orders || [];
+          // Convert orders to shipment format for display
+          shipments = orders.map(order => ({
+            id: order.id,
+            orderNumber: order.order_number || order.id.slice(0, 12),
+            customerName: order.customer_name || order.customerName || 'Guest',
+            carrier: order.shipping_carrier || 'N/A',
+            trackingNumber: order.tracking_number || '',
+            status: order.status || 'order_received',
+            shippingAddress: order.shipping_address || '',
+            createdAt: order.created_at || order.createdAt,
+            timeline: buildTimeline(order)
+          }));
+        } else {
+          orders = [];
+          shipments = [];
+        }
+      } catch (error) {
+        console.error('Error loading orders:', error);
+        orders = [];
+        shipments = [];
+      }
+
+      document.getElementById('loadingState').style.display = 'none';
+      document.getElementById('shipmentsList').style.display = 'grid';
+
+      updateStats();
+      renderShipments();
+      populateOrderSelect();
+    }
+
+    function buildTimeline(order) {
+      const timeline = [];
+      const createdDate = new Date(order.created_at || order.createdAt);
+
+      timeline.push({
+        date: createdDate.toLocaleString(),
+        status: 'Order Received',
+        location: 'Peekaboo Shades'
+      });
+
+      if (order.status === 'manufacturing' || order.status === 'shipped' || order.status === 'delivered') {
+        timeline.push({
+          date: new Date(createdDate.getTime() + 86400000).toLocaleString(),
+          status: 'Manufacturing',
+          location: 'Production Facility'
+        });
+      }
+
+      if (order.status === 'shipped' || order.status === 'delivered') {
+        timeline.push({
+          date: new Date(createdDate.getTime() + 172800000).toLocaleString(),
+          status: 'Shipped',
+          location: order.shipping_carrier || 'Carrier'
+        });
+      }
+
+      if (order.status === 'delivered') {
+        timeline.push({
+          date: new Date(createdDate.getTime() + 432000000).toLocaleString(),
+          status: 'Delivered',
+          location: extractCity(order.shipping_address)
+        });
+      }
+
+      return timeline;
+    }
+
+    function extractCity(address) {
+      if (!address) return 'Destination';
+      const parts = address.split(',');
+      return parts.length > 1 ? parts[1].trim() : parts[0];
+    }
+
+    function populateOrderSelect() {
+      const select = document.getElementById('orderSelect');
+      const unshippedOrders = orders.filter(o => !o.tracking_number && o.status !== 'delivered');
+
+      select.innerHTML = '<option value="">Select an order...</option>' +
+        unshippedOrders.map(o => `<option value="${o.order_number || o.id}">${o.order_number || o.id.slice(0, 12)} - ${o.customer_name || 'Guest'}</option>`).join('');
+    }
+
+    function updateStats() {
+      document.getElementById('stat-transit').textContent = shipments.filter(s => s.status === 'manufacturing' || s.status === 'in_transit').length;
+      document.getElementById('stat-shipped').textContent = shipments.filter(s => s.status === 'shipped').length;
+      document.getElementById('stat-delivered').textContent = shipments.filter(s => s.status === 'delivered').length;
+      document.getElementById('stat-received').textContent = shipments.filter(s => s.status === 'order_received').length;
+    }
+
+    function renderShipments() {
+      const container = document.getElementById('shipmentsList');
+      const search = document.getElementById('searchInput').value.toLowerCase();
+      let filtered = shipments;
+
+      if (search) {
+        filtered = shipments.filter(s =>
+          s.orderNumber.toLowerCase().includes(search) ||
+          (s.trackingNumber && s.trackingNumber.toLowerCase().includes(search))
+        );
+      }
+
+      if (filtered.length === 0) {
+        container.innerHTML = '<div class="empty-state"><h3>No Shipments Found</h3><p>Orders will appear here once placed.</p></div>';
+        return;
+      }
+
+      container.innerHTML = filtered.map(ship => `
+        <div class="shipment-card">
+          <div class="shipment-header">
+            <div>
+              <div class="shipment-order">${ship.orderNumber}</div>
+              <div class="shipment-customer">${escapeHtml(ship.customerName)}</div>
+              ${ship.trackingNumber ? `<div class="tracking-number">${ship.trackingNumber}</div>` : '<div style="color: #999; font-style: italic; margin-top: 0.5rem;">No tracking number</div>'}
+            </div>
+            <div style="text-align: right;">
+              ${ship.carrier !== 'N/A' ? `<span class="carrier-badge">${ship.carrier.toUpperCase()}</span><br><br>` : ''}
+              <span class="status-badge status-${ship.status}">${formatStatus(ship.status)}</span>
+            </div>
+          </div>
+          <div class="tracking-timeline">
+            ${ship.timeline.slice().reverse().map((e, i) => `
+              <div class="timeline-event ${i === 0 ? 'current' : ''}">
+                <div class="timeline-date">${e.date}</div>
+                <div class="timeline-status">${e.status}</div>
+                <div class="timeline-location">${escapeHtml(e.location)}</div>
+              </div>
+            `).join('')}
+          </div>
+          <div class="shipment-actions">
+            <button class="btn-action btn-update" onclick="updateShipmentStatus('${ship.id}')">Update Status</button>
+            <button class="btn-action btn-notify" onclick="notifyCustomer('${ship.id}')">Notify Customer</button>
+            ${ship.trackingNumber ? `<a href="https://www.ups.com/track?tracknum=${ship.trackingNumber}" target="_blank" class="btn-action btn-track">Track Package</a>` : ''}
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function escapeHtml(text) {
+      if (!text) return '';
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    function formatStatus(s) {
+      return {
+        label_created: 'Label Created',
+        in_transit: 'In Transit',
+        out_for_delivery: 'Out for Delivery',
+        delivered: 'Delivered',
+        shipped: 'Shipped',
+        manufacturing: 'Manufacturing',
+        order_received: 'Order Received',
+        exception: 'Exception'
+      }[s] || s.replace(/_/g, ' ').replace(/\b\w/g, c => c.toUpperCase());
+    }
+
+    function filterShipments() { renderShipments(); }
+    function openModal() { document.getElementById('trackingModal').classList.add('active'); }
+    function closeModal() { document.getElementById('trackingModal').classList.remove('active'); }
+
+    async function saveTracking(e) {
+      e.preventDefault();
+      const form = e.target;
+      const orderNumber = form.orderNumber.value;
+      const trackingNumber = form.trackingNumber.value;
+      const carrier = form.carrier.value;
+
+      const order = orders.find(o => (o.order_number || o.id) === orderNumber);
+      if (!order) {
+        alert('Order not found');
+        return;
+      }
+
+      const token = localStorage.getItem('admin_token');
+      const headers = { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' };
+
+      try {
+        const res = await fetch(`/api/admin/orders/${order.id}`, {
+          method: 'PUT',
+          headers,
+          body: JSON.stringify({
+            tracking_number: trackingNumber,
+            shipping_carrier: carrier,
+            status: 'shipped'
+          })
+        });
+
+        const result = await res.json();
+        if (result.success) {
+          closeModal();
+          form.reset();
+          loadShipments();
+          alert('Tracking added successfully!');
+        } else {
+          alert('Failed to save tracking: ' + (result.error || 'Unknown error'));
+        }
+      } catch (error) {
+        console.error('Error saving tracking:', error);
+        alert('Error saving tracking. Please try again.');
+      }
+    }
+
+    async function updateShipmentStatus(id) {
+      const ship = shipments.find(s => s.id === id);
+      if (!ship) return;
+
+      const statuses = ['order_received', 'manufacturing', 'shipped', 'delivered'];
+      const idx = statuses.indexOf(ship.status);
+
+      if (idx < statuses.length - 1) {
+        const newStatus = statuses[idx + 1];
+
+        const token = localStorage.getItem('admin_token');
+        const headers = { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' };
+
+        try {
+          const res = await fetch(`/api/admin/orders/${id}`, {
+            method: 'PUT',
+            headers,
+            body: JSON.stringify({ status: newStatus })
+          });
+
+          const result = await res.json();
+          if (result.success) {
+            loadShipments();
+          } else {
+            alert('Failed to update status');
+          }
+        } catch (error) {
+          console.error('Error updating status:', error);
+          alert('Error updating status');
+        }
+      }
+    }
+
+    function notifyCustomer(id) {
+      alert('Customer notification feature - coming soon!');
+    }
+
+    document.getElementById('trackingModal').addEventListener('click', e => {
+      if (e.target.id === 'trackingModal') closeModal();
+    });
+  </script>
+</body>
+</html>

@@ -344,6 +344,14 @@
                 <h1><i class="fas fa-fire" style="color: #fd7e14;"></i> IP Firewall</h1>
             </div>
 
+            <!-- UI Preview Banner -->
+            <div style="background: linear-gradient(135deg, #fd7e14 0%, #e55a00 100%); color: white; padding: 15px 20px; border-radius: 8px; margin-bottom: 20px; display: flex; align-items: center; gap: 12px;">
+                <i class="fas fa-info-circle" style="font-size: 20px;"></i>
+                <div>
+                    <strong>UI Preview Only</strong> - This page demonstrates the IP Firewall interface. Backend integration is not enabled. Actions on this page will not affect your system.
+                </div>
+            </div>
+
             <div class="firewall-status" id="firewallStatus">
                 <div class="status-icon">
                     <i class="fas fa-shield-alt"></i>
@@ -697,47 +705,58 @@
         function openAllowModal() { document.getElementById('allowModal').classList.add('active'); }
         function closeAllowModal() { document.getElementById('allowModal').classList.remove('active'); }
 
+        function showPreviewNotice(message) {
+            const notice = document.createElement('div');
+            notice.style.cssText = 'position: fixed; top: 20px; right: 20px; background: linear-gradient(135deg, #fd7e14 0%, #e55a00 100%); color: white; padding: 16px 24px; border-radius: 8px; z-index: 9999; max-width: 400px; box-shadow: 0 4px 12px rgba(0,0,0,0.2);';
+            notice.innerHTML = '<strong>UI Preview</strong><br>' + message;
+            document.body.appendChild(notice);
+            setTimeout(() => notice.remove(), 4000);
+        }
+
         function blockIPAddress() {
             const ip = document.getElementById('blockIP').value;
-            if (!ip) { alert('Please enter an IP address'); return; }
+            if (!ip) { showPreviewNotice('Please enter an IP address'); return; }
 
             const reason = document.getElementById('blockReason').options[document.getElementById('blockReason').selectedIndex].text;
             blockedIPs.push({ ip, reason, blockedOn: new Date().toISOString(), expires: null });
             renderBlockedIPs();
             closeBlockModal();
-            alert(`IP ${ip} has been blocked`);
+            showPreviewNotice(`IP ${ip} blocked (UI Preview Only - no actual firewall changes)`);
         }
 
         function unblockIP(ip) {
-            if (!confirm(`Unblock IP ${ip}?`)) return;
+            if (!confirm(`Unblock IP ${ip}? (UI Preview - no actual changes)`)) return;
             blockedIPs = blockedIPs.filter(i => i.ip !== ip);
             renderBlockedIPs();
+            showPreviewNotice(`IP ${ip} unblocked (UI Preview Only)`);
         }
 
         function allowIPAddress() {
             const ip = document.getElementById('allowIP').value;
             const label = document.getElementById('allowLabel').value;
-            if (!ip || !label) { alert('Please fill in all fields'); return; }
+            if (!ip || !label) { showPreviewNotice('Please fill in all fields'); return; }
 
             allowedIPs.push({ ip, label, addedOn: new Date().toISOString(), addedBy: 'admin@peekabooshades.com' });
             renderAllowedIPs();
             closeAllowModal();
-            alert(`IP ${ip} added to allowlist`);
+            showPreviewNotice(`IP ${ip} added to allowlist (UI Preview Only - no actual changes)`);
         }
 
         function removeFromAllowlist(ip) {
-            if (!confirm(`Remove ${ip} from allowlist?`)) return;
+            if (!confirm(`Remove ${ip} from allowlist? (UI Preview)`)) return;
             allowedIPs = allowedIPs.filter(i => i.ip !== ip);
             renderAllowedIPs();
+            showPreviewNotice(`IP ${ip} removed from allowlist (UI Preview Only)`);
         }
 
         function saveRateLimits() {
-            alert('Rate limiting settings saved!');
+            showPreviewNotice('Rate limiting settings saved (UI Preview Only - no backend integration)');
         }
 
         function exportHistory() {
-            alert('Block history would be exported as CSV');
+            showPreviewNotice('Block history export (UI Preview Only - no actual data)');
         }
     </script>
+<script src="/admin/js/ai-assistant.js"></script>
 </body>
 </html>

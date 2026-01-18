@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Backup Settings - Peekaboo Shades Admin</title>
+  <link rel="stylesheet" href="/admin/css/admin.css?v=1737200003.0.28">
+  <script src="/admin/js/adminNavConfig.js?v=1737200002"></script>
+  <style>
+    .backup-grid { display: grid; grid-template-columns: 1fr 350px; gap: 1.5rem; margin-top: 1.5rem; }
+    .backup-card { background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+    .backup-card h3 { margin: 0 0 1rem 0; }
+    .form-group { margin-bottom: 1.25rem; }
+    .form-group label { display: block; margin-bottom: 0.5rem; font-weight: 500; }
+    .form-group select { width: 100%; padding: 0.75rem; border: 1px solid #ddd; border-radius: 8px; }
+    .toggle-row { display: flex; justify-content: space-between; align-items: center; padding: 0.75rem 0; border-bottom: 1px solid #eee; }
+    .toggle { position: relative; width: 50px; height: 26px; }
+    .toggle input { opacity: 0; width: 0; height: 0; }
+    .toggle .slider { position: absolute; cursor: pointer; inset: 0; background: #ddd; border-radius: 26px; transition: 0.3s; }
+    .toggle .slider:before { content: ""; position: absolute; height: 20px; width: 20px; left: 3px; bottom: 3px; background: white; border-radius: 50%; transition: 0.3s; }
+    .toggle input:checked + .slider { background: #10B981; }
+    .toggle input:checked + .slider:before { transform: translateX(24px); }
+    .btn-primary { padding: 0.75rem 1.5rem; background: #8E6545; color: white; border: none; border-radius: 8px; cursor: pointer; }
+    .btn-secondary { padding: 0.5rem 1rem; background: #E5E7EB; color: #374151; border: none; border-radius: 6px; cursor: pointer; font-size: 0.85rem; }
+    .backup-row { display: flex; justify-content: space-between; align-items: center; padding: 0.75rem; background: #F9FAFB; border-radius: 6px; margin-bottom: 0.5rem; }
+    .backup-info small { color: #666; }
+    .status-success { color: #10B981; }
+  </style>
+</head>
+<body>
+  <div class="admin-layout">
+    <aside class="admin-sidebar"></aside>
+    <main class="admin-main">
+      <header class="admin-header">
+        <h1>Backup Settings</h1>
+        <div class="header-actions"><button class="btn-primary" onclick="createBackup()">Create Backup Now</button></div>
+      </header>
+      <div class="admin-content">
+        <div class="backup-grid">
+          <div class="backup-card">
+            <h3>Automatic Backups</h3>
+            <div class="toggle-row"><span>Enable Automatic Backups</span><label class="toggle"><input type="checkbox" checked><span class="slider"></span></label></div>
+            <div class="form-group" style="margin-top: 1rem;"><label>Backup Frequency</label><select><option>Daily</option><option>Weekly</option><option>Monthly</option></select></div>
+            <div class="form-group"><label>Backup Time</label><select><option>2:00 AM</option><option>3:00 AM</option><option>4:00 AM</option></select></div>
+            <div class="form-group"><label>Retention Period</label><select><option>7 days</option><option>14 days</option><option>30 days</option><option>90 days</option></select></div>
+            <h3 style="margin-top: 2rem;">What's Included</h3>
+            <div class="toggle-row"><span>Database (orders, customers, products)</span><label class="toggle"><input type="checkbox" checked><span class="slider"></span></label></div>
+            <div class="toggle-row"><span>Media Files</span><label class="toggle"><input type="checkbox" checked><span class="slider"></span></label></div>
+            <div class="toggle-row"><span>Configuration</span><label class="toggle"><input type="checkbox" checked><span class="slider"></span></label></div>
+          </div>
+          <div>
+            <div class="backup-card">
+              <h3>Recent Backups</h3>
+              <div class="backup-row">
+                <div class="backup-info"><strong>backup_2024-01-16.zip</strong><br><small>45.2 MB • Today, 3:00 AM</small></div>
+                <div><span class="status-success">✓</span> <button class="btn-secondary">Download</button></div>
+              </div>
+              <div class="backup-row">
+                <div class="backup-info"><strong>backup_2024-01-15.zip</strong><br><small>44.8 MB • Yesterday</small></div>
+                <div><span class="status-success">✓</span> <button class="btn-secondary">Download</button></div>
+              </div>
+              <div class="backup-row">
+                <div class="backup-info"><strong>backup_2024-01-14.zip</strong><br><small>44.5 MB • 2 days ago</small></div>
+                <div><span class="status-success">✓</span> <button class="btn-secondary">Download</button></div>
+              </div>
+            </div>
+            <div class="backup-card" style="margin-top: 1rem;">
+              <h3>Storage Usage</h3>
+              <div style="margin-bottom: 0.5rem;">
+                <div style="display: flex; justify-content: space-between; font-size: 0.9rem;"><span>Used</span><span>1.2 GB / 5 GB</span></div>
+                <div style="height: 8px; background: #E5E7EB; border-radius: 4px; margin-top: 0.25rem;">
+                  <div style="width: 24%; height: 100%; background: #8E6545; border-radius: 4px;"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      if (!localStorage.getItem('admin_token')) { window.location.href = '/admin/login.html'; return; }
+      AdminNavConfig.initSidebar('backup-settings');
+    });
+    function createBackup() { alert('Creating backup...'); }
+  </script>
+</body>
+</html>

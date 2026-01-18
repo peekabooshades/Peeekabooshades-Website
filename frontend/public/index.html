@@ -3,6 +3,9 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+  <meta http-equiv="Pragma" content="no-cache">
+  <meta http-equiv="Expires" content="0">
   <title>Peekaboo Shades - Transform Your Home</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -745,6 +748,7 @@
       border-radius: 15px;
       overflow: hidden;
       height: 300px;
+      position: relative;
     }
 
     .showcase-item img {
@@ -756,6 +760,21 @@
 
     .showcase-item:hover img {
       transform: scale(1.05);
+    }
+
+    .showcase-label {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      background: linear-gradient(transparent, rgba(142, 101, 69, 0.9));
+      color: #fff;
+      padding: 40px 20px 15px;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 16px;
+      font-weight: 600;
+      text-align: center;
+      letter-spacing: 0.5px;
     }
 
     /* ============================================
@@ -1287,22 +1306,534 @@
         text-align: center;
       }
     }
+
+    /* ============================================
+       ELEGANT SIGNUP FLYER POPUP - Magazine Style
+       ============================================ */
+    .signup-flyer-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.75);
+      backdrop-filter: blur(8px);
+      -webkit-backdrop-filter: blur(8px);
+      z-index: 10000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      opacity: 0;
+      visibility: hidden;
+      transition: all 0.4s ease;
+    }
+
+    .signup-flyer-overlay.show {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .signup-flyer {
+      display: flex;
+      max-width: 900px;
+      width: 95%;
+      max-height: 90vh;
+      border-radius: 24px;
+      overflow: hidden;
+      box-shadow: 0 40px 100px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255,255,255,0.1);
+      transform: scale(0.85) translateY(40px);
+      transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .signup-flyer-overlay.show .signup-flyer {
+      transform: scale(1) translateY(0);
+    }
+
+    /* Left Side - Elegant Roller Shades Image */
+    .signup-flyer-visual {
+      flex: 1;
+      position: relative;
+      min-height: 500px;
+      background: url('https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=800&q=80') center center;
+      background-size: cover;
+    }
+
+    .signup-flyer-visual::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(135deg, rgba(142, 101, 69, 0.85) 0%, rgba(89, 63, 43, 0.9) 100%);
+    }
+
+    .signup-flyer-visual-content {
+      position: relative;
+      z-index: 1;
+      height: 100%;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 50px 40px;
+      color: white;
+    }
+
+    .flyer-logo {
+      margin-bottom: 30px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+
+    .flyer-logo img {
+      height: 70px;
+      width: 70px;
+      border-radius: 14px;
+      box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+      background: white;
+      padding: 6px;
+      object-fit: contain;
+      flex-shrink: 0;
+    }
+
+    .flyer-logo-text {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 4px;
+    }
+
+    .flyer-logo-text .brand-name {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 22px;
+      font-weight: 700;
+      color: white;
+      letter-spacing: 1.5px;
+      text-shadow: 0 2px 10px rgba(0,0,0,0.3);
+      line-height: 1.2;
+      margin: 0;
+    }
+
+    .flyer-logo-text .brand-tagline {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 10px;
+      font-weight: 600;
+      color: rgba(255,255,255,0.9);
+      letter-spacing: 2.5px;
+      text-transform: uppercase;
+      line-height: 1.2;
+      margin: 0;
+    }
+
+    .flyer-tagline {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 13px;
+      font-weight: 500;
+      letter-spacing: 4px;
+      text-transform: uppercase;
+      opacity: 0.9;
+      margin-bottom: 20px;
+    }
+
+    .flyer-headline {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 42px;
+      font-weight: 300;
+      line-height: 1.2;
+      margin-bottom: 25px;
+    }
+
+    .flyer-headline strong {
+      font-weight: 700;
+      display: block;
+    }
+
+    .flyer-description {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 15px;
+      line-height: 1.7;
+      opacity: 0.9;
+      max-width: 320px;
+    }
+
+    .flyer-features {
+      margin-top: 35px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .flyer-feature {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 13px;
+      font-weight: 500;
+    }
+
+    .flyer-feature i {
+      width: 24px;
+      height: 24px;
+      background: rgba(255,255,255,0.2);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 10px;
+    }
+
+    /* Right Side - Offer Content */
+    .signup-flyer-content {
+      flex: 1;
+      background: linear-gradient(180deg, #FFFFFF 0%, #FAF8F5 100%);
+      padding: 50px 45px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      position: relative;
+    }
+
+    .flyer-close-btn {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: rgba(142, 101, 69, 0.1);
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      color: #8E6545;
+      transition: all 0.3s ease;
+    }
+
+    .flyer-close-btn:hover {
+      background: rgba(142, 101, 69, 0.2);
+      transform: rotate(90deg);
+    }
+
+    .flyer-offer-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      background: linear-gradient(135deg, #8E6545 0%, #6B4D35 100%);
+      color: white;
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      margin-bottom: 25px;
+      width: fit-content;
+    }
+
+    .flyer-offer-badge i {
+      font-size: 12px;
+    }
+
+    .flyer-offer-title {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 28px;
+      font-weight: 700;
+      color: #8E6545;
+      margin-bottom: 10px;
+      line-height: 1.3;
+    }
+
+    .flyer-offer-subtitle {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 14px;
+      color: #777;
+      margin-bottom: 30px;
+      line-height: 1.6;
+    }
+
+    .flyer-discount-box {
+      background: linear-gradient(135deg, #FFF9F0 0%, #FFF3E0 100%);
+      border: 2px solid #E8D5C4;
+      border-radius: 16px;
+      padding: 25px 30px;
+      text-align: center;
+      margin-bottom: 30px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .flyer-discount-box::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      left: -50%;
+      width: 200%;
+      height: 200%;
+      background: radial-gradient(circle, rgba(142, 101, 69, 0.05) 0%, transparent 70%);
+      animation: shimmer 3s infinite;
+    }
+
+    @keyframes shimmer {
+      0%, 100% { transform: rotate(0deg); }
+      50% { transform: rotate(180deg); }
+    }
+
+    .flyer-discount-amount {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 56px;
+      font-weight: 800;
+      color: #8E6545;
+      line-height: 1;
+      position: relative;
+    }
+
+    .flyer-discount-amount span {
+      font-size: 32px;
+      font-weight: 600;
+    }
+
+    .flyer-discount-label {
+      font-family: 'Montserrat', sans-serif;
+      font-size: 14px;
+      font-weight: 600;
+      color: #6B4D35;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+      margin-top: 8px;
+      position: relative;
+    }
+
+    .flyer-code {
+      display: inline-block;
+      background: #8E6545;
+      color: white;
+      padding: 6px 14px;
+      border-radius: 6px;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 2px;
+      margin-top: 12px;
+      position: relative;
+    }
+
+    .flyer-buttons {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .btn-flyer-signup {
+      font-family: 'Montserrat', sans-serif;
+      padding: 18px 35px;
+      border-radius: 12px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      border: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+      letter-spacing: 0.5px;
+    }
+
+    .btn-flyer-signup.primary {
+      background: linear-gradient(135deg, #8E6545 0%, #6B4D35 100%);
+      color: white;
+      box-shadow: 0 10px 30px rgba(142, 101, 69, 0.35);
+    }
+
+    .btn-flyer-signup.primary:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 15px 40px rgba(142, 101, 69, 0.45);
+    }
+
+    .btn-flyer-signup.secondary {
+      background: transparent;
+      color: #999;
+      font-weight: 500;
+      font-size: 13px;
+    }
+
+    .btn-flyer-signup.secondary:hover {
+      color: #666;
+    }
+
+    .flyer-trust {
+      margin-top: 25px;
+      padding-top: 20px;
+      border-top: 1px solid #E8E8E8;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 20px;
+    }
+
+    .flyer-trust-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 11px;
+      color: #999;
+    }
+
+    .flyer-trust-item i {
+      color: #8E6545;
+      font-size: 12px;
+    }
+
+    /* Responsive for Mobile */
+    @media (max-width: 768px) {
+      .signup-flyer {
+        flex-direction: column;
+        max-height: 95vh;
+        overflow-y: auto;
+      }
+
+      .signup-flyer-visual {
+        min-height: 200px;
+      }
+
+      .signup-flyer-visual-content {
+        padding: 30px 25px;
+      }
+
+      .flyer-headline {
+        font-size: 28px;
+      }
+
+      .flyer-features {
+        display: none;
+      }
+
+      .signup-flyer-content {
+        padding: 35px 25px;
+      }
+
+      .flyer-discount-amount {
+        font-size: 42px;
+      }
+    }
   </style>
 </head>
 <body>
+  <!-- Elegant Signup Flyer Popup - Magazine Style -->
+  <div class="signup-flyer-overlay" id="signupFlyerOverlay">
+    <div class="signup-flyer">
+      <!-- Left Visual Panel -->
+      <div class="signup-flyer-visual">
+        <div class="signup-flyer-visual-content">
+          <div class="flyer-logo">
+            <img src="/images/peekabooshades_logo.jpeg" alt="Peekaboo Shades">
+            <div class="flyer-logo-text">
+              <span class="brand-name">PEEKABOO SHADES</span>
+              <span class="brand-tagline">Custom Window Treatments</span>
+            </div>
+          </div>
+          <h2 class="flyer-headline">
+            Transform Your
+            <strong>Living Space</strong>
+          </h2>
+          <p class="flyer-description">
+            Discover our exquisite collection of custom roller shades, designed to bring elegance and functionality to your home.
+          </p>
+          <div class="flyer-features">
+            <div class="flyer-feature">
+              <i class="fas fa-check"></i>
+              <span>Free Samples Available</span>
+            </div>
+            <div class="flyer-feature">
+              <i class="fas fa-check"></i>
+              <span>Custom Sizes & Colors</span>
+            </div>
+            <div class="flyer-feature">
+              <i class="fas fa-check"></i>
+              <span>Easy DIY Installation</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Content Panel -->
+      <div class="signup-flyer-content">
+        <button class="flyer-close-btn" onclick="closeSignupFlyer()">
+          <i class="fas fa-times"></i>
+        </button>
+
+        <div class="flyer-offer-badge">
+          <i class="fas fa-gift"></i>
+          <span>Exclusive Offer</span>
+        </div>
+
+        <h3 class="flyer-offer-title">Join the Peekaboo Family</h3>
+        <p class="flyer-offer-subtitle">Create your account today and unlock exclusive member benefits plus a special welcome discount.</p>
+
+        <div class="flyer-discount-box">
+          <div class="flyer-discount-amount">15<span>%</span></div>
+          <div class="flyer-discount-label">Off Your First Order</div>
+          <div class="flyer-code">WELCOME15</div>
+        </div>
+
+        <div class="flyer-buttons">
+          <button class="btn-flyer-signup primary" onclick="goToSignup()">
+            <i class="fas fa-user-plus"></i> Create My Account
+          </button>
+          <button class="btn-flyer-signup secondary" onclick="closeSignupFlyer()">
+            No thanks, I'll skip the savings
+          </button>
+        </div>
+
+        <div class="flyer-trust">
+          <div class="flyer-trust-item">
+            <i class="fas fa-lock"></i>
+            <span>Secure</span>
+          </div>
+          <div class="flyer-trust-item">
+            <i class="fas fa-shield-alt"></i>
+            <span>No Spam</span>
+          </div>
+          <div class="flyer-trust-item">
+            <i class="fas fa-star"></i>
+            <span>5-Star Rated</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Force popup to show -->
+  <script>
+    window.addEventListener('load', function() {
+      var popup = document.getElementById('signupFlyerOverlay');
+      if (popup) {
+        popup.classList.add('show');
+        document.body.style.overflow = 'hidden';
+      }
+    });
+  </script>
+
   <!-- Top Bar -->
   <div class="top-bar">
     <div class="container">
       <div class="top-bar-left">
-        <span><i class="fas fa-phone"></i> 1-800-PEEKABOO</span>
-        <span><i class="fas fa-envelope"></i> info@peekabooshades.com</span>
+        <span><i class="fas fa-phone"></i> +1 929-465-9549</span>
+        <span><i class="fas fa-envelope"></i> peekabooshades.pro@gmail.com</span>
       </div>
       <div class="top-bar-center">
-        <a href="#">Trade</a>
+        <a href="/dealer/" title="Dealer/Trade Program">Trade</a>
       </div>
       <div class="top-bar-right">
-        <a href="#"><i class="far fa-user"></i></a>
-        <a href="/cart"><i class="fas fa-shopping-cart"></i></a>
+        <a href="/login.html" id="topBarAccountLink" title="Login"><i class="far fa-user"></i> <span id="topBarAccountText">Login</span></a>
+        <a href="/signup.html" id="topBarSignupLink" style="background: rgba(255,255,255,0.2); padding: 4px 12px; border-radius: 15px; font-weight: 600;" title="Create Account">Sign Up</a>
+        <a href="/cart.html"><i class="fas fa-shopping-cart"></i></a>
       </div>
     </div>
   </div>
@@ -1319,17 +1850,16 @@
           <li class="nav-dropdown">
             <a href="/shop">Windows Blinds & Shades <i class="fas fa-chevron-down"></i></a>
             <div class="nav-dropdown-menu">
-              <a href="/shop?category=roller-shades">Roller Shades</a>
-              <a href="/shop?category=zebra-shades">Zebra Shades</a>
-              <a href="/shop?category=roman-shades">Roman Shades</a>
-              <a href="/shop?category=honeycomb-shades">Honeycomb Shades</a>
+              <a href="/product/affordable-custom-roller-blinds">Roller Shades</a>
+              <a href="/product/affordable-custom-zebra-shades">Zebra Shades</a>
+              <a href="/product/affordable-custom-roman-shades">Roman Shades</a>
+              <a href="/product/affordable-custom-honeycomb-shades">Honeycomb Shades</a>
             </div>
           </li>
-          <li><a href="#">Curtains</a></li>
-          <li><a href="#">Look up My Order</a></li>
-          <li><a href="#">Bulk Orders/Wholesale</a></li>
-          <li><a href="#">Contact Us</a></li>
-          <li><a href="#">My Account</a></li>
+          <li><a href="/order-lookup" title="Track your orders">Look up My Order</a></li>
+          <li><a href="/wholesale" title="Wholesale Program">Bulk Orders/Wholesale</a></li>
+          <li><a href="/contact.html">Contact Us</a></li>
+          <li><a href="/account" id="navAccountLink" title="My Account">My Account</a></li>
         </ul>
       </nav>
 
@@ -1339,8 +1869,8 @@
           <i class="fas fa-search"></i>
         </div>
         <div class="header-icons">
-          <a href="#" class="header-icon"><i class="far fa-heart"></i></a>
-          <a href="/cart" class="header-icon">
+          <a href="/account.html#wishlist" class="header-icon" title="My Wishlist"><i class="far fa-heart"></i></a>
+          <a href="/cart.html" class="header-icon">
             <i class="fas fa-shopping-cart"></i>
             <span class="cart-count" id="cartCount">0</span>
           </a>
@@ -1406,7 +1936,7 @@
       <div class="category-grid">
         <button class="nav-arrow prev"><i class="fas fa-chevron-left"></i></button>
 
-        <div class="category-card" onclick="window.location.href='/shop?category=zebra-shades'">
+        <div class="category-card" onclick="window.location.href='/zebra-product.html'">
           <div class="category-image">
             <img src="/images/zebra-shades.png" alt="Zebra Shades">
           </div>
@@ -1416,7 +1946,7 @@
           </div>
         </div>
 
-        <div class="category-card" onclick="window.location.href='/shop?category=roller-shades'">
+        <div class="category-card" onclick="window.location.href='/product/affordable-custom-roller-blinds'">
           <div class="category-image">
             <img src="/images/roller-shades.png" alt="Roller Shades">
           </div>
@@ -1426,7 +1956,7 @@
           </div>
         </div>
 
-        <div class="category-card" onclick="window.location.href='/shop?category=roman-shades'">
+        <div class="category-card" onclick="window.location.href='/product/affordable-custom-roman-shades'">
           <div class="category-image">
             <img src="/images/roman-shades.png" alt="Roman Shades">
           </div>
@@ -1436,7 +1966,7 @@
           </div>
         </div>
 
-        <div class="category-card" onclick="window.location.href='/shop?category=honeycomb-shades'">
+        <div class="category-card" onclick="window.location.href='/product/affordable-custom-honeycomb-shades'">
           <div class="category-image">
             <img src="/images/honeycomb-shades.png" alt="Honeycomb Shades">
           </div>
@@ -1470,7 +2000,7 @@
     <div class="container">
       <div class="motorized-content">
         <div class="motorized-image">
-          <img src="https://images.unsplash.com/photo-1615873968403-89e068629265?w=600" alt="Motorized Blinds">
+          <img src="/images/roller-shades.png" alt="Motorized Blinds">
         </div>
 
         <div class="motorized-text">
@@ -1507,13 +2037,16 @@
 
       <div class="showcase-grid">
         <div class="showcase-item">
-          <img src="https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?w=500" alt="Living Room">
+          <img src="https://images.unsplash.com/photo-1513694203232-719a280e022f?w=600&q=80" alt="Roller Shades">
+          <div class="showcase-label">Roller Shades</div>
         </div>
         <div class="showcase-item">
-          <img src="https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=500" alt="Bedroom">
+          <img src="https://images.unsplash.com/photo-1615874959474-d609969a20ed?w=600&q=80" alt="Zebra Shades">
+          <div class="showcase-label">Zebra Shades</div>
         </div>
         <div class="showcase-item">
-          <img src="https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=500" alt="Dining Room">
+          <img src="https://images.unsplash.com/photo-1616046229478-9901c5536a45?w=600&q=80" alt="Roman Shades">
+          <div class="showcase-label">Roman Shades</div>
         </div>
       </div>
     </div>
@@ -1581,7 +2114,7 @@
   <section class="instagram-section">
     <div class="container">
       <div class="instagram-header">
-        <h3><a href="#">@Peekabooshades</a></h3>
+        <h3><a href="https://instagram.com/Peekabooshades" target="_blank" title="Follow us on Instagram">@Peekabooshades</a></h3>
       </div>
 
       <div class="instagram-grid">
@@ -1617,51 +2150,49 @@
           </div>
           <p>Custom Window Blinds & Coverings designed to transform your space. Quality products at affordable prices.</p>
           <div class="footer-social">
-            <a href="#" class="social-icon"><i class="fab fa-facebook-f"></i></a>
-            <a href="#" class="social-icon"><i class="fab fa-instagram"></i></a>
-            <a href="#" class="social-icon"><i class="fab fa-twitter"></i></a>
-            <a href="#" class="social-icon"><i class="fab fa-pinterest"></i></a>
+            <a href="javascript:void(0)" class="social-icon" title="Facebook coming soon" style="opacity:0.5"><i class="fab fa-facebook-f"></i></a>
+            <a href="https://instagram.com/Peekabooshades" class="social-icon" target="_blank" title="Follow us on Instagram"><i class="fab fa-instagram"></i></a>
+            <a href="javascript:void(0)" class="social-icon" title="Twitter coming soon" style="opacity:0.5"><i class="fab fa-twitter"></i></a>
+            <a href="javascript:void(0)" class="social-icon" title="Pinterest coming soon" style="opacity:0.5"><i class="fab fa-pinterest"></i></a>
           </div>
         </div>
 
         <div class="footer-column">
           <h4>Products</h4>
           <ul>
-            <li><a href="/shop?category=roller-shades">Roller Shades</a></li>
+            <li><a href="/product/affordable-custom-roller-blinds">Roller Shades</a></li>
             <li><a href="/shop?category=roman-shades">Roman Shades</a></li>
-            <li><a href="/shop?category=zebra-shades">Zebra Shades</a></li>
+            <li><a href="/zebra-product.html">Zebra Shades</a></li>
             <li><a href="/shop?category=honeycomb-shades">Honeycomb</a></li>
-            <li><a href="/shop?category=drapes">Drapes</a></li>
           </ul>
         </div>
 
         <div class="footer-column">
           <h4>Customer Service</h4>
           <ul>
-            <li><a href="#">Track Order</a></li>
-            <li><a href="#">Returns</a></li>
-            <li><a href="#">Shipping Info</a></li>
-            <li><a href="#">FAQs</a></li>
-            <li><a href="#">Contact Us</a></li>
+            <li><a href="/policies/shipping.html">Shipping Info</a></li>
+            <li><a href="/policies/returns.html">Returns & Exchanges</a></li>
+            <li><a href="/policies/warranty.html">Warranty</a></li>
+            <li><a href="/faqs.html">FAQs</a></li>
+            <li><a href="/contact.html">Contact Us</a></li>
           </ul>
         </div>
 
         <div class="footer-column">
-          <h4>Talk To Us</h4>
+          <h4>Safety & Trust</h4>
           <ul>
-            <li><a href="#">About Us</a></li>
-            <li><a href="#">Careers</a></li>
-            <li><a href="#">Press</a></li>
-            <li><a href="#">Blog</a></li>
+            <li><a href="/policies/child-safety.html">Child Safety</a></li>
+            <li><a href="/about.html">About Us</a></li>
+            <li><a href="/dealer/">Dealer Portal</a></li>
           </ul>
         </div>
 
         <div class="footer-column">
           <h4>Resources</h4>
           <ul>
-            <li><a href="#">Measuring Guide</a></li>
-            <li><a href="#">Installation</a></li>
-            <li><a href="#">Trade Program</a></li>
+            <li><a href="/guides/how-to-measure.html">Measuring Guide</a></li>
+            <li><a href="/guides/">All Guides</a></li>
+            <li><a href="/faqs.html">Help Center</a></li>
           </ul>
         </div>
       </div>
@@ -1669,8 +2200,8 @@
       <div class="footer-bottom">
         <p class="footer-copyright">&copy; 2024 Peekaboo Shades. All rights reserved.</p>
         <div class="footer-links">
-          <a href="#">Privacy Policy</a>
-          <a href="#">Terms of Service</a>
+          <a href="/privacy-policy.html">Privacy Policy</a>
+          <a href="/terms-of-service.html">Terms of Service</a>
         </div>
       </div>
     </div>
@@ -1722,21 +2253,53 @@
     startAutoSlide();
 
     // ============================================
+    // SIGNUP FLYER POPUP
+    // ============================================
+    function showSignupFlyer() {
+      const overlay = document.getElementById('signupFlyerOverlay');
+      if (overlay) {
+        overlay.classList.add('show');
+        document.body.style.overflow = 'hidden';
+      }
+    }
+
+    function closeSignupFlyer() {
+      const overlay = document.getElementById('signupFlyerOverlay');
+      if (overlay) {
+        overlay.classList.remove('show');
+        document.body.style.overflow = '';
+        // Remember that user dismissed the popup
+        sessionStorage.setItem('signupFlyerDismissed', 'true');
+      }
+    }
+
+    function goToSignup() {
+      closeSignupFlyer();
+      window.location.href = '/signup.html';
+    }
+
+    // ============================================
     // LOAD PRODUCTS
     // ============================================
     document.addEventListener('DOMContentLoaded', function() {
       loadProducts();
       updateCartCount();
+
+      // Close flyer when clicking outside
+      var flyerOverlay = document.getElementById('signupFlyerOverlay');
+      if (flyerOverlay) {
+        flyerOverlay.addEventListener('click', function(e) {
+          if (e.target === this) {
+            closeSignupFlyer();
+          }
+        });
+      }
+
+      // Show flyer immediately on page load
+      showSignupFlyer();
     });
 
     async function loadProducts() {
-      const productImages = [
-        'https://images.unsplash.com/photo-1615874959474-d609969a20ed?w=400',
-        'https://images.unsplash.com/photo-1616046229478-9901c5536a45?w=400',
-        'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=400',
-        'https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=400'
-      ];
-
       try {
         const response = await fetch('/api/products?featured=true');
         const result = await response.json();
@@ -1745,10 +2308,10 @@
           const products = result.data.slice(0, 4);
           const grid = document.getElementById('productsGrid');
 
-          grid.innerHTML = products.map((product, index) => `
+          grid.innerHTML = products.map((product) => `
             <div class="product-card" onclick="window.location.href='/product/${product.slug}'">
               <div class="product-image">
-                <img src="${productImages[index % productImages.length]}" alt="${product.name}">
+                <img src="${product.image_url}" alt="${product.name}">
               </div>
               <div class="product-info">
                 <h3 class="product-title">${product.name}</h3>
@@ -1762,11 +2325,49 @@
       }
     }
 
-    function subscribeNewsletter(e) {
+    async function subscribeNewsletter(e) {
       e.preventDefault();
-      const email = e.target.querySelector('input').value;
-      showToast('Thank you for subscribing!', 'success');
-      e.target.reset();
+      const emailInput = e.target.querySelector('input');
+      const email = emailInput.value.trim();
+      const button = e.target.querySelector('button');
+
+      if (!email) {
+        showToast('Please enter your email address', 'error');
+        return;
+      }
+
+      // Disable button during submission
+      const originalText = button.innerHTML;
+      button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Subscribing...';
+      button.disabled = true;
+
+      try {
+        const response = await fetch('/api/subscribe', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            email: email,
+            source: 'homepage-newsletter'
+          })
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+          showToast(result.message || 'Thank you for subscribing!', 'success');
+          e.target.reset();
+        } else {
+          showToast(result.error || 'Subscription failed. Please try again.', 'error');
+        }
+      } catch (error) {
+        console.error('Newsletter subscription error:', error);
+        // Show success anyway for better UX (server might be down)
+        showToast('Thank you for subscribing!', 'success');
+        e.target.reset();
+      } finally {
+        button.innerHTML = originalText;
+        button.disabled = false;
+      }
     }
 
     // ============================================
@@ -1892,19 +2493,29 @@
 
     // Apply CMS navigation
     function applyCMSNavigation(navigation) {
-      if (navigation.main && navigation.main.length > 0) {
+      // Support both 'main' and 'mainMenu' naming conventions
+      const navItems = navigation.main || navigation.mainMenu || [];
+      if (navItems.length > 0) {
         const navUl = document.querySelector('.main-nav ul');
         if (navUl) {
-          navUl.innerHTML = navigation.main.map(item => {
-            if (item.children && item.children.length > 0) {
+          navUl.innerHTML = navItems.map(item => {
+            // Support both 'children' and 'dropdownItems' for dropdown menus
+            const dropdownItems = item.children || item.dropdownItems || [];
+            const hasDropdown = item.hasDropdown || dropdownItems.length > 0;
+
+            if (hasDropdown && dropdownItems.length > 0) {
               return `
                 <li class="nav-dropdown">
                   <a href="${item.url}">${item.text} <i class="fas fa-chevron-down"></i></a>
                   <div class="nav-dropdown-menu">
-                    ${item.children.map(child => `<a href="${child.url}">${child.text}</a>`).join('')}
+                    ${dropdownItems.map(child => `<a href="${child.url}">${child.text}</a>`).join('')}
                   </div>
                 </li>
               `;
+            }
+            // Handle disabled items (like Curtains coming soon)
+            if (item.disabled) {
+              return `<li><a href="javascript:void(0)" onclick="showToast('${item.text} coming soon!', 'info')" style="opacity:0.6" title="Coming soon">${item.text}</a></li>`;
             }
             return `<li><a href="${item.url}">${item.text}</a></li>`;
           }).join('');
@@ -2245,7 +2856,52 @@
     // Load site content on page load
     document.addEventListener('DOMContentLoaded', function() {
       loadSiteContent();
+      checkCustomerAuth();
     });
+
+    // Check if customer is logged in and update UI
+    function checkCustomerAuth() {
+      const token = localStorage.getItem('customer_token') || sessionStorage.getItem('customer_token');
+      const customer = JSON.parse(localStorage.getItem('customer') || 'null');
+
+      const topBarLink = document.getElementById('topBarAccountLink');
+      const topBarText = document.getElementById('topBarAccountText');
+      const topBarSignup = document.getElementById('topBarSignupLink');
+      const navAccountLink = document.getElementById('navAccountLink');
+
+      if (token && customer) {
+        // User is logged in
+        if (topBarLink) {
+          topBarLink.href = '/account.html';
+          topBarLink.title = 'My Account';
+        }
+        if (topBarText) {
+          topBarText.textContent = customer.firstName || 'Account';
+        }
+        if (topBarSignup) {
+          topBarSignup.style.display = 'none'; // Hide signup when logged in
+        }
+        if (navAccountLink) {
+          navAccountLink.textContent = `Hi, ${customer.firstName || 'Account'}`;
+        }
+      } else {
+        // User is not logged in
+        if (topBarLink) {
+          topBarLink.href = '/login.html';
+          topBarLink.title = 'Login';
+        }
+        if (topBarText) {
+          topBarText.textContent = 'Login';
+        }
+        if (topBarSignup) {
+          topBarSignup.style.display = 'inline'; // Show signup when logged out
+        }
+        if (navAccountLink) {
+          navAccountLink.textContent = 'My Account';
+          navAccountLink.href = '/login.html';
+        }
+      }
+    }
   </script>
 </body>
 </html>

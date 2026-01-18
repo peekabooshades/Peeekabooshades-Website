@@ -1,0 +1,822 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Warranty Claims - Peekaboo Shades Admin</title>
+  <link rel="stylesheet" href="/admin/css/admin.css?v=1737200003.0.25">
+  <script src="/admin/js/adminNavConfig.js?v=1737200002"></script>
+  <style>
+    .warranty-stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+    .stat-card {
+      background: white;
+      border-radius: 12px;
+      padding: 1.5rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+    .stat-card h3 {
+      font-size: 0.85rem;
+      color: #666;
+      margin-bottom: 0.5rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .stat-card .value {
+      font-size: 2rem;
+      font-weight: 700;
+      color: #8E6545;
+    }
+    .stat-card .trend {
+      font-size: 0.85rem;
+      color: #666;
+      margin-top: 0.5rem;
+    }
+    .claims-controls {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+      flex-wrap: wrap;
+      gap: 1rem;
+    }
+    .search-box {
+      display: flex;
+      align-items: center;
+      background: white;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 0.5rem 1rem;
+      min-width: 300px;
+    }
+    .search-box input {
+      border: none;
+      outline: none;
+      padding: 0.5rem;
+      flex: 1;
+      font-size: 0.95rem;
+    }
+    .filter-tabs {
+      display: flex;
+      gap: 0.5rem;
+    }
+    .filter-tab {
+      padding: 0.5rem 1rem;
+      border: 1px solid #ddd;
+      background: white;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.9rem;
+      transition: all 0.2s;
+    }
+    .filter-tab.active {
+      background: #8E6545;
+      color: white;
+      border-color: #8E6545;
+    }
+    .claims-list {
+      display: grid;
+      gap: 1rem;
+    }
+    .claim-card {
+      background: white;
+      border-radius: 12px;
+      padding: 1.5rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      display: grid;
+      grid-template-columns: auto 1fr auto;
+      gap: 1.5rem;
+      align-items: start;
+    }
+    .claim-status-badge {
+      padding: 0.25rem 0.75rem;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+    .status-pending { background: #FEF3C7; color: #92400E; }
+    .status-under_review { background: #DBEAFE; color: #1E40AF; }
+    .status-approved { background: #D1FAE5; color: #065F46; }
+    .status-denied { background: #FEE2E2; color: #991B1B; }
+    .status-resolved { background: #E5E7EB; color: #374151; }
+    .claim-info h4 {
+      margin: 0 0 0.5rem 0;
+      font-size: 1.1rem;
+      color: #333;
+    }
+    .claim-meta {
+      display: flex;
+      gap: 1.5rem;
+      flex-wrap: wrap;
+      font-size: 0.85rem;
+      color: #666;
+      margin-bottom: 0.75rem;
+    }
+    .claim-meta span {
+      display: flex;
+      align-items: center;
+      gap: 0.35rem;
+    }
+    .claim-description {
+      color: #555;
+      font-size: 0.9rem;
+      line-height: 1.5;
+      margin-bottom: 1rem;
+      padding: 0.75rem;
+      background: #f9f9f9;
+      border-radius: 6px;
+    }
+    .claim-product {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.75rem;
+      background: #f5f5f5;
+      border-radius: 8px;
+      margin-bottom: 1rem;
+    }
+    .claim-product img {
+      width: 60px;
+      height: 60px;
+      object-fit: cover;
+      border-radius: 6px;
+    }
+    .claim-product-info {
+      flex: 1;
+    }
+    .claim-product-info h5 {
+      margin: 0 0 0.25rem 0;
+      font-size: 0.95rem;
+    }
+    .claim-product-info p {
+      margin: 0;
+      font-size: 0.8rem;
+      color: #666;
+    }
+    .claim-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+    .btn-action {
+      padding: 0.5rem 1rem;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      font-weight: 500;
+      transition: all 0.2s;
+    }
+    .btn-review {
+      background: #8E6545;
+      color: white;
+    }
+    .btn-review:hover {
+      background: #7A5639;
+    }
+    .btn-approve {
+      background: #10B981;
+      color: white;
+    }
+    .btn-approve:hover {
+      background: #059669;
+    }
+    .btn-deny {
+      background: #EF4444;
+      color: white;
+    }
+    .btn-deny:hover {
+      background: #DC2626;
+    }
+    .btn-view {
+      background: #E5E7EB;
+      color: #374151;
+    }
+    .btn-view:hover {
+      background: #D1D5DB;
+    }
+    .claim-timeline {
+      font-size: 0.8rem;
+      color: #888;
+      margin-top: 0.5rem;
+    }
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.5);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+    }
+    .modal.active {
+      display: flex;
+    }
+    .modal-content {
+      background: white;
+      border-radius: 12px;
+      padding: 2rem;
+      max-width: 600px;
+      width: 90%;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+    }
+    .modal-header h2 {
+      margin: 0;
+      font-size: 1.5rem;
+    }
+    .modal-close {
+      background: none;
+      border: none;
+      font-size: 1.5rem;
+      cursor: pointer;
+      color: #666;
+    }
+    .form-group {
+      margin-bottom: 1.25rem;
+    }
+    .form-group label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 500;
+      color: #333;
+    }
+    .form-group input,
+    .form-group select,
+    .form-group textarea {
+      width: 100%;
+      padding: 0.75rem;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      font-size: 0.95rem;
+    }
+    .form-group textarea {
+      min-height: 100px;
+      resize: vertical;
+    }
+    .form-row {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+    .btn-submit {
+      width: 100%;
+      padding: 0.875rem;
+      background: #8E6545;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .btn-submit:hover {
+      background: #7A5639;
+    }
+    .warranty-types {
+      display: flex;
+      gap: 0.5rem;
+      flex-wrap: wrap;
+      margin-bottom: 1rem;
+    }
+    .warranty-type {
+      padding: 0.35rem 0.75rem;
+      background: #f0f0f0;
+      border-radius: 4px;
+      font-size: 0.8rem;
+      color: #555;
+    }
+    .empty-state {
+      text-align: center;
+      padding: 4rem 2rem;
+      color: #666;
+    }
+    .empty-state svg {
+      width: 80px;
+      height: 80px;
+      margin-bottom: 1.5rem;
+      color: #ccc;
+    }
+    .empty-state h3 {
+      font-size: 1.25rem;
+      margin-bottom: 0.5rem;
+      color: #333;
+    }
+  </style>
+</head>
+<body>
+  <div class="admin-layout">
+    <aside class="admin-sidebar"></aside>
+
+    <main class="admin-main">
+      <header class="admin-header">
+        <h1>Warranty Claims</h1>
+        <div class="header-actions">
+          <button class="btn-primary" onclick="openNewClaimModal()">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" width="20" height="20">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+            </svg>
+            New Claim
+          </button>
+        </div>
+      </header>
+
+      <div class="admin-content">
+        <!-- Stats -->
+        <div class="warranty-stats">
+          <div class="stat-card">
+            <h3>Pending Claims</h3>
+            <div class="value" id="stat-pending">0</div>
+            <div class="trend">Awaiting review</div>
+          </div>
+          <div class="stat-card">
+            <h3>Under Review</h3>
+            <div class="value" id="stat-review">0</div>
+            <div class="trend">Being processed</div>
+          </div>
+          <div class="stat-card">
+            <h3>Approved</h3>
+            <div class="value" id="stat-approved">0</div>
+            <div class="trend">This month</div>
+          </div>
+          <div class="stat-card">
+            <h3>Resolution Rate</h3>
+            <div class="value" id="stat-resolution">0%</div>
+            <div class="trend">Last 30 days</div>
+          </div>
+        </div>
+
+        <!-- Controls -->
+        <div class="claims-controls">
+          <div class="search-box">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" width="20" height="20">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+            </svg>
+            <input type="text" placeholder="Search by claim ID, customer, or order..." id="searchInput" onkeyup="filterClaims()">
+          </div>
+          <div class="filter-tabs">
+            <button class="filter-tab active" data-filter="all" onclick="setFilter('all')">All</button>
+            <button class="filter-tab" data-filter="pending" onclick="setFilter('pending')">Pending</button>
+            <button class="filter-tab" data-filter="under_review" onclick="setFilter('under_review')">Under Review</button>
+            <button class="filter-tab" data-filter="approved" onclick="setFilter('approved')">Approved</button>
+            <button class="filter-tab" data-filter="denied" onclick="setFilter('denied')">Denied</button>
+          </div>
+        </div>
+
+        <!-- Claims List -->
+        <div class="claims-list" id="claimsList">
+          <div class="empty-state">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+            </svg>
+            <h3>No Warranty Claims</h3>
+            <p>Warranty claims will appear here when customers submit them.</p>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- New Claim Modal -->
+  <div class="modal" id="newClaimModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>New Warranty Claim</h2>
+        <button class="modal-close" onclick="closeModal('newClaimModal')">&times;</button>
+      </div>
+      <form id="newClaimForm" onsubmit="submitClaim(event)">
+        <div class="form-row">
+          <div class="form-group">
+            <label>Order Number</label>
+            <input type="text" name="orderNumber" required placeholder="e.g., ORD-2024-001">
+          </div>
+          <div class="form-group">
+            <label>Customer Email</label>
+            <input type="email" name="customerEmail" required placeholder="customer@email.com">
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Customer Name</label>
+            <input type="text" name="customerName" required placeholder="Full name">
+          </div>
+          <div class="form-group">
+            <label>Phone</label>
+            <input type="tel" name="phone" placeholder="Phone number">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Product</label>
+          <input type="text" name="product" required placeholder="Product name and SKU">
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Claim Type</label>
+            <select name="claimType" required>
+              <option value="">Select type...</option>
+              <option value="defective_material">Defective Material</option>
+              <option value="manufacturing_defect">Manufacturing Defect</option>
+              <option value="color_fading">Color Fading</option>
+              <option value="motor_failure">Motor Failure</option>
+              <option value="mechanism_issue">Mechanism Issue</option>
+              <option value="fabric_damage">Fabric Damage</option>
+              <option value="incorrect_size">Incorrect Size</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Purchase Date</label>
+            <input type="date" name="purchaseDate" required>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Issue Description</label>
+          <textarea name="description" required placeholder="Describe the warranty issue in detail..."></textarea>
+        </div>
+        <div class="form-group">
+          <label>Resolution Requested</label>
+          <select name="resolutionRequested" required>
+            <option value="">Select resolution...</option>
+            <option value="replacement">Full Replacement</option>
+            <option value="repair">Repair</option>
+            <option value="partial_replacement">Partial Replacement (parts only)</option>
+            <option value="refund">Refund</option>
+            <option value="store_credit">Store Credit</option>
+          </select>
+        </div>
+        <button type="submit" class="btn-submit">Submit Warranty Claim</button>
+      </form>
+    </div>
+  </div>
+
+  <!-- View Claim Modal -->
+  <div class="modal" id="viewClaimModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Claim Details</h2>
+        <button class="modal-close" onclick="closeModal('viewClaimModal')">&times;</button>
+      </div>
+      <div id="claimDetails"></div>
+    </div>
+  </div>
+
+  <script>
+    // Admin object for API calls
+    const Admin = {
+      API: {
+        async get(endpoint) {
+          const token = localStorage.getItem('admin_token');
+          const response = await fetch(endpoint, {
+            headers: { 'Authorization': `Bearer ${token}` }
+          });
+          return response.json();
+        },
+        async post(endpoint, data) {
+          const token = localStorage.getItem('admin_token');
+          const response = await fetch(endpoint, {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+          });
+          return response.json();
+        },
+        async put(endpoint, data) {
+          const token = localStorage.getItem('admin_token');
+          const response = await fetch(endpoint, {
+            method: 'PUT',
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(data)
+          });
+          return response.json();
+        },
+        async delete(endpoint) {
+          const token = localStorage.getItem('admin_token');
+          const response = await fetch(endpoint, {
+            method: 'DELETE',
+            headers: { 'Authorization': `Bearer ${token}` }
+          });
+          return response.json();
+        }
+      },
+      Toast: {
+        show(message, type = 'success') {
+          console.log(`[${type.toUpperCase()}] ${message}`);
+          alert(message);
+        }
+      }
+    };
+
+    let claims = [];
+    let currentFilter = 'all';
+
+    // Initialize page
+    document.addEventListener('DOMContentLoaded', async () => {
+      const token = localStorage.getItem('admin_token');
+      if (!token) {
+        window.location.href = '/admin/login.html';
+        return;
+      }
+
+      // Initialize sidebar
+      AdminNavConfig.initSidebar('warranty-claims');
+
+      // Load claims
+      await loadClaims();
+    });
+
+    async function loadClaims() {
+      try {
+        const data = await Admin.API.get('/api/admin/warranty-claims');
+        if (data.success) {
+          claims = data.warrantyClaims || data.claims || [];
+          updateStats();
+          renderClaims();
+        }
+      } catch (error) {
+        console.error('Error loading claims:', error);
+        claims = [];
+        renderClaims();
+      }
+    }
+
+    function updateStats() {
+      const pending = claims.filter(c => c.status === 'pending').length;
+      const review = claims.filter(c => c.status === 'under_review').length;
+      const approved = claims.filter(c => c.status === 'approved').length;
+      const resolved = claims.filter(c => ['approved', 'resolved'].includes(c.status)).length;
+      const total = claims.length;
+
+      document.getElementById('stat-pending').textContent = pending;
+      document.getElementById('stat-review').textContent = review;
+      document.getElementById('stat-approved').textContent = approved;
+      document.getElementById('stat-resolution').textContent = total > 0 ? Math.round((resolved / total) * 100) + '%' : '0%';
+    }
+
+    function renderClaims() {
+      const container = document.getElementById('claimsList');
+      const searchTerm = document.getElementById('searchInput').value.toLowerCase();
+
+      let filtered = claims;
+
+      // Apply status filter
+      if (currentFilter !== 'all') {
+        filtered = filtered.filter(c => c.status === currentFilter);
+      }
+
+      // Apply search filter
+      if (searchTerm) {
+        filtered = filtered.filter(c =>
+          (c.id && c.id.toLowerCase().includes(searchTerm)) ||
+          (c.customerName && c.customerName.toLowerCase().includes(searchTerm)) ||
+          (c.orderNumber && c.orderNumber.toLowerCase().includes(searchTerm)) ||
+          (c.product && c.product.toLowerCase().includes(searchTerm))
+        );
+      }
+
+      if (filtered.length === 0) {
+        container.innerHTML = `
+          <div class="empty-state">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+            </svg>
+            <h3>No Claims Found</h3>
+            <p>${currentFilter !== 'all' ? 'No claims match the selected filter.' : 'No warranty claims have been submitted yet.'}</p>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = filtered.map(claim => `
+        <div class="claim-card" data-id="${claim.id}">
+          <div>
+            <span class="claim-status-badge status-${claim.status}">${formatStatus(claim.status)}</span>
+          </div>
+          <div class="claim-info">
+            <h4>Claim #${claim.id}</h4>
+            <div class="claim-meta">
+              <span>
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" width="14" height="14">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                </svg>
+                ${claim.customerName}
+              </span>
+              <span>
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" width="14" height="14">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+                Order: ${claim.orderNumber}
+              </span>
+              <span>
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor" width="14" height="14">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                </svg>
+                ${formatDate(claim.createdAt)}
+              </span>
+            </div>
+            <div class="warranty-types">
+              <span class="warranty-type">${formatClaimType(claim.claimType)}</span>
+              <span class="warranty-type">${claim.resolutionRequested}</span>
+            </div>
+            <div class="claim-product">
+              <img src="/images/placeholder-product.jpg" alt="Product" onerror="this.src='/images/placeholder.jpg'">
+              <div class="claim-product-info">
+                <h5>${claim.product}</h5>
+                <p>Purchased: ${formatDate(claim.purchaseDate)}</p>
+              </div>
+            </div>
+            <div class="claim-description">${claim.description}</div>
+            <div class="claim-timeline">Last updated: ${formatDate(claim.updatedAt || claim.createdAt)}</div>
+          </div>
+          <div class="claim-actions">
+            ${getActionButtons(claim)}
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function getActionButtons(claim) {
+      switch(claim.status) {
+        case 'pending':
+          return `
+            <button class="btn-action btn-review" onclick="updateClaimStatus('${claim.id}', 'under_review')">Start Review</button>
+            <button class="btn-action btn-view" onclick="viewClaim('${claim.id}')">View Details</button>
+          `;
+        case 'under_review':
+          return `
+            <button class="btn-action btn-approve" onclick="updateClaimStatus('${claim.id}', 'approved')">Approve</button>
+            <button class="btn-action btn-deny" onclick="updateClaimStatus('${claim.id}', 'denied')">Deny</button>
+            <button class="btn-action btn-view" onclick="viewClaim('${claim.id}')">View Details</button>
+          `;
+        case 'approved':
+          return `
+            <button class="btn-action btn-review" onclick="updateClaimStatus('${claim.id}', 'resolved')">Mark Resolved</button>
+            <button class="btn-action btn-view" onclick="viewClaim('${claim.id}')">View Details</button>
+          `;
+        default:
+          return `
+            <button class="btn-action btn-view" onclick="viewClaim('${claim.id}')">View Details</button>
+          `;
+      }
+    }
+
+    function formatStatus(status) {
+      const statusMap = {
+        'pending': 'Pending',
+        'under_review': 'Under Review',
+        'approved': 'Approved',
+        'denied': 'Denied',
+        'resolved': 'Resolved'
+      };
+      return statusMap[status] || status;
+    }
+
+    function formatClaimType(type) {
+      const typeMap = {
+        'defective_material': 'Defective Material',
+        'manufacturing_defect': 'Manufacturing Defect',
+        'color_fading': 'Color Fading',
+        'motor_failure': 'Motor Failure',
+        'mechanism_issue': 'Mechanism Issue',
+        'fabric_damage': 'Fabric Damage',
+        'incorrect_size': 'Incorrect Size',
+        'other': 'Other'
+      };
+      return typeMap[type] || type;
+    }
+
+    function formatDate(dateStr) {
+      if (!dateStr) return 'N/A';
+      return new Date(dateStr).toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric'
+      });
+    }
+
+    function setFilter(filter) {
+      currentFilter = filter;
+      document.querySelectorAll('.filter-tab').forEach(tab => {
+        tab.classList.toggle('active', tab.dataset.filter === filter);
+      });
+      renderClaims();
+    }
+
+    function filterClaims() {
+      renderClaims();
+    }
+
+    function openNewClaimModal() {
+      document.getElementById('newClaimForm').reset();
+      document.getElementById('newClaimModal').classList.add('active');
+    }
+
+    function closeModal(modalId) {
+      document.getElementById(modalId).classList.remove('active');
+    }
+
+    async function submitClaim(event) {
+      event.preventDefault();
+      const form = event.target;
+      const formData = new FormData(form);
+
+      const claimData = {
+        orderNumber: formData.get('orderNumber'),
+        customerName: formData.get('customerName'),
+        customerEmail: formData.get('customerEmail'),
+        phone: formData.get('phone'),
+        product: formData.get('product'),
+        claimType: formData.get('claimType'),
+        purchaseDate: formData.get('purchaseDate'),
+        description: formData.get('description'),
+        resolutionRequested: formData.get('resolutionRequested'),
+        status: 'pending'
+      };
+
+      try {
+        const result = await Admin.API.post('/api/admin/warranty-claims', claimData);
+        if (result.success) {
+          Admin.Toast.show('Warranty claim submitted successfully');
+          closeModal('newClaimModal');
+          await loadClaims();
+        } else {
+          Admin.Toast.show(result.error || 'Failed to submit claim', 'error');
+        }
+      } catch (error) {
+        Admin.Toast.show('Error submitting claim', 'error');
+      }
+    }
+
+    async function updateClaimStatus(claimId, newStatus) {
+      try {
+        const result = await Admin.API.put(`/api/admin/warranty-claims/${claimId}`, { status: newStatus });
+        if (result.success) {
+          Admin.Toast.show(`Claim ${formatStatus(newStatus).toLowerCase()}`);
+          await loadClaims();
+        } else {
+          Admin.Toast.show(result.error || 'Failed to update claim', 'error');
+        }
+      } catch (error) {
+        Admin.Toast.show('Error updating claim', 'error');
+      }
+    }
+
+    function viewClaim(claimId) {
+      const claim = claims.find(c => c.id === claimId);
+      if (!claim) return;
+
+      document.getElementById('claimDetails').innerHTML = `
+        <div style="margin-bottom: 1.5rem;">
+          <span class="claim-status-badge status-${claim.status}">${formatStatus(claim.status)}</span>
+        </div>
+        <div style="display: grid; gap: 1rem;">
+          <div><strong>Claim ID:</strong> ${claim.id}</div>
+          <div><strong>Order Number:</strong> ${claim.orderNumber}</div>
+          <div><strong>Customer:</strong> ${claim.customerName}</div>
+          <div><strong>Email:</strong> ${claim.customerEmail}</div>
+          <div><strong>Phone:</strong> ${claim.phone || 'N/A'}</div>
+          <div><strong>Product:</strong> ${claim.product}</div>
+          <div><strong>Claim Type:</strong> ${formatClaimType(claim.claimType)}</div>
+          <div><strong>Purchase Date:</strong> ${formatDate(claim.purchaseDate)}</div>
+          <div><strong>Resolution Requested:</strong> ${claim.resolutionRequested}</div>
+          <div><strong>Description:</strong><br>${claim.description}</div>
+          <div><strong>Submitted:</strong> ${formatDate(claim.createdAt)}</div>
+          ${claim.resolvedAt ? `<div><strong>Resolved:</strong> ${formatDate(claim.resolvedAt)}</div>` : ''}
+          ${claim.notes ? `<div><strong>Admin Notes:</strong><br>${claim.notes}</div>` : ''}
+        </div>
+      `;
+
+      document.getElementById('viewClaimModal').classList.add('active');
+    }
+
+    // Close modal on outside click
+    document.querySelectorAll('.modal').forEach(modal => {
+      modal.addEventListener('click', (e) => {
+        if (e.target === modal) {
+          modal.classList.remove('active');
+        }
+      });
+    });
+  </script>
+</body>
+</html>

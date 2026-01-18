@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Profit & Cost Analysis - Peekaboo Shades Admin</title>
+  <link rel="stylesheet" href="../css/admin.css">
+  <link rel="icon" type="image/jpeg" href="/images/peekabooshades_logo.jpeg">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <style>
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin-bottom: 24px;
+    }
+    @media (max-width: 1024px) { .stats-row { grid-template-columns: repeat(2, 1fr); } }
+    .stat-card {
+      background: white;
+      border-radius: 12px;
+      padding: 20px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    .stat-card.revenue { border-left: 4px solid #8E6545; }
+    .stat-card.cost { border-left: 4px solid #ef4444; }
+    .stat-card.profit { border-left: 4px solid #10b981; }
+    .stat-card.margin { border-left: 4px solid #3b82f6; }
+    .stat-value { font-size: 28px; font-weight: 700; color: #1f2937; }
+    .stat-label { font-size: 13px; color: #6b7280; margin-top: 4px; }
+    .chart-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 24px;
+      margin-bottom: 24px;
+    }
+    @media (max-width: 1024px) { .chart-grid { grid-template-columns: 1fr; } }
+    .chart-card {
+      background: white;
+      border-radius: 12px;
+      padding: 24px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    .chart-title { font-size: 16px; font-weight: 600; color: #1f2937; margin-bottom: 16px; }
+    .chart-canvas { height: 280px; }
+    .breakdown-table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+    .breakdown-table th, .breakdown-table td {
+      padding: 12px 16px;
+      text-align: left;
+      border-bottom: 1px solid #e5e7eb;
+    }
+    .breakdown-table th {
+      background: #f9fafb;
+      font-size: 12px;
+      font-weight: 600;
+      color: #6b7280;
+      text-transform: uppercase;
+    }
+    .breakdown-table td { font-size: 14px; }
+    .breakdown-table .cost { color: #ef4444; }
+    .breakdown-table .revenue { color: #10b981; }
+    .breakdown-table .margin { color: #3b82f6; font-weight: 600; }
+    .profit-bar {
+      height: 8px;
+      background: #e5e7eb;
+      border-radius: 4px;
+      overflow: hidden;
+    }
+    .profit-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #10b981 0%, #34d399 100%);
+      border-radius: 4px;
+    }
+    .filter-row {
+      display: flex;
+      gap: 16px;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+  </style>
+</head>
+<body>
+  <div class="admin-layout">
+    <aside class="admin-sidebar"></aside>
+    <main class="admin-main">
+      <header class="admin-header">
+        <div class="header-left">
+          <div class="breadcrumb">
+            <a href="/admin/">Dashboard</a>
+            <span class="breadcrumb-separator">/</span>
+            <a href="/admin/analytics.html">Analytics</a>
+            <span class="breadcrumb-separator">/</span>
+            <span class="breadcrumb-current">Profit Analysis</span>
+          </div>
+        </div>
+        <div class="header-right">
+          <button onclick="exportReport()" class="btn btn-secondary" style="margin-right: 10px;">Export Report</button>
+          <button onclick="Admin.AuthAPI.logout();" class="btn btn-logout" style="background: #dc3545; color: white; padding: 8px 16px; border: none; border-radius: 6px;">Logout</button>
+        </div>
+      </header>
+
+      <div class="admin-content">
+        <div class="page-header">
+          <h1 class="page-title">Profit & Cost Analysis</h1>
+          <p style="color: #6b7280; margin-top: 4px;">Manufacturer costs, margins, and profitability breakdown</p>
+        </div>
+
+        <!-- Filters -->
+        <div class="filter-row">
+          <select id="date-range" class="filter-select" onchange="loadReport()">
+            <option value="30" selected>Last 30 Days</option>
+            <option value="90">Last 90 Days</option>
+            <option value="365">Last Year</option>
+            <option value="all">All Time</option>
+          </select>
+          <select id="product-type" class="filter-select" onchange="loadReport()">
+            <option value="">All Products</option>
+            <option value="roller">Roller Shades</option>
+            <option value="zebra">Zebra Shades</option>
+          </select>
+          <button onclick="loadReport()" class="btn btn-primary">Refresh</button>
+        </div>
+
+        <!-- Stats Row -->
+        <div class="stats-row">
+          <div class="stat-card revenue">
+            <div class="stat-value" id="total-revenue">$0</div>
+            <div class="stat-label">Total Revenue (Customer)</div>
+          </div>
+          <div class="stat-card cost">
+            <div class="stat-value" id="total-cost">$0</div>
+            <div class="stat-label">Total MFR Cost</div>
+          </div>
+          <div class="stat-card profit">
+            <div class="stat-value" id="total-profit">$0</div>
+            <div class="stat-label">Gross Profit</div>
+          </div>
+          <div class="stat-card margin">
+            <div class="stat-value" id="avg-margin">0%</div>
+            <div class="stat-label">Average Margin</div>
+          </div>
+        </div>
+
+        <!-- Charts -->
+        <div class="chart-grid">
+          <div class="chart-card">
+            <h3 class="chart-title">Revenue vs Cost Over Time</h3>
+            <div class="chart-canvas">
+              <canvas id="revenue-cost-chart"></canvas>
+            </div>
+          </div>
+          <div class="chart-card">
+            <h3 class="chart-title">Profit by Product Type</h3>
+            <div class="chart-canvas">
+              <canvas id="profit-by-type-chart"></canvas>
+            </div>
+          </div>
+        </div>
+
+        <!-- Profit Breakdown by Order -->
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">Order Profit Breakdown</h3>
+          </div>
+          <div class="table-container">
+            <table class="breakdown-table">
+              <thead>
+                <tr>
+                  <th>Order #</th>
+                  <th>Date</th>
+                  <th>Items</th>
+                  <th style="text-align: right;">MFR Cost</th>
+                  <th style="text-align: right;">Customer Price</th>
+                  <th style="text-align: right;">Profit</th>
+                  <th style="text-align: center;">Margin</th>
+                  <th style="width: 150px;">Profit Bar</th>
+                </tr>
+              </thead>
+              <tbody id="breakdown-table">
+                <tr><td colspan="8" style="text-align: center; padding: 40px; color: #6b7280;">Loading...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- Margin by Component -->
+        <div class="card" style="margin-top: 24px;">
+          <div class="card-header">
+            <h3 class="card-title">Margin Analysis by Component</h3>
+          </div>
+          <div class="table-container">
+            <table class="breakdown-table">
+              <thead>
+                <tr>
+                  <th>Component</th>
+                  <th style="text-align: right;">Total MFR Cost</th>
+                  <th style="text-align: right;">Total Revenue</th>
+                  <th style="text-align: right;">Profit</th>
+                  <th style="text-align: center;">Avg Margin</th>
+                </tr>
+              </thead>
+              <tbody id="component-table">
+                <tr><td colspan="5" style="text-align: center; padding: 40px; color: #6b7280;">Loading...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="../js/adminNavConfig.js?v=1737200002"></script>
+  <script src="../js/admin.js?v=1737100001"></script>
+  <script>
+    if (!Admin.Auth.requireAuth()) {
+      // Redirect
+    } else {
+      loadReport();
+    }
+
+    let revenueCostChart = null;
+    let profitByTypeChart = null;
+    let reportData = { orders: [], totals: {} };
+
+    async function loadReport() {
+      try {
+        const dateRange = document.getElementById('date-range').value;
+        const productType = document.getElementById('product-type').value;
+
+        const params = new URLSearchParams();
+        params.append('limit', '500');
+
+        if (dateRange !== 'all') {
+          const start = new Date();
+          start.setDate(start.getDate() - parseInt(dateRange));
+          params.append('startDate', start.toISOString().split('T')[0]);
+        }
+
+        const response = await fetch(`/api/admin/orders?${params}`, {
+          headers: { 'Authorization': `Bearer ${Admin.Auth.getToken()}` }
+        });
+        const data = await response.json();
+
+        let orders = data.success && data.orders ? data.orders : [];
+
+        // Filter completed orders only (have pricing data)
+        orders = orders.filter(o => o.total || o.pricing?.total);
+
+        if (productType) {
+          orders = orders.filter(order => {
+            return order.items?.some(item => {
+              if (item.product_type === productType) return true;
+              if (item.product_slug?.includes(productType)) return true;
+              return false;
+            });
+          });
+        }
+
+        reportData.orders = orders;
+        calculateTotals();
+        renderStats();
+        renderCharts();
+        renderBreakdownTable();
+        renderComponentTable();
+
+      } catch (error) {
+        console.error('Failed to load report:', error);
+        Admin.Toast.error('Failed to load data');
+      }
+    }
+
+    function calculateTotals() {
+      const orders = reportData.orders;
+      let totalRevenue = 0;
+      let totalCost = 0;
+
+      orders.forEach(order => {
+        totalRevenue += order.total || order.pricing?.total || 0;
+        totalCost += order.pricing?.manufacturer_cost_total || (order.total * 0.6) || 0; // Estimate if not available
+      });
+
+      const profit = totalRevenue - totalCost;
+      const margin = totalRevenue > 0 ? (profit / totalRevenue * 100) : 0;
+
+      reportData.totals = {
+        revenue: totalRevenue,
+        cost: totalCost,
+        profit: profit,
+        margin: margin
+      };
+    }
+
+    function renderStats() {
+      const t = reportData.totals;
+      document.getElementById('total-revenue').textContent = Admin.Utils.formatCurrency(t.revenue);
+      document.getElementById('total-cost').textContent = Admin.Utils.formatCurrency(t.cost);
+      document.getElementById('total-profit').textContent = Admin.Utils.formatCurrency(t.profit);
+      document.getElementById('avg-margin').textContent = t.margin.toFixed(1) + '%';
+    }
+
+    function renderCharts() {
+      renderRevenueCostChart();
+      renderProfitByTypeChart();
+    }
+
+    function renderRevenueCostChart() {
+      const ctx = document.getElementById('revenue-cost-chart').getContext('2d');
+
+      // Group by date
+      const dailyData = {};
+      reportData.orders.forEach(order => {
+        const date = new Date(order.created_at).toISOString().split('T')[0];
+        if (!dailyData[date]) {
+          dailyData[date] = { revenue: 0, cost: 0 };
+        }
+        dailyData[date].revenue += order.total || order.pricing?.total || 0;
+        dailyData[date].cost += order.pricing?.manufacturer_cost_total || (order.total * 0.6) || 0;
+      });
+
+      const sortedDates = Object.keys(dailyData).sort();
+      const labels = sortedDates.map(d => new Date(d).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
+
+      if (revenueCostChart) revenueCostChart.destroy();
+
+      revenueCostChart = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: labels,
+          datasets: [
+            {
+              label: 'Revenue',
+              data: sortedDates.map(d => dailyData[d].revenue),
+              backgroundColor: 'rgba(16, 185, 129, 0.8)',
+              borderRadius: 4
+            },
+            {
+              label: 'MFR Cost',
+              data: sortedDates.map(d => dailyData[d].cost),
+              backgroundColor: 'rgba(239, 68, 68, 0.8)',
+              borderRadius: 4
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: { legend: { position: 'top' } },
+          scales: {
+            y: {
+              beginAtZero: true,
+              ticks: { callback: value => '$' + value.toLocaleString() }
+            }
+          }
+        }
+      });
+    }
+
+    function renderProfitByTypeChart() {
+      const ctx = document.getElementById('profit-by-type-chart').getContext('2d');
+
+      // Group by product type
+      const typeData = { roller: 0, zebra: 0, other: 0 };
+      reportData.orders.forEach(order => {
+        const profit = (order.total || 0) - (order.pricing?.manufacturer_cost_total || order.total * 0.6 || 0);
+        const type = getProductType(order);
+        if (type === 'roller') typeData.roller += profit;
+        else if (type === 'zebra') typeData.zebra += profit;
+        else typeData.other += profit;
+      });
+
+      if (profitByTypeChart) profitByTypeChart.destroy();
+
+      profitByTypeChart = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+          labels: ['Roller Shades', 'Zebra Shades', 'Other'],
+          datasets: [{
+            data: [typeData.roller, typeData.zebra, typeData.other],
+            backgroundColor: ['#3b82f6', '#f59e0b', '#8b5cf6'],
+            borderWidth: 0
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { position: 'bottom' },
+            tooltip: {
+              callbacks: {
+                label: (ctx) => `${ctx.label}: ${Admin.Utils.formatCurrency(ctx.raw)}`
+              }
+            }
+          }
+        }
+      });
+    }
+
+    function renderBreakdownTable() {
+      const tbody = document.getElementById('breakdown-table');
+
+      if (reportData.orders.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="8" style="text-align: center; padding: 40px; color: #6b7280;">No orders found</td></tr>';
+        return;
+      }
+
+      const maxProfit = Math.max(...reportData.orders.map(o => {
+        const rev = o.total || o.pricing?.total || 0;
+        const cost = o.pricing?.manufacturer_cost_total || rev * 0.6;
+        return rev - cost;
+      }));
+
+      tbody.innerHTML = reportData.orders.slice(0, 50).map(order => {
+        const orderNumber = order.order_number || order.id.slice(0, 8).toUpperCase();
+        const revenue = order.total || order.pricing?.total || 0;
+        const cost = order.pricing?.manufacturer_cost_total || revenue * 0.6;
+        const profit = revenue - cost;
+        const margin = revenue > 0 ? (profit / revenue * 100) : 0;
+        const barWidth = maxProfit > 0 ? (profit / maxProfit * 100) : 0;
+        const itemCount = order.items?.reduce((sum, item) => sum + item.quantity, 0) || 0;
+
+        return `
+          <tr>
+            <td><span style="color: #8E6545; font-weight: 500;">#${orderNumber}</span></td>
+            <td>${Admin.Utils.formatDate(order.created_at)}</td>
+            <td>${itemCount}</td>
+            <td class="cost" style="text-align: right;">${Admin.Utils.formatCurrency(cost)}</td>
+            <td class="revenue" style="text-align: right;">${Admin.Utils.formatCurrency(revenue)}</td>
+            <td style="text-align: right; font-weight: 600; color: #10b981;">${Admin.Utils.formatCurrency(profit)}</td>
+            <td class="margin" style="text-align: center;">${margin.toFixed(1)}%</td>
+            <td>
+              <div class="profit-bar">
+                <div class="profit-bar-fill" style="width: ${barWidth}%"></div>
+              </div>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function renderComponentTable() {
+      const tbody = document.getElementById('component-table');
+
+      // Aggregate by component type
+      const components = {
+        'Base Fabric': { cost: 0, revenue: 0 },
+        'Hardware Options': { cost: 0, revenue: 0 },
+        'Motors': { cost: 0, revenue: 0 },
+        'Accessories': { cost: 0, revenue: 0 }
+      };
+
+      reportData.orders.forEach(order => {
+        order.items?.forEach(item => {
+          const snapshot = item.price_snapshots || item.price_snapshot || {};
+          const mfr = snapshot.manufacturer_price || {};
+          const cust = snapshot.customer_price || {};
+
+          components['Base Fabric'].cost += mfr.cost || 0;
+          components['Base Fabric'].revenue += cust.base_price || mfr.cost * 1.4 || 0;
+
+          (cust.options_breakdown || []).forEach(opt => {
+            if (opt.name?.toLowerCase().includes('motor')) {
+              components['Motors'].cost += opt.manufacturerCost || opt.price / 1.4 || 0;
+              components['Motors'].revenue += opt.price || 0;
+            } else {
+              components['Hardware Options'].cost += opt.manufacturerCost || opt.price / 1.4 || 0;
+              components['Hardware Options'].revenue += opt.price || 0;
+            }
+          });
+
+          (cust.accessories_breakdown || []).forEach(acc => {
+            components['Accessories'].cost += acc.manufacturerCost || acc.price / 1.4 || 0;
+            components['Accessories'].revenue += acc.price || 0;
+          });
+        });
+      });
+
+      tbody.innerHTML = Object.entries(components).map(([name, data]) => {
+        const profit = data.revenue - data.cost;
+        const margin = data.revenue > 0 ? (profit / data.revenue * 100) : 0;
+
+        return `
+          <tr>
+            <td style="font-weight: 500;">${name}</td>
+            <td class="cost" style="text-align: right;">${Admin.Utils.formatCurrency(data.cost)}</td>
+            <td class="revenue" style="text-align: right;">${Admin.Utils.formatCurrency(data.revenue)}</td>
+            <td style="text-align: right; font-weight: 600; color: #10b981;">${Admin.Utils.formatCurrency(profit)}</td>
+            <td class="margin" style="text-align: center;">${margin.toFixed(1)}%</td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function getProductType(order) {
+      if (!order.items || order.items.length === 0) return 'unknown';
+      const types = new Set();
+      order.items.forEach(item => {
+        if (item.product_type) types.add(item.product_type);
+        else if (item.product_slug?.includes('zebra')) types.add('zebra');
+        else if (item.product_slug?.includes('roller')) types.add('roller');
+      });
+      if (types.size === 0) return 'other';
+      if (types.size === 1) return [...types][0];
+      return 'mixed';
+    }
+
+    function exportReport() {
+      if (reportData.orders.length === 0) {
+        Admin.Toast.warning('No data to export');
+        return;
+      }
+
+      const headers = ['Order #', 'Date', 'MFR Cost', 'Customer Price', 'Profit', 'Margin %'];
+      const rows = reportData.orders.map(order => {
+        const revenue = order.total || order.pricing?.total || 0;
+        const cost = order.pricing?.manufacturer_cost_total || revenue * 0.6;
+        const profit = revenue - cost;
+        const margin = revenue > 0 ? (profit / revenue * 100) : 0;
+        return [
+          order.order_number || order.id.slice(0, 8).toUpperCase(),
+          Admin.Utils.formatDate(order.created_at),
+          cost.toFixed(2),
+          revenue.toFixed(2),
+          profit.toFixed(2),
+          margin.toFixed(1)
+        ];
+      });
+
+      const csvContent = [headers, ...rows].map(row => row.join(',')).join('\n');
+      const blob = new Blob([csvContent], { type: 'text/csv' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `profit-report-${new Date().toISOString().split('T')[0]}.csv`;
+      a.click();
+      URL.revokeObjectURL(url);
+      Admin.Toast.success('Report exported');
+    }
+  </script>
+</body>
+</html>

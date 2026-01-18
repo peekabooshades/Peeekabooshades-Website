@@ -1,0 +1,121 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Mobile Menu - Peekaboo Shades Admin</title>
+  <link rel="stylesheet" href="/admin/css/admin.css?v=1737200003.0.28">
+  <script src="/admin/js/adminNavConfig.js?v=1737200002"></script>
+  <style>
+    .mobile-grid { display: grid; grid-template-columns: 400px 1fr; gap: 1.5rem; margin-top: 1.5rem; }
+    .menu-editor { background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+    .menu-editor h3 { margin: 0 0 1rem 0; }
+    .menu-item { display: flex; justify-content: space-between; align-items: center; padding: 0.75rem; background: #F9FAFB; border-radius: 8px; margin-bottom: 0.5rem; cursor: grab; }
+    .menu-item.parent { font-weight: 600; }
+    .menu-item.child { margin-left: 1.5rem; font-size: 0.9rem; }
+    .menu-item .label { display: flex; align-items: center; gap: 0.5rem; }
+    .menu-item .actions { display: flex; gap: 0.25rem; }
+    .menu-item .btn-icon { width: 28px; height: 28px; border: none; background: #E5E7EB; border-radius: 4px; cursor: pointer; font-size: 0.8rem; }
+    .btn-add { padding: 0.75rem; width: 100%; background: #E5E7EB; color: #374151; border: none; border-radius: 8px; cursor: pointer; margin-top: 1rem; }
+    .btn-primary { padding: 0.75rem 1.5rem; background: #8E6545; color: white; border: none; border-radius: 8px; cursor: pointer; }
+    .mobile-preview { background: #1F2937; padding: 1.5rem; border-radius: 12px; display: flex; justify-content: center; align-items: flex-start; min-height: 600px; }
+    .phone-frame { width: 320px; background: white; border-radius: 24px; overflow: hidden; box-shadow: 0 0 0 8px #374151; }
+    .phone-header { background: #8E6545; padding: 1rem; display: flex; justify-content: space-between; align-items: center; }
+    .phone-header .logo { color: white; font-weight: 600; }
+    .phone-header .menu-btn { width: 24px; height: 24px; background: none; border: none; color: white; font-size: 1.2rem; }
+    .phone-menu { padding: 0; }
+    .phone-menu-item { padding: 1rem; border-bottom: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; }
+    .phone-menu-item.parent { font-weight: 600; }
+    .phone-submenu { background: #F9FAFB; }
+    .phone-submenu .phone-menu-item { padding-left: 2rem; font-weight: normal; font-size: 0.9rem; }
+    .expand-icon { color: #666; }
+  </style>
+</head>
+<body>
+  <div class="admin-layout">
+    <aside class="admin-sidebar"></aside>
+    <main class="admin-main">
+      <header class="admin-header">
+        <h1>Mobile Menu</h1>
+        <div class="header-actions"><button class="btn-primary" onclick="saveChanges()">Save Changes</button></div>
+      </header>
+      <div class="admin-content">
+        <div class="mobile-grid">
+          <div class="menu-editor">
+            <h3>Menu Structure</h3>
+            <div class="menu-item parent">
+              <span class="label">☰ Shop</span>
+              <div class="actions"><button class="btn-icon">↑</button><button class="btn-icon">↓</button><button class="btn-icon">✏️</button></div>
+            </div>
+            <div class="menu-item child">
+              <span class="label">Roller Shades</span>
+              <div class="actions"><button class="btn-icon">×</button></div>
+            </div>
+            <div class="menu-item child">
+              <span class="label">Zebra Blinds</span>
+              <div class="actions"><button class="btn-icon">×</button></div>
+            </div>
+            <div class="menu-item child">
+              <span class="label">Motorized Shades</span>
+              <div class="actions"><button class="btn-icon">×</button></div>
+            </div>
+            <div class="menu-item parent">
+              <span class="label">☰ Samples</span>
+              <div class="actions"><button class="btn-icon">↑</button><button class="btn-icon">↓</button><button class="btn-icon">✏️</button></div>
+            </div>
+            <div class="menu-item parent">
+              <span class="label">☰ How It Works</span>
+              <div class="actions"><button class="btn-icon">↑</button><button class="btn-icon">↓</button><button class="btn-icon">✏️</button></div>
+            </div>
+            <div class="menu-item child">
+              <span class="label">Measuring Guide</span>
+              <div class="actions"><button class="btn-icon">×</button></div>
+            </div>
+            <div class="menu-item child">
+              <span class="label">Installation</span>
+              <div class="actions"><button class="btn-icon">×</button></div>
+            </div>
+            <div class="menu-item parent">
+              <span class="label">☰ Trade Program</span>
+              <div class="actions"><button class="btn-icon">↑</button><button class="btn-icon">↓</button><button class="btn-icon">✏️</button></div>
+            </div>
+            <div class="menu-item parent">
+              <span class="label">☰ Contact</span>
+              <div class="actions"><button class="btn-icon">↑</button><button class="btn-icon">↓</button><button class="btn-icon">✏️</button></div>
+            </div>
+            <button class="btn-add" onclick="addMenuItem()">+ Add Menu Item</button>
+          </div>
+          <div class="mobile-preview">
+            <div class="phone-frame">
+              <div class="phone-header">
+                <span class="logo">Peekaboo Shades</span>
+                <button class="menu-btn">☰</button>
+              </div>
+              <div class="phone-menu">
+                <div class="phone-menu-item parent">Shop <span class="expand-icon">▼</span></div>
+                <div class="phone-submenu">
+                  <div class="phone-menu-item">Roller Shades</div>
+                  <div class="phone-menu-item">Zebra Blinds</div>
+                  <div class="phone-menu-item">Motorized Shades</div>
+                </div>
+                <div class="phone-menu-item parent">Samples</div>
+                <div class="phone-menu-item parent">How It Works <span class="expand-icon">▶</span></div>
+                <div class="phone-menu-item parent">Trade Program</div>
+                <div class="phone-menu-item parent">Contact</div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      if (!localStorage.getItem('admin_token')) { window.location.href = '/admin/login.html'; return; }
+      AdminNavConfig.initSidebar('mobile-menu');
+    });
+    function saveChanges() { alert('Mobile menu saved!'); }
+    function addMenuItem() { alert('Adding menu item...'); }
+  </script>
+</body>
+</html>

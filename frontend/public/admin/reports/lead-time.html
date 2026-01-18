@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lead Time Reports - Peekaboo Shades Admin</title>
+  <link rel="stylesheet" href="/admin/css/admin.css?v=1737200003.0.28">
+  <script src="/admin/js/adminNavConfig.js?v=1737200002"></script>
+  <style>
+    .metrics-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 1.5rem; }
+    .metric-card { background: white; padding: 1.5rem; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); text-align: center; }
+    .metric-card h4 { margin: 0 0 0.5rem 0; font-size: 0.85rem; color: #666; }
+    .metric-card .value { font-size: 2rem; font-weight: 600; color: #8E6545; }
+    .metric-card .sub { font-size: 0.85rem; color: #666; }
+    .reports-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+    .report-card { background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+    .report-card h3 { margin: 0 0 1rem 0; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { padding: 0.75rem; text-align: left; border-bottom: 1px solid #eee; }
+    th { font-weight: 600; color: #666; font-size: 0.85rem; }
+    .timeline { display: flex; justify-content: space-between; margin: 1.5rem 0; position: relative; }
+    .timeline::before { content: ''; position: absolute; top: 15px; left: 10%; right: 10%; height: 3px; background: #E5E7EB; }
+    .timeline-step { text-align: center; position: relative; z-index: 1; }
+    .timeline-dot { width: 30px; height: 30px; background: #8E6545; border-radius: 50%; margin: 0 auto 0.5rem; display: flex; align-items: center; justify-content: center; color: white; font-size: 0.8rem; }
+    .timeline-label { font-size: 0.8rem; color: #666; }
+    .timeline-days { font-weight: 600; color: #333; }
+    .status-good { color: #10B981; }
+    .status-warning { color: #F59E0B; }
+    .status-bad { color: #EF4444; }
+  </style>
+</head>
+<body>
+  <div class="admin-layout">
+    <aside class="admin-sidebar"></aside>
+    <main class="admin-main">
+      <header class="admin-header"><h1>Lead Time Reports</h1></header>
+      <div class="admin-content">
+        <div class="metrics-row">
+          <div class="metric-card">
+            <h4>Avg Total Lead Time</h4>
+            <div class="value">12.5</div>
+            <div class="sub">days order to delivery</div>
+          </div>
+          <div class="metric-card">
+            <h4>Production Time</h4>
+            <div class="value">7.2</div>
+            <div class="sub">days avg manufacturing</div>
+          </div>
+          <div class="metric-card">
+            <h4>Transit Time</h4>
+            <div class="value">4.3</div>
+            <div class="sub">days avg shipping</div>
+          </div>
+          <div class="metric-card">
+            <h4>On-Time Delivery</h4>
+            <div class="value status-good">94%</div>
+            <div class="sub">within promised date</div>
+          </div>
+        </div>
+        <div class="report-card" style="margin-bottom: 1.5rem;">
+          <h3>Order to Delivery Timeline</h3>
+          <div class="timeline">
+            <div class="timeline-step">
+              <div class="timeline-dot">1</div>
+              <div class="timeline-label">Order Placed</div>
+              <div class="timeline-days">Day 0</div>
+            </div>
+            <div class="timeline-step">
+              <div class="timeline-dot">2</div>
+              <div class="timeline-label">Processing</div>
+              <div class="timeline-days">+1 day</div>
+            </div>
+            <div class="timeline-step">
+              <div class="timeline-dot">3</div>
+              <div class="timeline-label">In Production</div>
+              <div class="timeline-days">+5-7 days</div>
+            </div>
+            <div class="timeline-step">
+              <div class="timeline-dot">4</div>
+              <div class="timeline-label">Quality Check</div>
+              <div class="timeline-days">+1 day</div>
+            </div>
+            <div class="timeline-step">
+              <div class="timeline-dot">5</div>
+              <div class="timeline-label">Shipped</div>
+              <div class="timeline-days">+3-5 days</div>
+            </div>
+            <div class="timeline-step">
+              <div class="timeline-dot">6</div>
+              <div class="timeline-label">Delivered</div>
+              <div class="timeline-days">Day 12-14</div>
+            </div>
+          </div>
+        </div>
+        <div class="reports-grid">
+          <div class="report-card">
+            <h3>Lead Time by Product Type</h3>
+            <table>
+              <thead><tr><th>Product</th><th>Production</th><th>Total</th><th>Status</th></tr></thead>
+              <tbody>
+                <tr><td>Standard Roller</td><td>5 days</td><td>10 days</td><td class="status-good">On Track</td></tr>
+                <tr><td>Motorized Roller</td><td>7 days</td><td>12 days</td><td class="status-good">On Track</td></tr>
+                <tr><td>Zebra Blinds</td><td>6 days</td><td>11 days</td><td class="status-good">On Track</td></tr>
+                <tr><td>Roman Shades</td><td>10 days</td><td>15 days</td><td class="status-warning">Slower</td></tr>
+                <tr><td>Custom Shapes</td><td>14 days</td><td>19 days</td><td class="status-warning">Extended</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="report-card">
+            <h3>Monthly Lead Time Trend</h3>
+            <table>
+              <thead><tr><th>Month</th><th>Avg Lead Time</th><th>Production</th><th>On-Time %</th></tr></thead>
+              <tbody>
+                <tr><td>January</td><td>13.2 days</td><td>7.8 days</td><td>91%</td></tr>
+                <tr><td>February</td><td>12.8 days</td><td>7.5 days</td><td>93%</td></tr>
+                <tr><td>March</td><td>12.1 days</td><td>7.0 days</td><td>95%</td></tr>
+                <tr><td>April</td><td>12.5 days</td><td>7.2 days</td><td>94%</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="report-card">
+            <h3>Delayed Orders</h3>
+            <table>
+              <thead><tr><th>Order</th><th>Product</th><th>Delay</th><th>Reason</th></tr></thead>
+              <tbody>
+                <tr><td>#1087</td><td>Roman Premium</td><td>+3 days</td><td>Fabric backorder</td></tr>
+                <tr><td>#1079</td><td>Motorized 72"</td><td>+2 days</td><td>Motor shortage</td></tr>
+                <tr><td>#1065</td><td>Custom Shape</td><td>+4 days</td><td>Complex cutting</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="report-card">
+            <h3>Lead Time by Region</h3>
+            <table>
+              <thead><tr><th>Region</th><th>Orders</th><th>Avg Days</th><th>Transit</th></tr></thead>
+              <tbody>
+                <tr><td>West Coast</td><td>124</td><td>10.5 days</td><td>3.2 days</td></tr>
+                <tr><td>Central</td><td>156</td><td>12.1 days</td><td>4.8 days</td></tr>
+                <tr><td>East Coast</td><td>189</td><td>13.8 days</td><td>5.5 days</td></tr>
+                <tr><td>Southeast</td><td>93</td><td>14.2 days</td><td>5.9 days</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      if (!localStorage.getItem('admin_token')) { window.location.href = '/admin/login.html'; return; }
+      AdminNavConfig.initSidebar('lead-time');
+    });
+  </script>
+</body>
+</html>

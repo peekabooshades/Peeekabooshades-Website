@@ -396,26 +396,122 @@
         </div>
     </div>
 
+    <script src="/admin/js/admin.js?v=1737100001"></script>
     <script>
-        const logs = [
-            { id: '1', type: 'login', action: 'User logged in', target: 'admin@peekabooshades.com', severity: 'info', user: 'Admin', email: 'admin@peekabooshades.com', ip: '192.168.1.1', timestamp: '2024-06-19T10:30:00', details: { browser: 'Chrome 125', os: 'Windows 11', location: 'New York, US' } },
-            { id: '2', type: 'error', action: 'Failed login attempt', target: 'unknown@email.com', severity: 'warning', user: 'Unknown', email: 'unknown@email.com', ip: '192.168.1.100', timestamp: '2024-06-19T10:25:00', details: { reason: 'Invalid credentials', attempts: 5 } },
-            { id: '3', type: 'update', action: 'Product updated', target: 'SKU-12345', severity: 'info', user: 'John', email: 'john@peekabooshades.com', ip: '192.168.1.50', timestamp: '2024-06-19T10:20:00', details: { changes: { price: { from: 99.99, to: 89.99 }, stock: { from: 50, to: 45 } } } },
-            { id: '4', type: 'security', action: 'IP blocked automatically', target: '192.168.1.200', severity: 'warning', user: 'System', email: 'system', ip: 'N/A', timestamp: '2024-06-19T10:15:00', details: { reason: '10 failed login attempts', duration: '24 hours' } },
-            { id: '5', type: 'create', action: 'New order created', target: 'Order #10234', severity: 'info', user: 'Sarah', email: 'sarah@peekabooshades.com', ip: '192.168.1.75', timestamp: '2024-06-19T10:10:00', details: { total: 249.99, items: 3 } },
-            { id: '6', type: 'settings', action: 'Security settings changed', target: '2FA Policy', severity: 'warning', user: 'Admin', email: 'admin@peekabooshades.com', ip: '192.168.1.1', timestamp: '2024-06-19T10:05:00', details: { changes: { require2FA: { from: false, to: true } } } },
-            { id: '7', type: 'delete', action: 'Product deleted', target: 'SKU-99999', severity: 'warning', user: 'Admin', email: 'admin@peekabooshades.com', ip: '192.168.1.1', timestamp: '2024-06-19T10:00:00', details: { productName: 'Discontinued Item', reason: 'Discontinued' } },
-            { id: '8', type: 'security', action: 'Suspicious login detected', target: 'john@peekabooshades.com', severity: 'critical', user: 'John', email: 'john@peekabooshades.com', ip: '203.0.113.50', timestamp: '2024-06-19T09:55:00', details: { location: 'Moscow, Russia', previousLocation: 'New York, US', timeDifference: '2 hours' } },
-            { id: '9', type: 'logout', action: 'User logged out', target: 'sarah@peekabooshades.com', severity: 'info', user: 'Sarah', email: 'sarah@peekabooshades.com', ip: '192.168.1.75', timestamp: '2024-06-19T09:50:00', details: {} },
-            { id: '10', type: 'update', action: 'Order status changed', target: 'Order #10233', severity: 'info', user: 'John', email: 'john@peekabooshades.com', ip: '192.168.1.50', timestamp: '2024-06-19T09:45:00', details: { status: { from: 'Processing', to: 'Shipped' }, trackingNumber: '1Z999AA10123456784' } }
-        ];
+        let logs = [];
+        let filteredLogs = [];
+        let currentPage = 1;
+        const pageSize = 20;
+        let totalLogs = 0;
+        let stats = { eventsToday: 0, failedLogins: 0, securityAlerts: 0, retention: '30d' };
 
         document.addEventListener('DOMContentLoaded', () => {
-            renderLogs();
+            if (!localStorage.getItem('admin_token')) {
+                window.location.href = '/admin/login.html';
+                return;
+            }
+            loadAuditLogs();
+            setupFilters();
         });
+
+        async function loadAuditLogs() {
+            const token = localStorage.getItem('admin_token');
+            const headers = { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' };
+
+            // Build query params from filters
+            const params = new URLSearchParams();
+            params.append('page', currentPage);
+            params.append('limit', pageSize);
+
+            const search = document.getElementById('searchInput').value;
+            const eventType = document.getElementById('eventFilter').value;
+            const severity = document.getElementById('severityFilter').value;
+            const user = document.getElementById('userFilter').value;
+            const startDate = document.getElementById('startDate').value;
+            const endDate = document.getElementById('endDate').value;
+
+            if (search) params.append('search', search);
+            if (eventType) params.append('type', eventType);
+            if (severity) params.append('severity', severity);
+            if (user) params.append('user', user);
+            if (startDate) params.append('startDate', startDate);
+            if (endDate) params.append('endDate', endDate);
+
+            try {
+                const res = await fetch(`/api/admin/security/audit-logs?${params}`, { headers });
+                const data = await res.json();
+
+                if (data.success) {
+                    logs = (data.logs || data.data || []).map(log => ({
+                        id: log.id || log._id || String(Date.now()),
+                        type: log.type || log.action_type || 'info',
+                        action: log.action || log.description || log.message || 'Unknown action',
+                        target: log.target || log.resource || log.entity || '',
+                        severity: log.severity || log.level || 'info',
+                        user: log.user || log.userName || log.admin || 'System',
+                        email: log.email || log.userEmail || '',
+                        ip: log.ip || log.ipAddress || 'N/A',
+                        timestamp: log.timestamp || log.created_at || log.createdAt || new Date().toISOString(),
+                        details: log.details || log.metadata || log.data || {}
+                    }));
+                    totalLogs = data.total || data.count || logs.length;
+
+                    // Calculate stats
+                    const today = new Date().toDateString();
+                    stats.eventsToday = logs.filter(l => new Date(l.timestamp).toDateString() === today).length || totalLogs;
+                    stats.failedLogins = logs.filter(l => l.type === 'error' || l.action.toLowerCase().includes('failed')).length;
+                    stats.securityAlerts = logs.filter(l => l.severity === 'critical' || l.severity === 'warning').length;
+
+                    updateStats();
+                    renderLogs();
+                    renderPagination();
+                } else {
+                    console.error('Failed to load audit logs:', data.error);
+                    renderEmptyState('Failed to load audit logs');
+                }
+            } catch (error) {
+                console.error('Error loading audit logs:', error);
+                renderEmptyState('Error connecting to server');
+            }
+        }
+
+        function updateStats() {
+            document.querySelectorAll('.stat-card')[0].querySelector('.stat-value').textContent = totalLogs.toLocaleString();
+            document.querySelectorAll('.stat-card')[1].querySelector('.stat-value').textContent = stats.failedLogins;
+            document.querySelectorAll('.stat-card')[2].querySelector('.stat-value').textContent = stats.securityAlerts;
+        }
+
+        function setupFilters() {
+            document.getElementById('searchInput').addEventListener('input', debounce(loadAuditLogs, 500));
+            document.getElementById('eventFilter').addEventListener('change', loadAuditLogs);
+            document.getElementById('severityFilter').addEventListener('change', loadAuditLogs);
+            document.getElementById('userFilter').addEventListener('change', loadAuditLogs);
+            document.getElementById('startDate').addEventListener('change', loadAuditLogs);
+            document.getElementById('endDate').addEventListener('change', loadAuditLogs);
+        }
+
+        function debounce(func, wait) {
+            let timeout;
+            return function executedFunction(...args) {
+                const later = () => { clearTimeout(timeout); func(...args); };
+                clearTimeout(timeout);
+                timeout = setTimeout(later, wait);
+            };
+        }
+
+        function renderEmptyState(message) {
+            const tbody = document.getElementById('logsTable');
+            tbody.innerHTML = `<tr><td colspan="6" style="text-align: center; padding: 40px; color: #888;">${message}</td></tr>`;
+        }
 
         function renderLogs() {
             const tbody = document.getElementById('logsTable');
+
+            if (logs.length === 0) {
+                renderEmptyState('No audit logs found');
+                return;
+            }
+
             tbody.innerHTML = logs.map(log => `
                 <tr>
                     <td>
@@ -424,23 +520,71 @@
                                 <i class="fas ${getEventIcon(log.type)}"></i>
                             </div>
                             <div class="event-details">
-                                <div class="event-action">${log.action}</div>
-                                <div class="event-target">${log.target}</div>
+                                <div class="event-action">${escapeHtml(log.action)}</div>
+                                <div class="event-target">${escapeHtml(log.target)}</div>
                             </div>
                         </div>
                     </td>
                     <td><span class="severity-badge severity-${log.severity}">${log.severity}</span></td>
                     <td>
                         <div class="user-cell">
-                            <div class="user-avatar">${log.user[0]}</div>
-                            <span>${log.user}</span>
+                            <div class="user-avatar">${(log.user || 'S')[0].toUpperCase()}</div>
+                            <span>${escapeHtml(log.user)}</span>
                         </div>
                     </td>
-                    <td><span class="ip-address">${log.ip}</span></td>
+                    <td><span class="ip-address">${escapeHtml(log.ip)}</span></td>
                     <td>${formatTimestamp(log.timestamp)}</td>
                     <td><button class="log-details-btn" onclick="showDetails('${log.id}')">Details</button></td>
                 </tr>
             `).join('');
+        }
+
+        function escapeHtml(str) {
+            if (!str) return '';
+            const div = document.createElement('div');
+            div.textContent = str;
+            return div.innerHTML;
+        }
+
+        function renderPagination() {
+            const totalPages = Math.ceil(totalLogs / pageSize);
+            const start = (currentPage - 1) * pageSize + 1;
+            const end = Math.min(currentPage * pageSize, totalLogs);
+
+            document.querySelector('.pagination-info').textContent = `Showing ${start}-${end} of ${totalLogs.toLocaleString()} events`;
+
+            const controls = document.querySelector('.pagination-controls');
+            let pagesHtml = `<button ${currentPage === 1 ? 'disabled' : ''} onclick="goToPage(${currentPage - 1})"><i class="fas fa-chevron-left"></i></button>`;
+
+            // Show first page
+            pagesHtml += `<button class="${currentPage === 1 ? 'active' : ''}" onclick="goToPage(1)">1</button>`;
+
+            if (currentPage > 3) {
+                pagesHtml += `<button disabled>...</button>`;
+            }
+
+            // Show pages around current
+            for (let i = Math.max(2, currentPage - 1); i <= Math.min(totalPages - 1, currentPage + 1); i++) {
+                pagesHtml += `<button class="${currentPage === i ? 'active' : ''}" onclick="goToPage(${i})">${i}</button>`;
+            }
+
+            if (currentPage < totalPages - 2) {
+                pagesHtml += `<button disabled>...</button>`;
+            }
+
+            // Show last page
+            if (totalPages > 1) {
+                pagesHtml += `<button class="${currentPage === totalPages ? 'active' : ''}" onclick="goToPage(${totalPages})">${totalPages}</button>`;
+            }
+
+            pagesHtml += `<button ${currentPage === totalPages ? 'disabled' : ''} onclick="goToPage(${currentPage + 1})"><i class="fas fa-chevron-right"></i></button>`;
+
+            controls.innerHTML = pagesHtml;
+        }
+
+        function goToPage(page) {
+            currentPage = page;
+            loadAuditLogs();
         }
 
         function getEventIcon(type) {
@@ -472,11 +616,11 @@
             content.innerHTML = `
                 <div class="detail-row">
                     <div class="detail-label">Event</div>
-                    <div class="detail-value">${log.action}</div>
+                    <div class="detail-value">${escapeHtml(log.action)}</div>
                 </div>
                 <div class="detail-row">
                     <div class="detail-label">Target</div>
-                    <div class="detail-value">${log.target}</div>
+                    <div class="detail-value">${escapeHtml(log.target)}</div>
                 </div>
                 <div class="detail-row">
                     <div class="detail-label">Severity</div>
@@ -484,11 +628,11 @@
                 </div>
                 <div class="detail-row">
                     <div class="detail-label">User</div>
-                    <div class="detail-value">${log.email}</div>
+                    <div class="detail-value">${escapeHtml(log.email || log.user)}</div>
                 </div>
                 <div class="detail-row">
                     <div class="detail-label">IP Address</div>
-                    <div class="detail-value">${log.ip}</div>
+                    <div class="detail-value">${escapeHtml(log.ip)}</div>
                 </div>
                 <div class="detail-row">
                     <div class="detail-label">Timestamp</div>
@@ -506,9 +650,67 @@
             document.getElementById('detailsModal').classList.remove('active');
         }
 
-        function exportLogs() {
-            alert('Logs would be exported as CSV');
+        async function exportLogs() {
+            const token = localStorage.getItem('admin_token');
+            const headers = { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' };
+
+            try {
+                // Try to use export endpoint first
+                const res = await fetch('/api/admin/security/audit-logs/export', { headers });
+
+                if (res.ok) {
+                    const blob = await res.blob();
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `audit-logs-${new Date().toISOString().split('T')[0]}.csv`;
+                    a.click();
+                    window.URL.revokeObjectURL(url);
+                } else {
+                    // Fallback: Generate CSV from current data
+                    const csvContent = generateCSV(logs);
+                    const blob = new Blob([csvContent], { type: 'text/csv' });
+                    const url = window.URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `audit-logs-${new Date().toISOString().split('T')[0]}.csv`;
+                    a.click();
+                    window.URL.revokeObjectURL(url);
+                }
+
+                if (typeof Admin !== 'undefined' && Admin.Toast) {
+                    Admin.Toast.success('Logs exported successfully');
+                }
+            } catch (error) {
+                console.error('Export error:', error);
+                // Fallback to client-side export
+                const csvContent = generateCSV(logs);
+                const blob = new Blob([csvContent], { type: 'text/csv' });
+                const url = window.URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `audit-logs-${new Date().toISOString().split('T')[0]}.csv`;
+                a.click();
+                window.URL.revokeObjectURL(url);
+            }
+        }
+
+        function generateCSV(data) {
+            const headers = ['ID', 'Type', 'Action', 'Target', 'Severity', 'User', 'Email', 'IP', 'Timestamp'];
+            const rows = data.map(log => [
+                log.id,
+                log.type,
+                `"${(log.action || '').replace(/"/g, '""')}"`,
+                `"${(log.target || '').replace(/"/g, '""')}"`,
+                log.severity,
+                log.user,
+                log.email,
+                log.ip,
+                log.timestamp
+            ]);
+            return [headers.join(','), ...rows.map(r => r.join(','))].join('\n');
         }
     </script>
+<script src="/admin/js/ai-assistant.js"></script>
 </body>
 </html>

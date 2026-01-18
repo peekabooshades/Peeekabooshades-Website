@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Customer Lifetime Value - Peekaboo Shades Admin</title>
+  <link rel="stylesheet" href="/admin/css/admin.css?v=1737200003.0.28">
+  <script src="/admin/js/adminNavConfig.js?v=1737200002"></script>
+  <style>
+    .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
+    .stat-card { background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+    .stat-card h3 { font-size: 0.85rem; color: #666; margin-bottom: 0.5rem; }
+    .stat-card .value { font-size: 2rem; font-weight: 700; color: #8E6545; }
+    .stat-card .subtitle { font-size: 0.8rem; color: #666; margin-top: 0.25rem; }
+    .report-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-top: 1.5rem; }
+    .report-card { background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+    .report-card h3 { margin: 0 0 1rem 0; }
+    .segment-list { list-style: none; padding: 0; margin: 0; }
+    .segment-item { display: flex; justify-content: space-between; align-items: center; padding: 1rem; border-bottom: 1px solid #eee; }
+    .segment-item:last-child { border-bottom: none; }
+    .segment-name { font-weight: 500; }
+    .segment-count { color: #666; font-size: 0.85rem; }
+    .segment-value { font-weight: 600; color: #8E6545; }
+    .progress-bar { height: 8px; background: #e0e0e0; border-radius: 4px; overflow: hidden; margin-top: 0.5rem; }
+    .progress-fill { height: 100%; background: #8E6545; border-radius: 4px; }
+    table { width: 100%; border-collapse: collapse; }
+    th { background: #f9f9f9; padding: 1rem; text-align: left; font-weight: 600; font-size: 0.85rem; color: #666; text-transform: uppercase; }
+    td { padding: 1rem; border-top: 1px solid #eee; }
+    .customer-avatar { width: 36px; height: 36px; background: #8E6545; color: white; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 600; }
+    .customer-info { display: flex; align-items: center; gap: 0.75rem; }
+    .customer-name { font-weight: 500; }
+    .customer-email { font-size: 0.85rem; color: #666; }
+    .btn-export { padding: 0.5rem 1rem; background: #E5E7EB; color: #374151; border: none; border-radius: 6px; cursor: pointer; }
+    .date-filter { display: flex; gap: 0.5rem; align-items: center; }
+    .date-filter select { padding: 0.5rem; border: 1px solid #ddd; border-radius: 6px; }
+    .loading { text-align: center; padding: 2rem; color: #666; }
+    .empty-state { text-align: center; padding: 3rem; color: #666; }
+  </style>
+</head>
+<body>
+  <div class="admin-layout">
+    <aside class="admin-sidebar"></aside>
+    <main class="admin-main">
+      <header class="admin-header">
+        <h1>Customer Lifetime Value</h1>
+        <div class="header-actions">
+          <div class="date-filter">
+            <select id="timeRange" onchange="loadReport()">
+              <option value="30">Last 30 Days</option>
+              <option value="90" selected>Last 90 Days</option>
+              <option value="365">Last Year</option>
+              <option value="all">All Time</option>
+            </select>
+          </div>
+          <button class="btn-export" onclick="exportReport()">Export CSV</button>
+        </div>
+      </header>
+      <div class="admin-content">
+        <div id="loadingState" class="loading">Loading...</div>
+
+        <div id="reportContent" style="display: none;">
+          <div class="stats">
+            <div class="stat-card">
+              <h3>Average LTV</h3>
+              <div class="value" id="avgLTV">$0</div>
+              <div class="subtitle">Per customer</div>
+            </div>
+            <div class="stat-card">
+              <h3>Median LTV</h3>
+              <div class="value" id="medianLTV">$0</div>
+              <div class="subtitle">Middle value</div>
+            </div>
+            <div class="stat-card">
+              <h3>Top 10% LTV</h3>
+              <div class="value" id="topLTV">$0</div>
+              <div class="subtitle">High-value customers</div>
+            </div>
+            <div class="stat-card">
+              <h3>Repeat Rate</h3>
+              <div class="value" id="repeatRate">0%</div>
+              <div class="subtitle">Multi-order customers</div>
+            </div>
+          </div>
+
+          <div class="report-grid">
+            <div class="report-card">
+              <h3>LTV by Customer Segment</h3>
+              <ul class="segment-list" id="segmentList">
+                <li class="segment-item"><div class="empty-state">No data available</div></li>
+              </ul>
+            </div>
+            <div class="report-card">
+              <h3>Orders Distribution</h3>
+              <ul class="segment-list" id="orderDistribution">
+                <li class="segment-item"><div class="empty-state">No data available</div></li>
+              </ul>
+            </div>
+          </div>
+
+          <div class="report-card" style="margin-top: 1.5rem;">
+            <h3>Top Customers by Lifetime Value</h3>
+            <table>
+              <thead>
+                <tr>
+                  <th>Customer</th>
+                  <th>Orders</th>
+                  <th>First Order</th>
+                  <th>Last Order</th>
+                  <th>Total Spent</th>
+                  <th>Avg Order</th>
+                </tr>
+              </thead>
+              <tbody id="topCustomersBody">
+                <tr><td colspan="6" class="loading">Loading...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+  <script>
+    let customers = [];
+    let orders = [];
+    let customerLTV = [];
+
+    document.addEventListener('DOMContentLoaded', () => {
+      if (!localStorage.getItem('admin_token')) { window.location.href = '/admin/login.html'; return; }
+      AdminNavConfig.initSidebar('customer-ltv');
+      loadReport();
+    });
+
+    async function loadReport() {
+      const token = localStorage.getItem('admin_token');
+      const headers = { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' };
+
+      document.getElementById('loadingState').style.display = 'block';
+      document.getElementById('reportContent').style.display = 'none';
+
+      try {
+        // Fetch both customers and orders
+        const [customersRes, ordersRes] = await Promise.all([
+          fetch('/api/admin/customers', { headers }),
+          fetch('/api/admin/orders', { headers })
+        ]);
+
+        const customersData = await customersRes.json();
+        const ordersData = await ordersRes.json();
+
+        customers = customersData.success ? (customersData.data || customersData.customers || []) : [];
+        orders = ordersData.success ? (ordersData.orders || []) : [];
+
+        calculateLTV();
+        renderReport();
+      } catch (error) {
+        console.error('Error loading data:', error);
+        customers = [];
+        orders = [];
+        calculateLTV();
+        renderReport();
+      }
+    }
+
+    function calculateLTV() {
+      const timeRange = document.getElementById('timeRange').value;
+
+      // Filter orders by date range
+      let filteredOrders = [...orders];
+      if (timeRange !== 'all') {
+        const cutoffDate = new Date();
+        cutoffDate.setDate(cutoffDate.getDate() - parseInt(timeRange));
+        filteredOrders = filteredOrders.filter(o => {
+          const orderDate = new Date(o.created_at || o.createdAt);
+          return orderDate >= cutoffDate;
+        });
+      }
+
+      // Build customer LTV map
+      const customerMap = {};
+
+      filteredOrders.forEach(order => {
+        const email = order.customer_email || order.customerEmail || 'unknown';
+        const name = order.customer_name || order.customerName || 'Guest';
+        const total = order.total || order.pricing?.total || 0;
+        const date = new Date(order.created_at || order.createdAt);
+
+        if (!customerMap[email]) {
+          customerMap[email] = {
+            email: email,
+            name: name,
+            orders: [],
+            total: 0,
+            firstOrder: date,
+            lastOrder: date
+          };
+        }
+
+        customerMap[email].orders.push(order);
+        customerMap[email].total += total;
+        if (date < customerMap[email].firstOrder) customerMap[email].firstOrder = date;
+        if (date > customerMap[email].lastOrder) customerMap[email].lastOrder = date;
+      });
+
+      // Convert to array and calculate metrics
+      customerLTV = Object.values(customerMap).map(c => ({
+        ...c,
+        orderCount: c.orders.length,
+        avgOrder: c.orders.length > 0 ? c.total / c.orders.length : 0
+      }));
+
+      // Sort by total spent
+      customerLTV.sort((a, b) => b.total - a.total);
+    }
+
+    function renderReport() {
+      document.getElementById('loadingState').style.display = 'none';
+      document.getElementById('reportContent').style.display = 'block';
+
+      if (customerLTV.length === 0) {
+        document.getElementById('avgLTV').textContent = '$0';
+        document.getElementById('medianLTV').textContent = '$0';
+        document.getElementById('topLTV').textContent = '$0';
+        document.getElementById('repeatRate').textContent = '0%';
+        document.getElementById('segmentList').innerHTML = '<li class="segment-item"><div class="empty-state">No orders found for the selected period</div></li>';
+        document.getElementById('orderDistribution').innerHTML = '<li class="segment-item"><div class="empty-state">No orders found</div></li>';
+        document.getElementById('topCustomersBody').innerHTML = '<tr><td colspan="6" class="empty-state">No customers found for the selected period</td></tr>';
+        return;
+      }
+
+      // Calculate stats
+      const totalLTV = customerLTV.reduce((sum, c) => sum + c.total, 0);
+      const avgLTV = totalLTV / customerLTV.length;
+
+      // Median
+      const sortedByTotal = [...customerLTV].sort((a, b) => a.total - b.total);
+      const mid = Math.floor(sortedByTotal.length / 2);
+      const medianLTV = sortedByTotal.length % 2 !== 0
+        ? sortedByTotal[mid].total
+        : (sortedByTotal[mid - 1].total + sortedByTotal[mid].total) / 2;
+
+      // Top 10%
+      const top10Index = Math.max(0, Math.floor(customerLTV.length * 0.1) - 1);
+      const topLTV = customerLTV[top10Index]?.total || customerLTV[0]?.total || 0;
+
+      // Repeat rate
+      const repeatCustomers = customerLTV.filter(c => c.orderCount > 1).length;
+      const repeatRate = customerLTV.length > 0 ? (repeatCustomers / customerLTV.length * 100) : 0;
+
+      document.getElementById('avgLTV').textContent = '$' + avgLTV.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+      document.getElementById('medianLTV').textContent = '$' + medianLTV.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+      document.getElementById('topLTV').textContent = '$' + topLTV.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+      document.getElementById('repeatRate').textContent = repeatRate.toFixed(0) + '%';
+
+      // Render segments
+      renderSegments();
+      renderOrderDistribution();
+      renderTopCustomers();
+    }
+
+    function renderSegments() {
+      const segmentList = document.getElementById('segmentList');
+
+      // Segment by LTV
+      const vipCustomers = customerLTV.filter(c => c.total >= 1000);
+      const repeatCustomers = customerLTV.filter(c => c.orderCount > 1 && c.total < 1000);
+      const oneTimeCustomers = customerLTV.filter(c => c.orderCount === 1);
+
+      const vipLTV = vipCustomers.length > 0 ? vipCustomers.reduce((sum, c) => sum + c.total, 0) / vipCustomers.length : 0;
+      const repeatLTV = repeatCustomers.length > 0 ? repeatCustomers.reduce((sum, c) => sum + c.total, 0) / repeatCustomers.length : 0;
+      const oneTimeLTV = oneTimeCustomers.length > 0 ? oneTimeCustomers.reduce((sum, c) => sum + c.total, 0) / oneTimeCustomers.length : 0;
+
+      const maxLTV = Math.max(vipLTV, repeatLTV, oneTimeLTV) || 1;
+
+      const segments = [
+        { name: 'VIP Customers', subtitle: '$1000+ total', count: vipCustomers.length, ltv: vipLTV },
+        { name: 'Repeat Buyers', subtitle: '2+ orders', count: repeatCustomers.length, ltv: repeatLTV },
+        { name: 'One-Time Buyers', subtitle: '1 order', count: oneTimeCustomers.length, ltv: oneTimeLTV }
+      ].filter(s => s.count > 0);
+
+      if (segments.length === 0) {
+        segmentList.innerHTML = '<li class="segment-item"><div class="empty-state">No customer segments available</div></li>';
+        return;
+      }
+
+      segmentList.innerHTML = segments.map(s => `
+        <li class="segment-item">
+          <div>
+            <div class="segment-name">${s.name}</div>
+            <div class="segment-count">${s.count} customer${s.count !== 1 ? 's' : ''} (${s.subtitle})</div>
+            <div class="progress-bar"><div class="progress-fill" style="width: ${(s.ltv / maxLTV) * 100}%;"></div></div>
+          </div>
+          <div class="segment-value">$${s.ltv.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })}</div>
+        </li>
+      `).join('');
+    }
+
+    function renderOrderDistribution() {
+      const container = document.getElementById('orderDistribution');
+
+      // Group by order count
+      const distribution = {};
+      customerLTV.forEach(c => {
+        const bucket = c.orderCount >= 5 ? '5+' : c.orderCount.toString();
+        if (!distribution[bucket]) {
+          distribution[bucket] = { count: 0, total: 0 };
+        }
+        distribution[bucket].count++;
+        distribution[bucket].total += c.total;
+      });
+
+      const buckets = ['1', '2', '3', '4', '5+'].filter(b => distribution[b]);
+      const maxCount = Math.max(...buckets.map(b => distribution[b]?.count || 0)) || 1;
+
+      if (buckets.length === 0) {
+        container.innerHTML = '<li class="segment-item"><div class="empty-state">No order distribution data</div></li>';
+        return;
+      }
+
+      container.innerHTML = buckets.map(bucket => {
+        const data = distribution[bucket];
+        const avgLTV = data.count > 0 ? data.total / data.count : 0;
+        return `
+          <li class="segment-item">
+            <div>
+              <div class="segment-name">${bucket} Order${bucket !== '1' ? 's' : ''}</div>
+              <div class="segment-count">${data.count} customer${data.count !== 1 ? 's' : ''}</div>
+              <div class="progress-bar"><div class="progress-fill" style="width: ${(data.count / maxCount) * 100}%;"></div></div>
+            </div>
+            <div class="segment-value">$${avgLTV.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 })} avg</div>
+          </li>
+        `;
+      }).join('');
+    }
+
+    function renderTopCustomers() {
+      const tbody = document.getElementById('topCustomersBody');
+
+      if (customerLTV.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" class="empty-state">No customers found for the selected period</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = customerLTV.slice(0, 10).map(c => {
+        const initials = c.name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2) || '??';
+        const firstOrder = c.firstOrder.toLocaleDateString();
+        const lastOrder = c.lastOrder.toLocaleDateString();
+
+        return `
+          <tr>
+            <td>
+              <div class="customer-info">
+                <div class="customer-avatar">${initials}</div>
+                <div>
+                  <div class="customer-name">${escapeHtml(c.name)}</div>
+                  <div class="customer-email">${escapeHtml(c.email)}</div>
+                </div>
+              </div>
+            </td>
+            <td>${c.orderCount}</td>
+            <td>${firstOrder}</td>
+            <td>${lastOrder}</td>
+            <td><strong>$${c.total.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</strong></td>
+            <td>$${c.avgOrder.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function escapeHtml(text) {
+      const div = document.createElement('div');
+      div.textContent = text;
+      return div.innerHTML;
+    }
+
+    function exportReport() {
+      if (customerLTV.length === 0) {
+        alert('No data to export');
+        return;
+      }
+
+      let csv = 'Customer Name,Email,Orders,First Order,Last Order,Total Spent,Avg Order\n';
+      customerLTV.forEach(c => {
+        csv += `"${c.name}","${c.email}",${c.orderCount},"${c.firstOrder.toLocaleDateString()}","${c.lastOrder.toLocaleDateString()}",${c.total.toFixed(2)},${c.avgOrder.toFixed(2)}\n`;
+      });
+
+      const blob = new Blob([csv], { type: 'text/csv' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `customer-ltv-report-${new Date().toISOString().split('T')[0]}.csv`;
+      a.click();
+      URL.revokeObjectURL(url);
+    }
+  </script>
+</body>
+</html>

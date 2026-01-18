@@ -1,0 +1,1165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Specs Library - Peekaboo Shades Admin</title>
+  <link rel="stylesheet" href="css/admin.css?v=1737200003">
+  <link rel="icon" type="image/jpeg" href="/images/peekabooshades_logo.jpeg">
+  <style>
+    .specs-layout {
+      display: grid;
+      grid-template-columns: 220px 1fr 350px;
+      gap: 20px;
+      height: calc(100vh - 180px);
+    }
+
+    .product-selector {
+      background: var(--admin-card);
+      border-radius: 8px;
+      padding: 16px;
+      border: 1px solid var(--admin-border);
+    }
+
+    .product-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s;
+      margin-bottom: 8px;
+    }
+
+    .product-item:hover {
+      background: var(--admin-bg);
+    }
+
+    .product-item.active {
+      background: var(--admin-primary);
+      color: white;
+    }
+
+    .product-item .icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 8px;
+      background: var(--admin-bg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+    }
+
+    .product-item.active .icon {
+      background: rgba(255,255,255,0.2);
+    }
+
+    .product-item .name {
+      font-weight: 500;
+    }
+
+    .product-item .pages {
+      font-size: 11px;
+      opacity: 0.7;
+    }
+
+    .specs-editor {
+      background: var(--admin-card);
+      border-radius: 8px;
+      border: 1px solid var(--admin-border);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .editor-header {
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--admin-border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .editor-header h2 {
+      font-size: 18px;
+      margin: 0;
+    }
+
+    .editor-tabs {
+      display: flex;
+      gap: 0;
+      border-bottom: 1px solid var(--admin-border);
+      background: var(--admin-bg);
+    }
+
+    .editor-tab {
+      padding: 12px 20px;
+      border: none;
+      background: none;
+      cursor: pointer;
+      font-weight: 500;
+      color: var(--admin-text-secondary);
+      border-bottom: 2px solid transparent;
+      margin-bottom: -1px;
+    }
+
+    .editor-tab:hover {
+      color: var(--admin-text);
+    }
+
+    .editor-tab.active {
+      color: var(--admin-primary);
+      border-bottom-color: var(--admin-primary);
+      background: var(--admin-card);
+    }
+
+    .editor-content {
+      flex: 1;
+      overflow-y: auto;
+      padding: 20px;
+    }
+
+    .spec-group {
+      margin-bottom: 24px;
+    }
+
+    .spec-group-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--admin-primary);
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .spec-field {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--admin-border);
+    }
+
+    .spec-field:last-child {
+      border-bottom: none;
+    }
+
+    .spec-field-label {
+      min-width: 140px;
+      font-size: 13px;
+      color: var(--admin-text-secondary);
+      padding-top: 8px;
+    }
+
+    .spec-field-value {
+      flex: 1;
+    }
+
+    .spec-field-value input,
+    .spec-field-value textarea {
+      width: 100%;
+      padding: 8px 12px;
+      border: 1px solid var(--admin-border);
+      border-radius: 6px;
+      font-family: inherit;
+      font-size: 13px;
+    }
+
+    .spec-field-value textarea {
+      min-height: 80px;
+      resize: vertical;
+    }
+
+    .spec-field-source {
+      min-width: 24px;
+      padding-top: 8px;
+    }
+
+    .source-indicator {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .source-indicator.pdf {
+      background: #dbeafe;
+      color: #2563eb;
+    }
+
+    .source-indicator.web {
+      background: #dcfce7;
+      color: #16a34a;
+    }
+
+    .source-indicator.admin {
+      background: #fef3c7;
+      color: #d97706;
+    }
+
+    .source-indicator.none {
+      background: #fee2e2;
+      color: #dc2626;
+    }
+
+    .sources-panel {
+      background: var(--admin-card);
+      border-radius: 8px;
+      border: 1px solid var(--admin-border);
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .sources-header {
+      padding: 16px 20px;
+      border-bottom: 1px solid var(--admin-border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .sources-header h3 {
+      font-size: 16px;
+      margin: 0;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .sources-content {
+      flex: 1;
+      overflow-y: auto;
+      padding: 16px;
+    }
+
+    .source-card {
+      background: var(--admin-bg);
+      border-radius: 8px;
+      padding: 14px;
+      margin-bottom: 12px;
+    }
+
+    .source-card-header {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 10px;
+    }
+
+    .source-type-badge {
+      padding: 4px 10px;
+      border-radius: 12px;
+      font-size: 11px;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    .source-type-badge.pdf {
+      background: #dbeafe;
+      color: #2563eb;
+    }
+
+    .source-type-badge.web {
+      background: #dcfce7;
+      color: #16a34a;
+    }
+
+    .source-card-title {
+      font-weight: 500;
+      font-size: 13px;
+    }
+
+    .source-card-detail {
+      font-size: 12px;
+      color: var(--admin-text-secondary);
+      margin-top: 6px;
+    }
+
+    .source-card-snippet {
+      background: white;
+      border-left: 3px solid var(--admin-primary);
+      padding: 10px 12px;
+      margin-top: 10px;
+      font-size: 12px;
+      color: var(--admin-text);
+      font-style: italic;
+    }
+
+    .add-source-btn {
+      width: 100%;
+      padding: 12px;
+      border: 2px dashed var(--admin-border);
+      background: none;
+      border-radius: 8px;
+      cursor: pointer;
+      color: var(--admin-text-secondary);
+      font-size: 13px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      transition: all 0.2s;
+    }
+
+    .add-source-btn:hover {
+      border-color: var(--admin-primary);
+      color: var(--admin-primary);
+    }
+
+    .legend {
+      display: flex;
+      gap: 16px;
+      margin-top: 16px;
+      padding-top: 16px;
+      border-top: 1px solid var(--admin-border);
+      font-size: 11px;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .legend-dot {
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+    }
+
+    .legend-dot.pdf { background: #2563eb; }
+    .legend-dot.web { background: #16a34a; }
+    .legend-dot.admin { background: #d97706; }
+    .legend-dot.none { background: #dc2626; }
+
+    .empty-state {
+      text-align: center;
+      padding: 40px 20px;
+      color: var(--admin-text-secondary);
+    }
+
+    .empty-state svg {
+      width: 48px;
+      height: 48px;
+      margin-bottom: 12px;
+      opacity: 0.5;
+    }
+
+    .chip-list {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 6px;
+      margin-top: 8px;
+    }
+
+    .chip {
+      background: var(--admin-bg);
+      padding: 4px 10px;
+      border-radius: 12px;
+      font-size: 12px;
+    }
+  </style>
+</head>
+<body>
+  <div class="admin-layout">
+    <!-- Sidebar -->
+    <aside class="admin-sidebar">
+      <div class="sidebar-header">
+        <a href="/admin/" class="sidebar-logo">
+          <img src="/images/peekabooshades_logo.jpeg" alt="Peekaboo Shades" style="height: 32px; width: auto; border-radius: 6px;">
+          <span>Peekaboo Shades</span>
+        </a>
+      </div>
+
+      <nav class="sidebar-nav">
+        <div class="nav-section">
+          <a href="/admin/" class="nav-item">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+            </svg>
+            <span>Dashboard</span>
+          </a>
+        </div>
+
+        <div class="nav-section">
+          <div class="nav-section-title">Catalog</div>
+          <a href="/admin/products.html" class="nav-item">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+            </svg>
+            <span>Products</span>
+          </a>
+          <a href="/admin/fabrics.html" class="nav-item">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
+            <span>Fabrics</span>
+          </a>
+          <a href="/admin/specs-library.html" class="nav-item active">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+            <span>Specs Library</span>
+          </a>
+          <a href="/admin/hardware-options.html" class="nav-item">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+            <span>Hardware Options</span>
+          </a>
+        </div>
+
+        <div class="nav-section">
+          <div class="nav-section-title">Sales</div>
+          <a href="/admin/orders.html" class="nav-item">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+            </svg>
+            <span>Orders</span>
+          </a>
+          <a href="/admin/quotes.html" class="nav-item">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+            </svg>
+            <span>Quotes</span>
+          </a>
+        </div>
+
+        <div class="nav-section">
+          <div class="nav-section-title">Settings</div>
+          <a href="/admin/settings.html" class="nav-item">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+            </svg>
+            <span>Settings</span>
+          </a>
+        </div>
+      </nav>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="admin-main">
+      <!-- Header -->
+      <header class="admin-header">
+        <div class="header-left">
+          <div class="breadcrumb">
+            <a href="/admin/">Dashboard</a>
+            <span class="breadcrumb-separator">/</span>
+            <span class="breadcrumb-current">Specs Library</span>
+          </div>
+        </div>
+        <div class="header-right">
+          <button class="btn btn-primary" onclick="saveAllSpecs()">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+            </svg>
+            Save Changes
+          </button>
+        </div>
+      </header>
+
+      <!-- Page Content -->
+      <div class="admin-content">
+        <div class="page-header">
+          <h1 class="page-title">Specs Library</h1>
+          <p style="color: var(--admin-text-secondary); margin-top: 4px;">Manage product specifications with source evidence tracking</p>
+        </div>
+
+        <div class="specs-layout">
+          <!-- Left: Product Selector -->
+          <div class="product-selector">
+            <h3 style="font-size: 14px; margin: 0 0 16px 0; color: var(--admin-text-secondary);">Product Types</h3>
+            <div id="product-list">
+              <!-- Products loaded dynamically -->
+            </div>
+            <div class="legend">
+              <div class="legend-item"><span class="legend-dot pdf"></span> PDF</div>
+              <div class="legend-item"><span class="legend-dot web"></span> Web</div>
+              <div class="legend-item"><span class="legend-dot admin"></span> Admin</div>
+              <div class="legend-item"><span class="legend-dot none"></span> None</div>
+            </div>
+          </div>
+
+          <!-- Middle: Specs Editor -->
+          <div class="specs-editor">
+            <div class="editor-header">
+              <h2 id="editor-title">Select a Product</h2>
+              <span id="pdf-pages" style="font-size: 12px; color: var(--admin-text-secondary);"></span>
+            </div>
+            <div class="editor-tabs">
+              <button class="editor-tab active" data-tab="description" onclick="switchEditorTab('description')">Description</button>
+              <button class="editor-tab" data-tab="specifications" onclick="switchEditorTab('specifications')">Specifications</button>
+              <button class="editor-tab" data-tab="materials" onclick="switchEditorTab('materials')">Materials</button>
+              <button class="editor-tab" data-tab="installation" onclick="switchEditorTab('installation')">Installation</button>
+            </div>
+            <div class="editor-content" id="editor-content">
+              <div class="empty-state">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+                <p>Select a product type from the left to view and edit specifications</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Right: Sources Panel -->
+          <div class="sources-panel">
+            <div class="sources-header">
+              <h3>
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+                </svg>
+                Sources
+              </h3>
+              <button class="btn btn-sm btn-secondary" onclick="openAddSourceModal()">+ Add</button>
+            </div>
+            <div class="sources-content" id="sources-content">
+              <div class="empty-state">
+                <p>Select a field to view its sources</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Add Source Modal -->
+  <div class="modal-overlay" id="add-source-modal">
+    <div class="modal" style="max-width: 500px;">
+      <div class="modal-header">
+        <h3 class="modal-title">Add Source</h3>
+        <button class="modal-close" onclick="closeAddSourceModal()">
+          <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+      <div class="modal-body">
+        <div class="form-group">
+          <label class="form-label">Source Type</label>
+          <select class="form-input" id="source-type" onchange="toggleSourceFields()">
+            <option value="pdf">PDF Document</option>
+            <option value="web">Web URL</option>
+            <option value="admin">Admin Written</option>
+          </select>
+        </div>
+        <div id="pdf-fields">
+          <div class="form-group">
+            <label class="form-label">Page Number(s)</label>
+            <input type="text" class="form-input" id="source-page" placeholder="e.g., 3 or 3-5">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Snippet/Quote</label>
+            <textarea class="form-input" id="source-snippet" rows="3" placeholder="Exact text from the PDF..."></textarea>
+          </div>
+        </div>
+        <div id="web-fields" style="display: none;">
+          <div class="form-group">
+            <label class="form-label">URL</label>
+            <input type="url" class="form-input" id="source-url" placeholder="https://...">
+          </div>
+          <div class="form-group">
+            <label class="form-label">Page Title</label>
+            <input type="text" class="form-input" id="source-title" placeholder="Title of the web page">
+          </div>
+        </div>
+        <div id="admin-fields" style="display: none;">
+          <div class="form-group">
+            <label class="form-label">Reason</label>
+            <textarea class="form-input" id="source-reason" rows="3" placeholder="Why this value was written by admin..."></textarea>
+          </div>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn btn-secondary" onclick="closeAddSourceModal()">Cancel</button>
+        <button class="btn btn-primary" onclick="saveSource()">Add Source</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/admin.js?v=1737100001"></script>
+  <script>
+    // Require authentication
+    if (!Admin.Auth.requireAuth()) {
+      // Will redirect
+    }
+
+    // State
+    let specsData = null;
+    let sourcesData = null;
+    let selectedProduct = null;
+    let selectedField = null;
+    let currentTab = 'description';
+
+    // Load specs and sources data
+    async function loadData() {
+      try {
+        const [specsRes, sourcesRes] = await Promise.all([
+          fetch('/api/admin/specs', {
+            headers: { 'Authorization': `Bearer ${Admin.Auth.getToken()}` }
+          }),
+          fetch('/api/admin/specs/sources', {
+            headers: { 'Authorization': `Bearer ${Admin.Auth.getToken()}` }
+          })
+        ]);
+
+        const specsResult = await specsRes.json();
+        const sourcesResult = await sourcesRes.json();
+
+        if (specsResult.success) {
+          specsData = specsResult.data;
+          renderProductList();
+        }
+
+        if (sourcesResult.success) {
+          sourcesData = sourcesResult.data;
+        }
+      } catch (error) {
+        Admin.Toast.error('Failed to load specs data');
+        console.error(error);
+      }
+    }
+
+    // Render product list
+    function renderProductList() {
+      const container = document.getElementById('product-list');
+      const products = specsData?.products || {};
+
+      const icons = {
+        roller: '🪟',
+        zebra: '🦓',
+        roman: '📜',
+        honeycomb: '🐝'
+      };
+
+      container.innerHTML = Object.entries(products).map(([id, product]) => `
+        <div class="product-item ${selectedProduct === id ? 'active' : ''}" onclick="selectProduct('${id}')">
+          <div class="icon">${icons[id] || '📦'}</div>
+          <div>
+            <div class="name">${product.name}</div>
+            <div class="pages">PDF Pages: ${product.pdfPages?.join(', ') || 'N/A'}</div>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // Select a product
+    function selectProduct(productId) {
+      selectedProduct = productId;
+      renderProductList();
+      renderEditor();
+    }
+
+    // Switch editor tab
+    function switchEditorTab(tab) {
+      currentTab = tab;
+      document.querySelectorAll('.editor-tab').forEach(t => {
+        t.classList.toggle('active', t.dataset.tab === tab);
+      });
+      renderEditor();
+    }
+
+    // Render editor content
+    function renderEditor() {
+      if (!selectedProduct || !specsData?.products[selectedProduct]) {
+        return;
+      }
+
+      const product = specsData.products[selectedProduct];
+      document.getElementById('editor-title').textContent = product.name;
+      document.getElementById('pdf-pages').textContent = `PDF Pages: ${product.pdfPages?.join(', ') || 'N/A'}`;
+
+      const content = document.getElementById('editor-content');
+
+      switch (currentTab) {
+        case 'description':
+          content.innerHTML = renderDescriptionTab(product);
+          break;
+        case 'specifications':
+          content.innerHTML = renderSpecificationsTab(product);
+          break;
+        case 'materials':
+          content.innerHTML = renderMaterialsTab(product);
+          break;
+        case 'installation':
+          content.innerHTML = renderInstallationTab(product);
+          break;
+      }
+    }
+
+    // Render description tab
+    function renderDescriptionTab(product) {
+      return `
+        <div class="spec-group">
+          <div class="spec-group-title">Product Description</div>
+          <div class="spec-field">
+            <div class="spec-field-label">Short Description</div>
+            <div class="spec-field-value">
+              <input type="text" value="${escapeHtml(product.description?.short || '')}"
+                     onchange="updateSpec('description.short', this.value)"
+                     onfocus="selectField('description.short')">
+            </div>
+            <div class="spec-field-source">
+              ${renderSourceIndicator('description.short')}
+            </div>
+          </div>
+          <div class="spec-field">
+            <div class="spec-field-label">Long Description</div>
+            <div class="spec-field-value">
+              <textarea onchange="updateSpec('description.long', this.value)"
+                        onfocus="selectField('description.long')">${escapeHtml(product.description?.long || '')}</textarea>
+            </div>
+            <div class="spec-field-source">
+              ${renderSourceIndicator('description.long')}
+            </div>
+          </div>
+        </div>
+        <div class="spec-group">
+          <div class="spec-group-title">Features</div>
+          <div class="spec-field">
+            <div class="spec-field-label">Key Features</div>
+            <div class="spec-field-value">
+              <textarea onchange="updateSpec('features', this.value.split('\\n').filter(f => f.trim()))"
+                        onfocus="selectField('features')">${(product.features || []).join('\n')}</textarea>
+              <small style="color: var(--admin-text-secondary);">One feature per line</small>
+            </div>
+            <div class="spec-field-source">
+              ${renderSourceIndicator('features')}
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    // Render specifications tab
+    function renderSpecificationsTab(product) {
+      const specs = product.specifications || {};
+      return `
+        <div class="spec-group">
+          <div class="spec-group-title">Dimensions</div>
+          <div class="spec-field">
+            <div class="spec-field-label">Min Width</div>
+            <div class="spec-field-value">
+              <input type="text" value="${specs.dimensions?.minWidth?.value || ''} ${specs.dimensions?.minWidth?.unit || 'cm'}"
+                     onchange="updateSpec('specifications.dimensions.minWidth', parseValueUnit(this.value))"
+                     onfocus="selectField('specifications.dimensions')">
+            </div>
+            <div class="spec-field-source">${renderSourceIndicator('specifications.dimensions')}</div>
+          </div>
+          <div class="spec-field">
+            <div class="spec-field-label">Max Width</div>
+            <div class="spec-field-value">
+              <input type="text" value="${specs.dimensions?.maxWidth?.value || ''} ${specs.dimensions?.maxWidth?.unit || 'cm'}"
+                     onchange="updateSpec('specifications.dimensions.maxWidth', parseValueUnit(this.value))"
+                     onfocus="selectField('specifications.dimensions')">
+            </div>
+            <div class="spec-field-source">${renderSourceIndicator('specifications.dimensions')}</div>
+          </div>
+          <div class="spec-field">
+            <div class="spec-field-label">Min Height</div>
+            <div class="spec-field-value">
+              <input type="text" value="${specs.dimensions?.minHeight?.value || ''} ${specs.dimensions?.minHeight?.unit || 'cm'}"
+                     onchange="updateSpec('specifications.dimensions.minHeight', parseValueUnit(this.value))"
+                     onfocus="selectField('specifications.dimensions')">
+            </div>
+            <div class="spec-field-source">${renderSourceIndicator('specifications.dimensions')}</div>
+          </div>
+          <div class="spec-field">
+            <div class="spec-field-label">Max Height</div>
+            <div class="spec-field-value">
+              <input type="text" value="${specs.dimensions?.maxHeight?.value || ''} ${specs.dimensions?.maxHeight?.unit || 'cm'}"
+                     onchange="updateSpec('specifications.dimensions.maxHeight', parseValueUnit(this.value))"
+                     onfocus="selectField('specifications.dimensions')">
+            </div>
+            <div class="spec-field-source">${renderSourceIndicator('specifications.dimensions')}</div>
+          </div>
+        </div>
+        <div class="spec-group">
+          <div class="spec-group-title">Control Systems</div>
+          <div class="spec-field">
+            <div class="spec-field-label">Available Systems</div>
+            <div class="spec-field-value">
+              <div class="chip-list">
+                ${(specs.controlSystems || []).map(cs => `<span class="chip">${cs.name}</span>`).join('')}
+              </div>
+            </div>
+            <div class="spec-field-source">${renderSourceIndicator('specifications.controlSystems')}</div>
+          </div>
+        </div>
+        <div class="spec-group">
+          <div class="spec-group-title">Minimum Area</div>
+          <div class="spec-field">
+            <div class="spec-field-label">Min. Billable Area</div>
+            <div class="spec-field-value">
+              <input type="text" value="${specs.minimumArea?.value || ''} ${specs.minimumArea?.unit || 'sqm'}"
+                     onchange="updateSpec('specifications.minimumArea', parseValueUnit(this.value, 'sqm'))"
+                     onfocus="selectField('specifications.minimumArea')">
+            </div>
+            <div class="spec-field-source">${renderSourceIndicator('specifications.minimumArea')}</div>
+          </div>
+        </div>
+      `;
+    }
+
+    // Render materials tab
+    function renderMaterialsTab(product) {
+      const materials = product.materials || {};
+      return `
+        <div class="spec-group">
+          <div class="spec-group-title">Fabric Materials</div>
+          <div class="spec-field">
+            <div class="spec-field-label">Composition</div>
+            <div class="spec-field-value">
+              <input type="text" value="${escapeHtml(materials.composition || '')}"
+                     onchange="updateSpec('materials.composition', this.value)"
+                     onfocus="selectField('materials.composition')">
+            </div>
+            <div class="spec-field-source">${renderSourceIndicator('materials.composition')}</div>
+          </div>
+          <div class="spec-field">
+            <div class="spec-field-label">Weight</div>
+            <div class="spec-field-value">
+              <input type="text" value="${escapeHtml(materials.weight || '')}"
+                     onchange="updateSpec('materials.weight', this.value)"
+                     onfocus="selectField('materials.weight')">
+            </div>
+            <div class="spec-field-source">${renderSourceIndicator('materials.weight')}</div>
+          </div>
+          <div class="spec-field">
+            <div class="spec-field-label">Width</div>
+            <div class="spec-field-value">
+              <input type="text" value="${escapeHtml(materials.width || '')}"
+                     onchange="updateSpec('materials.width', this.value)"
+                     onfocus="selectField('materials.width')">
+            </div>
+            <div class="spec-field-source">${renderSourceIndicator('materials.width')}</div>
+          </div>
+          ${materials.patternRepeat ? `
+          <div class="spec-field">
+            <div class="spec-field-label">Pattern Repeat</div>
+            <div class="spec-field-value">
+              <input type="text" value="${escapeHtml(materials.patternRepeat || '')}"
+                     onchange="updateSpec('materials.patternRepeat', this.value)"
+                     onfocus="selectField('materials.patternRepeat')">
+            </div>
+            <div class="spec-field-source">${renderSourceIndicator('materials.patternRepeat')}</div>
+          </div>
+          ` : ''}
+        </div>
+      `;
+    }
+
+    // Render installation tab
+    function renderInstallationTab(product) {
+      const installation = product.installation || {};
+      return `
+        <div class="spec-group">
+          <div class="spec-group-title">Mount Types</div>
+          <div class="spec-field">
+            <div class="spec-field-label">Available Mounts</div>
+            <div class="spec-field-value">
+              <div class="chip-list">
+                ${(installation.mountTypes || []).map(mt => `<span class="chip">${mt}</span>`).join('')}
+              </div>
+            </div>
+            <div class="spec-field-source">${renderSourceIndicator('installation.mountTypes')}</div>
+          </div>
+        </div>
+        <div class="spec-group">
+          <div class="spec-group-title">Inside Mount</div>
+          <div class="spec-field">
+            <div class="spec-field-label">Min Depth</div>
+            <div class="spec-field-value">
+              <input type="text" value="${escapeHtml(installation.insideMount?.minDepth || '')}"
+                     onchange="updateSpec('installation.insideMount.minDepth', this.value)"
+                     onfocus="selectField('installation.insideMount')">
+            </div>
+            <div class="spec-field-source">${renderSourceIndicator('installation.insideMount')}</div>
+          </div>
+          <div class="spec-field">
+            <div class="spec-field-label">Width Deduction</div>
+            <div class="spec-field-value">
+              <input type="text" value="${escapeHtml(installation.insideMount?.widthDeduction || '')}"
+                     onchange="updateSpec('installation.insideMount.widthDeduction', this.value)"
+                     onfocus="selectField('installation.insideMount')">
+            </div>
+            <div class="spec-field-source">${renderSourceIndicator('installation.insideMount')}</div>
+          </div>
+        </div>
+        <div class="spec-group">
+          <div class="spec-group-title">Outside Mount</div>
+          <div class="spec-field">
+            <div class="spec-field-label">Width Extension</div>
+            <div class="spec-field-value">
+              <input type="text" value="${escapeHtml(installation.outsideMount?.widthExtension || '')}"
+                     onchange="updateSpec('installation.outsideMount.widthExtension', this.value)"
+                     onfocus="selectField('installation.outsideMount')">
+            </div>
+            <div class="spec-field-source">${renderSourceIndicator('installation.outsideMount')}</div>
+          </div>
+          <div class="spec-field">
+            <div class="spec-field-label">Height Extension</div>
+            <div class="spec-field-value">
+              <input type="text" value="${escapeHtml(installation.outsideMount?.heightExtension || '')}"
+                     onchange="updateSpec('installation.outsideMount.heightExtension', this.value)"
+                     onfocus="selectField('installation.outsideMount')">
+            </div>
+            <div class="spec-field-source">${renderSourceIndicator('installation.outsideMount')}</div>
+          </div>
+        </div>
+      `;
+    }
+
+    // Render source indicator
+    function renderSourceIndicator(fieldPath) {
+      const sources = sourcesData?.fieldSources?.[selectedProduct]?.[fieldPath];
+      if (!sources) {
+        return `<span class="source-indicator none" onclick="selectField('${fieldPath}')" title="No source">?</span>`;
+      }
+      const type = sources.type || 'pdf';
+      const icon = type === 'pdf' ? 'P' : type === 'web' ? 'W' : 'A';
+      return `<span class="source-indicator ${type}" onclick="selectField('${fieldPath}')" title="${type.toUpperCase()} source">${icon}</span>`;
+    }
+
+    // Select a field to show its sources
+    function selectField(fieldPath) {
+      selectedField = fieldPath;
+      renderSourcesPanel();
+    }
+
+    // Render sources panel
+    function renderSourcesPanel() {
+      const container = document.getElementById('sources-content');
+
+      if (!selectedProduct || !selectedField) {
+        container.innerHTML = '<div class="empty-state"><p>Select a field to view its sources</p></div>';
+        return;
+      }
+
+      const fieldSources = sourcesData?.fieldSources?.[selectedProduct]?.[selectedField];
+      const primarySources = sourcesData?.primarySources || {};
+
+      if (!fieldSources) {
+        container.innerHTML = `
+          <div class="empty-state">
+            <p>No sources for this field yet</p>
+          </div>
+          <button class="add-source-btn" onclick="openAddSourceModal()">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+            </svg>
+            Add Source
+          </button>
+        `;
+        return;
+      }
+
+      let html = `
+        <div class="source-card">
+          <div class="source-card-header">
+            <span class="source-type-badge ${fieldSources.type}">${fieldSources.type?.toUpperCase()}</span>
+            <span class="source-card-title">${selectedField}</span>
+          </div>
+      `;
+
+      if (fieldSources.type === 'pdf') {
+        const pdfSource = primarySources['pdf-001'] || {};
+        html += `
+          <div class="source-card-detail">
+            <strong>Document:</strong> ${pdfSource.title || fieldSources.sourceId}
+          </div>
+          <div class="source-card-detail">
+            <strong>Page(s):</strong> ${fieldSources.page || fieldSources.pages?.join(', ') || 'N/A'}
+          </div>
+        `;
+        if (fieldSources.snippet) {
+          html += `<div class="source-card-snippet">"${escapeHtml(fieldSources.snippet)}"</div>`;
+        }
+        if (fieldSources.table) {
+          html += `<div class="source-card-detail"><strong>Table:</strong> ${fieldSources.table}</div>`;
+        }
+      } else if (fieldSources.type === 'web') {
+        html += `
+          <div class="source-card-detail">
+            <strong>URL:</strong> <a href="${fieldSources.url}" target="_blank">${fieldSources.url}</a>
+          </div>
+          <div class="source-card-detail">
+            <strong>Title:</strong> ${fieldSources.title || 'N/A'}
+          </div>
+          <div class="source-card-detail">
+            <strong>Retrieved:</strong> ${fieldSources.retrievedDate || 'N/A'}
+          </div>
+        `;
+      }
+
+      html += `
+          <div class="source-card-detail" style="margin-top: 10px; font-size: 11px; color: var(--admin-text-muted);">
+            Extracted: ${new Date(fieldSources.extractedAt).toLocaleDateString()}
+          </div>
+        </div>
+        <button class="add-source-btn" onclick="openAddSourceModal()">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+          </svg>
+          Add Another Source
+        </button>
+      `;
+
+      container.innerHTML = html;
+    }
+
+    // Update spec value
+    function updateSpec(path, value) {
+      if (!specsData?.products[selectedProduct]) return;
+
+      // Set value at path
+      const parts = path.split('.');
+      let obj = specsData.products[selectedProduct];
+      for (let i = 0; i < parts.length - 1; i++) {
+        if (!obj[parts[i]]) obj[parts[i]] = {};
+        obj = obj[parts[i]];
+      }
+      obj[parts[parts.length - 1]] = value;
+    }
+
+    // Parse value with unit (e.g., "30 cm" -> { value: 30, unit: "cm" })
+    function parseValueUnit(str, defaultUnit = 'cm') {
+      const match = str.match(/^([\d.]+)\s*(.*)$/);
+      if (match) {
+        return { value: parseFloat(match[1]), unit: match[2] || defaultUnit };
+      }
+      return { value: str, unit: defaultUnit };
+    }
+
+    // Save all specs
+    async function saveAllSpecs() {
+      if (!selectedProduct) {
+        Admin.Toast.error('No product selected');
+        return;
+      }
+
+      try {
+        const response = await fetch('/api/admin/specs', {
+          method: 'PUT',
+          headers: {
+            'Authorization': `Bearer ${Admin.Auth.getToken()}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            productType: selectedProduct,
+            specs: specsData.products[selectedProduct]
+          })
+        });
+
+        const result = await response.json();
+        if (result.success) {
+          Admin.Toast.success('Specs saved successfully');
+        } else {
+          Admin.Toast.error(result.error || 'Failed to save specs');
+        }
+      } catch (error) {
+        Admin.Toast.error('Failed to save specs');
+        console.error(error);
+      }
+    }
+
+    // Modal functions
+    function openAddSourceModal() {
+      if (!selectedProduct || !selectedField) {
+        Admin.Toast.error('Please select a field first');
+        return;
+      }
+      Admin.Modal.show('add-source-modal');
+    }
+
+    function closeAddSourceModal() {
+      Admin.Modal.hide('add-source-modal');
+    }
+
+    function toggleSourceFields() {
+      const type = document.getElementById('source-type').value;
+      document.getElementById('pdf-fields').style.display = type === 'pdf' ? 'block' : 'none';
+      document.getElementById('web-fields').style.display = type === 'web' ? 'block' : 'none';
+      document.getElementById('admin-fields').style.display = type === 'admin' ? 'block' : 'none';
+    }
+
+    async function saveSource() {
+      const type = document.getElementById('source-type').value;
+      let source = { type };
+
+      if (type === 'pdf') {
+        source.sourceId = 'pdf-001';
+        source.page = document.getElementById('source-page').value;
+        source.snippet = document.getElementById('source-snippet').value;
+      } else if (type === 'web') {
+        source.url = document.getElementById('source-url').value;
+        source.title = document.getElementById('source-title').value;
+        source.retrievedDate = new Date().toISOString();
+      } else {
+        source.reason = document.getElementById('source-reason').value;
+      }
+
+      try {
+        const response = await fetch('/api/admin/specs/sources', {
+          method: 'PUT',
+          headers: {
+            'Authorization': `Bearer ${Admin.Auth.getToken()}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            productType: selectedProduct,
+            fieldPath: selectedField,
+            source
+          })
+        });
+
+        const result = await response.json();
+        if (result.success) {
+          Admin.Toast.success('Source added successfully');
+          closeAddSourceModal();
+          // Reload sources
+          const sourcesRes = await fetch('/api/admin/specs/sources', {
+            headers: { 'Authorization': `Bearer ${Admin.Auth.getToken()}` }
+          });
+          const sourcesResult = await sourcesRes.json();
+          if (sourcesResult.success) {
+            sourcesData = sourcesResult.data;
+            renderEditor();
+            renderSourcesPanel();
+          }
+        } else {
+          Admin.Toast.error(result.error || 'Failed to add source');
+        }
+      } catch (error) {
+        Admin.Toast.error('Failed to add source');
+        console.error(error);
+      }
+    }
+
+    // Helper
+    function escapeHtml(str) {
+      if (!str) return '';
+      return str.toString()
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;');
+    }
+
+    // Initialize
+    loadData();
+  </script>
+</body>
+</html>

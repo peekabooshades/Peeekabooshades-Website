@@ -1046,15 +1046,15 @@
   <div class="top-bar">
     <div class="top-bar-container">
       <div class="top-bar-left">
-        <span><i class="fas fa-phone"></i> <span id="topBarPhone">1-800-PEEKABOO</span></span>
-        <span><i class="fas fa-envelope"></i> <span id="topBarEmail">support@peekabooshades.com</span></span>
+        <span><i class="fas fa-phone"></i> <span id="topBarPhone">+1 929-465-9549</span></span>
+        <span><i class="fas fa-envelope"></i> <span id="topBarEmail">peekabooshades.pro@gmail.com</span></span>
       </div>
       <div class="top-bar-center">
-        <a href="#">Free Shipping on Orders $99+</a>
+        <a href="/shipping.html">Free Shipping on Orders $99+</a>
       </div>
       <div class="top-bar-right">
         <a href="/cart"><i class="fas fa-shopping-cart"></i> Cart</a>
-        <a href="#"><i class="fas fa-user"></i> Account</a>
+        <a href="javascript:void(0)" onclick="showToast('Account login coming soon!', 'info')" style="opacity:0.6" title="Coming soon"><i class="fas fa-user"></i> Account</a>
       </div>
     </div>
   </div>
@@ -1076,9 +1076,9 @@
               <a href="/shop?category=honeycomb-shades">Honeycomb Shades</a>
             </div>
           </li>
-          <li><a href="#">Curtains</a></li>
-          <li><a href="#">How to Measure</a></li>
-          <li><a href="#">Contact</a></li>
+          <li><a href="javascript:void(0)" onclick="showToast('Curtains coming soon!', 'info')" style="opacity:0.6" title="Coming soon">Curtains</a></li>
+          <li><a href="/guides/">How to Measure</a></li>
+          <li><a href="/contact.html">Contact</a></li>
         </ul>
       </nav>
       <div class="header-right">
@@ -1087,7 +1087,7 @@
           <i class="fas fa-search"></i>
         </div>
         <div class="header-icons">
-          <a href="#" class="header-icon"><i class="fas fa-heart"></i></a>
+          <a href="javascript:void(0)" onclick="showToast('Wishlist coming soon!', 'info')" class="header-icon" style="opacity:0.6" title="Coming soon"><i class="fas fa-heart"></i></a>
           <a href="/cart" class="header-icon">
             <i class="fas fa-shopping-cart"></i>
             <span class="cart-count" id="cartCount">0</span>
@@ -1623,9 +1623,9 @@
         <div class="product-catalog-body" style="display: none; padding: 0 25px 25px; border-top: 1px solid #eee;">
 
           <!-- Product Features -->
-          <div style="margin-top: 20px;">
+          <div style="margin-top: 20px;" id="zebraCatalogFeatures">
             <h4 style="font-size: 15px; color: #8E6545; margin-bottom: 12px; border-bottom: 2px solid #8E6545; padding-bottom: 8px; display: inline-block;">Product Features</h4>
-            <p style="font-size: 13px; color: #666; line-height: 1.7;">
+            <p id="zebraCatalogFeaturesText" style="font-size: 13px; color: #666; line-height: 1.7;">
               The eco-friendly and durable fabric is made into a variety of shading effects: <strong>semi-blackout, blackout, and super-blackout</strong>, with unique design and functions of insulation, dust-proof, shading and light filtering. Zebra blinds feature alternating sheer and opaque stripes that can be aligned for privacy or staggered for natural light.
             </p>
           </div>
@@ -1778,17 +1778,17 @@
       <div class="footer-column">
         <h4>Help</h4>
         <ul>
-          <li><a href="#">How to Measure</a></li>
-          <li><a href="#">Installation Guide</a></li>
-          <li><a href="#">FAQs</a></li>
-          <li><a href="#">Contact Us</a></li>
+          <li><a href="/guides/">How to Measure</a></li>
+          <li><a href="/guides/">Installation Guide</a></li>
+          <li><a href="/faq.html">FAQs</a></li>
+          <li><a href="/contact.html">Contact Us</a></li>
         </ul>
       </div>
       <div class="footer-column">
         <h4>Contact</h4>
         <ul>
-          <li><i class="fas fa-phone" style="width: 20px;"></i> 1-800-PEEKABOO</li>
-          <li><i class="fas fa-envelope" style="width: 20px;"></i> support@peekabooshades.com</li>
+          <li><i class="fas fa-phone" style="width: 20px;"></i> +1 929-465-9549</li>
+          <li><i class="fas fa-envelope" style="width: 20px;"></i> peekabooshades.pro@gmail.com</li>
           <li><i class="fas fa-clock" style="width: 20px;"></i> Mon-Fri 9AM-5PM EST</li>
         </ul>
       </div>
@@ -3393,10 +3393,34 @@
       }
     });
 
+    // Load product specifications from API
+    async function loadZebraSpecs() {
+      try {
+        const response = await fetch('/api/specs?productType=zebra');
+        if (!response.ok) return;
+
+        const result = await response.json();
+        if (!result.success || !result.data) return;
+
+        const specs = result.data;
+
+        // Update Product Features text in catalog section
+        if (specs.description?.long) {
+          const featuresText = document.getElementById('zebraCatalogFeaturesText');
+          if (featuresText) featuresText.innerHTML = specs.description.long;
+        }
+
+        console.log('Zebra specs loaded from API');
+      } catch (error) {
+        console.log('Specs API not available:', error.message);
+      }
+    }
+
     // Initialize
     document.addEventListener('DOMContentLoaded', function() {
       calculatePrice();
       updateCartCount();
+      loadZebraSpecs();
 
       // Set initial fabric display with category name (not code)
       // The loadFabrics function will set the proper display name when fabrics load

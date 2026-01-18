@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Promotion Rules - Peekaboo Shades Admin</title>
+  <link rel="stylesheet" href="/admin/css/admin.css?v=1737200003.0.28">
+  <script src="/admin/js/adminNavConfig.js?v=1737200002"></script>
+  <style>
+    .promo-grid { display: grid; grid-template-columns: 1fr 350px; gap: 1.5rem; margin-top: 1.5rem; }
+    .promo-card { background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+    .promo-card h3 { margin: 0 0 1rem 0; }
+    .rule-item { padding: 1rem; background: #F9FAFB; border-radius: 8px; margin-bottom: 0.75rem; }
+    .rule-item .rule-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; }
+    .rule-item .rule-name { font-weight: 600; }
+    .rule-item .rule-desc { font-size: 0.9rem; color: #666; }
+    .rule-item .rule-actions { display: flex; gap: 0.5rem; }
+    .toggle-switch { position: relative; width: 48px; height: 24px; }
+    .toggle-switch input { opacity: 0; width: 0; height: 0; }
+    .toggle-slider { position: absolute; cursor: pointer; inset: 0; background: #E5E7EB; border-radius: 24px; transition: 0.3s; }
+    .toggle-slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background: white; border-radius: 50%; transition: 0.3s; }
+    .toggle-switch input:checked + .toggle-slider { background: #8E6545; }
+    .toggle-switch input:checked + .toggle-slider:before { transform: translateX(24px); }
+    .btn-edit { padding: 0.3rem 0.6rem; background: #E5E7EB; color: #374151; border: none; border-radius: 4px; cursor: pointer; font-size: 0.8rem; }
+    .btn-primary { padding: 0.75rem 1.5rem; background: #8E6545; color: white; border: none; border-radius: 8px; cursor: pointer; }
+    .summary-row { display: flex; justify-content: space-between; padding: 0.75rem 0; border-bottom: 1px solid #eee; }
+    .summary-row:last-child { border-bottom: none; }
+    .filters { display: flex; gap: 1rem; margin-bottom: 1.5rem; }
+    .filters select { padding: 0.5rem 1rem; border: 1px solid #ddd; border-radius: 6px; }
+    .badge { padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.75rem; }
+    .badge-active { background: #D1FAE5; color: #065F46; }
+    .badge-inactive { background: #E5E7EB; color: #6B7280; }
+  </style>
+</head>
+<body>
+  <div class="admin-layout">
+    <aside class="admin-sidebar"></aside>
+    <main class="admin-main">
+      <header class="admin-header">
+        <h1>Promotion Rules</h1>
+        <div class="header-actions"><button class="btn-primary" onclick="addRule()">+ Add Rule</button></div>
+      </header>
+      <div class="admin-content">
+        <div class="filters">
+          <select><option>All Categories</option><option>Roller Shades</option><option>Zebra Blinds</option><option>Motorized</option></select>
+          <select><option>All Status</option><option>Active</option><option>Inactive</option></select>
+          <select><option>All Types</option><option>Percentage Off</option><option>Fixed Amount</option><option>Free Shipping</option></select>
+        </div>
+        <div class="promo-grid">
+          <div class="promo-card">
+            <h3>Automatic Promotion Rules</h3>
+            <div class="rule-item">
+              <div class="rule-header">
+                <div>
+                  <span class="rule-name">Multi-Window Discount</span>
+                  <span class="badge badge-active" style="margin-left: 0.5rem;">Active</span>
+                </div>
+                <div class="rule-actions">
+                  <button class="btn-edit" onclick="editRule(1)">Edit</button>
+                  <label class="toggle-switch"><input type="checkbox" checked onchange="toggleRule(1)"><span class="toggle-slider"></span></label>
+                </div>
+              </div>
+              <div class="rule-desc">10% off when ordering 5+ shades in same transaction</div>
+            </div>
+            <div class="rule-item">
+              <div class="rule-header">
+                <div>
+                  <span class="rule-name">Motorized Bundle</span>
+                  <span class="badge badge-active" style="margin-left: 0.5rem;">Active</span>
+                </div>
+                <div class="rule-actions">
+                  <button class="btn-edit" onclick="editRule(2)">Edit</button>
+                  <label class="toggle-switch"><input type="checkbox" checked onchange="toggleRule(2)"><span class="toggle-slider"></span></label>
+                </div>
+              </div>
+              <div class="rule-desc">Free Smart Hub ($99 value) with 3+ motorized shades</div>
+            </div>
+            <div class="rule-item">
+              <div class="rule-header">
+                <div>
+                  <span class="rule-name">Free Shipping Threshold</span>
+                  <span class="badge badge-active" style="margin-left: 0.5rem;">Active</span>
+                </div>
+                <div class="rule-actions">
+                  <button class="btn-edit" onclick="editRule(3)">Edit</button>
+                  <label class="toggle-switch"><input type="checkbox" checked onchange="toggleRule(3)"><span class="toggle-slider"></span></label>
+                </div>
+              </div>
+              <div class="rule-desc">Free shipping on orders over $299</div>
+            </div>
+            <div class="rule-item">
+              <div class="rule-header">
+                <div>
+                  <span class="rule-name">Sample Credit</span>
+                  <span class="badge badge-active" style="margin-left: 0.5rem;">Active</span>
+                </div>
+                <div class="rule-actions">
+                  <button class="btn-edit" onclick="editRule(4)">Edit</button>
+                  <label class="toggle-switch"><input type="checkbox" checked onchange="toggleRule(4)"><span class="toggle-slider"></span></label>
+                </div>
+              </div>
+              <div class="rule-desc">Sample cost refunded on first order within 30 days</div>
+            </div>
+            <div class="rule-item">
+              <div class="rule-header">
+                <div>
+                  <span class="rule-name">Large Window Surcharge Waiver</span>
+                  <span class="badge badge-inactive" style="margin-left: 0.5rem;">Inactive</span>
+                </div>
+                <div class="rule-actions">
+                  <button class="btn-edit" onclick="editRule(5)">Edit</button>
+                  <label class="toggle-switch"><input type="checkbox" onchange="toggleRule(5)"><span class="toggle-slider"></span></label>
+                </div>
+              </div>
+              <div class="rule-desc">Waive oversize surcharge on orders over $500</div>
+            </div>
+            <div class="rule-item">
+              <div class="rule-header">
+                <div>
+                  <span class="rule-name">New Customer Discount</span>
+                  <span class="badge badge-active" style="margin-left: 0.5rem;">Active</span>
+                </div>
+                <div class="rule-actions">
+                  <button class="btn-edit" onclick="editRule(6)">Edit</button>
+                  <label class="toggle-switch"><input type="checkbox" checked onchange="toggleRule(6)"><span class="toggle-slider"></span></label>
+                </div>
+              </div>
+              <div class="rule-desc">5% off first order for new customers</div>
+            </div>
+          </div>
+          <div>
+            <div class="promo-card">
+              <h3>Rule Performance (30 Days)</h3>
+              <div class="summary-row"><span>Multi-Window</span><strong>$4,560 savings (124 uses)</strong></div>
+              <div class="summary-row"><span>Motorized Bundle</span><strong>$2,970 value (30 uses)</strong></div>
+              <div class="summary-row"><span>Free Shipping</span><strong>$1,890 savings (189 uses)</strong></div>
+              <div class="summary-row"><span>Sample Credit</span><strong>$450 credits (45 uses)</strong></div>
+              <div class="summary-row"><span>New Customer</span><strong>$890 savings (67 uses)</strong></div>
+            </div>
+            <div class="promo-card" style="margin-top: 1rem;">
+              <h3>Rule Stacking</h3>
+              <p style="font-size: 0.9rem; color: #666; margin: 0 0 1rem 0;">Configure how multiple rules can be combined.</p>
+              <div class="summary-row"><span>Allow stacking</span><strong>Yes</strong></div>
+              <div class="summary-row"><span>Max discounts</span><strong>2 per order</strong></div>
+              <div class="summary-row"><span>Max total discount</span><strong>25%</strong></div>
+              <button class="btn-primary" style="width: 100%; margin-top: 1rem;" onclick="editStacking()">Edit Settings</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      if (!localStorage.getItem('admin_token')) { window.location.href = '/admin/login.html'; return; }
+      AdminNavConfig.initSidebar('promotion-rules');
+    });
+    function addRule() { alert('Opening new promotion rule form...'); }
+    function editRule(id) { alert(`Editing rule #${id}...`); }
+    function toggleRule(id) { console.log(`Toggling rule #${id}`); }
+    function editStacking() { alert('Opening stacking settings...'); }
+  </script>
+</body>
+</html>

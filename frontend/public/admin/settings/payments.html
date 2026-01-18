@@ -1,0 +1,284 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Payment Providers - Peekaboo Shades Admin</title>
+  <link rel="stylesheet" href="/admin/css/admin.css?v=1737200003.0.28">
+  <script src="/admin/js/admin.js?v=1737100001"></script>
+  <script src="/admin/js/adminNavConfig.js?v=1737200002"></script>
+  <style>
+    .providers-grid { display: grid; gap: 1rem; margin-top: 1.5rem; }
+    .provider-card { background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); display: flex; justify-content: space-between; align-items: center; }
+    .provider-info { display: flex; align-items: center; gap: 1rem; }
+    .provider-logo { width: 60px; height: 40px; background: #f5f5f5; border-radius: 6px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; }
+    .provider-details h3 { margin: 0 0 0.25rem 0; }
+    .provider-details p { margin: 0; font-size: 0.85rem; color: #666; }
+    .provider-status { display: flex; align-items: center; gap: 1rem; }
+    .status-badge { padding: 0.25rem 0.75rem; border-radius: 12px; font-size: 0.85rem; font-weight: 500; }
+    .status-active { background: #D1FAE5; color: #065F46; }
+    .status-inactive { background: #F3F4F6; color: #6B7280; }
+    .btn-configure { padding: 0.5rem 1rem; background: #8E6545; color: white; border: none; border-radius: 6px; cursor: pointer; }
+    .btn-enable { padding: 0.5rem 1rem; background: #E5E7EB; color: #374151; border: none; border-radius: 6px; cursor: pointer; }
+    .btn-disable { padding: 0.5rem 1rem; background: #FEE2E2; color: #991B1B; border: none; border-radius: 6px; cursor: pointer; }
+    .settings-card { background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); margin-top: 1.5rem; }
+    .settings-card h3 { margin: 0 0 1rem 0; }
+    .form-group { margin-bottom: 1rem; }
+    .form-group label { display: block; margin-bottom: 0.5rem; font-weight: 500; }
+    .form-group select, .form-group input { width: 100%; padding: 0.75rem; border: 1px solid #ddd; border-radius: 8px; }
+    .btn-save { padding: 0.75rem 1.5rem; background: #8E6545; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 500; }
+    .modal { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; }
+    .modal.active { display: flex; }
+    .modal-content { background: white; border-radius: 12px; padding: 2rem; max-width: 500px; width: 90%; }
+    .modal-header { display: flex; justify-content: space-between; margin-bottom: 1.5rem; }
+    .modal-header h2 { margin: 0; }
+    .modal-close { background: none; border: none; font-size: 1.5rem; cursor: pointer; }
+    .loading { text-align: center; padding: 3rem; color: #666; }
+  </style>
+</head>
+<body>
+  <div class="admin-layout">
+    <aside class="admin-sidebar"></aside>
+    <main class="admin-main">
+      <header class="admin-header">
+        <h1>Payment Providers</h1>
+      </header>
+      <div class="admin-content">
+        <div class="loading" id="loadingState">Loading payment settings...</div>
+        <div id="contentArea" style="display: none;">
+          <div class="providers-grid" id="providersGrid"></div>
+          <div class="settings-card">
+            <h3>Payment Settings</h3>
+            <div class="form-group">
+              <label>Default Currency</label>
+              <select id="defaultCurrency">
+                <option value="USD">USD - US Dollar</option>
+                <option value="CAD">CAD - Canadian Dollar</option>
+                <option value="EUR">EUR - Euro</option>
+                <option value="GBP">GBP - British Pound</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Payment Capture</label>
+              <select id="captureMode">
+                <option value="auto">Automatic - Capture immediately</option>
+                <option value="manual">Manual - Authorize only</option>
+              </select>
+            </div>
+            <button class="btn-save" onclick="savePaymentSettings()">Save Settings</button>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <div class="modal" id="configModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 id="modalTitle">Configure Provider</h2>
+        <button class="modal-close" onclick="closeModal()">&times;</button>
+      </div>
+      <form onsubmit="saveProviderConfig(event)">
+        <input type="hidden" id="configProvider">
+        <div class="form-group">
+          <label>API Key / Client ID</label>
+          <input type="text" id="apiKey" placeholder="Enter API key">
+        </div>
+        <div class="form-group">
+          <label>Secret Key / Client Secret</label>
+          <input type="password" id="secretKey" placeholder="Enter secret key">
+        </div>
+        <div class="form-group">
+          <label>Environment</label>
+          <select id="environment">
+            <option value="sandbox">Sandbox / Test</option>
+            <option value="production">Production / Live</option>
+          </select>
+        </div>
+        <button type="submit" class="btn-save" style="width: 100%;">Save Configuration</button>
+      </form>
+    </div>
+  </div>
+
+  <script>
+    const defaultProviders = [
+      { id: 'stripe', name: 'Stripe', description: 'Accept credit cards, Apple Pay, Google Pay', icon: 'credit-card', enabled: false },
+      { id: 'paypal', name: 'PayPal', description: 'PayPal checkout and Pay Later options', icon: 'paypal', enabled: false },
+      { id: 'affirm', name: 'Affirm', description: 'Buy now, pay later financing', icon: 'bank', enabled: false },
+      { id: 'square', name: 'Square', description: 'In-person and online payments', icon: 'square', enabled: false }
+    ];
+
+    let paymentConfig = {};
+    let providers = [];
+
+    document.addEventListener('DOMContentLoaded', () => {
+      if (!localStorage.getItem('admin_token')) { window.location.href = '/admin/login.html'; return; }
+      AdminNavConfig.initSidebar('payment-providers');
+      loadPaymentConfig();
+    });
+
+    async function loadPaymentConfig() {
+      const token = localStorage.getItem('admin_token');
+      const headers = { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' };
+
+      try {
+        const res = await fetch('/api/admin/system-config', { headers });
+        const data = await res.json();
+
+        if (data.success && data.data) {
+          paymentConfig = data.data.payment || data.data.payments || {};
+
+          // Merge stored config with default providers
+          providers = defaultProviders.map(dp => {
+            const stored = paymentConfig.providers?.find(p => p.id === dp.id);
+            return {
+              ...dp,
+              enabled: stored?.enabled || false,
+              apiKey: stored?.apiKey || '',
+              secretKey: stored?.secretKey || '',
+              environment: stored?.environment || 'sandbox'
+            };
+          });
+
+          // Set currency and capture mode
+          document.getElementById('defaultCurrency').value = paymentConfig.defaultCurrency || 'USD';
+          document.getElementById('captureMode').value = paymentConfig.captureMode || 'auto';
+
+          document.getElementById('loadingState').style.display = 'none';
+          document.getElementById('contentArea').style.display = 'block';
+          renderProviders();
+        } else {
+          providers = defaultProviders;
+          document.getElementById('loadingState').style.display = 'none';
+          document.getElementById('contentArea').style.display = 'block';
+          renderProviders();
+        }
+      } catch (error) {
+        console.error('Error loading payment config:', error);
+        providers = defaultProviders;
+        document.getElementById('loadingState').textContent = 'Error loading settings. Using defaults.';
+        setTimeout(() => {
+          document.getElementById('loadingState').style.display = 'none';
+          document.getElementById('contentArea').style.display = 'block';
+          renderProviders();
+        }, 1500);
+      }
+    }
+
+    function getProviderIcon(id) {
+      const icons = { stripe: '&#128179;', paypal: '&#127376;', affirm: '&#127974;', square: '&#128241;' };
+      return icons[id] || '&#128179;';
+    }
+
+    function renderProviders() {
+      const grid = document.getElementById('providersGrid');
+      grid.innerHTML = providers.map(p => `
+        <div class="provider-card">
+          <div class="provider-info">
+            <div class="provider-logo">${getProviderIcon(p.id)}</div>
+            <div class="provider-details">
+              <h3>${p.name}</h3>
+              <p>${p.description}</p>
+            </div>
+          </div>
+          <div class="provider-status">
+            <span class="status-badge ${p.enabled ? 'status-active' : 'status-inactive'}">${p.enabled ? 'Active' : 'Disabled'}</span>
+            ${p.enabled
+              ? `<button class="btn-configure" onclick="configureProvider('${p.id}')">Configure</button>
+                 <button class="btn-disable" onclick="toggleProvider('${p.id}', false)">Disable</button>`
+              : `<button class="btn-enable" onclick="toggleProvider('${p.id}', true)">Enable</button>`
+            }
+          </div>
+        </div>
+      `).join('');
+    }
+
+    async function toggleProvider(id, enable) {
+      const provider = providers.find(p => p.id === id);
+      if (provider) {
+        provider.enabled = enable;
+        renderProviders();
+        await savePaymentConfig();
+        Admin.Toast.success(`${provider.name} ${enable ? 'enabled' : 'disabled'}`);
+      }
+    }
+
+    function configureProvider(id) {
+      const provider = providers.find(p => p.id === id);
+      if (!provider) return;
+
+      document.getElementById('configProvider').value = id;
+      document.getElementById('modalTitle').textContent = `Configure ${provider.name}`;
+      document.getElementById('apiKey').value = provider.apiKey || '';
+      document.getElementById('secretKey').value = provider.secretKey || '';
+      document.getElementById('environment').value = provider.environment || 'sandbox';
+      document.getElementById('configModal').classList.add('active');
+    }
+
+    function closeModal() {
+      document.getElementById('configModal').classList.remove('active');
+    }
+
+    async function saveProviderConfig(e) {
+      e.preventDefault();
+      const id = document.getElementById('configProvider').value;
+      const provider = providers.find(p => p.id === id);
+
+      if (provider) {
+        provider.apiKey = document.getElementById('apiKey').value;
+        provider.secretKey = document.getElementById('secretKey').value;
+        provider.environment = document.getElementById('environment').value;
+
+        closeModal();
+        await savePaymentConfig();
+        Admin.Toast.success(`${provider.name} configuration saved`);
+      }
+    }
+
+    async function savePaymentSettings() {
+      await savePaymentConfig();
+      Admin.Toast.success('Payment settings saved successfully');
+    }
+
+    async function savePaymentConfig() {
+      const token = localStorage.getItem('admin_token');
+      const headers = { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' };
+
+      const updatedConfig = {
+        ...paymentConfig,
+        defaultCurrency: document.getElementById('defaultCurrency').value,
+        captureMode: document.getElementById('captureMode').value,
+        providers: providers.map(p => ({
+          id: p.id,
+          name: p.name,
+          enabled: p.enabled,
+          apiKey: p.apiKey || '',
+          secretKey: p.secretKey || '',
+          environment: p.environment || 'sandbox'
+        }))
+      };
+
+      try {
+        const res = await fetch('/api/admin/system-config/payment', {
+          method: 'PUT',
+          headers,
+          body: JSON.stringify(updatedConfig)
+        });
+        const data = await res.json();
+
+        if (!data.success) {
+          console.error('Failed to save payment config:', data.error);
+          Admin.Toast.error('Failed to save: ' + (data.error || 'Unknown error'));
+        }
+      } catch (error) {
+        console.error('Error saving payment config:', error);
+        Admin.Toast.error('Error saving payment configuration');
+      }
+    }
+
+    document.getElementById('configModal').addEventListener('click', e => {
+      if (e.target.id === 'configModal') closeModal();
+    });
+  </script>
+</body>
+</html>

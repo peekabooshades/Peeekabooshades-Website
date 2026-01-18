@@ -1,0 +1,1130 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>New Product Launch - Peekaboo Shades Admin</title>
+  <link rel="stylesheet" href="css/admin.css?v=1737200003">
+  <link rel="icon" type="image/jpeg" href="/images/peekabooshades_logo.jpeg">
+  <style>
+    .wizard-container {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    .wizard-steps {
+      display: flex;
+      justify-content: space-between;
+      margin-bottom: 32px;
+      padding: 0 20px;
+    }
+    .wizard-step {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      flex: 1;
+      position: relative;
+    }
+    .wizard-step:not(:last-child)::after {
+      content: '';
+      position: absolute;
+      top: 18px;
+      left: 50%;
+      width: 100%;
+      height: 2px;
+      background: #e5e7eb;
+      z-index: 0;
+    }
+    .wizard-step.completed:not(:last-child)::after {
+      background: #059669;
+    }
+    .step-number {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: #e5e7eb;
+      color: #6b7280;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      font-size: 14px;
+      position: relative;
+      z-index: 1;
+      transition: all 0.3s;
+    }
+    .wizard-step.active .step-number {
+      background: var(--admin-primary);
+      color: white;
+    }
+    .wizard-step.completed .step-number {
+      background: #059669;
+      color: white;
+    }
+    .step-label {
+      margin-top: 8px;
+      font-size: 12px;
+      color: #6b7280;
+      text-align: center;
+    }
+    .wizard-step.active .step-label {
+      color: var(--admin-primary);
+      font-weight: 500;
+    }
+    .wizard-step.completed .step-label {
+      color: #059669;
+    }
+    .wizard-panel {
+      display: none;
+      background: white;
+      border-radius: 12px;
+      padding: 32px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+      border: 1px solid #eee;
+    }
+    .wizard-panel.active {
+      display: block;
+    }
+    .wizard-panel h2 {
+      margin: 0 0 8px 0;
+      font-size: 20px;
+      color: #1a1a1a;
+    }
+    .wizard-panel p.description {
+      color: #6b7280;
+      margin: 0 0 24px 0;
+      font-size: 14px;
+    }
+    .form-row {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 20px;
+      margin-bottom: 20px;
+    }
+    .form-row.single {
+      grid-template-columns: 1fr;
+    }
+    .form-group {
+      margin-bottom: 20px;
+    }
+    .form-group label {
+      display: block;
+      margin-bottom: 6px;
+      font-weight: 500;
+      font-size: 13px;
+      color: #374151;
+    }
+    .form-group input, .form-group select, .form-group textarea {
+      width: 100%;
+      padding: 10px 12px;
+      border: 1px solid #d1d5db;
+      border-radius: 8px;
+      font-size: 14px;
+      transition: border-color 0.2s, box-shadow 0.2s;
+    }
+    .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+      outline: none;
+      border-color: var(--admin-primary);
+      box-shadow: 0 0 0 3px rgba(142, 101, 69, 0.1);
+    }
+    .form-group textarea {
+      min-height: 100px;
+      resize: vertical;
+    }
+    .form-group .hint {
+      font-size: 12px;
+      color: #9ca3af;
+      margin-top: 4px;
+    }
+    .wizard-nav {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 24px;
+      padding-top: 24px;
+      border-top: 1px solid #eee;
+    }
+    .wizard-nav .btn {
+      padding: 12px 28px;
+      border-radius: 8px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .btn-back {
+      background: white;
+      border: 1px solid #d1d5db;
+      color: #374151;
+    }
+    .btn-back:hover {
+      background: #f9fafb;
+      border-color: #9ca3af;
+    }
+    .btn-next {
+      background: var(--admin-primary);
+      border: none;
+      color: white;
+    }
+    .btn-next:hover {
+      background: #7a5639;
+    }
+    .btn-launch {
+      background: #059669;
+      border: none;
+      color: white;
+    }
+    .btn-launch:hover {
+      background: #047857;
+    }
+    .fabric-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 12px;
+      max-height: 400px;
+      overflow-y: auto;
+      padding: 4px;
+    }
+    .fabric-item {
+      border: 2px solid #e5e7eb;
+      border-radius: 8px;
+      padding: 12px;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .fabric-item:hover {
+      border-color: var(--admin-primary);
+      background: #fdf8f5;
+    }
+    .fabric-item.selected {
+      border-color: var(--admin-primary);
+      background: #fdf8f5;
+    }
+    .fabric-item img {
+      width: 48px;
+      height: 48px;
+      border-radius: 6px;
+      object-fit: cover;
+    }
+    .fabric-item .fabric-info {
+      flex: 1;
+      overflow: hidden;
+    }
+    .fabric-item .fabric-name {
+      font-weight: 500;
+      font-size: 13px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+    .fabric-item .fabric-price {
+      font-size: 12px;
+      color: #6b7280;
+    }
+    .fabric-item .checkbox {
+      width: 18px;
+      height: 18px;
+      border-radius: 4px;
+      border: 2px solid #d1d5db;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+    .fabric-item.selected .checkbox {
+      background: var(--admin-primary);
+      border-color: var(--admin-primary);
+    }
+    .fabric-item.selected .checkbox svg {
+      display: block;
+    }
+    .fabric-item .checkbox svg {
+      display: none;
+      width: 12px;
+      height: 12px;
+      color: white;
+    }
+    .hardware-section {
+      margin-bottom: 24px;
+    }
+    .hardware-section h4 {
+      font-size: 14px;
+      color: #374151;
+      margin: 0 0 12px 0;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .hardware-options {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 10px;
+    }
+    .hardware-option {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 12px;
+      border: 1px solid #e5e7eb;
+      border-radius: 6px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .hardware-option:hover {
+      border-color: var(--admin-primary);
+    }
+    .hardware-option.selected {
+      border-color: var(--admin-primary);
+      background: #fdf8f5;
+    }
+    .hardware-option input[type="checkbox"] {
+      width: 16px;
+      height: 16px;
+      accent-color: var(--admin-primary);
+    }
+    .hardware-option label {
+      flex: 1;
+      cursor: pointer;
+      font-size: 13px;
+    }
+    .image-upload-area {
+      border: 2px dashed #d1d5db;
+      border-radius: 12px;
+      padding: 40px;
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s;
+      margin-bottom: 16px;
+    }
+    .image-upload-area:hover {
+      border-color: var(--admin-primary);
+      background: #fdf8f5;
+    }
+    .image-upload-area.has-image {
+      padding: 16px;
+      border-style: solid;
+    }
+    .image-upload-area img {
+      max-width: 100%;
+      max-height: 200px;
+      border-radius: 8px;
+    }
+    .image-upload-area .placeholder {
+      color: #9ca3af;
+    }
+    .image-upload-area .placeholder svg {
+      width: 48px;
+      height: 48px;
+      margin-bottom: 12px;
+    }
+    .gallery-preview {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+    }
+    .gallery-preview .gallery-slot {
+      aspect-ratio: 1;
+      border: 2px dashed #e5e7eb;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      position: relative;
+      overflow: hidden;
+    }
+    .gallery-preview .gallery-slot:hover {
+      border-color: var(--admin-primary);
+    }
+    .gallery-preview .gallery-slot img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .gallery-preview .gallery-slot .remove-btn {
+      position: absolute;
+      top: 4px;
+      right: 4px;
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background: rgba(220, 53, 69, 0.9);
+      color: white;
+      border: none;
+      cursor: pointer;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+    }
+    .gallery-preview .gallery-slot:hover .remove-btn {
+      display: flex;
+    }
+    .summary-section {
+      background: #f9fafb;
+      border-radius: 8px;
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+    .summary-section h4 {
+      margin: 0 0 12px 0;
+      font-size: 14px;
+      color: #374151;
+    }
+    .summary-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 0;
+      border-bottom: 1px solid #e5e7eb;
+      font-size: 13px;
+    }
+    .summary-row:last-child {
+      border-bottom: none;
+    }
+    .summary-row .label {
+      color: #6b7280;
+    }
+    .summary-row .value {
+      font-weight: 500;
+      color: #1a1a1a;
+    }
+    .fabric-filter {
+      display: flex;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+    .fabric-filter input {
+      flex: 1;
+      padding: 8px 12px;
+      border: 1px solid #d1d5db;
+      border-radius: 6px;
+      font-size: 13px;
+    }
+    .select-actions {
+      display: flex;
+      gap: 8px;
+    }
+    .select-actions button {
+      padding: 6px 12px;
+      font-size: 12px;
+      border-radius: 4px;
+      cursor: pointer;
+      border: 1px solid #d1d5db;
+      background: white;
+    }
+    .select-actions button:hover {
+      background: #f3f4f6;
+    }
+    .selected-count {
+      background: var(--admin-primary);
+      color: white;
+      padding: 2px 8px;
+      border-radius: 12px;
+      font-size: 11px;
+      margin-left: 8px;
+    }
+    .pricing-preview {
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+      border-radius: 12px;
+      padding: 24px;
+      color: white;
+      margin-bottom: 24px;
+    }
+    .pricing-preview h4 {
+      margin: 0 0 16px 0;
+      font-size: 14px;
+      opacity: 0.8;
+    }
+    .pricing-preview .price-display {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+      text-align: center;
+    }
+    .pricing-preview .price-item .amount {
+      font-size: 24px;
+      font-weight: 600;
+    }
+    .pricing-preview .price-item .label {
+      font-size: 11px;
+      opacity: 0.7;
+      text-transform: uppercase;
+    }
+  </style>
+</head>
+<body>
+  <div class="admin-layout">
+    <!-- Sidebar (dynamically populated by adminNavConfig.js) -->
+    <aside class="admin-sidebar">
+      <!-- Sidebar content will be injected dynamically -->
+    </aside>
+
+    <!-- Main Content -->
+    <main class="admin-main">
+      <header class="admin-header">
+        <div class="header-title">
+          <a href="/admin/products.html" style="color: var(--admin-text-secondary); text-decoration: none; margin-right: 8px;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="vertical-align: middle;">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+            </svg>
+          </a>
+          <h1>New Product Launch</h1>
+        </div>
+      </header>
+
+      <div class="admin-content">
+        <div class="wizard-container">
+          <!-- Wizard Steps Indicator -->
+          <div class="wizard-steps">
+            <div class="wizard-step active" data-step="1">
+              <div class="step-number">1</div>
+              <div class="step-label">Basic Info</div>
+            </div>
+            <div class="wizard-step" data-step="2">
+              <div class="step-number">2</div>
+              <div class="step-label">Pricing</div>
+            </div>
+            <div class="wizard-step" data-step="3">
+              <div class="step-number">3</div>
+              <div class="step-label">Fabrics</div>
+            </div>
+            <div class="wizard-step" data-step="4">
+              <div class="step-number">4</div>
+              <div class="step-label">Hardware</div>
+            </div>
+            <div class="wizard-step" data-step="5">
+              <div class="step-number">5</div>
+              <div class="step-label">Review</div>
+            </div>
+          </div>
+
+          <!-- Step 1: Basic Info -->
+          <div class="wizard-panel active" data-panel="1">
+            <h2>Basic Product Information</h2>
+            <p class="description">Enter the essential details for your new product.</p>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="product-name">Product Name *</label>
+                <input type="text" id="product-name" placeholder="e.g., Premium Blackout Roller Shades">
+              </div>
+              <div class="form-group">
+                <label for="product-category">Category *</label>
+                <select id="product-category">
+                  <option value="">Select a category...</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="product-slug">URL Slug</label>
+                <input type="text" id="product-slug" placeholder="auto-generated-from-name">
+                <div class="hint">Leave empty to auto-generate from name</div>
+              </div>
+              <div class="form-group">
+                <label for="product-status">Status</label>
+                <select id="product-status">
+                  <option value="active">Active (Visible)</option>
+                  <option value="draft">Draft (Hidden)</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="product-description">Description</label>
+              <textarea id="product-description" placeholder="Describe your product features and benefits..."></textarea>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label>
+                  <input type="checkbox" id="product-featured" style="width: auto; margin-right: 8px;">
+                  Feature this product on homepage
+                </label>
+              </div>
+            </div>
+
+            <div class="wizard-nav">
+              <div></div>
+              <button class="btn btn-next" onclick="nextStep()">
+                Continue to Pricing
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <!-- Step 2: Pricing -->
+          <div class="wizard-panel" data-panel="2">
+            <h2>Pricing Configuration</h2>
+            <p class="description">Set up base prices and margin settings for this product.</p>
+
+            <div class="pricing-preview">
+              <h4>Price Preview (for 36" x 48" shade)</h4>
+              <div class="price-display">
+                <div class="price-item">
+                  <div class="amount" id="preview-mfr-cost">$0.00</div>
+                  <div class="label">MFR Cost</div>
+                </div>
+                <div class="price-item">
+                  <div class="amount" id="preview-retail">$0.00</div>
+                  <div class="label">Retail Price</div>
+                </div>
+                <div class="price-item">
+                  <div class="amount" id="preview-margin">0%</div>
+                  <div class="label">Margin</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="base-price">Base Price ($)</label>
+                <input type="number" id="base-price" placeholder="0.00" min="0" step="0.01" oninput="updatePricingPreview()">
+                <div class="hint">Starting price before customizations</div>
+              </div>
+              <div class="form-group">
+                <label for="mfr-cost-sqm">MFR Cost (per sq meter)</label>
+                <input type="number" id="mfr-cost-sqm" placeholder="0.00" min="0" step="0.01" oninput="updatePricingPreview()">
+                <div class="hint">Manufacturer cost per square meter</div>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="markup-percentage">Markup Percentage (%)</label>
+                <input type="number" id="markup-percentage" placeholder="40" min="0" max="200" value="40" oninput="updatePricingPreview()">
+                <div class="hint">Applied to manufacturer cost</div>
+              </div>
+              <div class="form-group">
+                <label for="sale-price">Sale Price (optional)</label>
+                <input type="number" id="sale-price" placeholder="Leave empty if no sale" min="0" step="0.01">
+              </div>
+            </div>
+
+            <div class="wizard-nav">
+              <button class="btn btn-back" onclick="prevStep()">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                </svg>
+                Back
+              </button>
+              <button class="btn btn-next" onclick="nextStep()">
+                Continue to Fabrics
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <!-- Step 3: Fabrics -->
+          <div class="wizard-panel" data-panel="3">
+            <h2>Select Available Fabrics</h2>
+            <p class="description">Choose which fabrics will be available for this product. <span class="selected-count" id="fabric-count">0 selected</span></p>
+
+            <div class="fabric-filter">
+              <input type="text" id="fabric-search" placeholder="Search fabrics..." oninput="filterFabrics()">
+              <div class="select-actions">
+                <button onclick="selectAllFabrics()">Select All</button>
+                <button onclick="deselectAllFabrics()">Clear</button>
+              </div>
+            </div>
+
+            <div class="fabric-grid" id="fabric-grid">
+              <!-- Fabrics loaded dynamically -->
+            </div>
+
+            <div class="wizard-nav">
+              <button class="btn btn-back" onclick="prevStep()">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                </svg>
+                Back
+              </button>
+              <button class="btn btn-next" onclick="nextStep()">
+                Continue to Hardware
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <!-- Step 4: Hardware -->
+          <div class="wizard-panel" data-panel="4">
+            <h2>Hardware & Options</h2>
+            <p class="description">Configure available hardware options for this product.</p>
+
+            <div class="hardware-section">
+              <h4>
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                </svg>
+                Control Type
+              </h4>
+              <div class="hardware-options" id="control-options">
+                <label class="hardware-option selected">
+                  <input type="checkbox" name="control" value="chain" checked>
+                  <span>Chain Control</span>
+                </label>
+                <label class="hardware-option selected">
+                  <input type="checkbox" name="control" value="motorized" checked>
+                  <span>Motorized</span>
+                </label>
+                <label class="hardware-option">
+                  <input type="checkbox" name="control" value="cordless">
+                  <span>Cordless</span>
+                </label>
+              </div>
+            </div>
+
+            <div class="hardware-section">
+              <h4>
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6z" />
+                </svg>
+                Cassette/Valance Options
+              </h4>
+              <div class="hardware-options" id="cassette-options">
+                <label class="hardware-option selected">
+                  <input type="checkbox" name="cassette" value="none" checked>
+                  <span>No Cassette</span>
+                </label>
+                <label class="hardware-option selected">
+                  <input type="checkbox" name="cassette" value="standard" checked>
+                  <span>Standard Cassette</span>
+                </label>
+                <label class="hardware-option">
+                  <input type="checkbox" name="cassette" value="fabric-wrapped">
+                  <span>Fabric Wrapped</span>
+                </label>
+              </div>
+            </div>
+
+            <div class="hardware-section">
+              <h4>
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                </svg>
+                Bottom Rail Options
+              </h4>
+              <div class="hardware-options" id="rail-options">
+                <label class="hardware-option selected">
+                  <input type="checkbox" name="rail" value="standard" checked>
+                  <span>Standard Rail</span>
+                </label>
+                <label class="hardware-option">
+                  <input type="checkbox" name="rail" value="weighted">
+                  <span>Weighted Rail</span>
+                </label>
+                <label class="hardware-option">
+                  <input type="checkbox" name="rail" value="fabric-wrapped">
+                  <span>Fabric Wrapped</span>
+                </label>
+              </div>
+            </div>
+
+            <div class="hardware-section">
+              <h4>
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4" />
+                </svg>
+                Accessories
+              </h4>
+              <div class="hardware-options" id="accessory-options">
+                <label class="hardware-option selected">
+                  <input type="checkbox" name="accessory" value="smart-hub" checked>
+                  <span>Smart Hub</span>
+                </label>
+                <label class="hardware-option selected">
+                  <input type="checkbox" name="accessory" value="usb-charger" checked>
+                  <span>USB Charger</span>
+                </label>
+                <label class="hardware-option selected">
+                  <input type="checkbox" name="accessory" value="remote" checked>
+                  <span>Remote Control</span>
+                </label>
+                <label class="hardware-option">
+                  <input type="checkbox" name="accessory" value="solar-panel">
+                  <span>Solar Panel</span>
+                </label>
+              </div>
+            </div>
+
+            <div class="wizard-nav">
+              <button class="btn btn-back" onclick="prevStep()">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                </svg>
+                Back
+              </button>
+              <button class="btn btn-next" onclick="nextStep()">
+                Review & Launch
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
+                </svg>
+              </button>
+            </div>
+          </div>
+
+          <!-- Step 5: Review -->
+          <div class="wizard-panel" data-panel="5">
+            <h2>Review & Launch</h2>
+            <p class="description">Review your product configuration before launching.</p>
+
+            <div class="summary-section">
+              <h4>Basic Information</h4>
+              <div class="summary-row">
+                <span class="label">Product Name</span>
+                <span class="value" id="summary-name">-</span>
+              </div>
+              <div class="summary-row">
+                <span class="label">Category</span>
+                <span class="value" id="summary-category">-</span>
+              </div>
+              <div class="summary-row">
+                <span class="label">Status</span>
+                <span class="value" id="summary-status">-</span>
+              </div>
+              <div class="summary-row">
+                <span class="label">Featured</span>
+                <span class="value" id="summary-featured">-</span>
+              </div>
+            </div>
+
+            <div class="summary-section">
+              <h4>Pricing</h4>
+              <div class="summary-row">
+                <span class="label">Base Price</span>
+                <span class="value" id="summary-base-price">-</span>
+              </div>
+              <div class="summary-row">
+                <span class="label">MFR Cost (per sq m)</span>
+                <span class="value" id="summary-mfr-cost">-</span>
+              </div>
+              <div class="summary-row">
+                <span class="label">Markup</span>
+                <span class="value" id="summary-markup">-</span>
+              </div>
+            </div>
+
+            <div class="summary-section">
+              <h4>Configuration</h4>
+              <div class="summary-row">
+                <span class="label">Fabrics Selected</span>
+                <span class="value" id="summary-fabrics">-</span>
+              </div>
+              <div class="summary-row">
+                <span class="label">Control Types</span>
+                <span class="value" id="summary-controls">-</span>
+              </div>
+              <div class="summary-row">
+                <span class="label">Accessories</span>
+                <span class="value" id="summary-accessories">-</span>
+              </div>
+            </div>
+
+            <div class="wizard-nav">
+              <button class="btn btn-back" onclick="prevStep()">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7" />
+                </svg>
+                Back
+              </button>
+              <button class="btn btn-launch" onclick="launchProduct()">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
+                </svg>
+                Launch Product
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="js/adminNavConfig.js?v=1737200002"></script>
+  <script src="js/admin-common.js"></script>
+  <script>
+    let currentStep = 1;
+    const totalSteps = 5;
+    let allFabrics = [];
+    let selectedFabrics = new Set();
+    let categories = [];
+
+    document.addEventListener('DOMContentLoaded', async () => {
+      await Admin.Auth.requireAuth();
+      await loadCategories();
+      await loadFabrics();
+      initHardwareOptions();
+    });
+
+    async function loadCategories() {
+      try {
+        const response = await fetch('/api/categories');
+        const data = await response.json();
+        if (data.success) {
+          categories = data.categories || data.data || [];
+          const select = document.getElementById('product-category');
+          categories.forEach(cat => {
+            const option = document.createElement('option');
+            option.value = cat.id;
+            option.textContent = cat.name;
+            select.appendChild(option);
+          });
+        }
+      } catch (error) {
+        console.error('Failed to load categories:', error);
+      }
+    }
+
+    async function loadFabrics() {
+      try {
+        const response = await fetch('/api/fabrics', {
+          headers: { 'Authorization': `Bearer ${Admin.Auth.getToken()}` }
+        });
+        const data = await response.json();
+        if (data.success) {
+          allFabrics = data.fabrics || data.data || [];
+          renderFabrics(allFabrics);
+        }
+      } catch (error) {
+        console.error('Failed to load fabrics:', error);
+      }
+    }
+
+    function renderFabrics(fabrics) {
+      const grid = document.getElementById('fabric-grid');
+      grid.innerHTML = fabrics.map(f => `
+        <div class="fabric-item ${selectedFabrics.has(f.id) ? 'selected' : ''}" data-id="${f.id}" onclick="toggleFabric('${f.id}')">
+          <img src="${f.swatch_url || f.image_url || '/images/placeholder.png'}" alt="${Admin.Utils.escapeHtml(f.name)}" onerror="this.src='/images/placeholder.png'">
+          <div class="fabric-info">
+            <div class="fabric-name">${Admin.Utils.escapeHtml(f.name)}</div>
+            <div class="fabric-price">$${(f.customer_price_sqm || f.price || 0).toFixed(2)}/sqm</div>
+          </div>
+          <div class="checkbox">
+            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M5 13l4 4L19 7" />
+            </svg>
+          </div>
+        </div>
+      `).join('');
+      updateFabricCount();
+    }
+
+    function toggleFabric(id) {
+      if (selectedFabrics.has(id)) {
+        selectedFabrics.delete(id);
+      } else {
+        selectedFabrics.add(id);
+      }
+      const item = document.querySelector(`.fabric-item[data-id="${id}"]`);
+      if (item) {
+        item.classList.toggle('selected', selectedFabrics.has(id));
+      }
+      updateFabricCount();
+    }
+
+    function updateFabricCount() {
+      document.getElementById('fabric-count').textContent = `${selectedFabrics.size} selected`;
+    }
+
+    function filterFabrics() {
+      const query = document.getElementById('fabric-search').value.toLowerCase();
+      const filtered = allFabrics.filter(f =>
+        f.name.toLowerCase().includes(query) ||
+        (f.collection && f.collection.toLowerCase().includes(query))
+      );
+      renderFabrics(filtered);
+    }
+
+    function selectAllFabrics() {
+      allFabrics.forEach(f => selectedFabrics.add(f.id));
+      renderFabrics(allFabrics);
+    }
+
+    function deselectAllFabrics() {
+      selectedFabrics.clear();
+      renderFabrics(allFabrics);
+    }
+
+    function initHardwareOptions() {
+      document.querySelectorAll('.hardware-option input[type="checkbox"]').forEach(input => {
+        input.addEventListener('change', function() {
+          this.closest('.hardware-option').classList.toggle('selected', this.checked);
+        });
+      });
+    }
+
+    function nextStep() {
+      if (currentStep === 1) {
+        const name = document.getElementById('product-name').value.trim();
+        const category = document.getElementById('product-category').value;
+        if (!name) {
+          Admin.Toast.error('Please enter a product name');
+          return;
+        }
+        if (!category) {
+          Admin.Toast.error('Please select a category');
+          return;
+        }
+      }
+
+      if (currentStep < totalSteps) {
+        setStep(currentStep + 1);
+      }
+
+      if (currentStep === 5) {
+        updateSummary();
+      }
+    }
+
+    function prevStep() {
+      if (currentStep > 1) {
+        setStep(currentStep - 1);
+      }
+    }
+
+    function setStep(step) {
+      // Update step indicators
+      document.querySelectorAll('.wizard-step').forEach(el => {
+        const s = parseInt(el.dataset.step);
+        el.classList.remove('active', 'completed');
+        if (s === step) {
+          el.classList.add('active');
+        } else if (s < step) {
+          el.classList.add('completed');
+        }
+      });
+
+      // Show correct panel
+      document.querySelectorAll('.wizard-panel').forEach(el => {
+        el.classList.remove('active');
+        if (parseInt(el.dataset.panel) === step) {
+          el.classList.add('active');
+        }
+      });
+
+      currentStep = step;
+    }
+
+    function updatePricingPreview() {
+      const basePrice = parseFloat(document.getElementById('base-price').value) || 0;
+      const mfrCostSqm = parseFloat(document.getElementById('mfr-cost-sqm').value) || 0;
+      const markup = parseFloat(document.getElementById('markup-percentage').value) || 40;
+
+      // Calculate for 36" x 48" shade
+      const widthM = 36 * 0.0254;
+      const heightM = 48 * 0.0254;
+      const areaSqM = Math.max(widthM * heightM, 1.2);
+
+      const mfrCost = mfrCostSqm * areaSqM;
+      const retailPrice = basePrice + (mfrCost * (1 + markup / 100));
+      const margin = retailPrice > 0 ? ((retailPrice - mfrCost) / retailPrice * 100) : 0;
+
+      document.getElementById('preview-mfr-cost').textContent = `$${mfrCost.toFixed(2)}`;
+      document.getElementById('preview-retail').textContent = `$${retailPrice.toFixed(2)}`;
+      document.getElementById('preview-margin').textContent = `${margin.toFixed(0)}%`;
+    }
+
+    function updateSummary() {
+      const name = document.getElementById('product-name').value.trim();
+      const categoryId = document.getElementById('product-category').value;
+      const category = categories.find(c => c.id === categoryId);
+      const status = document.getElementById('product-status').value;
+      const featured = document.getElementById('product-featured').checked;
+      const basePrice = parseFloat(document.getElementById('base-price').value) || 0;
+      const mfrCost = parseFloat(document.getElementById('mfr-cost-sqm').value) || 0;
+      const markup = parseFloat(document.getElementById('markup-percentage').value) || 40;
+
+      document.getElementById('summary-name').textContent = name;
+      document.getElementById('summary-category').textContent = category ? category.name : '-';
+      document.getElementById('summary-status').textContent = status === 'active' ? 'Active' : 'Draft';
+      document.getElementById('summary-featured').textContent = featured ? 'Yes' : 'No';
+      document.getElementById('summary-base-price').textContent = `$${basePrice.toFixed(2)}`;
+      document.getElementById('summary-mfr-cost').textContent = `$${mfrCost.toFixed(2)}/sqm`;
+      document.getElementById('summary-markup').textContent = `${markup}%`;
+      document.getElementById('summary-fabrics').textContent = `${selectedFabrics.size} fabrics`;
+
+      // Get selected controls
+      const controls = [];
+      document.querySelectorAll('#control-options input:checked').forEach(input => {
+        controls.push(input.closest('label').querySelector('span').textContent);
+      });
+      document.getElementById('summary-controls').textContent = controls.join(', ') || 'None';
+
+      // Get selected accessories
+      const accessories = [];
+      document.querySelectorAll('#accessory-options input:checked').forEach(input => {
+        accessories.push(input.closest('label').querySelector('span').textContent);
+      });
+      document.getElementById('summary-accessories').textContent = accessories.join(', ') || 'None';
+    }
+
+    async function launchProduct() {
+      const name = document.getElementById('product-name').value.trim();
+      const categoryId = document.getElementById('product-category').value;
+      const category = categories.find(c => c.id === categoryId);
+      const slug = document.getElementById('product-slug').value.trim() || generateSlug(name);
+      const description = document.getElementById('product-description').value.trim();
+      const status = document.getElementById('product-status').value;
+      const featured = document.getElementById('product-featured').checked;
+      const basePrice = parseFloat(document.getElementById('base-price').value) || 0;
+      const salePrice = parseFloat(document.getElementById('sale-price').value) || null;
+
+      const productData = {
+        name,
+        slug,
+        description,
+        category_id: categoryId,
+        category_name: category ? category.name : '',
+        category_slug: category ? category.slug : '',
+        base_price: basePrice,
+        sale_price: salePrice,
+        is_featured: featured,
+        is_active: status === 'active',
+        stock_status: 'in_stock',
+        image_url: '/images/placeholder.png',
+        gallery_images: []
+      };
+
+      try {
+        const response = await fetch('/api/admin/products', {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${Admin.Auth.getToken()}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(productData)
+        });
+
+        const data = await response.json();
+        if (data.success) {
+          Admin.Toast.success('Product launched successfully!');
+          setTimeout(() => {
+            window.location.href = `/admin/product-edit.html?id=${data.product?.id || data.data?.id}`;
+          }, 1000);
+        } else {
+          Admin.Toast.error(data.error || 'Failed to create product');
+        }
+      } catch (error) {
+        console.error('Failed to create product:', error);
+        Admin.Toast.error('Failed to create product');
+      }
+    }
+
+    function generateSlug(name) {
+      return name.toLowerCase()
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/(^-|-$)/g, '');
+    }
+  </script>
+</body>
+</html>

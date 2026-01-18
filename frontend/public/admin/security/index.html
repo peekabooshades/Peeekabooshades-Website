@@ -507,9 +507,9 @@
             <ul class="security-nav">
                 <li><a href="index.html" class="active"><i class="fas fa-tachometer-alt"></i> Overview</a></li>
                 <li><a href="users.html"><i class="fas fa-users-cog"></i> User Management <span class="nav-badge success">5</span></a></li>
-                <li><a href="two-factor.html"><i class="fas fa-mobile-alt"></i> Two-Factor Auth</a></li>
-                <li><a href="firewall.html"><i class="fas fa-fire"></i> IP Firewall <span class="nav-badge warning">3</span></a></li>
-                <li><a href="sso.html"><i class="fas fa-key"></i> SSO & Auth Providers</a></li>
+                <li><a href="two-factor.html" style="opacity: 0.5;" title="Not enabled - UI preview only"><i class="fas fa-mobile-alt"></i> Two-Factor Auth <span class="nav-badge" style="background:#6c757d;">Preview</span></a></li>
+                <li><a href="firewall.html" style="opacity: 0.5;" title="Not enabled - UI preview only"><i class="fas fa-fire"></i> IP Firewall <span class="nav-badge" style="background:#6c757d;">Preview</span></a></li>
+                <li><a href="sso.html" style="opacity: 0.5;" title="Not enabled - UI preview only"><i class="fas fa-key"></i> SSO & Auth Providers <span class="nav-badge" style="background:#6c757d;">Preview</span></a></li>
                 <li><a href="sessions.html"><i class="fas fa-desktop"></i> Active Sessions</a></li>
                 <li><a href="api-security.html"><i class="fas fa-code"></i> API Security</a></li>
                 <li><a href="audit-logs.html"><i class="fas fa-history"></i> Audit Logs</a></li>
@@ -639,53 +639,53 @@
                             <div class="stat-label">Need Setup</div>
                         </div>
                     </div>
-                    <a href="two-factor.html" class="card-action">Configure 2FA</a>
+                    <a href="two-factor.html" class="card-action" style="opacity: 0.6;">UI Preview Only</a>
                 </div>
 
-                <div class="security-card status-good">
+                <div class="security-card" style="opacity: 0.7;">
                     <div class="card-header">
                         <div class="card-icon firewall">
                             <i class="fas fa-shield-alt"></i>
                         </div>
                         <div>
                             <h4 class="card-title">IP Firewall</h4>
-                            <p class="card-status good">Active protection</p>
+                            <p class="card-status" style="color: #6c757d;">UI Preview Only</p>
                         </div>
                     </div>
                     <div class="card-stats">
                         <div class="stat-item">
-                            <div class="stat-value">12</div>
+                            <div class="stat-value">--</div>
                             <div class="stat-label">IPs Blocked</div>
                         </div>
                         <div class="stat-item">
-                            <div class="stat-value">156</div>
+                            <div class="stat-value">--</div>
                             <div class="stat-label">Attacks Blocked</div>
                         </div>
                     </div>
-                    <a href="firewall.html" class="card-action">Manage Firewall</a>
+                    <a href="firewall.html" class="card-action" style="opacity: 0.6;">UI Preview Only</a>
                 </div>
 
-                <div class="security-card status-good">
+                <div class="security-card" style="opacity: 0.7;">
                     <div class="card-header">
                         <div class="card-icon sso">
                             <i class="fas fa-key"></i>
                         </div>
                         <div>
                             <h4 class="card-title">SSO Providers</h4>
-                            <p class="card-status good">2 providers active</p>
+                            <p class="card-status" style="color: #6c757d;">UI Preview Only</p>
                         </div>
                     </div>
                     <div class="card-stats">
                         <div class="stat-item">
-                            <div class="stat-value">2</div>
+                            <div class="stat-value">--</div>
                             <div class="stat-label">Connected</div>
                         </div>
                         <div class="stat-item">
-                            <div class="stat-value">45</div>
+                            <div class="stat-value">--</div>
                             <div class="stat-label">SSO Logins</div>
                         </div>
                     </div>
-                    <a href="sso.html" class="card-action">Manage SSO</a>
+                    <a href="sso.html" class="card-action" style="opacity: 0.6;">UI Preview Only</a>
                 </div>
 
                 <div class="security-card status-good">
@@ -870,5 +870,6 @@
             }
         }
     </script>
+<script src="/admin/js/ai-assistant.js"></script>
 </body>
 </html>

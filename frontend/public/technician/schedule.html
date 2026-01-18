@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>My Schedule - Technician Portal</title>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Montserrat', sans-serif; background: #f5f0ec; min-height: 100vh; }
+    .sidebar { position: fixed; left: 0; top: 0; width: 260px; height: 100vh; background: linear-gradient(180deg, #8E6545 0%, #6B4C35 100%); color: white; padding: 1.5rem; z-index: 100; }
+    .sidebar-logo { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 2rem; padding-bottom: 1.5rem; border-bottom: 1px solid rgba(255,255,255,0.2); }
+    .sidebar-logo img { width: 44px; height: 44px; border-radius: 10px; background: white; padding: 4px; }
+    .sidebar-logo span { font-weight: 700; font-size: 1.1rem; }
+    .sidebar-nav { list-style: none; }
+    .sidebar-nav li { margin-bottom: 0.5rem; }
+    .sidebar-nav a { display: flex; align-items: center; gap: 0.75rem; padding: 0.875rem 1rem; color: rgba(255,255,255,0.8); text-decoration: none; border-radius: 10px; font-size: 0.95rem; }
+    .sidebar-nav a:hover { background: rgba(255,255,255,0.1); color: white; }
+    .sidebar-nav a.active { background: rgba(255,255,255,0.2); color: white; font-weight: 600; }
+    .sidebar-nav svg { width: 20px; height: 20px; }
+    .sidebar-user { position: absolute; bottom: 1.5rem; left: 1.5rem; right: 1.5rem; padding-top: 1rem; border-top: 1px solid rgba(255,255,255,0.2); }
+    .user-info { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.75rem; }
+    .user-avatar { width: 40px; height: 40px; border-radius: 50%; background: rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center; font-weight: 600; }
+    .user-details { flex: 1; }
+    .user-name { font-weight: 600; font-size: 0.9rem; }
+    .user-status { font-size: 0.75rem; opacity: 0.8; }
+    .btn-logout { width: 100%; padding: 0.625rem; background: rgba(255,255,255,0.1); border: none; color: white; border-radius: 8px; cursor: pointer; font-family: inherit; }
+
+    .main-content { margin-left: 260px; padding: 2rem; }
+    .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; }
+    .page-header h1 { font-size: 1.75rem; color: #1f2937; }
+
+    .schedule-container { display: grid; grid-template-columns: 1fr 300px; gap: 2rem; }
+
+    .calendar-section { background: white; border-radius: 16px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+    .calendar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
+    .calendar-header h2 { font-size: 1.25rem; color: #1f2937; }
+    .calendar-nav { display: flex; gap: 0.5rem; }
+    .calendar-nav button { width: 36px; height: 36px; border: 1px solid #e5e7eb; background: white; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; }
+    .calendar-nav button:hover { border-color: #8E6545; color: #8E6545; }
+    .calendar-nav svg { width: 18px; height: 18px; }
+
+    .calendar-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
+    .calendar-day-header { text-align: center; font-size: 0.75rem; font-weight: 600; color: #6b7280; padding: 0.5rem; text-transform: uppercase; }
+    .calendar-day { aspect-ratio: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; border-radius: 10px; cursor: pointer; font-size: 0.9rem; position: relative; border: 2px solid transparent; transition: all 0.2s; }
+    .calendar-day:hover { background: #faf8f6; }
+    .calendar-day.other-month { color: #d1d5db; }
+    .calendar-day.today { background: #faf8f6; font-weight: 600; }
+    .calendar-day.selected { background: #8E6545; color: white; }
+    .calendar-day.has-appointment::after { content: ''; position: absolute; bottom: 4px; width: 6px; height: 6px; background: #8E6545; border-radius: 50%; }
+    .calendar-day.selected.has-appointment::after { background: white; }
+
+    .availability-section { background: white; border-radius: 16px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+    .availability-section h3 { font-size: 1rem; color: #1f2937; margin-bottom: 1rem; }
+    .selected-date { font-size: 0.9rem; color: #6b7280; margin-bottom: 1rem; padding-bottom: 1rem; border-bottom: 1px solid #e5e7eb; }
+
+    .time-slots { display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 1.5rem; }
+    .time-slot { display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem 1rem; background: #faf8f6; border: 2px solid #e8e0da; border-radius: 10px; cursor: pointer; }
+    .time-slot:hover { border-color: #8E6545; }
+    .time-slot input { width: 18px; height: 18px; accent-color: #8E6545; }
+    .time-slot span { font-size: 0.9rem; color: #374151; }
+    .time-slot:has(input:checked) { background: #f5f0ec; border-color: #8E6545; }
+    .time-slot:has(input:checked) span { color: #8E6545; font-weight: 500; }
+
+    .btn-save { width: 100%; padding: 0.875rem; background: linear-gradient(135deg, #8E6545 0%, #A67C5B 100%); color: white; border: none; border-radius: 10px; font-weight: 600; cursor: pointer; font-family: inherit; }
+    .btn-save:hover { opacity: 0.9; }
+
+    .availability-legend { margin-top: 1.5rem; padding-top: 1rem; border-top: 1px solid #e5e7eb; }
+    .legend-item { display: flex; align-items: center; gap: 0.5rem; font-size: 0.8rem; color: #6b7280; margin-bottom: 0.35rem; }
+    .legend-dot { width: 8px; height: 8px; border-radius: 50%; }
+    .legend-dot.available { background: #10B981; }
+    .legend-dot.busy { background: #EF4444; }
+    .legend-dot.appointment { background: #8E6545; }
+
+    @media (max-width: 900px) {
+      .sidebar { transform: translateX(-100%); }
+      .main-content { margin-left: 0; }
+      .schedule-container { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <aside class="sidebar">
+    <div class="sidebar-logo">
+      <img src="/images/peekabooshades_logo.jpeg" alt="Peekaboo Shades">
+      <span>Technician Portal</span>
+    </div>
+    <ul class="sidebar-nav">
+      <li><a href="/technician/"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg> Dashboard</a></li>
+      <li><a href="/technician/appointments.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg> Appointments</a></li>
+      <li><a href="/technician/schedule.html" class="active"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> My Schedule</a></li>
+      <li><a href="/technician/payments.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg> Payments</a></li>
+      <li><a href="/technician/profile.html"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> Profile</a></li>
+    </ul>
+    <div class="sidebar-user">
+      <div class="user-info">
+        <div class="user-avatar" id="userAvatar">T</div>
+        <div class="user-details">
+          <div class="user-name" id="userName">Technician</div>
+          <div class="user-status">Active</div>
+        </div>
+      </div>
+      <button class="btn-logout" onclick="logout()">Sign Out</button>
+    </div>
+  </aside>
+
+  <main class="main-content">
+    <div class="page-header">
+      <h1>My Schedule</h1>
+    </div>
+
+    <div class="schedule-container">
+      <div class="calendar-section">
+        <div class="calendar-header">
+          <h2 id="monthYear">January 2025</h2>
+          <div class="calendar-nav">
+            <button onclick="changeMonth(-1)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg></button>
+            <button onclick="changeMonth(1)"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg></button>
+          </div>
+        </div>
+        <div class="calendar-grid" id="calendarGrid"></div>
+      </div>
+
+      <div class="availability-section">
+        <h3>Set Availability</h3>
+        <div class="selected-date" id="selectedDateDisplay">Select a date</div>
+
+        <div class="time-slots">
+          <label class="time-slot">
+            <input type="checkbox" name="slots" value="8am-10am">
+            <span>8:00 AM - 10:00 AM</span>
+          </label>
+          <label class="time-slot">
+            <input type="checkbox" name="slots" value="10am-12pm">
+            <span>10:00 AM - 12:00 PM</span>
+          </label>
+          <label class="time-slot">
+            <input type="checkbox" name="slots" value="12pm-2pm">
+            <span>12:00 PM - 2:00 PM</span>
+          </label>
+          <label class="time-slot">
+            <input type="checkbox" name="slots" value="2pm-4pm">
+            <span>2:00 PM - 4:00 PM</span>
+          </label>
+          <label class="time-slot">
+            <input type="checkbox" name="slots" value="4pm-6pm">
+            <span>4:00 PM - 6:00 PM</span>
+          </label>
+        </div>
+
+        <button class="btn-save" onclick="saveAvailability()">Save Availability</button>
+
+        <div class="availability-legend">
+          <div class="legend-item"><div class="legend-dot available"></div> Available</div>
+          <div class="legend-item"><div class="legend-dot appointment"></div> Has Appointment</div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script>
+    let currentDate = new Date();
+    let selectedDate = null;
+    let availability = [];
+    let appointments = [];
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const token = localStorage.getItem('technician_token');
+      if (!token) { window.location.href = '/technician/login.html'; return; }
+      loadUserInfo();
+      loadAvailability();
+      renderCalendar();
+    });
+
+    function loadUserInfo() {
+      const data = JSON.parse(localStorage.getItem('technician_data') || '{}');
+      if (data.name) {
+        document.getElementById('userName').textContent = data.name;
+        document.getElementById('userAvatar').textContent = data.name.split(' ').map(n => n[0]).join('').toUpperCase();
+      }
+    }
+
+    async function loadAvailability() {
+      const token = localStorage.getItem('technician_token');
+      try {
+        const [availRes, apptRes] = await Promise.all([
+          fetch('/api/technician/availability', { headers: { 'Authorization': `Bearer ${token}` } }),
+          fetch('/api/technician/appointments', { headers: { 'Authorization': `Bearer ${token}` } })
+        ]);
+        const availData = await availRes.json();
+        const apptData = await apptRes.json();
+
+        if (availData.success) availability = availData.availability || [];
+        if (apptData.success) appointments = apptData.appointments || [];
+        renderCalendar();
+      } catch (error) {
+        console.error('Failed to load availability:', error);
+      }
+    }
+
+    function renderCalendar() {
+      const year = currentDate.getFullYear();
+      const month = currentDate.getMonth();
+      document.getElementById('monthYear').textContent = currentDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+
+      const firstDay = new Date(year, month, 1).getDay();
+      const daysInMonth = new Date(year, month + 1, 0).getDate();
+      const today = new Date();
+
+      let html = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(d => `<div class="calendar-day-header">${d}</div>`).join('');
+
+      // Previous month days
+      const prevMonthDays = new Date(year, month, 0).getDate();
+      for (let i = firstDay - 1; i >= 0; i--) {
+        html += `<div class="calendar-day other-month">${prevMonthDays - i}</div>`;
+      }
+
+      // Current month days
+      for (let day = 1; day <= daysInMonth; day++) {
+        const date = new Date(year, month, day);
+        const dateStr = date.toISOString().split('T')[0];
+        const isToday = date.toDateString() === today.toDateString();
+        const isSelected = selectedDate === dateStr;
+        const hasAppointment = appointments.some(a => a.scheduledDate === dateStr);
+
+        let classes = ['calendar-day'];
+        if (isToday) classes.push('today');
+        if (isSelected) classes.push('selected');
+        if (hasAppointment) classes.push('has-appointment');
+
+        html += `<div class="${classes.join(' ')}" onclick="selectDate('${dateStr}')">${day}</div>`;
+      }
+
+      // Next month days
+      const totalCells = firstDay + daysInMonth;
+      const remainingCells = totalCells % 7 === 0 ? 0 : 7 - (totalCells % 7);
+      for (let i = 1; i <= remainingCells; i++) {
+        html += `<div class="calendar-day other-month">${i}</div>`;
+      }
+
+      document.getElementById('calendarGrid').innerHTML = html;
+    }
+
+    function changeMonth(delta) {
+      currentDate.setMonth(currentDate.getMonth() + delta);
+      renderCalendar();
+    }
+
+    function selectDate(dateStr) {
+      selectedDate = dateStr;
+      renderCalendar();
+
+      const date = new Date(dateStr);
+      document.getElementById('selectedDateDisplay').textContent = date.toLocaleDateString('en-US', { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
+
+      // Load saved slots for this date
+      const dayAvail = availability.find(a => a.date === dateStr);
+      const savedSlots = dayAvail ? dayAvail.slots : [];
+
+      document.querySelectorAll('input[name="slots"]').forEach(cb => {
+        cb.checked = savedSlots.includes(cb.value);
+      });
+    }
+
+    async function saveAvailability() {
+      if (!selectedDate) { alert('Please select a date first'); return; }
+
+      const slots = Array.from(document.querySelectorAll('input[name="slots"]:checked')).map(cb => cb.value);
+      const token = localStorage.getItem('technician_token');
+
+      // Update availability array
+      const existingIndex = availability.findIndex(a => a.date === selectedDate);
+      if (existingIndex >= 0) {
+        if (slots.length > 0) {
+          availability[existingIndex].slots = slots;
+        } else {
+          availability.splice(existingIndex, 1);
+        }
+      } else if (slots.length > 0) {
+        availability.push({ date: selectedDate, slots });
+      }
+
+      try {
+        const response = await fetch('/api/technician/availability', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` },
+          body: JSON.stringify({ availability })
+        });
+        const result = await response.json();
+        if (result.success) {
+          alert('Availability saved!');
+        } else {
+          alert(result.error || 'Failed to save');
+        }
+      } catch (error) {
+        alert('Failed to save availability');
+      }
+    }
+
+    function logout() {
+      localStorage.removeItem('technician_token');
+      localStorage.removeItem('technician_data');
+      window.location.href = '/technician/login.html';
+    }
+  </script>
+</body>
+</html>

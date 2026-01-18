@@ -4,9 +4,42 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Hardware Options - Peekaboo Shades Admin</title>
-  <link rel="stylesheet" href="css/admin.css">
-  <link rel="icon" type="image/png" href="/images/favicon.png">
+  <link rel="stylesheet" href="css/admin.css?v=1737200003">
+  <link rel="icon" type="image/jpeg" href="/images/peekabooshades_logo.jpeg">
   <style>
+    /* Shade Type Tabs (Top Level) */
+    .shade-type-tabs {
+      display: flex;
+      gap: 0;
+      margin-bottom: 1.5rem;
+      border-bottom: 2px solid #e5e7eb;
+    }
+    .shade-type-tab {
+      padding: 1rem 2rem;
+      border: none;
+      background: none;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 15px;
+      color: #666;
+      position: relative;
+      transition: all 0.2s;
+    }
+    .shade-type-tab:hover { color: #8E6545; }
+    .shade-type-tab.active { color: #8E6545; }
+    .shade-type-tab.active::after {
+      content: '';
+      position: absolute;
+      bottom: -2px;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: #8E6545;
+    }
+    .shade-type-tab.roller.active::after { background: #92400E; }
+    .shade-type-tab.zebra.active::after { background: #1E40AF; }
+
+    /* Category Tabs (Second Level) */
     .tabs {
       display: flex;
       gap: 4px;
@@ -37,12 +70,8 @@
       background: var(--admin-primary);
       color: white;
     }
-    .tab-content {
-      display: none;
-    }
-    .tab-content.active {
-      display: block;
-    }
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
     .option-image {
       width: 60px;
       height: 60px;
@@ -52,21 +81,10 @@
       background: #f9fafb;
       padding: 4px;
     }
-    .price-cell {
-      font-weight: 600;
-      color: var(--admin-success);
-    }
-    .price-cell.zero {
-      color: var(--admin-text-secondary);
-    }
-    .mfr-cost-cell {
-      color: #6c757d;
-      font-size: 13px;
-    }
-    .margin-cell {
-      color: #8E6545;
-      font-weight: 500;
-    }
+    .price-cell { font-weight: 600; color: var(--admin-success); }
+    .price-cell.zero { color: var(--admin-text-secondary); }
+    .mfr-cost-cell { color: #6c757d; font-size: 13px; }
+    .margin-cell { color: #8E6545; font-weight: 500; }
     .inline-input {
       width: 70px;
       padding: 4px 6px;
@@ -75,14 +93,8 @@
       text-align: right;
       font-size: 12px;
     }
-    .inline-input:focus {
-      border-color: var(--admin-primary);
-      outline: none;
-    }
-    .inline-input.modified {
-      border-color: #8E6545;
-      background: #fffaf5;
-    }
+    .inline-input:focus { border-color: var(--admin-primary); outline: none; }
+    .inline-input.modified { border-color: #8E6545; background: #fffaf5; }
     .image-preview {
       width: 100%;
       max-width: 150px;
@@ -96,144 +108,29 @@
       overflow: hidden;
       background: #f9fafb;
     }
-    .image-preview img {
-      max-width: 100%;
-      max-height: 100%;
-      object-fit: contain;
-    }
-    .image-preview-placeholder {
-      color: var(--admin-text-secondary);
-      font-size: 12px;
-      text-align: center;
-    }
-    .category-header {
-      display: flex;
-      justify-content: space-between;
+    .image-preview img { max-width: 100%; max-height: 100%; object-fit: contain; }
+    .image-preview-placeholder { color: var(--admin-text-secondary); font-size: 12px; text-align: center; }
+    .category-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 16px; }
+    .category-title { font-size: 18px; font-weight: 600; color: var(--admin-text); }
+    .category-count { font-size: 14px; color: var(--admin-text-secondary); font-weight: normal; }
+    .shade-badge {
+      display: inline-flex;
       align-items: center;
-      margin-bottom: 16px;
-    }
-    .category-title {
-      font-size: 18px;
+      gap: 6px;
+      padding: 4px 12px;
+      border-radius: 20px;
+      font-size: 12px;
       font-weight: 600;
-      color: var(--admin-text);
+      margin-left: 10px;
     }
-    .category-count {
-      font-size: 14px;
-      color: var(--admin-text-secondary);
-      font-weight: normal;
-    }
+    .shade-badge.roller { background: linear-gradient(135deg, #92400E 0%, #B45309 100%); color: white; }
+    .shade-badge.zebra { background: linear-gradient(135deg, #1E40AF 0%, #3B82F6 100%); color: white; }
   </style>
 </head>
 <body>
   <div class="admin-layout">
-    <!-- Sidebar -->
-    <aside class="admin-sidebar">
-      <div class="sidebar-header">
-        <a href="/admin/" class="sidebar-logo">
-          <img src="/images/peekabooshades_logo.jpeg" alt="Peekaboo Shades" style="height: 32px; width: auto; border-radius: 6px;">
-          <span>Peekaboo Shades</span>
-        </a>
-      </div>
-
-      <nav class="sidebar-nav">
-        <div class="nav-section">
-          <a href="/admin/" class="nav-item">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-            </svg>
-            <span>Dashboard</span>
-          </a>
-        </div>
-
-        <div class="nav-section">
-          <div class="nav-section-title">Catalog</div>
-          <a href="/admin/products.html" class="nav-item">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
-            </svg>
-            <span>Products</span>
-          </a>
-          <a href="/admin/categories.html" class="nav-item">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
-            </svg>
-            <span>Categories</span>
-          </a>
-          <a href="/admin/fabrics.html" class="nav-item">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-            </svg>
-            <span>Fabrics</span>
-          </a>
-          <a href="/admin/hardware-options.html" class="nav-item active">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-            </svg>
-            <span>Hardware Options</span>
-          </a>
-          <a href="/admin/accessories.html" class="nav-item">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 14v6m-3-3h6M6 10h2a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v2a2 2 0 002 2zm10 0h2a2 2 0 002-2V6a2 2 0 00-2-2h-2a2 2 0 00-2 2v2a2 2 0 002 2zM6 20h2a2 2 0 002-2v-2a2 2 0 00-2-2H6a2 2 0 00-2 2v2a2 2 0 002 2z" />
-            </svg>
-            <span>Accessories</span>
-          </a>
-        </div>
-
-        <div class="nav-section">
-          <div class="nav-section-title">Sales</div>
-          <a href="/admin/orders.html" class="nav-item">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
-            </svg>
-            <span>Orders</span>
-          </a>
-          <a href="/admin/quotes.html" class="nav-item">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-            </svg>
-            <span>Quotes</span>
-          </a>
-        </div>
-
-        <div class="nav-section">
-          <div class="nav-section-title">Content</div>
-          <a href="/admin/product-content.html" class="nav-item">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-            </svg>
-            <span>Product Content</span>
-          </a>
-          <a href="/admin/product-catalog.html" class="nav-item">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-            </svg>
-            <span>Product Catalog</span>
-          </a>
-          <a href="/admin/faqs.html" class="nav-item">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8.228 9c.549-1.165 2.03-2 3.772-2 2.21 0 4 1.343 4 3 0 1.4-1.278 2.575-3.006 2.907-.542.104-.994.54-.994 1.093m0 3h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
-            <span>FAQs</span>
-          </a>
-        </div>
-
-        <div class="nav-section">
-          <div class="nav-section-title">Settings</div>
-          <a href="/admin/settings.html" class="nav-item">
-            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-            </svg>
-            <span>Settings</span>
-          </a>
-        </div>
-      </nav>
-    </aside>
-
-    <!-- Main Content -->
+    <aside class="admin-sidebar"></aside>
     <main class="admin-main">
-      <!-- Header -->
       <header class="admin-header">
         <div class="header-left">
           <div class="breadcrumb">
@@ -257,31 +154,23 @@
         </div>
       </header>
 
-      <!-- Page Content -->
       <div class="admin-content">
         <div class="page-header">
           <h1 class="page-title">Hardware Options</h1>
+          <p style="color: var(--admin-text-secondary); margin-top: 5px;">Manage hardware options for different shade types</p>
         </div>
 
-        <!-- Tabs -->
-        <div class="tabs">
-          <button class="tab-btn active" data-tab="mountType" onclick="switchTab('mountType')">Mount Type</button>
-          <button class="tab-btn" data-tab="controlType" onclick="switchTab('controlType')">Control Type</button>
-          <button class="tab-btn" data-tab="controlSystem" onclick="switchTab('controlSystem')">Control System</button>
-          <button class="tab-btn" data-tab="valanceType" onclick="switchTab('valanceType')">Valance Type</button>
-          <button class="tab-btn" data-tab="bottomRail" onclick="switchTab('bottomRail')">Bottom Rail</button>
-          <button class="tab-btn" data-tab="rollerType" onclick="switchTab('rollerType')">Roller Type</button>
-          <button class="tab-btn" data-tab="sideCover" onclick="switchTab('sideCover')">Side Cover</button>
-          <button class="tab-btn" data-tab="motorType" onclick="switchTab('motorType')">Motor Type</button>
-          <button class="tab-btn" data-tab="remoteType" onclick="switchTab('remoteType')">Remote Type</button>
-          <button class="tab-btn" data-tab="solarType" onclick="switchTab('solarType')">Solar Type</button>
-          <button class="tab-btn" data-tab="chainLocation" onclick="switchTab('chainLocation')">Chain Location</button>
-          <button class="tab-btn" data-tab="motorLocation" onclick="switchTab('motorLocation')">Motor Location</button>
+        <!-- Shade Type Tabs (Top Level) -->
+        <div class="shade-type-tabs">
+          <button class="shade-type-tab roller active" onclick="switchShadeType('roller')">Roller Shades</button>
+          <button class="shade-type-tab zebra" onclick="switchShadeType('zebra')">Zebra Shades</button>
         </div>
+
+        <!-- Category Tabs (Dynamic based on shade type) -->
+        <div id="category-tabs-container" class="tabs"></div>
 
         <!-- Tab Content -->
         <div id="tab-content-container">
-          <!-- Content will be dynamically loaded -->
           <div class="card">
             <div style="text-align: center; padding: 60px;">
               <div class="spinner"></div>
@@ -294,7 +183,6 @@
   </div>
 
   <!-- Option Modal -->
-  <!-- Hardware Option Modal - Enterprise Edition -->
   <div class="modal-overlay" id="option-modal">
     <div class="modal" style="max-width: 700px; max-height: 90vh; overflow-y: auto;">
       <div class="modal-header">
@@ -307,7 +195,6 @@
       </div>
       <form id="option-form">
         <div class="modal-body">
-          <!-- Tabs -->
           <div class="form-tabs" style="display: flex; gap: 0; margin-bottom: 20px; border-bottom: 1px solid var(--admin-border);">
             <button type="button" class="form-tab active" data-tab="basic" onclick="switchModalTab('basic')" style="padding: 12px 20px; border: none; background: none; cursor: pointer; font-weight: 500; border-bottom: 2px solid var(--admin-primary); color: var(--admin-primary);">Basic Info</button>
             <button type="button" class="form-tab" data-tab="details" onclick="switchModalTab('details')" style="padding: 12px 20px; border: none; background: none; cursor: pointer; font-weight: 500; border-bottom: 2px solid transparent; color: var(--admin-text-secondary);">Details & Pricing</button>
@@ -471,35 +358,97 @@
     </div>
   </div>
 
-  <script src="js/admin.js"></script>
+  <script src="js/adminNavConfig.js?v=1737200002"></script>
+  <script src="js/admin.js?v=1737100001"></script>
   <script>
-    // Require authentication
-    if (!Admin.Auth.requireAuth()) {
-      // Will redirect
-    } else {
-      loadHardwareOptions('mountType');
-    }
-
-    const categoryLabels = {
-      mountType: 'Mount Type',
-      controlType: 'Control Type',
-      controlSystem: 'Control System',
-      valanceType: 'Valance Type',
-      bottomRail: 'Bottom Rail',
-      rollerType: 'Roller Type',
-      sideCover: 'Side Cover',
-      motorType: 'Motor Type',
-      remoteType: 'Remote Type',
-      solarType: 'Solar Type',
-      chainLocation: 'Chain Location',
-      motorLocation: 'Motor Location'
+    // ============================================
+    // CONFIGURATION - Categories per Shade Type
+    // ============================================
+    const shadeTypeConfig = {
+      roller: {
+        label: 'Roller Shades',
+        badgeClass: 'roller',
+        categories: {
+          mountType: 'Mount Type',
+          controlType: 'Control Type',
+          controlSystem: 'Control System',
+          valanceType: 'Valance Type',
+          bottomRail: 'Bottom Rail',
+          rollerType: 'Roller Type',
+          sideCover: 'Side Cover',
+          motorType: 'Motor Type',
+          remoteType: 'Remote Type',
+          solarType: 'Solar Type',
+          chainLocation: 'Chain Location',
+          motorLocation: 'Motor Location'
+        }
+      },
+      zebra: {
+        label: 'Zebra Shades',
+        badgeClass: 'zebra',
+        categories: {
+          valanceType: 'Valance Type (Cassette)',
+          bottomRail: 'Bottom Rail',
+          chainSide: 'Chain Side',
+          controlType: 'Control Type',
+          motorType: 'Motor Type',
+          remoteType: 'Remote Type'
+        }
+      }
     };
 
+    let currentShadeType = 'roller';
     let currentCategory = 'mountType';
     let allOptions = [];
     let editingId = null;
 
-    function switchTab(category) {
+    // ============================================
+    // INITIALIZATION
+    // ============================================
+    if (!Admin.Auth.requireAuth()) {
+      // Will redirect
+    } else {
+      initPage();
+    }
+
+    function initPage() {
+      renderCategoryTabs();
+      loadHardwareOptions(currentCategory);
+    }
+
+    // ============================================
+    // SHADE TYPE SWITCHING
+    // ============================================
+    function switchShadeType(type) {
+      currentShadeType = type;
+
+      // Update shade type tabs
+      document.querySelectorAll('.shade-type-tab').forEach(tab => {
+        tab.classList.toggle('active', tab.classList.contains(type));
+      });
+
+      // Render category tabs for selected shade type
+      renderCategoryTabs();
+
+      // Load first category
+      const categories = Object.keys(shadeTypeConfig[type].categories);
+      currentCategory = categories[0];
+      loadHardwareOptions(currentCategory);
+    }
+
+    function renderCategoryTabs() {
+      const config = shadeTypeConfig[currentShadeType];
+      const container = document.getElementById('category-tabs-container');
+
+      container.innerHTML = Object.entries(config.categories).map(([key, label], index) => `
+        <button class="tab-btn ${index === 0 ? 'active' : ''}" data-tab="${key}" onclick="switchCategory('${key}')">${label}</button>
+      `).join('');
+    }
+
+    // ============================================
+    // CATEGORY SWITCHING
+    // ============================================
+    function switchCategory(category) {
       currentCategory = category;
 
       // Update active tab
@@ -510,28 +459,42 @@
       loadHardwareOptions(category);
     }
 
+    // ============================================
+    // LOAD HARDWARE OPTIONS
+    // ============================================
     async function loadHardwareOptions(category) {
       const container = document.getElementById('tab-content-container');
+      const config = shadeTypeConfig[currentShadeType];
+      const categoryLabel = config.categories[category];
+
       container.innerHTML = `
         <div class="card">
           <div style="text-align: center; padding: 60px;">
             <div class="spinner"></div>
-            <p style="margin-top: 16px; color: var(--admin-text-secondary);">Loading ${categoryLabels[category]}...</p>
+            <p style="margin-top: 16px; color: var(--admin-text-secondary);">Loading ${categoryLabel}...</p>
           </div>
         </div>
       `;
 
       try {
-        const data = await Admin.HardwareAPI.getCategory(category);
+        // Use unified API with shade type
+        const token = localStorage.getItem('admin_token');
+        const res = await fetch(`/api/admin/hardware/${currentShadeType}/${category}`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const data = await res.json();
+
         if (data.success) {
-          allOptions = data.options || [];
+          allOptions = data.options || data.data || [];
           renderOptions(category, allOptions);
+        } else {
+          throw new Error(data.error || 'Failed to load');
         }
       } catch (error) {
         container.innerHTML = `
           <div class="card">
             <div style="text-align: center; padding: 60px; color: var(--admin-danger);">
-              Failed to load ${categoryLabels[category]}
+              Failed to load ${categoryLabel}
             </div>
           </div>
         `;
@@ -539,15 +502,19 @@
       }
     }
 
+    // ============================================
+    // RENDER OPTIONS
+    // ============================================
     function renderOptions(category, options) {
       const container = document.getElementById('tab-content-container');
-      const label = categoryLabels[category];
+      const config = shadeTypeConfig[currentShadeType];
+      const label = config.categories[category];
 
       if (!options || options.length === 0) {
         container.innerHTML = `
           <div class="card">
             <div class="category-header">
-              <h2 class="category-title">${label}</h2>
+              <h2 class="category-title">${label} <span class="shade-badge ${config.badgeClass}">${config.label}</span></h2>
               <button class="btn btn-primary" onclick="openModal()">
                 <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
@@ -560,7 +527,7 @@
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
               </svg>
               <h3 class="empty-state-title">No options yet</h3>
-              <p class="empty-state-text">Add your first ${label.toLowerCase()} option</p>
+              <p class="empty-state-text">Add your first ${label.toLowerCase()} option for ${config.label}</p>
               <button class="btn btn-primary" onclick="openModal()">Add Option</button>
             </div>
           </div>
@@ -574,7 +541,7 @@
       container.innerHTML = `
         <div class="card">
           <div class="category-header">
-            <h2 class="category-title">${label} <span class="category-count">(${options.length} options)</span></h2>
+            <h2 class="category-title">${label} <span class="category-count">(${options.length} options)</span> <span class="shade-badge ${config.badgeClass}">${config.label}</span></h2>
             <button class="btn btn-primary" onclick="openModal()">
               <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
@@ -593,6 +560,7 @@
                   <th style="width: 70px;">Margin</th>
                   <th style="width: 95px;">Cust Price</th>
                   <th style="width: 50px;">Order</th>
+                  <th style="width: 70px;">Status</th>
                   <th style="width: 90px;">Actions</th>
                 </tr>
               </thead>
@@ -641,6 +609,11 @@
                     </td>
                     <td style="text-align:center;font-size:12px;">${opt.sortOrder || '-'}</td>
                     <td>
+                      <span class="badge badge-${opt.isActive !== false ? 'success' : 'secondary'}">
+                        ${opt.isActive !== false ? 'Active' : 'Inactive'}
+                      </span>
+                    </td>
+                    <td>
                       <div class="action-buttons">
                         <button class="action-btn" title="Edit" onclick="editOption('${opt.id}')">
                           <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -663,19 +636,8 @@
       `;
     }
 
-    function updateImagePreview() {
-      const imageUrl = document.getElementById('opt-image').value;
-      const preview = document.getElementById('image-preview');
-
-      if (imageUrl) {
-        preview.innerHTML = `<img src="${imageUrl}" alt="Preview" onerror="this.parentElement.innerHTML='<span class=\\'image-preview-placeholder\\'>Invalid URL</span>'">`;
-      } else {
-        preview.innerHTML = '<span class="image-preview-placeholder">Image preview</span>';
-      }
-    }
-
     // ============================================
-    // MODAL TAB SWITCHING
+    // MODAL FUNCTIONS
     // ============================================
     function switchModalTab(tabName) {
       document.querySelectorAll('.form-tab').forEach(tab => {
@@ -688,119 +650,13 @@
       });
     }
 
-    // ============================================
-    // IMAGE UPLOAD FOR HARDWARE
-    // ============================================
-    let hwPendingFile = null;
-
-    function handleHwDragOver(e) {
-      e.preventDefault();
-      e.currentTarget.style.borderColor = 'var(--admin-primary)';
-      e.currentTarget.style.background = '#f0f7ff';
-    }
-
-    function handleHwDragLeave(e) {
-      e.preventDefault();
-      e.currentTarget.style.borderColor = 'var(--admin-border)';
-      e.currentTarget.style.background = '#f9fafb';
-    }
-
-    function handleHwDrop(e) {
-      e.preventDefault();
-      handleHwDragLeave(e);
-      if (e.dataTransfer.files.length > 0) {
-        processHwFile(e.dataTransfer.files[0]);
-      }
-    }
-
-    function handleHwFileSelect(e) {
-      if (e.target.files.length > 0) {
-        processHwFile(e.target.files[0]);
-      }
-    }
-
-    function processHwFile(file) {
-      if (!file.type.startsWith('image/')) {
-        Admin.Toast.error('Please select an image file');
-        return;
-      }
-      hwPendingFile = file;
-      const reader = new FileReader();
-      reader.onload = function(e) {
-        document.getElementById('hw-upload-placeholder').style.display = 'none';
-        document.getElementById('hw-image-preview').style.display = 'block';
-        document.getElementById('hw-preview-img').src = e.target.result;
-      };
-      reader.readAsDataURL(file);
-    }
-
-    async function uploadHwImage() {
-      if (!hwPendingFile) return null;
-      try {
-        const result = await Admin.UploadAPI.upload(hwPendingFile, 'hardware');
-        hwPendingFile = null;
-        return result.url;
-      } catch (error) {
-        Admin.Toast.error('Failed to upload image');
-        return null;
-      }
-    }
-
-    // ============================================
-    // SEO CHARACTER COUNTS
-    // ============================================
-    document.getElementById('opt-meta-title')?.addEventListener('input', function() {
-      document.getElementById('hw-title-count').textContent = this.value.length;
-    });
-    document.getElementById('opt-meta-desc')?.addEventListener('input', function() {
-      document.getElementById('hw-desc-count').textContent = this.value.length;
-    });
-
-    // ============================================
-    // STATUS TOGGLE LABELS
-    // ============================================
-    document.getElementById('opt-active')?.addEventListener('change', function() {
-      document.getElementById('opt-status-label').textContent = this.checked ? 'Active' : 'Inactive';
-    });
-    document.getElementById('opt-popular')?.addEventListener('change', function() {
-      document.getElementById('opt-popular-label').textContent = this.checked ? 'Yes' : 'No';
-    });
-
-    // ============================================
-    // PRICE CALCULATION FROM MFR COST + MARGIN
-    // ============================================
-    function updateCalculatedPrice() {
-      const priceType = document.getElementById('opt-price-type')?.value || 'flat';
-      const mfrCost = parseFloat(document.getElementById('opt-mfr-cost')?.value) || 0;
-      const margin = parseFloat(document.getElementById('opt-margin')?.value) || 40;
-      const customerPrice = mfrCost * (1 + margin / 100);
-      const unit = priceType === 'sqm' ? '/m²' : '';
-      const priceEl = document.getElementById('calculated-price');
-      if (priceEl) {
-        priceEl.textContent = '$' + customerPrice.toFixed(2) + unit;
-        // Also update the base price field
-        document.getElementById('opt-price').value = customerPrice.toFixed(2);
-      }
-      // Update help text
-      const helpEl = document.getElementById('mfr-cost-help');
-      if (helpEl) {
-        helpEl.textContent = priceType === 'sqm' ? 'Cost per square meter' : 'Your manufacturing cost';
-      }
-    }
-    document.getElementById('opt-mfr-cost')?.addEventListener('input', updateCalculatedPrice);
-    document.getElementById('opt-margin')?.addEventListener('input', updateCalculatedPrice);
-    document.getElementById('opt-price-type')?.addEventListener('change', updateCalculatedPrice);
-
-    // ============================================
-    // MODAL FUNCTIONS
-    // ============================================
     function openModal(option = null) {
       editingId = option ? option.id : null;
-      const label = categoryLabels[currentCategory];
+      const config = shadeTypeConfig[currentShadeType];
+      const label = config.categories[currentCategory];
       document.getElementById('modal-title').textContent = option ? `Edit ${label}` : `Add ${label}`;
       document.getElementById('save-btn').textContent = option ? 'Update Option' : 'Save Option';
 
-      // Reset to first tab
       switchModalTab('basic');
       hwPendingFile = null;
 
@@ -814,13 +670,12 @@
       document.getElementById('opt-active').checked = option?.isActive !== false;
       document.getElementById('opt-popular').checked = option?.isPopular || false;
 
-      // Details & Pricing - Manufacturing Cost & Margin
+      // Details & Pricing
       document.getElementById('opt-price-type').value = option?.priceType || 'flat';
       document.getElementById('opt-mfr-cost').value = option?.manufacturerCost || option?.costPrice || 0;
       document.getElementById('opt-margin').value = option?.margin || 40;
       document.getElementById('opt-sku').value = option?.sku || '';
       document.getElementById('opt-stock').value = option?.stockStatus || 'in-stock';
-      // Update calculated price display
       updateCalculatedPrice();
       document.getElementById('opt-full-description').value = option?.fullDescription || '';
       document.getElementById('opt-features').value = option?.features?.join('\n') || '';
@@ -848,7 +703,6 @@
         document.getElementById('hw-image-preview').style.display = 'none';
       }
 
-      updateImagePreview();
       Admin.Modal.show('option-modal');
     }
 
@@ -860,23 +714,26 @@
 
     function editOption(id) {
       const option = allOptions.find(o => o.id === id);
-      if (option) {
-        openModal(option);
-      }
+      if (option) openModal(option);
     }
 
     async function deleteOption(id, label) {
-      const confirmed = await Admin.Modal.confirm(
-        'Delete Option',
-        `Are you sure you want to delete "${label}"?`
-      );
-
+      const confirmed = await Admin.Modal.confirm('Delete Option', `Are you sure you want to delete "${label}"?`);
       if (confirmed) {
         try {
-          await Admin.HardwareAPI.deleteOption(currentCategory, id);
-          allOptions = allOptions.filter(o => o.id !== id);
-          renderOptions(currentCategory, allOptions);
-          Admin.Toast.success('Option deleted successfully');
+          const token = localStorage.getItem('admin_token');
+          const res = await fetch(`/api/admin/hardware/${currentShadeType}/${currentCategory}/${id}`, {
+            method: 'DELETE',
+            headers: { 'Authorization': `Bearer ${token}` }
+          });
+          const data = await res.json();
+          if (data.success) {
+            allOptions = allOptions.filter(o => o.id !== id);
+            renderOptions(currentCategory, allOptions);
+            Admin.Toast.success('Option deleted successfully');
+          } else {
+            throw new Error(data.error);
+          }
         } catch (error) {
           Admin.Toast.error('Failed to delete option');
         }
@@ -891,10 +748,8 @@
       const option = allOptions.find(o => o.id === optionId);
       if (!option) return;
 
-      // Update local option
       option[field] = numValue;
 
-      // If manufacturerCost or margin changed, recalculate customer price
       if (field === 'manufacturerCost' || field === 'margin') {
         const mfrCost = option.manufacturerCost || option.costPrice || 0;
         const margin = option.margin || 40;
@@ -902,17 +757,127 @@
       }
 
       try {
-        await Admin.HardwareAPI.updateOption(currentCategory, optionId, { [field]: numValue, price: option.price });
-        Admin.Toast.success(`${field === 'manufacturerCost' ? 'Mfr Cost' : 'Margin'} updated`);
-        // Re-render to update calculated price
-        renderOptions(currentCategory, allOptions);
+        const token = localStorage.getItem('admin_token');
+        const res = await fetch(`/api/admin/hardware/${currentShadeType}/${currentCategory}/${optionId}`, {
+          method: 'PUT',
+          headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+          body: JSON.stringify({ [field]: numValue, price: option.price })
+        });
+        const data = await res.json();
+        if (data.success) {
+          Admin.Toast.success(`${field === 'manufacturerCost' ? 'Mfr Cost' : field === 'margin' ? 'Margin' : 'Field'} updated`);
+          renderOptions(currentCategory, allOptions);
+        }
       } catch (error) {
         Admin.Toast.error('Failed to update field');
-        console.error(error);
       }
     }
 
-    // Form submission
+    // ============================================
+    // IMAGE UPLOAD
+    // ============================================
+    let hwPendingFile = null;
+
+    function handleHwDragOver(e) {
+      e.preventDefault();
+      e.currentTarget.style.borderColor = 'var(--admin-primary)';
+      e.currentTarget.style.background = '#f0f7ff';
+    }
+
+    function handleHwDragLeave(e) {
+      e.preventDefault();
+      e.currentTarget.style.borderColor = 'var(--admin-border)';
+      e.currentTarget.style.background = '#f9fafb';
+    }
+
+    function handleHwDrop(e) {
+      e.preventDefault();
+      handleHwDragLeave(e);
+      if (e.dataTransfer.files.length > 0) processHwFile(e.dataTransfer.files[0]);
+    }
+
+    function handleHwFileSelect(e) {
+      if (e.target.files.length > 0) processHwFile(e.target.files[0]);
+    }
+
+    function processHwFile(file) {
+      if (!file.type.startsWith('image/')) {
+        Admin.Toast.error('Please select an image file');
+        return;
+      }
+      hwPendingFile = file;
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        document.getElementById('hw-upload-placeholder').style.display = 'none';
+        document.getElementById('hw-image-preview').style.display = 'block';
+        document.getElementById('hw-preview-img').src = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    }
+
+    async function uploadHwImage() {
+      if (!hwPendingFile) return null;
+      try {
+        const result = await Admin.UploadAPI.upload(hwPendingFile, `hardware-${currentShadeType}`);
+        hwPendingFile = null;
+        return result.url;
+      } catch (error) {
+        Admin.Toast.error('Failed to upload image');
+        return null;
+      }
+    }
+
+    function updateImagePreview() {
+      const imageUrl = document.getElementById('opt-image').value;
+      if (imageUrl) {
+        document.getElementById('hw-upload-placeholder').style.display = 'none';
+        document.getElementById('hw-image-preview').style.display = 'block';
+        document.getElementById('hw-preview-img').src = imageUrl;
+      }
+    }
+
+    // ============================================
+    // PRICE CALCULATION
+    // ============================================
+    function updateCalculatedPrice() {
+      const priceType = document.getElementById('opt-price-type')?.value || 'flat';
+      const mfrCost = parseFloat(document.getElementById('opt-mfr-cost')?.value) || 0;
+      const margin = parseFloat(document.getElementById('opt-margin')?.value) || 40;
+      const customerPrice = mfrCost * (1 + margin / 100);
+      const unit = priceType === 'sqm' ? '/m²' : '';
+      const priceEl = document.getElementById('calculated-price');
+      if (priceEl) {
+        priceEl.textContent = '$' + customerPrice.toFixed(2) + unit;
+        document.getElementById('opt-price').value = customerPrice.toFixed(2);
+      }
+      const helpEl = document.getElementById('mfr-cost-help');
+      if (helpEl) helpEl.textContent = priceType === 'sqm' ? 'Cost per square meter' : 'Your manufacturing cost';
+    }
+
+    // Event listeners for price calculation
+    document.getElementById('opt-mfr-cost')?.addEventListener('input', updateCalculatedPrice);
+    document.getElementById('opt-margin')?.addEventListener('input', updateCalculatedPrice);
+    document.getElementById('opt-price-type')?.addEventListener('change', updateCalculatedPrice);
+
+    // SEO character counts
+    document.getElementById('opt-meta-title')?.addEventListener('input', function() {
+      document.getElementById('hw-title-count').textContent = this.value.length;
+    });
+    document.getElementById('opt-meta-desc')?.addEventListener('input', function() {
+      document.getElementById('hw-desc-count').textContent = this.value.length;
+    });
+
+    // Status toggles
+    document.getElementById('opt-active')?.addEventListener('change', function() {
+      document.getElementById('opt-status-label').textContent = this.checked ? 'Active' : 'Inactive';
+    });
+    document.getElementById('opt-popular')?.addEventListener('change', function() {
+      document.getElementById('opt-popular-label').textContent = this.checked ? 'Yes' : 'No';
+    });
+
+    // ============================================
+    // FORM SUBMISSION
+    // ============================================
     document.getElementById('option-form').addEventListener('submit', async function(e) {
       e.preventDefault();
 
@@ -922,16 +887,12 @@
       saveBtn.textContent = 'Saving...';
 
       try {
-        // Upload image if pending
         let imageUrl = document.getElementById('opt-image').value.trim();
         if (hwPendingFile) {
           const uploadedUrl = await uploadHwImage();
-          if (uploadedUrl) {
-            imageUrl = uploadedUrl;
-          }
+          if (uploadedUrl) imageUrl = uploadedUrl;
         }
 
-        // Parse features and specs
         const featuresText = document.getElementById('opt-features').value.trim();
         const features = featuresText ? featuresText.split('\n').filter(f => f.trim()) : [];
 
@@ -941,37 +902,29 @@
           return { label: label.trim(), value: valueParts.join(':').trim() };
         }) : [];
 
-        // Calculate customer price from mfr cost + margin
         const priceType = document.getElementById('opt-price-type').value || 'flat';
         const mfrCost = parseFloat(document.getElementById('opt-mfr-cost').value) || 0;
         const margin = parseFloat(document.getElementById('opt-margin').value) || 40;
         const calculatedPrice = mfrCost * (1 + margin / 100);
 
         const formData = {
-          // Basic Info
           value: document.getElementById('opt-value').value.trim(),
           label: document.getElementById('opt-label').value.trim(),
           imageUrl: imageUrl,
-          price: calculatedPrice,  // Customer price from mfr cost + margin
-          priceType: priceType,    // 'flat' or 'sqm' (per square meter)
+          price: calculatedPrice,
+          priceType: priceType,
           sortOrder: parseInt(document.getElementById('opt-order').value) || 1,
           description: document.getElementById('opt-description').value.trim(),
           isActive: document.getElementById('opt-active').checked,
           isPopular: document.getElementById('opt-popular').checked,
-
-          // Manufacturing Cost & Margin
           manufacturerCost: mfrCost,
           margin: margin,
-
-          // Details & Pricing
           sku: document.getElementById('opt-sku').value.trim(),
-          costPrice: mfrCost,  // Keep for backward compatibility
+          costPrice: mfrCost,
           stockStatus: document.getElementById('opt-stock').value,
           fullDescription: document.getElementById('opt-full-description').value.trim(),
           features: features,
           specifications: specifications,
-
-          // SEO
           seo: {
             metaTitle: document.getElementById('opt-meta-title').value.trim(),
             metaDescription: document.getElementById('opt-meta-desc').value.trim(),
@@ -980,15 +933,25 @@
           }
         };
 
-        if (editingId) {
-          await Admin.HardwareAPI.updateOption(currentCategory, editingId, formData);
-          Admin.Toast.success('Option updated successfully');
+        const token = localStorage.getItem('admin_token');
+        const url = editingId
+          ? `/api/admin/hardware/${currentShadeType}/${currentCategory}/${editingId}`
+          : `/api/admin/hardware/${currentShadeType}/${currentCategory}`;
+
+        const res = await fetch(url, {
+          method: editingId ? 'PUT' : 'POST',
+          headers: { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' },
+          body: JSON.stringify(formData)
+        });
+        const data = await res.json();
+
+        if (data.success) {
+          Admin.Toast.success(editingId ? 'Option updated successfully' : 'Option created successfully');
+          closeModal();
+          loadHardwareOptions(currentCategory);
         } else {
-          await Admin.HardwareAPI.createOption(currentCategory, formData);
-          Admin.Toast.success('Option created successfully');
+          throw new Error(data.error || 'Failed to save');
         }
-        closeModal();
-        loadHardwareOptions(currentCategory);
       } catch (error) {
         Admin.Toast.error(error.message || 'Failed to save option');
       } finally {

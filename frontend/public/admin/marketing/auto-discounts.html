@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Automatic Discounts - Peekaboo Shades Admin</title>
+  <link rel="stylesheet" href="/admin/css/admin.css?v=1737200003.0.28">
+  <script src="/admin/js/adminNavConfig.js?v=1737200002"></script>
+  <style>
+    .discounts-grid { display: grid; gap: 1rem; margin-top: 1.5rem; }
+    .discount-card { background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+    .discount-header { display: flex; justify-content: space-between; align-items: start; margin-bottom: 1rem; }
+    .discount-title { font-size: 1.1rem; font-weight: 600; margin: 0; }
+    .discount-toggle { position: relative; width: 48px; height: 24px; }
+    .discount-toggle input { opacity: 0; width: 0; height: 0; }
+    .discount-toggle .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background: #ddd; border-radius: 24px; transition: 0.3s; }
+    .discount-toggle .slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background: white; border-radius: 50%; transition: 0.3s; }
+    .discount-toggle input:checked + .slider { background: #10B981; }
+    .discount-toggle input:checked + .slider:before { transform: translateX(24px); }
+    .discount-value { font-size: 2rem; font-weight: 700; color: #8E6545; margin: 1rem 0; }
+    .discount-conditions { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1rem; }
+    .condition-tag { padding: 0.35rem 0.75rem; background: #f0f0f0; border-radius: 6px; font-size: 0.85rem; }
+    .discount-stats { display: flex; gap: 2rem; padding-top: 1rem; border-top: 1px solid #eee; font-size: 0.9rem; color: #666; }
+    .discount-actions { display: flex; gap: 0.5rem; margin-top: 1rem; }
+    .btn-action { padding: 0.5rem 1rem; border: none; border-radius: 6px; cursor: pointer; font-size: 0.85rem; }
+    .btn-edit { background: #8E6545; color: white; }
+    .btn-delete { background: #FEE2E2; color: #991B1B; }
+    .modal { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; }
+    .modal.active { display: flex; }
+    .modal-content { background: white; border-radius: 12px; padding: 2rem; max-width: 600px; width: 90%; max-height: 90vh; overflow-y: auto; }
+    .modal-header { display: flex; justify-content: space-between; margin-bottom: 1.5rem; }
+    .modal-header h2 { margin: 0; }
+    .modal-close { background: none; border: none; font-size: 1.5rem; cursor: pointer; }
+    .form-group { margin-bottom: 1.25rem; }
+    .form-group label { display: block; margin-bottom: 0.5rem; font-weight: 500; }
+    .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 0.75rem; border: 1px solid #ddd; border-radius: 8px; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    .btn-submit { width: 100%; padding: 0.875rem; background: #8E6545; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; }
+    .condition-builder { border: 1px solid #ddd; border-radius: 8px; padding: 1rem; margin-top: 0.5rem; }
+    .condition-row { display: flex; gap: 0.5rem; align-items: center; margin-bottom: 0.5rem; }
+    .condition-row select, .condition-row input { padding: 0.5rem; border: 1px solid #ddd; border-radius: 4px; }
+    .btn-add-condition { background: none; border: 1px dashed #ccc; padding: 0.5rem 1rem; border-radius: 4px; cursor: pointer; }
+  </style>
+</head>
+<body>
+  <div class="admin-layout">
+    <aside class="admin-sidebar"></aside>
+    <main class="admin-main">
+      <header class="admin-header">
+        <h1>Automatic Discounts</h1>
+        <div class="header-actions">
+          <button class="btn-primary" onclick="openModal()">+ Create Discount</button>
+        </div>
+      </header>
+      <div class="admin-content">
+        <div class="discounts-grid" id="discountsGrid"></div>
+      </div>
+    </main>
+  </div>
+  <div class="modal" id="discountModal">
+    <div class="modal-content">
+      <div class="modal-header"><h2 id="modalTitle">Create Automatic Discount</h2><button class="modal-close" onclick="closeModal()">&times;</button></div>
+      <form onsubmit="saveDiscount(event)">
+        <input type="hidden" id="discountId">
+        <div class="form-group"><label>Discount Name</label><input type="text" id="discountName" required placeholder="e.g., Summer Sale 20% Off"></div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Discount Type</label>
+            <select id="discountType">
+              <option value="percentage">Percentage Off</option>
+              <option value="fixed">Fixed Amount Off</option>
+              <option value="free_shipping">Free Shipping</option>
+              <option value="buy_x_get_y">Buy X Get Y</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Value</label>
+            <input type="number" id="discountValue" step="0.01" placeholder="e.g., 20">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Conditions</label>
+          <div class="condition-builder" id="conditionBuilder">
+            <div class="condition-row">
+              <select class="condition-type">
+                <option value="min_purchase">Minimum Purchase</option>
+                <option value="min_quantity">Minimum Quantity</option>
+                <option value="specific_products">Specific Products</option>
+                <option value="specific_categories">Specific Categories</option>
+                <option value="customer_group">Customer Group</option>
+              </select>
+              <select class="condition-operator">
+                <option value="gte">is at least</option>
+                <option value="eq">equals</option>
+              </select>
+              <input type="text" class="condition-value" placeholder="Value">
+              <button type="button" onclick="removeCondition(this)" style="background: none; border: none; cursor: pointer;">×</button>
+            </div>
+          </div>
+          <button type="button" class="btn-add-condition" onclick="addCondition()">+ Add Condition</button>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label>Start Date</label><input type="datetime-local" id="startDate"></div>
+          <div class="form-group"><label>End Date</label><input type="datetime-local" id="endDate"></div>
+        </div>
+        <div class="form-group">
+          <label>Usage Limit</label>
+          <input type="number" id="usageLimit" placeholder="Leave empty for unlimited">
+        </div>
+        <button type="submit" class="btn-submit">Save Discount</button>
+      </form>
+    </div>
+  </div>
+  <script>
+    let discounts = [
+      { id: 'd-1', name: 'Free Shipping Over $200', type: 'free_shipping', value: 0, enabled: true, conditions: [{ type: 'min_purchase', operator: 'gte', value: 200 }], startDate: null, endDate: null, usageLimit: null, usageCount: 456, savings: 12500 },
+      { id: 'd-2', name: 'Buy 3+ Get 10% Off', type: 'percentage', value: 10, enabled: true, conditions: [{ type: 'min_quantity', operator: 'gte', value: 3 }], startDate: null, endDate: null, usageLimit: null, usageCount: 234, savings: 8900 },
+      { id: 'd-3', name: 'Summer Sale - 15% Off Motorized', type: 'percentage', value: 15, enabled: false, conditions: [{ type: 'specific_categories', operator: 'eq', value: 'motorized' }], startDate: '2024-06-01', endDate: '2024-08-31', usageLimit: 500, usageCount: 0, savings: 0 },
+      { id: 'd-4', name: 'VIP Customer 5% Off', type: 'percentage', value: 5, enabled: true, conditions: [{ type: 'customer_group', operator: 'eq', value: 'vip' }], startDate: null, endDate: null, usageLimit: null, usageCount: 89, savings: 3200 }
+    ];
+
+    document.addEventListener('DOMContentLoaded', () => {
+      if (!localStorage.getItem('admin_token')) { window.location.href = '/admin/login.html'; return; }
+      AdminNavConfig.initSidebar('auto-discounts');
+      renderDiscounts();
+    });
+
+    function renderDiscounts() {
+      document.getElementById('discountsGrid').innerHTML = discounts.map(d => `
+        <div class="discount-card">
+          <div class="discount-header">
+            <div>
+              <h3 class="discount-title">${d.name}</h3>
+              <div class="discount-value">${formatDiscount(d)}</div>
+            </div>
+            <label class="discount-toggle">
+              <input type="checkbox" ${d.enabled ? 'checked' : ''} onchange="toggleDiscount('${d.id}')">
+              <span class="slider"></span>
+            </label>
+          </div>
+          <div class="discount-conditions">
+            ${d.conditions.map(c => `<span class="condition-tag">${formatCondition(c)}</span>`).join('')}
+            ${d.startDate ? `<span class="condition-tag">📅 ${formatDateRange(d.startDate, d.endDate)}</span>` : ''}
+            ${d.usageLimit ? `<span class="condition-tag">🎯 Limit: ${d.usageLimit}</span>` : ''}
+          </div>
+          <div class="discount-stats">
+            <span>Used: ${d.usageCount} times</span>
+            <span>Total Savings: $${d.savings.toLocaleString()}</span>
+          </div>
+          <div class="discount-actions">
+            <button class="btn-action btn-edit" onclick="editDiscount('${d.id}')">Edit</button>
+            <button class="btn-action btn-delete" onclick="deleteDiscount('${d.id}')">Delete</button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function formatDiscount(d) {
+      if (d.type === 'percentage') return d.value + '% OFF';
+      if (d.type === 'fixed') return '$' + d.value + ' OFF';
+      if (d.type === 'free_shipping') return 'FREE SHIPPING';
+      return d.type;
+    }
+
+    function formatCondition(c) {
+      const types = { min_purchase: 'Min Purchase', min_quantity: 'Min Qty', specific_products: 'Products', specific_categories: 'Category', customer_group: 'Customer Group' };
+      return `${types[c.type] || c.type}: ${c.value}`;
+    }
+
+    function formatDateRange(start, end) {
+      const s = new Date(start).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+      const e = end ? new Date(end).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : 'Ongoing';
+      return `${s} - ${e}`;
+    }
+
+    function toggleDiscount(id) {
+      const d = discounts.find(d => d.id === id);
+      if (d) d.enabled = !d.enabled;
+    }
+
+    function openModal(discount = null) {
+      document.getElementById('discountId').value = discount ? discount.id : '';
+      document.getElementById('discountName').value = discount ? discount.name : '';
+      document.getElementById('discountType').value = discount ? discount.type : 'percentage';
+      document.getElementById('discountValue').value = discount ? discount.value : '';
+      document.getElementById('startDate').value = discount && discount.startDate ? discount.startDate.slice(0, 16) : '';
+      document.getElementById('endDate').value = discount && discount.endDate ? discount.endDate.slice(0, 16) : '';
+      document.getElementById('usageLimit').value = discount ? discount.usageLimit || '' : '';
+      document.getElementById('modalTitle').textContent = discount ? 'Edit Discount' : 'Create Automatic Discount';
+      document.getElementById('discountModal').classList.add('active');
+    }
+
+    function closeModal() { document.getElementById('discountModal').classList.remove('active'); }
+
+    function editDiscount(id) {
+      const discount = discounts.find(d => d.id === id);
+      if (discount) openModal(discount);
+    }
+
+    function deleteDiscount(id) {
+      if (confirm('Delete this discount?')) {
+        discounts = discounts.filter(d => d.id !== id);
+        renderDiscounts();
+      }
+    }
+
+    function addCondition() {
+      const builder = document.getElementById('conditionBuilder');
+      const row = document.createElement('div');
+      row.className = 'condition-row';
+      row.innerHTML = `
+        <select class="condition-type">
+          <option value="min_purchase">Minimum Purchase</option>
+          <option value="min_quantity">Minimum Quantity</option>
+          <option value="specific_products">Specific Products</option>
+          <option value="specific_categories">Specific Categories</option>
+          <option value="customer_group">Customer Group</option>
+        </select>
+        <select class="condition-operator">
+          <option value="gte">is at least</option>
+          <option value="eq">equals</option>
+        </select>
+        <input type="text" class="condition-value" placeholder="Value">
+        <button type="button" onclick="removeCondition(this)" style="background: none; border: none; cursor: pointer;">×</button>
+      `;
+      builder.appendChild(row);
+    }
+
+    function removeCondition(btn) {
+      btn.parentElement.remove();
+    }
+
+    function saveDiscount(e) {
+      e.preventDefault();
+      const id = document.getElementById('discountId').value;
+      const conditions = Array.from(document.querySelectorAll('#conditionBuilder .condition-row')).map(row => ({
+        type: row.querySelector('.condition-type').value,
+        operator: row.querySelector('.condition-operator').value,
+        value: row.querySelector('.condition-value').value
+      }));
+
+      const data = {
+        name: document.getElementById('discountName').value,
+        type: document.getElementById('discountType').value,
+        value: parseFloat(document.getElementById('discountValue').value) || 0,
+        conditions: conditions,
+        startDate: document.getElementById('startDate').value || null,
+        endDate: document.getElementById('endDate').value || null,
+        usageLimit: parseInt(document.getElementById('usageLimit').value) || null
+      };
+
+      if (id) {
+        const idx = discounts.findIndex(d => d.id === id);
+        if (idx >= 0) discounts[idx] = { ...discounts[idx], ...data };
+      } else {
+        data.id = 'd-' + Date.now();
+        data.enabled = true;
+        data.usageCount = 0;
+        data.savings = 0;
+        discounts.push(data);
+      }
+
+      closeModal();
+      renderDiscounts();
+      alert(id ? 'Discount updated' : 'Discount created');
+    }
+
+    document.getElementById('discountModal').addEventListener('click', e => { if (e.target.id === 'discountModal') closeModal(); });
+  </script>
+</body>
+</html>

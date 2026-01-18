@@ -1,0 +1,490 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Appointments - Technician Portal</title>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Montserrat', sans-serif; background: #f5f0ec; min-height: 100vh; }
+
+    .sidebar {
+      position: fixed; left: 0; top: 0; width: 260px; height: 100vh;
+      background: linear-gradient(180deg, #8E6545 0%, #6B4C35 100%);
+      color: white; padding: 1.5rem; overflow-y: auto; z-index: 100;
+    }
+    .sidebar-logo { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 2rem; padding-bottom: 1.5rem; border-bottom: 1px solid rgba(255,255,255,0.2); }
+    .sidebar-logo img { width: 44px; height: 44px; border-radius: 10px; background: white; padding: 4px; }
+    .sidebar-logo span { font-weight: 700; font-size: 1.1rem; }
+    .sidebar-nav { list-style: none; }
+    .sidebar-nav li { margin-bottom: 0.5rem; }
+    .sidebar-nav a { display: flex; align-items: center; gap: 0.75rem; padding: 0.875rem 1rem; color: rgba(255,255,255,0.8); text-decoration: none; border-radius: 10px; transition: all 0.2s; font-size: 0.95rem; }
+    .sidebar-nav a:hover { background: rgba(255,255,255,0.1); color: white; }
+    .sidebar-nav a.active { background: rgba(255,255,255,0.2); color: white; font-weight: 600; }
+    .sidebar-nav svg { width: 20px; height: 20px; }
+    .sidebar-user { position: absolute; bottom: 1.5rem; left: 1.5rem; right: 1.5rem; padding-top: 1rem; border-top: 1px solid rgba(255,255,255,0.2); }
+    .user-info { display: flex; align-items: center; gap: 0.75rem; margin-bottom: 0.75rem; }
+    .user-avatar { width: 40px; height: 40px; border-radius: 50%; background: rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center; font-weight: 600; }
+    .user-details { flex: 1; min-width: 0; }
+    .user-name { font-weight: 600; font-size: 0.9rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .user-status { font-size: 0.75rem; opacity: 0.8; }
+    .btn-logout { width: 100%; padding: 0.625rem; background: rgba(255,255,255,0.1); border: none; color: white; border-radius: 8px; cursor: pointer; font-size: 0.85rem; font-family: inherit; }
+    .btn-logout:hover { background: rgba(255,255,255,0.2); }
+
+    .main-content { margin-left: 260px; padding: 2rem; }
+    .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem; }
+    .page-header h1 { font-size: 1.75rem; color: #1f2937; }
+
+    .filters { display: flex; gap: 1rem; flex-wrap: wrap; margin-bottom: 1.5rem; }
+    .filter-select, .filter-input { padding: 0.75rem 1rem; border: 2px solid #e5e7eb; border-radius: 10px; font-size: 0.95rem; background: white; font-family: inherit; }
+    .filter-select:focus, .filter-input:focus { outline: none; border-color: #8E6545; }
+
+    .appointments-list { display: flex; flex-direction: column; gap: 1rem; }
+
+    .appointment-card {
+      background: white; border-radius: 16px; overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06); border-left: 4px solid #8E6545;
+    }
+    .appointment-card.status-scheduled { border-left-color: #3B82F6; }
+    .appointment-card.status-confirmed { border-left-color: #10B981; }
+    .appointment-card.status-in-progress { border-left-color: #F59E0B; }
+    .appointment-card.status-completed { border-left-color: #6B7280; }
+    .appointment-card.status-cancelled { border-left-color: #EF4444; }
+
+    .appointment-card-header {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 1.25rem; background: #faf8f6; border-bottom: 1px solid #f0e6df;
+    }
+    .appointment-card-header h3 { font-size: 1rem; color: #1f2937; }
+    .appointment-card-header .date-time { font-size: 0.9rem; color: #6b7280; }
+
+    .status-badge {
+      display: inline-block; padding: 0.3rem 0.75rem; border-radius: 20px;
+      font-size: 0.75rem; font-weight: 600; text-transform: capitalize;
+    }
+    .status-scheduled { background: #DBEAFE; color: #1D4ED8; }
+    .status-confirmed { background: #D1FAE5; color: #065F46; }
+    .status-in-progress { background: #FEF3C7; color: #92400E; }
+    .status-completed { background: #E5E7EB; color: #374151; }
+    .status-cancelled { background: #FEE2E2; color: #991B1B; }
+
+    .appointment-card-body { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 1.5rem; padding: 1.5rem; }
+    .detail-group h4 { font-size: 0.75rem; color: #6b7280; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 0.5rem; }
+    .detail-group p { color: #1f2937; font-size: 0.95rem; }
+    .detail-group a { color: #8E6545; text-decoration: none; }
+    .detail-group a:hover { text-decoration: underline; }
+
+    .appointment-card-footer {
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 1rem 1.5rem; background: #faf8f6; border-top: 1px solid #f0e6df;
+    }
+    .fee-display { font-size: 1.1rem; font-weight: 600; color: #8E6545; }
+    .action-buttons { display: flex; gap: 0.5rem; }
+
+    .btn { padding: 0.5rem 1rem; border-radius: 8px; font-size: 0.85rem; font-weight: 500; cursor: pointer; border: none; font-family: inherit; transition: all 0.2s; }
+    .btn-primary { background: #8E6545; color: white; }
+    .btn-primary:hover { background: #7a563a; }
+    .btn-success { background: #10B981; color: white; }
+    .btn-success:hover { background: #059669; }
+    .btn-warning { background: #F59E0B; color: white; }
+    .btn-warning:hover { background: #D97706; }
+    .btn-outline { background: white; border: 1px solid #e5e7eb; color: #374151; }
+    .btn-outline:hover { border-color: #8E6545; color: #8E6545; }
+
+    .empty-state { text-align: center; padding: 4rem 2rem; color: #6b7280; background: white; border-radius: 16px; }
+    .empty-state svg { width: 64px; height: 64px; margin-bottom: 1rem; opacity: 0.5; }
+    .empty-state h3 { color: #374151; margin-bottom: 0.5rem; }
+
+    /* Order Details in Card */
+    .order-items { margin-top: 0.5rem; }
+    .order-item { font-size: 0.85rem; color: #4b5563; padding: 0.25rem 0; border-bottom: 1px dashed #e5e7eb; }
+    .order-item:last-child { border-bottom: none; }
+
+    /* Modal */
+    .modal { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.6); z-index: 1000; align-items: center; justify-content: center; backdrop-filter: blur(4px); }
+    .modal.active { display: flex; }
+    .modal-content { background: white; border-radius: 16px; max-width: 500px; width: 90%; max-height: 90vh; overflow: hidden; }
+    .modal-header { display: flex; justify-content: space-between; align-items: center; padding: 1.5rem; background: linear-gradient(135deg, #8E6545 0%, #A67C5B 100%); color: white; }
+    .modal-header h2 { font-size: 1.1rem; }
+    .modal-close { background: rgba(255,255,255,0.2); border: none; font-size: 1.25rem; cursor: pointer; color: white; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; }
+    .modal-body { padding: 1.5rem; max-height: calc(90vh - 120px); overflow-y: auto; }
+    .form-group { margin-bottom: 1.25rem; }
+    .form-group label { display: block; margin-bottom: 0.5rem; font-weight: 500; color: #374151; font-size: 0.9rem; }
+    .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 0.875rem 1rem; border: 2px solid #e5e7eb; border-radius: 10px; font-size: 0.95rem; font-family: inherit; }
+    .form-group input:focus, .form-group select:focus, .form-group textarea:focus { outline: none; border-color: #8E6545; }
+    .btn-submit { width: 100%; padding: 1rem; background: linear-gradient(135deg, #8E6545 0%, #A67C5B 100%); color: white; border: none; border-radius: 10px; font-weight: 600; cursor: pointer; font-size: 1rem; }
+
+    @media (max-width: 1024px) {
+      .appointment-card-body { grid-template-columns: 1fr 1fr; }
+    }
+    @media (max-width: 768px) {
+      .sidebar { transform: translateX(-100%); }
+      .sidebar.open { transform: translateX(0); }
+      .main-content { margin-left: 0; }
+      .appointment-card-body { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-logo">
+      <img src="/images/peekabooshades_logo.jpeg" alt="Peekaboo Shades">
+      <span>Technician Portal</span>
+    </div>
+    <ul class="sidebar-nav">
+      <li><a href="/technician/">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>
+        Dashboard
+      </a></li>
+      <li><a href="/technician/appointments.html" class="active">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        Appointments
+      </a></li>
+      <li><a href="/technician/schedule.html">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        My Schedule
+      </a></li>
+      <li><a href="/technician/payments.html">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+        Payments
+      </a></li>
+      <li><a href="/technician/profile.html">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        Profile
+      </a></li>
+    </ul>
+    <div class="sidebar-user">
+      <div class="user-info">
+        <div class="user-avatar" id="userAvatar">T</div>
+        <div class="user-details">
+          <div class="user-name" id="userName">Technician</div>
+          <div class="user-status">Active</div>
+        </div>
+      </div>
+      <button class="btn-logout" onclick="logout()">Sign Out</button>
+    </div>
+  </aside>
+
+  <main class="main-content">
+    <div class="page-header">
+      <h1>My Appointments</h1>
+    </div>
+
+    <div class="filters">
+      <select class="filter-select" id="statusFilter" onchange="loadAppointments()">
+        <option value="">All Status</option>
+        <option value="scheduled">Scheduled</option>
+        <option value="confirmed">Confirmed</option>
+        <option value="in-progress">In Progress</option>
+        <option value="completed">Completed</option>
+        <option value="cancelled">Cancelled</option>
+      </select>
+      <input type="date" class="filter-input" id="startDate" onchange="loadAppointments()">
+      <input type="date" class="filter-input" id="endDate" onchange="loadAppointments()">
+    </div>
+
+    <div class="appointments-list" id="appointmentsList">
+      <div class="empty-state">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        <h3>Loading appointments...</h3>
+      </div>
+    </div>
+  </main>
+
+  <!-- Complete Job Modal -->
+  <div class="modal" id="completeModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Complete Installation</h2>
+        <button class="modal-close" onclick="closeModal('completeModal')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <form onsubmit="completeJob(event)">
+          <input type="hidden" id="completeAppointmentId">
+          <div class="form-group">
+            <label>Completion Notes</label>
+            <textarea id="completionNotes" rows="4" placeholder="Describe the work completed, any issues encountered, etc."></textarea>
+          </div>
+          <button type="submit" class="btn-submit">Mark as Completed</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Record Payment Modal -->
+  <div class="modal" id="paymentModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Record Payment</h2>
+        <button class="modal-close" onclick="closeModal('paymentModal')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <form onsubmit="recordPayment(event)">
+          <input type="hidden" id="paymentAppointmentId">
+          <div class="form-group">
+            <label>Amount ($)</label>
+            <input type="number" id="paymentAmount" step="0.01" min="0" required placeholder="0.00">
+          </div>
+          <div class="form-group">
+            <label>Payment Method</label>
+            <select id="paymentMethod" required>
+              <option value="cash">Cash</option>
+              <option value="card">Card</option>
+              <option value="check">Check</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Notes</label>
+            <textarea id="paymentNotes" rows="2" placeholder="Optional notes"></textarea>
+          </div>
+          <button type="submit" class="btn-submit">Record Payment</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const API_BASE = '/api/technician';
+    let appointments = [];
+
+    document.addEventListener('DOMContentLoaded', () => {
+      const token = localStorage.getItem('technician_token');
+      if (!token) {
+        window.location.href = '/technician/login.html';
+        return;
+      }
+      loadUserInfo();
+      loadAppointments();
+    });
+
+    function loadUserInfo() {
+      const data = JSON.parse(localStorage.getItem('technician_data') || '{}');
+      if (data.name) {
+        document.getElementById('userName').textContent = data.name;
+        document.getElementById('userAvatar').textContent = data.name.split(' ').map(n => n[0]).join('').toUpperCase();
+      }
+    }
+
+    async function loadAppointments() {
+      const token = localStorage.getItem('technician_token');
+      const status = document.getElementById('statusFilter').value;
+      const startDate = document.getElementById('startDate').value;
+      const endDate = document.getElementById('endDate').value;
+
+      let url = `${API_BASE}/appointments?`;
+      if (status) url += `status=${status}&`;
+      if (startDate) url += `startDate=${startDate}&`;
+      if (endDate) url += `endDate=${endDate}&`;
+
+      try {
+        const response = await fetch(url, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const result = await response.json();
+
+        if (result.success) {
+          appointments = result.appointments;
+          renderAppointments();
+        }
+      } catch (error) {
+        console.error('Failed to load appointments:', error);
+      }
+    }
+
+    function renderAppointments() {
+      const container = document.getElementById('appointmentsList');
+
+      if (appointments.length === 0) {
+        container.innerHTML = `
+          <div class="empty-state">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            <h3>No Appointments Found</h3>
+            <p>Try adjusting your filters</p>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = appointments.map(apt => {
+        const orderItems = apt.order?.items || [];
+        const itemsHtml = orderItems.slice(0, 3).map(item => `
+          <div class="order-item">${item.quantity || 1}x ${item.product_name || 'Product'} - ${item.width || '?'}"x${item.height || '?'}"</div>
+        `).join('');
+
+        return `
+          <div class="appointment-card status-${apt.status}">
+            <div class="appointment-card-header">
+              <div>
+                <h3>Order #${apt.orderId?.slice(-8) || 'N/A'}</h3>
+                <div class="date-time">${formatDate(apt.scheduledDate)} at ${apt.scheduledTime || 'TBD'}</div>
+              </div>
+              <span class="status-badge status-${apt.status}">${apt.status}</span>
+            </div>
+            <div class="appointment-card-body">
+              <div class="detail-group">
+                <h4>Customer</h4>
+                <p><strong>${apt.customer?.name || 'Customer'}</strong></p>
+                <p><a href="tel:${apt.customer?.phone}">${apt.customer?.phone || 'No phone'}</a></p>
+                <p><a href="mailto:${apt.customer?.email}">${apt.customer?.email || 'No email'}</a></p>
+              </div>
+              <div class="detail-group">
+                <h4>Installation Address</h4>
+                <p>${apt.installationAddress?.address1 || 'Address line 1'}</p>
+                <p>${apt.installationAddress?.city || ''}, ${apt.installationAddress?.state || ''} ${apt.installationAddress?.zip || ''}</p>
+                <p><a href="https://maps.google.com/?q=${encodeURIComponent((apt.installationAddress?.address1 || '') + ' ' + (apt.installationAddress?.city || ''))}" target="_blank">Get Directions</a></p>
+              </div>
+              <div class="detail-group">
+                <h4>Order Details</h4>
+                ${apt.order?.trackingNumber ? `<p>Tracking: ${apt.order.trackingNumber}</p>` : ''}
+                <div class="order-items">${itemsHtml}</div>
+                ${orderItems.length > 3 ? `<p style="font-size:0.8rem;color:#8E6545;">+${orderItems.length - 3} more items</p>` : ''}
+              </div>
+            </div>
+            <div class="appointment-card-footer">
+              <div class="fee-display">Installation Fee: $${(apt.installationFee || 0).toFixed(2)}</div>
+              <div class="action-buttons">
+                ${getActionButtons(apt)}
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function getActionButtons(apt) {
+      const buttons = [];
+
+      if (apt.status === 'scheduled') {
+        buttons.push(`<button class="btn btn-primary" onclick="updateStatus('${apt.id}', 'confirmed')">Confirm</button>`);
+      }
+      if (apt.status === 'confirmed') {
+        buttons.push(`<button class="btn btn-warning" onclick="updateStatus('${apt.id}', 'in-progress')">Start Job</button>`);
+      }
+      if (apt.status === 'in-progress') {
+        buttons.push(`<button class="btn btn-success" onclick="openCompleteModal('${apt.id}')">Complete</button>`);
+      }
+      if (['scheduled', 'confirmed', 'in-progress', 'completed'].includes(apt.status)) {
+        buttons.push(`<button class="btn btn-outline" onclick="openPaymentModal('${apt.id}', ${apt.installationFee || 0})">Record Payment</button>`);
+      }
+
+      return buttons.join('');
+    }
+
+    function formatDate(dateStr) {
+      if (!dateStr) return 'TBD';
+      return new Date(dateStr).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' });
+    }
+
+    async function updateStatus(id, status) {
+      const token = localStorage.getItem('technician_token');
+      try {
+        const response = await fetch(`${API_BASE}/appointments/${id}/status`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({ status })
+        });
+        const result = await response.json();
+        if (result.success) {
+          loadAppointments();
+        } else {
+          alert(result.error || 'Failed to update status');
+        }
+      } catch (error) {
+        alert('Failed to update status');
+      }
+    }
+
+    function openCompleteModal(id) {
+      document.getElementById('completeAppointmentId').value = id;
+      document.getElementById('completionNotes').value = '';
+      document.getElementById('completeModal').classList.add('active');
+    }
+
+    function openPaymentModal(id, defaultAmount) {
+      document.getElementById('paymentAppointmentId').value = id;
+      document.getElementById('paymentAmount').value = defaultAmount || '';
+      document.getElementById('paymentMethod').value = 'cash';
+      document.getElementById('paymentNotes').value = '';
+      document.getElementById('paymentModal').classList.add('active');
+    }
+
+    function closeModal(modalId) {
+      document.getElementById(modalId).classList.remove('active');
+    }
+
+    async function completeJob(e) {
+      e.preventDefault();
+      const id = document.getElementById('completeAppointmentId').value;
+      const notes = document.getElementById('completionNotes').value;
+      const token = localStorage.getItem('technician_token');
+
+      try {
+        const response = await fetch(`${API_BASE}/appointments/${id}/status`, {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({ status: 'completed', completionNotes: notes })
+        });
+        const result = await response.json();
+        if (result.success) {
+          closeModal('completeModal');
+          loadAppointments();
+        } else {
+          alert(result.error || 'Failed to complete job');
+        }
+      } catch (error) {
+        alert('Failed to complete job');
+      }
+    }
+
+    async function recordPayment(e) {
+      e.preventDefault();
+      const appointmentId = document.getElementById('paymentAppointmentId').value;
+      const amount = document.getElementById('paymentAmount').value;
+      const paymentMethod = document.getElementById('paymentMethod').value;
+      const notes = document.getElementById('paymentNotes').value;
+      const token = localStorage.getItem('technician_token');
+
+      try {
+        const response = await fetch(`${API_BASE}/record-payment`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`
+          },
+          body: JSON.stringify({ appointmentId, amount, paymentMethod, notes })
+        });
+        const result = await response.json();
+        if (result.success) {
+          closeModal('paymentModal');
+          alert('Payment recorded successfully');
+          loadAppointments();
+        } else {
+          alert(result.error || 'Failed to record payment');
+        }
+      } catch (error) {
+        alert('Failed to record payment');
+      }
+    }
+
+    function logout() {
+      localStorage.removeItem('technician_token');
+      localStorage.removeItem('technician_data');
+      window.location.href = '/technician/login.html';
+    }
+
+    // Close modal on background click
+    document.querySelectorAll('.modal').forEach(modal => {
+      modal.addEventListener('click', e => {
+        if (e.target === modal) closeModal(modal.id);
+      });
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Installer Payments - Peekaboo Shades Admin</title>
+  <link rel="stylesheet" href="/admin/css/admin.css?v=1737200003.0.28">
+  <script src="/admin/js/adminNavConfig.js?v=1737200002"></script>
+  <style>
+    .payments-grid { display: grid; grid-template-columns: 1fr 350px; gap: 1.5rem; margin-top: 1.5rem; }
+    .payments-card { background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+    .payments-card h3 { margin: 0 0 1rem 0; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { padding: 0.75rem; text-align: left; border-bottom: 1px solid #eee; }
+    th { font-weight: 600; color: #666; font-size: 0.85rem; }
+    .status-badge { padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.75rem; }
+    .status-paid { background: #D1FAE5; color: #065F46; }
+    .status-pending { background: #FEF3C7; color: #92400E; }
+    .btn-pay { padding: 0.3rem 0.6rem; background: #8E6545; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 0.8rem; }
+    .btn-primary { padding: 0.75rem 1.5rem; background: #8E6545; color: white; border: none; border-radius: 8px; cursor: pointer; }
+    .summary-row { display: flex; justify-content: space-between; padding: 0.75rem 0; border-bottom: 1px solid #eee; }
+    .summary-row .value { font-weight: 600; color: #8E6545; }
+    .filters { display: flex; gap: 1rem; margin-bottom: 1.5rem; }
+    .filters select { padding: 0.5rem 1rem; border: 1px solid #ddd; border-radius: 6px; }
+  </style>
+</head>
+<body>
+  <div class="admin-layout">
+    <aside class="admin-sidebar"></aside>
+    <main class="admin-main">
+      <header class="admin-header">
+        <h1>Installer Payments</h1>
+        <div class="header-actions"><button class="btn-primary" onclick="processPayments()">Process All Pending</button></div>
+      </header>
+      <div class="admin-content">
+        <div class="filters">
+          <select><option>All Installers</option><option>John's Installations</option><option>Pro Blind Install</option></select>
+          <select><option>All Status</option><option>Pending</option><option>Paid</option></select>
+          <select><option>This Month</option><option>Last Month</option><option>This Quarter</option></select>
+        </div>
+        <div class="payments-grid">
+          <div class="payments-card">
+            <h3>Pending Payments</h3>
+            <table>
+              <thead><tr><th>Installer</th><th>Jobs</th><th>Amount</th><th>Status</th><th></th></tr></thead>
+              <tbody>
+                <tr><td>John's Installations</td><td>8</td><td>$1,240</td><td><span class="status-badge status-pending">Pending</span></td><td><button class="btn-pay" onclick="payInstaller(1)">Pay</button></td></tr>
+                <tr><td>Pro Blind Install</td><td>5</td><td>$780</td><td><span class="status-badge status-pending">Pending</span></td><td><button class="btn-pay" onclick="payInstaller(2)">Pay</button></td></tr>
+                <tr><td>Bay Area Shades</td><td>3</td><td>$465</td><td><span class="status-badge status-pending">Pending</span></td><td><button class="btn-pay" onclick="payInstaller(3)">Pay</button></td></tr>
+              </tbody>
+            </table>
+            <h3 style="margin-top: 2rem;">Recent Payments</h3>
+            <table>
+              <thead><tr><th>Installer</th><th>Date</th><th>Amount</th><th>Status</th></tr></thead>
+              <tbody>
+                <tr><td>John's Installations</td><td>Jan 10</td><td>$1,560</td><td><span class="status-badge status-paid">Paid</span></td></tr>
+                <tr><td>Pro Blind Install</td><td>Jan 10</td><td>$920</td><td><span class="status-badge status-paid">Paid</span></td></tr>
+                <tr><td>Bay Area Shades</td><td>Jan 10</td><td>$680</td><td><span class="status-badge status-paid">Paid</span></td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div>
+            <div class="payments-card">
+              <h3>Payment Summary</h3>
+              <div class="summary-row"><span>Pending Payments</span><span class="value">$2,485</span></div>
+              <div class="summary-row"><span>Paid This Month</span><span class="value">$4,560</span></div>
+              <div class="summary-row"><span>Total YTD</span><span class="value">$18,450</span></div>
+            </div>
+            <div class="payments-card" style="margin-top: 1rem;">
+              <h3>Payment Settings</h3>
+              <p style="font-size: 0.9rem; color: #666;">Default payment method: Direct Deposit</p>
+              <p style="font-size: 0.9rem; color: #666;">Payment schedule: Bi-weekly</p>
+              <p style="font-size: 0.9rem; color: #666;">Next payment date: Jan 24, 2024</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      if (!localStorage.getItem('admin_token')) { window.location.href = '/admin/login.html'; return; }
+      AdminNavConfig.initSidebar('installer-payments');
+    });
+    function processPayments() { alert('Processing all pending payments...'); }
+    function payInstaller(id) { alert(`Processing payment for installer ${id}`); }
+  </script>
+</body>
+</html>

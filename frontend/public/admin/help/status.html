@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>System Status - Peekaboo Shades Admin</title>
+  <link rel="stylesheet" href="/admin/css/admin.css?v=1737200003.0.28">
+  <script src="/admin/js/adminNavConfig.js?v=1737200002"></script>
+  <style>
+    .status-overview { background: #D1FAE5; border-radius: 12px; padding: 2rem; text-align: center; margin-bottom: 1.5rem; }
+    .status-overview.degraded { background: #FEF3C7; }
+    .status-overview.down { background: #FEE2E2; }
+    .status-icon { font-size: 3rem; margin-bottom: 0.5rem; }
+    .status-text { font-size: 1.5rem; font-weight: 600; color: #065F46; }
+    .status-overview.degraded .status-text { color: #92400E; }
+    .status-overview.down .status-text { color: #991B1B; }
+    .services-grid { display: grid; gap: 1rem; }
+    .service-card { background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); display: flex; justify-content: space-between; align-items: center; }
+    .service-info h3 { margin: 0 0 0.25rem 0; }
+    .service-info p { margin: 0; font-size: 0.85rem; color: #666; }
+    .service-status { display: flex; align-items: center; gap: 0.75rem; }
+    .status-indicator { width: 12px; height: 12px; border-radius: 50%; }
+    .status-operational { background: #10B981; }
+    .status-degraded { background: #F59E0B; }
+    .status-down { background: #EF4444; }
+    .status-label { font-weight: 500; }
+    .uptime-bar { width: 200px; height: 20px; display: flex; gap: 1px; border-radius: 4px; overflow: hidden; }
+    .uptime-day { flex: 1; background: #10B981; }
+    .uptime-day.degraded { background: #F59E0B; }
+    .uptime-day.down { background: #EF4444; }
+    .metrics-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-top: 1.5rem; }
+    .metric-card { background: white; padding: 1.25rem; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+    .metric-card h4 { margin: 0 0 0.5rem 0; font-size: 0.85rem; color: #666; }
+    .metric-card .value { font-size: 1.75rem; font-weight: 600; color: #8E6545; }
+    .metric-card .subtitle { font-size: 0.8rem; color: #666; }
+  </style>
+</head>
+<body>
+  <div class="admin-layout">
+    <aside class="admin-sidebar"></aside>
+    <main class="admin-main">
+      <header class="admin-header">
+        <h1>System Status</h1>
+      </header>
+      <div class="admin-content">
+        <div class="status-overview">
+          <div class="status-icon">✓</div>
+          <div class="status-text">All Systems Operational</div>
+          <p style="margin: 0.5rem 0 0 0; color: #065F46;">Last checked: 2 minutes ago</p>
+        </div>
+        <div class="services-grid">
+          <div class="service-card">
+            <div class="service-info">
+              <h3>Website</h3>
+              <p>Main storefront and checkout</p>
+            </div>
+            <div class="service-status">
+              <div class="uptime-bar" title="Last 30 days uptime">${'<div class="uptime-day"></div>'.repeat(30)}</div>
+              <span class="status-indicator status-operational"></span>
+              <span class="status-label">Operational</span>
+            </div>
+          </div>
+          <div class="service-card">
+            <div class="service-info">
+              <h3>API</h3>
+              <p>Backend services and integrations</p>
+            </div>
+            <div class="service-status">
+              <div class="uptime-bar">${'<div class="uptime-day"></div>'.repeat(30)}</div>
+              <span class="status-indicator status-operational"></span>
+              <span class="status-label">Operational</span>
+            </div>
+          </div>
+          <div class="service-card">
+            <div class="service-info">
+              <h3>Payment Processing</h3>
+              <p>Stripe and PayPal integrations</p>
+            </div>
+            <div class="service-status">
+              <div class="uptime-bar">${'<div class="uptime-day"></div>'.repeat(30)}</div>
+              <span class="status-indicator status-operational"></span>
+              <span class="status-label">Operational</span>
+            </div>
+          </div>
+          <div class="service-card">
+            <div class="service-info">
+              <h3>Email Service</h3>
+              <p>Transactional and marketing emails</p>
+            </div>
+            <div class="service-status">
+              <div class="uptime-bar">${'<div class="uptime-day"></div>'.repeat(28)}<div class="uptime-day degraded"></div><div class="uptime-day"></div></div>
+              <span class="status-indicator status-operational"></span>
+              <span class="status-label">Operational</span>
+            </div>
+          </div>
+        </div>
+        <div class="metrics-row">
+          <div class="metric-card">
+            <h4>Response Time</h4>
+            <div class="value">142ms</div>
+            <div class="subtitle">Average (last hour)</div>
+          </div>
+          <div class="metric-card">
+            <h4>Uptime</h4>
+            <div class="value">99.98%</div>
+            <div class="subtitle">Last 30 days</div>
+          </div>
+          <div class="metric-card">
+            <h4>Requests/min</h4>
+            <div class="value">1,245</div>
+            <div class="subtitle">Current rate</div>
+          </div>
+          <div class="metric-card">
+            <h4>Error Rate</h4>
+            <div class="value">0.02%</div>
+            <div class="subtitle">Last 24 hours</div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      if (!localStorage.getItem('admin_token')) { window.location.href = '/admin/login.html'; return; }
+      AdminNavConfig.initSidebar('system-status');
+    });
+  </script>
+</body>
+</html>

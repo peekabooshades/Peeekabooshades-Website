@@ -768,31 +768,9 @@
 </head>
 <body>
   <div class="admin-layout">
-    <!-- Sidebar -->
-    <aside class="sidebar">
-      <div class="sidebar-header">
-        <h1>Peekaboo Shades</h1>
-        <span>Admin Dashboard</span>
-      </div>
-      <nav class="sidebar-nav">
-        <a href="index.html" class="nav-link"><i class="fas fa-home"></i> Dashboard</a>
-
-        <div class="nav-section">Content</div>
-        <a href="products.html" class="nav-link"><i class="fas fa-box"></i> Products</a>
-        <a href="categories.html" class="nav-link"><i class="fas fa-folder"></i> Categories</a>
-        <a href="media-library.html" class="nav-link active"><i class="fas fa-images"></i> Media Library</a>
-        <a href="pages.html" class="nav-link"><i class="fas fa-file-alt"></i> Pages</a>
-
-        <div class="nav-section">Sales</div>
-        <a href="orders.html" class="nav-link"><i class="fas fa-shopping-cart"></i> Orders</a>
-        <a href="quotes.html" class="nav-link"><i class="fas fa-file-invoice"></i> Quotes</a>
-        <a href="customers.html" class="nav-link"><i class="fas fa-users"></i> Customers</a>
-
-        <div class="nav-section">Configuration</div>
-        <a href="theme-settings.html" class="nav-link"><i class="fas fa-palette"></i> Theme & Colors</a>
-        <a href="system-config.html" class="nav-link"><i class="fas fa-cog"></i> System Config</a>
-        <a href="fabrics.html" class="nav-link"><i class="fas fa-swatchbook"></i> Fabrics</a>
-      </nav>
+    <!-- Sidebar (dynamically populated by adminNavConfig.js) -->
+    <aside class="admin-sidebar">
+      <!-- Sidebar content will be injected dynamically -->
     </aside>
 
     <!-- Main Content -->
@@ -959,6 +937,7 @@
   <!-- Toast -->
   <div class="toast" id="toast"></div>
 
+  <script src="js/adminNavConfig.js?v=1737200002"></script>
   <script>
     // State
     let authToken = localStorage.getItem('admin_token') || localStorage.getItem('adminToken');

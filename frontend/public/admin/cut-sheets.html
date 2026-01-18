@@ -1,0 +1,632 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Cut Sheets - Peekaboo Shades Admin</title>
+  <link rel="stylesheet" href="css/admin.css?v=1737200003">
+  <link rel="icon" type="image/jpeg" href="/images/peekabooshades_logo.jpeg">
+  <style>
+    .cut-sheet-filters {
+      display: flex;
+      gap: 16px;
+      flex-wrap: wrap;
+      align-items: center;
+    }
+    .batch-actions {
+      display: flex;
+      gap: 8px;
+      margin-left: auto;
+    }
+    .cut-sheet-preview {
+      background: white;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      padding: 24px;
+      margin-top: 20px;
+    }
+    .cut-sheet-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      padding-bottom: 16px;
+      border-bottom: 2px solid #8E6545;
+      margin-bottom: 20px;
+    }
+    .cut-sheet-logo {
+      font-size: 24px;
+      font-weight: 700;
+      color: #8E6545;
+    }
+    .cut-sheet-info {
+      text-align: right;
+      font-size: 13px;
+      color: #6b7280;
+    }
+    .cut-sheet-order-info {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 16px;
+      margin-bottom: 24px;
+      padding: 16px;
+      background: #f9fafb;
+      border-radius: 8px;
+    }
+    .info-item {
+      font-size: 13px;
+    }
+    .info-label {
+      color: #6b7280;
+      margin-bottom: 4px;
+    }
+    .info-value {
+      font-weight: 600;
+      color: #1f2937;
+    }
+    .cut-sheet-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 12px;
+    }
+    .cut-sheet-table th {
+      background: #8E6545;
+      color: white;
+      padding: 10px 8px;
+      text-align: center;
+      font-weight: 600;
+      text-transform: uppercase;
+      font-size: 10px;
+      letter-spacing: 0.5px;
+    }
+    .cut-sheet-table td {
+      padding: 10px 8px;
+      border-bottom: 1px solid #e5e7eb;
+      text-align: center;
+    }
+    .cut-sheet-table tr:nth-child(even) {
+      background: #faf7f5;
+    }
+    .dimension-cell {
+      font-weight: 700;
+      color: #8E6545;
+      font-size: 14px;
+    }
+    .fabric-cell {
+      font-weight: 600;
+      color: #1f2937;
+    }
+    .notes-section {
+      margin-top: 20px;
+      padding: 16px;
+      background: #fffbeb;
+      border: 1px solid #fcd34d;
+      border-radius: 8px;
+    }
+    .notes-title {
+      font-weight: 600;
+      color: #92400e;
+      margin-bottom: 8px;
+    }
+    .order-select-card {
+      background: white;
+      border: 2px solid #e5e7eb;
+      border-radius: 8px;
+      padding: 16px;
+      cursor: pointer;
+      transition: all 0.2s;
+      margin-bottom: 12px;
+    }
+    .order-select-card:hover {
+      border-color: #8E6545;
+      box-shadow: 0 2px 8px rgba(142, 101, 69, 0.15);
+    }
+    .order-select-card.selected {
+      border-color: #8E6545;
+      background: #fdf8f5;
+    }
+    .order-select-card input[type="checkbox"] {
+      margin-right: 12px;
+    }
+    .order-card-header {
+      display: flex;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+    .order-card-details {
+      display: flex;
+      gap: 24px;
+      font-size: 13px;
+      color: #6b7280;
+    }
+    @media print {
+      .admin-sidebar, .admin-header, .card:first-child, .no-print {
+        display: none !important;
+      }
+      .admin-main {
+        margin-left: 0 !important;
+        padding: 0 !important;
+      }
+      .admin-content {
+        padding: 0 !important;
+      }
+      .cut-sheet-preview {
+        border: none;
+        box-shadow: none;
+        padding: 0;
+        page-break-after: always;
+      }
+      .cut-sheet-table th {
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="admin-layout">
+    <!-- Sidebar -->
+    <aside class="admin-sidebar">
+      <!-- Sidebar content will be injected dynamically -->
+    </aside>
+
+    <!-- Main Content -->
+    <main class="admin-main">
+      <!-- Header -->
+      <header class="admin-header">
+        <div class="header-left">
+          <div class="breadcrumb">
+            <a href="/admin/">Dashboard</a>
+            <span class="breadcrumb-separator">/</span>
+            <a href="/admin/production-queue.html">Production Queue</a>
+            <span class="breadcrumb-separator">/</span>
+            <span class="breadcrumb-current">Cut Sheets</span>
+          </div>
+        </div>
+        <div class="header-right">
+          <button onclick="Admin.AuthAPI.logout();" class="btn btn-logout" style="background: #dc3545; color: white; padding: 8px 16px; border: none; border-radius: 6px; cursor: pointer; font-size: 14px; margin-right: 10px;">
+            Logout
+          </button>
+          <div class="dropdown">
+            <div class="header-profile">
+              <div class="profile-avatar">A</div>
+              <span class="profile-name">Admin</span>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <!-- Page Content -->
+      <div class="admin-content">
+        <div class="page-header">
+          <h1 class="page-title">Cut Sheets Generator</h1>
+          <p style="color: #6b7280; margin-top: 4px;">Generate manufacturing cut sheets for production orders</p>
+        </div>
+
+        <!-- Filters & Actions -->
+        <div class="card no-print" style="margin-bottom: 20px;">
+          <div class="card-body" style="padding: 16px;">
+            <div class="cut-sheet-filters">
+              <div class="search-input" style="width: 250px;">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+                <input type="text" id="search-input" placeholder="Search order #..." class="form-input" oninput="filterOrders()">
+              </div>
+              <select id="status-filter" class="filter-select" onchange="filterOrders()">
+                <option value="">All Status</option>
+                <option value="order_received">Order Received</option>
+                <option value="manufacturing">Manufacturing</option>
+                <option value="qa">QA</option>
+                <option value="pending">Pending</option>
+                <option value="shipped">Shipped</option>
+              </select>
+              <select id="product-type-filter" class="filter-select" onchange="filterOrders()">
+                <option value="">All Products</option>
+                <option value="roller">Roller Shades</option>
+                <option value="zebra">Zebra Shades</option>
+                <option value="honeycomb">Honeycomb Shades</option>
+                <option value="roman">Roman Shades</option>
+              </select>
+              <div class="batch-actions">
+                <button onclick="selectAllOrders()" class="btn btn-secondary">
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="margin-right: 4px;">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                  </svg>
+                  Select All
+                </button>
+                <button onclick="generateCutSheets()" class="btn btn-primary" id="generate-btn" disabled>
+                  <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="margin-right: 4px;">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 17v-2m3 2v-4m3 4v-6m2 10H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                  </svg>
+                  Generate Cut Sheets
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Orders List for Selection -->
+        <div class="card no-print" id="orders-selection-card">
+          <div class="card-header">
+            <h3 class="card-title">Select Orders for Cut Sheets</h3>
+            <span class="badge" id="selected-count" style="background: #8E6545; color: white;">0 selected</span>
+          </div>
+          <div class="card-body" id="orders-list" style="max-height: 400px; overflow-y: auto;">
+            <div style="text-align: center; padding: 40px;">
+              <div class="spinner"></div>
+              <p style="margin-top: 16px; color: var(--admin-text-secondary);">Loading orders...</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Cut Sheets Preview/Print Area -->
+        <div id="cut-sheets-container">
+          <!-- Cut sheets will be generated here -->
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <script src="js/adminNavConfig.js?v=1737200002"></script>
+  <script src="js/admin.js?v=1737100001"></script>
+  <script>
+    // Require authentication
+    if (!Admin.Auth.requireAuth()) {
+      // Will redirect
+    } else {
+      loadOrders();
+    }
+
+    let allOrders = [];
+    let filteredOrders = [];
+    let selectedOrders = new Set();
+
+    async function loadOrders() {
+      try {
+        // Fetch all orders (not just production statuses)
+        const response = await fetch('/api/admin/orders?limit=200', {
+          headers: { 'Authorization': `Bearer ${Admin.Auth.getToken()}` }
+        });
+        const data = await response.json();
+
+        allOrders = [];
+        if (data.success && data.orders) {
+          allOrders = data.orders;
+        }
+
+        // Sort by date
+        allOrders.sort((a, b) => new Date(a.created_at) - new Date(b.created_at));
+        filteredOrders = [...allOrders];
+        renderOrdersList();
+      } catch (error) {
+        console.error('Failed to load orders:', error);
+        Admin.Toast.error('Failed to load orders');
+      }
+    }
+
+    function getProductType(order) {
+      if (!order.items || order.items.length === 0) return 'unknown';
+      const types = new Set();
+      order.items.forEach(item => {
+        if (item.product_type) {
+          types.add(item.product_type);
+        } else if (item.product_slug) {
+          if (item.product_slug.includes('zebra')) types.add('zebra');
+          else if (item.product_slug.includes('honeycomb')) types.add('honeycomb');
+          else if (item.product_slug.includes('roman')) types.add('roman');
+          else if (item.product_slug.includes('roller')) types.add('roller');
+        }
+      });
+      if (types.size === 0) return 'unknown';
+      if (types.size === 1) return [...types][0];
+      return 'mixed';
+    }
+
+    function filterOrders() {
+      const search = document.getElementById('search-input').value.toLowerCase();
+      const status = document.getElementById('status-filter').value;
+      const productType = document.getElementById('product-type-filter').value;
+
+      filteredOrders = allOrders.filter(order => {
+        const orderNumber = (order.order_number || order.id).toLowerCase();
+        const matchesSearch = !search || orderNumber.includes(search);
+        const matchesStatus = !status || order.status === status;
+        const orderProductType = getProductType(order);
+        const matchesType = !productType || orderProductType === productType;
+        return matchesSearch && matchesStatus && matchesType;
+      });
+
+      renderOrdersList();
+    }
+
+    function renderOrdersList() {
+      const container = document.getElementById('orders-list');
+
+      if (filteredOrders.length === 0) {
+        container.innerHTML = `
+          <div style="text-align: center; padding: 60px; color: #6b7280;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="margin: 0 auto 16px; opacity: 0.5;">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+            </svg>
+            <p>No orders found in production queue</p>
+          </div>
+        `;
+        return;
+      }
+
+      const statusLabels = {
+        'order_received': { bg: '#dbeafe', color: '#1e40af', label: 'Received' },
+        'manufacturing': { bg: '#fef3c7', color: '#92400e', label: 'Manufacturing' },
+        'qa': { bg: '#ede9fe', color: '#5b21b6', label: 'QA' }
+      };
+
+      container.innerHTML = filteredOrders.map(order => {
+        const orderNumber = order.order_number || order.id.slice(0, 8).toUpperCase();
+        const customerName = order.customer_name || order.customer?.name || 'Guest';
+        const itemCount = order.items?.length || 0;
+        const productType = getProductType(order);
+        const isSelected = selectedOrders.has(order.id);
+        const statusStyle = statusLabels[order.status] || { bg: '#e5e7eb', color: '#374151', label: order.status };
+
+        return `
+          <div class="order-select-card ${isSelected ? 'selected' : ''}" onclick="toggleOrderSelection('${order.id}')">
+            <div class="order-card-header">
+              <input type="checkbox" ${isSelected ? 'checked' : ''} onclick="event.stopPropagation(); toggleOrderSelection('${order.id}')">
+              <strong style="color: #8E6545; font-size: 15px;">#${orderNumber}</strong>
+              <span style="display: inline-block; padding: 3px 10px; background: ${statusStyle.bg}; color: ${statusStyle.color}; border-radius: 10px; font-size: 11px; font-weight: 600; margin-left: 12px;">${statusStyle.label}</span>
+            </div>
+            <div class="order-card-details">
+              <span><strong>Customer:</strong> ${Admin.Utils.escapeHtml(customerName)}</span>
+              <span><strong>Items:</strong> ${itemCount}</span>
+              <span><strong>Type:</strong> ${productType}</span>
+              <span><strong>Date:</strong> ${Admin.Utils.formatDate(order.created_at)}</span>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function toggleOrderSelection(orderId) {
+      if (selectedOrders.has(orderId)) {
+        selectedOrders.delete(orderId);
+      } else {
+        selectedOrders.add(orderId);
+      }
+      updateSelectedCount();
+      renderOrdersList();
+    }
+
+    function selectAllOrders() {
+      if (selectedOrders.size === filteredOrders.length) {
+        selectedOrders.clear();
+      } else {
+        filteredOrders.forEach(order => selectedOrders.add(order.id));
+      }
+      updateSelectedCount();
+      renderOrdersList();
+    }
+
+    function updateSelectedCount() {
+      document.getElementById('selected-count').textContent = `${selectedOrders.size} selected`;
+      document.getElementById('generate-btn').disabled = selectedOrders.size === 0;
+    }
+
+    async function generateCutSheets() {
+      if (selectedOrders.size === 0) {
+        Admin.Toast.warning('Please select at least one order');
+        return;
+      }
+
+      const container = document.getElementById('cut-sheets-container');
+      container.innerHTML = '<div style="text-align: center; padding: 40px;"><div class="spinner"></div><p>Generating cut sheets...</p></div>';
+
+      try {
+        // Fetch full order details for selected orders
+        const orderDetails = [];
+        for (const orderId of selectedOrders) {
+          try {
+            const response = await Admin.OrdersAPI.getById(orderId);
+            if (response && response.success && response.data) {
+              orderDetails.push(response.data);
+            }
+          } catch (err) {
+            console.error('Failed to fetch order:', orderId, err);
+          }
+        }
+
+        // Check if any orders were fetched
+        if (orderDetails.length === 0) {
+          container.innerHTML = '<div style="text-align: center; padding: 40px; color: #dc2626;"><p>Failed to fetch order details. Please try again.</p></div>';
+          return;
+        }
+
+        // Generate cut sheets HTML
+        let sheetsHtml = '';
+        const today = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+
+        for (const order of orderDetails) {
+          const orderNumber = order.order_number || order.id.slice(0, 8).toUpperCase();
+          const customerName = order.customer_name || order.customer?.name || 'Guest';
+          const customerPhone = order.customer_phone || order.customer?.phone || '-';
+          const shippingAddr = order.shipping_address || order.customer?.address || '-';
+
+          sheetsHtml += `
+            <div class="cut-sheet-preview">
+              <div class="cut-sheet-header">
+                <div>
+                  <div class="cut-sheet-logo">PEEKABOO SHADES</div>
+                  <div style="color: #6b7280; font-size: 12px; margin-top: 4px;">Manufacturing Cut Sheet</div>
+                </div>
+                <div class="cut-sheet-info">
+                  <div style="font-size: 18px; font-weight: 700; color: #8E6545;">Order #${orderNumber}</div>
+                  <div>Generated: ${today}</div>
+                  <div>Status: ${order.status?.replace(/_/g, ' ').toUpperCase()}</div>
+                </div>
+              </div>
+
+              <div class="cut-sheet-order-info">
+                <div class="info-item">
+                  <div class="info-label">Customer Name</div>
+                  <div class="info-value">${Admin.Utils.escapeHtml(customerName)}</div>
+                </div>
+                <div class="info-item">
+                  <div class="info-label">Phone</div>
+                  <div class="info-value">${Admin.Utils.escapeHtml(customerPhone)}</div>
+                </div>
+                <div class="info-item">
+                  <div class="info-label">Order Date</div>
+                  <div class="info-value">${Admin.Utils.formatDate(order.created_at)}</div>
+                </div>
+                <div class="info-item" style="grid-column: span 3;">
+                  <div class="info-label">Shipping Address</div>
+                  <div class="info-value">${Admin.Utils.escapeHtml(shippingAddr)}</div>
+                </div>
+              </div>
+
+              <table class="cut-sheet-table">
+                <thead>
+                  <tr>
+                    <th style="width: 40px;">Item</th>
+                    <th>Room</th>
+                    <th>Width</th>
+                    <th>Height</th>
+                    <th>Fabric Code</th>
+                    <th>Light Filter</th>
+                    <th>Cassette</th>
+                    <th>Bottom Bar</th>
+                    <th>Roll Type</th>
+                    <th>Mount</th>
+                    <th>Control</th>
+                    <th>Chain Side</th>
+                    <th>Motor</th>
+                    <th style="width: 40px;">Qty</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  ${order.items?.map((item, idx) => {
+                    const cfg = typeof item.configuration === 'string' ? JSON.parse(item.configuration || '{}') : (item.configuration || {});
+                    return `
+                      <tr>
+                        <td style="font-weight: 600; color: #8E6545;">${idx + 1}</td>
+                        <td>${Admin.Utils.escapeHtml(item.room_label || '-')}</td>
+                        <td class="dimension-cell">${item.width}"</td>
+                        <td class="dimension-cell">${item.height}"</td>
+                        <td class="fabric-cell">${cfg.fabricCode || '-'}</td>
+                        <td>${cfg.lightFiltering || '-'}</td>
+                        <td>${cfg.standardCassette || cfg.valanceType || '-'}</td>
+                        <td>${cfg.standardBottomBar || cfg.bottomRail || '-'}</td>
+                        <td>${cfg.rollerType || '-'}</td>
+                        <td>${cfg.mountType || '-'}</td>
+                        <td>${cfg.controlType || '-'}</td>
+                        <td>${cfg.chainSide || '-'}</td>
+                        <td>${cfg.motorBrand ? cfg.motorBrand + ' ' + (cfg.motorType || '') : (cfg.chainType || '-')}</td>
+                        <td style="font-weight: 700; background: rgba(142,101,69,0.1); color: #8E6545;">${item.quantity}</td>
+                      </tr>
+                    `;
+                  }).join('') || '<tr><td colspan="14" style="text-align: center; color: #9ca3af;">No items</td></tr>'}
+                </tbody>
+              </table>
+
+              ${order.notes ? `
+                <div class="notes-section">
+                  <div class="notes-title">Special Instructions / Notes:</div>
+                  <div>${Admin.Utils.escapeHtml(order.notes)}</div>
+                </div>
+              ` : ''}
+
+              <div style="margin-top: 24px; padding-top: 16px; border-top: 1px solid #e5e7eb; display: flex; justify-content: space-between; font-size: 12px; color: #6b7280;">
+                <div>Total Items: <strong>${order.items?.length || 0}</strong></div>
+                <div>Total Blinds: <strong>${order.items?.reduce((sum, item) => sum + item.quantity, 0) || 0}</strong></div>
+                <div>Page 1 of 1</div>
+              </div>
+            </div>
+          `;
+        }
+
+        // Add print button
+        container.innerHTML = `
+          <div class="no-print" style="margin-top: 20px; display: flex; gap: 12px; justify-content: flex-end;">
+            <button onclick="window.print()" class="btn btn-primary">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="margin-right: 4px;">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+              </svg>
+              Print Cut Sheets
+            </button>
+            <button onclick="downloadCutSheetsCSV()" class="btn btn-secondary">
+              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" style="margin-right: 4px;">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+              </svg>
+              Export CSV
+            </button>
+            <button onclick="clearCutSheets()" class="btn btn-secondary">Clear</button>
+          </div>
+          ${sheetsHtml}
+        `;
+
+        // Store order details for CSV export
+        window.cutSheetOrderDetails = orderDetails;
+
+        Admin.Toast.success(`Generated ${orderDetails.length} cut sheet(s)`);
+      } catch (error) {
+        console.error('Failed to generate cut sheets:', error);
+        Admin.Toast.error('Failed to generate cut sheets');
+        container.innerHTML = '';
+      }
+    }
+
+    function downloadCutSheetsCSV() {
+      if (!window.cutSheetOrderDetails || window.cutSheetOrderDetails.length === 0) {
+        Admin.Toast.warning('No cut sheets to export');
+        return;
+      }
+
+      const headers = ['Order #', 'Customer', 'Item #', 'Room', 'Width', 'Height', 'Fabric Code', 'Light Filter', 'Cassette', 'Bottom Bar', 'Roll Type', 'Mount', 'Control', 'Chain Side', 'Motor', 'Qty'];
+      const rows = [];
+
+      window.cutSheetOrderDetails.forEach(order => {
+        const orderNumber = order.order_number || order.id.slice(0, 8).toUpperCase();
+        const customerName = order.customer_name || order.customer?.name || 'Guest';
+
+        order.items?.forEach((item, idx) => {
+          const cfg = typeof item.configuration === 'string' ? JSON.parse(item.configuration || '{}') : (item.configuration || {});
+          rows.push([
+            orderNumber,
+            customerName,
+            idx + 1,
+            item.room_label || '-',
+            item.width,
+            item.height,
+            cfg.fabricCode || '-',
+            cfg.lightFiltering || '-',
+            cfg.standardCassette || cfg.valanceType || '-',
+            cfg.standardBottomBar || cfg.bottomRail || '-',
+            cfg.rollerType || '-',
+            cfg.mountType || '-',
+            cfg.controlType || '-',
+            cfg.chainSide || '-',
+            cfg.motorBrand ? cfg.motorBrand + ' ' + (cfg.motorType || '') : (cfg.chainType || '-'),
+            item.quantity
+          ]);
+        });
+      });
+
+      const csvContent = [headers, ...rows].map(row => row.map(cell => `"${cell}"`).join(',')).join('\n');
+      const blob = new Blob([csvContent], { type: 'text/csv' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `cut-sheets-${new Date().toISOString().split('T')[0]}.csv`;
+      a.click();
+      URL.revokeObjectURL(url);
+      Admin.Toast.success('Cut sheets exported to CSV');
+    }
+
+    function clearCutSheets() {
+      document.getElementById('cut-sheets-container').innerHTML = '';
+      selectedOrders.clear();
+      updateSelectedCount();
+      renderOrdersList();
+    }
+  </script>
+</body>
+</html>

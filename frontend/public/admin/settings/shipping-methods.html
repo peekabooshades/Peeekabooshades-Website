@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Shipping Methods - Peekaboo Shades Admin</title>
+  <link rel="stylesheet" href="/admin/css/admin.css?v=1737200003.0.28">
+  <script src="/admin/js/adminNavConfig.js?v=1737200002"></script>
+  <style>
+    .methods-grid { display: grid; gap: 1rem; margin-top: 1.5rem; }
+    .method-card { background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); display: flex; justify-content: space-between; align-items: center; }
+    .method-info { display: flex; gap: 1rem; align-items: center; }
+    .method-icon { width: 48px; height: 48px; background: #F3F4F6; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; }
+    .method-details h4 { margin: 0 0 0.25rem 0; }
+    .method-details p { margin: 0; font-size: 0.85rem; color: #666; }
+    .method-config { display: flex; gap: 2rem; align-items: center; }
+    .method-price { text-align: right; }
+    .method-price .price { font-size: 1.25rem; font-weight: 600; color: #8E6545; }
+    .method-price .type { font-size: 0.8rem; color: #666; }
+    .toggle { position: relative; width: 50px; height: 26px; }
+    .toggle input { opacity: 0; width: 0; height: 0; }
+    .toggle .slider { position: absolute; cursor: pointer; inset: 0; background: #ddd; border-radius: 26px; transition: 0.3s; }
+    .toggle .slider:before { content: ""; position: absolute; height: 20px; width: 20px; left: 3px; bottom: 3px; background: white; border-radius: 50%; transition: 0.3s; }
+    .toggle input:checked + .slider { background: #10B981; }
+    .toggle input:checked + .slider:before { transform: translateX(24px); }
+    .btn-primary { padding: 0.75rem 1.5rem; background: #8E6545; color: white; border: none; border-radius: 8px; cursor: pointer; }
+    .btn-edit { padding: 0.4rem 0.75rem; background: #E5E7EB; color: #374151; border: none; border-radius: 4px; cursor: pointer; font-size: 0.85rem; }
+    .carrier-badge { padding: 0.25rem 0.5rem; background: #DBEAFE; color: #1E40AF; border-radius: 4px; font-size: 0.75rem; margin-left: 0.5rem; }
+  </style>
+</head>
+<body>
+  <div class="admin-layout">
+    <aside class="admin-sidebar"></aside>
+    <main class="admin-main">
+      <header class="admin-header">
+        <h1>Shipping Methods</h1>
+        <div class="header-actions"><button class="btn-primary" onclick="addMethod()">+ Add Method</button></div>
+      </header>
+      <div class="admin-content">
+        <div class="methods-grid">
+          <div class="method-card">
+            <div class="method-info">
+              <div class="method-icon">📦</div>
+              <div class="method-details">
+                <h4>Standard Ground <span class="carrier-badge">FedEx</span></h4>
+                <p>5-7 business days • All window treatments</p>
+              </div>
+            </div>
+            <div class="method-config">
+              <div class="method-price">
+                <div class="price">$14.99</div>
+                <div class="type">Flat rate</div>
+              </div>
+              <button class="btn-edit" onclick="editMethod('standard')">Edit</button>
+              <label class="toggle"><input type="checkbox" checked><span class="slider"></span></label>
+            </div>
+          </div>
+          <div class="method-card">
+            <div class="method-info">
+              <div class="method-icon">🚀</div>
+              <div class="method-details">
+                <h4>Express Shipping <span class="carrier-badge">FedEx Express</span></h4>
+                <p>2-3 business days • Priority processing</p>
+              </div>
+            </div>
+            <div class="method-config">
+              <div class="method-price">
+                <div class="price">$34.99</div>
+                <div class="type">Flat rate</div>
+              </div>
+              <button class="btn-edit" onclick="editMethod('express')">Edit</button>
+              <label class="toggle"><input type="checkbox" checked><span class="slider"></span></label>
+            </div>
+          </div>
+          <div class="method-card">
+            <div class="method-info">
+              <div class="method-icon">✉️</div>
+              <div class="method-details">
+                <h4>Sample Shipping <span class="carrier-badge">USPS</span></h4>
+                <p>3-5 business days • Fabric samples only</p>
+              </div>
+            </div>
+            <div class="method-config">
+              <div class="method-price">
+                <div class="price">FREE</div>
+                <div class="type">Samples</div>
+              </div>
+              <button class="btn-edit" onclick="editMethod('samples')">Edit</button>
+              <label class="toggle"><input type="checkbox" checked><span class="slider"></span></label>
+            </div>
+          </div>
+          <div class="method-card">
+            <div class="method-info">
+              <div class="method-icon">🚛</div>
+              <div class="method-details">
+                <h4>Freight/Large Orders <span class="carrier-badge">LTL</span></h4>
+                <p>7-10 business days • Orders over 10 units</p>
+              </div>
+            </div>
+            <div class="method-config">
+              <div class="method-price">
+                <div class="price">Calculated</div>
+                <div class="type">By weight</div>
+              </div>
+              <button class="btn-edit" onclick="editMethod('freight')">Edit</button>
+              <label class="toggle"><input type="checkbox" checked><span class="slider"></span></label>
+            </div>
+          </div>
+          <div class="method-card">
+            <div class="method-info">
+              <div class="method-icon">🏠</div>
+              <div class="method-details">
+                <h4>White Glove Delivery</h4>
+                <p>Scheduled • Includes installation</p>
+              </div>
+            </div>
+            <div class="method-config">
+              <div class="method-price">
+                <div class="price">$149+</div>
+                <div class="type">By location</div>
+              </div>
+              <button class="btn-edit" onclick="editMethod('whiteglove')">Edit</button>
+              <label class="toggle"><input type="checkbox"><span class="slider"></span></label>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      if (!localStorage.getItem('admin_token')) { window.location.href = '/admin/login.html'; return; }
+      AdminNavConfig.initSidebar('shipping-methods');
+    });
+    function addMethod() { alert('Opening add shipping method form...'); }
+    function editMethod(id) { alert(`Editing shipping method: ${id}`); }
+  </script>
+</body>
+</html>

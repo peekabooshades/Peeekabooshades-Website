@@ -1,0 +1,303 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lead Times - Peekaboo Shades Admin</title>
+  <link rel="stylesheet" href="/admin/css/admin.css?v=1737200003.0.28">
+  <script src="/admin/js/admin.js?v=1737100001"></script>
+  <script src="/admin/js/adminNavConfig.js?v=1737200002"></script>
+  <style>
+    .settings-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-top: 1.5rem; }
+    .settings-card { background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+    .settings-card h3 { margin: 0 0 1.5rem 0; }
+    .lead-time-row { display: flex; justify-content: space-between; align-items: center; padding: 0.75rem 0; border-bottom: 1px solid #eee; }
+    .lead-time-row:last-child { border-bottom: none; }
+    .lead-time-label { font-weight: 500; }
+    .lead-time-input { display: flex; align-items: center; gap: 0.5rem; }
+    .lead-time-input input { width: 60px; padding: 0.5rem; border: 1px solid #ddd; border-radius: 6px; text-align: center; }
+    .lead-time-input span { color: #666; font-size: 0.9rem; }
+    .btn-save { padding: 0.75rem 2rem; background: #8E6545; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; }
+    .info-box { background: #DBEAFE; padding: 1rem; border-radius: 8px; font-size: 0.9rem; color: #1E40AF; margin-bottom: 1.5rem; }
+    .display-preview { background: #F9FAFB; padding: 1rem; border-radius: 8px; margin-top: 1rem; }
+    .display-preview h4 { margin: 0 0 0.5rem 0; font-size: 0.9rem; }
+    .display-preview p { margin: 0; font-style: italic; color: #666; }
+    .loading { text-align: center; padding: 3rem; color: #666; }
+  </style>
+</head>
+<body>
+  <div class="admin-layout">
+    <aside class="admin-sidebar"></aside>
+    <main class="admin-main">
+      <header class="admin-header">
+        <h1>Lead Times</h1>
+        <div class="header-actions"><button class="btn-save" onclick="saveSettings()">Save Changes</button></div>
+      </header>
+      <div class="admin-content">
+        <div class="loading" id="loadingState">Loading lead time settings...</div>
+        <div id="contentArea" style="display: none;">
+          <div class="info-box">
+            Lead times are displayed to customers on product pages and during checkout. Production time + shipping time = total delivery estimate.
+          </div>
+          <div class="settings-grid">
+            <div class="settings-card">
+              <h3>Production Lead Times</h3>
+              <div class="lead-time-row">
+                <span class="lead-time-label">Standard Roller Shades</span>
+                <div class="lead-time-input">
+                  <input type="number" id="rollerMin" min="1" max="30"> - <input type="number" id="rollerMax" min="1" max="30">
+                  <span>business days</span>
+                </div>
+              </div>
+              <div class="lead-time-row">
+                <span class="lead-time-label">Zebra Blinds</span>
+                <div class="lead-time-input">
+                  <input type="number" id="zebraMin" min="1" max="30"> - <input type="number" id="zebraMax" min="1" max="30">
+                  <span>business days</span>
+                </div>
+              </div>
+              <div class="lead-time-row">
+                <span class="lead-time-label">Motorized Shades</span>
+                <div class="lead-time-input">
+                  <input type="number" id="motorizedMin" min="1" max="30"> - <input type="number" id="motorizedMax" min="1" max="30">
+                  <span>business days</span>
+                </div>
+              </div>
+              <div class="lead-time-row">
+                <span class="lead-time-label">Roman Shades</span>
+                <div class="lead-time-input">
+                  <input type="number" id="romanMin" min="1" max="30"> - <input type="number" id="romanMax" min="1" max="30">
+                  <span>business days</span>
+                </div>
+              </div>
+              <div class="lead-time-row">
+                <span class="lead-time-label">Custom/Specialty Shapes</span>
+                <div class="lead-time-input">
+                  <input type="number" id="customMin" min="1" max="30"> - <input type="number" id="customMax" min="1" max="30">
+                  <span>business days</span>
+                </div>
+              </div>
+            </div>
+            <div class="settings-card">
+              <h3>Shipping Lead Times</h3>
+              <div class="lead-time-row">
+                <span class="lead-time-label">Standard Ground</span>
+                <div class="lead-time-input">
+                  <input type="number" id="groundMin" min="1" max="14"> - <input type="number" id="groundMax" min="1" max="14">
+                  <span>business days</span>
+                </div>
+              </div>
+              <div class="lead-time-row">
+                <span class="lead-time-label">Express Shipping</span>
+                <div class="lead-time-input">
+                  <input type="number" id="expressMin" min="1" max="14"> - <input type="number" id="expressMax" min="1" max="14">
+                  <span>business days</span>
+                </div>
+              </div>
+              <div class="lead-time-row">
+                <span class="lead-time-label">Samples (USPS)</span>
+                <div class="lead-time-input">
+                  <input type="number" id="samplesMin" min="1" max="14"> - <input type="number" id="samplesMax" min="1" max="14">
+                  <span>business days</span>
+                </div>
+              </div>
+            </div>
+            <div class="settings-card">
+              <h3>Rush Options</h3>
+              <div class="lead-time-row">
+                <span class="lead-time-label">Rush Production Available</span>
+                <div class="lead-time-input">
+                  <input type="checkbox" id="rushEnabled" style="width: auto;">
+                  <span>+$<input type="number" id="rushSurcharge" style="width: 50px;" min="0"> surcharge</span>
+                </div>
+              </div>
+              <div class="lead-time-row">
+                <span class="lead-time-label">Rush Production Time</span>
+                <div class="lead-time-input">
+                  <input type="number" id="rushMin" min="1" max="7"> - <input type="number" id="rushMax" min="1" max="7">
+                  <span>business days</span>
+                </div>
+              </div>
+            </div>
+            <div class="settings-card">
+              <h3>Display Settings</h3>
+              <div class="lead-time-row">
+                <span class="lead-time-label">Show on Product Page</span>
+                <div class="lead-time-input">
+                  <input type="checkbox" id="showOnProduct" style="width: auto;">
+                </div>
+              </div>
+              <div class="lead-time-row">
+                <span class="lead-time-label">Show on Cart Page</span>
+                <div class="lead-time-input">
+                  <input type="checkbox" id="showOnCart" style="width: auto;">
+                </div>
+              </div>
+              <div class="display-preview">
+                <h4>Customer Display Preview</h4>
+                <p id="deliveryPreview">"Estimated delivery: 10-14 business days"</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+  <script>
+    let leadTimesConfig = {};
+
+    document.addEventListener('DOMContentLoaded', () => {
+      if (!localStorage.getItem('admin_token')) { window.location.href = '/admin/login.html'; return; }
+      AdminNavConfig.initSidebar('lead-times');
+      loadLeadTimesConfig();
+      setupPreviewUpdate();
+    });
+
+    async function loadLeadTimesConfig() {
+      const token = localStorage.getItem('admin_token');
+      const headers = { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' };
+
+      try {
+        const res = await fetch('/api/admin/system-config', { headers });
+        const data = await res.json();
+
+        if (data.success && data.data) {
+          leadTimesConfig = data.data.leadTimes || data.data.shipping?.leadTimes || {};
+
+          // Production lead times
+          document.getElementById('rollerMin').value = leadTimesConfig.production?.roller?.min || 5;
+          document.getElementById('rollerMax').value = leadTimesConfig.production?.roller?.max || 7;
+          document.getElementById('zebraMin').value = leadTimesConfig.production?.zebra?.min || 5;
+          document.getElementById('zebraMax').value = leadTimesConfig.production?.zebra?.max || 7;
+          document.getElementById('motorizedMin').value = leadTimesConfig.production?.motorized?.min || 7;
+          document.getElementById('motorizedMax').value = leadTimesConfig.production?.motorized?.max || 10;
+          document.getElementById('romanMin').value = leadTimesConfig.production?.roman?.min || 10;
+          document.getElementById('romanMax').value = leadTimesConfig.production?.roman?.max || 14;
+          document.getElementById('customMin').value = leadTimesConfig.production?.custom?.min || 14;
+          document.getElementById('customMax').value = leadTimesConfig.production?.custom?.max || 21;
+
+          // Shipping lead times
+          document.getElementById('groundMin').value = leadTimesConfig.shipping?.ground?.min || 5;
+          document.getElementById('groundMax').value = leadTimesConfig.shipping?.ground?.max || 7;
+          document.getElementById('expressMin').value = leadTimesConfig.shipping?.express?.min || 2;
+          document.getElementById('expressMax').value = leadTimesConfig.shipping?.express?.max || 3;
+          document.getElementById('samplesMin').value = leadTimesConfig.shipping?.samples?.min || 3;
+          document.getElementById('samplesMax').value = leadTimesConfig.shipping?.samples?.max || 5;
+
+          // Rush options
+          document.getElementById('rushEnabled').checked = leadTimesConfig.rush?.enabled !== false;
+          document.getElementById('rushSurcharge').value = leadTimesConfig.rush?.surcharge || 50;
+          document.getElementById('rushMin').value = leadTimesConfig.rush?.min || 3;
+          document.getElementById('rushMax').value = leadTimesConfig.rush?.max || 5;
+
+          // Display settings
+          document.getElementById('showOnProduct').checked = leadTimesConfig.display?.showOnProduct !== false;
+          document.getElementById('showOnCart').checked = leadTimesConfig.display?.showOnCart !== false;
+
+          document.getElementById('loadingState').style.display = 'none';
+          document.getElementById('contentArea').style.display = 'block';
+          updatePreview();
+        } else {
+          setDefaults();
+        }
+      } catch (error) {
+        console.error('Error loading lead times config:', error);
+        setDefaults();
+      }
+    }
+
+    function setDefaults() {
+      document.getElementById('rollerMin').value = 5;
+      document.getElementById('rollerMax').value = 7;
+      document.getElementById('zebraMin').value = 5;
+      document.getElementById('zebraMax').value = 7;
+      document.getElementById('motorizedMin').value = 7;
+      document.getElementById('motorizedMax').value = 10;
+      document.getElementById('romanMin').value = 10;
+      document.getElementById('romanMax').value = 14;
+      document.getElementById('customMin').value = 14;
+      document.getElementById('customMax').value = 21;
+      document.getElementById('groundMin').value = 5;
+      document.getElementById('groundMax').value = 7;
+      document.getElementById('expressMin').value = 2;
+      document.getElementById('expressMax').value = 3;
+      document.getElementById('samplesMin').value = 3;
+      document.getElementById('samplesMax').value = 5;
+      document.getElementById('rushEnabled').checked = true;
+      document.getElementById('rushSurcharge').value = 50;
+      document.getElementById('rushMin').value = 3;
+      document.getElementById('rushMax').value = 5;
+      document.getElementById('showOnProduct').checked = true;
+      document.getElementById('showOnCart').checked = true;
+
+      document.getElementById('loadingState').style.display = 'none';
+      document.getElementById('contentArea').style.display = 'block';
+      updatePreview();
+    }
+
+    function setupPreviewUpdate() {
+      document.querySelectorAll('input').forEach(input => {
+        input.addEventListener('change', updatePreview);
+      });
+    }
+
+    function updatePreview() {
+      const prodMin = parseInt(document.getElementById('rollerMin').value) || 5;
+      const prodMax = parseInt(document.getElementById('rollerMax').value) || 7;
+      const shipMin = parseInt(document.getElementById('groundMin').value) || 5;
+      const shipMax = parseInt(document.getElementById('groundMax').value) || 7;
+      const totalMin = prodMin + shipMin;
+      const totalMax = prodMax + shipMax;
+      document.getElementById('deliveryPreview').textContent = `"Estimated delivery: ${totalMin}-${totalMax} business days"`;
+    }
+
+    async function saveSettings() {
+      const token = localStorage.getItem('admin_token');
+      const headers = { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' };
+
+      const updatedConfig = {
+        production: {
+          roller: { min: parseInt(document.getElementById('rollerMin').value), max: parseInt(document.getElementById('rollerMax').value) },
+          zebra: { min: parseInt(document.getElementById('zebraMin').value), max: parseInt(document.getElementById('zebraMax').value) },
+          motorized: { min: parseInt(document.getElementById('motorizedMin').value), max: parseInt(document.getElementById('motorizedMax').value) },
+          roman: { min: parseInt(document.getElementById('romanMin').value), max: parseInt(document.getElementById('romanMax').value) },
+          custom: { min: parseInt(document.getElementById('customMin').value), max: parseInt(document.getElementById('customMax').value) }
+        },
+        shipping: {
+          ground: { min: parseInt(document.getElementById('groundMin').value), max: parseInt(document.getElementById('groundMax').value) },
+          express: { min: parseInt(document.getElementById('expressMin').value), max: parseInt(document.getElementById('expressMax').value) },
+          samples: { min: parseInt(document.getElementById('samplesMin').value), max: parseInt(document.getElementById('samplesMax').value) }
+        },
+        rush: {
+          enabled: document.getElementById('rushEnabled').checked,
+          surcharge: parseFloat(document.getElementById('rushSurcharge').value) || 50,
+          min: parseInt(document.getElementById('rushMin').value),
+          max: parseInt(document.getElementById('rushMax').value)
+        },
+        display: {
+          showOnProduct: document.getElementById('showOnProduct').checked,
+          showOnCart: document.getElementById('showOnCart').checked
+        }
+      };
+
+      try {
+        const res = await fetch('/api/admin/system-config/leadTimes', {
+          method: 'PUT',
+          headers,
+          body: JSON.stringify(updatedConfig)
+        });
+        const data = await res.json();
+
+        if (data.success) {
+          Admin.Toast.success('Lead time settings saved successfully');
+        } else {
+          Admin.Toast.error('Failed to save: ' + (data.error || 'Unknown error'));
+        }
+      } catch (error) {
+        console.error('Error saving lead times config:', error);
+        Admin.Toast.error('Error saving lead time settings');
+      }
+    }
+  </script>
+</body>
+</html>

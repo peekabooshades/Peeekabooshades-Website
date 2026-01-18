@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sample Inventory - Peekaboo Shades Admin</title>
+  <link rel="stylesheet" href="/admin/css/admin.css?v=1737200003.0.28">
+  <script src="/admin/js/adminNavConfig.js?v=1737200002"></script>
+  <style>
+    .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
+    .stat-card { background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+    .stat-card h3 { font-size: 0.85rem; color: #666; margin-bottom: 0.5rem; }
+    .stat-card .value { font-size: 2rem; font-weight: 700; color: #8E6545; }
+    .stat-card .change { font-size: 0.85rem; margin-top: 0.25rem; }
+    .change-up { color: #10B981; }
+    .change-down { color: #EF4444; }
+    .controls { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem; }
+    .search-box { padding: 0.75rem 1rem; border: 1px solid #ddd; border-radius: 8px; width: 300px; }
+    .filter-select { padding: 0.75rem 1rem; border: 1px solid #ddd; border-radius: 8px; }
+    .inventory-table { background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+    table { width: 100%; border-collapse: collapse; }
+    th { background: #f9f9f9; padding: 1rem; text-align: left; font-weight: 600; font-size: 0.85rem; color: #666; text-transform: uppercase; }
+    td { padding: 1rem; border-top: 1px solid #eee; }
+    .fabric-cell { display: flex; align-items: center; gap: 0.75rem; }
+    .fabric-swatch { width: 40px; height: 40px; border-radius: 6px; border: 1px solid #ddd; object-fit: cover; background: #f5f5f5; }
+    .fabric-info { display: flex; flex-direction: column; }
+    .fabric-name { font-weight: 500; }
+    .fabric-code { font-size: 0.8rem; color: #666; }
+    .stock-level { display: flex; align-items: center; gap: 0.5rem; }
+    .stock-bar { width: 80px; height: 8px; background: #e0e0e0; border-radius: 4px; overflow: hidden; }
+    .stock-fill { height: 100%; border-radius: 4px; }
+    .stock-fill.high { background: #10B981; }
+    .stock-fill.medium { background: #F59E0B; }
+    .stock-fill.low { background: #EF4444; }
+    .stock-badge { padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.75rem; font-weight: 600; }
+    .badge-high { background: #D1FAE5; color: #065F46; }
+    .badge-medium { background: #FEF3C7; color: #92400E; }
+    .badge-low { background: #FEE2E2; color: #991B1B; }
+    .btn-action { padding: 0.4rem 0.75rem; border: none; border-radius: 4px; cursor: pointer; font-size: 0.8rem; margin-right: 0.25rem; }
+    .btn-restock { background: #8E6545; color: white; }
+    .btn-adjust { background: #E5E7EB; color: #374151; }
+    .modal { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; }
+    .modal.active { display: flex; }
+    .modal-content { background: white; border-radius: 12px; padding: 2rem; max-width: 500px; width: 90%; }
+    .modal-header { display: flex; justify-content: space-between; margin-bottom: 1.5rem; }
+    .modal-header h2 { margin: 0; }
+    .modal-close { background: none; border: none; font-size: 1.5rem; cursor: pointer; }
+    .form-group { margin-bottom: 1.25rem; }
+    .form-group label { display: block; margin-bottom: 0.5rem; font-weight: 500; }
+    .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 0.75rem; border: 1px solid #ddd; border-radius: 8px; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    .btn-submit { width: 100%; padding: 0.875rem; background: #8E6545; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; }
+    .shade-tab {
+      padding: 12px 24px;
+      background: transparent;
+      border: none;
+      font-family: 'Montserrat', sans-serif;
+      font-size: 14px;
+      font-weight: 500;
+      color: #666;
+      cursor: pointer;
+      position: relative;
+      transition: all 0.2s;
+    }
+    .shade-tab:hover { color: #8E6545; }
+    .shade-tab.active {
+      color: #8E6545;
+      font-weight: 600;
+    }
+    .shade-tab.active::after {
+      content: '';
+      position: absolute;
+      bottom: -2px;
+      left: 0;
+      right: 0;
+      height: 3px;
+      background: #8E6545;
+      border-radius: 2px 2px 0 0;
+    }
+    .shade-count {
+      display: inline-block;
+      background: #e0e0e0;
+      color: #666;
+      font-size: 11px;
+      padding: 2px 8px;
+      border-radius: 10px;
+      margin-left: 6px;
+    }
+    .shade-tab.active .shade-count {
+      background: #8E6545;
+      color: white;
+    }
+  </style>
+</head>
+<body>
+  <div class="admin-layout">
+    <aside class="admin-sidebar"></aside>
+    <main class="admin-main">
+      <header class="admin-header">
+        <h1>Sample Inventory</h1>
+        <div class="header-actions">
+          <button class="btn-primary" onclick="openRestockModal()">+ Restock Order</button>
+        </div>
+      </header>
+      <div class="admin-content">
+        <div class="stats">
+          <div class="stat-card"><h3>Total Samples</h3><div class="value" id="stat-total">0</div></div>
+          <div class="stat-card"><h3>Low Stock</h3><div class="value" id="stat-low">0</div><div class="change change-down">Needs attention</div></div>
+          <div class="stat-card"><h3>Out of Stock</h3><div class="value" id="stat-out">0</div></div>
+          <div class="stat-card"><h3>Sent This Month</h3><div class="value" id="stat-sent">0</div></div>
+        </div>
+        <div class="shade-tabs" style="display: flex; gap: 0; margin-bottom: 1.5rem; border-bottom: 2px solid #e0e0e0;">
+          <button class="shade-tab active" data-type="all" onclick="setShadeType('all')">All Shades</button>
+          <button class="shade-tab" data-type="roller" onclick="setShadeType('roller')">Roller Shades</button>
+          <button class="shade-tab" data-type="zebra" onclick="setShadeType('zebra')">Zebra Shades</button>
+          <button class="shade-tab" data-type="roman" onclick="setShadeType('roman')">Roman Shades</button>
+          <button class="shade-tab" data-type="honeycomb" onclick="setShadeType('honeycomb')">Honeycomb Shades</button>
+        </div>
+        <div class="controls">
+          <input type="text" class="search-box" id="searchInput" placeholder="Search samples..." oninput="filterSamples()">
+          <select class="filter-select" id="stockFilter" onchange="filterSamples()">
+            <option value="all">All Stock Levels</option>
+            <option value="high">In Stock</option>
+            <option value="medium">Low Stock</option>
+            <option value="low">Critical</option>
+            <option value="out">Out of Stock</option>
+          </select>
+        </div>
+        <div class="inventory-table">
+          <table>
+            <thead>
+              <tr>
+                <th>Fabric</th>
+                <th>SKU</th>
+                <th>In Stock</th>
+                <th>Reserved</th>
+                <th>Reorder Point</th>
+                <th>Last Restocked</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="inventoryBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </main>
+  </div>
+  <div class="modal" id="restockModal">
+    <div class="modal-content">
+      <div class="modal-header"><h2 id="modalTitle">Restock Samples</h2><button class="modal-close" onclick="closeModal()">&times;</button></div>
+      <form onsubmit="submitRestock(event)">
+        <input type="hidden" id="restockId">
+        <div class="form-group">
+          <label>Select Fabric</label>
+          <select id="fabricSelect" required></select>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Current Stock</label>
+            <input type="number" id="currentStock" disabled>
+          </div>
+          <div class="form-group">
+            <label>Add Quantity</label>
+            <input type="number" id="addQuantity" required min="1" value="50">
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Reorder Point</label>
+          <input type="number" id="reorderPoint" min="1" value="20">
+        </div>
+        <div class="form-group">
+          <label>Notes</label>
+          <textarea id="restockNotes" rows="2" placeholder="Optional notes..."></textarea>
+        </div>
+        <button type="submit" class="btn-submit">Submit Restock</button>
+      </form>
+    </div>
+  </div>
+  <script>
+    let inventory = [];
+    let currentShadeType = 'all';
+
+    document.addEventListener('DOMContentLoaded', () => {
+      if (!localStorage.getItem('admin_token')) { window.location.href = '/admin/login.html'; return; }
+      AdminNavConfig.initSidebar('sample-inventory');
+      loadInventory();
+    });
+
+    async function loadInventory() {
+      const token = localStorage.getItem('admin_token');
+      const headers = { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' };
+
+      try {
+        const res = await fetch('/api/admin/sample-inventory', { headers });
+        const data = await res.json();
+
+        if (data.success) {
+          inventory = data.inventory || data.data || [];
+        } else {
+          inventory = [];
+        }
+      } catch (error) {
+        console.error('Error loading inventory:', error);
+        inventory = [];
+      }
+      updateStats();
+      updateTabCounts();
+      renderInventory();
+      updateFabricSelect();
+    }
+
+    function setShadeType(type) {
+      currentShadeType = type;
+      document.querySelectorAll('.shade-tab').forEach(tab => {
+        tab.classList.toggle('active', tab.dataset.type === type);
+      });
+      updateStats();
+      renderInventory();
+    }
+
+    function updateTabCounts() {
+      const counts = {
+        all: inventory.length,
+        roller: inventory.filter(i => i.shadeType === 'roller').length,
+        zebra: inventory.filter(i => i.shadeType === 'zebra').length,
+        roman: inventory.filter(i => i.shadeType === 'roman').length,
+        honeycomb: inventory.filter(i => i.shadeType === 'honeycomb').length
+      };
+      document.querySelectorAll('.shade-tab').forEach(tab => {
+        const type = tab.dataset.type;
+        const count = counts[type] || 0;
+        const existingCount = tab.querySelector('.shade-count');
+        if (existingCount) existingCount.remove();
+        if (count > 0 || type === 'all') {
+          tab.innerHTML += `<span class="shade-count">${count}</span>`;
+        }
+      });
+    }
+
+    function getFilteredByShadeType() {
+      if (currentShadeType === 'all') return inventory;
+      return inventory.filter(i => i.shadeType === currentShadeType);
+    }
+
+    function getStockLevel(item) {
+      if (item.stock === 0) return 'out';
+      if (item.stock <= item.reorderPoint / 2) return 'low';
+      if (item.stock <= item.reorderPoint) return 'medium';
+      return 'high';
+    }
+
+    function updateStats() {
+      const filtered = getFilteredByShadeType();
+      document.getElementById('stat-total').textContent = filtered.reduce((s, i) => s + i.stock, 0);
+      document.getElementById('stat-low').textContent = filtered.filter(i => getStockLevel(i) === 'low' || getStockLevel(i) === 'medium').length;
+      document.getElementById('stat-out').textContent = filtered.filter(i => i.stock === 0).length;
+      document.getElementById('stat-sent').textContent = filtered.reduce((s, i) => s + i.reserved, 0);
+    }
+
+    function filterSamples() {
+      renderInventory();
+    }
+
+    function renderInventory() {
+      const search = document.getElementById('searchInput').value.toLowerCase();
+      const shadeFiltered = getFilteredByShadeType();
+      const filter = document.getElementById('stockFilter').value;
+
+      let filtered = shadeFiltered.filter(item => {
+        const matchSearch = item.name.toLowerCase().includes(search) || item.sku.toLowerCase().includes(search);
+        const level = getStockLevel(item);
+        const matchFilter = filter === 'all' || (filter === 'out' && level === 'out') || (filter === 'low' && level === 'low') || (filter === 'medium' && level === 'medium') || (filter === 'high' && level === 'high');
+        return matchSearch && matchFilter;
+      });
+
+      document.getElementById('inventoryBody').innerHTML = filtered.map(item => {
+        const level = getStockLevel(item);
+        const stockPercent = Math.min(100, (item.stock / (item.reorderPoint * 3)) * 100);
+        return `
+          <tr>
+            <td>
+              <div class="fabric-cell">
+                <img class="fabric-swatch" src="${item.imageUrl || '/images/placeholder.png'}" alt="${item.name}" onerror="this.style.background='${item.color || '#8E6545'}'; this.src='data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7';">
+                <div class="fabric-info">
+                  <span class="fabric-name">${item.name}</span>
+                  <span class="fabric-code">${item.sku}</span>
+                </div>
+              </div>
+            </td>
+            <td>${item.sku}</td>
+            <td>
+              <div class="stock-level">
+                <div class="stock-bar"><div class="stock-fill ${level}" style="width: ${stockPercent}%;"></div></div>
+                <span class="stock-badge badge-${level === 'out' ? 'low' : level}">${item.stock}</span>
+              </div>
+            </td>
+            <td>${item.reserved}</td>
+            <td>${item.reorderPoint}</td>
+            <td>${formatDate(item.lastRestock)}</td>
+            <td>
+              <button class="btn-action btn-restock" onclick="openRestockModal('${item.id}')">Restock</button>
+              <button class="btn-action btn-adjust" onclick="adjustStock('${item.id}')">Adjust</button>
+            </td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function formatDate(d) { return new Date(d).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }); }
+
+    function updateFabricSelect() {
+      document.getElementById('fabricSelect').innerHTML = '<option value="">Select fabric...</option>' +
+        inventory.map(i => `<option value="${i.id}">${i.name} (${i.sku})</option>`).join('');
+    }
+
+    function openRestockModal(id = null) {
+      const item = id ? inventory.find(i => i.id === id) : null;
+      document.getElementById('restockId').value = id || '';
+      document.getElementById('fabricSelect').value = id || '';
+      document.getElementById('currentStock').value = item ? item.stock : '';
+      document.getElementById('addQuantity').value = 50;
+      document.getElementById('reorderPoint').value = item ? item.reorderPoint : 20;
+      document.getElementById('restockNotes').value = '';
+      document.getElementById('modalTitle').textContent = item ? `Restock ${item.name}` : 'Restock Samples';
+      document.getElementById('restockModal').classList.add('active');
+
+      document.getElementById('fabricSelect').onchange = function() {
+        const selected = inventory.find(i => i.id === this.value);
+        document.getElementById('currentStock').value = selected ? selected.stock : '';
+        document.getElementById('reorderPoint').value = selected ? selected.reorderPoint : 20;
+      };
+    }
+
+    function closeModal() { document.getElementById('restockModal').classList.remove('active'); }
+
+    async function adjustStock(id) {
+      const item = inventory.find(i => i.id === id);
+      const newStock = prompt(`Adjust stock for ${item.name}.\nCurrent: ${item.stock}\nEnter new stock level:`, item.stock);
+      if (newStock !== null && !isNaN(newStock)) {
+        const token = localStorage.getItem('admin_token');
+        const headers = { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' };
+
+        try {
+          const res = await fetch(`/api/admin/sample-inventory/${id}`, {
+            method: 'PUT',
+            headers,
+            body: JSON.stringify({ stock: parseInt(newStock) })
+          });
+          const data = await res.json();
+
+          if (data.success) {
+            item.stock = parseInt(newStock);
+            updateStats();
+            renderInventory();
+          } else {
+            alert('Failed to update stock: ' + (data.error || 'Unknown error'));
+          }
+        } catch (error) {
+          console.error('Error adjusting stock:', error);
+          alert('Error adjusting stock. Please try again.');
+        }
+      }
+    }
+
+    async function submitRestock(e) {
+      e.preventDefault();
+      const id = document.getElementById('fabricSelect').value;
+      const addQty = parseInt(document.getElementById('addQuantity').value);
+      const reorderPoint = parseInt(document.getElementById('reorderPoint').value);
+      const notes = document.getElementById('restockNotes').value;
+
+      const token = localStorage.getItem('admin_token');
+      const headers = { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' };
+
+      try {
+        const res = await fetch(`/api/admin/sample-inventory/${id}/restock`, {
+          method: 'POST',
+          headers,
+          body: JSON.stringify({ addQuantity: addQty, reorderPoint, notes })
+        });
+        const data = await res.json();
+
+        if (data.success) {
+          closeModal();
+          loadInventory();
+          alert(`Restock order submitted successfully`);
+        } else {
+          alert('Failed to submit restock: ' + (data.error || 'Unknown error'));
+        }
+      } catch (error) {
+        console.error('Error submitting restock:', error);
+        alert('Error submitting restock. Please try again.');
+      }
+    }
+
+    document.getElementById('restockModal').addEventListener('click', e => { if (e.target.id === 'restockModal') closeModal(); });
+  </script>
+</body>
+</html>

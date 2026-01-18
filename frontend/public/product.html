@@ -4,6 +4,36 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Product Details - Peekaboo Shades</title>
+  <meta name="description" id="meta-description" content="Custom window blinds and shades from Peekaboo Shades. Configure your perfect window treatment with our easy-to-use product configurator.">
+  <link rel="canonical" id="canonical-link" href="https://peekabooshades.com/product/">
+
+  <!-- JSON-LD Structured Data (Updated dynamically) -->
+  <script type="application/ld+json" id="product-schema">
+  {
+    "@context": "https://schema.org",
+    "@type": "Product",
+    "name": "Custom Window Shades",
+    "description": "Premium custom window treatments",
+    "brand": {
+      "@type": "Brand",
+      "name": "Peekaboo Shades"
+    }
+  }
+  </script>
+
+  <!-- Breadcrumb Schema -->
+  <script type="application/ld+json" id="breadcrumb-schema">
+  {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    "itemListElement": [
+      {"@type": "ListItem", "position": 1, "name": "Home", "item": "https://peekabooshades.com/"},
+      {"@type": "ListItem", "position": 2, "name": "Shop", "item": "https://peekabooshades.com/shop"},
+      {"@type": "ListItem", "position": 3, "name": "Product"}
+    ]
+  }
+  </script>
+
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -755,6 +785,23 @@
       display: flex;
       gap: 12px;
       flex-wrap: wrap;
+    }
+
+    /* Remove any bullet points/dots from options area */
+    .accordion-section ul,
+    .accordion-content ul,
+    .hardware-group ul,
+    .configurator-section ul,
+    .product-right-column ul:not(.nav-menu):not(.footer-links) {
+      list-style: none !important;
+      padding-left: 0 !important;
+      margin-left: 0 !important;
+    }
+
+    .accordion-section li,
+    .accordion-content li,
+    .hardware-group li {
+      list-style: none !important;
     }
 
     .hardware-swatch {
@@ -1897,15 +1944,15 @@
   <div class="top-bar">
     <div class="top-bar-container">
       <div class="top-bar-left">
-        <span><i class="fas fa-phone"></i> 1-800-PEEKABOO</span>
-        <span><i class="fas fa-envelope"></i> info@peekabooshades.com</span>
+        <span><i class="fas fa-phone"></i> +1 929-465-9549</span>
+        <span><i class="fas fa-envelope"></i> peekabooshades.pro@gmail.com</span>
       </div>
       <div class="top-bar-center">
-        <a href="#">Free Samples</a>
-        <a href="#">Trade</a>
+        <a href="/samples.html" title="Order free fabric samples">Free Samples</a>
+        <a href="/dealer/" title="Dealer/Trade Program">Trade</a>
       </div>
       <div class="top-bar-right">
-        <a href="#"><i class="far fa-user"></i></a>
+        <a href="javascript:void(0)" onclick="showToast('Customer accounts coming soon!', 'info')" title="Account coming soon" style="opacity:0.5"><i class="far fa-user"></i></a>
         <a href="/cart"><i class="fas fa-shopping-cart"></i></a>
       </div>
     </div>
@@ -1921,11 +1968,11 @@
       <nav class="main-nav">
         <ul>
           <li><a href="/shop">Windows Blinds & Shades <i class="fas fa-chevron-down"></i></a></li>
-          <li><a href="#">Curtains</a></li>
-          <li><a href="#">Look up My Order</a></li>
-          <li><a href="#">Bulk Orders/Wholesale</a></li>
-          <li><a href="#">Contact Us</a></li>
-          <li><a href="#">My Account</a></li>
+          <li><a href="javascript:void(0)" onclick="showToast('Curtains coming soon!', 'info')" style="opacity:0.6" title="Coming soon">Curtains</a></li>
+          <li><a href="javascript:void(0)" onclick="showToast('Order tracking requires an account. Contact us for order status.', 'info')" title="Contact us for order status">Look up My Order</a></li>
+          <li><a href="/dealer/" title="Dealer Portal for wholesale orders">Bulk Orders/Wholesale</a></li>
+          <li><a href="/contact.html">Contact Us</a></li>
+          <li><a href="javascript:void(0)" onclick="showToast('Customer accounts coming soon!', 'info')" style="opacity:0.6" title="Coming soon">My Account</a></li>
         </ul>
       </nav>
 
@@ -1935,7 +1982,7 @@
           <i class="fas fa-search"></i>
         </div>
         <div class="header-icons">
-          <a href="#" class="header-icon"><i class="far fa-heart"></i></a>
+          <a href="javascript:void(0)" class="header-icon" onclick="showToast('Wishlist coming soon!', 'info')" title="Wishlist coming soon" style="opacity:0.5"><i class="far fa-heart"></i></a>
           <a href="/cart" class="header-icon">
             <i class="fas fa-shopping-cart"></i>
             <span class="cart-count" id="cartCount">0</span>
@@ -3123,9 +3170,9 @@
           <span class="product-details-icon">+</span>
         </button>
         <div class="product-details-body">
-          <div class="details-content">
+          <div class="details-content" id="productDetailsContent">
             <h4>Features</h4>
-            <ul>
+            <ul id="productFeaturesList">
               <li>Custom-made to your exact measurements</li>
               <li>Premium quality materials</li>
               <li>Easy to install with included hardware</li>
@@ -3133,9 +3180,9 @@
               <li>Energy efficient design</li>
             </ul>
             <h4>Care Instructions</h4>
-            <p>Dust regularly with a soft cloth or vacuum with brush attachment. Spot clean with mild soap and water. Do not machine wash or dry clean.</p>
+            <p id="careInstructions">Dust regularly with a soft cloth or vacuum with brush attachment. Spot clean with mild soap and water. Do not machine wash or dry clean.</p>
             <h4>Warranty</h4>
-            <p>All products come with a standard 1-year warranty. Extended 3-year warranty available at checkout.</p>
+            <p id="warrantyInfo">All products come with a standard 1-year warranty. Extended 3-year warranty available at checkout.</p>
           </div>
         </div>
       </div>
@@ -3147,18 +3194,18 @@
           <span class="product-details-icon">+</span>
         </button>
         <div class="product-details-body" style="max-height: none;">
-          <div class="details-content catalog-content">
+          <div class="details-content catalog-content" id="catalogContent">
 
             <!-- Product Features -->
-            <div class="catalog-section">
+            <div class="catalog-section" id="catalogFeatures">
               <h4>Product Features</h4>
-              <p>The eco-friendly and durable fabric is made into a variety of shading effects: <strong>transparent, semi-blackout, and full blackout</strong>, with unique design and functions of insulation, dust-proof, shading and light filtering, which is becoming a new favorite in home decoration.</p>
+              <p id="catalogFeaturesText">The eco-friendly and durable fabric is made into a variety of shading effects: <strong>transparent, semi-blackout, and full blackout</strong>, with unique design and functions of insulation, dust-proof, shading and light filtering, which is becoming a new favorite in home decoration.</p>
             </div>
 
             <!-- Available Valance Options -->
-            <div class="catalog-section">
+            <div class="catalog-section" id="catalogValance">
               <h4>Available Valance Options</h4>
-              <div class="catalog-grid">
+              <div class="catalog-grid" id="valanceGrid">
                 <div class="catalog-item">
                   <strong>Fabric Wrapped SA</strong>
                   <span>Square design with exclusive controller</span>
@@ -3188,13 +3235,13 @@
                   <span>Burliness finish option</span>
                 </div>
               </div>
-              <p style="margin-top: 15px;"><strong>Side Cover Colors:</strong> White, Gray, Black</p>
+              <p style="margin-top: 15px;" id="sideCoverColors"><strong>Side Cover Colors:</strong> White, Gray, Black</p>
             </div>
 
             <!-- Bottom Rail Options -->
-            <div class="catalog-section">
+            <div class="catalog-section" id="catalogBottomRail">
               <h4>Bottom Rail Options</h4>
-              <div class="catalog-grid">
+              <div class="catalog-grid" id="bottomRailGrid">
                 <div class="catalog-item">
                   <strong>Type A</strong>
                   <span>Streamlined water-drop design</span>
@@ -3219,9 +3266,9 @@
             </div>
 
             <!-- Configuration Features -->
-            <div class="catalog-section">
+            <div class="catalog-section" id="catalogConfig">
               <h4>Configuration Features</h4>
-              <ul>
+              <ul id="configFeaturesList">
                 <li><strong>Rectangular:</strong> Standard window shape</li>
                 <li><strong>Sloping Cill:</strong> Fabric cut at an angle (Note: blind cannot be fully retracted)</li>
                 <li><strong>Multiple Linked:</strong> Single motor operates two or more blinds</li>
@@ -3231,9 +3278,9 @@
             </div>
 
             <!-- Light Blocker Options -->
-            <div class="catalog-section">
+            <div class="catalog-section" id="catalogLightBlocker">
               <h4>Light Blocker Options</h4>
-              <div class="catalog-grid">
+              <div class="catalog-grid" id="lightBlockerGrid">
                 <div class="catalog-item">
                   <strong>Aluminium U Shape</strong>
                   <span>White, Gray, Black</span>
@@ -3246,107 +3293,111 @@
             </div>
 
             <!-- Product Type Specifications -->
-            <div class="catalog-section">
+            <div class="catalog-section" id="catalogProductType">
               <h4>Product Type Specifications</h4>
-              <table class="catalog-table">
-                <thead>
-                  <tr>
-                    <th>Type</th>
-                    <th>Products</th>
-                    <th>Width</th>
-                    <th>Light Gap</th>
-                    <th>Installation</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td>Simple</td>
-                    <td>Roller Blinds, Shangri-la Blinds</td>
-                    <td>0.3~1.5m</td>
-                    <td>~3.3cm</td>
-                    <td>Most walls</td>
-                  </tr>
-                  <tr>
-                    <td>Curved Plus</td>
-                    <td>Roller Blinds, Zebra Blinds, Shangri-la Blinds</td>
-                    <td>0.3~1.8m</td>
-                    <td>~4.5cm</td>
-                    <td>All walls</td>
-                  </tr>
-                </tbody>
-              </table>
+              <div id="productTypeTable">
+                <table class="catalog-table">
+                  <thead>
+                    <tr>
+                      <th>Type</th>
+                      <th>Products</th>
+                      <th>Width</th>
+                      <th>Light Gap</th>
+                      <th>Installation</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>Simple</td>
+                      <td>Roller Blinds, Shangri-la Blinds</td>
+                      <td>0.3~1.5m</td>
+                      <td>~3.3cm</td>
+                      <td>Most walls</td>
+                    </tr>
+                    <tr>
+                      <td>Curved Plus</td>
+                      <td>Roller Blinds, Zebra Blinds, Shangri-la Blinds</td>
+                      <td>0.3~1.8m</td>
+                      <td>~4.5cm</td>
+                      <td>All walls</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
             </div>
 
             <!-- Customizable Size Chart -->
-            <div class="catalog-section">
+            <div class="catalog-section" id="catalogSizeChart">
               <h4>Customizable Size Chart</h4>
-              <table class="catalog-table">
-                <thead>
-                  <tr>
-                    <th>Valance Type</th>
-                    <th>Width (cm)</th>
-                    <th>Height (cm)</th>
-                    <th>Fabric Deduction</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td>Simple Rolling (Bead Chain)</td>
-                    <td>50-230</td>
-                    <td>50-300</td>
-                    <td>-2.7cm</td>
-                  </tr>
-                  <tr>
-                    <td>Simple Rolling (Cordless 38 tube)</td>
-                    <td>30-230</td>
-                    <td>50-250</td>
-                    <td>-2.7cm</td>
-                  </tr>
-                  <tr>
-                    <td>Curved Plus (Bead Chain)</td>
-                    <td>50-230</td>
-                    <td>50-430</td>
-                    <td>-2.5cm</td>
-                  </tr>
-                  <tr>
-                    <td>S1 Fabric Inserted</td>
-                    <td>50-230</td>
-                    <td>50-260</td>
-                    <td>-2.5cm</td>
-                  </tr>
-                  <tr>
-                    <td>V2 Square Valance</td>
-                    <td>50-230</td>
-                    <td>50-320</td>
-                    <td>-2.3cm</td>
-                  </tr>
-                  <tr>
-                    <td>S2/S3 Curved Fabric Wrapped</td>
-                    <td>50-230</td>
-                    <td>50-350</td>
-                    <td>-2.8cm</td>
-                  </tr>
-                  <tr>
-                    <td>Z1 Day & Night Valance</td>
-                    <td>50-230</td>
-                    <td>50-260</td>
-                    <td>-2.3cm</td>
-                  </tr>
-                  <tr>
-                    <td>Z2 Square Day & Night</td>
-                    <td>50-230</td>
-                    <td>50-320</td>
-                    <td>-3.3cm</td>
-                  </tr>
-                  <tr>
-                    <td>Z3 Day & Night Valance</td>
-                    <td>50-230</td>
-                    <td>50-250</td>
-                    <td>-2.3cm</td>
-                  </tr>
-                </tbody>
-              </table>
-              <p class="catalog-note"><strong>Note:</strong> Max height limits are tested with thicker fabric. Thinner fabric allows for greater height. The minimum width for AM28 motorized is 65cm.</p>
+              <div id="sizeChartTable">
+                <table class="catalog-table">
+                  <thead>
+                    <tr>
+                      <th>Valance Type</th>
+                      <th>Width (cm)</th>
+                      <th>Height (cm)</th>
+                      <th>Fabric Deduction</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <tr>
+                      <td>Simple Rolling (Bead Chain)</td>
+                      <td>50-230</td>
+                      <td>50-300</td>
+                      <td>-2.7cm</td>
+                    </tr>
+                    <tr>
+                      <td>Simple Rolling (Cordless 38 tube)</td>
+                      <td>30-230</td>
+                      <td>50-250</td>
+                      <td>-2.7cm</td>
+                    </tr>
+                    <tr>
+                      <td>Curved Plus (Bead Chain)</td>
+                      <td>50-230</td>
+                      <td>50-430</td>
+                      <td>-2.5cm</td>
+                    </tr>
+                    <tr>
+                      <td>S1 Fabric Inserted</td>
+                      <td>50-230</td>
+                      <td>50-260</td>
+                      <td>-2.5cm</td>
+                    </tr>
+                    <tr>
+                      <td>V2 Square Valance</td>
+                      <td>50-230</td>
+                      <td>50-320</td>
+                      <td>-2.3cm</td>
+                    </tr>
+                    <tr>
+                      <td>S2/S3 Curved Fabric Wrapped</td>
+                      <td>50-230</td>
+                      <td>50-350</td>
+                      <td>-2.8cm</td>
+                    </tr>
+                    <tr>
+                      <td>Z1 Day & Night Valance</td>
+                      <td>50-230</td>
+                      <td>50-260</td>
+                      <td>-2.3cm</td>
+                    </tr>
+                    <tr>
+                      <td>Z2 Square Day & Night</td>
+                      <td>50-230</td>
+                      <td>50-320</td>
+                      <td>-3.3cm</td>
+                    </tr>
+                    <tr>
+                      <td>Z3 Day & Night Valance</td>
+                      <td>50-230</td>
+                      <td>50-250</td>
+                      <td>-2.3cm</td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+              <p class="catalog-note" id="sizeChartNote"><strong>Note:</strong> Max height limits are tested with thicker fabric. Thinner fabric allows for greater height. The minimum width for AM28 motorized is 65cm.</p>
             </div>
 
           </div>
@@ -3416,9 +3467,9 @@
             Custom Window Blinds & Coverings designed to transform your space. Quality products at affordable prices.
           </p>
           <div class="footer-social">
-            <a href="#" class="social-icon"><i class="fab fa-facebook-f"></i></a>
-            <a href="#" class="social-icon"><i class="fab fa-instagram"></i></a>
-            <a href="#" class="social-icon"><i class="fab fa-twitter"></i></a>
+            <a href="javascript:void(0)" class="social-icon" title="Facebook coming soon" style="opacity:0.5"><i class="fab fa-facebook-f"></i></a>
+            <a href="javascript:void(0)" class="social-icon" title="Instagram coming soon" style="opacity:0.5"><i class="fab fa-instagram"></i></a>
+            <a href="javascript:void(0)" class="social-icon" title="Twitter coming soon" style="opacity:0.5"><i class="fab fa-twitter"></i></a>
           </div>
         </div>
 
@@ -3436,31 +3487,31 @@
         <div class="footer-column">
           <h4>Customer Service</h4>
           <ul>
-            <li><a href="#">Track Order</a></li>
-            <li><a href="#">Returns</a></li>
-            <li><a href="#">Shipping Info</a></li>
-            <li><a href="#">FAQs</a></li>
-            <li><a href="#">Contact Us</a></li>
+            <li><a href="/contact.html" title="Contact us to track your order">Track Order</a></li>
+            <li><a href="/returns.html">Returns</a></li>
+            <li><a href="/shipping.html">Shipping Info</a></li>
+            <li><a href="/page.html?slug=faqs">FAQs</a></li>
+            <li><a href="/contact.html">Contact Us</a></li>
           </ul>
         </div>
 
         <div class="footer-column">
           <h4>Talk To Us</h4>
           <ul>
-            <li><a href="#">About Us</a></li>
-            <li><a href="#">Careers</a></li>
-            <li><a href="#">Press</a></li>
-            <li><a href="#">Blog</a></li>
+            <li><a href="/page.html?slug=about">About Us</a></li>
+            <li><a href="/contact.html" title="Contact us about careers">Careers</a></li>
+            <li><a href="/contact.html" title="Press inquiries">Press</a></li>
+            <li><a href="/guides/">Blog</a></li>
           </ul>
         </div>
 
         <div class="footer-column">
           <h4>Resources</h4>
           <ul>
-            <li><a href="#">Measuring Guide</a></li>
-            <li><a href="#">Installation</a></li>
-            <li><a href="#">Free Samples</a></li>
-            <li><a href="#">Trade Program</a></li>
+            <li><a href="/guides/how-to-measure-for-blinds.html">Measuring Guide</a></li>
+            <li><a href="/guides/">Installation</a></li>
+            <li><a href="/samples.html" title="Order free fabric samples">Free Samples</a></li>
+            <li><a href="/dealer/">Trade Program</a></li>
           </ul>
         </div>
       </div>
@@ -3468,8 +3519,8 @@
       <div class="footer-bottom">
         <p class="footer-copyright">@ 2024 Peekaboo Shades</p>
         <div class="footer-links">
-          <a href="#">Privacy Policy</a>
-          <a href="#">Terms of Service</a>
+          <a href="/page.html?slug=privacy-policy">Privacy Policy</a>
+          <a href="/page.html?slug=terms-of-service">Terms of Service</a>
         </div>
       </div>
     </div>
@@ -4732,6 +4783,199 @@
       // Update product images if available
       if (product.image_url || (product.gallery_images && product.gallery_images.length > 0)) {
         updateProductGallery(product);
+      }
+
+      // Update SEO elements
+      updateProductSEO(product);
+
+      // ============================================
+      // NEW PRODUCT CONTENT FIELDS
+      // ============================================
+
+      // Display tagline if available
+      if (product.tagline) {
+        const descEl = document.getElementById('productDescription');
+        if (descEl) {
+          const taglineHtml = `<span style="display: block; font-size: 16px; color: #8E6545; font-weight: 500; margin-bottom: 8px;">${product.tagline}</span>`;
+          descEl.insertAdjacentHTML('beforebegin', taglineHtml);
+        }
+      }
+
+      // Display promo badge if available
+      if (product.promo_badge) {
+        const titleEl = document.getElementById('productTitle');
+        if (titleEl) {
+          const badgeHtml = `<span style="display: inline-block; background: linear-gradient(135deg, #dc2626, #ef4444); color: white; padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 600; text-transform: uppercase; margin-left: 10px; vertical-align: middle;">${product.promo_badge}</span>`;
+          titleEl.insertAdjacentHTML('beforeend', badgeHtml);
+        }
+      }
+
+      // Display compare price (strike-through) if available
+      if (product.compare_price && product.compare_price > product.base_price) {
+        const priceEl = document.getElementById('basePrice');
+        if (priceEl && priceEl.parentElement) {
+          const savingsPercent = Math.round((1 - product.base_price / product.compare_price) * 100);
+          const comparePriceHtml = `
+            <span style="text-decoration: line-through; color: #999; font-size: 16px; margin-left: 10px;">$${product.compare_price.toFixed(2)}</span>
+            <span style="background: #22c55e; color: white; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; margin-left: 8px;">Save ${savingsPercent}%</span>
+          `;
+          priceEl.insertAdjacentHTML('afterend', comparePriceHtml);
+        }
+      }
+
+      // Display recommended rooms if available
+      if (product.recommended_rooms && product.recommended_rooms.length > 0) {
+        displayRecommendedRooms(product.recommended_rooms);
+      }
+
+      // Display specs in product details if available
+      if (product.specs) {
+        displayProductSpecs(product.specs);
+      }
+
+      // Display light control options if available
+      if (product.light_control) {
+        displayLightControlOptions(product.light_control);
+      }
+    }
+
+    // Display recommended rooms section
+    function displayRecommendedRooms(rooms) {
+      const roomIcons = {
+        'living-room': 'fa-couch',
+        'bedroom': 'fa-bed',
+        'kitchen': 'fa-utensils',
+        'bathroom': 'fa-bath',
+        'office': 'fa-briefcase',
+        'dining': 'fa-chair',
+        'nursery': 'fa-baby',
+        'basement': 'fa-house-chimney'
+      };
+
+      const roomNames = {
+        'living-room': 'Living Room',
+        'bedroom': 'Bedroom',
+        'kitchen': 'Kitchen',
+        'bathroom': 'Bathroom',
+        'office': 'Office',
+        'dining': 'Dining Room',
+        'nursery': 'Nursery',
+        'basement': 'Basement'
+      };
+
+      const roomsHtml = `
+        <div style="margin-top: 20px; padding: 16px; background: #f9f7f4; border-radius: 10px; border-left: 4px solid #8E6545;">
+          <span style="font-size: 13px; font-weight: 600; color: #333; display: block; margin-bottom: 12px;">
+            <i class="fas fa-check-circle" style="color: #22c55e; margin-right: 6px;"></i>Perfect For
+          </span>
+          <div style="display: flex; flex-wrap: wrap; gap: 10px;">
+            ${rooms.map(room => `
+              <span style="display: inline-flex; align-items: center; gap: 6px; padding: 6px 12px; background: white; border-radius: 20px; font-size: 12px; color: #666; border: 1px solid #e5e7eb;">
+                <i class="fas ${roomIcons[room] || 'fa-home'}" style="color: #8E6545;"></i>
+                ${roomNames[room] || room.replace('-', ' ')}
+              </span>
+            `).join('')}
+          </div>
+        </div>
+      `;
+
+      // Insert after product description
+      const descEl = document.getElementById('productDescription');
+      if (descEl) {
+        descEl.insertAdjacentHTML('afterend', roomsHtml);
+      }
+    }
+
+    // Display product specs - DISABLED
+    function displayProductSpecs(specs) {
+      return; // Quick Specs section removed per user request
+    }
+
+    // Display light control options
+    function displayLightControlOptions(lightControl) {
+      if (!lightControl) return;
+
+      const options = [];
+      if (lightControl.lightFiltering) options.push('Light Filtering');
+      if (lightControl.roomDarkening) options.push('Room Darkening');
+      if (lightControl.blackout) options.push('Blackout');
+
+      if (options.length === 0) return;
+
+      // This info could be displayed in shade style section or as badges
+      console.log('Light control options available:', options);
+    }
+
+    // Update SEO meta tags, title, and JSON-LD schema
+    function updateProductSEO(product) {
+      const productType = product.category_name || 'Window Shades';
+      const slug = product.slug || '';
+
+      // Update page title
+      document.title = `${product.name} | Custom ${productType} | Peekaboo Shades`;
+
+      // Update meta description
+      const metaDesc = document.getElementById('meta-description');
+      if (metaDesc) {
+        const description = product.description
+          ? product.description.substring(0, 155) + (product.description.length > 155 ? '...' : '')
+          : `Shop ${product.name} - premium custom ${productType.toLowerCase()} starting at $${product.base_price}. Free shipping on orders over $199.`;
+        metaDesc.setAttribute('content', description);
+      }
+
+      // Update canonical URL
+      const canonical = document.getElementById('canonical-link');
+      if (canonical) {
+        canonical.setAttribute('href', `https://peekabooshades.com/product/${slug}`);
+      }
+
+      // Update Product Schema
+      const productSchema = document.getElementById('product-schema');
+      if (productSchema) {
+        const schema = {
+          "@context": "https://schema.org",
+          "@type": "Product",
+          "name": product.name,
+          "description": product.description || `Premium custom ${productType.toLowerCase()} from Peekaboo Shades`,
+          "image": product.image_url ? `https://peekabooshades.com${product.image_url}` : undefined,
+          "brand": {
+            "@type": "Brand",
+            "name": "Peekaboo Shades"
+          },
+          "sku": product.id,
+          "category": productType,
+          "offers": {
+            "@type": "Offer",
+            "url": `https://peekabooshades.com/product/${slug}`,
+            "priceCurrency": "USD",
+            "price": product.base_price,
+            "priceValidUntil": new Date(Date.now() + 30 * 24 * 60 * 60 * 1000).toISOString().split('T')[0],
+            "availability": product.stock_status === 'out_of_stock'
+              ? "https://schema.org/OutOfStock"
+              : "https://schema.org/InStock",
+            "seller": {
+              "@type": "Organization",
+              "name": "Peekaboo Shades"
+            }
+          }
+        };
+        productSchema.textContent = JSON.stringify(schema);
+      }
+
+      // Update Breadcrumb Schema
+      const breadcrumbSchema = document.getElementById('breadcrumb-schema');
+      if (breadcrumbSchema) {
+        const categorySlug = product.category_slug || 'shop';
+        const schema = {
+          "@context": "https://schema.org",
+          "@type": "BreadcrumbList",
+          "itemListElement": [
+            {"@type": "ListItem", "position": 1, "name": "Home", "item": "https://peekabooshades.com/"},
+            {"@type": "ListItem", "position": 2, "name": productType, "item": `https://peekabooshades.com/shop?category=${categorySlug}`},
+            {"@type": "ListItem", "position": 3, "name": product.name, "item": `https://peekabooshades.com/product/${slug}`}
+          ]
+        };
+        breadcrumbSchema.textContent = JSON.stringify(schema);
       }
     }
 
@@ -6544,10 +6788,148 @@
       container.style.display = 'flex';
     }
 
+    // Load product specifications from API
+    async function loadProductSpecs() {
+      try {
+        const productSlug = window.location.pathname.split('/').pop();
+
+        // Determine product type from slug
+        let productType = 'roller';
+        if (productSlug.includes('zebra')) productType = 'zebra';
+        else if (productSlug.includes('roman')) productType = 'roman';
+        else if (productSlug.includes('honeycomb')) productType = 'honeycomb';
+
+        const response = await fetch(`/api/specs?productType=${productType}`);
+        if (!response.ok) return;
+
+        const result = await response.json();
+        if (!result.success || !result.data) return;
+
+        const specs = result.data;
+
+        // Update Product Details section
+        if (specs.features && specs.features.length > 0) {
+          const featuresList = document.getElementById('productFeaturesList');
+          if (featuresList) {
+            featuresList.innerHTML = specs.features.map(f => `<li>${escapeHtml(f)}</li>`).join('');
+          }
+        }
+
+        if (specs.careInstructions) {
+          const careEl = document.getElementById('careInstructions');
+          if (careEl) careEl.textContent = specs.careInstructions;
+        }
+
+        if (specs.warranty) {
+          const warrantyEl = document.getElementById('warrantyInfo');
+          if (warrantyEl) warrantyEl.textContent = specs.warranty;
+        }
+
+        // Update Product Catalogs section
+        if (specs.description?.long) {
+          const featuresText = document.getElementById('catalogFeaturesText');
+          if (featuresText) featuresText.innerHTML = specs.description.long;
+        }
+
+        // Update Valance Options
+        if (specs.specifications?.valanceTypes && specs.specifications.valanceTypes.length > 0) {
+          const valanceGrid = document.getElementById('valanceGrid');
+          if (valanceGrid) {
+            valanceGrid.innerHTML = specs.specifications.valanceTypes.map(v => `
+              <div class="catalog-item">
+                <strong>${escapeHtml(v.name || v.code)}</strong>
+                <span>${escapeHtml(v.dimensions || v.tubeSize || '')}</span>
+              </div>
+            `).join('');
+          }
+
+          // Update side cover colors if available
+          if (specs.specifications.sideCoverColors) {
+            const sideCoverEl = document.getElementById('sideCoverColors');
+            if (sideCoverEl) {
+              sideCoverEl.innerHTML = `<strong>Side Cover Colors:</strong> ${specs.specifications.sideCoverColors.map(c => escapeHtml(c.charAt(0).toUpperCase() + c.slice(1))).join(', ')}`;
+            }
+          }
+        }
+
+        // Update Bottom Rail Options
+        if (specs.specifications?.bottomRails && specs.specifications.bottomRails.length > 0) {
+          const bottomRailGrid = document.getElementById('bottomRailGrid');
+          if (bottomRailGrid) {
+            bottomRailGrid.innerHTML = specs.specifications.bottomRails.map(b => `
+              <div class="catalog-item">
+                <strong>${escapeHtml(b.name || b.code)}</strong>
+                <span>${b.colors ? escapeHtml(b.colors.map(c => c.charAt(0).toUpperCase() + c.slice(1)).join(', ')) : ''}</span>
+              </div>
+            `).join('');
+          }
+        }
+
+        // Update Roll Types as Configuration Features
+        if (specs.specifications?.rollTypes) {
+          const configList = document.getElementById('configFeaturesList');
+          if (configList) {
+            let configItems = [];
+            specs.specifications.rollTypes.forEach(rt => {
+              if (rt.toLowerCase().includes('forward')) {
+                configItems.push(`<li><strong>Forward Roll:</strong> Fabric rolls off the back, closest to glazing</li>`);
+              } else if (rt.toLowerCase().includes('reverse')) {
+                configItems.push(`<li><strong>Reverse Roll:</strong> Fabric rolls off the front, extra clearance for window handles</li>`);
+              }
+            });
+            configItems.push(`<li><strong>Rectangular:</strong> Standard window shape</li>`);
+            configItems.push(`<li><strong>Multiple Linked:</strong> Single motor operates two or more blinds</li>`);
+            configList.innerHTML = configItems.join('');
+          }
+        }
+
+        // Update Light Blocker Options
+        if (specs.specifications?.lightBlocker) {
+          const lightBlockerGrid = document.getElementById('lightBlockerGrid');
+          if (lightBlockerGrid && specs.specifications.lightBlocker.types) {
+            lightBlockerGrid.innerHTML = specs.specifications.lightBlocker.types.map(t => `
+              <div class="catalog-item">
+                <strong>${escapeHtml(t)}</strong>
+                <span>${specs.specifications.lightBlocker.colors ? escapeHtml(specs.specifications.lightBlocker.colors.map(c => c.charAt(0).toUpperCase() + c.slice(1)).join(', ')) : ''}</span>
+              </div>
+            `).join('');
+          }
+        }
+
+        // Update Size Chart with dimensions from specs
+        if (specs.specifications?.dimensions) {
+          const dims = specs.specifications.dimensions;
+          const minW = dims.minWidth?.value || 30;
+          const maxW = dims.maxWidth?.value || 300;
+          const minH = dims.minHeight?.value || 50;
+          const maxH = dims.maxHeight?.value || 430;
+
+          // Update note with actual specs
+          const sizeNote = document.getElementById('sizeChartNote');
+          if (sizeNote) {
+            const minArea = specs.specifications.minimumArea;
+            let noteText = `<strong>Note:</strong> Size range: ${minW}-${maxW}cm (width) x ${minH}-${maxH}cm (height).`;
+            if (minArea) {
+              noteText += ` Minimum billable area: ${minArea.value} ${minArea.unit}.`;
+            }
+            if (result.commonSpecs?.motors?.minWidthForAM28Motor) {
+              noteText += ` Minimum width for AM28 motorized: ${result.commonSpecs.motors.minWidthForAM28Motor}.`;
+            }
+            sizeNote.innerHTML = noteText;
+          }
+        }
+
+        console.log('Product specs loaded from API:', productType);
+      } catch (error) {
+        console.log('Specs API not available, using default content:', error.message);
+      }
+    }
+
     // Load content when DOM is ready
     document.addEventListener('DOMContentLoaded', function() {
       loadProductContent();
       loadPageSections();
+      loadProductSpecs();
     });
 
     // Load page sections from the page builder

@@ -1,0 +1,934 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Technician Availability - Peekaboo Shades Admin</title>
+  <link rel="stylesheet" href="/admin/css/admin.css?v=1737200003.0.28">
+  <script src="/admin/js/adminNavConfig.js?v=1737200002"></script>
+  <style>
+    .page-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2rem;
+    }
+
+    .header-actions {
+      display: flex;
+      gap: 1rem;
+    }
+
+    .btn {
+      padding: 0.75rem 1.5rem;
+      border-radius: 10px;
+      font-weight: 600;
+      cursor: pointer;
+      border: none;
+      font-family: inherit;
+      transition: all 0.2s;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #8E6545 0%, #A67C5B 100%);
+      color: white;
+    }
+
+    .btn-outline {
+      background: white;
+      border: 2px solid #e5e7eb;
+      color: #374151;
+    }
+
+    .btn-outline:hover {
+      border-color: #8E6545;
+      color: #8E6545;
+    }
+
+    /* Calendar Controls */
+    .calendar-controls {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1.5rem;
+      background: white;
+      padding: 1rem 1.5rem;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    }
+
+    .calendar-nav {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .calendar-nav h2 {
+      font-size: 1.25rem;
+      color: #1f2937;
+      min-width: 200px;
+      text-align: center;
+    }
+
+    .nav-btn {
+      width: 40px;
+      height: 40px;
+      border: 2px solid #e5e7eb;
+      background: white;
+      border-radius: 10px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s;
+    }
+
+    .nav-btn:hover {
+      border-color: #8E6545;
+      color: #8E6545;
+    }
+
+    .nav-btn svg {
+      width: 20px;
+      height: 20px;
+    }
+
+    .view-toggle {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .view-btn {
+      padding: 0.5rem 1rem;
+      border: 2px solid #e5e7eb;
+      background: white;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 0.85rem;
+      font-weight: 500;
+      transition: all 0.2s;
+    }
+
+    .view-btn.active {
+      background: #8E6545;
+      color: white;
+      border-color: #8E6545;
+    }
+
+    /* Availability Grid */
+    .availability-container {
+      background: white;
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+    }
+
+    .availability-header {
+      display: grid;
+      grid-template-columns: 180px repeat(7, 1fr);
+      background: linear-gradient(135deg, #8E6545 0%, #A67C5B 100%);
+      color: white;
+    }
+
+    .header-cell {
+      padding: 1rem;
+      text-align: center;
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+
+    .header-cell.tech-col {
+      text-align: left;
+      border-right: 1px solid rgba(255,255,255,0.2);
+    }
+
+    .header-cell .day-name {
+      display: block;
+      font-size: 0.75rem;
+      opacity: 0.9;
+      margin-bottom: 0.25rem;
+    }
+
+    .header-cell .day-num {
+      font-size: 1.1rem;
+    }
+
+    .header-cell.today {
+      background: rgba(255,255,255,0.2);
+    }
+
+    /* Technician Rows */
+    .tech-row {
+      display: grid;
+      grid-template-columns: 180px repeat(7, 1fr);
+      border-bottom: 1px solid #f0e6df;
+    }
+
+    .tech-row:last-child {
+      border-bottom: none;
+    }
+
+    .tech-row:hover {
+      background: #faf8f6;
+    }
+
+    .tech-info-cell {
+      padding: 1rem;
+      border-right: 1px solid #f0e6df;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .tech-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #8E6545 0%, #A67C5B 100%);
+      color: white;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      font-size: 0.9rem;
+      flex-shrink: 0;
+    }
+
+    .tech-details {
+      min-width: 0;
+    }
+
+    .tech-name {
+      font-weight: 600;
+      color: #1f2937;
+      font-size: 0.9rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .tech-status {
+      font-size: 0.75rem;
+      color: #6b7280;
+    }
+
+    .tech-status.active { color: #059669; }
+    .tech-status.pending { color: #D97706; }
+
+    /* Availability Cells */
+    .avail-cell {
+      padding: 0.5rem;
+      min-height: 80px;
+      border-right: 1px solid #f0e6df;
+      position: relative;
+    }
+
+    .avail-cell:last-child {
+      border-right: none;
+    }
+
+    .avail-cell.today {
+      background: #faf8f6;
+    }
+
+    .slot-list {
+      display: flex;
+      flex-direction: column;
+      gap: 0.25rem;
+    }
+
+    .slot-badge {
+      padding: 0.25rem 0.5rem;
+      border-radius: 4px;
+      font-size: 0.7rem;
+      font-weight: 500;
+      text-align: center;
+      background: #D1FAE5;
+      color: #065F46;
+    }
+
+    .slot-badge.booked {
+      background: #FEE2E2;
+      color: #991B1B;
+      text-decoration: line-through;
+    }
+
+    .no-slots {
+      font-size: 0.75rem;
+      color: #9ca3af;
+      text-align: center;
+      padding: 1rem 0.25rem;
+    }
+
+    .all-day {
+      background: #DBEAFE;
+      color: #1D4ED8;
+      padding: 0.5rem;
+      border-radius: 6px;
+      font-size: 0.75rem;
+      text-align: center;
+    }
+
+    /* Stats */
+    .stats-row {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .stat-card {
+      background: white;
+      border-radius: 12px;
+      padding: 1.5rem;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    }
+
+    .stat-card h3 {
+      font-size: 0.8rem;
+      color: #6b7280;
+      text-transform: uppercase;
+      margin-bottom: 0.5rem;
+    }
+
+    .stat-card .value {
+      font-size: 2rem;
+      font-weight: 700;
+      color: #8E6545;
+    }
+
+    .stat-card .subtitle {
+      font-size: 0.85rem;
+      color: #6b7280;
+      margin-top: 0.25rem;
+    }
+
+    /* Legend */
+    .legend {
+      display: flex;
+      gap: 1.5rem;
+      margin-top: 1rem;
+      padding: 1rem;
+      background: #faf8f6;
+      border-radius: 10px;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.85rem;
+      color: #374151;
+    }
+
+    .legend-dot {
+      width: 12px;
+      height: 12px;
+      border-radius: 3px;
+    }
+
+    .legend-dot.available { background: #D1FAE5; }
+    .legend-dot.booked { background: #FEE2E2; }
+    .legend-dot.all-day { background: #DBEAFE; }
+
+    /* Technician Detail Modal */
+    .modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0,0,0,0.6);
+      z-index: 1000;
+      align-items: center;
+      justify-content: center;
+      backdrop-filter: blur(4px);
+    }
+
+    .modal.active { display: flex; }
+
+    .modal-content {
+      background: white;
+      border-radius: 16px;
+      max-width: 600px;
+      width: 95%;
+      max-height: 90vh;
+      overflow: hidden;
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1.5rem 2rem;
+      background: linear-gradient(135deg, #8E6545 0%, #A67C5B 100%);
+      color: white;
+    }
+
+    .modal-header h2 { font-size: 1.25rem; margin: 0; }
+
+    .modal-close {
+      background: rgba(255,255,255,0.2);
+      border: none;
+      font-size: 1.25rem;
+      cursor: pointer;
+      color: white;
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+    }
+
+    .modal-body {
+      padding: 2rem;
+      max-height: calc(90vh - 80px);
+      overflow-y: auto;
+    }
+
+    .detail-section {
+      margin-bottom: 1.5rem;
+    }
+
+    .detail-section h3 {
+      font-size: 0.9rem;
+      color: #8E6545;
+      text-transform: uppercase;
+      margin-bottom: 1rem;
+      padding-bottom: 0.5rem;
+      border-bottom: 2px solid #f0e6df;
+    }
+
+    .detail-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1rem;
+    }
+
+    .detail-item label {
+      display: block;
+      font-size: 0.75rem;
+      color: #6b7280;
+      margin-bottom: 0.25rem;
+    }
+
+    .detail-item span {
+      font-weight: 500;
+      color: #1f2937;
+    }
+
+    .availability-calendar {
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 0.5rem;
+      margin-top: 1rem;
+    }
+
+    .cal-day {
+      text-align: center;
+      padding: 0.5rem;
+      border-radius: 8px;
+      font-size: 0.8rem;
+    }
+
+    .cal-day.header {
+      font-weight: 600;
+      color: #6b7280;
+    }
+
+    .cal-day.has-slots {
+      background: #D1FAE5;
+      color: #065F46;
+      cursor: pointer;
+    }
+
+    .cal-day.has-slots:hover {
+      background: #A7F3D0;
+    }
+
+    .cal-day.no-slots {
+      background: #f3f4f6;
+      color: #9ca3af;
+    }
+
+    .slots-for-day {
+      margin-top: 1rem;
+      padding: 1rem;
+      background: #faf8f6;
+      border-radius: 10px;
+    }
+
+    .slots-for-day h4 {
+      font-size: 0.9rem;
+      color: #374151;
+      margin-bottom: 0.75rem;
+    }
+
+    .slot-chips {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 0.5rem;
+    }
+
+    .slot-chip {
+      padding: 0.4rem 0.75rem;
+      background: #D1FAE5;
+      color: #065F46;
+      border-radius: 20px;
+      font-size: 0.8rem;
+      font-weight: 500;
+    }
+
+    /* Empty State */
+    .empty-state {
+      text-align: center;
+      padding: 4rem 2rem;
+      color: #6b7280;
+    }
+
+    .empty-state svg {
+      width: 64px;
+      height: 64px;
+      margin-bottom: 1rem;
+      opacity: 0.5;
+    }
+
+    .empty-state h3 {
+      color: #374151;
+      margin-bottom: 0.5rem;
+    }
+  </style>
+</head>
+<body>
+  <div class="admin-layout">
+    <aside class="admin-sidebar"></aside>
+    <main class="admin-main">
+      <header class="admin-header">
+        <h1>Technician Availability</h1>
+        <div class="header-actions">
+          <a href="/admin/appointments.html" class="btn btn-outline">Schedule Appointment</a>
+          <a href="/admin/trade/technicians.html" class="btn btn-primary">Manage Technicians</a>
+        </div>
+      </header>
+      <div class="admin-content">
+        <!-- Stats -->
+        <div class="stats-row">
+          <div class="stat-card">
+            <h3>Total Technicians</h3>
+            <div class="value" id="statTotal">0</div>
+            <div class="subtitle" id="statActive">0 active</div>
+          </div>
+          <div class="stat-card">
+            <h3>Available Today</h3>
+            <div class="value" id="statAvailableToday">0</div>
+            <div class="subtitle">technicians have slots</div>
+          </div>
+          <div class="stat-card">
+            <h3>This Week</h3>
+            <div class="value" id="statWeekSlots">0</div>
+            <div class="subtitle">total available slots</div>
+          </div>
+          <div class="stat-card">
+            <h3>Appointments</h3>
+            <div class="value" id="statAppointments">0</div>
+            <div class="subtitle">scheduled this week</div>
+          </div>
+        </div>
+
+        <!-- Calendar Controls -->
+        <div class="calendar-controls">
+          <div class="calendar-nav">
+            <button class="nav-btn" onclick="changeWeek(-1)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="15 18 9 12 15 6"/></svg>
+            </button>
+            <h2 id="weekRange">Loading...</h2>
+            <button class="nav-btn" onclick="changeWeek(1)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="9 18 15 12 9 6"/></svg>
+            </button>
+          </div>
+          <button class="btn btn-outline" onclick="goToToday()">Today</button>
+        </div>
+
+        <!-- Availability Grid -->
+        <div class="availability-container">
+          <div class="availability-header" id="calendarHeader"></div>
+          <div id="technicianRows"></div>
+        </div>
+
+        <!-- Legend -->
+        <div class="legend">
+          <div class="legend-item">
+            <div class="legend-dot available"></div>
+            <span>Available Slot</span>
+          </div>
+          <div class="legend-item">
+            <div class="legend-dot booked"></div>
+            <span>Booked/Busy</span>
+          </div>
+          <div class="legend-item">
+            <div class="legend-dot all-day"></div>
+            <span>Full Day Available</span>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Technician Detail Modal -->
+  <div class="modal" id="techDetailModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 id="modalTechName">Technician Details</h2>
+        <button class="modal-close" onclick="closeModal()">&times;</button>
+      </div>
+      <div class="modal-body" id="modalBody">
+        <!-- Dynamic content -->
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const API_BASE = '/api/admin';
+    let technicians = [];
+    let appointments = [];
+    let currentWeekStart = getWeekStart(new Date());
+
+    document.addEventListener('DOMContentLoaded', () => {
+      if (!localStorage.getItem('admin_token')) {
+        window.location.href = '/admin/login.html';
+        return;
+      }
+      AdminNavConfig.initSidebar('technician-availability');
+      loadData();
+    });
+
+    async function apiCall(endpoint, method = 'GET', data = null) {
+      const token = localStorage.getItem('admin_token');
+      const options = {
+        method,
+        headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${token}` }
+      };
+      if (data) options.body = JSON.stringify(data);
+      const response = await fetch(`${API_BASE}${endpoint}`, options);
+      return response.json();
+    }
+
+    function getWeekStart(date) {
+      const d = new Date(date);
+      const day = d.getDay();
+      const diff = d.getDate() - day;
+      return new Date(d.setDate(diff));
+    }
+
+    function getWeekDates(startDate) {
+      const dates = [];
+      for (let i = 0; i < 7; i++) {
+        const date = new Date(startDate);
+        date.setDate(date.getDate() + i);
+        dates.push(date);
+      }
+      return dates;
+    }
+
+    async function loadData() {
+      const [techResult, apptResult] = await Promise.all([
+        apiCall('/technicians'),
+        apiCall('/appointments')
+      ]);
+
+      if (techResult.success) technicians = techResult.technicians;
+      if (apptResult.success) appointments = apptResult.appointments;
+
+      updateStats();
+      renderCalendar();
+    }
+
+    function updateStats() {
+      const today = new Date().toISOString().split('T')[0];
+      const weekDates = getWeekDates(currentWeekStart).map(d => d.toISOString().split('T')[0]);
+
+      // Total technicians
+      document.getElementById('statTotal').textContent = technicians.length;
+      document.getElementById('statActive').textContent = `${technicians.filter(t => t.status === 'active').length} active`;
+
+      // Available today
+      const availableToday = technicians.filter(t => {
+        if (t.status !== 'active') return false;
+        const dayAvail = t.availability?.find(a => a.date === today);
+        return dayAvail && dayAvail.slots?.length > 0;
+      }).length;
+      document.getElementById('statAvailableToday').textContent = availableToday;
+
+      // Week slots
+      let weekSlots = 0;
+      technicians.forEach(t => {
+        if (t.status !== 'active') return;
+        t.availability?.forEach(a => {
+          if (weekDates.includes(a.date)) {
+            weekSlots += a.slots?.length || 0;
+          }
+        });
+      });
+      document.getElementById('statWeekSlots').textContent = weekSlots;
+
+      // Appointments this week
+      const weekAppointments = appointments.filter(a =>
+        weekDates.includes(a.scheduledDate) &&
+        !['completed', 'cancelled'].includes(a.status)
+      ).length;
+      document.getElementById('statAppointments').textContent = weekAppointments;
+    }
+
+    function renderCalendar() {
+      const weekDates = getWeekDates(currentWeekStart);
+      const today = new Date().toISOString().split('T')[0];
+      const dayNames = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+
+      // Update week range display
+      const startStr = weekDates[0].toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+      const endStr = weekDates[6].toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+      document.getElementById('weekRange').textContent = `${startStr} - ${endStr}`;
+
+      // Render header
+      const headerHtml = `
+        <div class="header-cell tech-col">Technician</div>
+        ${weekDates.map((date, i) => {
+          const dateStr = date.toISOString().split('T')[0];
+          const isToday = dateStr === today;
+          return `
+            <div class="header-cell ${isToday ? 'today' : ''}">
+              <span class="day-name">${dayNames[i]}</span>
+              <span class="day-num">${date.getDate()}</span>
+            </div>
+          `;
+        }).join('')}
+      `;
+      document.getElementById('calendarHeader').innerHTML = headerHtml;
+
+      // Render technician rows
+      const activeTechs = technicians.filter(t => t.status === 'active');
+
+      if (activeTechs.length === 0) {
+        document.getElementById('technicianRows').innerHTML = `
+          <div class="empty-state">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+              <circle cx="9" cy="7" r="4"/>
+              <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+              <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+            </svg>
+            <h3>No Active Technicians</h3>
+            <p>Add technicians from the <a href="/admin/trade/technicians.html" style="color:#8E6545;">Technicians page</a></p>
+          </div>
+        `;
+        return;
+      }
+
+      const slotLabels = {
+        '8am-10am': '8-10 AM',
+        '10am-12pm': '10-12 PM',
+        '12pm-2pm': '12-2 PM',
+        '2pm-4pm': '2-4 PM',
+        '4pm-6pm': '4-6 PM'
+      };
+
+      const rowsHtml = activeTechs.map(tech => {
+        const initials = tech.name.split(' ').map(n => n[0]).join('').toUpperCase();
+
+        const cellsHtml = weekDates.map(date => {
+          const dateStr = date.toISOString().split('T')[0];
+          const isToday = dateStr === today;
+          const dayAvail = tech.availability?.find(a => a.date === dateStr);
+          const slots = dayAvail?.slots || [];
+
+          // Check for booked appointments
+          const bookedSlots = appointments.filter(a =>
+            a.technicianId === tech.id &&
+            a.scheduledDate === dateStr &&
+            !['completed', 'cancelled'].includes(a.status)
+          ).map(a => {
+            // Map time back to slot format
+            const timeMap = {
+              '8:00 AM - 10:00 AM': '8am-10am',
+              '10:00 AM - 12:00 PM': '10am-12pm',
+              '12:00 PM - 2:00 PM': '12pm-2pm',
+              '2:00 PM - 4:00 PM': '2pm-4pm',
+              '4:00 PM - 6:00 PM': '4pm-6pm'
+            };
+            return timeMap[a.scheduledTime] || a.scheduledTime;
+          });
+
+          if (slots.length === 0) {
+            return `<div class="avail-cell ${isToday ? 'today' : ''}">
+              <div class="no-slots">No availability set</div>
+            </div>`;
+          }
+
+          if (slots.length === 5) {
+            // All slots available
+            const allBooked = slots.every(s => bookedSlots.includes(s));
+            if (allBooked) {
+              return `<div class="avail-cell ${isToday ? 'today' : ''}">
+                <div class="slot-badge booked">Fully Booked</div>
+              </div>`;
+            }
+            return `<div class="avail-cell ${isToday ? 'today' : ''}">
+              <div class="all-day">All Day Available</div>
+              <div class="slot-list" style="margin-top:0.5rem;">
+                ${bookedSlots.map(s => `<div class="slot-badge booked">${slotLabels[s] || s}</div>`).join('')}
+              </div>
+            </div>`;
+          }
+
+          return `<div class="avail-cell ${isToday ? 'today' : ''}">
+            <div class="slot-list">
+              ${slots.map(slot => {
+                const isBooked = bookedSlots.includes(slot);
+                return `<div class="slot-badge ${isBooked ? 'booked' : ''}">${slotLabels[slot] || slot}</div>`;
+              }).join('')}
+            </div>
+          </div>`;
+        }).join('');
+
+        return `
+          <div class="tech-row" onclick="openTechDetail('${tech.id}')">
+            <div class="tech-info-cell">
+              <div class="tech-avatar">${initials}</div>
+              <div class="tech-details">
+                <div class="tech-name">${tech.name}</div>
+                <div class="tech-status ${tech.status}">${tech.status}</div>
+              </div>
+            </div>
+            ${cellsHtml}
+          </div>
+        `;
+      }).join('');
+
+      document.getElementById('technicianRows').innerHTML = rowsHtml;
+    }
+
+    function changeWeek(delta) {
+      currentWeekStart.setDate(currentWeekStart.getDate() + (delta * 7));
+      updateStats();
+      renderCalendar();
+    }
+
+    function goToToday() {
+      currentWeekStart = getWeekStart(new Date());
+      updateStats();
+      renderCalendar();
+    }
+
+    function openTechDetail(techId) {
+      const tech = technicians.find(t => t.id === techId);
+      if (!tech) return;
+
+      document.getElementById('modalTechName').textContent = tech.name;
+
+      // Get next 30 days availability
+      const today = new Date();
+      const daysWithSlots = [];
+
+      for (let i = 0; i < 30; i++) {
+        const date = new Date(today);
+        date.setDate(date.getDate() + i);
+        const dateStr = date.toISOString().split('T')[0];
+        const dayAvail = tech.availability?.find(a => a.date === dateStr);
+        if (dayAvail && dayAvail.slots?.length > 0) {
+          daysWithSlots.push({ date: dateStr, slots: dayAvail.slots, dateObj: date });
+        }
+      }
+
+      const slotLabels = {
+        '8am-10am': '8:00 AM - 10:00 AM',
+        '10am-12pm': '10:00 AM - 12:00 PM',
+        '12pm-2pm': '12:00 PM - 2:00 PM',
+        '2pm-4pm': '2:00 PM - 4:00 PM',
+        '4pm-6pm': '4:00 PM - 6:00 PM'
+      };
+
+      const techAppointments = appointments.filter(a =>
+        a.technicianId === tech.id &&
+        !['completed', 'cancelled'].includes(a.status)
+      ).slice(0, 5);
+
+      document.getElementById('modalBody').innerHTML = `
+        <div class="detail-section">
+          <h3>Contact Information</h3>
+          <div class="detail-grid">
+            <div class="detail-item">
+              <label>Email</label>
+              <span>${tech.email || 'N/A'}</span>
+            </div>
+            <div class="detail-item">
+              <label>Phone</label>
+              <span>${tech.phone || 'N/A'}</span>
+            </div>
+            <div class="detail-item">
+              <label>Status</label>
+              <span style="color: ${tech.status === 'active' ? '#059669' : '#D97706'}; font-weight: 600;">${tech.status}</span>
+            </div>
+            <div class="detail-item">
+              <label>Completed Jobs</label>
+              <span>${tech.completedJobs || 0}</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="detail-section">
+          <h3>Specialties</h3>
+          <div class="slot-chips">
+            ${(tech.specialties || []).map(s => `<span class="slot-chip">${s.replace('-', ' ')}</span>`).join('') || '<span style="color:#6b7280;">No specialties listed</span>'}
+          </div>
+        </div>
+
+        <div class="detail-section">
+          <h3>Service Areas</h3>
+          <div class="slot-chips">
+            ${(tech.serviceAreas || []).map(a => `<span class="slot-chip">${a}</span>`).join('') || '<span style="color:#6b7280;">No service areas listed</span>'}
+          </div>
+        </div>
+
+        <div class="detail-section">
+          <h3>Upcoming Availability (Next 30 Days)</h3>
+          ${daysWithSlots.length > 0 ? `
+            <div style="max-height: 200px; overflow-y: auto;">
+              ${daysWithSlots.map(day => `
+                <div class="slots-for-day" style="margin-bottom: 0.75rem;">
+                  <h4>${day.dateObj.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })}</h4>
+                  <div class="slot-chips">
+                    ${day.slots.map(s => `<span class="slot-chip">${slotLabels[s] || s}</span>`).join('')}
+                  </div>
+                </div>
+              `).join('')}
+            </div>
+          ` : '<p style="color:#6b7280;">No availability set for the next 30 days</p>'}
+        </div>
+
+        <div class="detail-section">
+          <h3>Upcoming Appointments</h3>
+          ${techAppointments.length > 0 ? `
+            <div style="max-height: 150px; overflow-y: auto;">
+              ${techAppointments.map(a => `
+                <div style="padding: 0.75rem; background: #faf8f6; border-radius: 8px; margin-bottom: 0.5rem;">
+                  <div style="font-weight: 600; color: #1f2937;">${new Date(a.scheduledDate).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })} at ${a.scheduledTime}</div>
+                  <div style="font-size: 0.85rem; color: #6b7280;">${a.customerName || 'Customer'} - ${a.appointmentType || 'Installation'}</div>
+                </div>
+              `).join('')}
+            </div>
+          ` : '<p style="color:#6b7280;">No upcoming appointments</p>'}
+        </div>
+      `;
+
+      document.getElementById('techDetailModal').classList.add('active');
+    }
+
+    function closeModal() {
+      document.getElementById('techDetailModal').classList.remove('active');
+    }
+
+    document.getElementById('techDetailModal').addEventListener('click', e => {
+      if (e.target.id === 'techDetailModal') closeModal();
+    });
+  </script>
+</body>
+</html>

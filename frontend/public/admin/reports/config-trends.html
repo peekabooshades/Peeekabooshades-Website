@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Configuration Trends - Peekaboo Shades Admin</title>
+  <link rel="stylesheet" href="/admin/css/admin.css?v=1737200003.0.28">
+  <script src="/admin/js/adminNavConfig.js?v=1737200002"></script>
+  <style>
+    .trends-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 1.5rem; margin-top: 1.5rem; }
+    .trend-card { background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+    .trend-card h3 { margin: 0 0 1rem 0; font-size: 1rem; }
+    .trend-item { display: flex; justify-content: space-between; align-items: center; padding: 0.75rem 0; border-bottom: 1px solid #eee; }
+    .trend-item:last-child { border-bottom: none; }
+    .trend-name { font-weight: 500; }
+    .trend-bar { flex: 1; margin: 0 1rem; height: 8px; background: #E5E7EB; border-radius: 4px; overflow: hidden; }
+    .trend-bar-fill { height: 100%; background: #8E6545; border-radius: 4px; }
+    .trend-percent { font-weight: 600; color: #8E6545; min-width: 50px; text-align: right; }
+    .trend-change { font-size: 0.8rem; margin-left: 0.5rem; }
+    .trend-up { color: #10B981; }
+    .trend-down { color: #EF4444; }
+    .summary-cards { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 1.5rem; }
+    .summary-card { background: white; padding: 1.25rem; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); text-align: center; }
+    .summary-card h4 { margin: 0 0 0.5rem 0; font-size: 0.85rem; color: #666; }
+    .summary-card .value { font-size: 1.25rem; font-weight: 600; color: #333; }
+    .filters { display: flex; gap: 1rem; margin-bottom: 1.5rem; }
+    .filters select { padding: 0.5rem 1rem; border: 1px solid #ddd; border-radius: 6px; }
+  </style>
+</head>
+<body>
+  <div class="admin-layout">
+    <aside class="admin-sidebar"></aside>
+    <main class="admin-main">
+      <header class="admin-header"><h1>Configuration Trends</h1></header>
+      <div class="admin-content">
+        <div class="filters">
+          <select><option>Last 30 Days</option><option>Last 60 Days</option><option>Last 90 Days</option></select>
+          <select><option>All Products</option><option>Roller Shades</option><option>Zebra Blinds</option></select>
+        </div>
+        <div class="summary-cards">
+          <div class="summary-card"><h4>Most Popular Control</h4><div class="value">Cordless</div></div>
+          <div class="summary-card"><h4>Avg Width Ordered</h4><div class="value">48"</div></div>
+          <div class="summary-card"><h4>Motorized Rate</h4><div class="value">32%</div></div>
+          <div class="summary-card"><h4>Inside Mount %</h4><div class="value">78%</div></div>
+        </div>
+        <div class="trends-grid">
+          <div class="trend-card">
+            <h3>Control Type Popularity</h3>
+            <div class="trend-item">
+              <span class="trend-name">Cordless</span>
+              <div class="trend-bar"><div class="trend-bar-fill" style="width: 45%"></div></div>
+              <span class="trend-percent">45%<span class="trend-change trend-up">+5%</span></span>
+            </div>
+            <div class="trend-item">
+              <span class="trend-name">Motorized</span>
+              <div class="trend-bar"><div class="trend-bar-fill" style="width: 32%"></div></div>
+              <span class="trend-percent">32%<span class="trend-change trend-up">+8%</span></span>
+            </div>
+            <div class="trend-item">
+              <span class="trend-name">Chain</span>
+              <div class="trend-bar"><div class="trend-bar-fill" style="width: 18%"></div></div>
+              <span class="trend-percent">18%<span class="trend-change trend-down">-10%</span></span>
+            </div>
+            <div class="trend-item">
+              <span class="trend-name">Wand</span>
+              <div class="trend-bar"><div class="trend-bar-fill" style="width: 5%"></div></div>
+              <span class="trend-percent">5%<span class="trend-change trend-down">-3%</span></span>
+            </div>
+          </div>
+          <div class="trend-card">
+            <h3>Fabric Opacity Trends</h3>
+            <div class="trend-item">
+              <span class="trend-name">Blackout</span>
+              <div class="trend-bar"><div class="trend-bar-fill" style="width: 42%"></div></div>
+              <span class="trend-percent">42%</span>
+            </div>
+            <div class="trend-item">
+              <span class="trend-name">Light Filtering</span>
+              <div class="trend-bar"><div class="trend-bar-fill" style="width: 35%"></div></div>
+              <span class="trend-percent">35%</span>
+            </div>
+            <div class="trend-item">
+              <span class="trend-name">Sheer</span>
+              <div class="trend-bar"><div class="trend-bar-fill" style="width: 15%"></div></div>
+              <span class="trend-percent">15%</span>
+            </div>
+            <div class="trend-item">
+              <span class="trend-name">Room Darkening</span>
+              <div class="trend-bar"><div class="trend-bar-fill" style="width: 8%"></div></div>
+              <span class="trend-percent">8%</span>
+            </div>
+          </div>
+          <div class="trend-card">
+            <h3>Width Distribution</h3>
+            <div class="trend-item">
+              <span class="trend-name">24"-36"</span>
+              <div class="trend-bar"><div class="trend-bar-fill" style="width: 25%"></div></div>
+              <span class="trend-percent">25%</span>
+            </div>
+            <div class="trend-item">
+              <span class="trend-name">37"-48"</span>
+              <div class="trend-bar"><div class="trend-bar-fill" style="width: 38%"></div></div>
+              <span class="trend-percent">38%</span>
+            </div>
+            <div class="trend-item">
+              <span class="trend-name">49"-60"</span>
+              <div class="trend-bar"><div class="trend-bar-fill" style="width: 28%"></div></div>
+              <span class="trend-percent">28%</span>
+            </div>
+            <div class="trend-item">
+              <span class="trend-name">61"+</span>
+              <div class="trend-bar"><div class="trend-bar-fill" style="width: 9%"></div></div>
+              <span class="trend-percent">9%</span>
+            </div>
+          </div>
+          <div class="trend-card">
+            <h3>Color Preferences</h3>
+            <div class="trend-item">
+              <span class="trend-name">White/Cream</span>
+              <div class="trend-bar"><div class="trend-bar-fill" style="width: 40%"></div></div>
+              <span class="trend-percent">40%</span>
+            </div>
+            <div class="trend-item">
+              <span class="trend-name">Gray</span>
+              <div class="trend-bar"><div class="trend-bar-fill" style="width: 28%"></div></div>
+              <span class="trend-percent">28%</span>
+            </div>
+            <div class="trend-item">
+              <span class="trend-name">Beige/Tan</span>
+              <div class="trend-bar"><div class="trend-bar-fill" style="width: 18%"></div></div>
+              <span class="trend-percent">18%</span>
+            </div>
+            <div class="trend-item">
+              <span class="trend-name">Other</span>
+              <div class="trend-bar"><div class="trend-bar-fill" style="width: 14%"></div></div>
+              <span class="trend-percent">14%</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      if (!localStorage.getItem('admin_token')) { window.location.href = '/admin/login.html'; return; }
+      AdminNavConfig.initSidebar('config-trends');
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Admin Alerts - Peekaboo Shades Admin</title>
+  <link rel="stylesheet" href="/admin/css/admin.css?v=1737200003.0.28">
+  <script src="/admin/js/adminNavConfig.js?v=1737200002"></script>
+  <style>
+    .alerts-grid { display: grid; gap: 1.5rem; margin-top: 1.5rem; }
+    .alert-card { background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+    .alert-card h3 { margin: 0 0 1rem 0; }
+    .alert-item { display: flex; justify-content: space-between; align-items: center; padding: 1rem; background: #f9f9f9; border-radius: 8px; margin-bottom: 0.75rem; }
+    .alert-item:last-child { margin-bottom: 0; }
+    .alert-info h4 { margin: 0 0 0.25rem 0; font-size: 0.95rem; }
+    .alert-info p { margin: 0; font-size: 0.85rem; color: #666; }
+    .alert-controls { display: flex; gap: 0.5rem; align-items: center; }
+    .toggle { position: relative; width: 48px; height: 24px; }
+    .toggle input { opacity: 0; width: 0; height: 0; }
+    .toggle .slider { position: absolute; cursor: pointer; inset: 0; background: #ddd; border-radius: 24px; transition: 0.3s; }
+    .toggle .slider:before { content: ""; position: absolute; height: 18px; width: 18px; left: 3px; bottom: 3px; background: white; border-radius: 50%; transition: 0.3s; }
+    .toggle input:checked + .slider { background: #10B981; }
+    .toggle input:checked + .slider:before { transform: translateX(24px); }
+    .channel-badge { padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.75rem; font-weight: 500; }
+    .channel-email { background: #DBEAFE; color: #1E40AF; }
+    .channel-sms { background: #D1FAE5; color: #065F46; }
+    .channel-push { background: #FEF3C7; color: #92400E; }
+    .form-group { margin-bottom: 1rem; }
+    .form-group label { display: block; margin-bottom: 0.5rem; font-weight: 500; }
+    .form-group input { width: 100%; padding: 0.75rem; border: 1px solid #ddd; border-radius: 8px; }
+    .btn-save { padding: 0.75rem 2rem; background: #8E6545; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; }
+    .recipients-list { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-top: 0.5rem; }
+    .recipient-tag { display: flex; align-items: center; gap: 0.25rem; padding: 0.25rem 0.5rem; background: #f0f0f0; border-radius: 4px; font-size: 0.85rem; }
+    .recipient-tag button { background: none; border: none; cursor: pointer; color: #666; }
+  </style>
+</head>
+<body>
+  <div class="admin-layout">
+    <aside class="admin-sidebar"></aside>
+    <main class="admin-main">
+      <header class="admin-header">
+        <h1>Admin Alerts</h1>
+        <div class="header-actions">
+          <button class="btn-save" onclick="saveSettings()">Save Settings</button>
+        </div>
+      </header>
+      <div class="admin-content">
+        <div class="alerts-grid">
+          <div class="alert-card">
+            <h3>Order Alerts</h3>
+            <div class="alert-item">
+              <div class="alert-info">
+                <h4>New Order Received</h4>
+                <p>Alert when a new order is placed</p>
+              </div>
+              <div class="alert-controls">
+                <span class="channel-badge channel-email">Email</span>
+                <span class="channel-badge channel-push">Push</span>
+                <label class="toggle"><input type="checkbox" checked><span class="slider"></span></label>
+              </div>
+            </div>
+            <div class="alert-item">
+              <div class="alert-info">
+                <h4>High Value Order (>$1000)</h4>
+                <p>Alert for orders over $1,000</p>
+              </div>
+              <div class="alert-controls">
+                <span class="channel-badge channel-email">Email</span>
+                <span class="channel-badge channel-sms">SMS</span>
+                <label class="toggle"><input type="checkbox" checked><span class="slider"></span></label>
+              </div>
+            </div>
+            <div class="alert-item">
+              <div class="alert-info">
+                <h4>Order Cancellation</h4>
+                <p>Alert when customer cancels order</p>
+              </div>
+              <div class="alert-controls">
+                <span class="channel-badge channel-email">Email</span>
+                <label class="toggle"><input type="checkbox" checked><span class="slider"></span></label>
+              </div>
+            </div>
+          </div>
+          <div class="alert-card">
+            <h3>Inventory Alerts</h3>
+            <div class="alert-item">
+              <div class="alert-info">
+                <h4>Low Sample Stock</h4>
+                <p>Alert when sample inventory is low</p>
+              </div>
+              <div class="alert-controls">
+                <span class="channel-badge channel-email">Email</span>
+                <label class="toggle"><input type="checkbox" checked><span class="slider"></span></label>
+              </div>
+            </div>
+            <div class="alert-item">
+              <div class="alert-info">
+                <h4>Fabric Discontinued</h4>
+                <p>Alert when supplier discontinues fabric</p>
+              </div>
+              <div class="alert-controls">
+                <span class="channel-badge channel-email">Email</span>
+                <label class="toggle"><input type="checkbox" checked><span class="slider"></span></label>
+              </div>
+            </div>
+          </div>
+          <div class="alert-card">
+            <h3>Alert Recipients</h3>
+            <div class="form-group">
+              <label>Email Recipients</label>
+              <input type="email" placeholder="Add email address...">
+              <div class="recipients-list">
+                <span class="recipient-tag">admin@peekabooshades.com <button>&times;</button></span>
+                <span class="recipient-tag">orders@peekabooshades.com <button>&times;</button></span>
+              </div>
+            </div>
+            <div class="form-group">
+              <label>SMS Recipients</label>
+              <input type="tel" placeholder="Add phone number...">
+              <div class="recipients-list">
+                <span class="recipient-tag">+1 (555) 123-4567 <button>&times;</button></span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      if (!localStorage.getItem('admin_token')) { window.location.href = '/admin/login.html'; return; }
+      AdminNavConfig.initSidebar('admin-alerts');
+    });
+    function saveSettings() { alert('Alert settings saved!'); }
+  </script>
+</body>
+</html>

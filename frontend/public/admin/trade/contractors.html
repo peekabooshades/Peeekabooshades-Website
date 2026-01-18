@@ -1,0 +1,375 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Contractors - Peekaboo Shades Admin</title>
+  <link rel="stylesheet" href="/admin/css/admin.css?v=1737200003.0.28">
+  <script src="/admin/js/adminNavConfig.js?v=1737200002"></script>
+  <style>
+    .stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
+    .stat-card { background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+    .stat-card h3 { font-size: 0.85rem; color: #666; margin-bottom: 0.5rem; }
+    .stat-card .value { font-size: 2rem; font-weight: 700; color: #8E6545; }
+    .controls { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem; }
+    .search-box { padding: 0.75rem 1rem; border: 1px solid #ddd; border-radius: 8px; width: 300px; }
+    .contractors-table { background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+    table { width: 100%; border-collapse: collapse; }
+    th { background: #f9f9f9; padding: 1rem; text-align: left; font-weight: 600; font-size: 0.85rem; color: #666; text-transform: uppercase; }
+    td { padding: 1rem; border-top: 1px solid #eee; }
+    .contractor-cell { display: flex; align-items: center; gap: 0.75rem; }
+    .contractor-avatar { width: 40px; height: 40px; border-radius: 50%; background: #8E6545; color: white; display: flex; align-items: center; justify-content: center; font-weight: 600; }
+    .contractor-info { display: flex; flex-direction: column; }
+    .contractor-name { font-weight: 500; }
+    .contractor-company { font-size: 0.85rem; color: #666; }
+    .badge { padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.75rem; font-weight: 600; }
+    .badge-active { background: #D1FAE5; color: #065F46; }
+    .badge-pending { background: #FEF3C7; color: #92400E; }
+    .badge-inactive { background: #FEE2E2; color: #991B1B; }
+    .license-info { font-size: 0.85rem; }
+    .license-number { font-weight: 500; }
+    .license-exp { color: #666; }
+    .btn-action { padding: 0.4rem 0.75rem; border: none; border-radius: 4px; cursor: pointer; font-size: 0.8rem; margin-right: 0.25rem; }
+    .btn-edit { background: #8E6545; color: white; }
+    .btn-view { background: #E5E7EB; color: #374151; }
+    .modal { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.6); z-index: 1000; align-items: center; justify-content: center; backdrop-filter: blur(4px); }
+    .modal.active { display: flex; animation: fadeIn 0.2s ease; }
+    @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes slideIn { from { transform: translateY(-20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+    .modal-content { background: white; border-radius: 16px; padding: 0; max-width: 640px; width: 90%; max-height: 90vh; overflow: hidden; box-shadow: 0 25px 50px -12px rgba(0,0,0,0.25); animation: slideIn 0.3s ease; }
+    .modal-header { display: flex; justify-content: space-between; align-items: center; padding: 1.5rem 2rem; background: linear-gradient(135deg, #8E6545 0%, #A67C5B 100%); color: white; }
+    .modal-header h2 { margin: 0; font-size: 1.25rem; font-weight: 600; }
+    .modal-close { background: rgba(255,255,255,0.2); border: none; font-size: 1.25rem; cursor: pointer; color: white; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: background 0.2s; }
+    .modal-close:hover { background: rgba(255,255,255,0.3); }
+    .modal-body { padding: 2rem; max-height: calc(90vh - 80px); overflow-y: auto; }
+    .form-section { margin-bottom: 1.75rem; }
+    .form-section-title { font-size: 0.8rem; font-weight: 600; color: #8E6545; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 1rem; padding-bottom: 0.5rem; border-bottom: 2px solid #f0e6df; }
+    .form-group { margin-bottom: 1.25rem; }
+    .form-group label { display: block; margin-bottom: 0.5rem; font-weight: 500; color: #374151; font-size: 0.9rem; }
+    .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 0.875rem 1rem; border: 2px solid #e5e7eb; border-radius: 10px; font-size: 0.95rem; transition: border-color 0.2s, box-shadow 0.2s; background: #fafafa; }
+    .form-group input:focus, .form-group select:focus, .form-group textarea:focus { outline: none; border-color: #8E6545; box-shadow: 0 0 0 3px rgba(142,101,69,0.1); background: white; }
+    .form-group input::placeholder, .form-group textarea::placeholder { color: #9ca3af; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    .specialty-checkbox-group { display: grid; grid-template-columns: repeat(2, 1fr); gap: 0.75rem; }
+    .specialty-checkbox { display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem 1rem; background: #faf8f6; border: 2px solid #e8e0da; border-radius: 10px; cursor: pointer; transition: all 0.2s; }
+    .specialty-checkbox:hover { border-color: #8E6545; background: #f5f0ec; }
+    .specialty-checkbox input { margin: 0; width: 18px; height: 18px; accent-color: #8E6545; cursor: pointer; }
+    .specialty-checkbox span { font-size: 0.9rem; color: #374151; }
+    .specialty-checkbox input:checked + span { color: #8E6545; font-weight: 500; }
+    .specialty-checkbox:has(input:checked) { background: #f5f0ec; border-color: #8E6545; box-shadow: 0 0 0 2px rgba(142,101,69,0.1); }
+    .btn-submit { width: 100%; padding: 1rem; background: linear-gradient(135deg, #8E6545 0%, #A67C5B 100%); color: white; border: none; border-radius: 10px; font-weight: 600; cursor: pointer; font-size: 1rem; transition: transform 0.2s, box-shadow 0.2s; }
+    .btn-submit:hover { transform: translateY(-1px); box-shadow: 0 4px 12px rgba(142,101,69,0.3); }
+    .btn-submit:active { transform: translateY(0); }
+    .input-hint { font-size: 0.8rem; color: #6b7280; margin-top: 0.35rem; }
+    .specialty-tags { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+    .specialty-tag { padding: 0.3rem 0.65rem; background: #f5f0ec; color: #8E6545; border-radius: 6px; font-size: 0.8rem; font-weight: 500; }
+    .btn-add-contractor {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.75rem 1.5rem;
+      background: linear-gradient(135deg, #8E6545 0%, #A67C5B 100%);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-weight: 600;
+      font-size: 0.95rem;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      box-shadow: 0 2px 8px rgba(142,101,69,0.25);
+    }
+    .btn-add-contractor:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(142,101,69,0.35); }
+    .btn-add-contractor:active { transform: translateY(0); }
+    .btn-add-contractor svg { width: 18px; height: 18px; }
+  </style>
+</head>
+<body>
+  <div class="admin-layout">
+    <aside class="admin-sidebar"></aside>
+    <main class="admin-main">
+      <header class="admin-header">
+        <h1>Contractors</h1>
+        <div class="header-actions">
+          <button class="btn-add-contractor" onclick="openModal()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
+            Add Contractor
+          </button>
+        </div>
+      </header>
+      <div class="admin-content">
+        <div class="stats">
+          <div class="stat-card"><h3>Total Contractors</h3><div class="value" id="stat-total">0</div></div>
+          <div class="stat-card"><h3>Active</h3><div class="value" id="stat-active">0</div></div>
+          <div class="stat-card"><h3>Total Projects</h3><div class="value" id="stat-projects">0</div></div>
+          <div class="stat-card"><h3>Total Revenue</h3><div class="value" id="stat-revenue">$0</div></div>
+        </div>
+        <div class="controls">
+          <input type="text" class="search-box" id="searchInput" placeholder="Search contractors..." oninput="renderContractors()">
+        </div>
+        <div class="contractors-table">
+          <table>
+            <thead>
+              <tr>
+                <th>Contractor</th>
+                <th>License</th>
+                <th>Specialties</th>
+                <th>Projects</th>
+                <th>Revenue</th>
+                <th>Status</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody id="contractorsBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </main>
+  </div>
+  <div class="modal" id="contractorModal">
+    <div class="modal-content">
+      <div class="modal-header"><h2 id="modalTitle">Add Contractor</h2><button class="modal-close" onclick="closeModal()">&times;</button></div>
+      <form onsubmit="saveContractor(event)">
+        <div class="modal-body">
+          <input type="hidden" id="contractorId">
+
+          <!-- Contact Information Section -->
+          <div class="form-section">
+            <div class="form-section-title">Contact Information</div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Contact Name</label>
+                <input type="text" id="contactName" placeholder="Enter full name" required>
+              </div>
+              <div class="form-group">
+                <label>Company Name</label>
+                <input type="text" id="company" placeholder="Enter company name" required>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Email</label>
+                <input type="email" id="email" placeholder="email@example.com" required>
+              </div>
+              <div class="form-group">
+                <label>Phone</label>
+                <input type="tel" id="phone" placeholder="(555) 000-0000">
+              </div>
+            </div>
+          </div>
+
+          <!-- License Details Section -->
+          <div class="form-section">
+            <div class="form-section-title">License Details</div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>License Number</label>
+                <input type="text" id="licenseNumber" placeholder="e.g., CA-123456">
+                <div class="input-hint">State contractor license number</div>
+              </div>
+              <div class="form-group">
+                <label>License Expiry</label>
+                <input type="date" id="licenseExpiry">
+                <div class="input-hint">License expiration date</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Specialties Section -->
+          <div class="form-section">
+            <div class="form-section-title">Specialties</div>
+            <div class="specialty-checkbox-group">
+              <label class="specialty-checkbox">
+                <input type="checkbox" name="specialties" value="residential">
+                <span>Residential</span>
+              </label>
+              <label class="specialty-checkbox">
+                <input type="checkbox" name="specialties" value="commercial">
+                <span>Commercial</span>
+              </label>
+              <label class="specialty-checkbox">
+                <input type="checkbox" name="specialties" value="new-construction">
+                <span>New Construction</span>
+              </label>
+              <label class="specialty-checkbox">
+                <input type="checkbox" name="specialties" value="renovation">
+                <span>Renovation</span>
+              </label>
+              <label class="specialty-checkbox">
+                <input type="checkbox" name="specialties" value="multi-family">
+                <span>Multi-Family</span>
+              </label>
+              <label class="specialty-checkbox">
+                <input type="checkbox" name="specialties" value="hospitality">
+                <span>Hospitality</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Account Settings Section -->
+          <div class="form-section">
+            <div class="form-section-title">Account Settings</div>
+            <div class="form-row">
+              <div class="form-group">
+                <label>Status</label>
+                <select id="status">
+                  <option value="pending">Pending Approval</option>
+                  <option value="active">Active</option>
+                  <option value="inactive">Inactive</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Discount Tier</label>
+                <select id="tier">
+                  <option value="standard">Standard (10%)</option>
+                  <option value="preferred">Preferred (15%)</option>
+                  <option value="premium">Premium (20%)</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Notes</label>
+              <textarea id="notes" rows="3" placeholder="Add any notes about this contractor..."></textarea>
+            </div>
+          </div>
+
+          <button type="submit" class="btn-submit">Save Contractor</button>
+        </div>
+      </form>
+    </div>
+  </div>
+  <script>
+    let contractors = [
+      { id: 'c-1', contactName: 'Robert Johnson', company: 'Johnson Construction', email: 'robert@johnsonconstruction.com', phone: '555-0301', licenseNumber: 'CA-123456', licenseExpiry: '2025-06-30', specialties: ['residential', 'renovation'], status: 'active', tier: 'premium', projects: 35, revenue: 125000 },
+      { id: 'c-2', contactName: 'Maria Garcia', company: 'Garcia Builders', email: 'maria@garciabuilders.com', phone: '555-0302', licenseNumber: 'CA-234567', licenseExpiry: '2024-12-15', specialties: ['commercial', 'new-construction'], status: 'active', tier: 'preferred', projects: 22, revenue: 89000 },
+      { id: 'c-3', contactName: 'David Kim', company: 'Kim Home Improvements', email: 'david@kimhome.com', phone: '555-0303', licenseNumber: 'CA-345678', licenseExpiry: '2025-03-20', specialties: ['residential', 'renovation'], status: 'active', tier: 'standard', projects: 18, revenue: 45000 },
+      { id: 'c-4', contactName: 'Jennifer Lee', company: 'Lee Development Group', email: 'jennifer@leedevelopment.com', phone: '555-0304', licenseNumber: 'CA-456789', licenseExpiry: '2024-09-10', specialties: ['commercial', 'multi-family', 'new-construction'], status: 'pending', tier: 'standard', projects: 0, revenue: 0 }
+    ];
+
+    document.addEventListener('DOMContentLoaded', () => {
+      if (!localStorage.getItem('admin_token')) { window.location.href = '/admin/login.html'; return; }
+      AdminNavConfig.initSidebar('contractors');
+      updateStats();
+      renderContractors();
+    });
+
+    function updateStats() {
+      document.getElementById('stat-total').textContent = contractors.length;
+      document.getElementById('stat-active').textContent = contractors.filter(c => c.status === 'active').length;
+      document.getElementById('stat-projects').textContent = contractors.reduce((s, c) => s + c.projects, 0);
+      document.getElementById('stat-revenue').textContent = '$' + (contractors.reduce((s, c) => s + c.revenue, 0) / 1000).toFixed(0) + 'K';
+    }
+
+    function renderContractors() {
+      const search = document.getElementById('searchInput').value.toLowerCase();
+      let filtered = contractors.filter(c =>
+        c.contactName.toLowerCase().includes(search) ||
+        c.company.toLowerCase().includes(search) ||
+        c.email.toLowerCase().includes(search)
+      );
+
+      document.getElementById('contractorsBody').innerHTML = filtered.map(c => `
+        <tr>
+          <td>
+            <div class="contractor-cell">
+              <div class="contractor-avatar">${c.contactName.split(' ').map(n => n[0]).join('')}</div>
+              <div class="contractor-info">
+                <span class="contractor-name">${c.contactName}</span>
+                <span class="contractor-company">${c.company}</span>
+              </div>
+            </div>
+          </td>
+          <td>
+            <div class="license-info">
+              <div class="license-number">${c.licenseNumber}</div>
+              <div class="license-exp">Exp: ${formatDate(c.licenseExpiry)}</div>
+            </div>
+          </td>
+          <td>
+            <div class="specialty-tags">
+              ${c.specialties.map(s => `<span class="specialty-tag">${formatSpecialty(s)}</span>`).join('')}
+            </div>
+          </td>
+          <td>${c.projects}</td>
+          <td>$${c.revenue.toLocaleString()}</td>
+          <td><span class="badge badge-${c.status}">${c.status}</span></td>
+          <td>
+            <button class="btn-action btn-edit" onclick="editContractor('${c.id}')">Edit</button>
+            <button class="btn-action btn-view" onclick="viewProjects('${c.id}')">Projects</button>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    function formatDate(d) { return new Date(d).toLocaleDateString('en-US', { month: 'short', year: 'numeric' }); }
+    function formatSpecialty(s) { return s.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' '); }
+
+    function openModal(contractor = null) {
+      document.getElementById('contractorId').value = contractor ? contractor.id : '';
+      document.getElementById('contactName').value = contractor ? contractor.contactName : '';
+      document.getElementById('company').value = contractor ? contractor.company : '';
+      document.getElementById('email').value = contractor ? contractor.email : '';
+      document.getElementById('phone').value = contractor ? contractor.phone : '';
+      document.getElementById('licenseNumber').value = contractor ? contractor.licenseNumber : '';
+      document.getElementById('licenseExpiry').value = contractor ? contractor.licenseExpiry : '';
+      document.getElementById('status').value = contractor ? contractor.status : 'pending';
+      document.getElementById('tier').value = contractor ? contractor.tier : 'standard';
+      document.getElementById('notes').value = contractor ? contractor.notes || '' : '';
+
+      document.querySelectorAll('input[name="specialties"]').forEach(cb => {
+        cb.checked = contractor ? contractor.specialties.includes(cb.value) : false;
+      });
+
+      document.getElementById('modalTitle').textContent = contractor ? 'Edit Contractor' : 'Add Contractor';
+      document.getElementById('contractorModal').classList.add('active');
+    }
+
+    function closeModal() { document.getElementById('contractorModal').classList.remove('active'); }
+
+    function editContractor(id) {
+      const contractor = contractors.find(c => c.id === id);
+      if (contractor) openModal(contractor);
+    }
+
+    function viewProjects(id) {
+      const contractor = contractors.find(c => c.id === id);
+      if (contractor) alert(`Viewing projects for ${contractor.company}\nTotal: ${contractor.projects} projects`);
+    }
+
+    function saveContractor(e) {
+      e.preventDefault();
+      const id = document.getElementById('contractorId').value;
+      const specialties = Array.from(document.querySelectorAll('input[name="specialties"]:checked')).map(cb => cb.value);
+
+      const data = {
+        contactName: document.getElementById('contactName').value,
+        company: document.getElementById('company').value,
+        email: document.getElementById('email').value,
+        phone: document.getElementById('phone').value,
+        licenseNumber: document.getElementById('licenseNumber').value,
+        licenseExpiry: document.getElementById('licenseExpiry').value,
+        specialties: specialties,
+        status: document.getElementById('status').value,
+        tier: document.getElementById('tier').value,
+        notes: document.getElementById('notes').value
+      };
+
+      if (id) {
+        const idx = contractors.findIndex(c => c.id === id);
+        if (idx >= 0) contractors[idx] = { ...contractors[idx], ...data };
+      } else {
+        data.id = 'c-' + Date.now();
+        data.projects = 0;
+        data.revenue = 0;
+        contractors.push(data);
+      }
+
+      closeModal();
+      updateStats();
+      renderContractors();
+      alert(id ? 'Contractor updated' : 'Contractor added');
+    }
+
+    document.getElementById('contractorModal').addEventListener('click', e => { if (e.target.id === 'contractorModal') closeModal(); });
+  </script>
+</body>
+</html>

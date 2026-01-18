@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Documentation - Peekaboo Shades Admin</title>
+  <link rel="stylesheet" href="/admin/css/admin.css?v=1737200003.0.28">
+  <script src="/admin/js/adminNavConfig.js?v=1737200002"></script>
+  <style>
+    .docs-layout { display: grid; grid-template-columns: 280px 1fr; gap: 1.5rem; margin-top: 1.5rem; }
+    .docs-nav { background: white; border-radius: 12px; padding: 1rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); height: fit-content; position: sticky; top: 1rem; }
+    .docs-nav h4 { margin: 0 0 0.75rem 0; padding: 0 0.5rem; color: #666; font-size: 0.8rem; text-transform: uppercase; }
+    .nav-item { display: block; padding: 0.6rem 1rem; border-radius: 6px; cursor: pointer; margin-bottom: 0.25rem; text-decoration: none; color: inherit; }
+    .nav-item:hover { background: #f5f5f5; }
+    .nav-item.active { background: #8E6545; color: white; }
+    .docs-content { background: white; border-radius: 12px; padding: 2rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+    .docs-content h1 { margin: 0 0 1rem 0; }
+    .docs-content h2 { margin: 2rem 0 1rem 0; padding-top: 1rem; border-top: 1px solid #eee; }
+    .docs-content h3 { margin: 1.5rem 0 0.75rem 0; }
+    .docs-content p { line-height: 1.7; color: #444; }
+    .docs-content ul { padding-left: 1.5rem; }
+    .docs-content li { margin-bottom: 0.5rem; line-height: 1.6; }
+    .docs-content code { background: #f5f5f5; padding: 0.2rem 0.4rem; border-radius: 4px; font-size: 0.9rem; }
+    .docs-content pre { background: #1e1e1e; color: #d4d4d4; padding: 1rem; border-radius: 8px; overflow-x: auto; }
+    .search-box { width: 100%; padding: 0.75rem; border: 1px solid #ddd; border-radius: 8px; margin-bottom: 1rem; }
+    .breadcrumb { color: #666; font-size: 0.85rem; margin-bottom: 0.5rem; }
+  </style>
+</head>
+<body>
+  <div class="admin-layout">
+    <aside class="admin-sidebar"></aside>
+    <main class="admin-main">
+      <header class="admin-header">
+        <h1>Documentation</h1>
+      </header>
+      <div class="admin-content">
+        <div class="docs-layout">
+          <nav class="docs-nav">
+            <input type="text" class="search-box" placeholder="Search docs...">
+            <h4>Getting Started</h4>
+            <a class="nav-item active" href="#overview">Overview</a>
+            <a class="nav-item" href="#quick-start">Quick Start Guide</a>
+            <a class="nav-item" href="#admin-basics">Admin Panel Basics</a>
+            <h4>Products</h4>
+            <a class="nav-item" href="#add-product">Adding Products</a>
+            <a class="nav-item" href="#manage-fabrics">Managing Fabrics</a>
+            <a class="nav-item" href="#pricing">Pricing Configuration</a>
+            <h4>Orders</h4>
+            <a class="nav-item" href="#order-workflow">Order Workflow</a>
+            <a class="nav-item" href="#fulfillment">Fulfillment</a>
+            <a class="nav-item" href="#returns">Returns & Refunds</a>
+            <h4>Settings</h4>
+            <a class="nav-item" href="#general">General Settings</a>
+            <a class="nav-item" href="#shipping">Shipping Setup</a>
+            <a class="nav-item" href="#taxes">Tax Configuration</a>
+          </nav>
+          <div class="docs-content">
+            <div class="breadcrumb">Documentation / Getting Started</div>
+            <h1>Welcome to Peekaboo Shades Admin</h1>
+            <p>This documentation will help you understand and use all features of the Peekaboo Shades admin panel effectively.</p>
+            <h2 id="overview">Overview</h2>
+            <p>The admin panel provides complete control over your custom window treatment business, including:</p>
+            <ul>
+              <li><strong>Product Management</strong> - Add, edit, and organize your window treatment products</li>
+              <li><strong>Fabric Library</strong> - Manage fabrics, collections, and pricing tiers</li>
+              <li><strong>Order Processing</strong> - Handle orders from placement to delivery</li>
+              <li><strong>Customer Management</strong> - Track customers, reviews, and trade accounts</li>
+              <li><strong>Analytics</strong> - Monitor sales, performance, and trends</li>
+            </ul>
+            <h2 id="quick-start">Quick Start Guide</h2>
+            <h3>1. Set Up Your Products</h3>
+            <p>Start by adding your product types (Roller Shades, Zebra Blinds, etc.) and configuring available options.</p>
+            <h3>2. Configure Fabrics</h3>
+            <p>Upload fabric swatches, set pricing tiers, and organize into collections.</p>
+            <h3>3. Set Pricing Rules</h3>
+            <p>Define base pricing, fabric tier multipliers, and hardware surcharges.</p>
+            <h3>4. Configure Shipping</h3>
+            <p>Set up shipping zones and rates for your delivery areas.</p>
+            <h2 id="admin-basics">Admin Panel Navigation</h2>
+            <p>The sidebar navigation is organized into logical sections:</p>
+            <ul>
+              <li><strong>Dashboard</strong> - Quick overview of key metrics</li>
+              <li><strong>Products</strong> - Catalog management</li>
+              <li><strong>Orders</strong> - Order processing and fulfillment</li>
+              <li><strong>Customers</strong> - Customer and trade accounts</li>
+              <li><strong>Marketing</strong> - Promotions and campaigns</li>
+              <li><strong>Reports</strong> - Analytics and insights</li>
+              <li><strong>Settings</strong> - System configuration</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      if (!localStorage.getItem('admin_token')) { window.location.href = '/admin/login.html'; return; }
+      AdminNavConfig.initSidebar('documentation');
+    });
+  </script>
+</body>
+</html>

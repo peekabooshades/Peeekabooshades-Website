@@ -1,0 +1,323 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Product Bundles - Peekaboo Shades Admin</title>
+  <link rel="stylesheet" href="/admin/css/admin.css?v=1737200003.0.28">
+  <script src="/admin/js/adminNavConfig.js?v=1737200002"></script>
+  <style>
+    .bundles-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 1.5rem; margin-top: 1.5rem; }
+    .bundle-card { background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+    .bundle-image { height: 160px; background: linear-gradient(135deg, #f5f5f5, #e0e0e0); display: flex; align-items: center; justify-content: center; font-size: 3rem; position: relative; }
+    .bundle-badge { position: absolute; top: 1rem; right: 1rem; padding: 0.25rem 0.75rem; border-radius: 20px; font-size: 0.75rem; font-weight: 600; }
+    .badge-active { background: #D1FAE5; color: #065F46; }
+    .badge-draft { background: #FEF3C7; color: #92400E; }
+    .bundle-savings { position: absolute; bottom: 1rem; left: 1rem; padding: 0.5rem 1rem; background: #EF4444; color: white; border-radius: 6px; font-weight: 700; }
+    .bundle-content { padding: 1.5rem; }
+    .bundle-name { font-size: 1.1rem; font-weight: 600; margin: 0 0 0.5rem 0; }
+    .bundle-desc { color: #666; font-size: 0.9rem; margin: 0 0 1rem 0; }
+    .bundle-products { display: flex; flex-direction: column; gap: 0.5rem; margin-bottom: 1rem; padding-bottom: 1rem; border-bottom: 1px solid #eee; }
+    .bundle-product { display: flex; justify-content: space-between; align-items: center; padding: 0.5rem; background: #f9f9f9; border-radius: 6px; font-size: 0.9rem; }
+    .bundle-pricing { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
+    .original-price { text-decoration: line-through; color: #999; }
+    .bundle-price { font-size: 1.5rem; font-weight: 700; color: #8E6545; }
+    .bundle-stats { display: flex; gap: 1.5rem; font-size: 0.85rem; color: #666; margin-bottom: 1rem; }
+    .bundle-actions { display: flex; gap: 0.5rem; }
+    .btn-action { flex: 1; padding: 0.5rem; border: none; border-radius: 6px; cursor: pointer; font-size: 0.85rem; }
+    .btn-edit { background: #8E6545; color: white; }
+    .btn-toggle { background: #E5E7EB; color: #374151; }
+    .modal { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; }
+    .modal.active { display: flex; }
+    .modal-content { background: white; border-radius: 12px; padding: 2rem; max-width: 600px; width: 90%; max-height: 90vh; overflow-y: auto; }
+    .modal-header { display: flex; justify-content: space-between; margin-bottom: 1.5rem; }
+    .modal-header h2 { margin: 0; }
+    .modal-close { background: none; border: none; font-size: 1.5rem; cursor: pointer; }
+    .form-group { margin-bottom: 1.25rem; }
+    .form-group label { display: block; margin-bottom: 0.5rem; font-weight: 500; }
+    .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 0.75rem; border: 1px solid #ddd; border-radius: 8px; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    .products-builder { border: 1px solid #ddd; border-radius: 8px; padding: 1rem; }
+    .product-row { display: flex; gap: 0.5rem; align-items: center; margin-bottom: 0.5rem; }
+    .product-row select { flex: 2; }
+    .product-row input { flex: 1; }
+    .btn-add-product { width: 100%; padding: 0.5rem; background: none; border: 1px dashed #ccc; border-radius: 4px; cursor: pointer; margin-top: 0.5rem; }
+    .btn-submit { width: 100%; padding: 0.875rem; background: #8E6545; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; }
+  </style>
+</head>
+<body>
+  <div class="admin-layout">
+    <aside class="admin-sidebar"></aside>
+    <main class="admin-main">
+      <header class="admin-header">
+        <h1>Product Bundles</h1>
+        <div class="header-actions">
+          <button class="btn-primary" onclick="openModal()">+ Create Bundle</button>
+        </div>
+      </header>
+      <div class="admin-content">
+        <div class="bundles-grid" id="bundlesGrid"></div>
+      </div>
+    </main>
+  </div>
+  <div class="modal" id="bundleModal">
+    <div class="modal-content">
+      <div class="modal-header"><h2 id="modalTitle">Create Bundle</h2><button class="modal-close" onclick="closeModal()">&times;</button></div>
+      <form onsubmit="saveBundle(event)">
+        <input type="hidden" id="bundleId">
+        <div class="form-group"><label>Bundle Name</label><input type="text" id="bundleName" required placeholder="e.g., Complete Room Package"></div>
+        <div class="form-group"><label>Description</label><textarea id="bundleDesc" rows="2" placeholder="Describe this bundle..."></textarea></div>
+        <div class="form-group">
+          <label>Products in Bundle</label>
+          <div class="products-builder" id="productsBuilder">
+            <div class="product-row">
+              <select class="product-select">
+                <option value="">Select product...</option>
+                <option value="roller-shade">Roller Shade</option>
+                <option value="cellular-shade">Cellular Shade</option>
+                <option value="zebra-shade">Zebra Shade</option>
+                <option value="roman-shade">Roman Shade</option>
+                <option value="motor">Smart Motor</option>
+                <option value="hub">Smart Hub</option>
+                <option value="remote">Remote Control</option>
+              </select>
+              <input type="number" class="product-qty" value="1" min="1" placeholder="Qty">
+              <button type="button" onclick="removeProduct(this)" style="background: none; border: none; cursor: pointer;">×</button>
+            </div>
+          </div>
+          <button type="button" class="btn-add-product" onclick="addProduct()">+ Add Product</button>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Discount Type</label>
+            <select id="discountType">
+              <option value="percentage">Percentage Off</option>
+              <option value="fixed">Fixed Price</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label>Discount Value</label>
+            <input type="number" id="discountValue" step="0.01" required>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Status</label>
+          <select id="bundleStatus">
+            <option value="active">Active</option>
+            <option value="draft">Draft</option>
+          </select>
+        </div>
+        <button type="submit" class="btn-submit">Save Bundle</button>
+      </form>
+    </div>
+  </div>
+  <script>
+    const productPrices = {
+      'roller-shade': 129.99,
+      'cellular-shade': 159.99,
+      'zebra-shade': 179.99,
+      'roman-shade': 199.99,
+      'motor': 149.99,
+      'hub': 79.99,
+      'remote': 29.99
+    };
+
+    let bundles = [
+      { id: 'b-1', name: 'Smart Home Starter', description: 'Everything you need to automate your window treatments', products: [{ id: 'roller-shade', qty: 2 }, { id: 'motor', qty: 2 }, { id: 'hub', qty: 1 }], discountType: 'percentage', discountValue: 15, status: 'active', sold: 45 },
+      { id: 'b-2', name: 'Complete Room Package', description: 'Outfit an entire room with matching shades', products: [{ id: 'cellular-shade', qty: 3 }], discountType: 'percentage', discountValue: 20, status: 'active', sold: 28 },
+      { id: 'b-3', name: 'Motorization Upgrade Kit', description: 'Add smart control to your existing shades', products: [{ id: 'motor', qty: 1 }, { id: 'hub', qty: 1 }, { id: 'remote', qty: 2 }], discountType: 'fixed', discountValue: 299.99, status: 'active', sold: 62 },
+      { id: 'b-4', name: 'Luxury Zebra Collection', description: 'Premium zebra shades for modern homes', products: [{ id: 'zebra-shade', qty: 4 }], discountType: 'percentage', discountValue: 25, status: 'draft', sold: 0 }
+    ];
+
+    document.addEventListener('DOMContentLoaded', () => {
+      if (!localStorage.getItem('admin_token')) { window.location.href = '/admin/login.html'; return; }
+      AdminNavConfig.initSidebar('bundles');
+      renderBundles();
+    });
+
+    function calculateBundlePricing(bundle) {
+      let originalPrice = 0;
+      bundle.products.forEach(p => {
+        originalPrice += (productPrices[p.id] || 0) * p.qty;
+      });
+
+      let bundlePrice;
+      if (bundle.discountType === 'percentage') {
+        bundlePrice = originalPrice * (1 - bundle.discountValue / 100);
+      } else {
+        bundlePrice = bundle.discountValue;
+      }
+
+      const savings = originalPrice - bundlePrice;
+      const savingsPercent = Math.round((savings / originalPrice) * 100);
+
+      return { originalPrice, bundlePrice, savings, savingsPercent };
+    }
+
+    function renderBundles() {
+      document.getElementById('bundlesGrid').innerHTML = bundles.map(bundle => {
+        const pricing = calculateBundlePricing(bundle);
+        return `
+          <div class="bundle-card">
+            <div class="bundle-image">
+              🎁
+              <span class="bundle-badge badge-${bundle.status}">${bundle.status}</span>
+              <span class="bundle-savings">Save ${pricing.savingsPercent}%</span>
+            </div>
+            <div class="bundle-content">
+              <h3 class="bundle-name">${bundle.name}</h3>
+              <p class="bundle-desc">${bundle.description}</p>
+              <div class="bundle-products">
+                ${bundle.products.map(p => `
+                  <div class="bundle-product">
+                    <span>${formatProductName(p.id)}</span>
+                    <span>× ${p.qty}</span>
+                  </div>
+                `).join('')}
+              </div>
+              <div class="bundle-pricing">
+                <span class="original-price">$${pricing.originalPrice.toFixed(2)}</span>
+                <span class="bundle-price">$${pricing.bundlePrice.toFixed(2)}</span>
+              </div>
+              <div class="bundle-stats">
+                <span>💰 Save $${pricing.savings.toFixed(2)}</span>
+                <span>📦 ${bundle.sold} sold</span>
+              </div>
+              <div class="bundle-actions">
+                <button class="btn-action btn-edit" onclick="editBundle('${bundle.id}')">Edit</button>
+                <button class="btn-action btn-toggle" onclick="toggleStatus('${bundle.id}')">${bundle.status === 'active' ? 'Deactivate' : 'Activate'}</button>
+              </div>
+            </div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    function formatProductName(id) {
+      return id.split('-').map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(' ');
+    }
+
+    function openModal(bundle = null) {
+      document.getElementById('bundleId').value = bundle ? bundle.id : '';
+      document.getElementById('bundleName').value = bundle ? bundle.name : '';
+      document.getElementById('bundleDesc').value = bundle ? bundle.description : '';
+      document.getElementById('discountType').value = bundle ? bundle.discountType : 'percentage';
+      document.getElementById('discountValue').value = bundle ? bundle.discountValue : '';
+      document.getElementById('bundleStatus').value = bundle ? bundle.status : 'draft';
+
+      const builder = document.getElementById('productsBuilder');
+      if (bundle) {
+        builder.innerHTML = bundle.products.map(p => `
+          <div class="product-row">
+            <select class="product-select">
+              <option value="">Select product...</option>
+              <option value="roller-shade" ${p.id === 'roller-shade' ? 'selected' : ''}>Roller Shade</option>
+              <option value="cellular-shade" ${p.id === 'cellular-shade' ? 'selected' : ''}>Cellular Shade</option>
+              <option value="zebra-shade" ${p.id === 'zebra-shade' ? 'selected' : ''}>Zebra Shade</option>
+              <option value="roman-shade" ${p.id === 'roman-shade' ? 'selected' : ''}>Roman Shade</option>
+              <option value="motor" ${p.id === 'motor' ? 'selected' : ''}>Smart Motor</option>
+              <option value="hub" ${p.id === 'hub' ? 'selected' : ''}>Smart Hub</option>
+              <option value="remote" ${p.id === 'remote' ? 'selected' : ''}>Remote Control</option>
+            </select>
+            <input type="number" class="product-qty" value="${p.qty}" min="1" placeholder="Qty">
+            <button type="button" onclick="removeProduct(this)" style="background: none; border: none; cursor: pointer;">×</button>
+          </div>
+        `).join('');
+      } else {
+        builder.innerHTML = `
+          <div class="product-row">
+            <select class="product-select">
+              <option value="">Select product...</option>
+              <option value="roller-shade">Roller Shade</option>
+              <option value="cellular-shade">Cellular Shade</option>
+              <option value="zebra-shade">Zebra Shade</option>
+              <option value="roman-shade">Roman Shade</option>
+              <option value="motor">Smart Motor</option>
+              <option value="hub">Smart Hub</option>
+              <option value="remote">Remote Control</option>
+            </select>
+            <input type="number" class="product-qty" value="1" min="1" placeholder="Qty">
+            <button type="button" onclick="removeProduct(this)" style="background: none; border: none; cursor: pointer;">×</button>
+          </div>
+        `;
+      }
+
+      document.getElementById('modalTitle').textContent = bundle ? 'Edit Bundle' : 'Create Bundle';
+      document.getElementById('bundleModal').classList.add('active');
+    }
+
+    function closeModal() { document.getElementById('bundleModal').classList.remove('active'); }
+
+    function editBundle(id) {
+      const bundle = bundles.find(b => b.id === id);
+      if (bundle) openModal(bundle);
+    }
+
+    function toggleStatus(id) {
+      const bundle = bundles.find(b => b.id === id);
+      if (bundle) {
+        bundle.status = bundle.status === 'active' ? 'draft' : 'active';
+        renderBundles();
+      }
+    }
+
+    function addProduct() {
+      const builder = document.getElementById('productsBuilder');
+      const row = document.createElement('div');
+      row.className = 'product-row';
+      row.innerHTML = `
+        <select class="product-select">
+          <option value="">Select product...</option>
+          <option value="roller-shade">Roller Shade</option>
+          <option value="cellular-shade">Cellular Shade</option>
+          <option value="zebra-shade">Zebra Shade</option>
+          <option value="roman-shade">Roman Shade</option>
+          <option value="motor">Smart Motor</option>
+          <option value="hub">Smart Hub</option>
+          <option value="remote">Remote Control</option>
+        </select>
+        <input type="number" class="product-qty" value="1" min="1" placeholder="Qty">
+        <button type="button" onclick="removeProduct(this)" style="background: none; border: none; cursor: pointer;">×</button>
+      `;
+      builder.appendChild(row);
+    }
+
+    function removeProduct(btn) {
+      btn.parentElement.remove();
+    }
+
+    function saveBundle(e) {
+      e.preventDefault();
+      const id = document.getElementById('bundleId').value;
+      const products = Array.from(document.querySelectorAll('#productsBuilder .product-row')).map(row => ({
+        id: row.querySelector('.product-select').value,
+        qty: parseInt(row.querySelector('.product-qty').value)
+      })).filter(p => p.id);
+
+      const data = {
+        name: document.getElementById('bundleName').value,
+        description: document.getElementById('bundleDesc').value,
+        products: products,
+        discountType: document.getElementById('discountType').value,
+        discountValue: parseFloat(document.getElementById('discountValue').value),
+        status: document.getElementById('bundleStatus').value
+      };
+
+      if (id) {
+        const idx = bundles.findIndex(b => b.id === id);
+        if (idx >= 0) bundles[idx] = { ...bundles[idx], ...data };
+      } else {
+        data.id = 'b-' + Date.now();
+        data.sold = 0;
+        bundles.push(data);
+      }
+
+      closeModal();
+      renderBundles();
+      alert(id ? 'Bundle updated' : 'Bundle created');
+    }
+
+    document.getElementById('bundleModal').addEventListener('click', e => { if (e.target.id === 'bundleModal') closeModal(); });
+  </script>
+</body>
+</html>

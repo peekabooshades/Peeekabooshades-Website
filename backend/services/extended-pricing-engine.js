@@ -334,33 +334,25 @@ class ExtendedPricingEngine {
     areaSqMeters = Math.max(areaSqMeters, minArea);
 
     // Look up manufacturer price (case-insensitive fabric code match - BUG-009 FIX)
-    // BUG-010 FIX: Use zebraManufacturerPrices for zebra products
+    // All product types now use single manufacturerPrices table with productType field
     const normalizedFabricCode = fabricCode?.toLowerCase();
     let priceRecord = null;
 
-    if (productType === 'zebra') {
-      // Zebra uses separate zebraManufacturerPrices collection
-      const zebraPrices = db.zebraManufacturerPrices || [];
-      priceRecord = zebraPrices.find(p =>
-        p.fabricCode?.toLowerCase() === normalizedFabricCode &&
-        p.status === 'active'
-      );
-      // Map zebra field names to standard names if found
-      if (priceRecord) {
-        priceRecord = {
-          ...priceRecord,
-          pricePerSqMeter: priceRecord.pricePerSqMeterManual || priceRecord.pricePerSqMeter,
-          minAreaSqMeter: priceRecord.minAreaSqMeter || 1.5
-        };
-      }
-    } else {
-      // Roller and other products use manufacturerPrices
-      const manufacturerPrices = db.manufacturerPrices || [];
-      priceRecord = manufacturerPrices.find(p =>
-        p.productType === productType &&
-        p.fabricCode?.toLowerCase() === normalizedFabricCode &&
-        p.status === 'active'
-      );
+    // Single source of truth: manufacturerPrices table with productType filter
+    const allPrices = db.manufacturerPrices || [];
+    priceRecord = allPrices.find(p =>
+      p.productType === productType &&
+      p.fabricCode?.toLowerCase() === normalizedFabricCode &&
+      (p.status === 'active' || p.status === undefined)
+    );
+
+    // Map field names to standard names if found (for backward compatibility with zebra data)
+    if (priceRecord) {
+      priceRecord = {
+        ...priceRecord,
+        pricePerSqMeter: priceRecord.pricePerSqMeterManual || priceRecord.pricePerSqMeter,
+        minAreaSqMeter: priceRecord.minAreaSqMeter || (productType === 'zebra' ? 1.5 : 1.2)
+      };
     }
 
     if (priceRecord) {

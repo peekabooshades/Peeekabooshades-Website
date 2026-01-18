@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Installation Guides - Peekaboo Shades Admin</title>
+  <link rel="stylesheet" href="/admin/css/admin.css?v=1737200003.0.28">
+  <script src="/admin/js/adminNavConfig.js?v=1737200002"></script>
+  <style>
+    .guides-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 1.5rem; margin-top: 1.5rem; }
+    .guide-card { background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+    .guide-thumb { height: 160px; background: linear-gradient(135deg, #8E6545, #A67C5B); display: flex; align-items: center; justify-content: center; color: white; font-size: 3rem; }
+    .guide-content { padding: 1.5rem; }
+    .guide-content h3 { margin: 0 0 0.5rem 0; }
+    .guide-content p { color: #666; font-size: 0.9rem; margin: 0 0 1rem 0; }
+    .guide-meta { display: flex; justify-content: space-between; align-items: center; padding-top: 1rem; border-top: 1px solid #eee; }
+    .guide-meta span { font-size: 0.85rem; color: #666; }
+    .btn-edit { padding: 0.4rem 0.75rem; background: #8E6545; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 0.85rem; }
+    .btn-primary { padding: 0.75rem 1.5rem; background: #8E6545; color: white; border: none; border-radius: 8px; cursor: pointer; }
+    .status-badge { padding: 0.2rem 0.5rem; border-radius: 4px; font-size: 0.75rem; }
+    .status-published { background: #D1FAE5; color: #065F46; }
+    .status-draft { background: #FEF3C7; color: #92400E; }
+  </style>
+</head>
+<body>
+  <div class="admin-layout">
+    <aside class="admin-sidebar"></aside>
+    <main class="admin-main">
+      <header class="admin-header">
+        <h1>Installation Guides</h1>
+        <div class="header-actions"><button class="btn-primary" onclick="createGuide()">+ New Guide</button></div>
+      </header>
+      <div class="admin-content">
+        <div class="guides-grid">
+          <div class="guide-card">
+            <div class="guide-thumb">🪟</div>
+            <div class="guide-content">
+              <h3>Roller Shade Installation</h3>
+              <p>Step-by-step guide for installing roller shades with inside or outside mount.</p>
+              <div class="guide-meta">
+                <span class="status-badge status-published">Published</span>
+                <button class="btn-edit" onclick="editGuide('roller')">Edit</button>
+              </div>
+            </div>
+          </div>
+          <div class="guide-card">
+            <div class="guide-thumb">🦓</div>
+            <div class="guide-content">
+              <h3>Zebra Blind Installation</h3>
+              <p>Complete installation instructions for zebra/dual blinds.</p>
+              <div class="guide-meta">
+                <span class="status-badge status-published">Published</span>
+                <button class="btn-edit" onclick="editGuide('zebra')">Edit</button>
+              </div>
+            </div>
+          </div>
+          <div class="guide-card">
+            <div class="guide-thumb">⚡</div>
+            <div class="guide-content">
+              <h3>Motorized Shade Setup</h3>
+              <p>Programming remotes and smart home integration guide.</p>
+              <div class="guide-meta">
+                <span class="status-badge status-published">Published</span>
+                <button class="btn-edit" onclick="editGuide('motorized')">Edit</button>
+              </div>
+            </div>
+          </div>
+          <div class="guide-card">
+            <div class="guide-thumb">📜</div>
+            <div class="guide-content">
+              <h3>Roman Shade Installation</h3>
+              <p>Mounting and adjustment guide for roman shades.</p>
+              <div class="guide-meta">
+                <span class="status-badge status-draft">Draft</span>
+                <button class="btn-edit" onclick="editGuide('roman')">Edit</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      if (!localStorage.getItem('admin_token')) { window.location.href = '/admin/login.html'; return; }
+      AdminNavConfig.initSidebar('installation-guides');
+    });
+    function createGuide() { alert('Opening guide editor...'); }
+    function editGuide(type) { window.location.href = `/admin/content/measuring-guide.html?type=${type}`; }
+  </script>
+</body>
+</html>

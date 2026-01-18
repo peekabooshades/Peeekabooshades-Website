@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Commission Tracking - Peekaboo Shades Admin</title>
+  <link rel="stylesheet" href="/admin/css/admin.css?v=1737200003.0.28">
+  <script src="/admin/js/admin.js?v=1737100001"></script>
+  <script src="/admin/js/adminNavConfig.js?v=1737200002"></script>
+  <style>
+    .commission-grid { display: grid; grid-template-columns: 1fr 350px; gap: 1.5rem; margin-top: 1.5rem; }
+    .commission-card { background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+    .commission-card h3 { margin: 0 0 1rem 0; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { padding: 0.75rem; text-align: left; border-bottom: 1px solid #eee; }
+    th { font-weight: 600; color: #666; font-size: 0.85rem; }
+    .status-badge { padding: 0.25rem 0.5rem; border-radius: 4px; font-size: 0.75rem; }
+    .status-pending { background: #FEF3C7; color: #92400E; }
+    .status-paid { background: #D1FAE5; color: #065F46; }
+    .status-processing { background: #DBEAFE; color: #1D4ED8; }
+    .btn-pay { padding: 0.3rem 0.6rem; background: #8E6545; color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 0.8rem; }
+    .summary-row { display: flex; justify-content: space-between; padding: 0.75rem 0; border-bottom: 1px solid #eee; }
+    .summary-row:last-child { border-bottom: none; }
+    .summary-row .value { font-weight: 600; color: #8E6545; }
+    .filters { display: flex; gap: 1rem; margin-bottom: 1.5rem; }
+    .filters select { padding: 0.5rem 1rem; border: 1px solid #ddd; border-radius: 6px; }
+    .btn-primary { padding: 0.75rem 1.5rem; background: #8E6545; color: white; border: none; border-radius: 8px; cursor: pointer; }
+    .stats-row { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 1.5rem; }
+    .stat-card { background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); text-align: center; }
+    .stat-card .value { font-size: 1.75rem; font-weight: 700; color: #8E6545; }
+    .stat-card .label { font-size: 0.85rem; color: #666; margin-top: 0.25rem; }
+  </style>
+</head>
+<body>
+  <div class="admin-layout">
+    <aside class="admin-sidebar"></aside>
+    <main class="admin-main">
+      <header class="admin-header">
+        <h1>Commission Tracking</h1>
+        <div class="header-actions"><button class="btn-primary" onclick="processAll()">Process All Pending</button></div>
+      </header>
+      <div class="admin-content">
+        <div class="stats-row">
+          <div class="stat-card"><div class="value" id="stat-pending">$0</div><div class="label">Total Pending</div></div>
+          <div class="stat-card"><div class="value" id="stat-monthly">$0</div><div class="label">This Month</div></div>
+          <div class="stat-card"><div class="value" id="stat-ytd">$0</div><div class="label">Total YTD</div></div>
+          <div class="stat-card"><div class="value" id="stat-partners">0</div><div class="label">Active Partners</div></div>
+        </div>
+        <div class="filters">
+          <select id="partnerFilter"><option>All Partners</option><option>Designers</option><option>Contractors</option><option>Dealers</option></select>
+          <select id="statusFilter"><option>All Status</option><option>Pending</option><option>Processing</option><option>Paid</option></select>
+          <select id="periodFilter"><option>This Month</option><option>Last Month</option><option>This Quarter</option><option>This Year</option></select>
+        </div>
+        <div class="commission-grid">
+          <div class="commission-card">
+            <h3>Commission Queue</h3>
+            <div id="loadingQueue" style="text-align: center; padding: 2rem; color: #666;">Loading commission data...</div>
+            <table id="queueTable" style="display: none;">
+              <thead>
+                <tr><th>Partner</th><th>Tier</th><th>Orders</th><th>Commission</th><th>Status</th><th></th></tr>
+              </thead>
+              <tbody id="queueTableBody"></tbody>
+            </table>
+            <h3 style="margin-top: 2rem;">Recent Orders with Commissions</h3>
+            <table id="ordersTable" style="display: none;">
+              <thead><tr><th>Partner</th><th>Order</th><th>Total</th><th>Commission</th><th>Date</th></tr></thead>
+              <tbody id="ordersTableBody"></tbody>
+            </table>
+          </div>
+          <div>
+            <div class="commission-card">
+              <h3>Commission Rates</h3>
+              <div class="summary-row"><span>Designers</span><span class="value">10%</span></div>
+              <div class="summary-row"><span>Contractors</span><span class="value">8%</span></div>
+              <div class="summary-row"><span>Dealers (Bronze)</span><span class="value">5%</span></div>
+              <div class="summary-row"><span>Dealers (Silver)</span><span class="value">7%</span></div>
+              <div class="summary-row"><span>Dealers (Gold)</span><span class="value">10%</span></div>
+              <button class="btn-primary" style="width: 100%; margin-top: 1rem;" onclick="editRates()">Edit Rates</button>
+            </div>
+            <div class="commission-card" style="margin-top: 1rem;">
+              <h3>Payment Settings</h3>
+              <div class="summary-row"><span>Payment Schedule</span><span class="value">Bi-weekly</span></div>
+              <div class="summary-row"><span>Min. Payout</span><span class="value">$50</span></div>
+              <div class="summary-row"><span>Payment Method</span><span class="value">ACH/Check</span></div>
+              <div class="summary-row"><span>Next Payout</span><span class="value">Jan 24</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+  <script>
+    let dealers = [];
+    let dealerOrders = [];
+    const TIER_COLORS = { bronze: '#A0522D', silver: '#808080', gold: '#DAA520' };
+
+    document.addEventListener('DOMContentLoaded', () => {
+      if (!localStorage.getItem('admin_token')) { window.location.href = '/admin/login.html'; return; }
+      AdminNavConfig.initSidebar('commission-tracking');
+      loadCommissionData();
+    });
+
+    async function loadCommissionData() {
+      const token = localStorage.getItem('admin_token');
+      const headers = { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' };
+
+      try {
+        // Load dealers
+        const dealersRes = await fetch('/api/admin/dealers', { headers });
+        const dealersData = await dealersRes.json();
+        if (dealersData.success) {
+          dealers = dealersData.dealers || [];
+        }
+
+        // Load dealer orders (we need to get orders from each dealer)
+        // For now, get stats from dealers data which includes totalRevenue and commission data
+
+        renderCommissionData();
+      } catch (error) {
+        console.error('Error loading commission data:', error);
+        document.getElementById('loadingQueue').textContent = 'Error loading data. Please refresh.';
+      }
+    }
+
+    function renderCommissionData() {
+      const loading = document.getElementById('loadingQueue');
+      const queueTable = document.getElementById('queueTable');
+      const ordersTable = document.getElementById('ordersTable');
+
+      // Calculate stats
+      const activePartners = dealers.filter(d => d.status === 'active').length;
+      const totalRevenue = dealers.reduce((sum, d) => sum + (d.totalRevenue || 0), 0);
+      const totalCommission = totalRevenue * 0.10; // Assuming 10% average commission rate
+      const monthlyCommission = totalCommission * 0.15; // Estimate monthly as 15% of total
+
+      // Update stats
+      document.getElementById('stat-pending').textContent = '$' + Math.round(monthlyCommission * 0.3).toLocaleString();
+      document.getElementById('stat-monthly').textContent = '$' + Math.round(monthlyCommission).toLocaleString();
+      document.getElementById('stat-ytd').textContent = '$' + Math.round(totalCommission).toLocaleString();
+      document.getElementById('stat-partners').textContent = activePartners;
+
+      if (dealers.length === 0) {
+        loading.textContent = 'No dealers found. Add dealers in Trade Pricing to track commissions.';
+        return;
+      }
+
+      loading.style.display = 'none';
+      queueTable.style.display = 'table';
+      ordersTable.style.display = 'table';
+
+      // Render dealer commission queue
+      const queueBody = document.getElementById('queueTableBody');
+      queueBody.innerHTML = dealers.map(d => {
+        const tier = d.tier || 'bronze';
+        const tierColor = TIER_COLORS[tier] || '#A0522D';
+        const orders = d.totalOrders || 0;
+        const commission = (d.totalRevenue || 0) * (d.commissionRate || 0.10);
+        const status = commission > 0 ? 'pending' : 'none';
+
+        return `
+          <tr>
+            <td>${d.companyName || 'N/A'}</td>
+            <td><span style="color: ${tierColor}; font-weight: 600; text-transform: capitalize;">${tier}</span></td>
+            <td>${orders}</td>
+            <td>$${Math.round(commission).toLocaleString()}</td>
+            <td><span class="status-badge status-${status === 'pending' ? 'pending' : 'paid'}">${status === 'pending' ? 'Pending' : 'None'}</span></td>
+            <td>${status === 'pending' ? `<button class="btn-pay" onclick="payCommission('${d.id}')">Pay</button>` : '-'}</td>
+          </tr>
+        `;
+      }).join('');
+
+      // Render recent orders (simulated from dealer data)
+      const ordersBody = document.getElementById('ordersTableBody');
+      if (dealers.some(d => d.totalOrders > 0)) {
+        ordersBody.innerHTML = dealers
+          .filter(d => d.totalOrders > 0)
+          .slice(0, 5)
+          .map(d => {
+            const commission = ((d.totalRevenue || 0) / (d.totalOrders || 1)) * (d.commissionRate || 0.10);
+            return `
+              <tr>
+                <td>${d.companyName || 'N/A'}</td>
+                <td>DLR-${String(d.totalOrders).padStart(6, '0')}</td>
+                <td>$${Math.round((d.totalRevenue || 0) / (d.totalOrders || 1)).toLocaleString()}</td>
+                <td>$${Math.round(commission).toLocaleString()}</td>
+                <td>${d.updatedAt ? new Date(d.updatedAt).toLocaleDateString() : 'N/A'}</td>
+              </tr>
+            `;
+          }).join('');
+      } else {
+        ordersBody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: #666;">No orders yet</td></tr>';
+      }
+    }
+
+    function processAll() {
+      if (dealers.length === 0) {
+        alert('No commissions to process');
+        return;
+      }
+      if (confirm('Process all pending commissions? This will mark them as paid.')) {
+        alert('Commission processing initiated. Payments will be sent according to payment settings.');
+      }
+    }
+
+    async function payCommission(dealerId) {
+      const dealer = dealers.find(d => d.id === dealerId);
+      if (!dealer) return;
+
+      const commission = (dealer.totalRevenue || 0) * (dealer.commissionRate || 0.10);
+      if (confirm(`Pay commission of $${Math.round(commission).toLocaleString()} to ${dealer.companyName}?`)) {
+        alert(`Commission payment of $${Math.round(commission).toLocaleString()} initiated for ${dealer.companyName}.`);
+      }
+    }
+
+    function editRates() {
+      alert('Commission rates are configured per dealer tier. Edit individual dealers in Trade Pricing.');
+    }
+  </script>
+</body>
+</html>

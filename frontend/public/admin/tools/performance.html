@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Performance Monitor - Peekaboo Shades Admin</title>
+  <link rel="stylesheet" href="/admin/css/admin.css?v=1737200003.0.28">
+  <script src="/admin/js/adminNavConfig.js?v=1737200002"></script>
+  <style>
+    .perf-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 1.5rem; }
+    .perf-card { background: white; padding: 1.5rem; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); text-align: center; }
+    .perf-card h4 { margin: 0 0 0.5rem 0; font-size: 0.85rem; color: #666; }
+    .perf-card .value { font-size: 2rem; font-weight: 600; }
+    .perf-card .status { font-size: 0.85rem; margin-top: 0.25rem; }
+    .good { color: #10B981; }
+    .warning { color: #F59E0B; }
+    .charts-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; }
+    .chart-card { background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+    .chart-card h3 { margin: 0 0 1rem 0; }
+    .chart-placeholder { height: 200px; background: #F9FAFB; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #666; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { padding: 0.75rem; text-align: left; border-bottom: 1px solid #eee; }
+    th { font-weight: 600; color: #666; font-size: 0.85rem; }
+  </style>
+</head>
+<body>
+  <div class="admin-layout">
+    <aside class="admin-sidebar"></aside>
+    <main class="admin-main">
+      <header class="admin-header"><h1>Performance Monitor</h1></header>
+      <div class="admin-content">
+        <div class="perf-grid">
+          <div class="perf-card">
+            <h4>Page Load Time</h4>
+            <div class="value good">1.2s</div>
+            <div class="status good">Good</div>
+          </div>
+          <div class="perf-card">
+            <h4>Server Response</h4>
+            <div class="value good">145ms</div>
+            <div class="status good">Excellent</div>
+          </div>
+          <div class="perf-card">
+            <h4>Error Rate</h4>
+            <div class="value good">0.2%</div>
+            <div class="status good">Low</div>
+          </div>
+          <div class="perf-card">
+            <h4>Uptime (30 days)</h4>
+            <div class="value good">99.9%</div>
+            <div class="status good">Excellent</div>
+          </div>
+        </div>
+        <div class="charts-grid">
+          <div class="chart-card">
+            <h3>Response Time (24 hours)</h3>
+            <div class="chart-placeholder">Response time chart would display here</div>
+          </div>
+          <div class="chart-card">
+            <h3>Requests per Minute</h3>
+            <div class="chart-placeholder">Request volume chart would display here</div>
+          </div>
+          <div class="chart-card">
+            <h3>Slowest Endpoints</h3>
+            <table>
+              <thead><tr><th>Endpoint</th><th>Avg Time</th><th>Calls</th></tr></thead>
+              <tbody>
+                <tr><td>/api/products</td><td>245ms</td><td>1,234</td></tr>
+                <tr><td>/api/pricing/calculate</td><td>180ms</td><td>856</td></tr>
+                <tr><td>/api/orders</td><td>156ms</td><td>342</td></tr>
+                <tr><td>/api/fabrics</td><td>120ms</td><td>2,456</td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="chart-card">
+            <h3>Resource Usage</h3>
+            <div style="margin-bottom: 1rem;">
+              <div style="display: flex; justify-content: space-between; font-size: 0.9rem;"><span>CPU</span><span>23%</span></div>
+              <div style="height: 8px; background: #E5E7EB; border-radius: 4px;"><div style="width: 23%; height: 100%; background: #10B981; border-radius: 4px;"></div></div>
+            </div>
+            <div style="margin-bottom: 1rem;">
+              <div style="display: flex; justify-content: space-between; font-size: 0.9rem;"><span>Memory</span><span>45%</span></div>
+              <div style="height: 8px; background: #E5E7EB; border-radius: 4px;"><div style="width: 45%; height: 100%; background: #10B981; border-radius: 4px;"></div></div>
+            </div>
+            <div>
+              <div style="display: flex; justify-content: space-between; font-size: 0.9rem;"><span>Storage</span><span>62%</span></div>
+              <div style="height: 8px; background: #E5E7EB; border-radius: 4px;"><div style="width: 62%; height: 100%; background: #F59E0B; border-radius: 4px;"></div></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      if (!localStorage.getItem('admin_token')) { window.location.href = '/admin/login.html'; return; }
+      AdminNavConfig.initSidebar('performance-monitor');
+    });
+  </script>
+</body>
+</html>

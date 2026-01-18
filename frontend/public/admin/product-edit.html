@@ -4,8 +4,8 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Product - Peekaboo Shades Admin</title>
-  <link rel="stylesheet" href="css/admin.css">
-  <link rel="icon" type="image/png" href="/images/favicon.png">
+  <link rel="stylesheet" href="css/admin.css?v=1737200003">
+  <link rel="icon" type="image/jpeg" href="/images/peekabooshades_logo.jpeg">
   <style>
     .image-upload-zone {
       border: 2px dashed #e0e0e0;
@@ -397,7 +397,7 @@
     </main>
   </div>
 
-  <script src="js/admin.js"></script>
+  <script src="js/admin.js?v=1737100001"></script>
   <script>
     // Require authentication
     if (!Admin.Auth.requireAuth()) {
@@ -580,40 +580,57 @@
     async function loadProduct(id) {
       try {
         Admin.Loading.show();
+        console.log('Loading product with ID:', id);
         const data = await Admin.ProductsAPI.getById(id);
-        if (data.success) {
-          const product = data.product;
-          document.getElementById('name').value = product.name || '';
-          document.getElementById('slug').value = product.slug || '';
-          document.getElementById('slug').dataset.manual = 'true';
-          document.getElementById('description').value = product.description || '';
-          document.getElementById('base_price').value = product.base_price || '';
-          document.getElementById('sale_price').value = product.sale_price || '';
-          document.getElementById('category_id').value = product.category_id || '';
-          document.getElementById('is_active').checked = product.is_active !== false;
-          document.getElementById('is_featured').checked = product.is_featured === true;
+        console.log('API Response:', data);
 
-          // Load main image
-          if (product.image_url) {
-            document.getElementById('image_url').value = product.image_url;
-            document.getElementById('mainImageImg').src = product.image_url;
-            document.getElementById('mainImagePreview').style.display = 'block';
-            document.getElementById('mainImagePlaceholder').style.display = 'none';
-          }
-
-          // Load gallery images
-          if (product.gallery_images && Array.isArray(product.gallery_images)) {
-            galleryImages = ['', '', '', ''];
-            product.gallery_images.forEach((img, i) => {
-              if (i < 4) galleryImages[i] = img;
-            });
-            document.getElementById('gallery_images').value = JSON.stringify(product.gallery_images);
-            renderGalleryGrid();
-          }
+        if (!data.success) {
+          console.error('API Error:', data.error);
+          Admin.Toast.error(data.error || 'Failed to load product');
+          return;
         }
+
+        const product = data.product || data.data;  // Handle both response formats
+        console.log('Product data:', product);
+
+        if (!product) {
+          Admin.Toast.error('Product not found');
+          setTimeout(() => window.location.href = '/admin/products.html', 1500);
+          return;
+        }
+
+        document.getElementById('name').value = product.name || '';
+        document.getElementById('slug').value = product.slug || '';
+        document.getElementById('slug').dataset.manual = 'true';
+        document.getElementById('description').value = product.description || '';
+        document.getElementById('base_price').value = product.base_price || '';
+        document.getElementById('sale_price').value = product.sale_price || '';
+        document.getElementById('category_id').value = product.category_id || '';
+        document.getElementById('is_active').checked = product.is_active !== false;
+        document.getElementById('is_featured').checked = product.is_featured === true;
+
+        // Load main image
+        if (product.image_url) {
+          document.getElementById('image_url').value = product.image_url;
+          document.getElementById('mainImageImg').src = product.image_url;
+          document.getElementById('mainImagePreview').style.display = 'block';
+          document.getElementById('mainImagePlaceholder').style.display = 'none';
+        }
+
+        // Load gallery images
+        if (product.gallery_images && Array.isArray(product.gallery_images)) {
+          galleryImages = ['', '', '', ''];
+          product.gallery_images.forEach((img, i) => {
+            if (i < 4) galleryImages[i] = img;
+          });
+          document.getElementById('gallery_images').value = JSON.stringify(product.gallery_images);
+          renderGalleryGrid();
+        }
+
+        console.log('Product loaded successfully');
       } catch (error) {
-        Admin.Toast.error('Failed to load product');
-        setTimeout(() => window.location.href = '/admin/products.html', 1500);
+        console.error('loadProduct error:', error);
+        Admin.Toast.error('Failed to load product: ' + error.message);
       } finally {
         Admin.Loading.hide();
       }

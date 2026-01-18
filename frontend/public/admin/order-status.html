@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Order Status Management - Peekaboo Shades Admin</title>
+  <link rel="stylesheet" href="/admin/css/admin.css?v=1737200003.0.28">
+  <script src="/admin/js/adminNavConfig.js?v=1737200002"></script>
+  <style>
+    .status-grid { display: grid; grid-template-columns: 350px 1fr; gap: 1.5rem; margin-top: 1.5rem; }
+    .status-sidebar { background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); height: fit-content; }
+    .status-list { display: flex; flex-direction: column; gap: 0.5rem; }
+    .status-item { display: flex; align-items: center; gap: 0.75rem; padding: 0.75rem; border-radius: 8px; cursor: grab; background: #f9f9f9; }
+    .status-item:hover { background: #f0f0f0; }
+    .status-item.dragging { opacity: 0.5; }
+    .status-color { width: 12px; height: 12px; border-radius: 50%; }
+    .status-name { flex: 1; font-weight: 500; }
+    .status-count { background: #e0e0e0; padding: 0.2rem 0.5rem; border-radius: 10px; font-size: 0.75rem; }
+    .status-actions { display: flex; gap: 0.25rem; }
+    .status-actions button { background: none; border: none; cursor: pointer; padding: 0.25rem; opacity: 0.5; }
+    .status-actions button:hover { opacity: 1; }
+    .btn-add-status { width: 100%; padding: 0.75rem; background: none; border: 1px dashed #ccc; border-radius: 8px; cursor: pointer; margin-top: 1rem; }
+    .workflow-main { background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+    .workflow-title { font-size: 1.1rem; font-weight: 600; margin-bottom: 1.5rem; }
+    .workflow-diagram { display: flex; flex-wrap: wrap; gap: 1rem; align-items: center; padding: 2rem; background: #f9f9f9; border-radius: 8px; min-height: 200px; }
+    .workflow-node { background: white; border-radius: 8px; padding: 1rem 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.1); text-align: center; min-width: 120px; }
+    .workflow-node .node-color { width: 24px; height: 24px; border-radius: 50%; margin: 0 auto 0.5rem; }
+    .workflow-node .node-name { font-weight: 600; }
+    .workflow-arrow { font-size: 1.5rem; color: #ccc; }
+    .transitions-section { margin-top: 2rem; }
+    .transition-card { display: flex; align-items: center; gap: 1rem; padding: 1rem; background: #f9f9f9; border-radius: 8px; margin-bottom: 0.5rem; }
+    .transition-from, .transition-to { display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem 0.75rem; background: white; border-radius: 6px; }
+    .transition-arrow { font-size: 1.2rem; color: #666; }
+    .transition-config { flex: 1; display: flex; gap: 0.5rem; flex-wrap: wrap; }
+    .transition-tag { padding: 0.25rem 0.5rem; background: #e0e0e0; border-radius: 4px; font-size: 0.8rem; }
+    .modal { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; }
+    .modal.active { display: flex; }
+    .modal-content { background: white; border-radius: 12px; padding: 2rem; max-width: 500px; width: 90%; }
+    .modal-header { display: flex; justify-content: space-between; margin-bottom: 1.5rem; }
+    .modal-header h2 { margin: 0; }
+    .modal-close { background: none; border: none; font-size: 1.5rem; cursor: pointer; }
+    .form-group { margin-bottom: 1.25rem; }
+    .form-group label { display: block; margin-bottom: 0.5rem; font-weight: 500; }
+    .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 0.75rem; border: 1px solid #ddd; border-radius: 8px; }
+    .color-picker { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+    .color-option { width: 32px; height: 32px; border-radius: 50%; cursor: pointer; border: 2px solid transparent; }
+    .color-option.selected { border-color: #333; }
+    .btn-submit { width: 100%; padding: 0.875rem; background: #8E6545; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; }
+    .checkbox-group { display: flex; flex-wrap: wrap; gap: 0.75rem; }
+    .checkbox-item { display: flex; align-items: center; gap: 0.5rem; }
+  </style>
+</head>
+<body>
+  <div class="admin-layout">
+    <aside class="admin-sidebar"></aside>
+    <main class="admin-main">
+      <header class="admin-header">
+        <h1>Order Status Management</h1>
+      </header>
+      <div class="admin-content">
+        <div class="status-grid">
+          <div class="status-sidebar">
+            <h3 style="margin: 0 0 1rem 0;">Order Statuses</h3>
+            <p style="color: #666; font-size: 0.9rem; margin-bottom: 1rem;">Drag to reorder. These statuses appear in the workflow.</p>
+            <div class="status-list" id="statusList"></div>
+            <button class="btn-add-status" onclick="openModal()">+ Add Status</button>
+          </div>
+          <div class="workflow-main">
+            <h3 class="workflow-title">Order Workflow</h3>
+            <div class="workflow-diagram" id="workflowDiagram"></div>
+            <div class="transitions-section">
+              <h4 style="margin-bottom: 1rem;">Status Transitions</h4>
+              <div id="transitionsList"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+  <div class="modal" id="statusModal">
+    <div class="modal-content">
+      <div class="modal-header"><h2 id="modalTitle">Add Status</h2><button class="modal-close" onclick="closeModal()">&times;</button></div>
+      <form onsubmit="saveStatus(event)">
+        <input type="hidden" id="statusId">
+        <div class="form-group"><label>Status Name</label><input type="text" id="statusName" required placeholder="e.g., In Production"></div>
+        <div class="form-group">
+          <label>Color</label>
+          <div class="color-picker" id="colorPicker"></div>
+        </div>
+        <div class="form-group">
+          <label>Status Type</label>
+          <select id="statusType">
+            <option value="pending">Pending</option>
+            <option value="processing">Processing</option>
+            <option value="completed">Completed</option>
+            <option value="cancelled">Cancelled</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>Triggers</label>
+          <div class="checkbox-group">
+            <label class="checkbox-item"><input type="checkbox" name="triggers" value="email_customer"> Email Customer</label>
+            <label class="checkbox-item"><input type="checkbox" name="triggers" value="email_admin"> Email Admin</label>
+            <label class="checkbox-item"><input type="checkbox" name="triggers" value="sms_customer"> SMS Customer</label>
+            <label class="checkbox-item"><input type="checkbox" name="triggers" value="webhook"> Trigger Webhook</label>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Description (optional)</label>
+          <textarea id="statusDesc" rows="2" placeholder="When should this status be used?"></textarea>
+        </div>
+        <button type="submit" class="btn-submit">Save Status</button>
+      </form>
+    </div>
+  </div>
+  <script>
+    const colors = ['#6B7280', '#EF4444', '#F59E0B', '#10B981', '#3B82F6', '#8B5CF6', '#EC4899', '#F97316', '#8E6545'];
+    let selectedColor = colors[0];
+
+    let statuses = [];
+    let validTransitions = {};
+    let isCustomized = false;
+
+    document.addEventListener('DOMContentLoaded', () => {
+      if (!localStorage.getItem('admin_token')) { window.location.href = '/admin/login.html'; return; }
+      AdminNavConfig.initSidebar('order-status');
+      loadData();
+    });
+
+    async function loadData() {
+      const token = localStorage.getItem('admin_token');
+      const headers = { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' };
+
+      try {
+        // Load order statuses from dedicated API
+        const res = await fetch('/api/admin/order-statuses', { headers });
+        const data = await res.json();
+
+        if (data.success) {
+          statuses = data.statuses || [];
+          validTransitions = data.validTransitions || {};
+          isCustomized = data.isCustomized || false;
+        } else {
+          throw new Error(data.error || 'Failed to load statuses');
+        }
+
+        renderStatuses();
+        renderWorkflow();
+        renderTransitions();
+        renderColorPicker();
+      } catch (error) {
+        console.error('Error loading data:', error);
+        alert('Failed to load order statuses: ' + error.message);
+      }
+    }
+
+    function renderColorPicker() {
+      document.getElementById('colorPicker').innerHTML = colors.map(c =>
+        `<div class="color-option ${c === selectedColor ? 'selected' : ''}" style="background: ${c};" onclick="selectColor('${c}')"></div>`
+      ).join('');
+    }
+
+    function selectColor(color) {
+      selectedColor = color;
+      renderColorPicker();
+    }
+
+    function renderStatuses() {
+      const sorted = [...statuses].sort((a, b) => a.order - b.order);
+      document.getElementById('statusList').innerHTML = sorted.map(s => `
+        <div class="status-item" draggable="true" data-id="${s.id}">
+          <span class="status-color" style="background: ${s.color};"></span>
+          <span class="status-name">${s.name}</span>
+          <span class="status-count">${s.count}</span>
+          <div class="status-actions">
+            <button onclick="editStatus('${s.id}')">✏️</button>
+            <button onclick="deleteStatus('${s.id}')">🗑️</button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    function renderWorkflow() {
+      const workflow = statuses.filter(s => s.type !== 'cancelled').sort((a, b) => a.order - b.order);
+      document.getElementById('workflowDiagram').innerHTML = workflow.map((s, i) => `
+        ${i > 0 ? '<span class="workflow-arrow">→</span>' : ''}
+        <div class="workflow-node">
+          <div class="node-color" style="background: ${s.color};"></div>
+          <div class="node-name">${s.name}</div>
+        </div>
+      `).join('');
+    }
+
+    function renderTransitions() {
+      const sorted = statuses.filter(s => s.type !== 'cancelled').sort((a, b) => a.order - b.order);
+      let html = '';
+      for (let i = 0; i < sorted.length - 1; i++) {
+        const from = sorted[i];
+        const to = sorted[i + 1];
+        html += `
+          <div class="transition-card">
+            <div class="transition-from">
+              <span class="status-color" style="background: ${from.color}; width: 10px; height: 10px;"></span>
+              ${from.name}
+            </div>
+            <span class="transition-arrow">→</span>
+            <div class="transition-to">
+              <span class="status-color" style="background: ${to.color}; width: 10px; height: 10px;"></span>
+              ${to.name}
+            </div>
+            <div class="transition-config">
+              ${to.triggers.map(t => `<span class="transition-tag">${formatTrigger(t)}</span>`).join('')}
+            </div>
+          </div>
+        `;
+      }
+      document.getElementById('transitionsList').innerHTML = html || '<p style="color: #666;">No transitions configured</p>';
+    }
+
+    function formatTrigger(t) {
+      return { email_customer: '📧 Email Customer', email_admin: '📧 Email Admin', sms_customer: '📱 SMS Customer', webhook: '🔗 Webhook' }[t] || t;
+    }
+
+    function openModal(status = null) {
+      document.getElementById('statusId').value = status ? status.id : '';
+      document.getElementById('statusName').value = status ? status.name : '';
+      document.getElementById('statusType').value = status ? status.type : 'processing';
+      document.getElementById('statusDesc').value = status ? status.description || '' : '';
+      selectedColor = status ? status.color : colors[0];
+      renderColorPicker();
+
+      document.querySelectorAll('input[name="triggers"]').forEach(cb => {
+        cb.checked = status ? status.triggers.includes(cb.value) : false;
+      });
+
+      document.getElementById('modalTitle').textContent = status ? 'Edit Status' : 'Add Status';
+      document.getElementById('statusModal').classList.add('active');
+    }
+
+    function closeModal() { document.getElementById('statusModal').classList.remove('active'); }
+
+    function editStatus(id) {
+      const status = statuses.find(s => s.id === id);
+      if (status) openModal(status);
+    }
+
+    async function deleteStatus(id) {
+      if (confirm('Delete this status?')) {
+        statuses = statuses.filter(s => s.id !== id);
+        await saveStatusesToServer();
+        renderStatuses();
+        renderWorkflow();
+        renderTransitions();
+      }
+    }
+
+    async function saveStatusesToServer() {
+      const token = localStorage.getItem('admin_token');
+      const headers = { 'Authorization': `Bearer ${token}`, 'Content-Type': 'application/json' };
+
+      try {
+        const res = await fetch('/api/admin/order-statuses', {
+          method: 'PUT',
+          headers,
+          body: JSON.stringify({ statuses: statuses.map(s => ({
+            id: s.id,
+            name: s.name,
+            color: s.color,
+            type: s.type,
+            order: s.order,
+            triggers: s.triggers || [],
+            description: s.description || ''
+          }))})
+        });
+
+        const data = await res.json();
+        if (!data.success) {
+          throw new Error(data.error || 'Failed to save');
+        }
+      } catch (error) {
+        console.error('Error saving statuses:', error);
+        alert('Failed to save statuses: ' + error.message);
+      }
+    }
+
+    async function saveStatus(e) {
+      e.preventDefault();
+      const id = document.getElementById('statusId').value;
+      const triggers = Array.from(document.querySelectorAll('input[name="triggers"]:checked')).map(cb => cb.value);
+
+      const data = {
+        name: document.getElementById('statusName').value,
+        color: selectedColor,
+        type: document.getElementById('statusType').value,
+        description: document.getElementById('statusDesc').value,
+        triggers: triggers
+      };
+
+      if (id) {
+        const idx = statuses.findIndex(s => s.id === id);
+        if (idx >= 0) statuses[idx] = { ...statuses[idx], ...data };
+      } else {
+        data.id = 'st-' + Date.now();
+        data.order = statuses.length + 1;
+        data.count = 0;
+        statuses.push(data);
+      }
+
+      await saveStatusesToServer();
+      closeModal();
+      renderStatuses();
+      renderWorkflow();
+      renderTransitions();
+    }
+
+    document.getElementById('statusModal').addEventListener('click', e => { if (e.target.id === 'statusModal') closeModal(); });
+  </script>
+</body>
+</html>

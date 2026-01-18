@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Units & Measurements - Peekaboo Shades Admin</title>
+  <link rel="stylesheet" href="/admin/css/admin.css?v=1737200003.0.28">
+  <script src="/admin/js/adminNavConfig.js?v=1737200002"></script>
+  <style>
+    .settings-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-top: 1.5rem; }
+    .settings-card { background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+    .settings-card h3 { margin: 0 0 1.5rem 0; }
+    .form-group { margin-bottom: 1.25rem; }
+    .form-group label { display: block; margin-bottom: 0.5rem; font-weight: 500; }
+    .form-group select, .form-group input { width: 100%; padding: 0.75rem; border: 1px solid #ddd; border-radius: 8px; }
+    .form-group .help-text { font-size: 0.85rem; color: #666; margin-top: 0.25rem; }
+    .btn-save { padding: 0.75rem 2rem; background: #8E6545; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 600; }
+    .fraction-options { display: flex; gap: 1rem; margin-top: 0.5rem; }
+    .fraction-option { display: flex; align-items: center; gap: 0.5rem; }
+    .dimension-preview { background: #F9FAFB; padding: 1rem; border-radius: 8px; margin-top: 1rem; }
+    .dimension-preview h4 { margin: 0 0 0.5rem 0; font-size: 0.9rem; }
+    .dimension-preview .example { font-family: monospace; font-size: 1.1rem; color: #8E6545; }
+  </style>
+</head>
+<body>
+  <div class="admin-layout">
+    <aside class="admin-sidebar"></aside>
+    <main class="admin-main">
+      <header class="admin-header">
+        <h1>Units & Measurements</h1>
+        <div class="header-actions"><button class="btn-save" onclick="saveSettings()">Save Changes</button></div>
+      </header>
+      <div class="admin-content">
+        <div class="settings-grid">
+          <div class="settings-card">
+            <h3>Dimension Units</h3>
+            <div class="form-group">
+              <label>Primary Unit System</label>
+              <select id="unitSystem">
+                <option value="imperial" selected>Imperial (inches)</option>
+                <option value="metric">Metric (centimeters)</option>
+              </select>
+              <p class="help-text">Used for all product dimensions and customer measurements</p>
+            </div>
+            <div class="form-group">
+              <label>Fraction Display</label>
+              <div class="fraction-options">
+                <label class="fraction-option">
+                  <input type="radio" name="fraction" value="1/8" checked> 1/8"
+                </label>
+                <label class="fraction-option">
+                  <input type="radio" name="fraction" value="1/4"> 1/4"
+                </label>
+                <label class="fraction-option">
+                  <input type="radio" name="fraction" value="decimal"> Decimal
+                </label>
+              </div>
+              <p class="help-text">Smallest fraction increment for width/height inputs</p>
+            </div>
+            <div class="form-group">
+              <label>Maximum Width</label>
+              <input type="number" value="120" step="1">
+              <p class="help-text">Maximum allowable shade width in inches</p>
+            </div>
+            <div class="form-group">
+              <label>Maximum Height</label>
+              <input type="number" value="120" step="1">
+              <p class="help-text">Maximum allowable shade height in inches</p>
+            </div>
+            <div class="dimension-preview">
+              <h4>Preview</h4>
+              <p class="example">Width: 48 1/8" × Height: 72 3/8"</p>
+            </div>
+          </div>
+          <div class="settings-card">
+            <h3>Area Calculation</h3>
+            <div class="form-group">
+              <label>Pricing Unit</label>
+              <select id="pricingUnit">
+                <option value="sqft">Square Feet</option>
+                <option value="sqm" selected>Square Meters</option>
+                <option value="sqin">Square Inches</option>
+              </select>
+              <p class="help-text">Unit used for fabric pricing calculations</p>
+            </div>
+            <div class="form-group">
+              <label>Minimum Order Size</label>
+              <input type="number" value="1" step="0.1">
+              <p class="help-text">Minimum square meters/feet for pricing</p>
+            </div>
+            <div class="form-group">
+              <label>Round Up Increment</label>
+              <select>
+                <option value="0.1">0.1 sq units</option>
+                <option value="0.25" selected>0.25 sq units</option>
+                <option value="0.5">0.5 sq units</option>
+                <option value="1">1 sq unit</option>
+              </select>
+              <p class="help-text">Round calculations up to nearest increment</p>
+            </div>
+          </div>
+          <div class="settings-card">
+            <h3>Deduction Settings</h3>
+            <div class="form-group">
+              <label>Inside Mount Width Deduction</label>
+              <input type="text" value="0">
+              <p class="help-text">Inches to subtract from width for inside mount</p>
+            </div>
+            <div class="form-group">
+              <label>Inside Mount Height Deduction</label>
+              <input type="text" value="0">
+              <p class="help-text">Inches to subtract from height for inside mount</p>
+            </div>
+            <div class="form-group">
+              <label>Outside Mount Overlap</label>
+              <input type="text" value="3">
+              <p class="help-text">Recommended overlap in inches for outside mount</p>
+            </div>
+          </div>
+          <div class="settings-card">
+            <h3>Display Settings</h3>
+            <div class="form-group">
+              <label>Currency</label>
+              <select>
+                <option value="USD" selected>USD ($)</option>
+                <option value="CAD">CAD ($)</option>
+                <option value="EUR">EUR (€)</option>
+                <option value="GBP">GBP (£)</option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label>Weight Unit</label>
+              <select>
+                <option value="lb" selected>Pounds (lb)</option>
+                <option value="kg">Kilograms (kg)</option>
+              </select>
+              <p class="help-text">For shipping weight calculations</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      if (!localStorage.getItem('admin_token')) { window.location.href = '/admin/login.html'; return; }
+      AdminNavConfig.initSidebar('units-measurements');
+    });
+    function saveSettings() { alert('Settings saved!'); }
+  </script>
+</body>
+</html>
