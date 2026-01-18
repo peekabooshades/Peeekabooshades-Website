@@ -748,18 +748,102 @@ order_received → manufacturing → qa → ready_to_ship → shipped
 
 ## Customer-Facing Pages
 
-**Location:** `/frontend/public/` (8 pages)
+**Location:** `/frontend/public/` (12+ pages)
 
-| Page | Purpose |
-|------|---------|
-| Homepage | Marketing landing with hero slider |
-| Shop | Product listing with filters |
-| Product | Product configurator with real-time pricing |
-| Zebra Product | Zebra-specific configurator |
-| Cart | Shopping cart and checkout |
-| Samples | Free sample ordering (max 10) |
-| Account | Customer dashboard |
-| Login | Customer authentication |
+| Page | File | Purpose |
+|------|------|---------|
+| Homepage | `index.html` | Marketing landing with hero slider |
+| Shop | `shop.html` | Product listing with filters |
+| Product | `product.html` | Product configurator with real-time pricing |
+| Zebra Product | `zebra-product.html` | Zebra-specific configurator |
+| Cart | `cart.html` | Shopping cart and checkout |
+| Samples | `samples.html` | Free sample ordering (max 10) |
+| **Sign Up** | `signup.html` | Member registration |
+| **Login** | `login.html` | Member authentication |
+| **Account** | `account.html` | Customer dashboard |
+| Forgot Password | `forgot-password.html` | Password reset |
+| Order Lookup | `order-lookup.html` | Order status tracking |
+| Page (Dynamic) | `page.html` | CMS-driven content pages |
+
+### Member Account System
+
+#### Sign Up Page (`/signup.html`)
+
+**Features:**
+- Social login buttons (Google, Facebook, Apple - Coming Soon)
+- Email registration with password strength indicator
+- Terms & privacy policy agreement
+- Newsletter opt-in
+- 15% welcome discount promotion (code: WELCOME15)
+
+**Form Fields:**
+| Field | Type | Required |
+|-------|------|----------|
+| First Name | text | Yes |
+| Last Name | text | Yes |
+| Email | email | Yes |
+| Phone | tel | No |
+| Password | password | Yes (min 8 chars) |
+| Confirm Password | password | Yes |
+| Newsletter | checkbox | No (default: checked) |
+| Terms | checkbox | Yes |
+
+**API Endpoint:** `POST /api/customer/register`
+
+```javascript
+// Request
+{
+  firstName: "John",
+  lastName: "Doe",
+  email: "john@example.com",
+  phone: "(555) 123-4567",
+  password: "securePassword123",
+  newsletter: true,
+  source: "website"
+}
+
+// Response
+{
+  success: true,
+  token: "jwt_token_here",
+  customer: { id, name, email }
+}
+```
+
+#### Login Page (`/login.html`)
+
+**Features:**
+- Social login (Google, Facebook - Coming Soon)
+- Email/password authentication
+- Remember me option
+- Forgot password link
+- Password visibility toggle
+- Redirect support (`?redirect=/checkout.html`)
+
+**API Endpoint:** `POST /api/customer/login`
+
+```javascript
+// Request
+{ email: "john@example.com", password: "password", remember: true }
+
+// Response
+{ success: true, token: "jwt_token", customer: {...} }
+```
+
+#### Account Page (`/account.html`)
+
+**Features:**
+- Order history with status
+- Saved addresses
+- Wishlists/Favorites
+- Profile settings
+- Reorder functionality
+
+**API Endpoints:**
+- `GET /api/customer/orders` - Order history
+- `GET /api/customer/profile` - Profile data
+- `PUT /api/customer/profile` - Update profile
+- `GET /api/customer/addresses` - Saved addresses
 
 ### Product Configurator Features
 

@@ -1725,6 +1725,75 @@ Order Received → Manufacturing → QA → Ready to Ship → Shipped
 4. **Payment** - Enter payment details
 5. **Confirmation** - Order placed
 
+### Member Account System
+
+#### Sign Up Page (`/signup.html`)
+
+**Features:**
+- Social login buttons (Google, Facebook, Apple - Coming Soon)
+- Email registration form
+- Password strength indicator
+- Terms & privacy policy agreement
+- Newsletter opt-in
+- 15% welcome discount promotion (code: WELCOME15)
+
+**Form Fields:**
+- First Name, Last Name
+- Email Address
+- Phone Number (optional)
+- Password (min 8 characters)
+- Confirm Password
+
+**APIs Used:**
+- `POST /api/customer/register`
+- `GET /api/customer/verify`
+
+**Post-Registration:**
+- JWT token stored in localStorage
+- Redirects to `/account.html`
+
+#### Login Page (`/login.html`)
+
+**Features:**
+- Social login buttons (Google, Facebook - Coming Soon)
+- Email/password login
+- Remember me checkbox
+- Forgot password link
+- Password visibility toggle
+
+**APIs Used:**
+- `POST /api/customer/login`
+- `GET /api/customer/verify`
+
+**Post-Login:**
+- JWT token stored in localStorage or sessionStorage (based on "Remember me")
+- Supports redirect URL parameter (`?redirect=/checkout.html`)
+
+#### Customer Account Page (`/account.html`)
+
+**Features:**
+- Order history
+- Saved addresses
+- Wishlists/Favorites
+- Account settings
+- Reorder from previous orders
+
+**APIs Used:**
+- `GET /api/customer/orders`
+- `GET /api/customer/profile`
+- `PUT /api/customer/profile`
+- `GET /api/customer/addresses`
+
+#### Forgot Password (`/forgot-password.html`)
+
+**Features:**
+- Email input for password reset
+- Sends reset link via email
+
+**APIs Used:**
+- `POST /api/customer/forgot-password`
+- `POST /api/customer/reset-password`
+
 ### Order Lookup (`/order-lookup.html`)
 
 **Features:**
