@@ -3,6 +3,8 @@
 A comprehensive e-commerce platform for custom window blinds and shades, featuring customer-facing shopping, dealer portal, manufacturer portal, and admin dashboard.
 
 > **New:** See [COMPREHENSIVE_SYSTEM_DOCUMENTATION.md](docs/COMPREHENSIVE_SYSTEM_DOCUMENTATION.md) for complete system documentation covering 579+ API endpoints, 100+ admin pages, business model with invoices/accounts/profits/analytics, and pricing engine details.
+>
+> **Complete Page List:** See [COMPLETE_PAGE_REGISTRY.md](docs/COMPLETE_PAGE_REGISTRY.md) for a complete list of ALL 245 HTML pages in the website.
 
 ## Table of Contents
 
