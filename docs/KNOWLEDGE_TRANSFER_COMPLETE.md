@@ -44,10 +44,86 @@ Peekaboo Shades is a full-stack e-commerce platform for selling custom window bl
 ### Business Model
 
 ```
-Customer → Website → Order → Admin Review → Manufacturer → Production → Shipping → Customer
-                              ↓
-                         Dealer Orders (B2B)
+┌─────────────────────────────────────────────────────────────────────────────────────────┐
+│                              PEEKABOO SHADES BUSINESS FLOW                               │
+├─────────────────────────────────────────────────────────────────────────────────────────┤
+│                                                                                          │
+│   ┌──────────────────────────────────────────────────────────────────────────────────┐  │
+│   │                              ORDER FLOW                                           │  │
+│   │                                                                                   │  │
+│   │   Customer ──→ Website ──→ Order ──→ Admin Review ──→ Manufacturer ──→ Production│  │
+│   │       │                      │              │                │                    │  │
+│   │       │                      ↓              ↓                ↓                    │  │
+│   │       │              ┌──────────────────────────────────────────────────┐        │  │
+│   │       │              │           INVOICE GENERATION                      │        │  │
+│   │       │              │  ┌─────────────────┐  ┌─────────────────┐        │        │  │
+│   │       │              │  │Customer Invoice │  │Manufacturer     │        │        │  │
+│   │       │              │  │(Receivables)    │  │Invoice (Payables)│       │        │  │
+│   │       │              │  │ - Order Total   │  │ - Production Cost│       │        │  │
+│   │       │              │  │ - Tax           │  │ - Materials      │       │        │  │
+│   │       │              │  │ - Shipping      │  │ - Labor          │       │        │  │
+│   │       │              │  └─────────────────┘  └─────────────────┘        │        │  │
+│   │       │              └──────────────────────────────────────────────────┘        │  │
+│   │       │                            │                    │                         │  │
+│   │       │                            ↓                    ↓                         │  │
+│   │       │              ┌──────────────────────────────────────────────────┐        │  │
+│   │       │              │           ACCOUNTS & LEDGER                       │        │  │
+│   │       │              │  ┌─────────────────┐  ┌─────────────────┐        │        │  │
+│   │       │              │  │Accounts         │  │Ledger Entries   │        │        │  │
+│   │       │              │  │Receivable (AR)  │  │ - Credits       │        │        │  │
+│   │       │              │  │Accounts         │  │ - Debits        │        │        │  │
+│   │       │              │  │Payable (AP)     │  │ - Running Balance│       │        │  │
+│   │       │              │  └─────────────────┘  └─────────────────┘        │        │  │
+│   │       │              └──────────────────────────────────────────────────┘        │  │
+│   │       │                            │                                              │  │
+│   │       │                            ↓                                              │  │
+│   │       │              ┌──────────────────────────────────────────────────┐        │  │
+│   │       │              │           PROFITS & MARGINS                       │        │  │
+│   │       │              │  ┌─────────────────────────────────────────┐     │        │  │
+│   │       │              │  │ Revenue (Customer Invoice Total)         │     │        │  │
+│   │       │              │  │ - Costs (Manufacturer Invoice Total)     │     │        │  │
+│   │       │              │  │ = Gross Profit                           │     │        │  │
+│   │       │              │  │                                          │     │        │  │
+│   │       │              │  │ Margin % = (Profit / Revenue) × 100      │     │        │  │
+│   │       │              │  │ Default: 40% | Product-specific override │     │        │  │
+│   │       │              │  └─────────────────────────────────────────┘     │        │  │
+│   │       │              └──────────────────────────────────────────────────┘        │  │
+│   │       │                            │                                              │  │
+│   │       ↓                            ↓                                              │  │
+│   │  Dealer Portal      ┌──────────────────────────────────────────────────┐        │  │
+│   │  (B2B Orders)       │           ANALYTICS & REPORTING                   │        │  │
+│   │  ┌────────────┐     │  ┌─────────────────┐  ┌─────────────────┐        │        │  │
+│   │  │Tier-based  │     │  │Sales Analytics  │  │Financial Reports│        │        │  │
+│   │  │Discounts:  │     │  │ - Revenue trends│  │ - P&L statements│        │        │  │
+│   │  │Bronze: 15% │     │  │ - Order counts  │  │ - Cash flow     │        │        │  │
+│   │  │Silver: 20% │     │  │ - Popular items │  │ - Outstanding AR│        │        │  │
+│   │  │Gold:   25% │     │  │ - Customer LTV  │  │ - Overdue AP    │        │        │  │
+│   │  └────────────┘     │  └─────────────────┘  └─────────────────┘        │        │  │
+│   │  ┌────────────┐     │  ┌─────────────────┐  ┌─────────────────┐        │        │  │
+│   │  │Commission  │     │  │Product Analytics│  │Operations KPIs  │        │        │  │
+│   │  │Tracking    │     │  │ - Best sellers  │  │ - Avg order time│        │        │  │
+│   │  │& Payouts   │     │  │ - Fabric usage  │  │ - Fulfillment % │        │        │  │
+│   │  └────────────┘     │  │ - Option trends │  │ - Return rates  │        │        │  │
+│   │                     │  └─────────────────┘  └─────────────────┘        │        │  │
+│   │                     └──────────────────────────────────────────────────┘        │  │
+│   │                                                                                   │  │
+│   │   Production ──→ QA ──→ Ready to Ship ──→ Shipped ──→ Delivered ──→ Customer    │  │
+│   │                                                                                   │  │
+│   └──────────────────────────────────────────────────────────────────────────────────┘  │
+│                                                                                          │
+└─────────────────────────────────────────────────────────────────────────────────────────┘
 ```
+
+### Financial Flow Summary
+
+| Component | Purpose | Key Features |
+|-----------|---------|--------------|
+| **Customer Invoices** | Track revenue from orders | Auto-generated, PDF export, payment tracking |
+| **Manufacturer Invoices** | Track production costs | Cost breakdown, material tracking |
+| **Accounts** | Track receivables & payables | AR aging, AP scheduling, payment reconciliation |
+| **Ledger** | Double-entry bookkeeping | Credits/debits, running balances, audit trail |
+| **Profits** | Margin calculations | Per-order profit, product margins, dealer commissions |
+| **Analytics** | Business intelligence | Revenue trends, KPIs, financial reports |
 
 ### Key Features
 
