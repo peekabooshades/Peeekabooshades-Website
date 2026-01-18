@@ -36,10 +36,47 @@
 Peekaboo Shades is a full-stack e-commerce platform for selling custom window blinds and shades. The platform includes:
 
 - **Customer Website**: Browse products, configure custom blinds, add to cart, checkout
-- **Admin Panel**: Manage products, orders, customers, content, pricing
-- **Dealer Portal**: B2B ordering system for dealers/contractors
-- **Manufacturer Portal**: Production management and order fulfillment
-- **Technician Portal**: Installation scheduling and management
+- **Member Account System**: Sign up, login, order history, saved addresses, wishlists
+- **Admin Panel**: Manage products, orders, customers, content, pricing (189 pages)
+- **Dealer Portal**: B2B ordering system for dealers/contractors (6 pages)
+- **Manufacturer Portal**: Production management and order fulfillment (2 pages)
+- **Technician Portal**: Installation scheduling and management (7 pages)
+
+### Website Pages Summary
+
+| Section | Pages | Description |
+|---------|-------|-------------|
+| **Customer-Facing** | 20 | Homepage, Shop, Product, Cart, Signup, Login, Account, FAQs, etc. |
+| **Landing Pages** | 9 | SEO pages for roller, zebra, blackout, motorized shades |
+| **Guides** | 5 | How to measure, comparisons, buying guides |
+| **Policies** | 7 | Privacy, Terms, Returns, Shipping, Warranty |
+| **Dealer Portal** | 6 | Login, Dashboard, Orders, New Order, Customers, Commissions |
+| **Technician Portal** | 7 | Signup, Login, Dashboard, Appointments, Schedule, Payments, Profile |
+| **Manufacturer Portal** | 2 | Login, Production Queue Dashboard |
+| **Admin Panel** | 189 | Full management system |
+| **TOTAL** | **245** | All HTML pages |
+
+### Member Account System
+
+| Page | URL | Purpose |
+|------|-----|---------|
+| **Sign Up** | `/signup.html` | Create customer account with email or social login |
+| **Login** | `/login.html` | Customer authentication |
+| **Account** | `/account.html` | Dashboard with orders, addresses, profile |
+| **Forgot Password** | `/forgot-password.html` | Password reset flow |
+
+**Sign Up Features:**
+- Email registration with password strength indicator
+- Social login (Google, Facebook, Apple - coming soon)
+- 15% welcome discount (code: WELCOME15)
+- Newsletter opt-in
+- Terms & privacy agreement
+
+**Login Features:**
+- Email/password authentication
+- Remember me option
+- Redirect support for checkout flow
+- Password visibility toggle
 
 ### Business Model
 
