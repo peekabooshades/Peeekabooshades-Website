@@ -3,159 +3,435 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Dealer Portal - Login</title>
+  <title>Dealer Portal - Login | Peekaboo Shades</title>
   <link rel="icon" type="image/jpeg" href="/images/peekabooshades_logo.jpeg">
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
   <style>
-    * { margin: 0; padding: 0; box-sizing: border-box; }
+    :root {
+      --pk-primary: #8E6545;
+      --pk-primary-light: #A67B5B;
+      --pk-primary-dark: #6B4D35;
+      --pk-text-dark: #333333;
+      --pk-text-light: #666666;
+      --pk-bg-cream: #F8F6F3;
+      --pk-bg-warm: #F6F1EB;
+      --pk-border-light: #E8E8E8;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
     body {
       font-family: 'Montserrat', sans-serif;
-      background: linear-gradient(135deg, #2d5a27 0%, #1a3a15 100%);
+      background: linear-gradient(135deg, var(--pk-bg-warm) 0%, var(--pk-bg-cream) 100%);
       min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* Header */
+    .login-page-header {
+      background: white;
+      padding: 15px 40px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+    }
+
+    .header-container {
+      max-width: 1200px;
+      margin: 0 auto;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .logo-link {
+      display: flex;
+      align-items: center;
+      text-decoration: none;
+    }
+
+    .logo-img {
+      height: 60px;
+      border-radius: 8px;
+    }
+
+    .back-link {
+      color: var(--pk-primary);
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: color 0.2s;
+    }
+
+    .back-link:hover {
+      color: var(--pk-primary-dark);
+    }
+
+    /* Main Content */
+    .login-main {
+      flex: 1;
       display: flex;
       align-items: center;
       justify-content: center;
+      padding: 40px 20px;
     }
-    .login-container {
-      background: white;
-      border-radius: 12px;
-      box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+
+    .login-wrapper {
+      display: flex;
+      max-width: 900px;
       width: 100%;
-      max-width: 420px;
-      padding: 48px 40px;
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 20px 60px rgba(142, 101, 69, 0.15);
+      overflow: hidden;
     }
+
+    /* Left Side - Branding */
+    .login-branding {
+      flex: 1;
+      background: linear-gradient(135deg, var(--pk-primary) 0%, var(--pk-primary-dark) 100%);
+      padding: 60px 40px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      color: white;
+    }
+
+    .branding-icon {
+      width: 80px;
+      height: 80px;
+      background: rgba(255,255,255,0.15);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 30px;
+    }
+
+    .branding-icon i {
+      font-size: 36px;
+    }
+
+    .branding-title {
+      font-size: 28px;
+      font-weight: 700;
+      margin-bottom: 16px;
+      line-height: 1.3;
+    }
+
+    .branding-text {
+      font-size: 15px;
+      line-height: 1.7;
+      opacity: 0.9;
+      margin-bottom: 30px;
+    }
+
+    .branding-features {
+      list-style: none;
+    }
+
+    .branding-features li {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 14px;
+      margin-bottom: 12px;
+      opacity: 0.9;
+    }
+
+    .branding-features li i {
+      width: 20px;
+      color: rgba(255,255,255,0.8);
+    }
+
+    /* Right Side - Form */
+    .login-form-section {
+      flex: 1;
+      padding: 60px 50px;
+    }
+
     .login-header {
-      text-align: center;
       margin-bottom: 32px;
     }
-    .login-header img {
-      height: 50px;
-      margin-bottom: 16px;
-    }
-    .login-header h1 {
-      font-size: 24px;
-      color: #2d5a27;
-      margin-bottom: 8px;
-    }
-    .login-header p {
-      color: #6c757d;
-      font-size: 14px;
-    }
-    .form-group {
-      margin-bottom: 20px;
-    }
-    .form-group label {
-      display: block;
-      font-size: 13px;
-      font-weight: 600;
-      color: #2d5a27;
-      margin-bottom: 8px;
-    }
-    .form-group input {
-      width: 100%;
-      padding: 14px 16px;
-      border: 1px solid #e0e0e0;
-      border-radius: 8px;
-      font-size: 15px;
-      font-family: inherit;
-      transition: border-color 0.2s, box-shadow 0.2s;
-    }
-    .form-group input:focus {
-      outline: none;
-      border-color: #2d5a27;
-      box-shadow: 0 0 0 3px rgba(45,90,39,0.1);
-    }
-    .btn-login {
-      width: 100%;
-      padding: 14px;
-      background: #2d5a27;
-      color: white;
-      border: none;
-      border-radius: 8px;
-      font-size: 15px;
-      font-weight: 600;
-      font-family: inherit;
-      cursor: pointer;
-      transition: background 0.2s;
-    }
-    .btn-login:hover {
-      background: #1a3a15;
-    }
-    .btn-login:disabled {
-      background: #6c757d;
-      cursor: not-allowed;
-    }
-    .error-message {
-      background: #fee2e2;
-      color: #dc2626;
-      padding: 12px 16px;
-      border-radius: 8px;
-      font-size: 14px;
-      margin-bottom: 20px;
-      display: none;
-    }
-    .error-message.show {
-      display: block;
-    }
-    .login-footer {
-      text-align: center;
-      margin-top: 24px;
-      padding-top: 24px;
-      border-top: 1px solid #e0e0e0;
-    }
-    .login-footer a {
-      color: #6c757d;
-      font-size: 13px;
-      text-decoration: none;
-    }
-    .login-footer a:hover {
-      color: #2d5a27;
-    }
+
     .portal-badge {
       display: inline-block;
-      background: #2d5a27;
-      color: white;
-      padding: 4px 12px;
+      background: var(--pk-bg-warm);
+      color: var(--pk-primary);
+      padding: 6px 14px;
       border-radius: 20px;
       font-size: 11px;
       font-weight: 600;
       text-transform: uppercase;
       letter-spacing: 1px;
-      margin-bottom: 12px;
+      margin-bottom: 16px;
+    }
+
+    .login-header h1 {
+      font-size: 26px;
+      color: var(--pk-text-dark);
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+
+    .login-header p {
+      color: var(--pk-text-light);
+      font-size: 14px;
+    }
+
+    .form-group {
+      margin-bottom: 22px;
+    }
+
+    .form-group label {
+      display: block;
+      font-size: 13px;
+      font-weight: 600;
+      color: var(--pk-text-dark);
+      margin-bottom: 8px;
+    }
+
+    .input-wrapper {
+      position: relative;
+    }
+
+    .input-wrapper i {
+      position: absolute;
+      left: 16px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #999;
+      font-size: 16px;
+    }
+
+    .form-group input {
+      width: 100%;
+      padding: 14px 16px 14px 46px;
+      border: 2px solid var(--pk-border-light);
+      border-radius: 10px;
+      font-size: 15px;
+      font-family: inherit;
+      transition: border-color 0.2s, box-shadow 0.2s;
+      background: #fafafa;
+    }
+
+    .form-group input:focus {
+      outline: none;
+      border-color: var(--pk-primary);
+      box-shadow: 0 0 0 4px rgba(142, 101, 69, 0.1);
+      background: white;
+    }
+
+    .form-group input::placeholder {
+      color: #aaa;
+    }
+
+    .btn-login {
+      width: 100%;
+      padding: 16px;
+      background: var(--pk-primary);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-size: 15px;
+      font-weight: 600;
+      font-family: inherit;
+      cursor: pointer;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .btn-login:hover {
+      background: var(--pk-primary-dark);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(142, 101, 69, 0.3);
+    }
+
+    .btn-login:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+
+    .error-message {
+      background: #fef2f2;
+      color: #dc2626;
+      padding: 14px 18px;
+      border-radius: 10px;
+      font-size: 14px;
+      margin-bottom: 22px;
+      display: none;
+      border-left: 4px solid #dc2626;
+    }
+
+    .error-message.show {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .login-footer {
+      text-align: center;
+      margin-top: 28px;
+      padding-top: 28px;
+      border-top: 1px solid var(--pk-border-light);
+    }
+
+    .login-footer p {
+      color: var(--pk-text-light);
+      font-size: 13px;
+    }
+
+    .login-footer a {
+      color: var(--pk-primary);
+      font-weight: 600;
+      text-decoration: none;
+    }
+
+    .login-footer a:hover {
+      text-decoration: underline;
+    }
+
+    /* Page Footer */
+    .page-footer {
+      background: white;
+      padding: 20px 40px;
+      text-align: center;
+      border-top: 1px solid var(--pk-border-light);
+    }
+
+    .page-footer p {
+      color: var(--pk-text-light);
+      font-size: 13px;
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      .login-wrapper {
+        flex-direction: column;
+      }
+
+      .login-branding {
+        padding: 40px 30px;
+      }
+
+      .branding-title {
+        font-size: 22px;
+      }
+
+      .login-form-section {
+        padding: 40px 30px;
+      }
+
+      .login-page-header {
+        padding: 15px 20px;
+      }
+    }
+
+    @media (max-width: 480px) {
+      .login-branding {
+        display: none;
+      }
+
+      .login-form-section {
+        padding: 30px 25px;
+      }
     }
   </style>
 </head>
 <body>
-  <div class="login-container">
-    <div class="login-header">
-      <img src="/images/peekabooshades_logo.jpeg" alt="Peekaboo Shades" onerror="this.style.display='none'">
-      <div class="portal-badge">Dealer Portal</div>
-      <h1>Welcome Back</h1>
-      <p>Sign in to access your dealer account</p>
+  <!-- Header -->
+  <header class="login-page-header">
+    <div class="header-container">
+      <a href="/" class="logo-link">
+        <img src="/images/peekabooshades_logo.jpeg" alt="Peekaboo Shades" class="logo-img">
+      </a>
+      <a href="/" class="back-link">
+        <i class="fas fa-arrow-left"></i>
+        Back to Store
+      </a>
     </div>
+  </header>
 
-    <div id="error-message" class="error-message"></div>
-
-    <form id="login-form">
-      <div class="form-group">
-        <label for="email">Email Address</label>
-        <input type="email" id="email" name="email" required placeholder="dealer@company.com">
+  <!-- Main Content -->
+  <main class="login-main">
+    <div class="login-wrapper">
+      <!-- Left Side - Branding -->
+      <div class="login-branding">
+        <div class="branding-icon">
+          <i class="fas fa-handshake"></i>
+        </div>
+        <h2 class="branding-title">Dealer Partner Portal</h2>
+        <p class="branding-text">
+          Access exclusive dealer pricing, manage your orders, track commissions, and grow your business with Peekaboo Shades.
+        </p>
+        <ul class="branding-features">
+          <li><i class="fas fa-check"></i> Exclusive wholesale pricing</li>
+          <li><i class="fas fa-check"></i> Real-time order tracking</li>
+          <li><i class="fas fa-check"></i> Commission management</li>
+          <li><i class="fas fa-check"></i> Marketing resources</li>
+          <li><i class="fas fa-check"></i> Dedicated support</li>
+        </ul>
       </div>
 
-      <div class="form-group">
-        <label for="password">Password</label>
-        <input type="password" id="password" name="password" required placeholder="Enter your password">
+      <!-- Right Side - Form -->
+      <div class="login-form-section">
+        <div class="login-header">
+          <div class="portal-badge">Dealer Portal</div>
+          <h1>Welcome Back</h1>
+          <p>Sign in to access your dealer account</p>
+        </div>
+
+        <div id="error-message" class="error-message">
+          <i class="fas fa-exclamation-circle"></i>
+          <span id="error-text"></span>
+        </div>
+
+        <form id="login-form">
+          <div class="form-group">
+            <label for="email">Email Address</label>
+            <div class="input-wrapper">
+              <i class="fas fa-envelope"></i>
+              <input type="email" id="email" name="email" required placeholder="dealer@company.com">
+            </div>
+          </div>
+
+          <div class="form-group">
+            <label for="password">Password</label>
+            <div class="input-wrapper">
+              <i class="fas fa-lock"></i>
+              <input type="password" id="password" name="password" required placeholder="Enter your password">
+            </div>
+          </div>
+
+          <button type="submit" class="btn-login" id="btn-submit">
+            <span>Sign In</span>
+            <i class="fas fa-arrow-right"></i>
+          </button>
+        </form>
+
+        <div class="login-footer">
+          <p>Not a dealer yet? <a href="/contact">Apply for a dealer account</a></p>
+        </div>
       </div>
-
-      <button type="submit" class="btn-login" id="btn-submit">
-        Sign In
-      </button>
-    </form>
-
-    <div class="login-footer">
-      <a href="/">Back to Store</a>
     </div>
-  </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="page-footer">
+    <p>&copy; 2024 Peekaboo Shades. All rights reserved.</p>
+  </footer>
 
   <script>
     // Check if already logged in
@@ -171,9 +447,10 @@
       const password = document.getElementById('password').value;
       const btn = document.getElementById('btn-submit');
       const errorDiv = document.getElementById('error-message');
+      const errorText = document.getElementById('error-text');
 
       btn.disabled = true;
-      btn.textContent = 'Signing in...';
+      btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Signing in...';
       errorDiv.classList.remove('show');
 
       try {
@@ -190,16 +467,16 @@
           localStorage.setItem('dealerUser', JSON.stringify(result.user));
           window.location.href = '/dealer/';
         } else {
-          errorDiv.textContent = result.error || 'Invalid credentials';
+          errorText.textContent = result.error || 'Invalid credentials. Please try again.';
           errorDiv.classList.add('show');
         }
       } catch (error) {
-        errorDiv.textContent = 'Connection error. Please try again.';
+        errorText.textContent = 'Connection error. Please check your internet and try again.';
         errorDiv.classList.add('show');
       }
 
       btn.disabled = false;
-      btn.textContent = 'Sign In';
+      btn.innerHTML = '<span>Sign In</span><i class="fas fa-arrow-right"></i>';
     });
   </script>
 </body>

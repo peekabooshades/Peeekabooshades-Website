@@ -1,0 +1,21 @@
+# Peekaboo Shades - robots.txt
+# https://peekabooshades.com/robots.txt
+
+User-agent: *
+Allow: /
+
+# Disallow admin and API routes
+Disallow: /admin/
+Disallow: /api/
+Disallow: /dealer/
+
+# Disallow authentication pages from indexing
+Disallow: /login.html
+Disallow: /signup.html
+Disallow: /account.html
+
+# Allow crawlers to see the sitemap
+Sitemap: https://peekabooshades.com/sitemap.xml
+
+# Crawl delay for politeness
+Crawl-delay: 1

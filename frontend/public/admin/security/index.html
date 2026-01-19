@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="../css/admin.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
+        body { font-size: 15px; }
         .security-container {
             display: flex;
             min-height: 100vh;
@@ -14,7 +15,7 @@
 
         .security-sidebar {
             width: 260px;
-            background: #1a1a2e;
+            background: #8E6545;
             padding: 20px 0;
             flex-shrink: 0;
         }
@@ -32,7 +33,7 @@
         }
 
         .security-sidebar h3 i {
-            color: #28a745;
+            color: #8E6545;
         }
 
         .security-nav {
@@ -59,7 +60,7 @@
         }
 
         .security-nav li a.active {
-            border-left: 3px solid #28a745;
+            border-left: 3px solid #8E6545;
         }
 
         .security-nav .nav-badge {
@@ -77,7 +78,7 @@
         }
 
         .security-nav .nav-badge.success {
-            background: #28a745;
+            background: #8E6545;
         }
 
         .security-content {
@@ -123,7 +124,7 @@
             color: #fff;
         }
 
-        .score-circle.good { background: #28a745; }
+        .score-circle.good { background: #8E6545; }
         .score-circle.medium { background: #ffc107; color: #000; }
         .score-circle.poor { background: #dc3545; }
 
@@ -156,7 +157,7 @@
         }
 
         .alert-banner.success {
-            background: linear-gradient(135deg, #28a745, #218838);
+            background: linear-gradient(135deg, #8E6545, #7A5639);
         }
 
         .alert-banner i {
@@ -209,7 +210,7 @@
             height: 4px;
         }
 
-        .security-card.status-good::before { background: #28a745; }
+        .security-card.status-good::before { background: #8E6545; }
         .security-card.status-warning::before { background: #ffc107; }
         .security-card.status-danger::before { background: #dc3545; }
 
@@ -248,7 +249,7 @@
             margin: 3px 0 0;
         }
 
-        .card-status.good { color: #28a745; }
+        .card-status.good { color: #8E6545; }
         .card-status.warning { color: #ffc107; }
         .card-status.danger { color: #dc3545; }
 
@@ -386,14 +387,14 @@
         }
 
         .quick-action:hover {
-            border-color: #4a90d9;
+            border-color: #8E6545;
             box-shadow: 0 4px 12px rgba(0,0,0,0.1);
         }
 
         .quick-action i {
             font-size: 24px;
             margin-bottom: 10px;
-            color: #4a90d9;
+            color: #8E6545;
         }
 
         .quick-action span {
@@ -413,9 +414,10 @@
         }
 
         .btn-primary {
-            background: #4a90d9;
+            background: #8E6545;
             color: #fff;
         }
+        .btn-primary:hover { background: #7A5639; }
 
         .btn-secondary {
             background: #f0f0f0;
@@ -470,7 +472,7 @@
         .threat-severity.critical { background: #dc3545; }
         .threat-severity.high { background: #fd7e14; }
         .threat-severity.medium { background: #ffc107; }
-        .threat-severity.low { background: #28a745; }
+        .threat-severity.low { background: #8E6545; }
 
         .threat-info {
             flex: 1;
@@ -524,7 +526,7 @@
 
         <main class="security-content">
             <div class="page-header">
-                <h1><i class="fas fa-shield-alt" style="color: #28a745;"></i> Security Overview</h1>
+                <h1><i class="fas fa-shield-alt" style="color: #8E6545;"></i> Security Overview</h1>
                 <div class="security-score">
                     <div class="score-circle good" id="scoreCircle">85</div>
                     <div class="score-info">

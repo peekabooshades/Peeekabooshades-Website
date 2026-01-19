@@ -7,20 +7,21 @@
     <link rel="stylesheet" href="../css/admin.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
+        body { font-size: 15px; }
         .security-container { display: flex; min-height: 100vh; }
-        .security-sidebar { width: 260px; background: #1a1a2e; padding: 20px 0; flex-shrink: 0; }
+        .security-sidebar { width: 260px; background: #8E6545; padding: 20px 0; flex-shrink: 0; }
         .security-sidebar h3 { color: #fff; padding: 0 20px; margin-bottom: 20px; font-size: 14px; text-transform: uppercase; letter-spacing: 1px; display: flex; align-items: center; gap: 10px; }
-        .security-sidebar h3 i { color: #28a745; }
+        .security-sidebar h3 i { color: #8E6545; }
         .security-nav { list-style: none; padding: 0; margin: 0; }
         .security-nav li a { display: flex; align-items: center; gap: 12px; padding: 12px 20px; color: #a0a0a0; text-decoration: none; transition: all 0.2s; font-size: 14px; }
         .security-nav li a:hover, .security-nav li a.active { background: rgba(255,255,255,0.1); color: #fff; }
-        .security-nav li a.active { border-left: 3px solid #28a745; }
+        .security-nav li a.active { border-left: 3px solid #8E6545; }
         .security-content { flex: 1; padding: 30px; background: #f5f5f5; }
         .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
         .page-header h1 { margin: 0; font-size: 24px; }
 
         .firewall-status {
-            background: linear-gradient(135deg, #28a745, #20c997);
+            background: linear-gradient(135deg, #8E6545, #7A5639);
             color: #fff;
             padding: 25px;
             border-radius: 12px;
@@ -124,8 +125,8 @@
         }
 
         .tab.active {
-            color: #4a90d9;
-            border-color: #4a90d9;
+            color: #8E6545;
+            border-color: #8E6545;
         }
 
         .ip-list {
@@ -155,10 +156,12 @@
             gap: 8px;
         }
 
-        .btn-primary { background: #4a90d9; color: #fff; }
+        .btn-primary { background: #8E6545; color: #fff; }
+        .btn-primary:hover { background: #7A5639; }
         .btn-danger { background: #dc3545; color: #fff; }
         .btn-secondary { background: #f0f0f0; color: #333; }
-        .btn-success { background: #28a745; color: #fff; }
+        .btn-success { background: #8E6545; color: #fff; }
+        .btn-success:hover { background: #7A5639; }
 
         .ip-table {
             width: 100%;
@@ -274,7 +277,7 @@
             cursor: pointer;
         }
 
-        .country-flag:hover { border-color: #4a90d9; }
+        .country-flag:hover { border-color: #8E6545; }
         .country-flag.blocked { background: #f8d7da; border-color: #dc3545; }
 
         .geo-settings {
@@ -341,11 +344,11 @@
 
         <main class="security-content">
             <div class="page-header">
-                <h1><i class="fas fa-fire" style="color: #fd7e14;"></i> IP Firewall</h1>
+                <h1><i class="fas fa-fire" style="color: #8E6545;"></i> IP Firewall</h1>
             </div>
 
             <!-- UI Preview Banner -->
-            <div style="background: linear-gradient(135deg, #fd7e14 0%, #e55a00 100%); color: white; padding: 15px 20px; border-radius: 8px; margin-bottom: 20px; display: flex; align-items: center; gap: 12px;">
+            <div style="background: linear-gradient(135deg, #8E6545 0%, #7A5639 100%); color: white; padding: 15px 20px; border-radius: 8px; margin-bottom: 20px; display: flex; align-items: center; gap: 12px;">
                 <i class="fas fa-info-circle" style="font-size: 20px;"></i>
                 <div>
                     <strong>UI Preview Only</strong> - This page demonstrates the IP Firewall interface. Backend integration is not enabled. Actions on this page will not affect your system.
@@ -389,7 +392,7 @@
             </div>
 
             <div class="rate-limit-card">
-                <h3><i class="fas fa-tachometer-alt" style="color: #4a90d9;"></i> Rate Limiting</h3>
+                <h3><i class="fas fa-tachometer-alt" style="color: #8E6545;"></i> Rate Limiting</h3>
                 <div class="rate-limit-grid">
                     <div class="rate-limit-item">
                         <label>Login Attempts per IP</label>
@@ -413,7 +416,7 @@
             </div>
 
             <div class="geo-settings">
-                <h3><i class="fas fa-globe" style="color: #28a745;"></i> Geographic Restrictions</h3>
+                <h3><i class="fas fa-globe" style="color: #8E6545;"></i> Geographic Restrictions</h3>
                 <p style="color: #666; margin-bottom: 15px;">Block admin access from specific countries</p>
                 <div class="country-flags" id="countryFlags">
                     <div class="country-flag blocked" data-country="RU" onclick="toggleCountry('RU')">
@@ -707,7 +710,7 @@
 
         function showPreviewNotice(message) {
             const notice = document.createElement('div');
-            notice.style.cssText = 'position: fixed; top: 20px; right: 20px; background: linear-gradient(135deg, #fd7e14 0%, #e55a00 100%); color: white; padding: 16px 24px; border-radius: 8px; z-index: 9999; max-width: 400px; box-shadow: 0 4px 12px rgba(0,0,0,0.2);';
+            notice.style.cssText = 'position: fixed; top: 20px; right: 20px; background: linear-gradient(135deg, #8E6545 0%, #7A5639 100%); color: white; padding: 16px 24px; border-radius: 8px; z-index: 9999; max-width: 400px; box-shadow: 0 4px 12px rgba(0,0,0,0.2);';
             notice.innerHTML = '<strong>UI Preview</strong><br>' + message;
             document.body.appendChild(notice);
             setTimeout(() => notice.remove(), 4000);

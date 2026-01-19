@@ -3,7 +3,30 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Shop - Peekaboo Shades</title>
+  <title>Shop Custom Blinds & Shades - Peekaboo Shades</title>
+
+  <!-- SEO Meta Tags -->
+  <meta name="description" content="Browse our collection of premium custom blinds, roller shades, and zebra blinds. Find the perfect window treatment for your home with free shipping on orders over $99.">
+  <meta name="keywords" content="shop blinds, buy shades, custom window treatments, roller shades, zebra blinds, motorized blinds">
+  <meta name="robots" content="index, follow">
+  <link rel="canonical" href="https://peekabooshades.com/shop.html">
+
+  <!-- Open Graph / Facebook -->
+  <meta property="og:type" content="website">
+  <meta property="og:url" content="https://peekabooshades.com/shop.html">
+  <meta property="og:title" content="Shop Custom Blinds & Shades - Peekaboo Shades">
+  <meta property="og:description" content="Browse our collection of premium custom blinds. Free shipping on orders over $99.">
+  <meta property="og:image" content="https://peekabooshades.com/images/og-image.jpg">
+
+  <!-- Google Analytics (GA4) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-XXXXXXXXXX');
+  </script>
+
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -1268,7 +1291,6 @@
               <a href="/shop?category=honeycomb-shades">Honeycomb Shades</a>
             </div>
           </li>
-          <li><a href="javascript:void(0)" onclick="showToast('Curtains coming soon!', 'info')" style="opacity:0.6" title="Coming soon">Curtains</a></li>
           <li><a href="javascript:void(0)" onclick="showToast('Order tracking requires an account. Contact us for order status.', 'info')" title="Contact us for order status">Look up My Order</a></li>
           <li><a href="/dealer/" title="Dealer Portal for wholesale orders">Bulk Orders/Wholesale</a></li>
           <li><a href="/contact.html">Contact Us</a></li>
@@ -1303,15 +1325,13 @@
   <section class="category-tabs">
     <div class="tabs-container">
       <div class="tabs-left">
-        <button class="tab-btn active" data-category="zebra-shades">
+        <button class="tab-btn active" data-category="all">
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-            <rect x="3" y="3" width="18" height="18" rx="1"/>
-            <line x1="3" y1="7" x2="21" y2="7"/>
-            <line x1="3" y1="11" x2="21" y2="11"/>
-            <line x1="3" y1="15" x2="21" y2="15"/>
-            <line x1="3" y1="19" x2="21" y2="19"/>
+            <rect x="3" y="3" width="18" height="18" rx="2"/>
+            <line x1="3" y1="9" x2="21" y2="9"/>
+            <line x1="9" y1="3" x2="9" y2="21"/>
           </svg>
-          Zebra Shades
+          All Shades
         </button>
         <button class="tab-btn" data-category="roller-shades">
           <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
@@ -1351,16 +1371,6 @@
             <path d="M12 18 L15 15 L18 18 L15 21 Z"/>
           </svg>
           Honeycomb Shades
-        </button>
-        <button class="tab-btn" data-category="drapes">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
-            <rect x="3" y="3" width="18" height="3"/>
-            <path d="M5 6 Q3 12 5 21"/>
-            <path d="M9 6 Q7 12 9 21"/>
-            <path d="M15 6 Q17 12 15 21"/>
-            <path d="M19 6 Q21 12 19 21"/>
-          </svg>
-          Drapes
         </button>
       </div>
       <button class="tab-btn build-your-own-btn" onclick="window.location.href='/product/affordable-custom-roller-blinds'">
@@ -1418,9 +1428,12 @@
           <option value="price_desc">Sort by: Price High to Low</option>
           <option value="name">Sort by: Name A to Z</option>
         </select>
+        <select class="sort-select" id="manufacturerSelect" onchange="filterByManufacturerSelect(this.value)" style="margin-left: 10px;">
+          <option value="">All Manufacturers</option>
+        </select>
       </div>
       <div class="filter-right">
-        <span class="products-count"><span id="productsCount">274</span> Products</span>
+        <span class="products-count"><span id="productsCount">4</span> Products</span>
       </div>
     </div>
   </section>
@@ -1551,6 +1564,14 @@
           </div>
         </div>
       </div>
+
+      <!-- Manufacturer Filter -->
+      <div class="filter-section">
+        <div class="filter-section-title">Manufacturer</div>
+        <div class="filter-options" id="manufacturerFilterOptions">
+          <div style="padding: 10px; color: #666; font-size: 12px;">Loading manufacturers...</div>
+        </div>
+      </div>
     </div>
     <div class="filter-panel-footer">
       <button class="btn-clear-filters" onclick="clearAllFilters()">Clear All</button>
@@ -1565,7 +1586,7 @@
   <section class="products-section">
     <div class="products-container">
       <div class="products-grid" id="productsGrid">
-        <!-- Products will be loaded dynamically -->
+        <!-- Products loaded by JavaScript -->
       </div>
 
       <div class="load-more-container">
@@ -1598,10 +1619,9 @@
           <h4>Products</h4>
           <ul>
             <li><a href="/shop?category=roller-shades">Roller Shades</a></li>
-            <li><a href="/shop?category=roman-shades">Roman Shades</a></li>
             <li><a href="/shop?category=zebra-shades">Zebra Shades</a></li>
+            <li><a href="/shop?category=roman-shades">Roman Shades</a></li>
             <li><a href="/shop?category=honeycomb-shades">Honeycomb Shades</a></li>
-            <li><a href="/shop?category=drapes">Drapes</a></li>
           </ul>
         </div>
 
@@ -1653,11 +1673,16 @@
 
   <script src="/js/app.js"></script>
   <script>
-    // Products data
-    let allProducts = [];
-    let filteredProducts = [];
+    // Products data - initialize with products immediately
+    let allProducts = [
+      { id: '1', slug: 'affordable-custom-roller-blinds', name: 'Affordable Custom Roller Blinds & Shades', category_name: 'Roller Shades', category_slug: 'roller-shades', base_price: 40.00, image_url: '/images/roller-shades.png', promo_badge: 'BEST SELLER' },
+      { id: '2', slug: 'affordable-custom-zebra-shades', name: 'Affordable Custom Zebra Shades', category_name: 'Zebra Shades', category_slug: 'zebra-shades', base_price: 45.00, image_url: '/images/zebra-shades.png', promo_badge: 'POPULAR' },
+      { id: '3', slug: 'affordable-custom-roman-shades', name: 'Affordable Custom Roman Shades', category_name: 'Roman Shades', category_slug: 'roman-shades', base_price: 55.00, image_url: '/images/roman-shades.png', promo_badge: 'ELEGANT' },
+      { id: '4', slug: 'affordable-custom-honeycomb-shades', name: 'Affordable Custom Honeycomb Shades', category_name: 'Honeycomb Shades', category_slug: 'honeycomb-shades', base_price: 50.00, image_url: '/images/honeycomb-shades.png', promo_badge: 'ECO-FRIENDLY' }
+    ];
+    let filteredProducts = [...allProducts];
     let currentPage = 1;
-    let productsPerPage = 9;
+    let productsPerPage = 12;
     let currentCategory = 'all';
 
     // Product images - local images matching product detail page
@@ -1677,17 +1702,17 @@
       'roller-shades': '/images/products/roller-blinds/gallery-1.jpg',
       'roman-shades': '/images/roman-shades.png',
       'zebra-shades': '/images/zebra-shades.png',
-      'honeycomb-shades': '/images/honeycomb-shades.png',
-      'drapes': '/images/products/roller-blinds/gallery-5.jpg'
+      'honeycomb-shades': '/images/honeycomb-shades.png'
     };
 
-    // Initialize
-    document.addEventListener('DOMContentLoaded', function() {
+    // Initialize function - called after all functions are defined
+    function initShopPage() {
       // Check URL path for category (e.g., /category/roller-shades)
       const pathMatch = window.location.pathname.match(/^\/category\/([^\/]+)/);
       if (pathMatch) {
         const categorySlug = pathMatch[1];
         currentCategory = categorySlug;
+        filteredProducts = allProducts.filter(p => p.category_slug === categorySlug);
         document.querySelectorAll('.tab-btn').forEach(btn => {
           btn.classList.remove('active');
           if (btn.dataset.category === categorySlug) {
@@ -1700,6 +1725,7 @@
         const categoryParam = urlParams.get('category');
         if (categoryParam) {
           currentCategory = categoryParam;
+          filteredProducts = allProducts.filter(p => p.category_slug === categoryParam);
           document.querySelectorAll('.tab-btn').forEach(btn => {
             btn.classList.remove('active');
             if (btn.dataset.category === categoryParam) {
@@ -1709,11 +1735,113 @@
         }
       }
 
+      // Render products
+      renderProducts();
+
+      // Setup tabs
+      setupCategoryTabs();
+
+      // Load from API
       loadCategories();
       loadProducts();
-      setupCategoryTabs();
+      loadManufacturers();
       updateCartCount();
-    });
+    }
+
+    // Selected manufacturer filter
+    let selectedManufacturer = null;
+    let manufacturersData = [];
+
+    // Load manufacturers from API
+    async function loadManufacturers() {
+      const container = document.getElementById('manufacturerFilterOptions');
+      const mainSelect = document.getElementById('manufacturerSelect');
+
+      try {
+        const response = await fetch('/api/manufacturers');
+        const result = await response.json();
+
+        if (result.success && result.manufacturers) {
+          manufacturersData = result.manufacturers;
+
+          // Populate filter panel
+          if (container) {
+            renderManufacturerFilters(result.manufacturers);
+          }
+
+          // Populate main dropdown
+          if (mainSelect) {
+            let options = '<option value="">All Manufacturers</option>';
+            result.manufacturers.forEach(mfr => {
+              const status = mfr.pricingLinked ? '✓' : '(Coming Soon)';
+              options += `<option value="${mfr.id}">${mfr.name} ${status}</option>`;
+            });
+            mainSelect.innerHTML = options;
+          }
+        } else {
+          if (container) {
+            container.innerHTML = '<div style="padding: 10px; color: #999; font-size: 12px;">No manufacturers available</div>';
+          }
+        }
+      } catch (error) {
+        console.error('Error loading manufacturers:', error);
+        if (container) {
+          container.innerHTML = '<div style="padding: 10px; color: #dc3545; font-size: 12px;">Error loading manufacturers</div>';
+        }
+      }
+    }
+
+    // Filter by manufacturer from main dropdown
+    function filterByManufacturerSelect(manufacturerId) {
+      selectedManufacturer = manufacturerId || null;
+
+      // Also update the filter panel radio if it exists
+      if (manufacturerId) {
+        const radio = document.getElementById('mfr-' + manufacturerId);
+        if (radio) radio.checked = true;
+      } else {
+        const allRadio = document.getElementById('mfr-all');
+        if (allRadio) allRadio.checked = true;
+      }
+
+      updateActiveFilters();
+      applyAllFilters();
+    }
+
+    // Render manufacturer filter options
+    function renderManufacturerFilters(manufacturers) {
+      const container = document.getElementById('manufacturerFilterOptions');
+      if (!container) return;
+
+      let html = `
+        <div class="filter-option">
+          <input type="radio" id="mfr-all" name="manufacturer" value="" checked onchange="filterByManufacturer('')">
+          <label for="mfr-all">All Manufacturers</label>
+        </div>
+      `;
+
+      manufacturers.forEach(mfr => {
+        const statusBadge = mfr.pricingLinked
+          ? '<span style="background: #d4edda; color: #155724; font-size: 9px; padding: 2px 6px; border-radius: 10px; margin-left: 5px;">Available</span>'
+          : '<span style="background: #fff3cd; color: #856404; font-size: 9px; padding: 2px 6px; border-radius: 10px; margin-left: 5px;">Coming Soon</span>';
+
+        html += `
+          <div class="filter-option">
+            <input type="radio" id="mfr-${mfr.id}" name="manufacturer" value="${mfr.id}" onchange="filterByManufacturer('${mfr.id}')">
+            <label for="mfr-${mfr.id}">${mfr.name} ${statusBadge}</label>
+          </div>
+        `;
+      });
+
+      container.innerHTML = html;
+    }
+
+    // Filter products by manufacturer
+    function filterByManufacturer(manufacturerId) {
+      selectedManufacturer = manufacturerId || null;
+      updateActiveFilters();
+      applyAllFilters();
+    }
 
     // Load categories from API
     async function loadCategories() {
@@ -1739,8 +1867,7 @@
         'roller-shades': `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="1"/><rect x="3" y="3" width="18" height="6" fill="currentColor" opacity="0.3"/><line x1="12" y1="9" x2="12" y2="21"/></svg>`,
         'zebra-shades': `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="1"/><line x1="3" y1="7" x2="21" y2="7"/><line x1="3" y1="11" x2="21" y2="11"/><line x1="3" y1="15" x2="21" y2="15"/><line x1="3" y1="19" x2="21" y2="19"/></svg>`,
         'roman-shades': `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="1"/><path d="M3 8 Q12 12 21 8"/><path d="M3 13 Q12 17 21 13"/><path d="M3 18 Q12 22 21 18"/></svg>`,
-        'honeycomb-shades': `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="1"/><path d="M6 6 L9 3 L12 6 L9 9 Z"/><path d="M12 6 L15 3 L18 6 L15 9 Z"/><path d="M6 12 L9 9 L12 12 L9 15 Z"/><path d="M12 12 L15 9 L18 12 L15 15 Z"/></svg>`,
-        'drapes': `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="3"/><path d="M5 6 Q3 12 5 21"/><path d="M9 6 Q7 12 9 21"/><path d="M15 6 Q17 12 15 21"/><path d="M19 6 Q21 12 19 21"/></svg>`
+        'honeycomb-shades': `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="3" width="18" height="18" rx="1"/><path d="M6 6 L9 3 L12 6 L9 9 Z"/><path d="M12 6 L15 3 L18 6 L15 9 Z"/><path d="M6 12 L9 9 L12 12 L9 15 Z"/><path d="M12 12 L15 9 L18 12 L15 15 Z"/></svg>`
       };
 
       // Default icon
@@ -1757,14 +1884,20 @@
       setupCategoryTabs();
     }
 
-    // Load products from API
+    // Load products from API (replaces demo products if successful)
     async function loadProducts() {
       try {
         const categoryParam = currentCategory !== 'all' ? `?category=${currentCategory}` : '';
-        const response = await fetch(`/api/products${categoryParam}`);
+        const response = await fetch('/api/products' + categoryParam);
+
+        if (!response.ok) {
+          console.error('API response not ok:', response.status);
+          return; // Keep demo products
+        }
+
         const result = await response.json();
 
-        if (result.success) {
+        if (result.success && result.data && result.data.length > 0) {
           allProducts = result.data.map((product, index) => ({
             ...product,
             image_url: product.image_url || categoryImages[product.category_slug] || productImages[index % productImages.length]
@@ -1772,10 +1905,10 @@
           filteredProducts = [...allProducts];
           renderProducts();
         }
+        // If API returns empty, keep demo products
       } catch (error) {
-        console.error('Error loading products:', error);
-        // Load demo products if API fails
-        loadDemoProducts();
+        console.error('Error loading products from API:', error);
+        // Keep demo products on error
       }
     }
 
@@ -1884,8 +2017,15 @@
     // Render products
     function renderProducts() {
       const grid = document.getElementById('productsGrid');
+      if (!grid) return;
+
       const endIndex = currentPage * productsPerPage;
       const productsToShow = filteredProducts.slice(0, endIndex);
+
+      if (productsToShow.length === 0) {
+        grid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 60px 40px; color: #666;"><h3 style="margin-bottom: 10px; color: #333;">No products found</h3><p>Try adjusting your filters or browse all products.</p><button onclick="clearAllFilters()" style="margin-top: 20px; padding: 12px 24px; background: #8E6545; color: white; border: none; border-radius: 6px; cursor: pointer; font-family: Montserrat, sans-serif;">Clear Filters</button></div>';
+        return;
+      }
 
       grid.innerHTML = productsToShow.map(product => {
         // Determine badge to show (promo_badge > sale > none)
@@ -2112,6 +2252,14 @@
         tagsHTML += `<span class="active-filter-tag">${formatFilterLabel(material)} <button onclick="removeFilter('material', '${material}')">&times;</button></span>`;
       });
 
+      // Add manufacturer filter tag
+      if (selectedManufacturer) {
+        const mfr = manufacturersData.find(m => m.id === selectedManufacturer);
+        if (mfr) {
+          tagsHTML += `<span class="active-filter-tag">${mfr.name} <button onclick="removeFilter('manufacturer', '${selectedManufacturer}')">&times;</button></span>`;
+        }
+      }
+
       container.innerHTML = tagsHTML;
 
       // Update filter pill active states
@@ -2139,6 +2287,9 @@
       } else if (type === 'material') {
         const checkbox = document.querySelector(`input[name="material"][value="${value}"]`);
         if (checkbox) checkbox.checked = false;
+      } else if (type === 'manufacturer') {
+        selectedManufacturer = null;
+        document.getElementById('mfr-all').checked = true;
       }
 
       updateActiveFilters();
@@ -2178,6 +2329,10 @@
       document.querySelectorAll('input[name="light"]').forEach(el => el.checked = false);
       // Uncheck all material checkboxes
       document.querySelectorAll('input[name="material"]').forEach(el => el.checked = false);
+      // Reset manufacturer filter
+      selectedManufacturer = null;
+      const mfrAll = document.getElementById('mfr-all');
+      if (mfrAll) mfrAll.checked = true;
 
       // Update state and UI
       updateActiveFilters();
@@ -2248,6 +2403,27 @@
             return nameLC.includes(mat) || descLC.includes(mat);
           });
         });
+      }
+
+      // Apply manufacturer filter
+      if (selectedManufacturer) {
+        const manufacturer = manufacturersData.find(m => m.id === selectedManufacturer);
+        if (manufacturer && manufacturer.productTypes) {
+          products = products.filter(p => {
+            const catSlug = (p.category_slug || '').toLowerCase();
+            // Map category slugs to product types
+            // roller-shades -> roller, zebra-shades -> zebra, roman-shades -> roman, honeycomb-shades -> honeycomb
+            let productType = catSlug.replace('-shades', '').replace('-blinds', '');
+            // Handle special cases
+            if (catSlug.includes('roller')) productType = 'roller';
+            if (catSlug.includes('zebra')) productType = 'zebra';
+            if (catSlug.includes('roman')) productType = 'roman';
+            if (catSlug.includes('honeycomb') || catSlug.includes('cellular')) productType = 'honeycomb';
+
+            console.log('Filtering product:', p.name, 'catSlug:', catSlug, 'productType:', productType, 'mfrTypes:', manufacturer.productTypes, 'match:', manufacturer.productTypes.includes(productType));
+            return manufacturer.productTypes.includes(productType);
+          });
+        }
       }
 
       // Apply color filter (simulated - matches name)
@@ -2546,6 +2722,14 @@
     document.addEventListener('DOMContentLoaded', function() {
       loadSiteContent();
     });
+
+    // Initialize shop page when DOM is ready
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initShopPage);
+    } else {
+      // DOM already loaded
+      initShopPage();
+    }
   </script>
 </body>
 </html>

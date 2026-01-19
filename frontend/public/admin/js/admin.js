@@ -428,16 +428,21 @@ const FAQsAPI = {
 
 // Settings API
 const SettingsAPI = {
-  get() {
-    return API.get('/settings');
+  async get() {
+    const response = await API.get('/admin/settings');
+    // Normalize response format for frontend
+    if (response.success && response.data) {
+      return { success: true, settings: response.data };
+    }
+    return response;
   },
 
   update(settings) {
-    return API.put('/settings', settings);
+    return API.put('/admin/settings', settings);
   },
 
   changePassword(currentPassword, newPassword) {
-    return API.put('/password', { currentPassword, newPassword });
+    return API.put('/admin/password', { currentPassword, newPassword });
   }
 };
 

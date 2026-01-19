@@ -401,6 +401,108 @@ const SCHEMA_EXTENSIONS = {
   ],
 
   // ============================================
+  // MANUFACTURER HARDWARE PRICES
+  // ============================================
+  manufacturerHardwarePrices: [
+    // Example structure:
+    // {
+    //   id: 'mhp-001',
+    //   manufacturerId: 'mfr-zstarr',
+    //   productType: 'roller', // roller, zebra, honeycomb, roman
+    //   category: 'valanceType', // valanceType, bottomRail, mountType
+    //   optionCode: 'fabric-wrapped',
+    //   optionName: 'Fabric Wrapped Valance',
+    //   manufacturerCost: 8.50,
+    //   priceType: 'flat', // flat, sqm (per square meter)
+    //   status: 'active',
+    //   effectiveDate: '2025-01-01',
+    //   notes: '',
+    //   createdAt: '2025-01-01T00:00:00.000Z',
+    //   updatedAt: '2025-01-01T00:00:00.000Z',
+    //   createdBy: 'admin-001'
+    // }
+  ],
+
+  // ============================================
+  // MANUFACTURER MOTOR PRICES
+  // ============================================
+  manufacturerMotorPrices: [
+    // Example structure:
+    // {
+    //   id: 'mmp-001',
+    //   manufacturerId: 'mfr-zstarr',
+    //   brandCode: 'aok', // aok, dooya, plugin-wire
+    //   brandName: 'AOK',
+    //   motorType: 'standard', // standard, heavy-duty, etc.
+    //   manufacturerCost: 45.00,
+    //   status: 'active',
+    //   effectiveDate: '2025-01-01',
+    //   notes: '',
+    //   createdAt: '2025-01-01T00:00:00.000Z',
+    //   updatedAt: '2025-01-01T00:00:00.000Z',
+    //   createdBy: 'admin-001'
+    // }
+  ],
+
+  // ============================================
+  // MANUFACTURER ACCESSORY PRICES
+  // ============================================
+  manufacturerAccessoryPrices: [
+    // Example structure:
+    // {
+    //   id: 'map-001',
+    //   manufacturerId: 'mfr-zstarr',
+    //   itemType: 'remote', // remote, solar, accessory
+    //   itemCode: '15-channel',
+    //   itemName: '15 Channel Remote',
+    //   manufacturerCost: 25.00,
+    //   status: 'active',
+    //   effectiveDate: '2025-01-01',
+    //   notes: '',
+    //   createdAt: '2025-01-01T00:00:00.000Z',
+    //   updatedAt: '2025-01-01T00:00:00.000Z',
+    //   createdBy: 'admin-001'
+    // }
+  ],
+
+  // ============================================
+  // PRICING UPLOAD HISTORY (Audit Trail for Excel Uploads)
+  // ============================================
+  pricingUploadHistory: [
+    // Example structure:
+    // {
+    //   id: 'puh-001',
+    //   manufacturerId: 'mfr-zstarr',
+    //   uploadType: 'excel', // excel, csv, manual
+    //   fileName: 'zstarr-pricing-2025.xlsx',
+    //   filePath: '/uploads/pricing/xxx.xlsx',
+    //   uploadedBy: 'admin-001',
+    //   uploadedByEmail: 'admin@peekaboo.com',
+    //   uploadedByRole: 'admin', // admin, manufacturer
+    //   status: 'completed', // pending, processing, completed, failed, partial
+    //   summary: {
+    //     fabricsProcessed: 150,
+    //     fabricsCreated: 50,
+    //     fabricsUpdated: 100,
+    //     hardwareProcessed: 25,
+    //     motorsProcessed: 5,
+    //     accessoriesProcessed: 10,
+    //     errors: 2,
+    //     warnings: 5
+    //   },
+    //   errors: [
+    //     { row: 45, sheet: 'Fabrics', message: 'Invalid fabric code' }
+    //   ],
+    //   warnings: [
+    //     { row: 67, sheet: 'Fabrics', message: 'Price seems unusually high' }
+    //   ],
+    //   startedAt: '2025-01-01T10:00:00.000Z',
+    //   completedAt: '2025-01-01T10:05:00.000Z',
+    //   createdAt: '2025-01-01T10:00:00.000Z'
+    // }
+  ],
+
+  // ============================================
   // EMAIL LOGS (Dev Mode)
   // ============================================
   emailLogs: [

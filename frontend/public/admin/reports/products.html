@@ -350,9 +350,45 @@
 
       const types = { roller: 0, zebra: 0, honeycomb: 0, roman: 0, other: 0 };
       reportData.items.forEach(item => {
-        const type = item.product_type ||
-          (item.product_slug?.includes('zebra') ? 'zebra' :
-           item.product_slug?.includes('roller') ? 'roller' : 'other');
+        let type = item.product_type || item.productType;
+
+        // Check product_slug
+        if (!type && item.product_slug) {
+          const slug = item.product_slug.toLowerCase();
+          if (slug.includes('zebra')) type = 'zebra';
+          else if (slug.includes('roller')) type = 'roller';
+          else if (slug.includes('honeycomb')) type = 'honeycomb';
+          else if (slug.includes('roman')) type = 'roman';
+        }
+
+        // Check product_name
+        if (!type && item.product_name) {
+          const name = item.product_name.toLowerCase();
+          if (name.includes('zebra')) type = 'zebra';
+          else if (name.includes('roller')) type = 'roller';
+          else if (name.includes('honeycomb')) type = 'honeycomb';
+          else if (name.includes('roman')) type = 'roman';
+        }
+
+        // Check fabric code in configuration
+        if (!type && item.configuration) {
+          try {
+            const cfg = typeof item.configuration === 'string' ? JSON.parse(item.configuration) : item.configuration;
+            if (cfg.fabricCode) {
+              if (cfg.fabricCode.startsWith('83')) type = 'zebra';
+              else if (cfg.fabricCode.startsWith('82')) type = 'roller';
+            }
+          } catch (e) { /* ignore */ }
+        }
+
+        // Check price_breakdown for fabricCode
+        if (!type && item.price_breakdown?.fabricCode) {
+          if (item.price_breakdown.fabricCode.startsWith('83')) type = 'zebra';
+          else if (item.price_breakdown.fabricCode.startsWith('82')) type = 'roller';
+        }
+
+        if (!type) type = 'other';
+
         types[type] = (types[type] || 0) + (item.quantity || 1);
       });
 

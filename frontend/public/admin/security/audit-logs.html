@@ -7,20 +7,22 @@
     <link rel="stylesheet" href="../css/admin.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
+        body { font-size: 15px; }
         .security-container { display: flex; min-height: 100vh; }
-        .security-sidebar { width: 260px; background: #1a1a2e; padding: 20px 0; flex-shrink: 0; }
+        .security-sidebar { width: 260px; background: #8E6545; padding: 20px 0; flex-shrink: 0; }
         .security-sidebar h3 { color: #fff; padding: 0 20px; margin-bottom: 20px; font-size: 14px; text-transform: uppercase; letter-spacing: 1px; display: flex; align-items: center; gap: 10px; }
-        .security-sidebar h3 i { color: #28a745; }
+        .security-sidebar h3 i { color: #fff; }
         .security-nav { list-style: none; padding: 0; margin: 0; }
         .security-nav li a { display: flex; align-items: center; gap: 12px; padding: 12px 20px; color: #a0a0a0; text-decoration: none; transition: all 0.2s; font-size: 14px; }
         .security-nav li a:hover, .security-nav li a.active { background: rgba(255,255,255,0.1); color: #fff; }
-        .security-nav li a.active { border-left: 3px solid #28a745; }
+        .security-nav li a.active { border-left: 3px solid #fff; }
         .security-content { flex: 1; padding: 30px; background: #f5f5f5; }
         .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px; }
         .page-header h1 { margin: 0; font-size: 24px; }
 
         .btn { padding: 10px 20px; border-radius: 6px; border: none; cursor: pointer; font-size: 14px; display: inline-flex; align-items: center; gap: 8px; }
-        .btn-primary { background: #4a90d9; color: #fff; }
+        .btn-primary { background: #8E6545; color: #fff; }
+        .btn-primary:hover { background: #7A5639; }
         .btn-secondary { background: #f0f0f0; color: #333; }
 
         .filters-bar {
@@ -291,7 +293,7 @@
 
         <main class="security-content">
             <div class="page-header">
-                <h1><i class="fas fa-history" style="color: #c2185b;"></i> Audit Logs</h1>
+                <h1><i class="fas fa-history" style="color: #8E6545;"></i> Audit Logs</h1>
                 <button class="btn btn-secondary" onclick="exportLogs()">
                     <i class="fas fa-download"></i> Export Logs
                 </button>

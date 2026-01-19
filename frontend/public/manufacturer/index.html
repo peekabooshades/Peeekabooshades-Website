@@ -777,19 +777,21 @@
           else if (slug.includes('roller')) type = 'roller';
         }
 
-        // Check product_name
-        if (!type && item.product_name) {
-          const name = item.product_name.toLowerCase();
+        // Check product_name or productName (API returns productName)
+        const productName = item.product_name || item.productName;
+        if (!type && productName) {
+          const name = productName.toLowerCase();
           if (name.includes('zebra')) type = 'zebra';
           else if (name.includes('honeycomb') || name.includes('cellular')) type = 'honeycomb';
           else if (name.includes('roman')) type = 'roman';
           else if (name.includes('roller')) type = 'roller';
         }
 
-        // Check fabric code in configuration (83xxx = zebra, 82xxx = roller)
-        if (!type && item.configuration) {
+        // Check fabric code in configuration or options (API returns options)
+        const config = item.configuration || item.options;
+        if (!type && config) {
           try {
-            const cfg = typeof item.configuration === 'string' ? JSON.parse(item.configuration) : item.configuration;
+            const cfg = typeof config === 'string' ? JSON.parse(config) : config;
             if (cfg.productType) {
               type = cfg.productType.toLowerCase();
             } else if (cfg.fabricCode) {
@@ -797,6 +799,12 @@
               else if (cfg.fabricCode.startsWith('82')) type = 'roller';
             }
           } catch (e) { /* ignore */ }
+        }
+
+        // Also check fabricCode directly on item (API returns this)
+        if (!type && item.fabricCode) {
+          if (item.fabricCode.startsWith('83')) type = 'zebra';
+          else if (item.fabricCode.startsWith('82')) type = 'roller';
         }
 
         if (type) types.add(type);

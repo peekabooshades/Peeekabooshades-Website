@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Saved Quote | Peekaboo Shades</title>
+
+  <!-- SEO Meta Tags -->
+  <meta name="description" content="View your saved window treatment quote from Peekaboo Shades.">
+  <meta name="robots" content="noindex, nofollow">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    :root {
+      --golden-brown: #8E6545;
+      --dark-brown: #8E6545;
+      --text-dark: #333333;
+      --text-light: #666666;
+      --bg-cream: #F8F6F3;
+      --bg-white: #FFFFFF;
+      --border-light: #E8E8E8;
+      --success-green: #28a745;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Montserrat', sans-serif; font-size: 14px; line-height: 1.6; color: var(--text-dark); background-color: #F6F1EB; }
+    a { text-decoration: none; color: inherit; }
+    .container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+
+    /* Top Bar */
+    .top-bar { background-color: var(--dark-brown); color: white; padding: 8px 0; font-size: 12px; }
+    .top-bar-container { max-width: 1400px; margin: 0 auto; padding: 0 40px; display: flex; justify-content: space-between; align-items: center; }
+    .top-bar-left { display: flex; gap: 20px; }
+    .top-bar-left span { display: flex; align-items: center; gap: 6px; }
+    .top-bar-right a { color: white; margin-left: 15px; }
+
+    /* Header */
+    .main-header { background-color: #FFFFFF; height: 70px; display: flex; align-items: center; border-bottom: 1px solid var(--border-light); }
+    .header-container { max-width: 1400px; width: 100%; margin: 0 auto; padding: 0 40px; display: flex; justify-content: space-between; align-items: center; }
+    .logo { display: flex; align-items: center; gap: 8px; }
+    .logo img { height: 45px; border-radius: 8px; }
+    .logo-text { font-size: 18px; font-weight: 700; color: var(--golden-brown); }
+    .main-nav { display: flex; gap: 30px; }
+    .main-nav a { font-size: 14px; font-weight: 500; color: var(--text-dark); transition: color 0.2s; }
+    .main-nav a:hover { color: var(--golden-brown); }
+    .header-actions { display: flex; align-items: center; gap: 20px; }
+    .header-actions a { color: var(--text-dark); font-size: 18px; }
+
+    /* Quote Container */
+    .quote-page { padding: 60px 0; min-height: 60vh; }
+    .quote-container { max-width: 900px; margin: 0 auto; }
+
+    .quote-header { background: white; border-radius: 12px 12px 0 0; padding: 30px; border-bottom: 1px solid var(--border-light); }
+    .quote-header h1 { font-size: 24px; font-weight: 600; margin-bottom: 10px; }
+    .quote-meta { display: flex; gap: 20px; flex-wrap: wrap; color: var(--text-light); font-size: 13px; }
+    .quote-meta span { display: flex; align-items: center; gap: 5px; }
+    .quote-status { display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 500; }
+    .quote-status.active { background: #e8f5e9; color: #2e7d32; }
+    .quote-status.expired { background: #ffebee; color: #c62828; }
+
+    .quote-body { background: white; padding: 30px; }
+
+    /* Quote Items */
+    .quote-items { margin-bottom: 30px; }
+    .quote-item { display: flex; gap: 20px; padding: 20px 0; border-bottom: 1px solid var(--border-light); }
+    .quote-item:last-child { border-bottom: none; }
+    .quote-item-image { width: 100px; height: 100px; background-size: cover; background-position: center; background-color: #f0f0f0; border-radius: 8px; flex-shrink: 0; }
+    .quote-item-details { flex: 1; }
+    .quote-item-name { font-size: 16px; font-weight: 600; margin-bottom: 5px; }
+    .quote-item-specs { font-size: 13px; color: var(--text-light); margin-bottom: 10px; }
+    .quote-item-specs span { display: inline-block; margin-right: 15px; }
+    .quote-item-price { font-size: 18px; font-weight: 600; color: var(--golden-brown); }
+    .quote-item-qty { color: var(--text-light); font-size: 13px; margin-left: 10px; }
+
+    /* Quote Summary */
+    .quote-summary { background: var(--bg-cream); padding: 25px; border-radius: 8px; margin-bottom: 30px; }
+    .quote-summary-row { display: flex; justify-content: space-between; padding: 8px 0; }
+    .quote-summary-row.total { border-top: 2px solid var(--text-dark); margin-top: 10px; padding-top: 15px; font-size: 18px; font-weight: 600; }
+
+    /* Actions */
+    .quote-actions { display: flex; gap: 15px; flex-wrap: wrap; }
+    .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 14px 30px; border-radius: 8px; font-size: 14px; font-weight: 500; cursor: pointer; border: none; transition: all 0.2s; }
+    .btn-primary { background: var(--golden-brown); color: white; }
+    .btn-primary:hover { background: #7a5739; }
+    .btn-secondary { background: white; color: var(--text-dark); border: 1px solid var(--border-light); }
+    .btn-secondary:hover { background: var(--bg-cream); }
+
+    .quote-footer { background: white; border-radius: 0 0 12px 12px; padding: 20px 30px; border-top: 1px solid var(--border-light); }
+    .quote-share { display: flex; align-items: center; gap: 15px; flex-wrap: wrap; }
+    .quote-share-code { background: var(--bg-cream); padding: 10px 20px; border-radius: 8px; font-family: monospace; font-size: 16px; letter-spacing: 2px; }
+    .copy-btn { cursor: pointer; color: var(--golden-brown); }
+    .copy-btn:hover { text-decoration: underline; }
+
+    /* Loading & Error States */
+    .loading-state, .error-state { text-align: center; padding: 80px 20px; background: white; border-radius: 12px; }
+    .loading-state i, .error-state i { font-size: 60px; color: var(--border-light); margin-bottom: 20px; }
+    .error-state i { color: #e57373; }
+    .loading-state h3, .error-state h3 { font-size: 20px; margin-bottom: 10px; }
+    .loading-state p, .error-state p { color: var(--text-light); }
+
+    /* Footer */
+    .footer { background-color: #2C2C2C; color: white; padding: 50px 0 20px; margin-top: 60px; }
+    .footer-content { display: grid; grid-template-columns: repeat(4, 1fr); gap: 40px; margin-bottom: 40px; }
+    .footer-column h4 { font-size: 16px; font-weight: 600; margin-bottom: 20px; }
+    .footer-column ul { list-style: none; }
+    .footer-column li { margin-bottom: 10px; }
+    .footer-column a { color: #AAAAAA; font-size: 14px; transition: color 0.2s; }
+    .footer-column a:hover { color: white; }
+    .footer-bottom { text-align: center; padding-top: 20px; border-top: 1px solid #444; color: #888; font-size: 13px; }
+
+    @media (max-width: 768px) {
+      .quote-item { flex-direction: column; }
+      .quote-item-image { width: 100%; height: 150px; }
+      .quote-actions { flex-direction: column; }
+      .btn { width: 100%; }
+      .footer-content { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    /* Toast Notification */
+    .toast { position: fixed; bottom: 20px; right: 20px; background: #333; color: white; padding: 15px 25px; border-radius: 8px; display: none; z-index: 1000; }
+    .toast.show { display: block; animation: slideIn 0.3s ease; }
+    @keyframes slideIn { from { transform: translateY(20px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+  </style>
+</head>
+<body>
+  <!-- Top Bar -->
+  <div class="top-bar">
+    <div class="top-bar-container">
+      <div class="top-bar-left">
+        <span><i class="fas fa-phone"></i> +1 929-465-9549</span>
+        <span><i class="fas fa-envelope"></i> peekabooshades.pro@gmail.com</span>
+      </div>
+      <div class="top-bar-right">
+        <a href="/cart"><i class="fas fa-shopping-cart"></i> Cart</a>
+        <a href="/account"><i class="fas fa-user"></i> Account</a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Header -->
+  <header class="main-header">
+    <div class="header-container">
+      <a href="/" class="logo">
+        <img src="/images/peekabooshades_logo.jpeg" alt="Peekaboo Shades">
+        <span class="logo-text">Peekaboo Shades</span>
+      </a>
+      <nav class="main-nav">
+        <a href="/shop">Shop</a>
+        <a href="/samples">Samples</a>
+        <a href="/guides/">Guides</a>
+        <a href="/blog">Blog</a>
+        <a href="/contact">Contact</a>
+      </nav>
+      <div class="header-actions">
+        <a href="/cart"><i class="fas fa-shopping-cart"></i></a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Quote Page -->
+  <section class="quote-page">
+    <div class="container">
+      <div class="quote-container" id="quoteContainer">
+        <div class="loading-state" id="loadingState">
+          <i class="fas fa-spinner fa-spin"></i>
+          <h3>Loading your quote...</h3>
+          <p>Please wait while we retrieve your saved quote.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <div class="container">
+      <div class="footer-content">
+        <div class="footer-column">
+          <h4>Shop</h4>
+          <ul>
+            <li><a href="/shop?category=roller-shades">Roller Shades</a></li>
+            <li><a href="/shop?category=zebra-shades">Zebra Shades</a></li>
+            <li><a href="/shop?category=roman-shades">Roman Shades</a></li>
+            <li><a href="/shop?category=honeycomb-shades">Honeycomb Shades</a></li>
+          </ul>
+        </div>
+        <div class="footer-column">
+          <h4>Resources</h4>
+          <ul>
+            <li><a href="/measuring-guide">Measuring Guide</a></li>
+            <li><a href="/installation">Installation</a></li>
+            <li><a href="/faqs">FAQs</a></li>
+            <li><a href="/blog">Blog</a></li>
+          </ul>
+        </div>
+        <div class="footer-column">
+          <h4>Company</h4>
+          <ul>
+            <li><a href="/about">About Us</a></li>
+            <li><a href="/contact">Contact</a></li>
+            <li><a href="/warranty">Warranty</a></li>
+            <li><a href="/reviews">Reviews</a></li>
+          </ul>
+        </div>
+        <div class="footer-column">
+          <h4>Contact</h4>
+          <ul>
+            <li><i class="fas fa-phone"></i> +1 929-465-9549</li>
+            <li><i class="fas fa-envelope"></i> peekabooshades.pro@gmail.com</li>
+            <li><i class="fas fa-clock"></i> Mon-Fri 9AM-5PM EST</li>
+          </ul>
+        </div>
+      </div>
+      <div class="footer-bottom">
+        &copy; 2025 Peekaboo Shades. All rights reserved.
+      </div>
+    </div>
+  </footer>
+
+  <div class="toast" id="toast"></div>
+
+  <script>
+    // Get share code from URL path
+    const pathParts = window.location.pathname.split('/');
+    const shareCode = pathParts[pathParts.length - 1];
+
+    // DOM elements
+    const container = document.getElementById('quoteContainer');
+    const toast = document.getElementById('toast');
+
+    // Show toast notification
+    function showToast(message, duration = 3000) {
+      toast.textContent = message;
+      toast.classList.add('show');
+      setTimeout(() => toast.classList.remove('show'), duration);
+    }
+
+    // Format currency
+    function formatCurrency(amount) {
+      return new Intl.NumberFormat('en-US', {
+        style: 'currency',
+        currency: 'USD'
+      }).format(amount);
+    }
+
+    // Format date
+    function formatDate(dateString) {
+      return new Date(dateString).toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric'
+      });
+    }
+
+    // Load quote
+    async function loadQuote() {
+      if (!shareCode || shareCode === 'quote.html') {
+        showError('No quote code provided', 'Please check the link you were given.');
+        return;
+      }
+
+      try {
+        const response = await fetch(`/api/quotes/share/${shareCode}`);
+        const data = await response.json();
+
+        if (!data.success) {
+          showError('Quote not found', data.error || 'This quote may have expired or been deleted.');
+          return;
+        }
+
+        renderQuote(data.quote);
+      } catch (error) {
+        console.error('Error loading quote:', error);
+        showError('Error loading quote', 'Please try again later.');
+      }
+    }
+
+    // Render quote
+    function renderQuote(quote) {
+      const isExpired = new Date(quote.expiresAt) < new Date();
+
+      container.innerHTML = `
+        <div class="quote-header">
+          <div style="display: flex; justify-content: space-between; align-items: start; flex-wrap: wrap; gap: 15px;">
+            <div>
+              <h1>${quote.name || 'Your Saved Quote'}</h1>
+              <div class="quote-meta">
+                <span><i class="fas fa-calendar"></i> Created ${formatDate(quote.createdAt)}</span>
+                <span><i class="fas fa-clock"></i> Expires ${formatDate(quote.expiresAt)}</span>
+                ${quote.customerName ? `<span><i class="fas fa-user"></i> ${quote.customerName}</span>` : ''}
+              </div>
+            </div>
+            <span class="quote-status ${isExpired ? 'expired' : 'active'}">
+              ${isExpired ? 'Expired' : 'Active'}
+            </span>
+          </div>
+        </div>
+
+        <div class="quote-body">
+          <div class="quote-items">
+            ${quote.items.map(item => `
+              <div class="quote-item">
+                <div class="quote-item-image" style="background-image: url('${item.image || item.fabricImage || '/images/placeholder.jpg'}')"></div>
+                <div class="quote-item-details">
+                  <div class="quote-item-name">${item.name || item.productName || 'Window Treatment'}</div>
+                  <div class="quote-item-specs">
+                    ${item.width ? `<span><strong>Width:</strong> ${item.width}"</span>` : ''}
+                    ${item.height ? `<span><strong>Height:</strong> ${item.height}"</span>` : ''}
+                    ${item.fabric || item.fabricName ? `<span><strong>Fabric:</strong> ${item.fabric || item.fabricName}</span>` : ''}
+                    ${item.mount ? `<span><strong>Mount:</strong> ${item.mount}</span>` : ''}
+                    ${item.controlType ? `<span><strong>Control:</strong> ${item.controlType}</span>` : ''}
+                  </div>
+                  <div>
+                    <span class="quote-item-price">${formatCurrency(item.price || item.unitPrice || 0)}</span>
+                    <span class="quote-item-qty">x ${item.quantity || 1}</span>
+                  </div>
+                </div>
+              </div>
+            `).join('')}
+          </div>
+
+          <div class="quote-summary">
+            <div class="quote-summary-row">
+              <span>Subtotal</span>
+              <span>${formatCurrency(quote.subtotal || 0)}</span>
+            </div>
+            <div class="quote-summary-row">
+              <span>Shipping</span>
+              <span>Calculated at checkout</span>
+            </div>
+            <div class="quote-summary-row total">
+              <span>Estimated Total</span>
+              <span>${formatCurrency(quote.subtotal || 0)}</span>
+            </div>
+          </div>
+
+          ${!isExpired ? `
+            <div class="quote-actions">
+              <button class="btn btn-primary" onclick="addToCart()">
+                <i class="fas fa-shopping-cart"></i> Add All to Cart
+              </button>
+              <button class="btn btn-secondary" onclick="extendQuote()">
+                <i class="fas fa-clock"></i> Extend 30 Days
+              </button>
+              <button class="btn btn-secondary" onclick="shareQuote()">
+                <i class="fas fa-share-alt"></i> Share Quote
+              </button>
+            </div>
+          ` : `
+            <div class="quote-actions">
+              <button class="btn btn-primary" onclick="requestNewQuote()">
+                <i class="fas fa-redo"></i> Request New Quote
+              </button>
+            </div>
+          `}
+
+          ${quote.notes ? `
+            <div style="margin-top: 30px; padding: 20px; background: var(--bg-cream); border-radius: 8px;">
+              <strong>Notes:</strong>
+              <p style="margin-top: 10px; color: var(--text-light);">${quote.notes}</p>
+            </div>
+          ` : ''}
+        </div>
+
+        <div class="quote-footer">
+          <div class="quote-share">
+            <span>Share Code:</span>
+            <span class="quote-share-code">${quote.shareCode}</span>
+            <span class="copy-btn" onclick="copyShareCode()"><i class="fas fa-copy"></i> Copy</span>
+          </div>
+        </div>
+      `;
+
+      // Store quote data for actions
+      window.currentQuote = quote;
+    }
+
+    // Show error state
+    function showError(title, message) {
+      container.innerHTML = `
+        <div class="error-state">
+          <i class="fas fa-exclamation-circle"></i>
+          <h3>${title}</h3>
+          <p>${message}</p>
+          <div style="margin-top: 30px;">
+            <a href="/shop" class="btn btn-primary">Browse Products</a>
+          </div>
+        </div>
+      `;
+    }
+
+    // Add all items to cart
+    async function addToCart() {
+      if (!window.currentQuote) return;
+
+      try {
+        const response = await fetch(`/api/quotes/${window.currentQuote.id}/convert`, {
+          method: 'POST'
+        });
+        const data = await response.json();
+
+        if (data.success) {
+          // Get existing cart from localStorage
+          let cart = JSON.parse(localStorage.getItem('cart') || '[]');
+
+          // Add quote items to cart
+          data.items.forEach(item => {
+            cart.push({
+              ...item,
+              addedAt: new Date().toISOString(),
+              fromQuote: window.currentQuote.id
+            });
+          });
+
+          localStorage.setItem('cart', JSON.stringify(cart));
+          showToast('Items added to cart!');
+
+          // Redirect to cart after delay
+          setTimeout(() => {
+            window.location.href = '/cart';
+          }, 1500);
+        } else {
+          showToast('Error adding to cart');
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        showToast('Error adding to cart');
+      }
+    }
+
+    // Extend quote expiration
+    async function extendQuote() {
+      if (!window.currentQuote) return;
+
+      try {
+        const response = await fetch(`/api/quotes/${window.currentQuote.id}/extend`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ additionalDays: 30 })
+        });
+        const data = await response.json();
+
+        if (data.success) {
+          showToast('Quote extended by 30 days!');
+          loadQuote(); // Reload to show new expiry
+        } else {
+          showToast('Error extending quote');
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        showToast('Error extending quote');
+      }
+    }
+
+    // Copy share code
+    function copyShareCode() {
+      const url = window.location.href;
+      navigator.clipboard.writeText(url).then(() => {
+        showToast('Quote link copied!');
+      }).catch(() => {
+        showToast('Could not copy link');
+      });
+    }
+
+    // Share quote
+    function shareQuote() {
+      if (navigator.share) {
+        navigator.share({
+          title: 'My Peekaboo Shades Quote',
+          text: 'Check out my saved quote for custom window treatments',
+          url: window.location.href
+        });
+      } else {
+        copyShareCode();
+      }
+    }
+
+    // Request new quote
+    function requestNewQuote() {
+      window.location.href = '/shop';
+    }
+
+    // Load quote on page load
+    loadQuote();
+  </script>
+</body>
+</html>

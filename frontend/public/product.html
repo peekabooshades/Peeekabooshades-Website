@@ -34,6 +34,15 @@
   }
   </script>
 
+  <!-- Google Analytics (GA4) -->
+  <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
+  <script>
+    window.dataLayer = window.dataLayer || [];
+    function gtag(){dataLayer.push(arguments);}
+    gtag('js', new Date());
+    gtag('config', 'G-XXXXXXXXXX');
+  </script>
+
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
@@ -611,6 +620,114 @@
 
     .config-select option {
       color: #000000;
+    }
+
+    /* Manufacturer Options */
+    .manufacturer-options {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+
+    .manufacturer-option {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 15px 18px;
+      border: 2px solid #E8E4E0;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      background: #fff;
+    }
+
+    .manufacturer-option:hover {
+      border-color: #8E6545;
+      background: #faf6f3;
+    }
+
+    .manufacturer-option.selected {
+      border-color: #8E6545;
+      background: #faf6f3;
+    }
+
+    .manufacturer-option.coming-soon {
+      opacity: 0.7;
+      cursor: pointer;
+    }
+
+    .manufacturer-option.coming-soon:hover {
+      border-color: #8E6545;
+    }
+
+    .manufacturer-info {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .manufacturer-name {
+      font-weight: 600;
+      font-size: 15px;
+      color: #333;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .manufacturer-badge {
+      padding: 3px 8px;
+      border-radius: 12px;
+      font-size: 10px;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    .manufacturer-badge.available {
+      background: #d4edda;
+      color: #155724;
+    }
+
+    .manufacturer-badge.coming-soon {
+      background: #fff3cd;
+      color: #856404;
+    }
+
+    .manufacturer-meta {
+      font-size: 12px;
+      color: #888;
+    }
+
+    .manufacturer-radio {
+      width: 22px;
+      height: 22px;
+      border: 2px solid #ccc;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+    }
+
+    .manufacturer-option.selected .manufacturer-radio {
+      border-color: #8E6545;
+    }
+
+    .manufacturer-option.selected .manufacturer-radio::after {
+      content: '';
+      width: 12px;
+      height: 12px;
+      background: #8E6545;
+      border-radius: 50%;
+    }
+
+    .coming-soon-banner {
+      animation: pulse 2s ease-in-out infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.85; }
     }
 
     /* Accordion Sections */
@@ -1968,7 +2085,6 @@
       <nav class="main-nav">
         <ul>
           <li><a href="/shop">Windows Blinds & Shades <i class="fas fa-chevron-down"></i></a></li>
-          <li><a href="javascript:void(0)" onclick="showToast('Curtains coming soon!', 'info')" style="opacity:0.6" title="Coming soon">Curtains</a></li>
           <li><a href="javascript:void(0)" onclick="showToast('Order tracking requires an account. Contact us for order status.', 'info')" title="Contact us for order status">Look up My Order</a></li>
           <li><a href="/dealer/" title="Dealer Portal for wholesale orders">Bulk Orders/Wholesale</a></li>
           <li><a href="/contact.html">Contact Us</a></li>
@@ -2031,7 +2147,6 @@
             <a href="/product/affordable-custom-zebra-shades">Zebra Shades</a>
             <a href="/product/energy-efficient-roman-shades">Roman Shades</a>
             <a href="/product/natural-woven-timeless">Honeycomb Shades</a>
-            <a href="/product/custom-blackout-drapes">Drapes</a>
           </div>
         </div>
 
@@ -2077,6 +2192,30 @@
           <div style="display: flex; align-items: center; gap: 10px; font-size: 13px; color: #333;">
             <i class="fas fa-undo" style="color: #8E6545; font-size: 18px;"></i>
             <span>Easy Returns</span>
+          </div>
+        </div>
+
+        <!-- Manufacturer Selection -->
+        <div class="accordion-section open" data-name="manufacturer">
+          <button class="accordion-header" onclick="toggleAccordion(this.parentElement)">
+            <div class="accordion-header-left">
+              <span>Select Manufacturer <span class="required">*</span></span>
+              <span class="accordion-selected" id="manufacturerValue">Zstarr</span>
+            </div>
+            <span class="accordion-icon"></span>
+          </button>
+          <div class="accordion-body">
+            <div id="manufacturerOptions" class="manufacturer-options" style="display: flex; flex-direction: column; gap: 10px;">
+              <!-- Manufacturers will be loaded dynamically -->
+              <div style="padding: 20px; text-align: center; color: #666;">
+                <i class="fas fa-spinner fa-spin"></i> Loading manufacturers...
+              </div>
+            </div>
+            <div id="manufacturerComingSoon" class="coming-soon-banner" style="display: none; margin-top: 15px; padding: 15px; background: linear-gradient(135deg, #8E6545, #7A5639); color: white; border-radius: 8px; text-align: center;">
+              <i class="fas fa-clock" style="font-size: 20px; margin-bottom: 8px;"></i>
+              <p style="margin: 0; font-weight: 600;">Coming Soon</p>
+              <p style="margin: 5px 0 0; font-size: 12px; opacity: 0.9;" id="comingSoonMessage">Pricing for this manufacturer is not yet available.</p>
+            </div>
           </div>
         </div>
 
@@ -3148,6 +3287,9 @@
             Request for Quote
           </button>
         </div>
+        <button class="btn-save-later" onclick="openSaveForLaterModal()" style="width: 100%; margin-top: 10px; padding: 12px 20px; background: transparent; border: 1px solid #8E6545; color: #8E6545; border-radius: 8px; cursor: pointer; font-size: 14px; font-weight: 500; display: flex; align-items: center; justify-content: center; gap: 8px; transition: all 0.2s;">
+          <i class="fas fa-bookmark"></i> Save for Later
+        </button>
 
         <button class="shop-pay-btn">
           <span>Buy with</span>
@@ -3477,10 +3619,9 @@
           <h4>Products</h4>
           <ul>
             <li><a href="/shop?category=roller-shades">Roller Shades</a></li>
+            <li><a href="/shop?category=zebra-shades">Zebra Shades</a></li>
             <li><a href="/shop?category=roman-shades">Roman Shades</a></li>
-            <li><a href="/shop?category=natural-woven-shades">Natural Woven</a></li>
             <li><a href="/shop?category=honeycomb-shades">Honeycomb Shades</a></li>
-            <li><a href="/shop?category=drapes">Drapes</a></li>
           </ul>
         </div>
 
@@ -3553,6 +3694,49 @@
           </div>
           <button type="submit" class="submit-btn">Submit Quote Request</button>
         </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Save for Later Modal -->
+  <div class="modal" id="saveForLaterModal">
+    <div class="modal-content" style="max-width: 450px;">
+      <div class="modal-header">
+        <h3><i class="fas fa-bookmark" style="color: #8E6545; margin-right: 8px;"></i> Save for Later</h3>
+        <button class="modal-close" onclick="closeSaveForLaterModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <p style="margin-bottom: 20px; color: #666;">Save your current configuration and we'll send you a link to access it anytime within 30 days.</p>
+        <form id="saveForLaterForm" onsubmit="submitSaveForLater(event)">
+          <div class="form-group">
+            <label>Quote Name</label>
+            <input type="text" id="saveQuoteName" placeholder="e.g., Living Room Shades" required>
+          </div>
+          <div class="form-group">
+            <label>Your Email *</label>
+            <input type="email" id="saveQuoteEmail" placeholder="your@email.com" required>
+            <small style="color: #888; font-size: 11px;">We'll send you a link to access your saved quote</small>
+          </div>
+          <div class="form-group">
+            <label>Your Name (Optional)</label>
+            <input type="text" id="saveQuoteCustomerName" placeholder="Your name">
+          </div>
+          <button type="submit" class="submit-btn" style="background: #8E6545;">
+            <i class="fas fa-save"></i> Save Quote
+          </button>
+        </form>
+        <div id="saveForLaterSuccess" style="display: none; text-align: center; padding: 20px;">
+          <i class="fas fa-check-circle" style="font-size: 50px; color: #28a745; margin-bottom: 15px;"></i>
+          <h4 style="margin-bottom: 10px;">Quote Saved!</h4>
+          <p style="color: #666; margin-bottom: 20px;">We've sent an email with your quote link.</p>
+          <div style="background: #f8f6f3; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+            <strong style="font-size: 12px; color: #888;">Share Code:</strong>
+            <div id="savedShareCode" style="font-family: monospace; font-size: 18px; letter-spacing: 2px; margin-top: 5px;"></div>
+          </div>
+          <button onclick="copySavedQuoteLink()" class="submit-btn" style="background: transparent; border: 1px solid #8E6545; color: #8E6545;">
+            <i class="fas fa-copy"></i> Copy Link
+          </button>
+        </div>
       </div>
     </div>
   </div>
@@ -4334,6 +4518,11 @@
     // Product options loaded from database
     let productOptionsData = null;
 
+    // Manufacturer data
+    let manufacturersData = [];
+    let selectedManufacturer = null;
+    let manufacturerPricingAvailable = true;
+
     // Initialize
     document.addEventListener('DOMContentLoaded', function() {
       // Load theme settings first
@@ -4341,6 +4530,7 @@
 
       loadProduct();
       loadProductOptions(); // Load options from database
+      loadManufacturers(); // Load manufacturers for dropdown
       loadTrendingProducts();
       updateCartCount();
       updateDimensionsValue();
@@ -4443,6 +4633,142 @@
 
       // Apply initial Control Type state (Manual is default - hide motorized options)
       applyControlTypeRules();
+    }
+
+    // Load manufacturers from API
+    async function loadManufacturers() {
+      const manufacturerContainer = document.getElementById('manufacturerOptions');
+      if (!manufacturerContainer) return;
+
+      // Determine product type from URL or product data
+      const slug = window.location.pathname.split('/').pop();
+      let productType = 'roller'; // Default
+
+      if (slug.includes('zebra')) {
+        productType = 'zebra';
+      } else if (slug.includes('honeycomb') || slug.includes('cellular')) {
+        productType = 'honeycomb';
+      } else if (slug.includes('roman')) {
+        productType = 'roman';
+      }
+
+      try {
+        const response = await fetch(`/api/manufacturers?productType=${productType}`);
+        const result = await response.json();
+
+        if (result.success && result.manufacturers) {
+          manufacturersData = result.manufacturers;
+          console.log('Manufacturers loaded:', manufacturersData);
+          renderManufacturerOptions(manufacturersData, productType);
+        } else {
+          manufacturerContainer.innerHTML = '<div style="padding: 15px; color: #666; text-align: center;">No manufacturers available</div>';
+        }
+      } catch (error) {
+        console.error('Error loading manufacturers:', error);
+        manufacturerContainer.innerHTML = '<div style="padding: 15px; color: #dc3545; text-align: center;">Error loading manufacturers</div>';
+      }
+    }
+
+    // Render manufacturer options
+    function renderManufacturerOptions(manufacturers, productType) {
+      const container = document.getElementById('manufacturerOptions');
+      if (!container) return;
+
+      if (!manufacturers || manufacturers.length === 0) {
+        container.innerHTML = '<div style="padding: 15px; color: #666; text-align: center;">No manufacturers available for this product type</div>';
+        return;
+      }
+
+      let html = '';
+      manufacturers.forEach((mfr, index) => {
+        const isAvailable = mfr.pricingLinked === true;
+        const isFirst = index === 0 && isAvailable;
+
+        html += `
+          <div class="manufacturer-option ${isFirst ? 'selected' : ''} ${!isAvailable ? 'coming-soon' : ''}"
+               data-manufacturer-id="${mfr.id}"
+               data-pricing-linked="${isAvailable}"
+               onclick="selectManufacturer('${mfr.id}', ${isAvailable})">
+            <div class="manufacturer-info">
+              <div class="manufacturer-name">
+                ${mfr.name}
+                <span class="manufacturer-badge ${isAvailable ? 'available' : 'coming-soon'}">
+                  ${isAvailable ? 'Available' : 'Coming Soon'}
+                </span>
+              </div>
+              <div class="manufacturer-meta">
+                ${isAvailable ? `Lead time: ${mfr.leadTimeDays || 14} days` : 'Pricing not yet configured'}
+              </div>
+            </div>
+            <div class="manufacturer-radio"></div>
+          </div>
+        `;
+      });
+
+      container.innerHTML = html;
+
+      // Auto-select the first available manufacturer
+      const firstAvailable = manufacturers.find(m => m.pricingLinked === true);
+      if (firstAvailable) {
+        selectedManufacturer = firstAvailable;
+        manufacturerPricingAvailable = true;
+        updateManufacturerValue(firstAvailable.name);
+        document.getElementById('manufacturerComingSoon').style.display = 'none';
+      } else {
+        // No manufacturer with pricing, show coming soon
+        manufacturerPricingAvailable = false;
+        updateManufacturerValue('Coming Soon');
+        showManufacturerComingSoon(manufacturers[0]);
+      }
+    }
+
+    // Select a manufacturer
+    function selectManufacturer(manufacturerId, pricingAvailable) {
+      const manufacturer = manufacturersData.find(m => m.id === manufacturerId);
+      if (!manufacturer) return;
+
+      // Update UI selection
+      document.querySelectorAll('.manufacturer-option').forEach(opt => {
+        opt.classList.remove('selected');
+      });
+      document.querySelector(`.manufacturer-option[data-manufacturer-id="${manufacturerId}"]`)?.classList.add('selected');
+
+      selectedManufacturer = manufacturer;
+      manufacturerPricingAvailable = pricingAvailable;
+
+      if (pricingAvailable) {
+        // Pricing is available
+        updateManufacturerValue(manufacturer.name);
+        document.getElementById('manufacturerComingSoon').style.display = 'none';
+        // Recalculate price with selected manufacturer
+        calculatePrice();
+      } else {
+        // Pricing not available - show coming soon
+        updateManufacturerValue(manufacturer.name + ' (Coming Soon)');
+        showManufacturerComingSoon(manufacturer);
+      }
+    }
+
+    // Show coming soon message for manufacturer
+    function showManufacturerComingSoon(manufacturer) {
+      const banner = document.getElementById('manufacturerComingSoon');
+      const message = document.getElementById('comingSoonMessage');
+      if (banner && message) {
+        message.textContent = `${manufacturer.name} pricing will be available soon. Please select another manufacturer or check back later.`;
+        banner.style.display = 'block';
+      }
+
+      // Update price display to show Coming Soon
+      const priceElement = document.querySelector('.price');
+      if (priceElement) {
+        priceElement.innerHTML = '<span style="color: #8E6545;">Coming Soon</span>';
+      }
+    }
+
+    // Update the manufacturer selected value display
+    function updateManufacturerValue(value) {
+      const el = document.getElementById('manufacturerValue');
+      if (el) el.textContent = value;
     }
 
     // Apply Control Type rules - call on page load and when control type changes
@@ -5612,8 +5938,16 @@
         fabricCode,
         options,
         includeShipping: false,
-        includeTax: false
+        includeTax: false,
+        manufacturerId: selectedManufacturer?.id || null
       };
+
+      // Check if manufacturer pricing is available before calling API
+      if (!manufacturerPricingAvailable && selectedManufacturer) {
+        // Show Coming Soon state
+        displayComingSoonPricing(selectedManufacturer);
+        return;
+      }
 
       try {
         const response = await fetch('/api/v1/pricing/calculate', {
@@ -5625,6 +5959,11 @@
         const result = await response.json();
 
         if (result.success) {
+          // Check if this is a "coming soon" response
+          if (result.comingSoon) {
+            displayComingSoonPricing(result.manufacturer || selectedManufacturer);
+            return;
+          }
           lastPricingResponse = result;
           displayPricingResult(result, warranty, quantity);
         } else {
@@ -5636,6 +5975,45 @@
         console.error('Failed to fetch pricing:', error);
         // Fallback to basic calculation if API fails
         fallbackPriceCalculation(width, height, quantity, warranty);
+      }
+    }
+
+    // Display Coming Soon pricing state
+    function displayComingSoonPricing(manufacturer) {
+      const priceElement = document.querySelector('.price');
+      if (priceElement) {
+        priceElement.innerHTML = `
+          <div style="text-align: center;">
+            <span style="color: #8E6545; font-size: 24px; font-weight: 600;">Coming Soon</span>
+            <div style="font-size: 12px; color: #666; margin-top: 5px;">
+              ${manufacturer?.name || 'Manufacturer'} pricing not yet available
+            </div>
+          </div>
+        `;
+      }
+
+      // Update breakdown to show coming soon message
+      const breakdownContainer = document.getElementById('priceBreakdown');
+      if (breakdownContainer) {
+        breakdownContainer.innerHTML = `
+          <div style="padding: 20px; text-align: center; background: #fff3cd; border-radius: 8px; margin: 10px 0;">
+            <i class="fas fa-clock" style="font-size: 24px; color: #856404; margin-bottom: 10px;"></i>
+            <p style="margin: 0; color: #856404; font-weight: 500;">Pricing Coming Soon</p>
+            <p style="margin: 5px 0 0; font-size: 12px; color: #856404;">
+              ${manufacturer?.name || 'This manufacturer'} is not yet configured in our pricing system.
+              Please select another manufacturer or check back later.
+            </p>
+          </div>
+        `;
+      }
+
+      // Disable add to cart button
+      const addToCartBtn = document.querySelector('.add-to-cart-btn');
+      if (addToCartBtn) {
+        addToCartBtn.disabled = true;
+        addToCartBtn.style.opacity = '0.5';
+        addToCartBtn.style.cursor = 'not-allowed';
+        addToCartBtn.title = 'Pricing not available for this manufacturer';
       }
     }
 
@@ -5822,6 +6200,15 @@
         accessories: pricing.accessories,
         displayTotal: totalPrice
       });
+
+      // Re-enable add-to-cart button when valid pricing is displayed
+      const addToCartBtn = document.getElementById('addToCartBtn');
+      if (addToCartBtn) {
+        addToCartBtn.disabled = false;
+        addToCartBtn.style.opacity = '1';
+        addToCartBtn.style.cursor = 'pointer';
+        addToCartBtn.title = '';
+      }
     }
 
     // Fallback price calculation if API fails
@@ -6155,6 +6542,129 @@
         showToast('Quote request submitted!', 'success');
         closeQuoteModal();
       }
+    }
+
+    // ============================================
+    // SAVE FOR LATER FUNCTIONALITY
+    // ============================================
+
+    let savedQuoteData = null;
+
+    // Open save for later modal
+    function openSaveForLaterModal() {
+      document.getElementById('saveForLaterModal').classList.add('active');
+      document.getElementById('saveForLaterForm').style.display = 'block';
+      document.getElementById('saveForLaterSuccess').style.display = 'none';
+    }
+
+    // Close save for later modal
+    function closeSaveForLaterModal() {
+      document.getElementById('saveForLaterModal').classList.remove('active');
+    }
+
+    // Get current product configuration
+    function getCurrentConfiguration() {
+      const widthInput = document.getElementById('widthInput');
+      const heightInput = document.getElementById('heightInput');
+      const quantityInput = document.getElementById('quantityInput');
+      const totalPriceEl = document.getElementById('totalPrice');
+
+      // Get selected options
+      const selectedFabric = document.querySelector('.fabric-swatch.selected');
+      const fabricName = selectedFabric ? (selectedFabric.title || selectedFabric.dataset.name) : 'Standard';
+      const fabricImage = selectedFabric ? selectedFabric.style.backgroundImage.replace(/url\(['"]?/, '').replace(/['"]?\)/, '') : '';
+
+      // Get control type
+      const controlTypeSelect = document.getElementById('controlType');
+      const controlType = controlTypeSelect ? controlTypeSelect.value : 'chain';
+
+      // Get mount type
+      const mountSelect = document.getElementById('mountType');
+      const mountType = mountSelect ? mountSelect.value : 'inside';
+
+      return {
+        productId: product?.id || null,
+        productName: document.getElementById('productTitle')?.textContent || 'Window Treatment',
+        name: document.getElementById('productTitle')?.textContent || 'Window Treatment',
+        width: widthInput ? widthInput.value : '',
+        height: heightInput ? heightInput.value : '',
+        quantity: quantityInput ? parseInt(quantityInput.value) || 1 : 1,
+        price: totalPriceEl ? parseFloat(totalPriceEl.textContent) || 0 : 0,
+        unitPrice: totalPriceEl ? parseFloat(totalPriceEl.textContent) || 0 : 0,
+        fabric: fabricName,
+        fabricName: fabricName,
+        fabricImage: fabricImage,
+        image: fabricImage || (product?.images?.[0] || '/images/placeholder.jpg'),
+        controlType: controlType,
+        mount: mountType,
+        category: product?.category || 'shades'
+      };
+    }
+
+    // Submit save for later
+    async function submitSaveForLater(e) {
+      e.preventDefault();
+
+      const quoteName = document.getElementById('saveQuoteName').value;
+      const email = document.getElementById('saveQuoteEmail').value;
+      const customerName = document.getElementById('saveQuoteCustomerName').value;
+
+      const config = getCurrentConfiguration();
+
+      try {
+        const response = await fetch('/api/quotes/save', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            name: quoteName || config.productName,
+            customerEmail: email,
+            customerName: customerName,
+            items: [{
+              ...config,
+              addedAt: new Date().toISOString()
+            }],
+            subtotal: config.price * config.quantity,
+            source: 'product_page'
+          })
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+          savedQuoteData = result;
+
+          // Show success state
+          document.getElementById('saveForLaterForm').style.display = 'none';
+          document.getElementById('saveForLaterSuccess').style.display = 'block';
+          document.getElementById('savedShareCode').textContent = result.quote.shareCode;
+
+          showToast('Quote saved successfully!', 'success');
+        } else {
+          showToast(result.error || 'Error saving quote', 'error');
+        }
+      } catch (error) {
+        console.error('Error saving quote:', error);
+        showToast('Error saving quote. Please try again.', 'error');
+      }
+    }
+
+    // Copy saved quote link
+    function copySavedQuoteLink() {
+      if (!savedQuoteData) return;
+
+      const shareUrl = window.location.origin + '/quote/' + savedQuoteData.quote.shareCode;
+      navigator.clipboard.writeText(shareUrl).then(() => {
+        showToast('Quote link copied!', 'success');
+      }).catch(() => {
+        // Fallback for older browsers
+        const textArea = document.createElement('textarea');
+        textArea.value = shareUrl;
+        document.body.appendChild(textArea);
+        textArea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textArea);
+        showToast('Quote link copied!', 'success');
+      });
     }
 
     // Toggle FAQ

@@ -301,7 +301,10 @@
             <span class="breadcrumb-current">Pricing Configuration</span>
           </div>
         </div>
-        <div class="header-right">
+        <div class="header-right" style="display: flex; gap: 12px; align-items: center;">
+          <select id="manufacturer-selector" class="filter-select" style="min-width: 180px; font-size: 14px; padding: 10px 15px; font-weight: 500; font-family: 'Montserrat', sans-serif; background-color: #28a745; color: #fff; border: none; border-radius: 6px; cursor: pointer;">
+            <option value="">Select Manufacturer...</option>
+          </select>
           <select id="product-selector" class="filter-select" style="min-width: 300px; font-size: 16px; padding: 10px 15px; font-weight: 500; font-family: 'Montserrat', sans-serif; background-color: #8E6545; color: #fff; border: none; border-radius: 6px; cursor: pointer;">
             <option value="">Select a product...</option>
           </select>
@@ -316,7 +319,13 @@
 
         <!-- Summary Box -->
         <div class="summary-box" id="summary-box" style="display: none;">
-          <h2 id="summary-product-name">Product Name</h2>
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+            <h2 id="summary-product-name" style="margin: 0;">Product Name</h2>
+            <div id="manufacturer-badge" style="background: rgba(255,255,255,0.2); padding: 8px 16px; border-radius: 20px; display: flex; align-items: center; gap: 8px;">
+              <span style="font-size: 12px; opacity: 0.9;">Manufacturer:</span>
+              <span id="manufacturer-name-display" style="font-weight: 600; font-size: 14px;">Not Selected</span>
+            </div>
+          </div>
           <div class="summary-stats">
             <div class="summary-stat">
               <div class="value" id="total-options">0</div>
@@ -453,6 +462,8 @@
     let currentProductType = 'roller'; // Track current product type for API calls
     let pendingChanges = {};
     let currentSection = 'all';
+    let allManufacturers = [];
+    let currentManufacturer = null;
 
     // Known manufacturing costs (from user's pricing data)
     const KNOWN_MFR_COSTS = {
@@ -499,13 +510,74 @@
 
     async function loadProducts() {
       try {
-        const data = await Admin.ProductsAPI.getAll();
-        if (data.success) {
-          allProducts = data.data || data.products || [];
+        // Load products and manufacturers in parallel
+        const [productsRes, manufacturersRes] = await Promise.all([
+          Admin.ProductsAPI.getAll(),
+          fetch('/api/manufacturers').then(r => r.json())
+        ]);
+
+        if (productsRes.success) {
+          allProducts = productsRes.data || productsRes.products || [];
           populateProductSelector();
+        }
+
+        if (manufacturersRes.success) {
+          allManufacturers = manufacturersRes.data || [];
+          populateManufacturerSelector();
         }
       } catch (error) {
         Admin.Toast.error('Failed to load products');
+        console.error(error);
+      }
+    }
+
+    function populateManufacturerSelector() {
+      const select = document.getElementById('manufacturer-selector');
+      select.innerHTML = '<option value="">Select Manufacturer...</option>';
+
+      // Filter to only show manufacturers with pricing linked
+      const linkedManufacturers = allManufacturers.filter(m => m.pricingLinked);
+
+      linkedManufacturers.forEach(m => {
+        const option = document.createElement('option');
+        option.value = m.id;
+        option.textContent = m.name;
+        select.appendChild(option);
+      });
+
+      // Auto-select first manufacturer with pricing linked
+      if (linkedManufacturers.length > 0) {
+        select.value = linkedManufacturers[0].id;
+        currentManufacturer = linkedManufacturers[0];
+        updateManufacturerDisplay();
+      }
+
+      select.addEventListener('change', function() {
+        if (this.value) {
+          currentManufacturer = allManufacturers.find(m => m.id === this.value);
+          updateManufacturerDisplay();
+          // Reload pricing for the selected manufacturer
+          if (currentProduct) {
+            loadProductPricing(currentProduct.slug);
+          }
+        }
+      });
+    }
+
+    function updateManufacturerDisplay() {
+      // Update the page title to show manufacturer
+      const titleEl = document.getElementById('product-title');
+      const summaryNameEl = document.getElementById('summary-product-name');
+      const manufacturerBadgeEl = document.getElementById('manufacturer-name-display');
+
+      if (currentManufacturer) {
+        manufacturerBadgeEl.textContent = currentManufacturer.name;
+        if (currentProduct) {
+          titleEl.textContent = `${currentProduct.name} - ${currentManufacturer.name} Pricing`;
+          summaryNameEl.textContent = `${currentProduct.name} (${currentManufacturer.name})`;
+        }
+      } else {
+        manufacturerBadgeEl.textContent = 'Not Selected';
       }
     }
 
@@ -559,8 +631,15 @@
       if (!product) return;
 
       currentProduct = product;
-      document.getElementById('product-title').textContent = product.name + ' - Pricing';
-      document.getElementById('summary-product-name').textContent = product.name;
+
+      // Update display with manufacturer name if available
+      if (currentManufacturer) {
+        document.getElementById('product-title').textContent = `${product.name} - ${currentManufacturer.name} Pricing`;
+        document.getElementById('summary-product-name').textContent = `${product.name} (${currentManufacturer.name})`;
+      } else {
+        document.getElementById('product-title').textContent = product.name + ' - Pricing';
+        document.getElementById('summary-product-name').textContent = product.name;
+      }
       document.getElementById('summary-box').style.display = 'block';
 
       // Determine product type based on slug or category
@@ -789,11 +868,12 @@
 
     // Render Fabric Prices Section
     function renderFabricPricesSection() {
+      const manufacturerName = currentManufacturer ? currentManufacturer.name : 'Unknown';
       let html = `<div class="pricing-card">
         <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:20px;flex-wrap:wrap;gap:16px;">
           <div>
-            <h3 style="margin:0 0 8px 0;font-size:18px;">Fabric Prices <span class="badge" style="background:#1565c0;">Per m²</span></h3>
-            <p style="color:#666;font-size:13px;margin:0;">MFR cost per square meter from wholesale pricing sheet</p>
+            <h3 style="margin:0 0 8px 0;font-size:18px;">Fabric Prices <span class="badge" style="background:#1565c0;">Per m²</span> <span class="badge" style="background:#28a745;">${manufacturerName}</span></h3>
+            <p style="color:#666;font-size:13px;margin:0;">MFR cost per square meter from ${manufacturerName} wholesale pricing sheet</p>
           </div>
           <div style="display:flex;gap:12px;align-items:center;">
             <div style="position:relative;">

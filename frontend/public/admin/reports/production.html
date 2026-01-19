@@ -236,7 +236,45 @@
 
         // Track product types
         order.items?.forEach(item => {
-          const type = item.product_type || item.product_slug?.split('-')[0] || 'Other';
+          let type = item.product_type || item.productType;
+
+          // Check product_slug
+          if (!type && item.product_slug) {
+            const slug = item.product_slug.toLowerCase();
+            if (slug.includes('zebra')) type = 'Zebra';
+            else if (slug.includes('roller')) type = 'Roller';
+            else if (slug.includes('honeycomb')) type = 'Honeycomb';
+            else if (slug.includes('roman')) type = 'Roman';
+          }
+
+          // Check product_name
+          if (!type && item.product_name) {
+            const name = item.product_name.toLowerCase();
+            if (name.includes('zebra')) type = 'Zebra';
+            else if (name.includes('roller')) type = 'Roller';
+            else if (name.includes('honeycomb')) type = 'Honeycomb';
+            else if (name.includes('roman')) type = 'Roman';
+          }
+
+          // Check fabric code in configuration
+          if (!type && item.configuration) {
+            try {
+              const cfg = typeof item.configuration === 'string' ? JSON.parse(item.configuration) : item.configuration;
+              if (cfg.fabricCode) {
+                if (cfg.fabricCode.startsWith('83')) type = 'Zebra';
+                else if (cfg.fabricCode.startsWith('82')) type = 'Roller';
+              }
+            } catch (e) { /* ignore */ }
+          }
+
+          // Check price_breakdown for fabricCode
+          if (!type && item.price_breakdown?.fabricCode) {
+            if (item.price_breakdown.fabricCode.startsWith('83')) type = 'Zebra';
+            else if (item.price_breakdown.fabricCode.startsWith('82')) type = 'Roller';
+          }
+
+          if (!type) type = 'Other';
+
           if (!productTypes[type]) {
             productTypes[type] = { count: 0, units: 0 };
           }

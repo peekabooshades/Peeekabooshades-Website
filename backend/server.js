@@ -1,3 +1,4 @@
+require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const compression = require('compression');
@@ -30,6 +31,11 @@ const manufacturerService = require('./services/manufacturer-service');
 const dealerService = require('./services/dealer-service');
 const invoiceService = require('./services/invoice-service');
 const dbIndex = require('./services/database-index');
+const { emailService } = require('./services/email-service');
+const { notificationService } = require('./services/notification-service');
+const { smsService } = require('./services/sms-service');
+const { shippingService } = require('./services/shipping-service');
+const { savedQuotesService } = require('./services/saved-quotes-service');
 
 // ============================================
 // CRM/OMS/FINANCE/ANALYTICS ROUTES
@@ -96,10 +102,9 @@ function initDatabase() {
     const initialData = {
       categories: [
         { id: uuidv4(), name: 'Roller Shades', slug: 'roller-shades', description: 'Affordable custom roller blinds & shades' },
+        { id: uuidv4(), name: 'Zebra Shades', slug: 'zebra-shades', description: 'Dual-layer zebra blinds for light control' },
         { id: uuidv4(), name: 'Roman Shades', slug: 'roman-shades', description: 'Energy efficient roman shades' },
-        { id: uuidv4(), name: 'Natural Woven Shades', slug: 'natural-woven-shades', description: 'Natural woven window blinds' },
-        { id: uuidv4(), name: 'Honeycomb/Cellular Shades', slug: 'honeycomb-shades', description: 'Honeycomb cellular shades' },
-        { id: uuidv4(), name: 'Drapes', slug: 'drapes', description: 'Custom drapes and curtains' }
+        { id: uuidv4(), name: 'Honeycomb/Cellular Shades', slug: 'honeycomb-shades', description: 'Honeycomb cellular shades' }
       ],
       products: [],
       cart: [],
@@ -198,26 +203,13 @@ function initDatabase() {
       },
       {
         id: uuidv4(),
-        category_id: categories[1].id,
+        category_id: categories[2].id,
         category_name: 'Roman Shades',
         category_slug: 'roman-shades',
         name: 'Premium Roman Window Shades',
         slug: 'premium-roman-window-shades',
         description: 'Luxurious roman shades with premium fabric',
         base_price: 95.00,
-        sale_price: null,
-        is_featured: false,
-        is_active: true
-      },
-      {
-        id: uuidv4(),
-        category_id: categories[4].id,
-        category_name: 'Drapes',
-        category_slug: 'drapes',
-        name: 'Custom Blackout Drapes',
-        slug: 'custom-blackout-drapes',
-        description: 'Custom made blackout drapes',
-        base_price: 120.00,
         sale_price: null,
         is_featured: false,
         is_active: true
@@ -380,6 +372,100 @@ app.get('/api/categories', (req, res) => {
     const db = loadDatabase();
     res.json({ success: true, data: db.categories });
   } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// ============================================
+// MANUFACTURERS API - Public Endpoints
+// ============================================
+
+// Get all active manufacturers (for product page dropdown)
+app.get('/api/manufacturers', (req, res) => {
+  try {
+    const db = loadDatabase();
+    const { productType } = req.query;
+
+    let manufacturers = db.manufacturers || [];
+
+    // Filter by status
+    manufacturers = manufacturers.filter(m => m.status === 'active');
+
+    // Filter by product type if specified
+    if (productType) {
+      manufacturers = manufacturers.filter(m =>
+        m.productTypes && m.productTypes.includes(productType.toLowerCase())
+      );
+    }
+
+    // Return simplified data for frontend
+    const result = manufacturers.map(m => ({
+      id: m.id,
+      name: m.name,
+      code: m.code,
+      productTypes: m.productTypes || [],
+      pricingLinked: m.pricingLinked || false,
+      leadTimeDays: m.leadTimeDays || 14,
+      status: m.status
+    }));
+
+    res.json({ success: true, manufacturers: result });
+  } catch (error) {
+    console.error('Error fetching manufacturers:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Get manufacturer by ID
+app.get('/api/manufacturers/:id', (req, res) => {
+  try {
+    const db = loadDatabase();
+    const manufacturer = db.manufacturers.find(m => m.id === req.params.id);
+
+    if (!manufacturer) {
+      return res.status(404).json({ success: false, error: 'Manufacturer not found' });
+    }
+
+    res.json({ success: true, manufacturer });
+  } catch (error) {
+    console.error('Error fetching manufacturer:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Check if manufacturer has pricing linked for a product type
+app.get('/api/manufacturers/:id/pricing-status', (req, res) => {
+  try {
+    const db = loadDatabase();
+    const { productType } = req.query;
+    const manufacturer = db.manufacturers.find(m => m.id === req.params.id);
+
+    if (!manufacturer) {
+      return res.status(404).json({ success: false, error: 'Manufacturer not found' });
+    }
+
+    // Check if manufacturer has pricing linked
+    let hasPricing = manufacturer.pricingLinked === true;
+
+    // If product type specified, check if there are actual prices in manufacturerPrices
+    if (productType && hasPricing) {
+      const prices = db.manufacturerPrices || [];
+      hasPricing = prices.some(p =>
+        p.manufacturerId === manufacturer.id &&
+        p.productType === productType.toLowerCase()
+      );
+    }
+
+    res.json({
+      success: true,
+      manufacturerId: manufacturer.id,
+      manufacturerName: manufacturer.name,
+      productType: productType || 'all',
+      pricingLinked: hasPricing,
+      message: hasPricing ? 'Pricing available' : 'Coming Soon'
+    });
+  } catch (error) {
+    console.error('Error checking pricing status:', error);
     res.status(500).json({ success: false, error: error.message });
   }
 });
@@ -683,6 +769,67 @@ app.delete('/api/cart/clear/:sessionId', (req, res) => {
 // ============================================
 // ORDER ROUTES
 // ============================================
+
+// Public order lookup - MUST be before /:orderNumber route to avoid conflicts
+app.get('/api/orders/lookup', (req, res) => {
+  try {
+    const { orderNumber, email } = req.query;
+
+    if (!orderNumber || !email) {
+      return res.status(400).json({
+        success: false,
+        error: 'Order number and email are required'
+      });
+    }
+
+    const db = loadDatabase();
+    const orders = db.orders || [];
+
+    // Find order by order_number and customer_email (case-insensitive email match)
+    const order = orders.find(o =>
+      (o.order_number === orderNumber || o.id === orderNumber) &&
+      o.customer_email &&
+      o.customer_email.toLowerCase() === email.toLowerCase()
+    );
+
+    if (!order) {
+      return res.status(404).json({
+        success: false,
+        error: 'Order not found. Please check your order number and email address.'
+      });
+    }
+
+    // Return limited order info (don't expose sensitive data)
+    res.json({
+      success: true,
+      order: {
+        order_number: order.order_number,
+        status: order.status,
+        created_at: order.created_at,
+        items: order.items ? order.items.map(item => ({
+          product_name: item.product_name,
+          quantity: item.quantity,
+          width: item.width,
+          height: item.height
+        })) : [],
+        pricing: {
+          subtotal: order.subtotal,
+          tax: order.tax,
+          shipping: order.shipping,
+          total: order.total
+        },
+        shipping_address: order.shipping_address,
+        tracking: order.tracking || null
+      }
+    });
+  } catch (error) {
+    console.error('Order lookup error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'Unable to look up order. Please try again later.'
+    });
+  }
+});
 
 // Create order
 app.post('/api/orders', (req, res) => {
@@ -1145,7 +1292,7 @@ app.post('/api/calculate-price', (req, res) => {
  */
 app.post('/api/v1/pricing/calculate', (req, res) => {
   try {
-    const { productSlug, productType, width, height, quantity, fabricCode, options } = req.body;
+    const { productSlug, productType, width, height, quantity, fabricCode, options, manufacturerId } = req.body;
 
     // Find product by slug
     const db = getDatabase();
@@ -1155,17 +1302,76 @@ app.post('/api/v1/pricing/calculate', (req, res) => {
       return res.status(404).json({ success: false, error: 'Product not found' });
     }
 
+    const pType = productType || product.category_slug?.replace('-shades', '') || 'roller';
+
+    // If manufacturerId provided, check if pricing is linked
+    if (manufacturerId) {
+      const manufacturer = db.manufacturers?.find(m => m.id === manufacturerId);
+
+      if (!manufacturer) {
+        return res.status(404).json({ success: false, error: 'Manufacturer not found' });
+      }
+
+      // Check if manufacturer has pricing linked for this product type
+      if (!manufacturer.pricingLinked) {
+        return res.json({
+          success: true,
+          comingSoon: true,
+          manufacturer: {
+            id: manufacturer.id,
+            name: manufacturer.name
+          },
+          message: `${manufacturer.name} pricing coming soon for ${pType} shades`,
+          product: { id: product.id, name: product.name, slug: productSlug, type: pType },
+          pricing: null
+        });
+      }
+
+      // Check if there are actual prices for this manufacturer and product type
+      const hasActualPricing = db.manufacturerPrices?.some(p =>
+        p.manufacturerId === manufacturerId &&
+        p.productType === pType.toLowerCase()
+      );
+
+      if (!hasActualPricing) {
+        return res.json({
+          success: true,
+          comingSoon: true,
+          manufacturer: {
+            id: manufacturer.id,
+            name: manufacturer.name
+          },
+          message: `${manufacturer.name} pricing coming soon for ${pType} shades`,
+          product: { id: product.id, name: product.name, slug: productSlug, type: pType },
+          pricing: null
+        });
+      }
+    }
+
     // Use extended pricing engine with fabric-based pricing
     const result = extendedPricingEngine.calculateCustomerPrice({
       productId: product.id,
       productSlug: productSlug,
-      productType: productType || product.category_slug?.replace('-shades', '') || 'roller',
+      productType: pType,
       fabricCode: fabricCode || null,
       width: width || 24,
       height: height || 36,
       quantity: quantity || 1,
-      options: options || {}
+      options: options || {},
+      manufacturerId: manufacturerId || null
     });
+
+    // Add manufacturer info to response
+    if (manufacturerId) {
+      const manufacturer = db.manufacturers?.find(m => m.id === manufacturerId);
+      if (manufacturer) {
+        result.manufacturer = {
+          id: manufacturer.id,
+          name: manufacturer.name,
+          leadTimeDays: manufacturer.leadTimeDays
+        };
+      }
+    }
 
     res.json(result);
   } catch (error) {
@@ -2452,7 +2658,18 @@ app.delete('/api/admin/faqs/:id', authMiddleware, (req, res) => {
 app.get('/api/admin/settings', authMiddleware, (req, res) => {
   try {
     const db = loadDatabase();
-    res.json({ success: true, data: db.settings });
+    // Return default settings if not exists
+    const settings = db.settings || {
+      storeName: 'Peekaboo Shades',
+      storeEmail: '',
+      storePhone: '',
+      logoUrl: '/images/logo.png',
+      taxRate: 0.08,
+      currency: 'USD',
+      shippingRate: 9.99,
+      freeShippingThreshold: 99
+    };
+    res.json({ success: true, data: settings });
   } catch (error) {
     res.status(500).json({ success: false, error: error.message });
   }
@@ -2462,13 +2679,28 @@ app.get('/api/admin/settings', authMiddleware, (req, res) => {
 app.put('/api/admin/settings', authMiddleware, (req, res) => {
   try {
     const db = loadDatabase();
-    const { storeName, storeEmail, storePhone, logoUrl, taxRate, shippingRate, freeShippingThreshold } = req.body;
+    const { storeName, storeEmail, storePhone, logoUrl, taxRate, currency, shippingRate, freeShippingThreshold } = req.body;
+
+    // Initialize settings if not exists
+    if (!db.settings) {
+      db.settings = {
+        storeName: 'Peekaboo Shades',
+        storeEmail: '',
+        storePhone: '',
+        logoUrl: '/images/logo.png',
+        taxRate: 0.08,
+        currency: 'USD',
+        shippingRate: 9.99,
+        freeShippingThreshold: 99
+      };
+    }
 
     if (storeName !== undefined) db.settings.storeName = storeName;
     if (storeEmail !== undefined) db.settings.storeEmail = storeEmail;
     if (storePhone !== undefined) db.settings.storePhone = storePhone;
     if (logoUrl !== undefined) db.settings.logoUrl = logoUrl;
     if (taxRate !== undefined) db.settings.taxRate = parseFloat(taxRate);
+    if (currency !== undefined) db.settings.currency = currency;
     if (shippingRate !== undefined) db.settings.shippingRate = parseFloat(shippingRate);
     if (freeShippingThreshold !== undefined) db.settings.freeShippingThreshold = parseFloat(freeShippingThreshold);
 
@@ -5138,6 +5370,11 @@ app.get('/blog', (req, res) => {
   res.sendFile(path.join(__dirname, '../frontend/public/blog.html'));
 });
 
+// Saved quote page (share code)
+app.get('/quote/:shareCode', (req, res) => {
+  res.sendFile(path.join(__dirname, '../frontend/public/quote.html'));
+});
+
 // Order lookup page
 app.get('/order-lookup', (req, res) => {
   res.sendFile(path.join(__dirname, '../frontend/public/order-lookup.html'));
@@ -6762,6 +6999,45 @@ app.get('/api/admin/analytics/sales-by-category', authMiddleware, (req, res) => 
 // COMPREHENSIVE ANALYTICS ENDPOINTS
 // ============================================
 
+// Helper function to determine product type from order item
+function getItemProductType(item) {
+  // Check explicit product_type field
+  if (item.product_type) return item.product_type.toLowerCase();
+  if (item.productType) return item.productType.toLowerCase();
+
+  // Check product_slug
+  const slug = (item.product_slug || '').toLowerCase();
+  if (slug.includes('zebra')) return 'zebra';
+  if (slug.includes('honeycomb') || slug.includes('cellular')) return 'honeycomb';
+  if (slug.includes('roman')) return 'roman';
+  if (slug.includes('roller')) return 'roller';
+
+  // Check product_name
+  const name = (item.product_name || '').toLowerCase();
+  if (name.includes('zebra')) return 'zebra';
+  if (name.includes('honeycomb') || name.includes('cellular')) return 'honeycomb';
+  if (name.includes('roman')) return 'roman';
+  if (name.includes('roller')) return 'roller';
+
+  // Check fabric code in configuration
+  try {
+    const cfg = typeof item.configuration === 'string' ? JSON.parse(item.configuration) : (item.configuration || {});
+    if (cfg.productType) return cfg.productType.toLowerCase();
+    if (cfg.fabricCode) {
+      if (cfg.fabricCode.startsWith('83')) return 'zebra';
+      if (cfg.fabricCode.startsWith('82')) return 'roller';
+    }
+  } catch (e) { /* ignore */ }
+
+  // Check price_breakdown for fabricCode
+  if (item.price_breakdown?.fabricCode) {
+    if (item.price_breakdown.fabricCode.startsWith('83')) return 'zebra';
+    if (item.price_breakdown.fabricCode.startsWith('82')) return 'roller';
+  }
+
+  return 'unknown';
+}
+
 // Product Analytics - Blinds Type, Control System, Measurements
 app.get('/api/admin/analytics/product-insights', authMiddleware, (req, res) => {
   try {
@@ -6769,6 +7045,14 @@ app.get('/api/admin/analytics/product-insights', authMiddleware, (req, res) => {
     const orders = (db.orders || []).filter(o => o.created_at && !isNaN(new Date(o.created_at).getTime()));
     const products = db.products || [];
     const categories = db.categories || [];
+
+    // Product Type Analytics (Roller, Zebra, Honeycomb, Roman)
+    const productTypeStats = {
+      roller: { type: 'roller', orders: 0, revenue: 0, items: 0 },
+      zebra: { type: 'zebra', orders: 0, revenue: 0, items: 0 },
+      honeycomb: { type: 'honeycomb', orders: 0, revenue: 0, items: 0 },
+      roman: { type: 'roman', orders: 0, revenue: 0, items: 0 }
+    };
 
     // Blinds Type Analytics (by category)
     const blindsTypeStats = {};
@@ -6812,7 +7096,7 @@ app.get('/api/admin/analytics/product-insights', authMiddleware, (req, res) => {
 
     orders.forEach(order => {
       (order.items || []).forEach(item => {
-        const revenue = item.lineTotal || item.price || 0;
+        const revenue = item.line_total || item.lineTotal || item.price || 0;
         const qty = item.quantity || 1;
 
         // Get configuration
@@ -6821,6 +7105,14 @@ app.get('/api/admin/analytics/product-insights', authMiddleware, (req, res) => {
           try {
             config = typeof item.configuration === 'string' ? JSON.parse(item.configuration) : item.configuration;
           } catch (e) {}
+        }
+
+        // Product Type Analytics (using helper function)
+        const productType = getItemProductType(item);
+        if (productTypeStats[productType]) {
+          productTypeStats[productType].orders++;
+          productTypeStats[productType].revenue += revenue;
+          productTypeStats[productType].items += qty;
         }
 
         // Get product category
@@ -6907,8 +7199,19 @@ app.get('/api/admin/analytics/product-insights', authMiddleware, (req, res) => {
       .sort((a, b) => b.orders - a.orders)
       .slice(0, 10);
 
+    // Calculate product type percentages
+    const totalProductTypeOrders = Object.values(productTypeStats).reduce((sum, pt) => sum + pt.orders, 0);
+    const productTypesFormatted = Object.values(productTypeStats)
+      .filter(pt => pt.orders > 0)
+      .map(pt => ({
+        ...pt,
+        percentage: totalProductTypeOrders > 0 ? Math.round((pt.orders / totalProductTypeOrders) * 100) : 0
+      }))
+      .sort((a, b) => b.orders - a.orders);
+
     res.json({
       success: true,
+      productTypes: productTypesFormatted,
       blindsType: Object.values(blindsTypeStats).filter(s => s.orders > 0).sort((a, b) => b.orders - a.orders),
       controlSystem: Object.values(controlSystemStats).sort((a, b) => b.orders - a.orders),
       motorBrands: Object.values(motorBrandStats).sort((a, b) => b.orders - a.orders),
@@ -7082,6 +7385,14 @@ app.get('/api/admin/analytics/finance-insights', authMiddleware, (req, res) => {
     // Revenue by product category
     const revenueByCategory = {};
 
+    // Revenue by product type (Roller, Zebra, etc.)
+    const productTypeRevenue = {
+      roller: { type: 'roller', revenue: 0, orders: 0, mfrCost: 0, profit: 0 },
+      zebra: { type: 'zebra', revenue: 0, orders: 0, mfrCost: 0, profit: 0 },
+      honeycomb: { type: 'honeycomb', revenue: 0, orders: 0, mfrCost: 0, profit: 0 },
+      roman: { type: 'roman', revenue: 0, orders: 0, mfrCost: 0, profit: 0 }
+    };
+
     // Profit margin trend
     const profitByDate = {};
 
@@ -7116,15 +7427,28 @@ app.get('/api/admin/analytics/finance-insights', authMiddleware, (req, res) => {
       revenueByDate[date].mfrCost += mfrCost;
       revenueByDate[date].profit += (subtotal - mfrCost);
 
-      // By product category
+      // By product category and product type
       (order.items || []).forEach(item => {
+        const itemRevenue = item.line_total || item.lineTotal || item.price || 0;
+        const itemMfrCost = item.price_breakdown?.manufacturer_total || item.manufacturer_cost || 0;
+
+        // Product category
         const product = (db.products || []).find(p => p.id === (item.productId || item.product_id));
         const category = product?.category_slug || 'other';
         if (!revenueByCategory[category]) {
           revenueByCategory[category] = { name: category, revenue: 0, orders: 0 };
         }
-        revenueByCategory[category].revenue += item.lineTotal || item.price || 0;
+        revenueByCategory[category].revenue += itemRevenue;
         revenueByCategory[category].orders++;
+
+        // Product type (Roller, Zebra, etc.)
+        const productType = getItemProductType(item);
+        if (productTypeRevenue[productType]) {
+          productTypeRevenue[productType].revenue += itemRevenue;
+          productTypeRevenue[productType].orders++;
+          productTypeRevenue[productType].mfrCost += itemMfrCost;
+          productTypeRevenue[productType].profit += (itemRevenue - itemMfrCost);
+        }
       });
 
       // Order status
@@ -7165,6 +7489,11 @@ app.get('/api/admin/analytics/finance-insights', authMiddleware, (req, res) => {
     grossProfit = totalRevenue - totalMfrCost - totalTax;
     const profitMargin = totalRevenue > 0 ? ((grossProfit / totalRevenue) * 100).toFixed(1) : 0;
 
+    // Format product type revenue
+    const productTypeRevenueFormatted = Object.values(productTypeRevenue)
+      .filter(pt => pt.orders > 0)
+      .sort((a, b) => b.revenue - a.revenue);
+
     res.json({
       success: true,
       summary: {
@@ -7179,6 +7508,7 @@ app.get('/api/admin/analytics/finance-insights', authMiddleware, (req, res) => {
       },
       revenueByDate: Object.values(revenueByDate).sort((a, b) => a.date.localeCompare(b.date)),
       revenueByCategory: Object.values(revenueByCategory).sort((a, b) => b.revenue - a.revenue),
+      productTypeRevenue: productTypeRevenueFormatted,
       orderStatus: Object.values(orderStatusStats),
       paymentMethods: Object.values(paymentMethods),
       ledgerSummary: {
@@ -13272,7 +13602,7 @@ app.get('/api/admin/warranty-claims/:id', authMiddleware, (req, res) => {
 });
 
 // Create warranty claim
-app.post('/api/admin/warranty-claims', authMiddleware, (req, res) => {
+app.post('/api/admin/warranty-claims', authMiddleware, async (req, res) => {
   try {
     const db = loadDatabase();
     if (!db.warrantyClaims) db.warrantyClaims = [];
@@ -13287,6 +13617,12 @@ app.post('/api/admin/warranty-claims', authMiddleware, (req, res) => {
 
     db.warrantyClaims.push(newClaim);
     saveDatabase(db);
+
+    // Send Slack notification for new warranty claim
+    notificationService.alertWarrantyClaim(newClaim).catch(err => {
+      console.error('Failed to send warranty claim notification:', err.message);
+    });
+
     res.json({ success: true, claim: newClaim });
   } catch (error) {
     res.status(500).json({ success: false, error: error.message });
@@ -13294,7 +13630,7 @@ app.post('/api/admin/warranty-claims', authMiddleware, (req, res) => {
 });
 
 // Update warranty claim
-app.put('/api/admin/warranty-claims/:id', authMiddleware, (req, res) => {
+app.put('/api/admin/warranty-claims/:id', authMiddleware, async (req, res) => {
   try {
     const db = loadDatabase();
     if (!db.warrantyClaims) db.warrantyClaims = [];
@@ -13304,6 +13640,7 @@ app.put('/api/admin/warranty-claims/:id', authMiddleware, (req, res) => {
       return res.status(404).json({ success: false, error: 'Warranty claim not found' });
     }
 
+    const previousStatus = db.warrantyClaims[index].status;
     const updatedClaim = {
       ...db.warrantyClaims[index],
       ...req.body,
@@ -13317,6 +13654,21 @@ app.put('/api/admin/warranty-claims/:id', authMiddleware, (req, res) => {
 
     db.warrantyClaims[index] = updatedClaim;
     saveDatabase(db);
+
+    // Send email notification if status changed
+    if (req.body.status && req.body.status !== previousStatus && updatedClaim.customerEmail) {
+      try {
+        await emailService.sendWarrantyUpdate(updatedClaim, {
+          name: updatedClaim.customerName,
+          email: updatedClaim.customerEmail
+        });
+        console.log(`Warranty status email sent to ${updatedClaim.customerEmail}`);
+      } catch (emailError) {
+        console.error('Failed to send warranty status email:', emailError.message);
+        // Don't fail the request if email fails
+      }
+    }
+
     res.json({ success: true, claim: updatedClaim });
   } catch (error) {
     res.status(500).json({ success: false, error: error.message });
@@ -14522,6 +14874,328 @@ app.put('/api/admin/system-config/payment', authMiddleware, (req, res) => {
   }
 });
 
+// ============================================
+// EMAIL SERVICE ENDPOINTS
+// ============================================
+
+/**
+ * Get email service status
+ */
+app.get('/api/admin/email/status', authMiddleware, (req, res) => {
+  try {
+    const status = emailService.getStatus();
+    res.json({ success: true, data: status });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+/**
+ * Send test email
+ */
+app.post('/api/admin/email/test', authMiddleware, async (req, res) => {
+  try {
+    const { to } = req.body;
+    if (!to) {
+      return res.status(400).json({ success: false, error: 'Email address required' });
+    }
+
+    const result = await emailService.send({
+      to,
+      subject: 'Test Email from Peekaboo Shades',
+      html: `
+        <div style="font-family: 'Montserrat', Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <div style="background: #8E6545; padding: 20px; text-align: center;">
+            <h1 style="color: white; margin: 0;">Test Email</h1>
+          </div>
+          <div style="padding: 30px; background: #f8f6f3;">
+            <p>This is a test email from Peekaboo Shades.</p>
+            <p>If you received this email, your email configuration is working correctly!</p>
+            <p style="margin-top: 20px; color: #666; font-size: 12px;">
+              Sent at: ${new Date().toISOString()}<br>
+              Provider: ${emailService.getStatus().provider}
+            </p>
+          </div>
+        </div>
+      `
+    });
+
+    res.json({ success: result.success, message: result.success ? 'Test email sent' : result.error });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// ============================================
+// NOTIFICATION SERVICE ENDPOINTS (Slack/Webhooks)
+// ============================================
+
+/**
+ * Get notification service status
+ */
+app.get('/api/admin/notifications/status', authMiddleware, (req, res) => {
+  try {
+    const status = notificationService.getStatus();
+    res.json({ success: true, data: status });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+/**
+ * Send test Slack notification
+ */
+app.post('/api/admin/notifications/test-slack', authMiddleware, async (req, res) => {
+  try {
+    const result = await notificationService.sendSlack({
+      text: 'Test notification from Peekaboo Shades Admin',
+      blocks: [
+        {
+          type: 'header',
+          text: { type: 'plain_text', text: '🔔 Test Notification', emoji: true }
+        },
+        {
+          type: 'section',
+          text: { type: 'mrkdwn', text: 'This is a test notification from Peekaboo Shades. If you see this, Slack integration is working!' }
+        },
+        {
+          type: 'context',
+          elements: [
+            { type: 'mrkdwn', text: `Sent by: ${req.admin?.email || 'Admin'} at ${new Date().toLocaleString()}` }
+          ]
+        }
+      ]
+    });
+
+    res.json({
+      success: result.success,
+      message: result.success ? 'Test notification sent to Slack' : (result.reason || result.error)
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+/**
+ * Get notification logs
+ */
+app.get('/api/admin/notifications/logs', authMiddleware, (req, res) => {
+  try {
+    const db = loadDatabase();
+    const logs = db.notificationLogs || [];
+    const limit = parseInt(req.query.limit) || 50;
+    res.json({
+      success: true,
+      data: logs.slice(-limit).reverse(),
+      total: logs.length
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// ============================================
+// SMS SERVICE ENDPOINTS (Twilio)
+// ============================================
+
+/**
+ * Get SMS service status
+ */
+app.get('/api/admin/sms/status', authMiddleware, (req, res) => {
+  try {
+    const status = smsService.getStatus();
+    res.json({ success: true, data: status });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+/**
+ * Send test SMS
+ */
+app.post('/api/admin/sms/test', authMiddleware, async (req, res) => {
+  try {
+    const { to } = req.body;
+    if (!to) {
+      return res.status(400).json({ success: false, error: 'Phone number required' });
+    }
+
+    const result = await smsService.send(
+      to,
+      `Test SMS from Peekaboo Shades Admin. Sent at ${new Date().toLocaleString()}`
+    );
+
+    res.json({
+      success: result.success,
+      message: result.success ? 'Test SMS sent' : result.error
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+/**
+ * Get SMS logs
+ */
+app.get('/api/admin/sms/logs', authMiddleware, (req, res) => {
+  try {
+    const db = loadDatabase();
+    const logs = db.smsLogs || [];
+    const limit = parseInt(req.query.limit) || 50;
+    res.json({
+      success: true,
+      data: logs.slice(-limit).reverse(),
+      total: logs.length
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// ============================================
+// SHIPPING SERVICE ENDPOINTS
+// ============================================
+
+/**
+ * Get shipping service status
+ */
+app.get('/api/admin/shipping/status', authMiddleware, (req, res) => {
+  try {
+    const status = shippingService.getStatus();
+    res.json({ success: true, data: status });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+/**
+ * Get all carriers
+ */
+app.get('/api/admin/shipping/carriers', authMiddleware, (req, res) => {
+  try {
+    const carriers = shippingService.getCarriers();
+    res.json({ success: true, data: carriers });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+/**
+ * Detect carrier from tracking number
+ */
+app.post('/api/admin/shipping/detect-carrier', authMiddleware, (req, res) => {
+  try {
+    const { trackingNumber } = req.body;
+    const carrier = shippingService.detectCarrier(trackingNumber);
+    const trackingUrl = shippingService.getTrackingUrl(trackingNumber, carrier);
+    res.json({
+      success: true,
+      data: {
+        carrier,
+        carrierName: carrier ? shippingService.carriers[carrier]?.name : null,
+        trackingUrl
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+/**
+ * Create shipment
+ */
+app.post('/api/admin/shipping/shipments', authMiddleware, (req, res) => {
+  try {
+    const shipment = shippingService.createShipment(req.body);
+    res.json({ success: true, data: shipment });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+/**
+ * Get shipment by ID
+ */
+app.get('/api/admin/shipping/shipments/:id', authMiddleware, (req, res) => {
+  try {
+    const shipment = shippingService.getShipment(req.params.id);
+    if (!shipment) {
+      return res.status(404).json({ success: false, error: 'Shipment not found' });
+    }
+    const events = shippingService.getTrackingEvents(req.params.id);
+    res.json({ success: true, data: { ...shipment, events } });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+/**
+ * Update shipment
+ */
+app.put('/api/admin/shipping/shipments/:id', authMiddleware, (req, res) => {
+  try {
+    const shipment = shippingService.updateShipment(req.params.id, req.body);
+    if (!shipment) {
+      return res.status(404).json({ success: false, error: 'Shipment not found' });
+    }
+    res.json({ success: true, data: shipment });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+/**
+ * Get shipments for an order
+ */
+app.get('/api/admin/shipping/orders/:orderId/shipments', authMiddleware, (req, res) => {
+  try {
+    const shipments = shippingService.getOrderShipments(req.params.orderId);
+    res.json({ success: true, data: shipments });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+/**
+ * Add tracking event
+ */
+app.post('/api/admin/shipping/shipments/:id/events', authMiddleware, (req, res) => {
+  try {
+    const event = shippingService.addTrackingEvent(req.params.id, req.body);
+    res.json({ success: true, data: event });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+/**
+ * Simulate tracking update (for demo)
+ */
+app.post('/api/admin/shipping/shipments/:id/simulate', authMiddleware, (req, res) => {
+  try {
+    const event = shippingService.simulateTrackingUpdate(req.params.id);
+    if (!event) {
+      return res.status(400).json({ success: false, error: 'No more updates available or shipment not found' });
+    }
+    res.json({ success: true, data: event });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+/**
+ * Estimate shipping cost
+ */
+app.post('/api/admin/shipping/estimate', authMiddleware, (req, res) => {
+  try {
+    const { weight, dimensions, destination } = req.body;
+    const estimate = shippingService.estimateShippingCost(weight, dimensions, destination);
+    res.json({ success: true, data: estimate });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
 /**
  * Get audit logs
  */
@@ -14549,6 +15223,71 @@ app.get('/api/admin/audit-logs', authMiddleware, (req, res) => {
 });
 
 /**
+ * Export audit logs as JSON or CSV
+ * GET /api/admin/audit-logs/export
+ */
+app.get('/api/admin/audit-logs/export', authMiddleware, (req, res) => {
+  try {
+    const { format = 'json', startDate, endDate, action, severity } = req.query;
+
+    const logs = auditLogger.query({
+      action,
+      startDate,
+      endDate,
+      severity,
+      limit: 10000 // Max export limit
+    });
+
+    if (format === 'csv') {
+      // Generate CSV
+      const headers = ['timestamp', 'action', 'severity', 'userId', 'userName', 'resourceType', 'resourceId', 'ipAddress', 'details'];
+      const csvRows = [headers.join(',')];
+
+      for (const log of logs) {
+        const row = [
+          log.timestamp,
+          log.action,
+          log.severity,
+          log.userId || '',
+          (log.userName || '').replace(/,/g, ';'),
+          log.resourceType || '',
+          log.resourceId || '',
+          log.ipAddress || '',
+          JSON.stringify(log.details || {}).replace(/,/g, ';').replace(/"/g, "'")
+        ];
+        csvRows.push(row.join(','));
+      }
+
+      res.setHeader('Content-Type', 'text/csv');
+      res.setHeader('Content-Disposition', `attachment; filename="audit-logs-${new Date().toISOString().split('T')[0]}.csv"`);
+      res.send(csvRows.join('\n'));
+    } else {
+      // JSON format
+      res.setHeader('Content-Type', 'application/json');
+      res.setHeader('Content-Disposition', `attachment; filename="audit-logs-${new Date().toISOString().split('T')[0]}.json"`);
+      res.json({
+        exportDate: new Date().toISOString(),
+        totalRecords: logs.length,
+        filters: { startDate, endDate, action, severity },
+        logs
+      });
+    }
+
+    // Log the export action
+    auditLogger.log({
+      action: 'AUDIT_LOG_EXPORT',
+      severity: 'info',
+      userId: req.admin?.id,
+      userName: req.admin?.name,
+      details: { format, recordCount: logs.length, filters: { startDate, endDate, action, severity } }
+    }, req);
+
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+/**
  * Get resource history
  */
 app.get('/api/admin/audit-logs/resource/:type/:id', authMiddleware, (req, res) => {
@@ -14556,6 +15295,263 @@ app.get('/api/admin/audit-logs/resource/:type/:id', authMiddleware, (req, res) =
     const { type, id } = req.params;
     const logs = auditLogger.getResourceHistory(type, id);
     res.json({ success: true, data: logs });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// ============================================
+// SAVED QUOTES - SAVE FOR LATER FEATURE
+// ============================================
+
+/**
+ * Save a quote for later (public - no auth required)
+ */
+app.post('/api/quotes/save', async (req, res) => {
+  try {
+    const savedQuote = savedQuotesService.saveQuote(req.body);
+
+    // Send email if customer email provided
+    if (savedQuote.customerEmail) {
+      const shareUrl = `${req.protocol}://${req.get('host')}/quote/${savedQuote.shareCode}`;
+      try {
+        await emailService.send({
+          to: savedQuote.customerEmail,
+          subject: 'Your Saved Quote from Peekaboo Shades',
+          html: `
+            <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+              <h2 style="color: #8E6545;">Your Quote Has Been Saved!</h2>
+              <p>Hi ${savedQuote.customerName || 'there'},</p>
+              <p>Your quote "${savedQuote.name}" has been saved. You can access it anytime using the link below:</p>
+              <p style="text-align: center; margin: 30px 0;">
+                <a href="${shareUrl}" style="background: #8E6545; color: white; padding: 12px 30px; text-decoration: none; border-radius: 5px; display: inline-block;">View Your Quote</a>
+              </p>
+              <p><strong>Share Code:</strong> ${savedQuote.shareCode}</p>
+              <p><strong>Expires:</strong> ${new Date(savedQuote.expiresAt).toLocaleDateString()}</p>
+              <p>Have questions? Reply to this email or call us at +1 929-465-9549.</p>
+              <p style="color: #666; margin-top: 30px;">Best regards,<br>Peekaboo Shades Team</p>
+            </div>
+          `
+        });
+      } catch (emailError) {
+        console.error('Failed to send quote email:', emailError.message);
+      }
+    }
+
+    res.json({
+      success: true,
+      quote: savedQuote,
+      shareUrl: `/quote/${savedQuote.shareCode}`
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+/**
+ * Get quote by share code (public)
+ */
+app.get('/api/quotes/share/:shareCode', (req, res) => {
+  try {
+    const quote = savedQuotesService.getQuoteByShareCode(req.params.shareCode);
+
+    if (!quote) {
+      return res.status(404).json({
+        success: false,
+        error: 'Quote not found or has expired'
+      });
+    }
+
+    res.json({ success: true, quote });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+/**
+ * Get quotes by email (customer can retrieve their quotes)
+ */
+app.get('/api/quotes/my-quotes', (req, res) => {
+  try {
+    const { email } = req.query;
+
+    if (!email) {
+      return res.status(400).json({
+        success: false,
+        error: 'Email address is required'
+      });
+    }
+
+    const quotes = savedQuotesService.getQuotesByEmail(email);
+    res.json({ success: true, quotes });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+/**
+ * Update saved quote (add/remove items)
+ */
+app.put('/api/quotes/:id', (req, res) => {
+  try {
+    const quote = savedQuotesService.updateQuote(req.params.id, req.body);
+
+    if (!quote) {
+      return res.status(404).json({ success: false, error: 'Quote not found' });
+    }
+
+    res.json({ success: true, quote });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+/**
+ * Extend quote expiration
+ */
+app.post('/api/quotes/:id/extend', (req, res) => {
+  try {
+    const { additionalDays = 30 } = req.body;
+    const quote = savedQuotesService.extendExpiration(req.params.id, additionalDays);
+
+    if (!quote) {
+      return res.status(404).json({ success: false, error: 'Quote not found' });
+    }
+
+    res.json({ success: true, quote });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+/**
+ * Convert quote to cart/order
+ */
+app.post('/api/quotes/:id/convert', (req, res) => {
+  try {
+    const quote = savedQuotesService.getQuoteById(req.params.id);
+
+    if (!quote) {
+      return res.status(404).json({ success: false, error: 'Quote not found' });
+    }
+
+    // Return quote items for adding to cart
+    res.json({
+      success: true,
+      items: quote.items,
+      subtotal: quote.subtotal,
+      quoteId: quote.id,
+      message: 'Quote items ready to add to cart'
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+/**
+ * Delete saved quote
+ */
+app.delete('/api/quotes/:id', (req, res) => {
+  try {
+    const quote = savedQuotesService.deleteQuote(req.params.id);
+
+    if (!quote) {
+      return res.status(404).json({ success: false, error: 'Quote not found' });
+    }
+
+    res.json({ success: true, message: 'Quote deleted' });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// ============================================
+// SAVED QUOTES - ADMIN ENDPOINTS
+// ============================================
+
+/**
+ * Get all saved quotes (admin)
+ */
+app.get('/api/admin/saved-quotes', authMiddleware, (req, res) => {
+  try {
+    const result = savedQuotesService.getAllQuotes(req.query);
+    res.json({ success: true, ...result });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+/**
+ * Get saved quotes statistics (admin)
+ */
+app.get('/api/admin/saved-quotes/stats', authMiddleware, (req, res) => {
+  try {
+    const stats = savedQuotesService.getStats();
+    res.json({ success: true, stats });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+/**
+ * Cleanup expired quotes (admin)
+ */
+app.post('/api/admin/saved-quotes/cleanup', authMiddleware, (req, res) => {
+  try {
+    const result = savedQuotesService.cleanupExpired();
+    res.json({ success: true, ...result });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+/**
+ * Get single quote details (admin)
+ */
+app.get('/api/admin/saved-quotes/:id', authMiddleware, (req, res) => {
+  try {
+    const quote = savedQuotesService.getQuoteById(req.params.id);
+
+    if (!quote) {
+      return res.status(404).json({ success: false, error: 'Quote not found' });
+    }
+
+    res.json({ success: true, quote });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+/**
+ * Update quote (admin)
+ */
+app.put('/api/admin/saved-quotes/:id', authMiddleware, (req, res) => {
+  try {
+    const quote = savedQuotesService.updateQuote(req.params.id, req.body);
+
+    if (!quote) {
+      return res.status(404).json({ success: false, error: 'Quote not found' });
+    }
+
+    res.json({ success: true, quote });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+/**
+ * Mark quote as converted (admin)
+ */
+app.post('/api/admin/saved-quotes/:id/convert', authMiddleware, (req, res) => {
+  try {
+    const { orderId } = req.body;
+    const quote = savedQuotesService.convertToOrder(req.params.id, orderId);
+
+    if (!quote) {
+      return res.status(404).json({ success: false, error: 'Quote not found' });
+    }
+
+    res.json({ success: true, quote });
   } catch (error) {
     res.status(500).json({ success: false, error: error.message });
   }
