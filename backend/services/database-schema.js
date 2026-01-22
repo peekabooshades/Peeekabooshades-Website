@@ -15,11 +15,8 @@
  * - Analytics Events
  */
 
-const fs = require('fs');
-const path = require('path');
 const { v4: uuidv4 } = require('uuid');
-
-const DB_PATH = path.join(__dirname, '../database.json');
+const { loadDB, saveDB } = require('./db-loader');
 
 /**
  * Extended Database Schema
@@ -45,6 +42,16 @@ const SCHEMA_EXTENSIONS = {
     //   notes: '',
     //   productTypes: ['roller', 'zebra', 'honeycomb'],
     //   paymentTerms: 'net30',
+    //   assignmentPriority: 1, // Lower = higher priority for auto-assignment
+    //   pricingStats: {
+    //     totalFabrics: 0,
+    //     totalHardware: 0,
+    //     totalMotors: 0,
+    //     totalAccessories: 0,
+    //     lastUploadAt: null,
+    //     lastUploadBy: null,
+    //     lastUploadFile: null
+    //   },
     //   createdAt: '2025-01-01T00:00:00.000Z',
     //   updatedAt: '2025-01-01T00:00:00.000Z',
     //   createdBy: 'admin-001',
@@ -594,8 +601,7 @@ function extendDatabase() {
   let db;
 
   try {
-    const data = fs.readFileSync(DB_PATH, 'utf8');
-    db = JSON.parse(data);
+    db = loadDB();
   } catch (error) {
     console.error('Error reading database:', error);
     return false;
@@ -734,7 +740,7 @@ function extendDatabase() {
 
   if (modified) {
     try {
-      fs.writeFileSync(DB_PATH, JSON.stringify(db, null, 2));
+      saveDB(db);
       console.log('Database schema extended successfully');
       return true;
     } catch (error) {

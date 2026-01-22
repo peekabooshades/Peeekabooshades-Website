@@ -3,12 +3,10 @@
  * Ticket 002: Cart + Fake Checkout + Orders + AuditLog
  */
 
-const fs = require('fs');
-const path = require('path');
 const { v4: uuidv4 } = require('uuid');
 const { auditLogger, AUDIT_ACTIONS } = require('./audit-logger');
-
-const DB_PATH = path.join(__dirname, '../database.json');
+const manufacturerAssignment = require('./manufacturer-assignment-service');
+const { loadDB, saveDB } = require('./db-loader');
 
 // Order Status State Machine (per business requirements)
 const ORDER_STATES = {
@@ -43,12 +41,11 @@ const VALID_TRANSITIONS = {
 };
 
 function loadDatabase() {
-  const data = fs.readFileSync(DB_PATH, 'utf8');
-  return JSON.parse(data);
+  return loadDB();
 }
 
 function saveDatabase(db) {
-  fs.writeFileSync(DB_PATH, JSON.stringify(db, null, 2));
+  saveDB(db);
 }
 
 /**
@@ -333,6 +330,26 @@ function createOrderFromCart(sessionId, customerInfo, paymentInfo, userId = 'sys
   db.cart = (db.cart || []).filter(item => item.session_id !== sessionId);
 
   saveDatabase(db);
+
+  // Auto-assign manufacturer based on product types
+  try {
+    const assignmentResult = manufacturerAssignment.autoAssignManufacturer(orderId);
+    if (assignmentResult.success && !assignmentResult.alreadyAssigned) {
+      // Reload order to get updated assignment info
+      const freshDb = loadDatabase();
+      const updatedOrder = freshDb.orders.find(o => o.id === orderId);
+      if (updatedOrder) {
+        order.manufacturerId = updatedOrder.manufacturerId;
+        order.manufacturerName = updatedOrder.manufacturerName;
+        order.manufacturerAssignedAt = updatedOrder.manufacturerAssignedAt;
+        order.manufacturerAssignmentMethod = updatedOrder.manufacturerAssignmentMethod;
+      }
+      console.log(`[Order ${orderNumber}] Auto-assigned to manufacturer: ${assignmentResult.manufacturerName}`);
+    }
+  } catch (assignmentError) {
+    // Don't fail order creation if assignment fails - can be assigned manually later
+    console.warn(`[Order ${orderNumber}] Auto-assignment failed:`, assignmentError.message);
+  }
 
   // Audit log
   auditLogger.log({

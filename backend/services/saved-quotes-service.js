@@ -5,12 +5,9 @@
  * Supports email sharing and expiration
  */
 
-const fs = require('fs');
-const path = require('path');
 const { v4: uuidv4 } = require('uuid');
 const crypto = require('crypto');
-
-const DB_PATH = path.join(__dirname, '../database.json');
+const { loadDB, saveDB } = require('./db-loader');
 
 // Quote expiration (30 days by default)
 const DEFAULT_EXPIRY_DAYS = 30;
@@ -28,10 +25,10 @@ class SavedQuotesService {
    */
   ensureCollection() {
     try {
-      const db = JSON.parse(fs.readFileSync(DB_PATH, 'utf8'));
+      const db = loadDB();
       if (!db.savedQuotes) {
         db.savedQuotes = [];
-        fs.writeFileSync(DB_PATH, JSON.stringify(db, null, 2));
+        saveDB(db);
       }
     } catch (err) {
       console.error('Error ensuring savedQuotes collection:', err);
@@ -49,7 +46,7 @@ class SavedQuotesService {
    * Save a quote for later
    */
   saveQuote(data) {
-    const db = JSON.parse(fs.readFileSync(DB_PATH, 'utf8'));
+    const db = loadDB();
     if (!db.savedQuotes) db.savedQuotes = [];
 
     const expiryDays = data.expiryDays || DEFAULT_EXPIRY_DAYS;
@@ -92,7 +89,7 @@ class SavedQuotesService {
     };
 
     db.savedQuotes.push(savedQuote);
-    fs.writeFileSync(DB_PATH, JSON.stringify(db, null, 2));
+    saveDB(db);
 
     return savedQuote;
   }
@@ -101,7 +98,7 @@ class SavedQuotesService {
    * Get quote by ID
    */
   getQuoteById(quoteId) {
-    const db = JSON.parse(fs.readFileSync(DB_PATH, 'utf8'));
+    const db = loadDB();
     return (db.savedQuotes || []).find(q => q.id === quoteId);
   }
 
@@ -109,7 +106,7 @@ class SavedQuotesService {
    * Get quote by share code (public access)
    */
   getQuoteByShareCode(shareCode) {
-    const db = JSON.parse(fs.readFileSync(DB_PATH, 'utf8'));
+    const db = loadDB();
     const quote = (db.savedQuotes || []).find(
       q => q.shareCode === shareCode && q.status === 'active'
     );
@@ -135,7 +132,7 @@ class SavedQuotesService {
    * Get quotes by customer ID
    */
   getQuotesByCustomer(customerId) {
-    const db = JSON.parse(fs.readFileSync(DB_PATH, 'utf8'));
+    const db = loadDB();
     return (db.savedQuotes || [])
       .filter(q => q.customerId === customerId && q.status === 'active')
       .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
@@ -145,7 +142,7 @@ class SavedQuotesService {
    * Get quotes by customer email
    */
   getQuotesByEmail(email) {
-    const db = JSON.parse(fs.readFileSync(DB_PATH, 'utf8'));
+    const db = loadDB();
     return (db.savedQuotes || [])
       .filter(q => q.customerEmail?.toLowerCase() === email.toLowerCase() && q.status === 'active')
       .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
@@ -155,7 +152,7 @@ class SavedQuotesService {
    * Update a saved quote
    */
   updateQuote(quoteId, updates) {
-    const db = JSON.parse(fs.readFileSync(DB_PATH, 'utf8'));
+    const db = loadDB();
     if (!db.savedQuotes) db.savedQuotes = [];
 
     const index = db.savedQuotes.findIndex(q => q.id === quoteId);
@@ -167,7 +164,7 @@ class SavedQuotesService {
       updatedAt: new Date().toISOString()
     };
 
-    fs.writeFileSync(DB_PATH, JSON.stringify(db, null, 2));
+    saveDB(db);
     return db.savedQuotes[index];
   }
 
@@ -271,7 +268,7 @@ class SavedQuotesService {
    * Clean up expired quotes
    */
   cleanupExpired() {
-    const db = JSON.parse(fs.readFileSync(DB_PATH, 'utf8'));
+    const db = loadDB();
     if (!db.savedQuotes) return { updated: 0 };
 
     let updated = 0;
@@ -286,7 +283,7 @@ class SavedQuotesService {
     });
 
     if (updated > 0) {
-      fs.writeFileSync(DB_PATH, JSON.stringify(db, null, 2));
+      saveDB(db);
     }
 
     return { updated };
@@ -296,7 +293,7 @@ class SavedQuotesService {
    * Get all saved quotes (admin)
    */
   getAllQuotes(filters = {}) {
-    const db = JSON.parse(fs.readFileSync(DB_PATH, 'utf8'));
+    const db = loadDB();
     let quotes = db.savedQuotes || [];
 
     // Apply filters
@@ -341,7 +338,7 @@ class SavedQuotesService {
    * Get statistics
    */
   getStats() {
-    const db = JSON.parse(fs.readFileSync(DB_PATH, 'utf8'));
+    const db = loadDB();
     const quotes = db.savedQuotes || [];
 
     const stats = {

@@ -17,8 +17,7 @@
 const fs = require('fs');
 const path = require('path');
 const { v4: uuidv4 } = require('uuid');
-
-const DB_PATH = path.join(__dirname, '../database.json');
+const { loadDB, saveDB } = require('./db-loader');
 
 /**
  * PriceImportService Class
@@ -34,8 +33,7 @@ class PriceImportService {
    */
   loadDatabase() {
     try {
-      const data = fs.readFileSync(DB_PATH, 'utf8');
-      return JSON.parse(data);
+      return loadDB();
     } catch (error) {
       console.error('Error loading database:', error);
       return null;
@@ -47,7 +45,7 @@ class PriceImportService {
    */
   saveDatabase(db) {
     try {
-      fs.writeFileSync(DB_PATH, JSON.stringify(db, null, 2));
+      saveDB(db);
       return true;
     } catch (error) {
       console.error('Error saving database:', error);

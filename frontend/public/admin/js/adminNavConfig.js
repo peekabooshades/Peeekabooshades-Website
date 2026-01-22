@@ -80,6 +80,7 @@ const AdminNavConfig = {
     { label: 'Theme Settings', href: '/admin/theme-settings.html', keywords: ['design', 'appearance', 'theme'] },
     { label: 'Shop Settings', href: '/admin/online-store/shop-settings.html', keywords: ['store config'] },
     { label: 'System Config', href: '/admin/system-config.html', keywords: ['system', 'advanced settings'] },
+    { label: 'Manufacturers', href: '/admin/settings/manufacturers.html', keywords: ['manufacturer', 'factory', 'supplier', 'pricing upload'] },
 
     // Security
     { label: 'Security', href: '/admin/security/', keywords: ['security settings', 'protection'] },
@@ -206,6 +207,7 @@ const AdminNavConfig = {
       title: 'Settings',
       items: [
         { id: 'general-settings', label: 'General', href: '/admin/settings.html', icon: 'cog', status: 'active' },
+        { id: 'manufacturers', label: 'Manufacturers', href: '/admin/settings/manufacturers.html', icon: 'factory', status: 'active' },
         { id: 'payments-shipping', label: 'Payments & Shipping', href: '/admin/settings/payments.html', icon: 'credit-card', status: 'active' },
         { id: 'security', label: 'Security', href: '/admin/security/', icon: 'shield-check', status: 'active' },
         { id: 'settings-hub', label: 'View All Settings', href: '/admin/settings-hub/', icon: 'arrow-right', status: 'active', isViewAll: true }

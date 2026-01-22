@@ -378,7 +378,16 @@
       <!-- Page Content -->
       <div class="admin-content">
         <div class="page-header">
-          <h1 class="page-title">Fabrics</h1>
+          <div style="display: flex; align-items: center; gap: 16px;">
+            <h1 class="page-title">Fabrics</h1>
+            <!-- Manufacturer Selector -->
+            <select id="manufacturer-selector" style="padding: 8px 16px; border-radius: 6px; border: none; background: linear-gradient(135deg, #28a745 0%, #20c997 100%); color: white; font-weight: 600; font-size: 14px; cursor: pointer; min-width: 180px;">
+              <option value="">All Manufacturers</option>
+            </select>
+            <span id="manufacturer-badge" style="background: var(--pk-primary); color: white; padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 600; display: none;">
+              <span id="manufacturer-fabric-count">0</span> fabrics
+            </span>
+          </div>
           <div class="page-actions">
             <button class="btn btn-secondary" onclick="openBulkUploadModal()">
               <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -899,20 +908,105 @@
     if (!Admin.Auth.requireAuth()) {
       // Will redirect
     } else {
-      loadFabrics();
+      // Load manufacturers first, then fabrics
+      loadManufacturers().then(() => loadFabrics());
     }
 
     let allFabrics = [];
+    let allManufacturers = [];
+    let currentManufacturer = null;
     let editingId = null;
     let currentFilter = 'all';
 
+    // Load manufacturers on page load
+    async function loadManufacturers() {
+      try {
+        const response = await fetch('/api/manufacturers');
+        const data = await response.json();
+        if (data.success) {
+          allManufacturers = data.manufacturers || [];
+          populateManufacturerSelector();
+        }
+      } catch (error) {
+        console.error('Error loading manufacturers:', error);
+      }
+    }
+
+    function populateManufacturerSelector() {
+      const select = document.getElementById('manufacturer-selector');
+      select.innerHTML = '<option value="">All Manufacturers</option>';
+
+      // Show manufacturers with pricing linked first
+      const sorted = [...allManufacturers].sort((a, b) => {
+        if (a.pricingLinked && !b.pricingLinked) return -1;
+        if (!a.pricingLinked && b.pricingLinked) return 1;
+        return a.name.localeCompare(b.name);
+      });
+
+      sorted.forEach(m => {
+        const option = document.createElement('option');
+        option.value = m.id;
+        option.textContent = m.name + (m.pricingLinked ? ' ✓' : ' (No Pricing)');
+        select.appendChild(option);
+      });
+
+      // Auto-select first manufacturer with pricing
+      const firstWithPricing = allManufacturers.find(m => m.pricingLinked);
+      if (firstWithPricing) {
+        select.value = firstWithPricing.id;
+        currentManufacturer = firstWithPricing;
+        updateManufacturerBadge();
+      }
+
+      select.addEventListener('change', function() {
+        currentManufacturer = allManufacturers.find(m => m.id === this.value) || null;
+        updateManufacturerBadge();
+        loadFabrics();
+      });
+    }
+
+    function updateManufacturerBadge() {
+      const badge = document.getElementById('manufacturer-badge');
+      const countEl = document.getElementById('manufacturer-fabric-count');
+
+      if (currentManufacturer) {
+        badge.style.display = 'inline-flex';
+        // Count will be updated after fabrics load
+      } else {
+        badge.style.display = 'none';
+      }
+    }
+
     async function loadFabrics() {
-      console.log('loadFabrics called');
+      console.log('loadFabrics called, manufacturer:', currentManufacturer?.name || 'All');
       try {
         const data = await Admin.FabricsAPI.getAll();
         console.log('Fabrics API response:', data);
         if (data.success) {
           allFabrics = data.fabrics || [];
+
+          // If manufacturer selected, load their pricing data to show linked fabrics
+          if (currentManufacturer) {
+            try {
+              const mfrPricesRes = await Admin.AuthAPI.authenticatedFetch(`/api/admin/manufacturer-prices?manufacturerId=${currentManufacturer.id}`);
+              const mfrPricesData = await mfrPricesRes.json();
+              if (mfrPricesData.success) {
+                const mfrFabricCodes = new Set((mfrPricesData.prices || []).map(p => p.fabricCode));
+                // Mark fabrics that have manufacturer pricing
+                allFabrics = allFabrics.map(f => ({
+                  ...f,
+                  hasManufacturerPricing: mfrFabricCodes.has(f.code),
+                  manufacturerId: mfrFabricCodes.has(f.code) ? currentManufacturer.id : null
+                }));
+                // Update badge count
+                const linkedCount = allFabrics.filter(f => f.hasManufacturerPricing).length;
+                document.getElementById('manufacturer-fabric-count').textContent = linkedCount;
+              }
+            } catch (mfrError) {
+              console.warn('Could not load manufacturer prices:', mfrError);
+            }
+          }
+
           console.log('Loaded fabrics:', allFabrics.length);
           updateCounts();
           filterFabrics(currentFilter);
@@ -973,11 +1067,14 @@
       }
 
       tbody.innerHTML = fabrics.map(fab => `
-        <tr data-id="${fab.id}">
+        <tr data-id="${fab.id}" style="${fab.hasManufacturerPricing && currentManufacturer ? 'background: #f0fdf4;' : ''}">
           <td>
             <img src="${fab.imageUrl}" alt="${Admin.Utils.escapeHtml(fab.name)}" class="fabric-image" onerror="this.src='/images/placeholder.png'">
           </td>
-          <td><span class="fabric-code">${Admin.Utils.escapeHtml(fab.code)}</span></td>
+          <td>
+            <span class="fabric-code">${Admin.Utils.escapeHtml(fab.code)}</span>
+            ${fab.hasManufacturerPricing && currentManufacturer ? '<span style="display: inline-block; margin-left: 6px; background: #22c55e; color: white; font-size: 9px; padding: 2px 6px; border-radius: 10px; font-weight: 600;">PRICED</span>' : ''}
+          </td>
           <td style="font-weight: 500;">${Admin.Utils.escapeHtml(fab.name)}</td>
           <td>
             <span class="filter-type-badge ${fab.filterType}">${fab.filterType.replace('-', ' ')}</span>

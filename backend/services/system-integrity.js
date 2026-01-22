@@ -3,14 +3,10 @@
  * Cross-portal validation and data consistency checks
  */
 
-const fs = require('fs');
-const path = require('path');
-
-const DB_PATH = path.join(__dirname, '../database.json');
+const { loadDB } = require('./db-loader');
 
 function loadDatabase() {
-  const data = fs.readFileSync(DB_PATH, 'utf8');
-  return JSON.parse(data);
+  return loadDB();
 }
 
 /**

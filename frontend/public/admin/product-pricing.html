@@ -522,7 +522,7 @@
         }
 
         if (manufacturersRes.success) {
-          allManufacturers = manufacturersRes.data || [];
+          allManufacturers = manufacturersRes.manufacturers || manufacturersRes.data || [];
           populateManufacturerSelector();
         }
       } catch (error) {

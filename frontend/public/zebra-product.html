@@ -18,14 +18,8 @@
   <meta property="og:description" content="Premium Zebra Shades with dual-layer design for perfect light control.">
   <meta property="og:image" content="https://peekabooshades.com/images/zebra-shades-og.jpg">
 
-  <!-- Google Analytics (GA4) -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
-    gtag('config', 'G-XXXXXXXXXX');
-  </script>
+  <!-- Analytics Configuration (GA4 + Facebook Pixel) -->
+  <script src="/js/analytics-config.js"></script>
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -436,6 +430,10 @@
       background: rgba(142,101,69,0.1);
       padding: 4px 12px;
       border-radius: 20px;
+    }
+
+    .accordion-selected:empty {
+      display: none;
     }
 
     .accordion-icon {
@@ -1224,7 +1222,7 @@
       <!-- Product Gallery -->
       <div class="product-gallery">
         <div class="main-image-container">
-          <img src="/images/zebra-shades.png" alt="Zebra Shades" id="mainProductImage">
+          <img src="/images/zebra-shades-optimized.jpg" alt="Zebra Shades" id="mainProductImage">
         </div>
       </div>
 
@@ -2516,11 +2514,11 @@
     // Create fabric swatch HTML with zoom button
     function createFabricSwatches(fabrics) {
       return fabrics.map(fabric => {
-        const imgSrc = fabric.hasImage && fabric.image ? fabric.image : '/images/zebra-shades.png';
+        const imgSrc = fabric.hasImage && fabric.image ? fabric.image : '/images/zebra-shades-optimized.jpg';
         return `
           <div class="fabric-swatch" data-code="${fabric.code}" onclick="selectFabric(this)">
             <div class="fabric-swatch-img-container">
-              <img src="${imgSrc}" alt="${fabric.code}" onerror="this.src='/images/zebra-shades.png'">
+              <img src="${imgSrc}" alt="${fabric.code}" onerror="this.src='/images/zebra-shades-optimized.jpg'">
               <button class="zoom-btn" onclick="event.stopPropagation(); openZoomModal('${imgSrc}', '${fabric.code}')" title="Zoom">
                 <i class="fas fa-search-plus"></i>
               </button>

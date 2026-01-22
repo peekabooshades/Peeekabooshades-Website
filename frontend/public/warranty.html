@@ -185,6 +185,116 @@
     </ul>
   </section>
 
+  <!-- Warranty Claim Form Section -->
+  <section id="claim-form" class="content-section" style="background: var(--pk-bg-cream); margin-top: 0; padding-top: 40px;">
+    <h2 style="margin-top: 0; text-align: center;">Submit a Warranty Claim</h2>
+    <p style="text-align: center; margin-bottom: 30px;">Fill out the form below to submit your warranty claim. We'll review it within 2-3 business days.</p>
+
+    <form id="warrantyClaimForm" style="max-width: 600px; margin: 0 auto;">
+      <div style="margin-bottom: 20px;">
+        <label style="display: block; font-weight: 600; margin-bottom: 8px;">Order Number *</label>
+        <input type="text" name="orderNumber" required placeholder="e.g., ORD-123456"
+          style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px;">
+      </div>
+
+      <div style="margin-bottom: 20px;">
+        <label style="display: block; font-weight: 600; margin-bottom: 8px;">Your Name *</label>
+        <input type="text" name="customerName" required placeholder="Full name"
+          style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px;">
+      </div>
+
+      <div style="margin-bottom: 20px;">
+        <label style="display: block; font-weight: 600; margin-bottom: 8px;">Email Address *</label>
+        <input type="email" name="customerEmail" required placeholder="your@email.com"
+          style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px;">
+      </div>
+
+      <div style="margin-bottom: 20px;">
+        <label style="display: block; font-weight: 600; margin-bottom: 8px;">Phone Number</label>
+        <input type="tel" name="customerPhone" placeholder="(xxx) xxx-xxxx"
+          style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px;">
+      </div>
+
+      <div style="margin-bottom: 20px;">
+        <label style="display: block; font-weight: 600; margin-bottom: 8px;">Product Description</label>
+        <input type="text" name="productDescription" placeholder="e.g., 36x48 Roller Shade, Bedroom"
+          style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px;">
+      </div>
+
+      <div style="margin-bottom: 20px;">
+        <label style="display: block; font-weight: 600; margin-bottom: 8px;">Date of Purchase</label>
+        <input type="date" name="purchaseDate"
+          style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px;">
+      </div>
+
+      <div style="margin-bottom: 20px;">
+        <label style="display: block; font-weight: 600; margin-bottom: 8px;">Describe the Issue *</label>
+        <textarea name="issueDescription" required rows="4" placeholder="Please describe the defect or issue in detail..."
+          style="width: 100%; padding: 12px; border: 1px solid #ddd; border-radius: 6px; font-size: 14px; resize: vertical;"></textarea>
+      </div>
+
+      <div id="claimMessage" style="display: none; padding: 15px; border-radius: 6px; margin-bottom: 20px;"></div>
+
+      <button type="submit" id="submitClaimBtn"
+        style="width: 100%; background: var(--pk-green); color: white; padding: 14px; border: none; border-radius: 30px; font-size: 16px; font-weight: 600; cursor: pointer;">
+        Submit Warranty Claim
+      </button>
+    </form>
+  </section>
+
+  <script>
+    document.getElementById('warrantyClaimForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+
+      const form = e.target;
+      const btn = document.getElementById('submitClaimBtn');
+      const msgDiv = document.getElementById('claimMessage');
+
+      btn.disabled = true;
+      btn.textContent = 'Submitting...';
+      msgDiv.style.display = 'none';
+
+      const formData = {
+        orderNumber: form.orderNumber.value.trim(),
+        customerName: form.customerName.value.trim(),
+        customerEmail: form.customerEmail.value.trim(),
+        customerPhone: form.customerPhone.value.trim(),
+        productDescription: form.productDescription.value.trim(),
+        purchaseDate: form.purchaseDate.value,
+        issueDescription: form.issueDescription.value.trim()
+      };
+
+      try {
+        const response = await fetch('/api/warranty-claims', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(formData)
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+          msgDiv.style.background = '#d4edda';
+          msgDiv.style.color = '#155724';
+          msgDiv.innerHTML = `<strong>Claim Submitted!</strong><br>Your claim ID is: <strong>${result.claimId}</strong><br>${result.message}`;
+          form.reset();
+        } else {
+          msgDiv.style.background = '#f8d7da';
+          msgDiv.style.color = '#721c24';
+          msgDiv.textContent = result.error || 'Failed to submit claim. Please try again.';
+        }
+      } catch (err) {
+        msgDiv.style.background = '#f8d7da';
+        msgDiv.style.color = '#721c24';
+        msgDiv.textContent = 'Network error. Please try again.';
+      }
+
+      msgDiv.style.display = 'block';
+      btn.disabled = false;
+      btn.textContent = 'Submit Warranty Claim';
+    });
+  </script>
+
   <section class="cta-section">
     <div class="container">
       <h2>Shop With Confidence</h2>

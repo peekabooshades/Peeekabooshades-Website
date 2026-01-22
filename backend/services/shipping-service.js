@@ -6,11 +6,8 @@
  */
 
 const https = require('https');
-const fs = require('fs');
-const path = require('path');
 const { v4: uuidv4 } = require('uuid');
-
-const DB_PATH = path.join(__dirname, '../database.json');
+const { loadDB, saveDB } = require('./db-loader');
 
 /**
  * Carrier configurations
@@ -88,7 +85,7 @@ class ShippingService {
    * Create a new shipment record
    */
   createShipment(data) {
-    const db = JSON.parse(fs.readFileSync(DB_PATH, 'utf8'));
+    const db = loadDB();
     if (!db.shipments) db.shipments = [];
 
     const carrier = data.carrier || this.detectCarrier(data.trackingNumber);
@@ -117,7 +114,7 @@ class ShippingService {
     };
 
     db.shipments.push(shipment);
-    fs.writeFileSync(DB_PATH, JSON.stringify(db, null, 2));
+    saveDB(db);
 
     return shipment;
   }
@@ -126,7 +123,7 @@ class ShippingService {
    * Update shipment status
    */
   updateShipment(shipmentId, updates) {
-    const db = JSON.parse(fs.readFileSync(DB_PATH, 'utf8'));
+    const db = loadDB();
     if (!db.shipments) db.shipments = [];
 
     const index = db.shipments.findIndex(s => s.id === shipmentId);
@@ -153,7 +150,7 @@ class ShippingService {
       db.shipments[index].actualDelivery = new Date().toISOString();
     }
 
-    fs.writeFileSync(DB_PATH, JSON.stringify(db, null, 2));
+    saveDB(db);
     return db.shipments[index];
   }
 
@@ -161,7 +158,7 @@ class ShippingService {
    * Get shipment by ID
    */
   getShipment(shipmentId) {
-    const db = JSON.parse(fs.readFileSync(DB_PATH, 'utf8'));
+    const db = loadDB();
     return (db.shipments || []).find(s => s.id === shipmentId);
   }
 
@@ -169,7 +166,7 @@ class ShippingService {
    * Get shipments for an order
    */
   getOrderShipments(orderId) {
-    const db = JSON.parse(fs.readFileSync(DB_PATH, 'utf8'));
+    const db = loadDB();
     return (db.shipments || []).filter(s => s.orderId === orderId);
   }
 
@@ -177,7 +174,7 @@ class ShippingService {
    * Add tracking event
    */
   addTrackingEvent(shipmentId, event) {
-    const db = JSON.parse(fs.readFileSync(DB_PATH, 'utf8'));
+    const db = loadDB();
     if (!db.trackingEvents) db.trackingEvents = [];
 
     const trackingEvent = {
@@ -192,7 +189,7 @@ class ShippingService {
     };
 
     db.trackingEvents.push(trackingEvent);
-    fs.writeFileSync(DB_PATH, JSON.stringify(db, null, 2));
+    saveDB(db);
 
     // Update shipment status
     this.updateShipment(shipmentId, { status: event.status });
@@ -204,7 +201,7 @@ class ShippingService {
    * Get tracking events for a shipment
    */
   getTrackingEvents(shipmentId) {
-    const db = JSON.parse(fs.readFileSync(DB_PATH, 'utf8'));
+    const db = loadDB();
     return (db.trackingEvents || [])
       .filter(e => e.shipmentId === shipmentId)
       .sort((a, b) => new Date(b.timestamp) - new Date(a.timestamp));
@@ -291,12 +288,12 @@ class ShippingService {
   }
 
   getTotalShipments() {
-    const db = JSON.parse(fs.readFileSync(DB_PATH, 'utf8'));
+    const db = loadDB();
     return (db.shipments || []).length;
   }
 
   getPendingShipments() {
-    const db = JSON.parse(fs.readFileSync(DB_PATH, 'utf8'));
+    const db = loadDB();
     return (db.shipments || []).filter(s =>
       !['delivered', 'cancelled'].includes(s.status)
     ).length;

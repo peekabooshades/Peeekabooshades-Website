@@ -5,11 +5,8 @@
  * Falls back to dev_log mode if not configured
  */
 
-const fs = require('fs');
-const path = require('path');
 const { v4: uuidv4 } = require('uuid');
-
-const DB_PATH = path.join(__dirname, '../database.json');
+const { loadDB, saveDB } = require('./db-loader');
 
 /**
  * SMS Service Class
@@ -129,14 +126,14 @@ class SMSService {
    */
   logSMS(smsLog) {
     try {
-      const db = JSON.parse(fs.readFileSync(DB_PATH, 'utf8'));
+      const db = loadDB();
       if (!db.smsLogs) db.smsLogs = [];
       db.smsLogs.push(smsLog);
       // Keep only last 500 logs
       if (db.smsLogs.length > 500) {
         db.smsLogs = db.smsLogs.slice(-500);
       }
-      fs.writeFileSync(DB_PATH, JSON.stringify(db, null, 2));
+      saveDB(db);
     } catch (err) {
       console.error('Failed to log SMS:', err.message);
     }

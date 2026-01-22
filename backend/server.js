@@ -1,4 +1,10 @@
 require('dotenv').config();
+let Sentry = null;
+try {
+  Sentry = require('@sentry/node');
+} catch (e) {
+  console.log('Sentry module not installed - error monitoring disabled');
+}
 const express = require('express');
 const cors = require('cors');
 const compression = require('compression');
@@ -11,6 +17,25 @@ const bcrypt = require('bcryptjs');
 const { authMiddleware, generateToken, verifyToken, JWT_SECRET } = require('./middleware/auth');
 const jwt = require('jsonwebtoken');
 const Anthropic = require('@anthropic-ai/sdk');
+
+// ============================================
+// SENTRY ERROR MONITORING
+// ============================================
+if (Sentry && process.env.SENTRY_DSN) {
+  Sentry.init({
+    dsn: process.env.SENTRY_DSN,
+    environment: process.env.NODE_ENV || 'development',
+    tracesSampleRate: 0.1,
+    profilesSampleRate: 0.1,
+    integrations: [
+      Sentry.httpIntegration(),
+      Sentry.expressIntegration()
+    ]
+  });
+  console.log('Sentry error monitoring initialized');
+} else {
+  console.log('Sentry DSN not configured - error monitoring disabled');
+}
 
 // ============================================
 // ENTERPRISE SERVICES (Admin-Driven Architecture)
@@ -36,6 +61,13 @@ const { notificationService } = require('./services/notification-service');
 const { smsService } = require('./services/sms-service');
 const { shippingService } = require('./services/shipping-service');
 const { savedQuotesService } = require('./services/saved-quotes-service');
+const excelPricingService = require('./services/excel-pricing-service');
+const manufacturerAssignmentService = require('./services/manufacturer-assignment-service');
+const { taxService } = require('./services/tax-service');
+const { poService } = require('./services/po-service');
+const { cartRecoveryService } = require('./services/cart-recovery-service');
+const { accountingExportService } = require('./services/accounting-export-service');
+const { scheduledReportsService, REPORT_TYPES, FREQUENCIES } = require('./services/scheduled-reports-service');
 
 // ============================================
 // CRM/OMS/FINANCE/ANALYTICS ROUTES
@@ -94,7 +126,7 @@ const DB_PATH = path.join(__dirname, 'database.json');
 // ============================================
 let dbCache = null;
 let dbCacheTime = 0;
-const CACHE_TTL = 5000; // 5 seconds cache TTL
+const CACHE_TTL = 30000; // 30 seconds cache TTL for reads
 
 // Initialize database
 function initDatabase() {
@@ -264,8 +296,57 @@ function saveDatabase(data) {
 // Middleware
 app.use(compression({ level: 6 })); // Enable gzip compression
 app.use(cors());
-app.use(express.json());
-app.use(express.urlencoded({ extended: true }));
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+
+// ============================================
+// API RESPONSE CACHE (for GET endpoints)
+// ============================================
+const apiCache = new Map();
+const API_CACHE_TTL = 10000; // 10 seconds for API responses
+
+function apiCacheMiddleware(req, res, next) {
+  if (req.method !== 'GET') {
+    // Invalidate cache on writes
+    apiCache.clear();
+    return next();
+  }
+
+  const key = req.originalUrl;
+  const cached = apiCache.get(key);
+
+  if (cached && (Date.now() - cached.time) < API_CACHE_TTL) {
+    res.setHeader('X-Cache', 'HIT');
+    res.setHeader('Content-Type', 'application/json');
+    return res.send(cached.body);
+  }
+
+  // Capture the response
+  const originalJson = res.json.bind(res);
+  res.json = function(data) {
+    // Only cache successful responses
+    if (res.statusCode >= 200 && res.statusCode < 300) {
+      const body = JSON.stringify(data);
+      apiCache.set(key, { body, time: Date.now() });
+      // Cap cache size at 200 entries
+      if (apiCache.size > 200) {
+        const firstKey = apiCache.keys().next().value;
+        apiCache.delete(firstKey);
+      }
+    }
+    res.setHeader('X-Cache', 'MISS');
+    return originalJson(data);
+  };
+
+  next();
+}
+
+app.use('/api', apiCacheMiddleware);
+
+// Health check endpoint
+app.get('/api/health', (req, res) => {
+  res.json({ status: 'ok', uptime: process.uptime(), timestamp: new Date().toISOString() });
+});
 
 // ============================================
 // TICKET-013: API Response Time Monitoring
@@ -321,25 +402,26 @@ app.get('/help', (req, res) => {
   res.redirect('/faq.html');
 });
 
-// Static files with cache headers
+// Static files with optimized cache headers
 app.use(express.static(path.join(__dirname, '../frontend/public'), {
-  maxAge: '0', // No default cache
-  etag: false,
+  etag: true,
   lastModified: true,
   setHeaders: (res, filePath) => {
-    // NO cache for HTML files - always fresh
+    // HTML files - allow ETag-based caching (304 responses)
     if (filePath.endsWith('.html')) {
-      res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
-      res.setHeader('Pragma', 'no-cache');
-      res.setHeader('Expires', '0');
+      res.setHeader('Cache-Control', 'no-cache'); // Revalidate with ETag
     }
-    // Longer cache for images
-    else if (filePath.endsWith('.jpg') || filePath.endsWith('.png') || filePath.endsWith('.svg') || filePath.endsWith('.webp') || filePath.endsWith('.jpeg')) {
-      res.setHeader('Cache-Control', 'public, max-age=604800'); // 7 days
+    // Images - long cache
+    else if (/\.(jpg|jpeg|png|svg|webp|gif|ico)$/i.test(filePath)) {
+      res.setHeader('Cache-Control', 'public, max-age=604800, immutable'); // 7 days
     }
-    // Shorter cache for CSS/JS
-    else if (filePath.endsWith('.css') || filePath.endsWith('.js')) {
-      res.setHeader('Cache-Control', 'public, max-age=3600'); // 1 hour
+    // CSS/JS - moderate cache
+    else if (/\.(css|js)$/i.test(filePath)) {
+      res.setHeader('Cache-Control', 'public, max-age=86400'); // 24 hours
+    }
+    // Fonts
+    else if (/\.(woff|woff2|ttf|eot)$/i.test(filePath)) {
+      res.setHeader('Cache-Control', 'public, max-age=2592000, immutable'); // 30 days
     }
   }
 }));
@@ -2734,6 +2816,572 @@ app.put('/api/admin/password', authMiddleware, (req, res) => {
 
     res.json({ success: true, message: 'Password changed successfully' });
   } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// ============================================
+// ADMIN MANUFACTURERS MANAGEMENT
+// ============================================
+
+// Excel file upload configuration for pricing
+const pricingUploadStorage = multer.diskStorage({
+  destination: (req, file, cb) => {
+    const uploadPath = path.join(__dirname, '../frontend/public/uploads/pricing');
+    if (!fs.existsSync(uploadPath)) {
+      fs.mkdirSync(uploadPath, { recursive: true });
+    }
+    cb(null, uploadPath);
+  },
+  filename: (req, file, cb) => {
+    const ext = path.extname(file.originalname);
+    const uniqueName = `pricing-${Date.now()}-${uuidv4().slice(0, 8)}${ext}`;
+    cb(null, uniqueName);
+  }
+});
+
+const pricingUpload = multer({
+  storage: pricingUploadStorage,
+  limits: { fileSize: 10 * 1024 * 1024 }, // 10MB limit
+  fileFilter: (req, file, cb) => {
+    const allowedTypes = /xlsx|xls/;
+    const ext = allowedTypes.test(path.extname(file.originalname).toLowerCase());
+    const validMimes = [
+      'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+      'application/vnd.ms-excel'
+    ];
+    if (ext && validMimes.includes(file.mimetype)) {
+      cb(null, true);
+    } else {
+      cb(new Error('Only Excel files (.xlsx, .xls) are allowed'));
+    }
+  }
+});
+
+// Get all manufacturers (admin)
+app.get('/api/admin/manufacturers', authMiddleware, (req, res) => {
+  try {
+    const db = loadDatabase();
+    let manufacturers = db.manufacturers || [];
+
+    // Add pricing stats
+    manufacturers = manufacturers.map(m => {
+      const fabricCount = (db.manufacturerPrices || []).filter(p => p.manufacturerId === m.id).length;
+      const hardwareCount = (db.manufacturerHardwarePrices || []).filter(p => p.manufacturerId === m.id).length;
+      const motorCount = (db.manufacturerMotorPrices || []).filter(p => p.manufacturerId === m.id).length;
+      const accessoryCount = (db.manufacturerAccessoryPrices || []).filter(p => p.manufacturerId === m.id).length;
+
+      return {
+        ...m,
+        pricingStats: {
+          totalFabrics: fabricCount,
+          totalHardware: hardwareCount,
+          totalMotors: motorCount,
+          totalAccessories: accessoryCount,
+          ...m.pricingStats
+        }
+      };
+    });
+
+    res.json({ success: true, manufacturers });
+  } catch (error) {
+    console.error('Error fetching manufacturers:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Get manufacturer by ID (admin)
+app.get('/api/admin/manufacturers/:id', authMiddleware, (req, res) => {
+  try {
+    const db = loadDatabase();
+    const manufacturer = (db.manufacturers || []).find(m => m.id === req.params.id);
+
+    if (!manufacturer) {
+      return res.status(404).json({ success: false, error: 'Manufacturer not found' });
+    }
+
+    // Add pricing details
+    const pricingSummary = excelPricingService.getPricingSummary(manufacturer.id);
+
+    res.json({
+      success: true,
+      manufacturer: {
+        ...manufacturer,
+        pricingSummary
+      }
+    });
+  } catch (error) {
+    console.error('Error fetching manufacturer:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Create manufacturer
+app.post('/api/admin/manufacturers', authMiddleware, (req, res) => {
+  try {
+    const db = loadDatabase();
+    const { name, code, email, phone, contactName, address, productTypes, leadTimeDays, paymentTerms, notes } = req.body;
+
+    if (!name) {
+      return res.status(400).json({ success: false, error: 'Manufacturer name is required' });
+    }
+
+    // Check for duplicate code
+    const mfrCode = (code || name).toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 10);
+    const existing = (db.manufacturers || []).find(m => m.code === mfrCode);
+    if (existing) {
+      return res.status(400).json({ success: false, error: 'Manufacturer code already exists' });
+    }
+
+    const now = new Date().toISOString();
+    const newManufacturer = {
+      id: `mfr-${uuidv4().substring(0, 8)}`,
+      name: name.trim(),
+      code: mfrCode,
+      email: email || '',
+      phone: phone || '',
+      contactName: contactName || '',
+      address: address || {},
+      productTypes: productTypes || ['roller', 'zebra', 'honeycomb', 'roman'],
+      leadTimeDays: parseInt(leadTimeDays) || 14,
+      paymentTerms: paymentTerms || 'net30',
+      shippingMethod: 'standard',
+      status: 'active',
+      notes: notes || '',
+      assignmentPriority: (db.manufacturers || []).length + 1,
+      pricingLinked: false,
+      pricingStats: {
+        totalFabrics: 0,
+        totalHardware: 0,
+        totalMotors: 0,
+        totalAccessories: 0,
+        lastUploadAt: null,
+        lastUploadBy: null,
+        lastUploadFile: null
+      },
+      createdAt: now,
+      updatedAt: now,
+      createdBy: req.admin.id
+    };
+
+    if (!db.manufacturers) db.manufacturers = [];
+    db.manufacturers.push(newManufacturer);
+    saveDatabase(db);
+
+    res.status(201).json({ success: true, manufacturer: newManufacturer });
+  } catch (error) {
+    console.error('Error creating manufacturer:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Update manufacturer
+app.put('/api/admin/manufacturers/:id', authMiddleware, (req, res) => {
+  try {
+    const db = loadDatabase();
+    const mfrIndex = (db.manufacturers || []).findIndex(m => m.id === req.params.id);
+
+    if (mfrIndex === -1) {
+      return res.status(404).json({ success: false, error: 'Manufacturer not found' });
+    }
+
+    const { name, email, phone, contactName, address, productTypes, leadTimeDays, paymentTerms, status, notes, assignmentPriority } = req.body;
+
+    const now = new Date().toISOString();
+    const updated = { ...db.manufacturers[mfrIndex] };
+
+    if (name !== undefined) updated.name = name.trim();
+    if (email !== undefined) updated.email = email;
+    if (phone !== undefined) updated.phone = phone;
+    if (contactName !== undefined) updated.contactName = contactName;
+    if (address !== undefined) updated.address = address;
+    if (productTypes !== undefined) updated.productTypes = productTypes;
+    if (leadTimeDays !== undefined) updated.leadTimeDays = parseInt(leadTimeDays);
+    if (paymentTerms !== undefined) updated.paymentTerms = paymentTerms;
+    if (status !== undefined) updated.status = status;
+    if (notes !== undefined) updated.notes = notes;
+    if (assignmentPriority !== undefined) updated.assignmentPriority = parseInt(assignmentPriority);
+
+    updated.updatedAt = now;
+    updated.updatedBy = req.admin.id;
+
+    db.manufacturers[mfrIndex] = updated;
+    saveDatabase(db);
+
+    res.json({ success: true, manufacturer: updated });
+  } catch (error) {
+    console.error('Error updating manufacturer:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Delete manufacturer (soft delete)
+app.delete('/api/admin/manufacturers/:id', authMiddleware, (req, res) => {
+  try {
+    const db = loadDatabase();
+    const mfrIndex = (db.manufacturers || []).findIndex(m => m.id === req.params.id);
+
+    if (mfrIndex === -1) {
+      return res.status(404).json({ success: false, error: 'Manufacturer not found' });
+    }
+
+    // Check if manufacturer has orders
+    const hasOrders = (db.orders || []).some(o => o.manufacturerId === req.params.id);
+    if (hasOrders) {
+      // Soft delete - set status to inactive
+      db.manufacturers[mfrIndex].status = 'deleted';
+      db.manufacturers[mfrIndex].deletedAt = new Date().toISOString();
+      db.manufacturers[mfrIndex].deletedBy = req.admin.id;
+    } else {
+      // Hard delete
+      db.manufacturers.splice(mfrIndex, 1);
+    }
+
+    saveDatabase(db);
+
+    res.json({ success: true, message: 'Manufacturer deleted' });
+  } catch (error) {
+    console.error('Error deleting manufacturer:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Download pricing template
+app.get('/api/admin/manufacturers/:id/download-template', authMiddleware, (req, res) => {
+  try {
+    const db = loadDatabase();
+    const manufacturer = (db.manufacturers || []).find(m => m.id === req.params.id);
+
+    if (!manufacturer) {
+      return res.status(404).json({ success: false, error: 'Manufacturer not found' });
+    }
+
+    const includeExisting = req.query.includeExisting === 'true';
+    const buffer = excelPricingService.generatePricingTemplate(manufacturer.id, includeExisting);
+
+    res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    res.setHeader('Content-Disposition', `attachment; filename=${manufacturer.code}-pricing-template.xlsx`);
+    res.send(buffer);
+  } catch (error) {
+    console.error('Error generating template:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Upload pricing Excel (admin)
+app.post('/api/admin/manufacturers/:id/upload-pricing', authMiddleware, pricingUpload.single('file'), (req, res) => {
+  try {
+    const db = loadDatabase();
+    const manufacturer = (db.manufacturers || []).find(m => m.id === req.params.id);
+
+    if (!manufacturer) {
+      return res.status(404).json({ success: false, error: 'Manufacturer not found' });
+    }
+
+    if (!req.file) {
+      return res.status(400).json({ success: false, error: 'No file uploaded' });
+    }
+
+    const uploadedBy = {
+      id: req.admin.id,
+      email: req.admin.email,
+      role: 'admin'
+    };
+
+    // Read file buffer
+    const fileBuffer = fs.readFileSync(req.file.path);
+
+    // Import pricing
+    const result = excelPricingService.importPricingFromExcel(fileBuffer, manufacturer.id, uploadedBy);
+
+    // Record history
+    excelPricingService.recordUploadHistory(manufacturer.id, req.file.originalname, uploadedBy, result);
+
+    // Update manufacturer pricingLinked flag
+    if (result.success && result.summary.fabricsCreated + result.summary.fabricsUpdated > 0) {
+      const mfrIndex = (db.manufacturers || []).findIndex(m => m.id === manufacturer.id);
+      if (mfrIndex !== -1) {
+        const freshDb = loadDatabase();
+        freshDb.manufacturers[mfrIndex].pricingLinked = true;
+        freshDb.manufacturers[mfrIndex].pricingStats = {
+          ...freshDb.manufacturers[mfrIndex].pricingStats,
+          lastUploadFile: req.file.originalname
+        };
+        saveDatabase(freshDb);
+      }
+    }
+
+    // Clean up uploaded file
+    fs.unlinkSync(req.file.path);
+
+    res.json({
+      success: result.success,
+      message: result.success ? 'Pricing uploaded successfully' : 'Upload failed',
+      summary: result.summary,
+      errors: result.errors.slice(0, 20),
+      warnings: result.warnings.slice(0, 20)
+    });
+  } catch (error) {
+    console.error('Error uploading pricing:', error);
+    if (req.file && fs.existsSync(req.file.path)) {
+      fs.unlinkSync(req.file.path);
+    }
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Get pricing summary for manufacturer
+app.get('/api/admin/manufacturers/:id/pricing-summary', authMiddleware, (req, res) => {
+  try {
+    const summary = excelPricingService.getPricingSummary(req.params.id);
+    if (!summary) {
+      return res.status(404).json({ success: false, error: 'Manufacturer not found' });
+    }
+    res.json({ success: true, summary });
+  } catch (error) {
+    console.error('Error getting pricing summary:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Get upload history for manufacturer
+app.get('/api/admin/manufacturers/:id/upload-history', authMiddleware, (req, res) => {
+  try {
+    const limit = parseInt(req.query.limit) || 20;
+    const history = excelPricingService.getUploadHistory(req.params.id, limit);
+    res.json({ success: true, history });
+  } catch (error) {
+    console.error('Error getting upload history:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// ============================================
+// ORDER MANUFACTURER ASSIGNMENT
+// ============================================
+
+// Get unassigned orders
+app.get('/api/admin/orders/unassigned', authMiddleware, (req, res) => {
+  try {
+    const orders = manufacturerAssignmentService.getUnassignedOrders();
+    res.json({ success: true, orders, total: orders.length });
+  } catch (error) {
+    console.error('Error getting unassigned orders:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Get assignment statistics
+app.get('/api/admin/orders/assignment-stats', authMiddleware, (req, res) => {
+  try {
+    const stats = manufacturerAssignmentService.getAssignmentStats();
+    res.json({ success: true, stats });
+  } catch (error) {
+    console.error('Error getting assignment stats:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Manually assign manufacturer to order
+app.post('/api/admin/orders/:id/assign-manufacturer', authMiddleware, (req, res) => {
+  try {
+    const { manufacturerId } = req.body;
+
+    if (!manufacturerId) {
+      return res.status(400).json({ success: false, error: 'Manufacturer ID is required' });
+    }
+
+    const result = manufacturerAssignmentService.manualAssignManufacturer(
+      req.params.id,
+      manufacturerId,
+      req.admin.id
+    );
+
+    if (!result.success) {
+      return res.status(400).json(result);
+    }
+
+    res.json(result);
+  } catch (error) {
+    console.error('Error assigning manufacturer:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Unassign manufacturer from order
+app.post('/api/admin/orders/:id/unassign-manufacturer', authMiddleware, (req, res) => {
+  try {
+    const result = manufacturerAssignmentService.unassignManufacturer(req.params.id, req.admin.id);
+
+    if (!result.success) {
+      return res.status(400).json(result);
+    }
+
+    res.json(result);
+  } catch (error) {
+    console.error('Error unassigning manufacturer:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Auto-assign all unassigned orders
+app.post('/api/admin/orders/auto-assign-all', authMiddleware, (req, res) => {
+  try {
+    const result = manufacturerAssignmentService.autoAssignAllUnassignedOrders();
+    res.json({ success: true, ...result });
+  } catch (error) {
+    console.error('Error auto-assigning orders:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// ============================================
+// MANUFACTURER PORTAL - PRICING UPLOAD
+// ============================================
+
+// Download pricing template (manufacturer portal)
+app.get('/api/manufacturer/pricing-template', (req, res) => {
+  try {
+    const token = req.headers.authorization?.replace('Bearer ', '');
+    if (!token) {
+      return res.status(401).json({ success: false, error: 'No token provided' });
+    }
+
+    const decoded = jwt.verify(token, JWT_SECRET);
+    if (!decoded.manufacturerId) {
+      return res.status(401).json({ success: false, error: 'Invalid manufacturer token' });
+    }
+
+    const db = loadDatabase();
+    const manufacturer = (db.manufacturers || []).find(m => m.id === decoded.manufacturerId);
+    if (!manufacturer) {
+      return res.status(404).json({ success: false, error: 'Manufacturer not found' });
+    }
+
+    const includeExisting = req.query.includeExisting === 'true';
+    const buffer = excelPricingService.generatePricingTemplate(manufacturer.id, includeExisting);
+
+    res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
+    res.setHeader('Content-Disposition', `attachment; filename=${manufacturer.code}-pricing-template.xlsx`);
+    res.send(buffer);
+  } catch (error) {
+    console.error('Error generating template:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Upload pricing Excel (manufacturer portal)
+app.post('/api/manufacturer/upload-pricing', pricingUpload.single('file'), (req, res) => {
+  try {
+    const token = req.headers.authorization?.replace('Bearer ', '');
+    if (!token) {
+      return res.status(401).json({ success: false, error: 'No token provided' });
+    }
+
+    const decoded = jwt.verify(token, JWT_SECRET);
+    if (!decoded.manufacturerId) {
+      return res.status(401).json({ success: false, error: 'Invalid manufacturer token' });
+    }
+
+    const db = loadDatabase();
+    const manufacturerUser = (db.manufacturerUsers || []).find(u => u.id === decoded.id);
+    const manufacturer = (db.manufacturers || []).find(m => m.id === decoded.manufacturerId);
+
+    if (!manufacturer) {
+      return res.status(404).json({ success: false, error: 'Manufacturer not found' });
+    }
+
+    if (!req.file) {
+      return res.status(400).json({ success: false, error: 'No file uploaded' });
+    }
+
+    const uploadedBy = {
+      id: decoded.id,
+      email: manufacturerUser?.email || decoded.email,
+      role: 'manufacturer'
+    };
+
+    // Read file buffer
+    const fileBuffer = fs.readFileSync(req.file.path);
+
+    // Import pricing
+    const result = excelPricingService.importPricingFromExcel(fileBuffer, manufacturer.id, uploadedBy);
+
+    // Record history
+    excelPricingService.recordUploadHistory(manufacturer.id, req.file.originalname, uploadedBy, result);
+
+    // Update manufacturer pricingLinked flag
+    if (result.success && result.summary.fabricsCreated + result.summary.fabricsUpdated > 0) {
+      const mfrIndex = (db.manufacturers || []).findIndex(m => m.id === manufacturer.id);
+      if (mfrIndex !== -1) {
+        const freshDb = loadDatabase();
+        freshDb.manufacturers[mfrIndex].pricingLinked = true;
+        freshDb.manufacturers[mfrIndex].pricingStats = {
+          ...freshDb.manufacturers[mfrIndex].pricingStats,
+          lastUploadFile: req.file.originalname
+        };
+        saveDatabase(freshDb);
+      }
+    }
+
+    // Clean up uploaded file
+    fs.unlinkSync(req.file.path);
+
+    res.json({
+      success: result.success,
+      message: result.success ? 'Pricing uploaded successfully' : 'Upload failed',
+      summary: result.summary,
+      errors: result.errors.slice(0, 20),
+      warnings: result.warnings.slice(0, 20)
+    });
+  } catch (error) {
+    console.error('Error uploading pricing:', error);
+    if (req.file && fs.existsSync(req.file.path)) {
+      fs.unlinkSync(req.file.path);
+    }
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Get pricing status (manufacturer portal)
+app.get('/api/manufacturer/pricing-status', (req, res) => {
+  try {
+    const token = req.headers.authorization?.replace('Bearer ', '');
+    if (!token) {
+      return res.status(401).json({ success: false, error: 'No token provided' });
+    }
+
+    const decoded = jwt.verify(token, JWT_SECRET);
+    if (!decoded.manufacturerId) {
+      return res.status(401).json({ success: false, error: 'Invalid manufacturer token' });
+    }
+
+    const summary = excelPricingService.getPricingSummary(decoded.manufacturerId);
+    res.json({ success: true, summary });
+  } catch (error) {
+    console.error('Error getting pricing status:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Get upload history (manufacturer portal)
+app.get('/api/manufacturer/upload-history', (req, res) => {
+  try {
+    const token = req.headers.authorization?.replace('Bearer ', '');
+    if (!token) {
+      return res.status(401).json({ success: false, error: 'No token provided' });
+    }
+
+    const decoded = jwt.verify(token, JWT_SECRET);
+    if (!decoded.manufacturerId) {
+      return res.status(401).json({ success: false, error: 'Invalid manufacturer token' });
+    }
+
+    const limit = parseInt(req.query.limit) || 20;
+    const history = excelPricingService.getUploadHistory(decoded.manufacturerId, limit);
+    res.json({ success: true, history });
+  } catch (error) {
+    console.error('Error getting upload history:', error);
     res.status(500).json({ success: false, error: error.message });
   }
 });
@@ -5292,6 +5940,11 @@ app.get('/category/:slug', (req, res) => {
 
 // Zebra product page (specific route before generic product route)
 app.get('/product/affordable-custom-zebra-shades', (req, res) => {
+  res.sendFile(path.join(__dirname, '../frontend/public/zebra-product.html'));
+});
+
+// Zebra product shortcut route
+app.get('/zebra-product', (req, res) => {
   res.sendFile(path.join(__dirname, '../frontend/public/zebra-product.html'));
 });
 
@@ -8778,15 +9431,7 @@ app.post('/api/admin/manufacturers/:manufacturerId/users', authMiddleware, (req,
   }
 });
 
-// Admin: Get manufacturers list
-app.get('/api/admin/manufacturers', authMiddleware, (req, res) => {
-  try {
-    const manufacturers = manufacturerService.getManufacturers();
-    res.json({ success: true, data: manufacturers });
-  } catch (error) {
-    res.status(500).json({ success: false, error: error.message });
-  }
-});
+// Note: Admin manufacturers CRUD moved to ADMIN MANUFACTURERS MANAGEMENT section
 
 // ============================================
 // DEALER PORTAL ENDPOINTS (Ticket 007)
@@ -13601,7 +14246,110 @@ app.get('/api/admin/warranty-claims/:id', authMiddleware, (req, res) => {
   }
 });
 
-// Create warranty claim
+// PUBLIC: Submit warranty claim (customer-facing)
+app.post('/api/warranty-claims', async (req, res) => {
+  try {
+    const { orderNumber, customerName, customerEmail, customerPhone, productDescription, issueDescription, purchaseDate, photos } = req.body;
+
+    // Validate required fields
+    if (!customerEmail || !orderNumber || !issueDescription) {
+      return res.status(400).json({
+        success: false,
+        error: 'Email, order number, and issue description are required'
+      });
+    }
+
+    const db = loadDatabase();
+    if (!db.warrantyClaims) db.warrantyClaims = [];
+
+    // Verify order exists (optional validation)
+    const order = (db.orders || []).find(o =>
+      o.orderNumber === orderNumber || o.order_number === orderNumber || o.id === orderNumber
+    );
+
+    const newClaim = {
+      id: `WC-${Date.now()}`,
+      orderNumber,
+      orderId: order?.id || null,
+      customerName: customerName || order?.customer_name || '',
+      customerEmail,
+      customerPhone: customerPhone || '',
+      productDescription: productDescription || '',
+      issueDescription,
+      purchaseDate: purchaseDate || order?.created_at || '',
+      photos: photos || [],
+      source: 'customer-submission',
+      status: 'pending',
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString()
+    };
+
+    db.warrantyClaims.push(newClaim);
+    saveDatabase(db);
+
+    // Send Slack notification
+    notificationService.alertWarrantyClaim(newClaim).catch(err => {
+      console.error('Failed to send warranty claim notification:', err.message);
+    });
+
+    // Send confirmation email to customer
+    try {
+      await emailService.send({
+        to: customerEmail,
+        subject: `Warranty Claim Received - ${newClaim.id}`,
+        html: `
+          <h2>Warranty Claim Received</h2>
+          <p>Thank you for submitting your warranty claim. We've received your request and will review it within 2-3 business days.</p>
+          <p><strong>Claim ID:</strong> ${newClaim.id}</p>
+          <p><strong>Order Number:</strong> ${orderNumber}</p>
+          <p><strong>Issue:</strong> ${issueDescription}</p>
+          <p>We'll contact you at ${customerEmail} with updates on your claim.</p>
+          <p>If you have questions, please reply to this email or call us at (469) 758-8935.</p>
+          <br>
+          <p>Best regards,<br>Peekaboo Shades Warranty Team</p>
+        `
+      });
+    } catch (emailErr) {
+      console.error('Failed to send warranty confirmation email:', emailErr.message);
+    }
+
+    res.json({
+      success: true,
+      claimId: newClaim.id,
+      message: 'Warranty claim submitted successfully. You will receive a confirmation email shortly.'
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Get warranty claim status (public - customer can check their claim)
+app.get('/api/warranty-claims/:id/status', (req, res) => {
+  try {
+    const db = loadDatabase();
+    const claim = (db.warrantyClaims || []).find(c => c.id === req.params.id);
+
+    if (!claim) {
+      return res.status(404).json({ success: false, error: 'Warranty claim not found' });
+    }
+
+    // Return limited info for public access
+    res.json({
+      success: true,
+      claim: {
+        id: claim.id,
+        status: claim.status,
+        createdAt: claim.createdAt,
+        updatedAt: claim.updatedAt,
+        resolution: claim.resolution || null
+      }
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Create warranty claim (admin)
 app.post('/api/admin/warranty-claims', authMiddleware, async (req, res) => {
   try {
     const db = loadDatabase();
@@ -17540,6 +18288,524 @@ app.get('/api/appointments/:id/status', (req, res) => {
   } catch (error) {
     res.status(500).json({ success: false, error: error.message });
   }
+});
+
+// ============================================
+// TAX SERVICE ENDPOINTS
+// ============================================
+
+// Get tax rate for a state
+app.get('/api/tax/rate/:state', (req, res) => {
+  try {
+    const rate = taxService.getTaxRate(req.params.state);
+    res.json({ success: true, state: req.params.state.toUpperCase(), rate });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Calculate tax for order
+app.post('/api/tax/calculate', (req, res) => {
+  try {
+    const { subtotal, shippingAddress, customerId } = req.body;
+    const result = taxService.calculateOrderTotal(subtotal, 0, shippingAddress, customerId);
+    res.json({ success: true, ...result });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Admin: Get all tax rates
+app.get('/api/admin/tax/rates', authMiddleware, (req, res) => {
+  try {
+    const rates = taxService.getAllRates();
+    res.json({ success: true, rates });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Admin: Update tax rate for state
+app.put('/api/admin/tax/rates/:state', authMiddleware, (req, res) => {
+  try {
+    const { rate } = req.body;
+    const result = taxService.updateRate(req.params.state, rate);
+    res.json({ success: true, ...result });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Admin: Tax report
+app.get('/api/admin/tax/report', authMiddleware, (req, res) => {
+  try {
+    const { startDate, endDate } = req.query;
+    const report = taxService.getTaxReport(startDate, endDate);
+    res.json({ success: true, report });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Admin: Add tax exemption
+app.post('/api/admin/tax/exemptions', authMiddleware, (req, res) => {
+  try {
+    const { customerId, ...exemptionData } = req.body;
+    const exemption = taxService.addExemption(customerId, exemptionData);
+    res.json({ success: true, exemption });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// ============================================
+// PURCHASE ORDER SERVICE ENDPOINTS
+// ============================================
+
+// Admin: Get orders ready for PO
+app.get('/api/admin/po/pending', authMiddleware, (req, res) => {
+  try {
+    const { manufacturerId } = req.query;
+    const orders = poService.getOrdersForPO(manufacturerId);
+    res.json({ success: true, orders, count: orders.length });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Admin: Generate PO data preview
+app.post('/api/admin/po/preview', authMiddleware, (req, res) => {
+  try {
+    const { orderIds, manufacturerId, manufacturerName } = req.body;
+    const poData = poService.generatePOData(orderIds, manufacturerId, manufacturerName);
+    if (!poData) {
+      return res.status(400).json({ success: false, error: 'No orders found' });
+    }
+    res.json({ success: true, po: poData });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Admin: Create and save PO
+app.post('/api/admin/po/create', authMiddleware, (req, res) => {
+  try {
+    const { orderIds, manufacturerId, manufacturerName } = req.body;
+    const poData = poService.generatePOData(orderIds, manufacturerId, manufacturerName);
+    if (!poData) {
+      return res.status(400).json({ success: false, error: 'No orders found' });
+    }
+    const savedPO = poService.savePO(poData, orderIds);
+    res.json({ success: true, po: savedPO });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Admin: Get all POs
+app.get('/api/admin/po', authMiddleware, (req, res) => {
+  try {
+    const { manufacturerId, status } = req.query;
+    const pos = poService.getAllPOs({ manufacturerId, status });
+    res.json({ success: true, purchaseOrders: pos, count: pos.length });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Admin: Update PO status
+app.put('/api/admin/po/:id/status', authMiddleware, (req, res) => {
+  try {
+    const { status } = req.body;
+    const po = poService.updatePOStatus(req.params.id, status);
+    if (!po) {
+      return res.status(404).json({ success: false, error: 'PO not found' });
+    }
+    res.json({ success: true, po });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Admin: Export PO as CSV
+app.get('/api/admin/po/:id/csv', authMiddleware, (req, res) => {
+  try {
+    const db = loadDatabase();
+    const po = (db.purchaseOrders || []).find(p => p.id === req.params.id);
+    if (!po) {
+      return res.status(404).json({ success: false, error: 'PO not found' });
+    }
+    const csv = poService.generatePOCSV(po);
+    res.setHeader('Content-Type', 'text/csv');
+    res.setHeader('Content-Disposition', `attachment; filename="${po.poNumber}.csv"`);
+    res.send(csv);
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Admin: Export PO as HTML (for printing/PDF)
+app.get('/api/admin/po/:id/html', authMiddleware, (req, res) => {
+  try {
+    const db = loadDatabase();
+    const po = (db.purchaseOrders || []).find(p => p.id === req.params.id);
+    if (!po) {
+      return res.status(404).json({ success: false, error: 'PO not found' });
+    }
+    const html = poService.generatePOHTML(po);
+    res.setHeader('Content-Type', 'text/html');
+    res.send(html);
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// ============================================
+// CART RECOVERY SERVICE ENDPOINTS
+// ============================================
+
+// Public: Save cart for recovery (called when email entered at checkout)
+app.post('/api/cart/save-for-recovery', (req, res) => {
+  try {
+    const cart = cartRecoveryService.saveAbandonedCart(req.body);
+    res.json({ success: true, cartId: cart.id, recoveryCode: cart.recoveryCode });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Public: Recover cart by code
+app.get('/api/cart/recover/:code', (req, res) => {
+  try {
+    const cart = cartRecoveryService.getCartByRecoveryCode(req.params.code);
+    if (!cart) {
+      return res.status(404).json({ success: false, error: 'Cart not found or expired' });
+    }
+    if (cart.convertedToOrder) {
+      return res.status(400).json({ success: false, error: 'Cart has already been converted to an order' });
+    }
+    res.json({ success: true, cart });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Admin: Get abandoned carts
+app.get('/api/admin/abandoned-carts', authMiddleware, (req, res) => {
+  try {
+    const carts = cartRecoveryService.getAbandonedCarts();
+    res.json({ success: true, carts, count: carts.length });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Admin: Get carts needing recovery email
+app.get('/api/admin/abandoned-carts/pending-emails', authMiddleware, (req, res) => {
+  try {
+    const carts = cartRecoveryService.getCartsNeedingRecoveryEmail();
+    res.json({ success: true, carts, count: carts.length });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Admin: Trigger recovery emails (call this via cron or manually)
+app.post('/api/admin/abandoned-carts/send-emails', authMiddleware, async (req, res) => {
+  try {
+    const carts = cartRecoveryService.getCartsNeedingRecoveryEmail();
+    const results = [];
+
+    for (const cart of carts) {
+      const emailNumber = (cart.recoveryEmailsSent || 0) + 1;
+      const emailContent = cartRecoveryService.generateRecoveryEmailHTML(cart, emailNumber);
+
+      try {
+        await emailService.send({
+          to: cart.customerEmail,
+          subject: emailContent.subject,
+          html: emailContent.html
+        });
+
+        cartRecoveryService.markEmailSent(cart.id);
+        results.push({ cartId: cart.id, status: 'sent', emailNumber });
+      } catch (emailErr) {
+        results.push({ cartId: cart.id, status: 'failed', error: emailErr.message });
+      }
+    }
+
+    res.json({
+      success: true,
+      processed: results.length,
+      sent: results.filter(r => r.status === 'sent').length,
+      failed: results.filter(r => r.status === 'failed').length,
+      results
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Admin: Get cart recovery stats
+app.get('/api/admin/abandoned-carts/stats', authMiddleware, (req, res) => {
+  try {
+    const stats = cartRecoveryService.getStats();
+    res.json({ success: true, ...stats });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Admin: Update cart recovery settings
+app.put('/api/admin/abandoned-carts/settings', authMiddleware, (req, res) => {
+  try {
+    const settings = cartRecoveryService.updateSettings(req.body);
+    res.json({ success: true, settings });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Admin: Mark cart as converted
+app.post('/api/admin/abandoned-carts/:id/convert', authMiddleware, (req, res) => {
+  try {
+    const { orderId } = req.body;
+    const cart = cartRecoveryService.markAsConverted(req.params.id, orderId);
+    if (!cart) {
+      return res.status(404).json({ success: false, error: 'Cart not found' });
+    }
+    res.json({ success: true, cart });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// ============================================
+// ACCOUNTING EXPORT ENDPOINTS
+// ============================================
+
+// Get financial summary
+app.get('/api/admin/accounting/summary', authMiddleware, (req, res) => {
+  try {
+    const { startDate, endDate } = req.query;
+    const summary = accountingExportService.getFinancialSummary(startDate, endDate);
+    res.json({ success: true, summary });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Export sales journal
+app.get('/api/admin/accounting/export/journal', authMiddleware, (req, res) => {
+  try {
+    const { startDate, endDate } = req.query;
+    const journal = accountingExportService.exportSalesJournal(startDate, endDate);
+    res.json({ success: true, entries: journal, count: journal.length });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Export QuickBooks IIF format
+app.get('/api/admin/accounting/export/quickbooks', authMiddleware, (req, res) => {
+  try {
+    const { startDate, endDate } = req.query;
+    const iif = accountingExportService.exportQuickBooksIIF(startDate, endDate);
+    res.setHeader('Content-Type', 'text/plain');
+    res.setHeader('Content-Disposition', `attachment; filename="quickbooks-export-${Date.now()}.iif"`);
+    res.send(iif);
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Export Xero CSV format
+app.get('/api/admin/accounting/export/xero', authMiddleware, (req, res) => {
+  try {
+    const { startDate, endDate } = req.query;
+    const csv = accountingExportService.exportXeroCSV(startDate, endDate);
+    res.setHeader('Content-Type', 'text/csv');
+    res.setHeader('Content-Disposition', `attachment; filename="xero-export-${Date.now()}.csv"`);
+    res.send(csv);
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Export generic CSV
+app.get('/api/admin/accounting/export/csv', authMiddleware, (req, res) => {
+  try {
+    const { startDate, endDate } = req.query;
+    const csv = accountingExportService.exportGenericCSV(startDate, endDate);
+    res.setHeader('Content-Type', 'text/csv');
+    res.setHeader('Content-Disposition', `attachment; filename="sales-export-${Date.now()}.csv"`);
+    res.send(csv);
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Export tax report
+app.get('/api/admin/accounting/export/tax-report', authMiddleware, (req, res) => {
+  try {
+    const { startDate, endDate } = req.query;
+    const csv = accountingExportService.exportTaxReport(startDate, endDate);
+    res.setHeader('Content-Type', 'text/csv');
+    res.setHeader('Content-Disposition', `attachment; filename="tax-report-${Date.now()}.csv"`);
+    res.send(csv);
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// ============================================
+// SCHEDULED REPORTS ENDPOINTS
+// ============================================
+
+// Get available report types and frequencies
+app.get('/api/admin/reports/types', authMiddleware, (req, res) => {
+  res.json({
+    success: true,
+    reportTypes: REPORT_TYPES,
+    frequencies: FREQUENCIES
+  });
+});
+
+// Get all scheduled reports
+app.get('/api/admin/reports/scheduled', authMiddleware, (req, res) => {
+  try {
+    const reports = scheduledReportsService.getAllReports();
+    res.json({ success: true, reports });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Create scheduled report
+app.post('/api/admin/reports/scheduled', authMiddleware, (req, res) => {
+  try {
+    const report = scheduledReportsService.createReport(req.body);
+    res.json({ success: true, report });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Update scheduled report
+app.put('/api/admin/reports/scheduled/:id', authMiddleware, (req, res) => {
+  try {
+    const report = scheduledReportsService.updateReport(req.params.id, req.body);
+    if (!report) {
+      return res.status(404).json({ success: false, error: 'Report not found' });
+    }
+    res.json({ success: true, report });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Delete scheduled report
+app.delete('/api/admin/reports/scheduled/:id', authMiddleware, (req, res) => {
+  try {
+    const success = scheduledReportsService.deleteReport(req.params.id);
+    if (!success) {
+      return res.status(404).json({ success: false, error: 'Report not found' });
+    }
+    res.json({ success: true, message: 'Report deleted' });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Run report now (generate and return data)
+app.post('/api/admin/reports/scheduled/:id/run', authMiddleware, async (req, res) => {
+  try {
+    const reports = scheduledReportsService.getAllReports();
+    const report = reports.find(r => r.id === req.params.id);
+
+    if (!report) {
+      return res.status(404).json({ success: false, error: 'Report not found' });
+    }
+
+    const data = scheduledReportsService.generateReportData(report);
+    scheduledReportsService.markReportRun(report.id);
+
+    res.json({ success: true, report, data });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Get report preview (generate data without marking as run)
+app.get('/api/admin/reports/scheduled/:id/preview', authMiddleware, (req, res) => {
+  try {
+    const reports = scheduledReportsService.getAllReports();
+    const report = reports.find(r => r.id === req.params.id);
+
+    if (!report) {
+      return res.status(404).json({ success: false, error: 'Report not found' });
+    }
+
+    const data = scheduledReportsService.generateReportData(report);
+    const html = scheduledReportsService.generateReportHTML(report, data);
+
+    res.json({ success: true, report, data, html });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// Trigger due reports (call via cron)
+app.post('/api/admin/reports/trigger-due', authMiddleware, async (req, res) => {
+  try {
+    const dueReports = scheduledReportsService.getDueReports();
+    const results = [];
+
+    for (const report of dueReports) {
+      const data = scheduledReportsService.generateReportData(report);
+      const html = scheduledReportsService.generateReportHTML(report, data);
+
+      // Send to recipients
+      for (const email of (report.recipients || [])) {
+        try {
+          await emailService.send({
+            to: email,
+            subject: `Peekaboo Shades: ${report.name}`,
+            html: html
+          });
+          results.push({ reportId: report.id, email, status: 'sent' });
+        } catch (err) {
+          results.push({ reportId: report.id, email, status: 'failed', error: err.message });
+        }
+      }
+
+      scheduledReportsService.markReportRun(report.id);
+    }
+
+    res.json({
+      success: true,
+      processed: dueReports.length,
+      results
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+// ============================================
+// SENTRY ERROR HANDLER (must be last)
+// ============================================
+if (Sentry && process.env.SENTRY_DSN) {
+  Sentry.setupExpressErrorHandler(app);
+}
+
+// Global error handler
+app.use((err, req, res, next) => {
+  console.error('Unhandled error:', err);
+  res.status(500).json({
+    success: false,
+    error: process.env.NODE_ENV === 'production' ? 'Internal server error' : err.message
+  });
 });
 
 // Start server

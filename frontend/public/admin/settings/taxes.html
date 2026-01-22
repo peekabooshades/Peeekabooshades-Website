@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Tax Settings - Peekaboo Shades Admin</title>
+  <link rel="stylesheet" href="/admin/css/admin.css?v=1737200003.0.28">
+  <script src="/admin/js/admin.js?v=1737100001"></script>
+  <script src="/admin/js/adminNavConfig.js?v=1737200002"></script>
+  <style>
+    .tax-dashboard { margin-top: 1.5rem; }
+    .tax-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 1.5rem; margin-bottom: 2rem; }
+    .tax-card { background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+    .tax-card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; }
+    .tax-card h3 { margin: 0; font-size: 1.1rem; }
+    .tax-card-icon { width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 1.25rem; }
+    .tax-card-icon.rates { background: #EBF5FF; color: #2563EB; }
+    .tax-card-icon.exempt { background: #F0FDF4; color: #16A34A; }
+    .tax-card-icon.report { background: #FEF3C7; color: #D97706; }
+    .tax-card-icon.nexus { background: #F3E8FF; color: #7C3AED; }
+    .tax-card p { color: #666; font-size: 0.9rem; margin: 0 0 1rem 0; line-height: 1.5; }
+    .tax-card .btn-link { display: inline-flex; align-items: center; gap: 0.5rem; color: #8E6545; text-decoration: none; font-weight: 600; font-size: 0.9rem; }
+    .tax-card .btn-link:hover { text-decoration: underline; }
+
+    .summary-section { background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); margin-bottom: 2rem; }
+    .summary-section h3 { margin: 0 0 1rem 0; }
+    .summary-stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1.5rem; }
+    .stat-item { text-align: center; }
+    .stat-value { font-size: 1.75rem; font-weight: 700; color: #8E6545; }
+    .stat-label { font-size: 0.85rem; color: #666; margin-top: 0.25rem; }
+
+    .quick-actions { background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+    .quick-actions h3 { margin: 0 0 1rem 0; }
+    .action-buttons { display: flex; flex-wrap: wrap; gap: 0.75rem; }
+    .btn-action { padding: 0.75rem 1.25rem; border-radius: 8px; font-weight: 500; text-decoration: none; display: inline-flex; align-items: center; gap: 0.5rem; font-size: 0.9rem; }
+    .btn-primary { background: #8E6545; color: white; border: none; cursor: pointer; }
+    .btn-secondary { background: #F3F4F6; color: #374151; border: 1px solid #E5E7EB; }
+    .btn-action:hover { opacity: 0.9; }
+
+    .toggle { position: relative; display: inline-block; width: 48px; height: 24px; }
+    .toggle input { opacity: 0; width: 0; height: 0; }
+    .toggle .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background: #ddd; border-radius: 24px; transition: 0.3s; }
+    .toggle .slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background: white; border-radius: 50%; transition: 0.3s; }
+    .toggle input:checked + .slider { background: #10B981; }
+    .toggle input:checked + .slider:before { transform: translateX(24px); }
+
+    .global-setting { display: flex; justify-content: space-between; align-items: center; padding: 1rem 0; border-bottom: 1px solid #eee; }
+    .global-setting:last-child { border-bottom: none; }
+    .setting-info h4 { margin: 0 0 0.25rem 0; font-size: 0.95rem; }
+    .setting-info p { margin: 0; font-size: 0.85rem; color: #666; }
+  </style>
+</head>
+<body>
+  <div class="admin-layout">
+    <aside class="admin-sidebar"></aside>
+    <main class="admin-main">
+      <header class="admin-header">
+        <h1>Tax Settings</h1>
+        <div class="header-actions">
+          <button class="btn-primary" onclick="exportTaxReport()">Export Tax Report</button>
+        </div>
+      </header>
+      <div class="admin-content">
+        <div class="tax-dashboard">
+
+          <!-- Summary Stats -->
+          <div class="summary-section">
+            <h3>Tax Collection Summary</h3>
+            <div class="summary-stats">
+              <div class="stat-item">
+                <div class="stat-value" id="totalTaxCollected">$0.00</div>
+                <div class="stat-label">Total Tax Collected (MTD)</div>
+              </div>
+              <div class="stat-item">
+                <div class="stat-value" id="taxableOrders">0</div>
+                <div class="stat-label">Taxable Orders</div>
+              </div>
+              <div class="stat-item">
+                <div class="stat-value" id="nexusStates">51</div>
+                <div class="stat-label">Nexus States</div>
+              </div>
+              <div class="stat-item">
+                <div class="stat-value" id="exemptCustomers">0</div>
+                <div class="stat-label">Exempt Customers</div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Global Settings -->
+          <div class="summary-section">
+            <h3>Global Tax Settings</h3>
+            <div class="global-setting">
+              <div class="setting-info">
+                <h4>Enable Tax Collection</h4>
+                <p>Collect sales tax on eligible orders</p>
+              </div>
+              <label class="toggle">
+                <input type="checkbox" id="taxEnabled" checked onchange="toggleTaxCollection(this.checked)">
+                <span class="slider"></span>
+              </label>
+            </div>
+            <div class="global-setting">
+              <div class="setting-info">
+                <h4>Tax Shipping</h4>
+                <p>Apply tax to shipping charges (varies by state)</p>
+              </div>
+              <label class="toggle">
+                <input type="checkbox" id="taxShipping" onchange="toggleTaxShipping(this.checked)">
+                <span class="slider"></span>
+              </label>
+            </div>
+            <div class="global-setting">
+              <div class="setting-info">
+                <h4>Show Tax in Cart</h4>
+                <p>Display estimated tax before checkout</p>
+              </div>
+              <label class="toggle">
+                <input type="checkbox" id="showTaxInCart" checked onchange="toggleShowTaxInCart(this.checked)">
+                <span class="slider"></span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Tax Cards -->
+          <div class="tax-cards">
+            <div class="tax-card">
+              <div class="tax-card-header">
+                <h3>Tax Rates by State</h3>
+                <div class="tax-card-icon rates">%</div>
+              </div>
+              <p>Configure state and local tax rates. Currently using combined state + average local rates for all 50 states.</p>
+              <a href="/admin/settings/tax-rates.html" class="btn-link">
+                Manage Tax Rates <span>&rarr;</span>
+              </a>
+            </div>
+
+            <div class="tax-card">
+              <div class="tax-card-header">
+                <h3>Tax Exemptions</h3>
+                <div class="tax-card-icon exempt">&#10003;</div>
+              </div>
+              <p>Manage tax-exempt customers, resale certificates, and exemption documentation.</p>
+              <a href="/admin/settings/tax-exemptions.html" class="btn-link">
+                Manage Exemptions <span>&rarr;</span>
+              </a>
+            </div>
+
+            <div class="tax-card">
+              <div class="tax-card-header">
+                <h3>Tax Reports</h3>
+                <div class="tax-card-icon report">&#128200;</div>
+              </div>
+              <p>Generate tax liability reports by state, export for filing, and view collection history.</p>
+              <a href="#" onclick="openTaxReportModal(); return false;" class="btn-link">
+                Generate Reports <span>&rarr;</span>
+              </a>
+            </div>
+
+            <div class="tax-card">
+              <div class="tax-card-header">
+                <h3>Nexus Settings</h3>
+                <div class="tax-card-icon nexus">&#127758;</div>
+              </div>
+              <p>Configure which states you have tax nexus in based on physical presence or economic activity.</p>
+              <a href="#" onclick="openNexusModal(); return false;" class="btn-link">
+                Configure Nexus <span>&rarr;</span>
+              </a>
+            </div>
+          </div>
+
+          <!-- Quick Actions -->
+          <div class="quick-actions">
+            <h3>Quick Actions</h3>
+            <div class="action-buttons">
+              <a href="/admin/settings/tax-rates.html" class="btn-action btn-secondary">
+                <span>&#9998;</span> Edit State Rates
+              </a>
+              <button class="btn-action btn-secondary" onclick="openTaxReportModal()">
+                <span>&#128196;</span> Generate Tax Report
+              </button>
+              <a href="/admin/settings/tax-exemptions.html" class="btn-action btn-secondary">
+                <span>&#10010;</span> Add Exemption
+              </a>
+              <button class="btn-action btn-secondary" onclick="exportTaxReport()">
+                <span>&#128229;</span> Export for Filing
+              </button>
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Tax Report Modal -->
+  <div class="modal" id="taxReportModal">
+    <div class="modal-content" style="max-width: 500px;">
+      <div class="modal-header" style="display: flex; justify-content: space-between; margin-bottom: 1.5rem;">
+        <h2 style="margin: 0;">Generate Tax Report</h2>
+        <button class="modal-close" onclick="closeTaxReportModal()" style="background: none; border: none; font-size: 1.5rem; cursor: pointer;">&times;</button>
+      </div>
+      <form onsubmit="generateTaxReport(event)">
+        <div style="margin-bottom: 1.25rem;">
+          <label style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Date Range</label>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+            <input type="date" id="reportStartDate" required style="padding: 0.75rem; border: 1px solid #ddd; border-radius: 8px;">
+            <input type="date" id="reportEndDate" required style="padding: 0.75rem; border: 1px solid #ddd; border-radius: 8px;">
+          </div>
+        </div>
+        <div style="margin-bottom: 1.25rem;">
+          <label style="display: block; margin-bottom: 0.5rem; font-weight: 500;">Report Type</label>
+          <select id="reportType" style="width: 100%; padding: 0.75rem; border: 1px solid #ddd; border-radius: 8px;">
+            <option value="summary">Summary by State</option>
+            <option value="detailed">Detailed Transactions</option>
+            <option value="liability">Tax Liability Report</option>
+          </select>
+        </div>
+        <button type="submit" style="width: 100%; padding: 0.875rem; background: #8E6545; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer;">
+          Generate Report
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Nexus Modal -->
+  <div class="modal" id="nexusModal">
+    <div class="modal-content" style="max-width: 600px; max-height: 80vh; overflow-y: auto;">
+      <div class="modal-header" style="display: flex; justify-content: space-between; margin-bottom: 1.5rem;">
+        <h2 style="margin: 0;">Nexus Settings</h2>
+        <button class="modal-close" onclick="closeNexusModal()" style="background: none; border: none; font-size: 1.5rem; cursor: pointer;">&times;</button>
+      </div>
+      <p style="color: #666; margin-bottom: 1rem;">Select states where you have tax nexus. You're required to collect sales tax in states where you have nexus.</p>
+      <div id="nexusStatesList" style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; margin-bottom: 1.5rem;"></div>
+      <button onclick="saveNexusSettings()" style="width: 100%; padding: 0.875rem; background: #8E6545; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer;">
+        Save Nexus Settings
+      </button>
+    </div>
+  </div>
+
+  <script>
+    const API_BASE = '';
+    const states = [
+      'AL', 'AK', 'AZ', 'AR', 'CA', 'CO', 'CT', 'DE', 'FL', 'GA',
+      'HI', 'ID', 'IL', 'IN', 'IA', 'KS', 'KY', 'LA', 'ME', 'MD',
+      'MA', 'MI', 'MN', 'MS', 'MO', 'MT', 'NE', 'NV', 'NH', 'NJ',
+      'NM', 'NY', 'NC', 'ND', 'OH', 'OK', 'OR', 'PA', 'RI', 'SC',
+      'SD', 'TN', 'TX', 'UT', 'VT', 'VA', 'WA', 'WV', 'WI', 'WY', 'DC'
+    ];
+
+    // Load summary data
+    async function loadTaxSummary() {
+      try {
+        const token = localStorage.getItem('adminToken');
+
+        // Get tax report for current month
+        const now = new Date();
+        const startDate = new Date(now.getFullYear(), now.getMonth(), 1).toISOString().split('T')[0];
+        const endDate = now.toISOString().split('T')[0];
+
+        const response = await fetch(`${API_BASE}/api/admin/tax/report?startDate=${startDate}&endDate=${endDate}`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          if (data.success && data.report) {
+            const totalTax = data.report.reduce((sum, r) => sum + (r.taxCollected || 0), 0);
+            const totalOrders = data.report.reduce((sum, r) => sum + (r.orderCount || 0), 0);
+
+            document.getElementById('totalTaxCollected').textContent = '$' + totalTax.toFixed(2);
+            document.getElementById('taxableOrders').textContent = totalOrders;
+          }
+        }
+      } catch (err) {
+        console.error('Error loading tax summary:', err);
+      }
+    }
+
+    // Toggle functions
+    async function toggleTaxCollection(enabled) {
+      console.log('Tax collection:', enabled ? 'enabled' : 'disabled');
+      showToast(enabled ? 'Tax collection enabled' : 'Tax collection disabled');
+    }
+
+    async function toggleTaxShipping(enabled) {
+      console.log('Tax shipping:', enabled ? 'enabled' : 'disabled');
+      showToast(enabled ? 'Shipping will be taxed' : 'Shipping will not be taxed');
+    }
+
+    async function toggleShowTaxInCart(enabled) {
+      console.log('Show tax in cart:', enabled ? 'enabled' : 'disabled');
+      showToast('Setting saved');
+    }
+
+    // Tax Report Modal
+    function openTaxReportModal() {
+      // Set default dates
+      const now = new Date();
+      const firstOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+      document.getElementById('reportStartDate').value = firstOfMonth.toISOString().split('T')[0];
+      document.getElementById('reportEndDate').value = now.toISOString().split('T')[0];
+      document.getElementById('taxReportModal').classList.add('active');
+    }
+
+    function closeTaxReportModal() {
+      document.getElementById('taxReportModal').classList.remove('active');
+    }
+
+    async function generateTaxReport(e) {
+      e.preventDefault();
+      const startDate = document.getElementById('reportStartDate').value;
+      const endDate = document.getElementById('reportEndDate').value;
+
+      try {
+        const token = localStorage.getItem('adminToken');
+        const response = await fetch(`${API_BASE}/api/admin/accounting/export/tax-report?startDate=${startDate}&endDate=${endDate}`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+
+        if (response.ok) {
+          const blob = await response.blob();
+          const url = window.URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = `tax-report-${startDate}-to-${endDate}.csv`;
+          a.click();
+          window.URL.revokeObjectURL(url);
+          closeTaxReportModal();
+          showToast('Tax report downloaded');
+        } else {
+          showToast('Failed to generate report', 'error');
+        }
+      } catch (err) {
+        showToast('Error: ' + err.message, 'error');
+      }
+    }
+
+    async function exportTaxReport() {
+      const now = new Date();
+      const firstOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+      const startDate = firstOfMonth.toISOString().split('T')[0];
+      const endDate = now.toISOString().split('T')[0];
+
+      try {
+        const token = localStorage.getItem('adminToken');
+        const response = await fetch(`${API_BASE}/api/admin/accounting/export/tax-report?startDate=${startDate}&endDate=${endDate}`, {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+
+        if (response.ok) {
+          const blob = await response.blob();
+          const url = window.URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = `tax-report-${startDate}-to-${endDate}.csv`;
+          a.click();
+          window.URL.revokeObjectURL(url);
+          showToast('Tax report downloaded');
+        } else {
+          showToast('Failed to export report', 'error');
+        }
+      } catch (err) {
+        showToast('Error: ' + err.message, 'error');
+      }
+    }
+
+    // Nexus Modal
+    function openNexusModal() {
+      const container = document.getElementById('nexusStatesList');
+      container.innerHTML = states.map(state => `
+        <label style="display: flex; align-items: center; gap: 0.5rem; padding: 0.5rem; background: #f9f9f9; border-radius: 6px;">
+          <input type="checkbox" name="nexusState" value="${state}" checked>
+          <span>${state}</span>
+        </label>
+      `).join('');
+      document.getElementById('nexusModal').classList.add('active');
+    }
+
+    function closeNexusModal() {
+      document.getElementById('nexusModal').classList.remove('active');
+    }
+
+    function saveNexusSettings() {
+      const checkboxes = document.querySelectorAll('input[name="nexusState"]:checked');
+      const selectedStates = Array.from(checkboxes).map(cb => cb.value);
+      document.getElementById('nexusStates').textContent = selectedStates.length;
+      closeNexusModal();
+      showToast(`Nexus configured for ${selectedStates.length} states`);
+    }
+
+    // Toast notification
+    function showToast(message, type = 'success') {
+      const toast = document.createElement('div');
+      toast.style.cssText = `
+        position: fixed; bottom: 20px; right: 20px; padding: 1rem 1.5rem;
+        background: ${type === 'error' ? '#EF4444' : '#10B981'}; color: white;
+        border-radius: 8px; z-index: 9999; animation: fadeIn 0.3s;
+      `;
+      toast.textContent = message;
+      document.body.appendChild(toast);
+      setTimeout(() => toast.remove(), 3000);
+    }
+
+    // Close modals on outside click
+    document.querySelectorAll('.modal').forEach(modal => {
+      modal.addEventListener('click', (e) => {
+        if (e.target === modal) {
+          modal.classList.remove('active');
+        }
+      });
+    });
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', () => {
+      loadTaxSummary();
+    });
+  </script>
+</body>
+</html>

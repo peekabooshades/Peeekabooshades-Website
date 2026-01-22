@@ -15,11 +15,8 @@
  * - Accountability
  */
 
-const fs = require('fs');
-const path = require('path');
 const { v4: uuidv4 } = require('uuid');
-
-const DB_PATH = path.join(__dirname, '../database.json');
+const { loadDB, saveDB } = require('./db-loader');
 
 /**
  * Audit Action Types
@@ -134,8 +131,7 @@ class AuditLogger {
    */
   loadDatabase() {
     try {
-      const data = fs.readFileSync(DB_PATH, 'utf8');
-      return JSON.parse(data);
+      return loadDB();
     } catch (error) {
       console.error('AuditLogger: Error loading database:', error);
       return null;
@@ -147,7 +143,7 @@ class AuditLogger {
    */
   saveDatabase(db) {
     try {
-      fs.writeFileSync(DB_PATH, JSON.stringify(db, null, 2));
+      saveDB(db);
     } catch (error) {
       console.error('AuditLogger: Error saving database:', error);
     }

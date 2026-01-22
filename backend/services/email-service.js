@@ -5,11 +5,8 @@
  * Falls back to dev_log mode if not configured
  */
 
-const fs = require('fs');
-const path = require('path');
 const { v4: uuidv4 } = require('uuid');
-
-const DB_PATH = path.join(__dirname, '../database.json');
+const { loadDB, saveDB } = require('./db-loader');
 
 /**
  * Email Service Class
@@ -119,14 +116,14 @@ class EmailService {
    */
   logEmail(emailLog) {
     try {
-      const db = JSON.parse(fs.readFileSync(DB_PATH, 'utf8'));
+      const db = loadDB();
       if (!db.emailLogs) db.emailLogs = [];
       db.emailLogs.push(emailLog);
       // Keep only last 1000 logs
       if (db.emailLogs.length > 1000) {
         db.emailLogs = db.emailLogs.slice(-1000);
       }
-      fs.writeFileSync(DB_PATH, JSON.stringify(db, null, 2));
+      saveDB(db);
     } catch (err) {
       console.error('Failed to log email:', err.message);
     }

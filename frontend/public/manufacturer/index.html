@@ -583,6 +583,7 @@
       <button class="tab-btn" data-tab="qa">Quality Check</button>
       <button class="tab-btn" data-tab="ready_to_ship">Ready to Ship</button>
       <button class="tab-btn" data-tab="shipped">Shipped</button>
+      <button class="tab-btn" data-tab="pricing">Pricing</button>
     </div>
 
     <!-- Orders Section -->
@@ -624,6 +625,82 @@
             <tr><td colspan="7"><div class="loading"><div class="spinner"></div></div></td></tr>
           </tbody>
         </table>
+      </div>
+    </div>
+
+    <!-- Pricing Tab Content -->
+    <div class="tab-content" id="tab-pricing">
+      <div class="pricing-section">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 24px;">
+          <div>
+            <h2 style="margin: 0 0 8px 0; font-size: 20px; font-weight: 600;">Pricing Management</h2>
+            <p style="color: #6b7280; margin: 0;">Upload your fabric, hardware, motor, and accessory pricing via Excel template.</p>
+          </div>
+          <button class="btn-action primary" onclick="downloadPricingTemplate()" style="display: flex; align-items: center; gap: 6px;">
+            <svg width="16" height="16" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/>
+            </svg>
+            Download Template
+          </button>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px;">
+          <!-- Upload Section -->
+          <div style="background: white; border-radius: 12px; padding: 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.08);">
+            <h3 style="margin: 0 0 16px 0; font-size: 16px; font-weight: 600;">Upload Pricing</h3>
+            <div id="pricing-upload-area" style="border: 2px dashed #e5e7eb; border-radius: 8px; padding: 40px; text-align: center; cursor: pointer; transition: all 0.2s;" onclick="document.getElementById('pricing-file-input').click()">
+              <div style="font-size: 40px; margin-bottom: 12px;">📄</div>
+              <p style="margin: 0; color: #1a1a2e; font-weight: 500;">Click to upload or drag and drop</p>
+              <p style="margin: 8px 0 0 0; color: #6b7280; font-size: 13px;">Excel files (.xlsx, .xls) only</p>
+            </div>
+            <input type="file" id="pricing-file-input" accept=".xlsx,.xls" style="display: none;" onchange="handlePricingUpload(event)">
+            <div id="pricing-upload-result" style="margin-top: 16px; display: none;"></div>
+          </div>
+
+          <!-- Pricing Stats -->
+          <div style="background: white; border-radius: 12px; padding: 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.08);">
+            <h3 style="margin: 0 0 16px 0; font-size: 16px; font-weight: 600;">Current Pricing Summary</h3>
+            <div id="pricing-stats" style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px;">
+              <div style="background: #f9fafb; padding: 16px; border-radius: 8px; text-align: center;">
+                <div style="font-size: 24px; font-weight: 700; color: #1a1a2e;" id="fabric-count">-</div>
+                <div style="font-size: 12px; color: #6b7280;">Fabrics</div>
+              </div>
+              <div style="background: #f9fafb; padding: 16px; border-radius: 8px; text-align: center;">
+                <div style="font-size: 24px; font-weight: 700; color: #1a1a2e;" id="hardware-count">-</div>
+                <div style="font-size: 12px; color: #6b7280;">Hardware</div>
+              </div>
+              <div style="background: #f9fafb; padding: 16px; border-radius: 8px; text-align: center;">
+                <div style="font-size: 24px; font-weight: 700; color: #1a1a2e;" id="motor-count">-</div>
+                <div style="font-size: 12px; color: #6b7280;">Motors</div>
+              </div>
+              <div style="background: #f9fafb; padding: 16px; border-radius: 8px; text-align: center;">
+                <div style="font-size: 24px; font-weight: 700; color: #1a1a2e;" id="accessory-count">-</div>
+                <div style="font-size: 12px; color: #6b7280;">Accessories</div>
+              </div>
+            </div>
+            <div id="last-upload-info" style="margin-top: 16px; padding-top: 16px; border-top: 1px solid #e5e7eb; font-size: 13px; color: #6b7280;"></div>
+          </div>
+        </div>
+
+        <!-- Upload History -->
+        <div style="background: white; border-radius: 12px; padding: 24px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); margin-top: 24px;">
+          <h3 style="margin: 0 0 16px 0; font-size: 16px; font-weight: 600;">Upload History</h3>
+          <div id="upload-history-table">
+            <table class="orders-table">
+              <thead>
+                <tr>
+                  <th>File</th>
+                  <th>Date</th>
+                  <th>Status</th>
+                  <th>Summary</th>
+                </tr>
+              </thead>
+              <tbody id="upload-history-tbody">
+                <tr><td colspan="4" style="text-align: center; padding: 24px; color: #6b7280;">Loading...</td></tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
       </div>
     </div>
   </main>
@@ -1566,8 +1643,21 @@
         this.classList.add('active');
 
         const tab = this.dataset.tab;
-        currentStatus = tab === 'all' ? null : tab;
-        loadOrders();
+
+        // Handle tab content visibility
+        document.querySelectorAll('.tab-content').forEach(tc => tc.classList.remove('active'));
+
+        if (tab === 'pricing') {
+          // Show pricing tab content
+          document.getElementById('tab-pricing').classList.add('active');
+          loadPricingStatus();
+          loadUploadHistory();
+        } else {
+          // Show orders tab content
+          document.getElementById('tab-all').classList.add('active');
+          currentStatus = tab === 'all' ? null : tab;
+          loadOrders();
+        }
       });
     });
 
@@ -2037,6 +2127,204 @@
       showToast('PDF ready - use Print dialog to save', 'success');
     }
 
+    // ============================================
+    // PRICING TAB FUNCTIONS
+    // ============================================
+
+    // Load pricing status
+    async function loadPricingStatus() {
+      try {
+        const response = await fetch('/api/manufacturer/pricing-status', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const data = await response.json();
+
+        if (data.success && data.summary) {
+          document.getElementById('fabric-count').textContent = data.summary.totalFabrics || 0;
+          document.getElementById('hardware-count').textContent = data.summary.totalHardware || 0;
+          document.getElementById('motor-count').textContent = data.summary.totalMotors || 0;
+          document.getElementById('accessory-count').textContent = data.summary.totalAccessories || 0;
+
+          if (data.summary.lastUpload) {
+            document.getElementById('last-upload-info').innerHTML = `
+              <strong>Last Upload:</strong> ${new Date(data.summary.lastUpload.createdAt).toLocaleString()}
+              <br><span style="color: ${data.summary.lastUpload.status === 'completed' ? '#10b981' : '#f59e0b'};">${data.summary.lastUpload.status}</span>
+            `;
+          } else {
+            document.getElementById('last-upload-info').textContent = 'No uploads yet';
+          }
+        }
+      } catch (error) {
+        console.error('Error loading pricing status:', error);
+      }
+    }
+
+    // Load upload history
+    async function loadUploadHistory() {
+      try {
+        const response = await fetch('/api/manufacturer/upload-history?limit=10', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        const data = await response.json();
+
+        const tbody = document.getElementById('upload-history-tbody');
+
+        if (data.success && data.history && data.history.length > 0) {
+          tbody.innerHTML = data.history.map(h => {
+            const statusColor = h.status === 'completed' ? '#10b981' : h.status === 'partial' ? '#f59e0b' : '#ef4444';
+            const summary = h.summary ? `${h.summary.fabricsProcessed || 0} fabrics, ${h.summary.hardwareProcessed || 0} hardware` : '-';
+
+            return `
+              <tr>
+                <td>${h.fileName || 'Unknown'}</td>
+                <td>${new Date(h.createdAt).toLocaleString()}</td>
+                <td><span style="color: ${statusColor}; font-weight: 500;">${h.status}</span></td>
+                <td>${summary}</td>
+              </tr>
+            `;
+          }).join('');
+        } else {
+          tbody.innerHTML = '<tr><td colspan="4" style="text-align: center; padding: 24px; color: #6b7280;">No upload history</td></tr>';
+        }
+      } catch (error) {
+        console.error('Error loading upload history:', error);
+        document.getElementById('upload-history-tbody').innerHTML = '<tr><td colspan="4" style="text-align: center; padding: 24px; color: #ef4444;">Error loading history</td></tr>';
+      }
+    }
+
+    // Download pricing template
+    async function downloadPricingTemplate() {
+      try {
+        const response = await fetch('/api/manufacturer/pricing-template', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+
+        if (response.ok) {
+          const blob = await response.blob();
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = 'pricing-template.xlsx';
+          a.click();
+          URL.revokeObjectURL(url);
+          showToast('Template downloaded!', 'success');
+        } else {
+          showToast('Failed to download template', 'error');
+        }
+      } catch (error) {
+        console.error('Error downloading template:', error);
+        showToast('Error downloading template', 'error');
+      }
+    }
+
+    // Handle pricing file upload
+    async function handlePricingUpload(event) {
+      const file = event.target.files[0];
+      if (!file) return;
+
+      const resultDiv = document.getElementById('pricing-upload-result');
+      resultDiv.style.display = 'block';
+      resultDiv.innerHTML = '<div style="text-align: center; padding: 16px;"><div class="spinner"></div><p>Uploading and processing...</p></div>';
+
+      const formData = new FormData();
+      formData.append('file', file);
+
+      try {
+        const response = await fetch('/api/manufacturer/upload-pricing', {
+          method: 'POST',
+          headers: { 'Authorization': `Bearer ${token}` },
+          body: formData
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+          const totalProcessed = (result.summary.fabricsProcessed || 0) + (result.summary.hardwareProcessed || 0) +
+                                (result.summary.motorsProcessed || 0) + (result.summary.accessoriesProcessed || 0);
+          const totalCreated = (result.summary.fabricsCreated || 0) + (result.summary.hardwareCreated || 0) +
+                              (result.summary.motorsCreated || 0) + (result.summary.accessoriesCreated || 0);
+          const totalUpdated = (result.summary.fabricsUpdated || 0) + (result.summary.hardwareUpdated || 0) +
+                              (result.summary.motorsUpdated || 0) + (result.summary.accessoriesUpdated || 0);
+
+          const hasErrors = result.summary.errors > 0;
+
+          resultDiv.innerHTML = `
+            <div style="padding: 16px; border-radius: 8px; background: ${hasErrors ? '#fef3c7' : '#d1fae5'}; color: ${hasErrors ? '#92400e' : '#065f46'};">
+              <strong>${hasErrors ? 'Upload completed with warnings' : 'Upload successful!'}</strong>
+              <div style="margin-top: 8px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; font-size: 13px;">
+                <div>Processed: ${totalProcessed}</div>
+                <div>Created: ${totalCreated}</div>
+                <div>Updated: ${totalUpdated}</div>
+              </div>
+              ${result.errors && result.errors.length > 0 ? `<div style="margin-top: 8px; font-size: 12px;">Errors: ${result.errors.slice(0, 3).map(e => e.message).join(', ')}</div>` : ''}
+            </div>
+          `;
+
+          showToast('Pricing uploaded successfully!', 'success');
+          loadPricingStatus();
+          loadUploadHistory();
+        } else {
+          resultDiv.innerHTML = `
+            <div style="padding: 16px; border-radius: 8px; background: #fee2e2; color: #991b1b;">
+              <strong>Upload failed</strong>
+              <div style="margin-top: 4px;">${result.error}</div>
+            </div>
+          `;
+          showToast('Upload failed', 'error');
+        }
+      } catch (error) {
+        console.error('Error uploading pricing:', error);
+        resultDiv.innerHTML = `
+          <div style="padding: 16px; border-radius: 8px; background: #fee2e2; color: #991b1b;">
+            <strong>Upload failed</strong>
+            <div style="margin-top: 4px;">${error.message}</div>
+          </div>
+        `;
+        showToast('Error uploading pricing', 'error');
+      }
+
+      // Reset file input
+      event.target.value = '';
+    }
+
+    // Setup drag and drop for pricing upload
+    function setupPricingDragDrop() {
+      const uploadArea = document.getElementById('pricing-upload-area');
+      if (!uploadArea) return;
+
+      ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+        uploadArea.addEventListener(eventName, (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+        });
+      });
+
+      ['dragenter', 'dragover'].forEach(eventName => {
+        uploadArea.addEventListener(eventName, () => {
+          uploadArea.style.borderColor = '#3b82f6';
+          uploadArea.style.background = '#eff6ff';
+        });
+      });
+
+      ['dragleave', 'drop'].forEach(eventName => {
+        uploadArea.addEventListener(eventName, () => {
+          uploadArea.style.borderColor = '#e5e7eb';
+          uploadArea.style.background = 'transparent';
+        });
+      });
+
+      uploadArea.addEventListener('drop', (e) => {
+        const files = e.dataTransfer.files;
+        if (files.length > 0) {
+          const fileInput = document.getElementById('pricing-file-input');
+          const dataTransfer = new DataTransfer();
+          dataTransfer.items.add(files[0]);
+          fileInput.files = dataTransfer.files;
+          handlePricingUpload({ target: fileInput });
+        }
+      });
+    }
+
     // Init
     console.log('Manufacturer Portal: Initializing...');
     console.log('Token:', token ? 'Present' : 'Missing');
@@ -2044,6 +2332,7 @@
 
     loadStats();
     loadOrders();
+    setupPricingDragDrop();
 
     // Auto-refresh every 60 seconds (was 30)
     setInterval(() => {

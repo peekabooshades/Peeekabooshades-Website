@@ -1,0 +1,682 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Manufacturers - Peekaboo Shades Admin</title>
+  <link rel="stylesheet" href="/admin/css/admin.css?v=1737200003.0.28">
+  <script src="/admin/js/admin.js?v=1737100001"></script>
+  <script src="/admin/js/adminNavConfig.js?v=1737200002"></script>
+  <style>
+    .page-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; }
+    .page-header h1 { margin: 0; }
+    .btn-add { padding: 0.75rem 1.5rem; background: #8E6545; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 500; display: flex; align-items: center; gap: 0.5rem; }
+    .manufacturers-grid { display: grid; gap: 1rem; }
+    .mfr-card { background: white; border-radius: 12px; padding: 1.5rem; box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+    .mfr-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem; }
+    .mfr-info h3 { margin: 0 0 0.25rem 0; display: flex; align-items: center; gap: 0.5rem; }
+    .mfr-code { background: #F3F4F6; padding: 0.125rem 0.5rem; border-radius: 4px; font-size: 0.75rem; color: #666; font-weight: 500; }
+    .mfr-contact { font-size: 0.9rem; color: #666; }
+    .mfr-contact a { color: #8E6545; text-decoration: none; }
+    .mfr-status { padding: 0.25rem 0.75rem; border-radius: 12px; font-size: 0.85rem; font-weight: 500; }
+    .status-active { background: #D1FAE5; color: #065F46; }
+    .status-inactive { background: #F3F4F6; color: #6B7280; }
+    .status-deleted { background: #FEE2E2; color: #991B1B; }
+    .mfr-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; padding: 1rem; background: #F9FAFB; border-radius: 8px; margin-bottom: 1rem; }
+    .stat-item { text-align: center; }
+    .stat-value { font-size: 1.5rem; font-weight: 600; color: #111; }
+    .stat-label { font-size: 0.75rem; color: #666; }
+    .mfr-meta { display: flex; gap: 1.5rem; font-size: 0.85rem; color: #666; margin-bottom: 1rem; }
+    .mfr-meta span { display: flex; align-items: center; gap: 0.25rem; }
+    .product-tags { display: flex; flex-wrap: wrap; gap: 0.5rem; margin-bottom: 1rem; }
+    .product-tag { padding: 0.25rem 0.5rem; background: #E5E7EB; border-radius: 4px; font-size: 0.75rem; text-transform: capitalize; }
+    .mfr-actions { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+    .btn-action { padding: 0.5rem 1rem; border: none; border-radius: 6px; cursor: pointer; font-size: 0.85rem; display: flex; align-items: center; gap: 0.25rem; }
+    .btn-upload { background: #8E6545; color: white; }
+    .btn-download { background: #E5E7EB; color: #374151; }
+    .btn-edit { background: #E5E7EB; color: #374151; }
+    .btn-delete { background: #FEE2E2; color: #991B1B; }
+    .modal { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 1000; align-items: center; justify-content: center; }
+    .modal.active { display: flex; }
+    .modal-content { background: white; border-radius: 12px; padding: 0; max-width: 600px; width: 90%; max-height: 90vh; overflow: hidden; display: flex; flex-direction: column; }
+    .modal-header { display: flex; justify-content: space-between; align-items: center; padding: 1.5rem; border-bottom: 1px solid #eee; }
+    .modal-header h2 { margin: 0; }
+    .modal-close { background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #666; }
+    .modal-body { padding: 1.5rem; overflow-y: auto; }
+    .modal-footer { padding: 1rem 1.5rem; border-top: 1px solid #eee; display: flex; justify-content: flex-end; gap: 0.5rem; }
+    .form-group { margin-bottom: 1rem; }
+    .form-group label { display: block; margin-bottom: 0.5rem; font-weight: 500; }
+    .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 0.75rem; border: 1px solid #ddd; border-radius: 8px; font-size: 1rem; }
+    .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; }
+    .checkbox-group { display: flex; flex-wrap: wrap; gap: 0.75rem; }
+    .checkbox-item { display: flex; align-items: center; gap: 0.5rem; }
+    .checkbox-item input { width: auto; }
+    .btn-primary { padding: 0.75rem 1.5rem; background: #8E6545; color: white; border: none; border-radius: 8px; cursor: pointer; font-weight: 500; }
+    .btn-secondary { padding: 0.75rem 1.5rem; background: #E5E7EB; color: #374151; border: none; border-radius: 8px; cursor: pointer; font-weight: 500; }
+    .upload-area { border: 2px dashed #ddd; border-radius: 8px; padding: 2rem; text-align: center; cursor: pointer; transition: all 0.2s; }
+    .upload-area:hover { border-color: #8E6545; background: #FDF8F5; }
+    .upload-area.dragover { border-color: #8E6545; background: #FDF8F5; }
+    .upload-icon { font-size: 2rem; color: #8E6545; margin-bottom: 0.5rem; }
+    .upload-text { font-size: 0.9rem; color: #666; }
+    .upload-text strong { color: #8E6545; }
+    .upload-result { margin-top: 1.5rem; padding: 1rem; border-radius: 8px; }
+    .upload-success { background: #D1FAE5; color: #065F46; }
+    .upload-error { background: #FEE2E2; color: #991B1B; }
+    .upload-partial { background: #FEF3C7; color: #92400E; }
+    .result-summary { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.5rem; margin-top: 0.5rem; }
+    .result-item { font-size: 0.85rem; }
+    .loading { text-align: center; padding: 3rem; color: #666; }
+    .empty-state { text-align: center; padding: 4rem 2rem; background: white; border-radius: 12px; }
+    .empty-state h3 { margin: 0 0 0.5rem 0; }
+    .empty-state p { color: #666; margin: 0 0 1.5rem 0; }
+    .upload-history { margin-top: 1.5rem; }
+    .history-item { display: flex; justify-content: space-between; padding: 0.75rem 0; border-bottom: 1px solid #eee; }
+    .history-item:last-child { border-bottom: none; }
+    .history-date { font-size: 0.85rem; color: #666; }
+    .history-status { font-size: 0.85rem; font-weight: 500; }
+    .assignment-stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 1rem; margin-bottom: 1.5rem; }
+    .stat-card { background: white; padding: 1.5rem; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.08); text-align: center; }
+    .stat-card .value { font-size: 2rem; font-weight: 600; color: #8E6545; }
+    .stat-card .label { font-size: 0.85rem; color: #666; }
+  </style>
+</head>
+<body>
+  <div class="admin-layout">
+    <aside class="admin-sidebar"></aside>
+    <main class="admin-main">
+      <header class="admin-header">
+        <div class="header-left">
+          <div class="breadcrumb">
+            <a href="/admin/">Dashboard</a>
+            <span class="breadcrumb-separator">/</span>
+            <a href="/admin/settings.html">Settings</a>
+            <span class="breadcrumb-separator">/</span>
+            <span class="breadcrumb-current">Manufacturers</span>
+          </div>
+        </div>
+        <div class="header-right">
+          <div class="dropdown">
+            <div class="header-profile">
+              <div class="profile-avatar">A</div>
+              <span class="profile-name">Admin</span>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <div class="admin-content">
+        <div class="page-header">
+          <h1>Manufacturers</h1>
+          <button class="btn-add" onclick="openAddModal()">
+            <span>+</span> Add Manufacturer
+          </button>
+        </div>
+
+        <!-- Assignment Stats -->
+        <div class="assignment-stats" id="assignmentStats"></div>
+
+        <!-- Loading State -->
+        <div class="loading" id="loadingState">Loading manufacturers...</div>
+
+        <!-- Empty State -->
+        <div class="empty-state" id="emptyState" style="display: none;">
+          <h3>No manufacturers yet</h3>
+          <p>Add your first manufacturer to start managing pricing and orders.</p>
+          <button class="btn-primary" onclick="openAddModal()">Add Manufacturer</button>
+        </div>
+
+        <!-- Manufacturers List -->
+        <div class="manufacturers-grid" id="manufacturersGrid" style="display: none;"></div>
+      </div>
+    </main>
+  </div>
+
+  <!-- Add/Edit Manufacturer Modal -->
+  <div class="modal" id="mfrModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 id="modalTitle">Add Manufacturer</h2>
+        <button class="modal-close" onclick="closeModal('mfrModal')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <form id="mfrForm">
+          <input type="hidden" id="mfrId">
+          <div class="form-row">
+            <div class="form-group">
+              <label for="mfrName">Manufacturer Name *</label>
+              <input type="text" id="mfrName" required placeholder="e.g., ZSTARR">
+            </div>
+            <div class="form-group">
+              <label for="mfrCode">Code</label>
+              <input type="text" id="mfrCode" placeholder="Auto-generated" maxlength="10">
+            </div>
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="mfrEmail">Email</label>
+              <input type="email" id="mfrEmail" placeholder="contact@manufacturer.com">
+            </div>
+            <div class="form-group">
+              <label for="mfrPhone">Phone</label>
+              <input type="tel" id="mfrPhone" placeholder="+1-234-567-8900">
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="mfrContactName">Contact Person</label>
+            <input type="text" id="mfrContactName" placeholder="Primary contact name">
+          </div>
+          <div class="form-row">
+            <div class="form-group">
+              <label for="mfrLeadTime">Lead Time (Days)</label>
+              <input type="number" id="mfrLeadTime" value="14" min="1">
+            </div>
+            <div class="form-group">
+              <label for="mfrPaymentTerms">Payment Terms</label>
+              <select id="mfrPaymentTerms">
+                <option value="net30">Net 30</option>
+                <option value="net60">Net 60</option>
+                <option value="net15">Net 15</option>
+                <option value="prepaid">Prepaid</option>
+              </select>
+            </div>
+          </div>
+          <div class="form-group">
+            <label>Product Types</label>
+            <div class="checkbox-group">
+              <label class="checkbox-item">
+                <input type="checkbox" name="productType" value="roller" checked> Roller Blinds
+              </label>
+              <label class="checkbox-item">
+                <input type="checkbox" name="productType" value="zebra" checked> Zebra Shades
+              </label>
+              <label class="checkbox-item">
+                <input type="checkbox" name="productType" value="honeycomb" checked> Honeycomb Shades
+              </label>
+              <label class="checkbox-item">
+                <input type="checkbox" name="productType" value="roman" checked> Roman Shades
+              </label>
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="mfrNotes">Notes</label>
+            <textarea id="mfrNotes" rows="3" placeholder="Additional notes..."></textarea>
+          </div>
+        </form>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-secondary" onclick="closeModal('mfrModal')">Cancel</button>
+        <button class="btn-primary" onclick="saveManufacturer()">Save Manufacturer</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Upload Pricing Modal -->
+  <div class="modal" id="uploadModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Upload Pricing - <span id="uploadMfrName"></span></h2>
+        <button class="modal-close" onclick="closeModal('uploadModal')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <input type="hidden" id="uploadMfrId">
+
+        <div class="upload-area" id="uploadArea" onclick="document.getElementById('fileInput').click()">
+          <div class="upload-icon">📄</div>
+          <div class="upload-text">
+            <strong>Click to upload</strong> or drag and drop<br>
+            Excel files (.xlsx, .xls) only
+          </div>
+        </div>
+        <input type="file" id="fileInput" accept=".xlsx,.xls" style="display: none;" onchange="handleFileSelect(event)">
+
+        <div id="uploadResult" style="display: none;"></div>
+
+        <div class="upload-history" id="uploadHistory"></div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-secondary" onclick="downloadTemplate()">Download Template</button>
+        <button class="btn-secondary" onclick="closeModal('uploadModal')">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Pricing Summary Modal -->
+  <div class="modal" id="pricingModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Pricing Summary - <span id="pricingMfrName"></span></h2>
+        <button class="modal-close" onclick="closeModal('pricingModal')">&times;</button>
+      </div>
+      <div class="modal-body">
+        <div id="pricingSummary"></div>
+      </div>
+      <div class="modal-footer">
+        <button class="btn-secondary" onclick="closeModal('pricingModal')">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let manufacturers = [];
+    let currentMfrId = null;
+
+    // Initialize
+    document.addEventListener('DOMContentLoaded', async () => {
+      await loadManufacturers();
+      await loadAssignmentStats();
+      setupDragDrop();
+    });
+
+    // Load manufacturers
+    async function loadManufacturers() {
+      try {
+        const response = await Admin.AuthAPI.authenticatedFetch('/api/admin/manufacturers');
+        const data = await response.json();
+
+        if (data.success) {
+          manufacturers = data.manufacturers;
+          renderManufacturers();
+        }
+      } catch (error) {
+        console.error('Error loading manufacturers:', error);
+        showToast('Error loading manufacturers', 'error');
+      }
+    }
+
+    // Load assignment stats
+    async function loadAssignmentStats() {
+      try {
+        const response = await Admin.AuthAPI.authenticatedFetch('/api/admin/orders/assignment-stats');
+        const data = await response.json();
+
+        if (data.success) {
+          renderAssignmentStats(data.stats);
+        }
+      } catch (error) {
+        console.error('Error loading stats:', error);
+      }
+    }
+
+    // Render assignment stats
+    function renderAssignmentStats(stats) {
+      const container = document.getElementById('assignmentStats');
+      container.innerHTML = `
+        <div class="stat-card">
+          <div class="value">${stats.totalOrders}</div>
+          <div class="label">Total Orders</div>
+        </div>
+        <div class="stat-card">
+          <div class="value">${stats.assignedOrders}</div>
+          <div class="label">Assigned</div>
+        </div>
+        <div class="stat-card">
+          <div class="value">${stats.unassignedOrders}</div>
+          <div class="label">Unassigned</div>
+        </div>
+        <div class="stat-card">
+          <div class="value">${stats.autoAssigned}</div>
+          <div class="label">Auto-assigned</div>
+        </div>
+      `;
+    }
+
+    // Render manufacturers
+    function renderManufacturers() {
+      const grid = document.getElementById('manufacturersGrid');
+      const loading = document.getElementById('loadingState');
+      const empty = document.getElementById('emptyState');
+
+      loading.style.display = 'none';
+
+      if (manufacturers.length === 0) {
+        empty.style.display = 'block';
+        grid.style.display = 'none';
+        return;
+      }
+
+      empty.style.display = 'none';
+      grid.style.display = 'grid';
+
+      grid.innerHTML = manufacturers.filter(m => m.status !== 'deleted').map(mfr => `
+        <div class="mfr-card">
+          <div class="mfr-header">
+            <div class="mfr-info">
+              <h3>
+                ${mfr.name}
+                <span class="mfr-code">${mfr.code}</span>
+              </h3>
+              <div class="mfr-contact">
+                ${mfr.email ? `<a href="mailto:${mfr.email}">${mfr.email}</a>` : ''}
+                ${mfr.email && mfr.phone ? ' | ' : ''}
+                ${mfr.phone || ''}
+              </div>
+            </div>
+            <span class="mfr-status status-${mfr.status}">${mfr.status}</span>
+          </div>
+
+          <div class="mfr-stats">
+            <div class="stat-item">
+              <div class="stat-value">${mfr.pricingStats?.totalFabrics || 0}</div>
+              <div class="stat-label">Fabrics</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-value">${mfr.pricingStats?.totalHardware || 0}</div>
+              <div class="stat-label">Hardware</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-value">${mfr.pricingStats?.totalMotors || 0}</div>
+              <div class="stat-label">Motors</div>
+            </div>
+            <div class="stat-item">
+              <div class="stat-value">${mfr.pricingStats?.totalAccessories || 0}</div>
+              <div class="stat-label">Accessories</div>
+            </div>
+          </div>
+
+          <div class="mfr-meta">
+            <span>📦 Lead: ${mfr.leadTimeDays || 14} days</span>
+            <span>💳 ${mfr.paymentTerms || 'Net 30'}</span>
+            ${mfr.pricingStats?.lastUploadAt ? `<span>📅 Last upload: ${new Date(mfr.pricingStats.lastUploadAt).toLocaleDateString()}</span>` : ''}
+          </div>
+
+          <div class="product-tags">
+            ${(mfr.productTypes || []).map(pt => `<span class="product-tag">${pt}</span>`).join('')}
+          </div>
+
+          <div class="mfr-actions">
+            <button class="btn-action btn-upload" onclick="openUploadModal('${mfr.id}', '${mfr.name}')">
+              📤 Upload Pricing
+            </button>
+            <button class="btn-action btn-download" onclick="downloadTemplate('${mfr.id}')">
+              📥 Template
+            </button>
+            <button class="btn-action btn-edit" onclick="openEditModal('${mfr.id}')">
+              ✏️ Edit
+            </button>
+            <button class="btn-action btn-delete" onclick="deleteManufacturer('${mfr.id}', '${mfr.name}')">
+              🗑️ Delete
+            </button>
+          </div>
+        </div>
+      `).join('');
+    }
+
+    // Modal functions
+    function openAddModal() {
+      document.getElementById('modalTitle').textContent = 'Add Manufacturer';
+      document.getElementById('mfrId').value = '';
+      document.getElementById('mfrForm').reset();
+      document.querySelectorAll('input[name="productType"]').forEach(cb => cb.checked = true);
+      document.getElementById('mfrModal').classList.add('active');
+    }
+
+    function openEditModal(id) {
+      const mfr = manufacturers.find(m => m.id === id);
+      if (!mfr) return;
+
+      document.getElementById('modalTitle').textContent = 'Edit Manufacturer';
+      document.getElementById('mfrId').value = mfr.id;
+      document.getElementById('mfrName').value = mfr.name;
+      document.getElementById('mfrCode').value = mfr.code;
+      document.getElementById('mfrEmail').value = mfr.email || '';
+      document.getElementById('mfrPhone').value = mfr.phone || '';
+      document.getElementById('mfrContactName').value = mfr.contactName || '';
+      document.getElementById('mfrLeadTime').value = mfr.leadTimeDays || 14;
+      document.getElementById('mfrPaymentTerms').value = mfr.paymentTerms || 'net30';
+      document.getElementById('mfrNotes').value = mfr.notes || '';
+
+      document.querySelectorAll('input[name="productType"]').forEach(cb => {
+        cb.checked = (mfr.productTypes || []).includes(cb.value);
+      });
+
+      document.getElementById('mfrModal').classList.add('active');
+    }
+
+    function openUploadModal(id, name) {
+      currentMfrId = id;
+      document.getElementById('uploadMfrId').value = id;
+      document.getElementById('uploadMfrName').textContent = name;
+      document.getElementById('uploadResult').style.display = 'none';
+      document.getElementById('fileInput').value = '';
+      loadUploadHistory(id);
+      document.getElementById('uploadModal').classList.add('active');
+    }
+
+    function closeModal(modalId) {
+      document.getElementById(modalId).classList.remove('active');
+    }
+
+    // Save manufacturer
+    async function saveManufacturer() {
+      const id = document.getElementById('mfrId').value;
+      const productTypes = Array.from(document.querySelectorAll('input[name="productType"]:checked')).map(cb => cb.value);
+
+      const data = {
+        name: document.getElementById('mfrName').value,
+        code: document.getElementById('mfrCode').value,
+        email: document.getElementById('mfrEmail').value,
+        phone: document.getElementById('mfrPhone').value,
+        contactName: document.getElementById('mfrContactName').value,
+        leadTimeDays: document.getElementById('mfrLeadTime').value,
+        paymentTerms: document.getElementById('mfrPaymentTerms').value,
+        notes: document.getElementById('mfrNotes').value,
+        productTypes
+      };
+
+      try {
+        const url = id ? `/api/admin/manufacturers/${id}` : '/api/admin/manufacturers';
+        const method = id ? 'PUT' : 'POST';
+
+        const response = await Admin.AuthAPI.authenticatedFetch(url, {
+          method,
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(data)
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+          showToast(id ? 'Manufacturer updated' : 'Manufacturer created', 'success');
+          closeModal('mfrModal');
+          await loadManufacturers();
+        } else {
+          showToast(result.error || 'Failed to save', 'error');
+        }
+      } catch (error) {
+        console.error('Error saving manufacturer:', error);
+        showToast('Error saving manufacturer', 'error');
+      }
+    }
+
+    // Delete manufacturer
+    async function deleteManufacturer(id, name) {
+      if (!confirm(`Are you sure you want to delete "${name}"?`)) return;
+
+      try {
+        const response = await Admin.AuthAPI.authenticatedFetch(`/api/admin/manufacturers/${id}`, {
+          method: 'DELETE'
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+          showToast('Manufacturer deleted', 'success');
+          await loadManufacturers();
+        } else {
+          showToast(result.error || 'Failed to delete', 'error');
+        }
+      } catch (error) {
+        console.error('Error deleting manufacturer:', error);
+        showToast('Error deleting manufacturer', 'error');
+      }
+    }
+
+    // Download template
+    async function downloadTemplate(id) {
+      const mfrId = id || document.getElementById('uploadMfrId').value;
+      if (!mfrId) return;
+
+      try {
+        const response = await Admin.AuthAPI.authenticatedFetch(`/api/admin/manufacturers/${mfrId}/download-template`);
+
+        if (response.ok) {
+          const blob = await response.blob();
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement('a');
+          a.href = url;
+          a.download = `pricing-template.xlsx`;
+          a.click();
+          URL.revokeObjectURL(url);
+        } else {
+          showToast('Failed to download template', 'error');
+        }
+      } catch (error) {
+        console.error('Error downloading template:', error);
+        showToast('Error downloading template', 'error');
+      }
+    }
+
+    // Setup drag and drop
+    function setupDragDrop() {
+      const uploadArea = document.getElementById('uploadArea');
+
+      ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+        uploadArea.addEventListener(eventName, (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+        });
+      });
+
+      ['dragenter', 'dragover'].forEach(eventName => {
+        uploadArea.addEventListener(eventName, () => {
+          uploadArea.classList.add('dragover');
+        });
+      });
+
+      ['dragleave', 'drop'].forEach(eventName => {
+        uploadArea.addEventListener(eventName, () => {
+          uploadArea.classList.remove('dragover');
+        });
+      });
+
+      uploadArea.addEventListener('drop', (e) => {
+        const files = e.dataTransfer.files;
+        if (files.length > 0) {
+          uploadFile(files[0]);
+        }
+      });
+    }
+
+    // Handle file select
+    function handleFileSelect(event) {
+      const file = event.target.files[0];
+      if (file) {
+        uploadFile(file);
+      }
+    }
+
+    // Upload file
+    async function uploadFile(file) {
+      const mfrId = document.getElementById('uploadMfrId').value;
+      if (!mfrId) return;
+
+      const resultDiv = document.getElementById('uploadResult');
+      resultDiv.innerHTML = '<div class="loading">Uploading and processing...</div>';
+      resultDiv.style.display = 'block';
+
+      const formData = new FormData();
+      formData.append('file', file);
+
+      try {
+        const response = await Admin.AuthAPI.authenticatedFetch(`/api/admin/manufacturers/${mfrId}/upload-pricing`, {
+          method: 'POST',
+          body: formData
+        });
+
+        const result = await response.json();
+
+        if (result.success) {
+          const totalProcessed = result.summary.fabricsProcessed + result.summary.hardwareProcessed +
+                                result.summary.motorsProcessed + result.summary.accessoriesProcessed;
+          const totalCreated = result.summary.fabricsCreated + result.summary.hardwareCreated +
+                              result.summary.motorsCreated + result.summary.accessoriesCreated;
+          const totalUpdated = result.summary.fabricsUpdated + result.summary.hardwareUpdated +
+                              result.summary.motorsUpdated + result.summary.accessoriesUpdated;
+
+          const statusClass = result.summary.errors > 0 ? 'upload-partial' : 'upload-success';
+
+          resultDiv.innerHTML = `
+            <div class="upload-result ${statusClass}">
+              <strong>${result.summary.errors > 0 ? 'Upload completed with warnings' : 'Upload successful!'}</strong>
+              <div class="result-summary">
+                <div class="result-item">Processed: ${totalProcessed}</div>
+                <div class="result-item">Created: ${totalCreated}</div>
+                <div class="result-item">Updated: ${totalUpdated}</div>
+              </div>
+              ${result.errors?.length > 0 ? `<div style="margin-top: 0.5rem; font-size: 0.85rem;">Errors: ${result.errors.map(e => e.message).join(', ')}</div>` : ''}
+            </div>
+          `;
+
+          await loadManufacturers();
+          loadUploadHistory(mfrId);
+        } else {
+          resultDiv.innerHTML = `
+            <div class="upload-result upload-error">
+              <strong>Upload failed</strong>
+              <div>${result.error}</div>
+            </div>
+          `;
+        }
+      } catch (error) {
+        console.error('Error uploading file:', error);
+        resultDiv.innerHTML = `
+          <div class="upload-result upload-error">
+            <strong>Upload failed</strong>
+            <div>${error.message}</div>
+          </div>
+        `;
+      }
+    }
+
+    // Load upload history
+    async function loadUploadHistory(mfrId) {
+      try {
+        const response = await Admin.AuthAPI.authenticatedFetch(`/api/admin/manufacturers/${mfrId}/upload-history?limit=5`);
+        const data = await response.json();
+
+        const historyDiv = document.getElementById('uploadHistory');
+
+        if (data.success && data.history.length > 0) {
+          historyDiv.innerHTML = `
+            <h4 style="margin: 0 0 0.5rem 0;">Recent Uploads</h4>
+            ${data.history.map(h => `
+              <div class="history-item">
+                <div>
+                  <div>${h.fileName}</div>
+                  <div class="history-date">${new Date(h.createdAt).toLocaleString()} by ${h.uploadedByEmail}</div>
+                </div>
+                <span class="history-status" style="color: ${h.status === 'completed' ? '#065F46' : h.status === 'partial' ? '#92400E' : '#991B1B'}">
+                  ${h.status}
+                </span>
+              </div>
+            `).join('')}
+          `;
+        } else {
+          historyDiv.innerHTML = '';
+        }
+      } catch (error) {
+        console.error('Error loading history:', error);
+      }
+    }
+
+    // Toast notification
+    function showToast(message, type = 'info') {
+      if (window.Admin && Admin.showToast) {
+        Admin.showToast(message, type);
+      } else {
+        alert(message);
+      }
+    }
+  </script>
+</body>
+</html>

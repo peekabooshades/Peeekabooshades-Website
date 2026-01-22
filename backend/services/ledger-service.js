@@ -4,11 +4,8 @@
  * Updated: Proper manufacturer cost calculation from price_snapshot
  */
 
-const fs = require('fs');
-const path = require('path');
 const { v4: uuidv4 } = require('uuid');
-
-const DB_PATH = path.join(__dirname, '../database.json');
+const { loadDB, saveDB } = require('./db-loader');
 
 /**
  * Calculate total manufacturer cost for an item from price snapshots
@@ -66,12 +63,11 @@ const LEDGER_TYPES = {
 };
 
 function loadDatabase() {
-  const data = fs.readFileSync(DB_PATH, 'utf8');
-  return JSON.parse(data);
+  return loadDB();
 }
 
 function saveDatabase(db) {
-  fs.writeFileSync(DB_PATH, JSON.stringify(db, null, 2));
+  saveDB(db);
 }
 
 /**

@@ -22,8 +22,8 @@
     },
     // Facebook Pixel
     facebook: {
-      pixelId: '', // Replace with your Facebook Pixel ID (leave empty to disable)
-      enabled: false
+      pixelId: 'FACEBOOK_PIXEL_ID', // Replace with your Facebook Pixel ID from env
+      enabled: true // Enable when pixelId is configured
     }
   };
 

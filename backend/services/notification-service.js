@@ -7,10 +7,7 @@
 
 const https = require('https');
 const http = require('http');
-const fs = require('fs');
-const path = require('path');
-
-const DB_PATH = path.join(__dirname, '../database.json');
+const { loadDB, saveDB } = require('./db-loader');
 
 /**
  * Notification Service Class
@@ -109,7 +106,7 @@ class NotificationService {
    */
   logNotification(type, payload, status, errorMessage = null) {
     try {
-      const db = JSON.parse(fs.readFileSync(DB_PATH, 'utf8'));
+      const db = loadDB();
       if (!db.notificationLogs) db.notificationLogs = [];
 
       db.notificationLogs.push({
@@ -126,7 +123,7 @@ class NotificationService {
         db.notificationLogs = db.notificationLogs.slice(-500);
       }
 
-      fs.writeFileSync(DB_PATH, JSON.stringify(db, null, 2));
+      saveDB(db);
     } catch (err) {
       console.error('Failed to log notification:', err.message);
     }

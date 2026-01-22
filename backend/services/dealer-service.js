@@ -3,13 +3,10 @@
  * Ticket 007: Dealer Portal
  */
 
-const fs = require('fs');
-const path = require('path');
 const bcrypt = require('bcryptjs');
 const { v4: uuidv4 } = require('uuid');
 const { auditLogger, AUDIT_ACTIONS } = require('./audit-logger');
-
-const DB_PATH = path.join(__dirname, '../database.json');
+const { loadDB, saveDB } = require('./db-loader');
 
 // Dealer Tiers and Discounts
 const DEALER_TIERS = {
@@ -30,12 +27,11 @@ const DEALER_ORDER_STATUSES = {
 };
 
 function loadDatabase() {
-  const data = fs.readFileSync(DB_PATH, 'utf8');
-  return JSON.parse(data);
+  return loadDB();
 }
 
 function saveDatabase(db) {
-  fs.writeFileSync(DB_PATH, JSON.stringify(db, null, 2));
+  saveDB(db);
 }
 
 /**

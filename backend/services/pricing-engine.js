@@ -15,11 +15,8 @@
  * - Total order calculation
  */
 
-const fs = require('fs');
-const path = require('path');
 const { systemConfig } = require('../config/system-config');
-
-const DB_PATH = path.join(__dirname, '../database.json');
+const { loadDB } = require('./db-loader');
 
 /**
  * PricingEngine Class
@@ -32,8 +29,7 @@ class PricingEngine {
    */
   loadDatabase() {
     try {
-      const data = fs.readFileSync(DB_PATH, 'utf8');
-      return JSON.parse(data);
+      return loadDB();
     } catch (error) {
       console.error('Error loading database:', error);
       return null;

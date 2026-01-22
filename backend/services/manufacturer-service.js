@@ -3,13 +3,10 @@
  * Ticket 004: Manufacturer Portal
  */
 
-const fs = require('fs');
-const path = require('path');
 const bcrypt = require('bcryptjs');
 const { v4: uuidv4 } = require('uuid');
 const { auditLogger, AUDIT_ACTIONS } = require('./audit-logger');
-
-const DB_PATH = path.join(__dirname, '../database.json');
+const { loadDB, saveDB } = require('./db-loader');
 
 // Manufacturer Order Statuses (subset of order states they can manage)
 const MFR_ORDER_STATUSES = {
@@ -30,12 +27,11 @@ const MFR_VALID_TRANSITIONS = {
 };
 
 function loadDatabase() {
-  const data = fs.readFileSync(DB_PATH, 'utf8');
-  return JSON.parse(data);
+  return loadDB();
 }
 
 function saveDatabase(db) {
-  fs.writeFileSync(DB_PATH, JSON.stringify(db, null, 2));
+  saveDB(db);
 }
 
 /**
@@ -115,9 +111,12 @@ function getManufacturerOrders(manufacturerId, filters = {}) {
   const db = loadDatabase();
   let orders = db.orders || [];
 
-  // Filter by manufacturer (for now, all orders go to default manufacturer)
-  // In future, orders will have manufacturerId field
+  // Filter by manufacturer ID
   orders = orders.filter(o => {
+    // Check if order is assigned to this manufacturer
+    if (o.manufacturerId && o.manufacturerId !== manufacturerId) {
+      return false;
+    }
     // Include orders in manufacturer-relevant statuses
     const mfrStatuses = Object.values(MFR_ORDER_STATUSES);
     return mfrStatuses.includes(o.status);

@@ -537,4 +537,371 @@ router.post('/demo/process', (req, res) => {
   }, 1000);
 });
 
+// ============================================
+// STRIPE WEBHOOK HANDLER
+// ============================================
+
+/**
+ * Stripe Webhook Handler
+ * POST /api/payments/stripe/webhook
+ * Handles payment events from Stripe
+ */
+router.post('/stripe/webhook', require('express').raw({ type: 'application/json' }), async (req, res) => {
+  const stripeInstance = getStripe();
+  if (!stripeInstance) {
+    return res.status(400).send('Stripe not configured');
+  }
+
+  const sig = req.headers['stripe-signature'];
+  const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET;
+
+  let event;
+
+  try {
+    if (webhookSecret) {
+      event = stripeInstance.webhooks.constructEvent(req.body, sig, webhookSecret);
+    } else {
+      // For testing without webhook secret
+      event = JSON.parse(req.body.toString());
+      console.warn('Webhook signature verification skipped - no secret configured');
+    }
+  } catch (err) {
+    console.error('Webhook signature verification failed:', err.message);
+    return res.status(400).send(`Webhook Error: ${err.message}`);
+  }
+
+  // Handle the event
+  try {
+    const fs = require('fs');
+    const path = require('path');
+    const dbPath = path.join(__dirname, '../database.json');
+
+    switch (event.type) {
+      case 'payment_intent.succeeded': {
+        const paymentIntent = event.data.object;
+        console.log('Payment succeeded:', paymentIntent.id);
+
+        // Update order status if orderId in metadata
+        if (paymentIntent.metadata?.orderId) {
+          const db = JSON.parse(fs.readFileSync(dbPath, 'utf8'));
+          const orderIndex = db.orders?.findIndex(o => o.id === paymentIntent.metadata.orderId);
+          if (orderIndex > -1) {
+            db.orders[orderIndex].paymentStatus = 'paid';
+            db.orders[orderIndex].stripePaymentIntentId = paymentIntent.id;
+            db.orders[orderIndex].paidAt = new Date().toISOString();
+            fs.writeFileSync(dbPath, JSON.stringify(db, null, 2));
+          }
+        }
+
+        // Log webhook event
+        logWebhookEvent('stripe', 'payment_intent.succeeded', paymentIntent);
+        break;
+      }
+
+      case 'payment_intent.payment_failed': {
+        const paymentIntent = event.data.object;
+        console.log('Payment failed:', paymentIntent.id, paymentIntent.last_payment_error?.message);
+
+        if (paymentIntent.metadata?.orderId) {
+          const db = JSON.parse(fs.readFileSync(dbPath, 'utf8'));
+          const orderIndex = db.orders?.findIndex(o => o.id === paymentIntent.metadata.orderId);
+          if (orderIndex > -1) {
+            db.orders[orderIndex].paymentStatus = 'failed';
+            db.orders[orderIndex].paymentError = paymentIntent.last_payment_error?.message;
+            fs.writeFileSync(dbPath, JSON.stringify(db, null, 2));
+          }
+        }
+
+        logWebhookEvent('stripe', 'payment_intent.payment_failed', paymentIntent);
+        break;
+      }
+
+      case 'charge.refunded': {
+        const charge = event.data.object;
+        console.log('Charge refunded:', charge.id);
+
+        // Find and update order
+        const db = JSON.parse(fs.readFileSync(dbPath, 'utf8'));
+        const orderIndex = db.orders?.findIndex(o => o.stripePaymentIntentId === charge.payment_intent);
+        if (orderIndex > -1) {
+          const refundAmount = charge.amount_refunded / 100;
+          db.orders[orderIndex].refundedAmount = (db.orders[orderIndex].refundedAmount || 0) + refundAmount;
+          db.orders[orderIndex].paymentStatus = charge.refunded ? 'refunded' : 'partially_refunded';
+          db.orders[orderIndex].refundedAt = new Date().toISOString();
+          fs.writeFileSync(dbPath, JSON.stringify(db, null, 2));
+        }
+
+        logWebhookEvent('stripe', 'charge.refunded', charge);
+        break;
+      }
+
+      case 'charge.dispute.created': {
+        const dispute = event.data.object;
+        console.log('Dispute created:', dispute.id);
+        logWebhookEvent('stripe', 'charge.dispute.created', dispute);
+        // Alert admin
+        try {
+          const { notificationService } = require('../services/notification-service');
+          notificationService.sendSlack({
+            text: `⚠️ CHARGEBACK ALERT: Dispute created for charge ${dispute.charge}. Amount: $${dispute.amount / 100}. Reason: ${dispute.reason}`
+          });
+        } catch (e) { /* ignore if service not available */ }
+        break;
+      }
+
+      default:
+        console.log(`Unhandled event type: ${event.type}`);
+    }
+
+    res.json({ received: true });
+  } catch (error) {
+    console.error('Webhook processing error:', error);
+    res.status(500).json({ error: 'Webhook processing failed' });
+  }
+});
+
+// ============================================
+// PAYPAL WEBHOOK HANDLER
+// ============================================
+
+/**
+ * PayPal Webhook Handler
+ * POST /api/payments/paypal/webhook
+ */
+router.post('/paypal/webhook', async (req, res) => {
+  try {
+    const event = req.body;
+    const fs = require('fs');
+    const path = require('path');
+    const dbPath = path.join(__dirname, '../database.json');
+
+    console.log('PayPal webhook event:', event.event_type);
+
+    switch (event.event_type) {
+      case 'PAYMENT.CAPTURE.COMPLETED': {
+        const capture = event.resource;
+        console.log('PayPal payment completed:', capture.id);
+
+        // Update order if custom_id contains orderId
+        if (capture.custom_id) {
+          const db = JSON.parse(fs.readFileSync(dbPath, 'utf8'));
+          const orderIndex = db.orders?.findIndex(o => o.id === capture.custom_id);
+          if (orderIndex > -1) {
+            db.orders[orderIndex].paymentStatus = 'paid';
+            db.orders[orderIndex].paypalCaptureId = capture.id;
+            db.orders[orderIndex].paidAt = new Date().toISOString();
+            fs.writeFileSync(dbPath, JSON.stringify(db, null, 2));
+          }
+        }
+
+        logWebhookEvent('paypal', 'PAYMENT.CAPTURE.COMPLETED', capture);
+        break;
+      }
+
+      case 'PAYMENT.CAPTURE.DENIED':
+      case 'PAYMENT.CAPTURE.DECLINED': {
+        const capture = event.resource;
+        console.log('PayPal payment failed:', capture.id);
+
+        if (capture.custom_id) {
+          const db = JSON.parse(fs.readFileSync(dbPath, 'utf8'));
+          const orderIndex = db.orders?.findIndex(o => o.id === capture.custom_id);
+          if (orderIndex > -1) {
+            db.orders[orderIndex].paymentStatus = 'failed';
+            fs.writeFileSync(dbPath, JSON.stringify(db, null, 2));
+          }
+        }
+
+        logWebhookEvent('paypal', event.event_type, capture);
+        break;
+      }
+
+      case 'PAYMENT.CAPTURE.REFUNDED': {
+        const refund = event.resource;
+        console.log('PayPal refund:', refund.id);
+        logWebhookEvent('paypal', 'PAYMENT.CAPTURE.REFUNDED', refund);
+        break;
+      }
+
+      default:
+        console.log(`Unhandled PayPal event: ${event.event_type}`);
+    }
+
+    res.json({ received: true });
+  } catch (error) {
+    console.error('PayPal webhook error:', error);
+    res.status(500).json({ error: 'Webhook processing failed' });
+  }
+});
+
+// ============================================
+// REFUND PROCESSING
+// ============================================
+
+/**
+ * Process refund via Stripe
+ * POST /api/payments/stripe/refund
+ */
+router.post('/stripe/refund', async (req, res) => {
+  try {
+    const stripeInstance = getStripe();
+    if (!stripeInstance) {
+      return res.status(400).json({ success: false, error: 'Stripe not configured' });
+    }
+
+    const { paymentIntentId, amount, reason, orderId } = req.body;
+
+    if (!paymentIntentId) {
+      return res.status(400).json({ success: false, error: 'Payment intent ID required' });
+    }
+
+    const refundParams = {
+      payment_intent: paymentIntentId,
+      reason: reason || 'requested_by_customer'
+    };
+
+    // If amount specified, do partial refund (amount in cents)
+    if (amount) {
+      refundParams.amount = Math.round(amount * 100);
+    }
+
+    const refund = await stripeInstance.refunds.create(refundParams);
+
+    // Update order record
+    if (orderId) {
+      const fs = require('fs');
+      const path = require('path');
+      const dbPath = path.join(__dirname, '../database.json');
+      const db = JSON.parse(fs.readFileSync(dbPath, 'utf8'));
+
+      const orderIndex = db.orders?.findIndex(o => o.id === orderId);
+      if (orderIndex > -1) {
+        const refundAmount = refund.amount / 100;
+        db.orders[orderIndex].refundedAmount = (db.orders[orderIndex].refundedAmount || 0) + refundAmount;
+        db.orders[orderIndex].paymentStatus = refund.amount === db.orders[orderIndex].total * 100 ? 'refunded' : 'partially_refunded';
+        db.orders[orderIndex].refundedAt = new Date().toISOString();
+
+        // Add to refunds collection
+        if (!db.refunds) db.refunds = [];
+        db.refunds.push({
+          id: `ref-${Date.now()}`,
+          orderId,
+          stripeRefundId: refund.id,
+          amount: refundAmount,
+          reason,
+          status: refund.status,
+          createdAt: new Date().toISOString()
+        });
+
+        fs.writeFileSync(dbPath, JSON.stringify(db, null, 2));
+      }
+    }
+
+    res.json({
+      success: true,
+      refund: {
+        id: refund.id,
+        amount: refund.amount / 100,
+        status: refund.status,
+        reason: refund.reason
+      }
+    });
+
+  } catch (error) {
+    console.error('Stripe refund error:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+/**
+ * Process refund via PayPal
+ * POST /api/payments/paypal/refund
+ */
+router.post('/paypal/refund', async (req, res) => {
+  try {
+    const paypal = require('@paypal/checkout-server-sdk');
+    const client = getPayPalClient();
+
+    if (!client) {
+      return res.status(400).json({ success: false, error: 'PayPal not configured' });
+    }
+
+    const { captureId, amount, currency = 'USD', orderId } = req.body;
+
+    if (!captureId) {
+      return res.status(400).json({ success: false, error: 'Capture ID required' });
+    }
+
+    const request = new paypal.payments.CapturesRefundRequest(captureId);
+    request.requestBody({
+      amount: amount ? {
+        value: amount.toFixed(2),
+        currency_code: currency
+      } : undefined
+    });
+
+    const refund = await client.execute(request);
+
+    // Update order record
+    if (orderId) {
+      const fs = require('fs');
+      const path = require('path');
+      const dbPath = path.join(__dirname, '../database.json');
+      const db = JSON.parse(fs.readFileSync(dbPath, 'utf8'));
+
+      const orderIndex = db.orders?.findIndex(o => o.id === orderId);
+      if (orderIndex > -1) {
+        const refundAmount = amount || db.orders[orderIndex].total;
+        db.orders[orderIndex].refundedAmount = (db.orders[orderIndex].refundedAmount || 0) + refundAmount;
+        db.orders[orderIndex].paymentStatus = 'refunded';
+        db.orders[orderIndex].refundedAt = new Date().toISOString();
+        fs.writeFileSync(dbPath, JSON.stringify(db, null, 2));
+      }
+    }
+
+    res.json({
+      success: true,
+      refund: {
+        id: refund.result.id,
+        status: refund.result.status
+      }
+    });
+
+  } catch (error) {
+    console.error('PayPal refund error:', error);
+    res.status(500).json({ success: false, error: error.message });
+  }
+});
+
+/**
+ * Log webhook event to database
+ */
+function logWebhookEvent(provider, eventType, data) {
+  try {
+    const fs = require('fs');
+    const path = require('path');
+    const dbPath = path.join(__dirname, '../database.json');
+    const db = JSON.parse(fs.readFileSync(dbPath, 'utf8'));
+
+    if (!db.webhookLogs) db.webhookLogs = [];
+
+    db.webhookLogs.push({
+      id: `wh-${Date.now()}`,
+      provider,
+      eventType,
+      data: JSON.stringify(data).substring(0, 5000), // Limit size
+      receivedAt: new Date().toISOString()
+    });
+
+    // Keep last 1000 logs
+    if (db.webhookLogs.length > 1000) {
+      db.webhookLogs = db.webhookLogs.slice(-1000);
+    }
+
+    fs.writeFileSync(dbPath, JSON.stringify(db, null, 2));
+  } catch (err) {
+    console.error('Failed to log webhook event:', err);
+  }
+}
+
 module.exports = router;
