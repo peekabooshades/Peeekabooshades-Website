@@ -399,7 +399,15 @@ app.get('/trade', (req, res) => {
 });
 
 app.get('/help', (req, res) => {
-  res.redirect('/faq.html');
+  res.sendFile(path.join(__dirname, '../frontend/public/faqs.html'));
+});
+
+app.get('/faq.html', (req, res) => {
+  res.sendFile(path.join(__dirname, '../frontend/public/faqs.html'));
+});
+
+app.get('/faq', (req, res) => {
+  res.sendFile(path.join(__dirname, '../frontend/public/faqs.html'));
 });
 
 // Static files with optimized cache headers

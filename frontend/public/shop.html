@@ -19,13 +19,15 @@
   <meta property="og:image" content="https://peekabooshades.com/images/og-image.jpg">
 
   <!-- Analytics Configuration (GA4 + Facebook Pixel) -->
-  <script src="/js/analytics-config.js"></script>
+  <script src="/js/analytics-config.js" defer></script>
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="preconnect" href="https://cdnjs.cloudflare.com">
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="/css/styles.css">
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" media="print" onload="this.media='all'">
+  <noscript><link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"></noscript>
   <style>
     /* ============================================
        PEEKABOO SHADES - Shop Page Theme
@@ -1745,10 +1747,12 @@
       // Setup tab click event listeners
       setupCategoryTabs();
 
-      // Load fresh data from API (will re-render if successful)
-      loadCategories();
-      loadProducts();
-      loadManufacturers();
+      // Load fresh data from API in parallel (will re-render if successful)
+      Promise.all([
+        loadCategories(),
+        loadProducts(),
+        loadManufacturers()
+      ]);
       updateCartCount();
     }
 
@@ -1857,7 +1861,7 @@
           renderCategoryTabs(result.data);
         }
       } catch (error) {
-        console.log('Using default categories');
+        // Default categories already in HTML
       }
     }
 
@@ -1932,108 +1936,6 @@
         console.error('Error loading products from API:', error);
         // Keep pre-loaded products on error
       }
-    }
-
-    // Demo products for when API is not available
-    function loadDemoProducts() {
-      allProducts = [
-        {
-          id: '1',
-          slug: 'affordable-custom-roller-blinds',
-          name: 'Affordable Custom Roller Blinds & shades',
-          category_name: 'Roller Shades',
-          category_slug: 'roller-shades',
-          base_price: 40.00,
-          sale_price: null,
-          image_url: '/images/products/roller-blinds/gallery-1.jpg'
-        },
-        {
-          id: '2',
-          slug: 'energy-efficient-roman-shades',
-          name: 'Energy Efficient Roman Shades',
-          category_name: 'Roman Shades',
-          category_slug: 'roman-shades',
-          base_price: 89.79,
-          sale_price: null,
-          image_url: '/images/roman-shades-optimized.jpg'
-        },
-        {
-          id: '3',
-          slug: 'affordable-custom-zebra-shades',
-          name: 'Affordable Custom Zebra Shades',
-          category_name: 'Zebra Shades',
-          category_slug: 'zebra-shades',
-          base_price: 45.00,
-          sale_price: null,
-          image_url: '/images/zebra-shades-optimized.jpg'
-        },
-        {
-          id: '4',
-          slug: 'natural-woven-timeless',
-          name: 'Natural Woven Shades - Timeless Elegance',
-          category_name: 'Honeycomb Shades',
-          category_slug: 'honeycomb-shades',
-          base_price: 65.00,
-          sale_price: null,
-          image_url: '/images/honeycomb-shades-optimized.jpg'
-        },
-        {
-          id: '5',
-          slug: 'blackout-roller-blinds',
-          name: 'Affordable Custom Roller Blinds & shades',
-          category_name: 'Roller Shades',
-          category_slug: 'roller-shades',
-          base_price: 40.00,
-          sale_price: null,
-          image_url: '/images/products/roller-blinds/gallery-2.jpg'
-        },
-        {
-          id: '6',
-          slug: 'premium-roman-shades',
-          name: 'Energy Efficient Roman Shades',
-          category_name: 'Roman Shades',
-          category_slug: 'roman-shades',
-          base_price: 89.79,
-          sale_price: null,
-          image_url: '/images/roman-shades-optimized.jpg'
-        },
-        {
-          id: '7',
-          slug: 'zebra-blinds-premium',
-          name: 'Premium Zebra Shades',
-          category_name: 'Zebra Shades',
-          category_slug: 'zebra-shades',
-          base_price: 55.00,
-          sale_price: null,
-          image_url: '/images/zebra-shades-optimized.jpg'
-        },
-        {
-          id: '8',
-          slug: 'cellular-shades',
-          name: 'Natural Woven Shades - Timeless Elegance with Organic Appeal',
-          category_name: 'Honeycomb Shades',
-          category_slug: 'honeycomb-shades',
-          base_price: 65.00,
-          sale_price: null,
-          image_url: '/images/honeycomb-shades-optimized.jpg'
-        },
-        {
-          id: '9',
-          slug: 'roller-blackout-2',
-          name: 'Affordable Custom Roller Blinds & shades',
-          category_name: 'Roller Shades',
-          category_slug: 'roller-shades',
-          base_price: 40.00,
-          sale_price: null,
-          image_url: '/images/products/roller-blinds/gallery-5.jpg'
-        }
-      ];
-
-      filteredProducts = currentCategory === 'all'
-        ? [...allProducts]
-        : allProducts.filter(p => p.category_slug === currentCategory);
-
-      renderProducts();
     }
 
     // Render products
@@ -2442,7 +2344,6 @@
             if (catSlug.includes('roman')) productType = 'roman';
             if (catSlug.includes('honeycomb') || catSlug.includes('cellular')) productType = 'honeycomb';
 
-            console.log('Filtering product:', p.name, 'catSlug:', catSlug, 'productType:', productType, 'mfrTypes:', manufacturer.productTypes, 'match:', manufacturer.productTypes.includes(productType));
             return manufacturer.productTypes.includes(productType);
           });
         }
@@ -2539,7 +2440,7 @@
         }
 
       } catch (error) {
-        console.log('Using default content (API not available)');
+        // Default content used when API not available
       }
     }
 
@@ -2561,63 +2462,15 @@
 
     function applyTheme(theme) {
       const root = document.documentElement;
-
-      // Apply CSS variables for global theming
+      // Map theme API values to existing --pk-* CSS variables (no DOM queries needed)
       if (theme.primaryColor) {
-        root.style.setProperty('--primary-color', theme.primaryColor);
-        // Apply to active tabs and buttons
-        document.querySelectorAll('.tab-btn.active').forEach(el => {
-          el.style.backgroundColor = theme.primaryColor;
-          el.style.color = '#ffffff';
-        });
-        document.querySelectorAll('.load-more-btn').forEach(el => {
-          el.style.backgroundColor = theme.primaryColor;
-        });
+        root.style.setProperty('--pk-primary', theme.primaryColor);
+        root.style.setProperty('--pk-text-brown', theme.primaryColor);
       }
-
-      if (theme.secondaryColor) {
-        root.style.setProperty('--secondary-color', theme.secondaryColor);
-      }
-
-      if (theme.accentColor) {
-        root.style.setProperty('--accent-color', theme.accentColor);
-      }
-
-      if (theme.backgroundColor) {
-        root.style.setProperty('--background-color', theme.backgroundColor);
-        document.body.style.backgroundColor = theme.backgroundColor;
-      }
-
-      if (theme.textColor) {
-        root.style.setProperty('--text-color', theme.textColor);
-        document.body.style.color = theme.textColor;
-      }
-
-      if (theme.headingFont) {
-        root.style.setProperty('--heading-font', theme.headingFont);
-        document.querySelectorAll('h1, h2, h3, h4, h5, h6').forEach(el => {
-          el.style.fontFamily = theme.headingFont + ', serif';
-        });
-      }
-
-      if (theme.bodyFont) {
-        root.style.setProperty('--body-font', theme.bodyFont);
-        document.body.style.fontFamily = theme.bodyFont + ', sans-serif';
-      }
-
-      // Apply header styling
-      if (theme.headerBackground) {
-        document.querySelectorAll('.main-header').forEach(el => {
-          el.style.backgroundColor = theme.headerBackground;
-        });
-      }
-
-      // Apply button border radius
-      if (theme.buttonBorderRadius) {
-        document.querySelectorAll('.load-more-btn, .tab-btn, .filter-pill').forEach(el => {
-          el.style.borderRadius = theme.buttonBorderRadius;
-        });
-      }
+      if (theme.backgroundColor) root.style.setProperty('--pk-bg-warm', theme.backgroundColor);
+      if (theme.textColor) root.style.setProperty('--pk-text-dark', theme.textColor);
+      if (theme.bodyFont) root.style.setProperty('--pk-font', theme.bodyFont + ', sans-serif');
+      if (theme.buttonBorderRadius) root.style.setProperty('--pk-btn-radius', theme.buttonBorderRadius);
     }
 
     function applyShopSettings(settings) {
@@ -2740,9 +2593,9 @@
       }
     }
 
-    // Load site content on page load
+    // Load site content after main content renders (non-critical)
     document.addEventListener('DOMContentLoaded', function() {
-      loadSiteContent();
+      (window.requestIdleCallback || setTimeout)(loadSiteContent, 100);
     });
 
     // Initialize shop page when DOM is ready
