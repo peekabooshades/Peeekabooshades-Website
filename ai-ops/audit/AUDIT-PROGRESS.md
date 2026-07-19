@@ -16,7 +16,7 @@
 | A | Discovery & Catalog (St 0,1) | ⬜ pending | — |
 | B | Samples (St 3) | ✅ FIXED + verified (S001–S005) | stage-03-samples.md |
 | C | Measure + Configure validation (St 4,5) | ✅ FIXED + verified (M001–M004) | stage-04-05-measure-configure.md |
-| D | Account & Authentication (St 8) | ⬜ pending | — |
+| D | Account & Authentication (St 8) | ✅ FIXED + verified (AC001 IDOR, AC002 enum) | stage-08-account.md |
 | E | Shipping / Fulfillment / Tracking (St 12) | ⬜ pending | — |
 | F | Installation (St 13) | ⬜ pending | — |
 | G | Final Invoice & Balance (St 14) | ⬜ pending | — |

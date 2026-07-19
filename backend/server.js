@@ -16135,6 +16135,38 @@ app.get('/api/admin/audit-logs/resource/:type/:id', authMiddleware, (req, res) =
 // SAVED QUOTES - SAVE FOR LATER FEATURE
 // ============================================
 
+// Stage 8.2 (BUG-AC001): saved quotes are per-customer *account* data and MUST be
+// owner-scoped. These helpers are function declarations (hoisted) because the
+// canonical `customerAuthMiddleware` const is defined later in the file (~17197),
+// after these routes register. Verify a customer JWT and, per quote, confirm the
+// authenticated customer owns it before any read/mutation by id or email.
+function requireCustomerAuth(req, res, next) {
+  try {
+    const authHeader = req.headers.authorization;
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      return res.status(401).json({ success: false, error: 'Authentication required' });
+    }
+    const decoded = jwt.verify(authHeader.split(' ')[1], JWT_SECRET);
+    if (decoded.type !== 'customer') {
+      return res.status(403).json({ success: false, error: 'Invalid token type' });
+    }
+    req.customer = decoded;
+    next();
+  } catch (e) {
+    return res.status(401).json({ success: false, error: 'Invalid or expired token' });
+  }
+}
+
+// True only when the saved quote belongs to the authenticated customer
+// (match by customerId or, failing that, case-insensitive customerEmail).
+function customerOwnsQuote(quote, customer) {
+  if (!quote || !customer) return false;
+  if (quote.customerId && customer.id && quote.customerId === customer.id) return true;
+  if (quote.customerEmail && customer.email &&
+      quote.customerEmail.toLowerCase() === customer.email.toLowerCase()) return true;
+  return false;
+}
+
 /**
  * Save a quote for later (public - no auth required)
  */
@@ -16202,18 +16234,11 @@ app.get('/api/quotes/share/:shareCode', (req, res) => {
 /**
  * Get quotes by email (customer can retrieve their quotes)
  */
-app.get('/api/quotes/my-quotes', (req, res) => {
+app.get('/api/quotes/my-quotes', requireCustomerAuth, (req, res) => {
   try {
-    const { email } = req.query;
-
-    if (!email) {
-      return res.status(400).json({
-        success: false,
-        error: 'Email address is required'
-      });
-    }
-
-    const quotes = savedQuotesService.getQuotesByEmail(email);
+    // Owner-scoped: use the authenticated customer's email from the token, never
+    // a client-supplied ?email= (which allowed reading anyone's saved quotes).
+    const quotes = savedQuotesService.getQuotesByEmail(req.customer.email);
     res.json({ success: true, quotes });
   } catch (error) {
     res.status(500).json({ success: false, error: error.message });
@@ -16223,13 +16248,19 @@ app.get('/api/quotes/my-quotes', (req, res) => {
 /**
  * Update saved quote (add/remove items)
  */
-app.put('/api/quotes/:id', (req, res) => {
+app.put('/api/quotes/:id', requireCustomerAuth, (req, res) => {
   try {
-    const quote = savedQuotesService.updateQuote(req.params.id, req.body);
-
-    if (!quote) {
+    const existing = savedQuotesService.getQuoteById(req.params.id);
+    if (!existing) {
       return res.status(404).json({ success: false, error: 'Quote not found' });
     }
+    if (!customerOwnsQuote(existing, req.customer)) {
+      return res.status(403).json({ success: false, error: 'Forbidden: not your quote' });
+    }
+    // Strip identity/capability/status fields so an update cannot reassign
+    // ownership, forge the shareCode, or flip status (BUG-AC001 hardening).
+    const { id, customerId, customerEmail, shareCode, status, createdAt, ...safe } = req.body;
+    const quote = savedQuotesService.updateQuote(req.params.id, safe);
 
     res.json({ success: true, quote });
   } catch (error) {
@@ -16240,14 +16271,17 @@ app.put('/api/quotes/:id', (req, res) => {
 /**
  * Extend quote expiration
  */
-app.post('/api/quotes/:id/extend', (req, res) => {
+app.post('/api/quotes/:id/extend', requireCustomerAuth, (req, res) => {
   try {
-    const { additionalDays = 30 } = req.body;
-    const quote = savedQuotesService.extendExpiration(req.params.id, additionalDays);
-
-    if (!quote) {
+    const existing = savedQuotesService.getQuoteById(req.params.id);
+    if (!existing) {
       return res.status(404).json({ success: false, error: 'Quote not found' });
     }
+    if (!customerOwnsQuote(existing, req.customer)) {
+      return res.status(403).json({ success: false, error: 'Forbidden: not your quote' });
+    }
+    const { additionalDays = 30 } = req.body;
+    const quote = savedQuotesService.extendExpiration(req.params.id, additionalDays);
 
     res.json({ success: true, quote });
   } catch (error) {
@@ -16258,12 +16292,15 @@ app.post('/api/quotes/:id/extend', (req, res) => {
 /**
  * Convert quote to cart/order
  */
-app.post('/api/quotes/:id/convert', (req, res) => {
+app.post('/api/quotes/:id/convert', requireCustomerAuth, (req, res) => {
   try {
     const quote = savedQuotesService.getQuoteById(req.params.id);
 
     if (!quote) {
       return res.status(404).json({ success: false, error: 'Quote not found' });
+    }
+    if (!customerOwnsQuote(quote, req.customer)) {
+      return res.status(403).json({ success: false, error: 'Forbidden: not your quote' });
     }
 
     // Return quote items for adding to cart
@@ -16282,13 +16319,16 @@ app.post('/api/quotes/:id/convert', (req, res) => {
 /**
  * Delete saved quote
  */
-app.delete('/api/quotes/:id', (req, res) => {
+app.delete('/api/quotes/:id', requireCustomerAuth, (req, res) => {
   try {
-    const quote = savedQuotesService.deleteQuote(req.params.id);
-
-    if (!quote) {
+    const existing = savedQuotesService.getQuoteById(req.params.id);
+    if (!existing) {
       return res.status(404).json({ success: false, error: 'Quote not found' });
     }
+    if (!customerOwnsQuote(existing, req.customer)) {
+      return res.status(403).json({ success: false, error: 'Forbidden: not your quote' });
+    }
+    const quote = savedQuotesService.deleteQuote(req.params.id);
 
     res.json({ success: true, message: 'Quote deleted' });
   } catch (error) {
@@ -17135,10 +17175,15 @@ app.post('/api/customer/login', async (req, res) => {
     // Find customer by email
     const customer = db.customers?.find(c => c.email?.toLowerCase() === email.toLowerCase());
 
+    // Uniform response to avoid account enumeration (BUG-AC002): unknown email
+    // and wrong password return the same message; a dummy bcrypt compare keeps
+    // response timing even when the account is absent (kills the timing oracle).
+    const DUMMY_HASH = '$2b$10$/knOS6J/5jh3sQvXl/hoOexlhtSLt08Ic3AYyuvSQJY4.v6wA8rgK';
     if (!customer) {
+      await bcrypt.compare(password, DUMMY_HASH);
       return res.status(401).json({
         success: false,
-        error: 'No account found with this email address'
+        error: 'Invalid email or password'
       });
     }
 
@@ -17154,7 +17199,7 @@ app.post('/api/customer/login', async (req, res) => {
     if (!isValidPassword) {
       return res.status(401).json({
         success: false,
-        error: 'Invalid password. Please try again.'
+        error: 'Invalid email or password'
       });
     }
 
