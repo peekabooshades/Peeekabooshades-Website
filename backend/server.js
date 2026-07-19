@@ -4069,31 +4069,89 @@ app.get('/api/fabrics', (req, res) => {
 app.post('/api/sample-requests', (req, res) => {
   try {
     const db = loadDatabase();
-    const { name, email, phone, address, samples } = req.body;
+    const { name, email, phone, address, samples, consent } = req.body;
 
-    if (!name || !email || !address || !samples || samples.length === 0) {
+    if (!name || !email || !address || !samples || !Array.isArray(samples) || samples.length === 0) {
       return res.status(400).json({ success: false, error: 'Missing required fields' });
     }
 
-    if (samples.length > 10) {
+    // Stage 3.2 — validate the contact email so the confirmation / follow-up can actually be delivered
+    const emailOk = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(email).trim());
+    if (!emailOk) {
+      return res.status(400).json({ success: false, error: 'Invalid email address' });
+    }
+
+    // Build the authoritative fabric-code index from the same sources as GET /api/fabrics
+    const rollerFabrics = db.productContent?.fabrics || [];
+    const zebraFabrics = db.zebraFabrics || [];
+    const codeToInvId = {};
+    rollerFabrics.forEach(f => { if (f.code) codeToInvId[String(f.code).toUpperCase()] = (f.id || f.code); });
+    zebraFabrics.forEach(f => { if (f.code) codeToInvId[String(f.code).toUpperCase()] = f.code; });
+
+    // Stage 3.1 — normalize + de-duplicate the requested fabric codes
+    const requested = [...new Set(samples.map(s => String(s).trim()).filter(Boolean))];
+    if (requested.length === 0) {
+      return res.status(400).json({ success: false, error: 'No valid fabric codes provided' });
+    }
+    if (requested.length > 10) {
       return res.status(400).json({ success: false, error: 'Maximum 10 samples allowed' });
     }
 
-    // Initialize sampleRequests array if not exists
+    // Stage 3.1 — reject codes that are not in the fabric catalog (no junk/invalid samples)
+    const unknown = requested.filter(c => !(c.toUpperCase() in codeToInvId));
+    if (unknown.length > 0) {
+      return res.status(400).json({ success: false, error: 'Unknown fabric code(s): ' + unknown.join(', ') });
+    }
+
     if (!db.sampleRequests) db.sampleRequests = [];
+    if (!db.sampleInventory) db.sampleInventory = {};
+    if (!db.emailLogs) db.emailLogs = [];
+
+    const now = new Date();
+
+    // Stage 3.3 — create the sample fulfillment: reserve one swatch per requested code
+    const fulfillment = requested.map(code => {
+      const invId = codeToInvId[code.toUpperCase()];
+      const inv = db.sampleInventory[invId] || { stock: 50, reserved: 0, reorderPoint: 20, lastRestock: now.toISOString() };
+      const available = (inv.stock || 0) - (inv.reserved || 0);
+      const reserved = available > 0;
+      if (reserved) inv.reserved = (inv.reserved || 0) + 1;
+      db.sampleInventory[invId] = inv;
+      return { code, invId, status: reserved ? 'reserved' : 'backordered' };
+    });
+
+    // Stage 3.4 — schedule the "ready to order?" nudge (~2 weeks out), to be sent only if consent given
+    const followUpDue = new Date(now.getTime() + 14 * 24 * 60 * 60 * 1000).toISOString();
 
     const request = {
       id: 'SR-' + Date.now(),
       name,
-      email,
+      email: String(email).trim(),
       phone: phone || '',
       address,
-      samples,
+      samples: requested,
+      consent: consent === true,   // Stage 3.2 — marketing consent for the follow-up nudge
       status: 'pending',
-      requestedAt: new Date().toISOString()
+      fulfillment,                 // Stage 3.3
+      followUpDue,                 // Stage 3.4
+      followUpSent: false,
+      requestedAt: now.toISOString()
     };
 
     db.sampleRequests.push(request);
+
+    // notification-send skill — log the confirmation notification for audit (UI promises a confirmation email)
+    db.emailLogs.push({
+      id: 'EL-' + Date.now(),
+      type: 'sample_request_confirmation',
+      to: request.email,
+      template: 'sample-request-confirmation',
+      relatedId: request.id,
+      consent: request.consent,
+      status: 'queued',
+      createdAt: now.toISOString()
+    });
+
     saveDatabase(db);
 
     res.json({ success: true, data: request, message: 'Sample request submitted successfully' });

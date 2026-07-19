@@ -1,0 +1,513 @@
+<html><head><meta charset="utf-8"><style>
+body{font-family:'Helvetica Neue','Segoe UI',Arial,sans-serif;font-size:10.5pt;line-height:1.5;color:#1f2933;margin:0;}
+h1{font-size:23pt;color:#1b2a41;margin:0 0 4px 0;}
+h2{font-size:15pt;color:#1b2a41;margin-top:26px;border-bottom:2px solid #b08d57;padding-bottom:4px;}
+h3{font-size:12pt;color:#324a5f;margin-top:18px;}
+h4{font-size:10.8pt;color:#324a5f;margin-bottom:2px;}
+p{margin:6px 0;}
+table{border-collapse:collapse;width:100%;margin:10px 0;font-size:8.8pt;}
+th,td{border:1px solid #c7ced6;padding:5px 7px;text-align:left;vertical-align:top;}
+th{background:#1b2a41;color:#fff;font-weight:600;}
+tr:nth-child(even) td{background:#f4f6f8;}
+pre{background:#f4f6f8;border-left:3px solid #b08d57;padding:9px 11px;font-family:'Courier New',monospace;font-size:8.2pt;white-space:pre;overflow-x:auto;line-height:1.35;}
+.cover{text-align:center;padding:60px 20px 30px 20px;border-bottom:3px solid #b08d57;}
+.sub{color:#324a5f;font-size:13pt;font-weight:500;}
+.tag{display:inline-block;background:#1b2a41;color:#fff;padding:2px 10px;border-radius:3px;font-size:8.5pt;margin:2px;}
+.tag.amber{background:#b08d57;}
+.confirm{color:#9a6a00;font-weight:600;}
+.legal{color:#a12b2b;font-weight:600;}
+.callout{background:#f4f0e8;border:1px solid #d9c9ad;border-left:4px solid #b08d57;padding:8px 12px;margin:10px 0;font-size:9.5pt;}
+.small{font-size:8.8pt;color:#5a6673;}
+ul,ol{margin:5px 0;padding-left:20px;} li{margin:2px 0;}
+.toc td{border:none;padding:2px 6px;font-size:9.5pt;}
+.metric{color:#1b2a41;font-weight:600;}
+</style></head><body>
+
+<div class="cover">
+<p class="small" style="letter-spacing:2px;margin-bottom:20px;">PEEKABOOSHADES &nbsp;|&nbsp; CUSTOM WINDOW TREATMENTS</p>
+<h1>Enterprise Digital Platform</h1>
+<p class="sub">Architecture, Engineering &amp; Delivery Blueprint</p>
+<p style="margin-top:16px;"><span class="tag">CONFIDENTIAL</span><span class="tag amber">DRAFT v2.0 — FOR OWNER &amp; LEGAL REVIEW</span></p>
+<p class="small" style="margin-top:22px;max-width:620px;margin-left:auto;margin-right:auto;">
+An enterprise-grade program definition and technical architecture for the PeekabooShades commerce, operations, partner, finance, analytics and AI platform. Prepared to the standard of a Program Director / Principal Solutions Architect, incorporating the client's <i>Mandatory Shopify, GitHub, Admin-Portal and Recursive Engineering Module</i> as the binding requirements baseline.</p>
+</div>
+
+<h2 style="border:none;margin-top:24px;">Document Control</h2>
+<table>
+<tr><th style="width:22%">Attribute</th><th>Detail</th></tr>
+<tr><td>Document title</td><td>PeekabooShades Enterprise Digital Platform — Architecture, Engineering &amp; Delivery Blueprint</td></tr>
+<tr><td>Classification</td><td>Confidential — Internal &amp; Advisors</td></tr>
+<tr><td>Status</td><td><b>Draft v2.0 — For Owner &amp; Legal Review.</b> Not approved for execution. No build activity is authorized by this document.</td></tr>
+<tr><td>Prepared by</td><td>Delivery Team (Program Director / Principal Solutions Architect role)</td></tr>
+<tr><td>Requirements baseline</td><td>“Mandatory Shopify, GitHub, Admin-Portal and Recursive Engineering Module” (21 sections) — incorporated in §6 and traced in the Requirements Traceability Matrix (§6.2).</td></tr>
+<tr><td>Related artifacts</td><td>Repo <code>ai-ops/</code>: customer-journey.md · 17 agent specs · 8 skill specs · audit/defect-backlog.md</td></tr>
+</table>
+
+<h4>Version History</h4>
+<table>
+<tr><th style="width:10%">Version</th><th style="width:14%">Date</th><th>Summary of change</th><th style="width:16%">Author</th></tr>
+<tr><td>0.1</td><td>Prior</td><td>Initial capability outline</td><td>Delivery Team</td></tr>
+<tr><td>1.0 / 1.1</td><td>Prior</td><td>First full blueprint; added the two-program detailed plan (§ Program A / B)</td><td>Delivery Team</td></tr>
+<tr><td><b>2.0</b></td><td>Current</td><td>Rebuilt to enterprise PM standard: governance, scope statement, requirements baseline + traceability to the 21-section mandate, RAID log, milestone schedule, test/deployment/monitoring plans, decision register</td><td>Delivery Team</td></tr>
+</table>
+
+<h4>Distribution &amp; Sign-off</h4>
+<table>
+<tr><th>Role</th><th>Name</th><th>Responsibility</th><th>Sign-off</th><th>Date</th></tr>
+<tr><td>Business Owner (Sponsor)</td><td>PeekabooShades Owner</td><td>Scope, budget, business decisions, final approval</td><td>☐ Pending</td><td>—</td></tr>
+<tr><td>Legal / Compliance</td><td><span class="legal">[To be assigned]</span></td><td>Terms, tax, privacy, PCI, accessibility, AI &amp; third-party asset authorization</td><td>☐ Pending</td><td>—</td></tr>
+<tr><td>Finance</td><td><span class="confirm">[To be assigned]</span></td><td>Pricing, invoicing, reconciliation, commission policy</td><td>☐ Pending</td><td>—</td></tr>
+<tr><td>Delivery (Architect/PM)</td><td>Delivery Team</td><td>Architecture, engineering, execution, reporting</td><td>Author</td><td>Current</td></tr>
+</table>
+
+<h2>Table of Contents</h2>
+<table class="toc"><tr><td>
+1. Executive Summary<br>
+2. Purpose, Background &amp; Business Case<br>
+3. Scope Statement (In / Out / Assumptions / Constraints)<br>
+4. Objectives &amp; Success Criteria<br>
+5. Governance &amp; Operating Model<br>
+6. Requirements Baseline &amp; Traceability (the Mandate)<br>
+7. Guiding Engineering Principles<br>
+8. Solution Architecture<br>
+9. Data Architecture (OLTP, OLAP, ERD)<br>
+10. Admin-Panel Architecture<br>
+11. Functional Domains<br>
+12. Detailed Delivery Plan — Programs A &amp; B<br>
+</td><td>
+13. Delivery Roadmap &amp; Milestones<br>
+14. Workstreams, Agents &amp; Skills<br>
+15. Non-Functional Architecture (Security, SRE, Performance, Compliance)<br>
+16. Data-Flow Diagrams<br>
+17. Quality &amp; Test Strategy<br>
+18. Deployment, Release &amp; Rollback<br>
+19. Monitoring Plan<br>
+20. RAID Log (Risks, Assumptions, Issues, Dependencies)<br>
+21. Implementation Prioritization<br>
+22. Owner &amp; Legal Decision Register<br>
+23. Appendices (Glossary · Current-State Inventory · Mandate Index)<br>
+</td></tr></table>
+
+<h2>1. Executive Summary</h2>
+<p>PeekabooShades sells custom, made-to-measure indoor and outdoor window treatments. To operate at enterprise scale it must run like a modern commerce business: a design-led Shopify storefront, a deterministic made-to-measure pricing engine, multi-party fulfillment (manufacturer → shipping → installer), partner channels (dealer, designer, realtor, affiliate), and a finance and analytics backbone — all governed by security, reliability and compliance controls.</p>
+<p>This blueprint defines the target platform and a disciplined, approval-gated delivery method. It adopts the client's mandate that all work follow a <b>recursive engineering lifecycle</b> (Discover → Map → Research → Design → Implement → Test → Deploy → Monitor → Detect → Root-cause → Fix → Retest downstream → Redeploy) and a strict <b>native-Shopify-first</b> capability order, with <b>no front-end redesign</b> unless a verified defect requires it.</p>
+<div class="callout"><b>Principal architectural finding (evidence-based, not assumed).</b> The store runs on the Shopify <b>Basic</b> plan. Shopify B2B / Companies / customer-specific catalogs are Plus-only and therefore <b>unavailable today</b>. Consequently, the existing custom backend must remain the system of record for partner accounts, custom/dealer pricing, quotes, work orders, installer assignments and commissions, while Shopify remains authoritative for products, customers, cart, checkout, orders, payments and fulfillment. <span class="confirm">[CONFIRM: is a future upgrade to Shopify Plus in scope? It materially changes what can be native.]</span></div>
+<p><b>Approach.</b> Two programs run in a controlled parallel: <b>Program A — Enterprise Engineering</b> (audit → fix → align → complete the platform) runs first and continuously; <b>Program B — AI/MLOps</b> runs its design-only phases in parallel and gates its build phases on Program A delivering clean data, stable APIs and consent-compliant capture. Every change is reproduced, justified with a real-time example, approved, applied as the smallest safe change on a feature branch, tested, and retested downstream — never on <code>main</code>.</p>
+
+<h2>2. Purpose, Background &amp; Business Case</h2>
+<p><b>Purpose.</b> Provide a single, legally-reviewable reference that defines what will be built, in what order, under what controls, and how success is measured — before any implementation.</p>
+<p><b>Background (confirmed current state).</b></p>
+<table>
+<tr><th style="width:24%">Area</th><th>Confirmed fact (verified, not assumed)</th></tr>
+<tr><td>Storefront</td><td>Shopify store on peekabooshades.com; live theme id 152141168836 (Peekaboo custom design on Dawn base); USD; United States; timezone America/Chicago.</td></tr>
+<tr><td>Plan</td><td><b>Basic</b> — no native B2B/Companies; limited checkout customization.</td></tr>
+<tr><td>Customer accounts</td><td>New passwordless (email-code) accounts; login/register handled on Shopify-hosted pages.</td></tr>
+<tr><td>Product lines</td><td>Roller, Zebra, Roman, Honeycomb shades; ZSTARR fabric collections (e.g. 82067 light-filtering &amp; blackout).</td></tr>
+<tr><td>Backend application</td><td>Node/Express on port 3001; JSON file datastore (database.json) plus legacy SQLite; 30 service modules; Stripe, PayPal, SendGrid, Twilio and Anthropic SDK integrations.</td></tr>
+<tr><td>Portals present in repo</td><td>Admin (191 pages), Dealer (6), Manufacturer (2), Installer/Technician (7).</td></tr>
+<tr><td>Data volume today</td><td>4 products, 12 orders, 3 quotes, 13 customers, 369 manufacturer fabric-rate rows, ~689 unlabeled product/fabric images.</td></tr>
+</table>
+<p><b>Business case.</b> Accurate instant quoting, zero pricing leakage, reliable multi-party fulfillment, and partner-channel growth directly increase conversion, average order value and repeat revenue while reducing remakes and manual effort. The platform also compounds every order into data that improves the next sale.</p>
+
+<h2>3. Scope Statement</h2>
+<h4>3.1 In scope</h4>
+<ul>
+<li>Audit, correction and completion of the Shopify store, theme, Admin configuration, backend services, APIs, webhooks and all portals (admin, dealer, manufacturer, installer, plus new: interior-designer, realtor, affiliate, customer).</li>
+<li>Deterministic, versioned pricing engine with cross-surface parity; order/invoice/payment state machines; RBAC; analytics (OLTP→OLAP); automation &amp; scheduling.</li>
+<li>Front-end alignment of the GitHub application to the live Shopify theme (same design), and the required architecture deliverables (§19 of the mandate).</li>
+<li>AI systems: support chatbot, recommendation, fraud/anomaly rules, and the roadmap for the Indoor Visual Designer and Outdoor Weather &amp; Quote engines.</li>
+</ul>
+<h4>3.2 Out of scope (unless explicitly approved)</h4>
+<ul>
+<li>Any visual redesign of the customer-facing storefront.</li>
+<li>Replacing a working native Shopify feature with custom code.</li>
+<li>Editing the <code>main</code> branch or the live theme directly.</li>
+<li>Training custom computer-vision models before sufficient labeled data and consent-compliant capture exist.</li>
+</ul>
+<h4>3.3 Assumptions to be confirmed</h4>
+<p>All business/commercial assumptions are itemized in the Decision Register (§22) and marked <span class="confirm">[CONFIRM]</span>. No assumption is treated as fact until the owner confirms it.</p>
+<h4>3.4 Constraints</h4>
+<ul>
+<li>Shopify Basic plan capability limits (no native B2B) until/unless upgraded.</li>
+<li>Native-Shopify-first order is binding; custom code only when no safe native option exists.</li>
+<li>No front-end redesign without a documented, approved, verified defect.</li>
+<li>Legal sign-off required on all items marked <span class="legal">[LEGAL]</span> before the related feature goes live.</li>
+</ul>
+
+<h2>4. Objectives &amp; Success Criteria</h2>
+<table>
+<tr><th style="width:26%">Objective</th><th>Success criterion / KPI</th><th style="width:22%">Target</th></tr>
+<tr><td>Pricing integrity</td><td>Price identical across product page, cart, checkout, order, invoice, dealer &amp; sales portals for the same configuration</td><td class="metric">Zero mismatch (any mismatch = P1)</td></tr>
+<tr><td>No data loss</td><td>Every configuration selection survives cart → checkout → order → work order → invoice → analytics</td><td class="metric">100% field retention</td></tr>
+<tr><td>Faster quoting</td><td>Consultation-to-quote cycle time; quote-to-order conversion</td><td><span class="confirm">[CONFIRM baseline &amp; target]</span></td></tr>
+<tr><td>Measurement accuracy</td><td>Remake rate due to incorrect dimensions</td><td><span class="confirm">[CONFIRM]</span></td></tr>
+<tr><td>Operational throughput</td><td>Order → manufacture → ship → install cycle time; on-time install %</td><td><span class="confirm">[CONFIRM]</span></td></tr>
+<tr><td>Financial control</td><td>Deposit collection %, invoice aging, reconciliation accuracy</td><td class="metric">100% reconciled</td></tr>
+<tr><td>Security &amp; access</td><td>Zero unauthorized cross-role/cross-customer data access; all critical actions audited</td><td class="metric">Zero violations</td></tr>
+<tr><td>Growth</td><td>Partner-sourced revenue %, AOV, repeat rate, SEO/AI-search traffic</td><td><span class="confirm">[CONFIRM]</span></td></tr>
+</table>
+
+<h2>5. Governance &amp; Operating Model</h2>
+<h4>5.1 Change-control &amp; approval gates</h4>
+<div class="callout"><b>Change-control rule.</b> No code, design or configuration change proceeds without: (1) reproduction of the issue, (2) written justification, (3) a concrete real-time example, (4) owner approval, (5) the smallest safe change, (6) test + downstream retest, (7) deployment to a feature branch — never <code>main</code> — and (8) monitoring. This rule is embedded in every agent and skill specification.</div>
+<h4>5.2 Approval gates by phase</h4>
+<table>
+<tr><th>Gate</th><th>Trigger</th><th>Approver</th><th>Evidence required</th></tr>
+<tr><td>G1 Audit accepted</td><td>Defect backlog complete</td><td>Owner</td><td>Reproductions + severity ranking</td></tr>
+<tr><td>G2 Architecture accepted</td><td>Target-state + source-of-truth + RBAC signed</td><td>Owner (+ Legal on data items)</td><td>Diagrams, matrices, ERD</td></tr>
+<tr><td>G3 Fix approval</td><td>Each P0/P1 fix</td><td>Owner</td><td>Justification + real-time example + test result</td></tr>
+<tr><td>G4 Front-end change</td><td>Any visible UI change</td><td>Owner</td><td>Before/after desktop+mobile screenshots + visual-regression pass</td></tr>
+<tr><td>G5 Go-live</td><td>Any production release</td><td>Owner (+ Legal where flagged)</td><td>QA sign-off + rollback plan</td></tr>
+</table>
+<h4>5.3 RACI (program level)</h4>
+<table>
+<tr><th>Activity</th><th>Responsible</th><th>Accountable</th><th>Consulted</th><th>Informed</th></tr>
+<tr><td>Architecture &amp; engineering</td><td>Delivery Team (agents/skills)</td><td>Owner</td><td>Legal, Finance</td><td>Ops, Sales</td></tr>
+<tr><td>Business/policy approvals</td><td>Owner</td><td>Owner</td><td>Legal, Finance</td><td>Delivery Team</td></tr>
+<tr><td>Legal &amp; compliance sign-off</td><td>Legal</td><td>Owner</td><td>Delivery Team</td><td>Finance</td></tr>
+<tr><td>Pricing &amp; finance policy</td><td>Finance</td><td>Owner</td><td>Delivery Team</td><td>Sales</td></tr>
+</table>
+
+<h2>6. Requirements Baseline &amp; Traceability (the Mandate)</h2>
+<p>The client's <b>“Mandatory Shopify, GitHub, Admin-Portal and Recursive Engineering Module”</b> (21 numbered sections) is adopted verbatim as the binding requirements baseline. Its core directives: operate as a recursive lifecycle (never stop at an audit); apply the native-Shopify-first order; protect the front-end design; audit every repository, page, portal, API and webhook; produce a defined set of architecture deliverables; and prioritize fixes security → payment/invoice → pricing → data-loss → orders → permissions → integrations before any enhancement.</p>
+<h4>6.1 Non-negotiable directives (extracted)</h4>
+<ul>
+<li><b>Do not stop after producing an audit</b> — run the full recursive fix loop.</li>
+<li><b>Native-first order</b> (§6.3 below) governs every feature decision; never build custom merely because it is possible; never replace a working native feature.</li>
+<li><b>Verify plan/feature/limits/B2B/API before use</b> — never assume a feature is free or available.</li>
+<li><b>Front-end protection</b> — preserve branding, logo, typography, palette, product cards, layout, navigation, spacing, responsive behavior; smallest possible UI change with before/after screenshots + visual-regression + approval.</li>
+<li><b>One source of truth per data domain</b>; do not maintain two competing systems.</li>
+<li><b>Pricing must be deterministic, versioned, reproducible</b>; never store only the total; any cross-surface mismatch is a critical defect.</li>
+<li><b>Least-privilege RBAC</b> with the stated hard rules (manufacturers can't see customer financials; installers see only assigned jobs; etc.).</li>
+<li><b>Do not proceed to unrelated enhancements while P0/P1 defects exist.</b></li>
+<li><b>Start with architecture, data flow, source-of-truth, permissions, functional testing and defect inventory</b> — not visual design, not blog posts, not replacing working code.</li>
+</ul>
+<h4>6.2 Requirements Traceability Matrix (all 21 mandate sections → deliverable → status)</h4>
+<table>
+<tr><th style="width:5%">#</th><th style="width:30%">Mandate section</th><th style="width:40%">Where satisfied in this blueprint / repo</th><th style="width:25%">Status</th></tr>
+<tr><td>1</td><td>Critical implementation rule (native-first order)</td><td>§7.1 Native-first capability order</td><td>Defined</td></tr>
+<tr><td>2</td><td>Front-end design protection</td><td>§7.2; Gate G4 (§5.2)</td><td>Defined</td></tr>
+<tr><td>3</td><td>GitHub repository audit</td><td>§8, §23 inventory; Program A/A1</td><td>In progress (audit pass 1)</td></tr>
+<tr><td>4</td><td>Required page &amp; module inventory</td><td>§10 Admin architecture; §11 domains; portal list</td><td>Partially inventoried</td></tr>
+<tr><td>5</td><td>Shopify-native capability matrix</td><td>§8.3 (to be completed as A2 deliverable)</td><td><span class="confirm">Planned (A2)</span></td></tr>
+<tr><td>6</td><td>Source-of-truth architecture</td><td>§8.2 Source-of-truth matrix</td><td>Defined (verify per impl.)</td></tr>
+<tr><td>7</td><td>Complete admin-panel architecture</td><td>§10 Admin-panel architecture</td><td>Defined</td></tr>
+<tr><td>8</td><td>End-to-end data-flow design (L0/L1/L2)</td><td>§16 Data-flow diagrams</td><td>L0/L2 drafted; full set = A2</td></tr>
+<tr><td>9</td><td>Required data entities (ERD)</td><td>§9.3 Entity model</td><td>Entity list defined; ERD = A2</td></tr>
+<tr><td>10</td><td>Product-configuration data flow + field mapping</td><td>§11.1, §16 pricing/config flow</td><td>Defined; field-map = A2</td></tr>
+<tr><td>11</td><td>Pricing-engine data flow (deterministic/versioned)</td><td>§11.3, §16 L2 pricing</td><td>Defined</td></tr>
+<tr><td>12</td><td>Order-state architecture (state machine)</td><td>§11.6; state machine = A2</td><td><span class="confirm">Planned (A2)</span></td></tr>
+<tr><td>13</td><td>Role-based access control matrix</td><td>§15.1 Security &amp; RBAC</td><td>Rules defined; full matrix = A2</td></tr>
+<tr><td>14</td><td>API &amp; webhook catalog</td><td>§8, A2 deliverable</td><td><span class="confirm">Planned (A2)</span></td></tr>
+<tr><td>15</td><td>Analytics data-flow architecture</td><td>§9.2 OLAP pipeline; §16</td><td>Defined</td></tr>
+<tr><td>16</td><td>Recursive bug-detection &amp; fix loop</td><td>§5.1, §12 Program A, §17 test strategy</td><td>Adopted</td></tr>
+<tr><td>17</td><td>Bug backlog format</td><td>repo <code>ai-ops/audit/defect-backlog.md</code></td><td>In use (pass 1)</td></tr>
+<tr><td>18</td><td>Required automated tests</td><td>§17 Quality &amp; test strategy</td><td>Planned (A6)</td></tr>
+<tr><td>19</td><td>Required architecture deliverables (25 items)</td><td>§8–§16 map to each; tracked as A2 outputs</td><td>In progress</td></tr>
+<tr><td>20</td><td>Required implementation plan (priority order)</td><td>§21 Implementation prioritization</td><td>Adopted</td></tr>
+<tr><td>21</td><td>First execution instructions</td><td>§12 Program A A0–A1; §13 roadmap</td><td>A0 done; A1 in progress</td></tr>
+</table>
+
+<h2>7. Guiding Engineering Principles</h2>
+<h4>7.1 Native-Shopify-first capability order (binding)</h4>
+<pre>
+Existing Shopify native -> Admin config -> theme section/block/template -> metafields
+ -> metaobjects -> products/variants/collections -> customer accounts
+ -> Companies/B2B/payment terms (when plan supports) -> draft orders/orders/discounts/invoices
+ -> Shopify Forms / official capability -> Shopify Flow -> installed app that already meets need
+ -> free official app (after security & limit check) -> existing GitHub backend service
+ -> Admin/Storefront/Customer-Account API or webhooks -> Shopify Functions
+ -> custom backend code -> paid app (documented business case)
+ -> new custom frontend (only when no safe native option, with owner approval)
+</pre>
+<p>Rules: do not create custom code merely because it is possible; do not replace a working native feature; do not force a free solution that creates security/scalability/reliability/operational risk. Verify plan, feature availability, usage &amp; API limits, checkout-customization limits, B2B availability, customer-account capabilities, Flow capabilities, app pricing/permissions/maintenance before use.</p>
+<h4>7.2 Front-end protection</h4>
+<p>Preserve branding, logo, typography, palette, product-card appearance, product-page layout, navigation style, component patterns, spacing, responsive behavior, customer flow, approved images and content hierarchy. Backend logic (APIs, DB, webhooks, pricing, auth, roles, order state, invoicing, reconciliation, analytics, notifications, Functions, Flow, validation, caching, queues, security) may be corrected. Any visible change follows Gate G4.</p>
+
+<h2>8. Solution Architecture</h2>
+<h4>8.1 System context</h4>
+<pre>
+        Customers / Dealers / Designers / Realtors / Affiliates
+                 |                              |
+        Shopify Storefront (theme)      Authorized Partner Portals (backend)
+                 \______________________________/
+                                |
+        +-----------------------+------------------------+
+        |                                                |
+   SHOPIFY (source of truth:                    BACKEND PLATFORM (source of truth:
+   products, variants, customers, cart,          partner accounts, custom/dealer pricing,
+   checkout, orders, payments, discounts,        quotes, work orders, production & install
+   fulfillment)                                  milestones, measurements, commissions, audit)
+        |                                                |
+   Admin/Storefront/Customer-Account APIs        APIs · Webhooks · Queues
+   + Webhooks                                          |
+        \_______________________________________________/
+                                |
+        Analytics / Data Warehouse (OLAP)  ·  Notifications (email/SMS)
+                                |
+        Dashboards: Executive · Sales · Ops · Finance · SEO · SRE
+</pre>
+<h4>8.2 Source-of-truth matrix (recommended; verify per implementation)</h4>
+<table>
+<tr><th>Data domain</th><th>System of record</th><th>Read-only consumers</th><th>Sync method</th><th>Conflict rule</th></tr>
+<tr><td>Products, variants, collections, customers, cart, checkout, orders, payments, discounts, fulfillment</td><td><b>Shopify</b></td><td>Backend, analytics, portals</td><td>Webhooks + Admin API</td><td>Shopify wins</td></tr>
+<tr><td>Fabric codes/opacity/limits, custom &amp; dealer pricing rules + versions, quotes, work orders, production/install milestones, measurements, commissions, partner accounts, audit</td><td><b>Backend</b></td><td>Admin, portals, analytics</td><td>APIs; mirror status to Shopify metafields</td><td>Backend wins for operational data</td></tr>
+<tr><td>Analytics events</td><td><b>Warehouse (OLAP)</b></td><td>Dashboards</td><td>Event pipeline</td><td>Never writes back to orders/finance</td></tr>
+<tr><td>Code</td><td><b>GitHub</b></td><td>—</td><td>—</td><td>Never business transaction data</td></tr>
+</table>
+<h4>8.3 Shopify-native capability matrix</h4>
+<p>A full matrix (business requirement → existing implementation → native option → app option → plan requirement → free/paid → limitation → custom backend? → custom frontend? → recommendation) covering all 40+ capabilities listed in mandate §5 will be produced as an <b>A2 deliverable</b>. Guiding rule: use native Shopify whenever it safely meets ≥90% of the requirement; never run two competing systems for one source of truth. <span class="confirm">[CONFIRM: Plus upgrade decision precedes this matrix for all B2B/partner-pricing rows.]</span></p>
+
+<h2>9. Data Architecture — OLTP, OLAP &amp; Entities</h2>
+<h4>9.1 OLTP (transactional)</h4>
+<ul>
+<li>Shopify handles high-integrity commerce transactions (orders, payments, refunds).</li>
+<li>Backend OLTP holds operational transactions Shopify does not model (work orders, install appointments, measurements, commissions, quote versions). <span class="confirm">[CONFIRM: migrate JSON/SQLite to a managed transactional DB (e.g. PostgreSQL) for concurrency, backups and audit — recommended.]</span></li>
+<li>Every pricing calculation stores inputs + applied rules + pricing version + timestamp (never only the total).</li>
+</ul>
+<h4>9.2 OLAP (analytical) pipeline</h4>
+<pre>
+Sources: Shopify(orders,customers,checkout) · Backend(quotes,production,installs,commissions) ·
+         GA4 · Search Console · Google Business Profile · Marketing platforms · Payment/Invoice events
+  -> Event collection & validation (consent-aware)
+  -> Operational data store / secure integration layer (ELT)
+  -> Transformation & data-quality checks
+  -> Analytics warehouse (star schema: fact_orders, fact_quotes, fact_production, fact_installs,
+     fact_payments, dim_customer, dim_product, dim_fabric, dim_partner, dim_date, dim_geo)
+  -> Business metrics layer (revenue, pipeline, cycle time, remake rate, LTV, attribution)
+  -> Dashboards (Executive / Sales / Ops / Finance / SEO / SRE)
+</pre>
+<p>The analytics layer is a <b>read-only consumer</b>; it must never update orders or financial records. <span class="confirm">[CONFIRM: warehouse/BI choice — e.g. BigQuery/Snowflake + Looker/Metabase.]</span></p>
+<h4>9.3 Entity model (ERD scope)</h4>
+<p>An entity-relationship model will be produced (A2) for all 40+ entities named in mandate §9 — User, Role, Permission, Customer, Company, Dealer, Manufacturer, Installer, Realtor, Interior-designer, Affiliate, Address, Lead, Consultation, Quote, Quote-version, Product, Variant, Product-option, Fabric, Fabric-code, Fabric-image, Measurement, Pricing-rule, Pricing-version, Discount, Coupon, Cart-configuration, Order, Order-item, Work-order, Manufacturing-milestone, Shipment, Installation-assignment, Installation-appointment, Installation-checklist, Payment, Refund, Invoice, Invoice-line, Subscription, Commission, Notification, Attachment, Status-history, Analytics-event, Audit-log — each documenting PK, Shopify id, internal id, required/optional fields, relationships, validation, data owner, retention, sensitivity, and create/update/delete permissions.</p>
+
+<h2>10. Admin-Panel Architecture</h2>
+<p>Per mandate §7, the admin panel comprises the following modules (built native-Shopify-first; backend only where Shopify cannot model the need):</p>
+<table>
+<tr><th>Module</th><th>Purpose (key contents)</th><th>Primary source</th></tr>
+<tr><td>Executive dashboard</td><td>Revenue, orders, quotes, qualified leads, consultations, avg project value, payments due, outstanding invoices, orders in manufacturing, installs pending, delays, lead sources, product/city/dealer/installer/manufacturer performance</td><td>OLAP + Shopify</td></tr>
+<tr><td>Product &amp; fabric admin</td><td>Products, collections, fabric families/codes/colors/images/status, blackout &amp; light-filtering level, material, supplier, width/height limits, motor compatibility, price group, availability, discontinued</td><td>Shopify (metafields/metaobjects)</td></tr>
+<tr><td>Product-option admin</td><td>Width, height, mount, style, fabric, control, motor, motor side, remote, hub, solar, valance, cassette, bottom rail, installation, shipping, quantity, measurement service — each with allowed values, dependencies, incompatibilities, validation, price/SKU/manufacturing effect, display conditions</td><td>Shopify + backend rules</td></tr>
+<tr><td>Pricing admin</td><td>Base &amp; per-m² price, min billable area, product/fabric multipliers, motor/remote/hub/solar/shipping/install/high-ceiling prices, dealer price, manufacturer cost, affiliate/realtor/designer commission, discount/coupon rules, tax behavior, effective dates, pricing version</td><td>Backend (versioned)</td></tr>
+<tr><td>Lead &amp; quote admin</td><td>Source, contact, ZIP, service area, project type, #windows, product/motorization interest, budget, timeline, photos, measurements, sales owner, lead score, quote status, follow-up, lost reason</td><td>Backend CRM</td></tr>
+<tr><td>Orders admin</td><td>Shopify order id, internal project id, customer, products, measurements, fabric code, options, pricing breakdown, payment/manufacturing/shipping/installation/invoice status, assigned dealer/manufacturer/installer, history, notes, attachments, audit trail</td><td>Shopify + backend</td></tr>
+<tr><td>Payment admin</td><td>Amount due, deposit, balance, method, Shopify transaction id, status, due date, refund, chargeback, failed payment, reconciliation status (no full card data)</td><td>Shopify/Stripe/PayPal</td></tr>
+<tr><td>Invoice admin</td><td>Quote/deposit/balance/final invoice, credit memo, refund docs, number, dates, status, customer download, email delivery, reminder, audit</td><td>Shopify draft orders + backend</td></tr>
+<tr><td>Manufacturer / Installer / Dealer admin</td><td>Work orders &amp; production/QA; installer assignment/appointment/photos/checklist/signature; dealer profile/territory/catalog/pricing/commissions/permissions</td><td>Backend</td></tr>
+<tr><td>Sales · Marketing · Analytics · Security admin</td><td>Pipeline &amp; performance; coupons/campaigns/affiliate &amp; partner codes/attribution/fraud monitoring; all analytics domains; users/roles/permissions/sessions/MFA/login history/API creds/webhook secrets/audit logs/data requests</td><td>Backend + OLAP</td></tr>
+</table>
+
+<h2>11. Functional Domains</h2>
+<p>Each domain runs the recursive loop: Discover → Design (native-first) → Implement (approved, smallest change) → Test → Retest downstream → Monitor.</p>
+<table>
+<tr><th style="width:22%">Domain</th><th>Scope</th></tr>
+<tr><td>11.1 Storefront &amp; configurator</td><td>Browse → fabric → measure → configure → live price. Every selection persists as Shopify line-item properties end-to-end. Preserve design.</td></tr>
+<tr><td>11.2 Fabric &amp; catalog</td><td>Fabric families/codes/colors, opacity (light-filtering/blackout/openness), material, size limits, motor compatibility, availability — Shopify metaobjects/metafields; swatches on CDN with alt text.</td></tr>
+<tr><td>11.3 Pricing engine</td><td>Deterministic, versioned, auditable, server-authoritative. Identical price across all surfaces. Stores inputs + version.</td></tr>
+<tr><td>11.4 Cart / quote / draft orders</td><td>B2C via cart line-item properties; high-touch/partner via draft orders/quotes. Zero selection loss.</td></tr>
+<tr><td>11.5 Checkout, payments, deposits, terms</td><td>Shopify Checkout + Payments; deposit/balance via draft-order invoices; coupons without double-stacking. <span class="confirm">[CONFIRM deposit % &amp; terms]</span> <span class="legal">[LEGAL: refund/cancellation for custom goods]</span></td></tr>
+<tr><td>11.6 Orders &amp; fulfillment</td><td>Order = Shopify SoT; internal project via verified idempotent <code>orders/create</code> webhook; normalized state machine; portals cannot force invalid states.</td></tr>
+<tr><td>11.7 Manufacturing / installation</td><td>Work orders with exact spec; production/QA; installer assignment, scheduling, photos, checklist, signature → acceptance → balance invoice. Role-scoped visibility.</td></tr>
+<tr><td>11.8 Inventory &amp; drop-shipping</td><td>Component inventory (motors, remotes, hubs, brackets, cassettes, rails, fabric rolls) with reorder points; drop-ship routing where a supplier ships direct. <span class="confirm">[CONFIRM stocked-vs-procured &amp; drop-ship SKUs/suppliers]</span></td></tr>
+<tr><td>11.9 Partner portals</td><td>Dealer, manufacturer, installer, interior-designer, realtor, affiliate, customer — backend-hosted (Basic has no B2B), reusing theme look, least-privilege access.</td></tr>
+<tr><td>11.10 Support &amp; AI chatbot</td><td>Order lookup, returns, warranty, FAQ, live handoff; grounded AI assistant (catalog/specs/policies) with guardrails. <span class="legal">[LEGAL: disclosure, data handling]</span></td></tr>
+<tr><td>11.11 Sales &amp; CRM</td><td>Lead capture, scoring, pipeline, follow-ups, owner assignment, partner attribution.</td></tr>
+<tr><td>11.12 Marketing, SEO &amp; affiliate</td><td>SEO (product/local/AI-search), structured data, campaigns, coupons, partner codes, attribution, reviews, email/SMS.</td></tr>
+<tr><td>11.13 Finance, invoicing &amp; tax</td><td>Deposit/balance/final invoices, credit memos, refunds/chargebacks, reconciliation, tax by jurisdiction, commissions. <span class="legal">[LEGAL: tax nexus &amp; invoice compliance]</span></td></tr>
+<tr><td>11.14 HR &amp; staffing</td><td>Staff users, roles, scheduling (reps/installers/CS), technician availability, payroll/commission inputs. <span class="confirm">[CONFIRM scope]</span> <span class="legal">[LEGAL: employment/PII]</span></td></tr>
+<tr><td>11.15 Fraud detection</td><td>Shopify fraud signals + backend rules (price/coupon/affiliate abuse, chargeback patterns); server-authoritative pricing; anomaly alerts.</td></tr>
+</table>
+
+<h2>12. Detailed Delivery Plan — Programs A &amp; B</h2>
+<h4>12.1 Sequencing logic (how "parallel" and "B depends on A" both hold)</h4>
+<ul>
+<li><b>Program A runs first and continuously</b> (audit → fix → align → complete the platform).</li>
+<li><b>Program B runs in parallel, but only its no-dependency phases</b> (B1 Business Framing, B2 Data-pipeline <i>design</i>) — design/analysis, not model training.</li>
+<li><b>Program B build phases (B3–B8) are gated</b> on Program A delivering clean product/fabric/pricing data, stable APIs and consent-compliant photo capture.</li>
+</ul>
+<h4>12.2 Program A — Enterprise Engineering (recursive Discover→Fix)</h4>
+<table>
+<tr><th>Step</th><th>Tasks</th><th>Owner agent(s)</th><th>Deliverable</th><th>Approval gate</th></tr>
+<tr><td><b>A0 Baseline</b> ✅</td><td>Confirm access; Shopify plan; inventory repos/branches/themes/apps/services</td><td>—</td><td>Baseline report (plan = Basic → no native B2B)</td><td>Reviewed</td></tr>
+<tr><td><b>A1 Audit</b></td><td>Recursive read-only audit of every page/API/portal/flow: load, functional, placeholder-vs-working, data-loss, pricing parity, RBAC, broken links</td><td>QA/Auditor</td><td>Defect backlog (ID·route·role·severity·steps·expected·actual·root-cause·example·native-fix?)</td><td>G1 — owner review</td></tr>
+<tr><td><b>A2 Architecture</b></td><td>Current+target; native-capability matrix; source-of-truth; ERD; RBAC matrix; API/webhook catalog; order/invoice/payment state machines; full data-flow set</td><td>Order/Pricing/Account</td><td>Architecture deliverables (mandate §19) in <code>ai-ops/architecture/</code></td><td>G2 — owner review</td></tr>
+<tr><td><b>A3 Fix P0/P1</b></td><td>Priority order: security/permissions → payment/invoice → pricing → product-config data-loss → orders → integrations</td><td>Pricing/Order/Account/Checkout</td><td>Fixes on <code>enterprise-upgrade-v2</code> + tests</td><td>G3 — approve each fix (justification + example)</td></tr>
+<tr><td><b>A4 Front-end align</b></td><td>GitHub front-end → match live theme (header/footer/hero/product/content/images), same theme, no redesign</td><td>Catalog/Fabric/Configurator</td><td>Aligned pages</td><td>G4 — approve; pixel-match vs adapt</td></tr>
+<tr><td><b>A5 Missing pages/portals</b></td><td>Portals: interior-designer, realtor, affiliate, customer. Admin: role mgmt, consultation, subscription, integration</td><td>Account/Support</td><td>New pages reusing theme + backend</td><td>owner review</td></tr>
+<tr><td><b>A6 Tests + monitoring</b></td><td>Automated tests (pricing/orders/payments/portals/storefront); retest downstream; monitor</td><td>QA/Notification/Analytics</td><td>Test suite + monitoring</td><td>Ongoing</td></tr>
+</table>
+<p class="small">Every A3–A5 change: reproduce → justify → real-time example → owner approval → smallest safe fix → test → retest downstream → commit to branch. Never <code>main</code>.</p>
+<h4>12.3 Program B — AI/MLOps (8-phase) — parallel design, gated build</h4>
+<table>
+<tr><th>Phase</th><th>Tasks</th><th>Owner agent(s)</th><th>Deliverable</th><th>Runs now?</th></tr>
+<tr><td><b>B1 Business framing</b></td><td>KPIs (consult-to-sale, measure error, quote accuracy) → model mapping; feasibility; data-readiness; privacy/consent framing</td><td>Product Owner / AI Architect</td><td>KPI charter + model map + data-readiness</td><td>✅ parallel (design)</td></tr>
+<tr><td><b>B2 Data pipeline (design)</b></td><td>Photo ingestion/sanitization design (face-blur, patio-lighting), fabric feature schema, weather/geo features</td><td>Data Engineer</td><td>Pipeline design (not built)</td><td>✅ parallel (design)</td></tr>
+<tr><td><b>B3 Architecture</b></td><td>Model topology (window object-detection, ViT style, vector-DB fabric match), infra</td><td>Lead AI Architect</td><td>Architecture spec</td><td>⛔ gated on data</td></tr>
+<tr><td><b>B4 Training</b></td><td>Prototype, tune, train, track (MLflow/W&amp;B)</td><td>Research DS / ML Eng</td><td>Trained models</td><td>⛔ gated</td></tr>
+<tr><td><b>B5 Integration</b></td><td>Quantize for iPad; FastAPI; CRM/web app; CI/CD</td><td>Software/DevOps</td><td>Serving APIs</td><td>⛔ gated</td></tr>
+<tr><td><b>B6 QA/eval</b></td><td>Accuracy, bias, adversarial/quote-manipulation</td><td>AI QA / Red Team</td><td>Eval report</td><td>⛔ gated</td></tr>
+<tr><td><b>B7 Serving</b></td><td>Real-time/batch; canary to 5% iPads</td><td>Release/SRE</td><td>Deployment</td><td>⛔ gated</td></tr>
+<tr><td><b>B8 Monitoring</b></td><td>Drift, telemetry, feedback loop</td><td>MLOps Monitoring</td><td>Dashboards + loop</td><td>⛔ gated</td></tr>
+</table>
+<div class="callout"><b>Honest data-readiness finding (evidence).</b> The store has 4 products, 12 orders, 3 quotes, 13 customers and ~689 <b>unlabeled</b> product/fabric images — far too little <b>labeled</b> room/window/patio data to train custom CV models. B1 will therefore recommend an MVP using <b>foundation vision models (hosted) + a data-collection &amp; labeling loop</b>, not training from scratch.</div>
+
+<h2>13. Delivery Roadmap &amp; Milestones</h2>
+<p>Durations are indicative and <span class="confirm">[CONFIRM]</span> against owner availability for approvals; sequence and gates are fixed.</p>
+<table>
+<tr><th>Milestone</th><th>Contents</th><th>Exit gate</th><th>Indicative window</th></tr>
+<tr><td>M1 — Audit complete</td><td>A1 defect backlog; ruled-out false positives</td><td>G1</td><td><span class="confirm">[CONFIRM]</span></td></tr>
+<tr><td>M2 — Architecture accepted</td><td>A2 mandate §19 deliverables (matrices, ERD, state machines, diagrams)</td><td>G2</td><td><span class="confirm">[CONFIRM]</span></td></tr>
+<tr><td>M3 — P0/P1 fixed</td><td>A3 security/payment/pricing/data-loss/orders fixes + tests</td><td>G3</td><td><span class="confirm">[CONFIRM]</span></td></tr>
+<tr><td>M4 — Front-end aligned</td><td>A4 GitHub app matches live theme</td><td>G4</td><td><span class="confirm">[CONFIRM]</span></td></tr>
+<tr><td>M5 — Portals complete</td><td>A5 new partner portals + admin modules</td><td>owner</td><td><span class="confirm">[CONFIRM]</span></td></tr>
+<tr><td>M6 — Automation &amp; analytics</td><td>Flows, schedulers, OLAP, dashboards</td><td>owner</td><td><span class="confirm">[CONFIRM]</span></td></tr>
+<tr><td>M7 — AI MVP</td><td>Chatbot (RAG); B1/B2 design accepted; Visual/Outdoor via foundation models</td><td>owner</td><td><span class="confirm">[CONFIRM]</span></td></tr>
+<tr><td>M8 — Hardening</td><td>A6 test suite + monitoring live</td><td>G5</td><td>ongoing</td></tr>
+</table>
+
+<h2>14. Workstreams, Agents &amp; Skills</h2>
+<p>Delivery is organized as named <b>agents</b> (task owners) using reusable <b>skills</b>, documented in <code>ai-ops/</code>. Each spec carries the change-control rule.</p>
+<table>
+<tr><th>Agents (17)</th><th>Skills (8, reusable)</th></tr>
+<tr><td>Discovery/SEO · Catalog · Fabric · Sample · Measure · Configurator · Pricing · Cart/Quote · Account · Checkout/Payment · Order · Manufacturing · Fulfillment · Installation · Support/Warranty · Notification · Analytics</td>
+<td>fabric-swatch-import · price-calculate · measurement-validate · sku-generate · order-status-sync · link-audit · image-optimize · notification-send</td></tr>
+</table>
+
+<h2>15. Non-Functional Architecture</h2>
+<h4>15.1 Security &amp; RBAC</h4>
+<p>Least-privilege roles (Owner, Super Admin, Finance, Ops, Sales Mgr, Sales Rep, CS, Marketing, SEO, Analyst, Dealer, Manufacturer, Installer, Designer, Realtor, Affiliate, Customer) across actions View/Create/Edit/Approve/Assign/Export/Refund/Cancel/Delete/Change-price/Change-payment-status/Change-invoice-status/Change-production-status/Change-installation-status/Manage-users/View-sensitive-data. Hard rules: manufacturers never see customer financials; installers see only assigned jobs; dealers see only permitted customers/catalog/orders; affiliates never see payment data; analysts get masked PII; marketing cannot change financial records; no manual "payment successful" without permission + audit; critical actions audited; MFA on sensitive actions where supported. Verify webhook signatures; idempotency; secrets in a vault; minimal PII logging. <span class="legal">[LEGAL: PCI scope — never store card data; CCPA/privacy data requests]</span></p>
+<h4>15.2 SRE / reliability</h4>
+<p>SLOs for storefront, pricing, checkout, portals; health checks; staged deployment; canary + automated rollback to last-known-good; incident runbooks + on-call; dead-letter queues + replay; backups with tested restore (RPO/RTO). <span class="confirm">[CONFIRM: hosting/infra &amp; SLO targets]</span></p>
+<h4>15.3 Performance &amp; accessibility</h4>
+<p>Responsive images (WebP/AVIF), lazy-load below fold (never the first hero image), no layout shift, mobile/tablet parity, keyboard access, visible focus, accessible labels. <span class="legal">[LEGAL: ADA/WCAG conformance]</span></p>
+<h4>15.4 Compliance summary</h4>
+<p>Refund/cancellation terms for custom goods; sales-tax nexus &amp; invoice compliance; PCI; privacy/CCPA; ADA/WCAG; AI disclosure &amp; photo consent/retention; third-party (ZSTARR) asset-reuse authorization; partner/affiliate agreements. All tracked in §22.</p>
+
+<h2>16. Data-Flow Diagrams</h2>
+<p>The full required set (mandate §8: system context, Shopify ecosystem, admin-panel component, GitHub service, L0 business, L1 order, L2 pricing/manufacturing/installation, payment &amp; invoice sequence, auth, analytics pipeline, notification, error/retry/recovery) is an <b>A2 deliverable</b>, each identifying actor, system, input, output, API, webhook, DB, queue, source of truth, auth &amp; authz boundary, failure path, retry path, audit record. Representative diagrams drafted below.</p>
+<h4>L0 — Business flow</h4>
+<pre>
+[Customer/Partner] -> [Storefront/Portal] -> [Config+Fabric+Options] -> [Validation] -> [Pricing]
+ -> [Cart/Quote/Draft] -> [Auth+Contact] -> [Checkout/Payment/Deposit] -> [Shopify Order]
+ -> [Webhook -> Internal Project] -> [Manufacturer WO] -> [Production/QA] -> [Ship/Track]
+ -> [Installer Assign/Schedule] -> [Install/Acceptance] -> [Final Invoice/Balance]
+ -> [Closure/Warranty/Review] -> [Analytics/Finance/Marketing] -> [Monitoring/Feedback]
+</pre>
+<h4>L2 — Pricing flow</h4>
+<pre>
+Config(width,height,fabric,options,control,qty)
+  -> validate dims (min/max, fractions, deduction)
+  -> area = max(w*h, min_billable)
+  -> perSqM = pricing_version[fabricCode][controlBand]
+  -> base = area * perSqM * (1 + margin)
+  -> + sum(selected option data-price, gated by control type)
+  -> + shipping/install/high-ceiling ; * quantity
+  -> apply dealer tier / coupon / tax (no double-stack)
+  -> round(currency) -> {itemized breakdown, inputs, pricing_version, timestamp}
+  -> identical value in page / cart / checkout / order / invoice / portal
+</pre>
+<h4>Payment &amp; invoice (sequence)</h4>
+<pre>
+Customer -> Checkout: place order (deposit)
+Shopify  -> Backend (webhook orders/paid): create project, deposit invoice
+Backend  -> Customer: deposit receipt
+...manufacture + install...
+Backend  -> Customer: balance invoice (draft-order invoice)
+Customer -> Shopify: pay balance
+Shopify  -> Backend: reconcile -> mark Paid -> close
+</pre>
+<h4>Authentication / authorization boundaries</h4>
+<pre>
+Public storefront  | no auth
+Customer account   | Shopify passwordless
+Partner portals    | backend JWT, role-scoped, MFA where supported
+Admin              | backend JWT + RBAC + audit
+APIs / webhooks    | signed, idempotent, rate-limited, dead-letter on failure
+</pre>
+
+<h2>17. Quality &amp; Test Strategy</h2>
+<p>Automated coverage per mandate §18, executed at A6 and as a gate on every fix:</p>
+<table>
+<tr><th>Suite</th><th>Coverage</th></tr>
+<tr><td>Pricing</td><td>Min area; width/height limits; every product type &amp; fabric group; manual/motorized; remote/hub/solar; shipping/install; discount/coupon; dealer price; invalid combinations; rounding; multiple quantities</td></tr>
+<tr><td>Orders</td><td>Options retained; order created once; duplicate webhook; status transitions; cancellation; refund; partial fulfillment; manufacturer &amp; installer assignment</td></tr>
+<tr><td>Payments &amp; invoices</td><td>Successful/failed payment; deposit; partial; balance; invoice generated + reminder; refund; reconciliation</td></tr>
+<tr><td>Portals</td><td>Correct login; unauthorized access denied; role-specific records; no cross-customer access; file upload; status update; logout; expired session</td></tr>
+<tr><td>Storefront</td><td>Desktop/mobile; product configuration; image switching; cart; checkout; quote &amp; consultation forms; CTAs; SEO metadata; structured data; accessibility; visual-regression</td></tr>
+</table>
+<p><b>Downstream retest rule:</b> a pricing fix is retested across product page, cart, checkout, order, admin, invoice, dealer &amp; manufacturer portals and analytics; an order-status fix across Shopify Admin, customer/dealer/manufacturer/installer portals, invoicing, notifications, tracking, sales dashboard and analytics.</p>
+
+<h2>18. Deployment, Release &amp; Rollback</h2>
+<ul>
+<li>Feature branch → pull request → code review → automated tests → theme preview / staging → deployment checklist → staged production release → post-release monitoring.</li>
+<li>Every release carries a rollback plan to the last-known-good state; <code>main</code> and the live theme are never edited directly.</li>
+<li>Go-live requires QA sign-off (G5) and, where flagged, legal sign-off.</li>
+</ul>
+
+<h2>19. Monitoring Plan</h2>
+<ul>
+<li>Uptime/health for storefront, pricing, checkout and portals; error-rate and latency SLO alerts.</li>
+<li>Webhook success/failure with dead-letter alerts and replay; reconciliation exceptions; pricing-mismatch detector.</li>
+<li>Post-release regression watch — on regression, restart the recursive loop at the earliest affected phase.</li>
+</ul>
+
+<h2>20. RAID Log (Risks, Assumptions, Issues, Dependencies)</h2>
+<table>
+<tr><th style="width:8%">Type</th><th style="width:8%">ID</th><th>Description</th><th style="width:26%">Response / owner</th></tr>
+<tr><td>Risk</td><td>R1</td><td>Basic-plan limits force custom partner-pricing; higher maintenance vs native</td><td>Evaluate Plus upgrade (§22-C1); isolate in backend</td></tr>
+<tr><td>Risk</td><td>R2</td><td>Insufficient labeled data → AI CV models underperform if trained early</td><td>Foundation models + labeling loop; gate B3–B8</td></tr>
+<tr><td>Risk</td><td>R3</td><td>Pricing mismatch across surfaces (revenue leakage)</td><td>Server-authoritative pricing + parity tests (P1)</td></tr>
+<tr><td>Risk</td><td>R4</td><td>JSON/SQLite datastore — concurrency/backup/audit limits at scale</td><td>Recommend managed Postgres (§22-C2)</td></tr>
+<tr><td>Assumption</td><td>A1</td><td>Backend remains SoT for partner data while on Basic</td><td>Confirm at G2</td></tr>
+<tr><td>Issue</td><td>I1</td><td>Duplicate product editors + placeholder admin pages + dead links (audit pass 1)</td><td>In defect backlog; fix under G3</td></tr>
+<tr><td>Dependency</td><td>D1</td><td>Owner approvals gate every phase; legal sign-off gates flagged items</td><td>Scheduled review cadence <span class="confirm">[CONFIRM]</span></td></tr>
+<tr><td>Dependency</td><td>D2</td><td>Consent-compliant photo capture required before AI build</td><td>Legal + B2 design</td></tr>
+</table>
+
+<h2>21. Implementation Prioritization</h2>
+<p>Fixed priority order (mandate §20). No unrelated enhancement proceeds while P0/P1 defects remain.</p>
+<ol>
+<li>Security &amp; unauthorized-access defects</li>
+<li>Payment &amp; invoice defects</li>
+<li>Pricing defects</li>
+<li>Product-configuration data loss</li>
+<li>Order-processing defects</li>
+<li>Role &amp; permission defects</li>
+<li>Broken integrations &amp; webhooks</li>
+<li>Incorrect source-of-truth ownership</li>
+<li>Analytics &amp; tracking defects</li>
+<li>SEO crawl &amp; indexation defects</li>
+<li>Quote &amp; consultation conversion</li>
+<li>Partner portals</li>
+<li>Sales &amp; operational dashboards</li>
+<li>Marketing, affiliate &amp; subscription enhancements</li>
+<li>Low-priority visual improvements</li>
+</ol>
+<p>Each task is recorded as: Priority | Task | Business impact | Technical impact | Native Shopify option | Backend change | Frontend change | Risk | Dependency | Test | Rollback | Owner.</p>
+
+<h2>22. Owner &amp; Legal Decision Register</h2>
+<table>
+<tr><th style="width:8%">ID</th><th style="width:12%">Type</th><th>Decision required</th><th style="width:14%">Status</th></tr>
+<tr><td>C1</td><td class="confirm">CONFIRM</td><td>Shopify Plus upgrade (unlocks native B2B/partner pricing) — yes/no</td><td>Open</td></tr>
+<tr><td>C2</td><td class="confirm">CONFIRM</td><td>Managed transactional DB migration (PostgreSQL) + hosting/infra + SLO targets</td><td>Open</td></tr>
+<tr><td>C3</td><td class="confirm">CONFIRM</td><td>KPI targets; deposit % &amp; payment terms; stocked-vs-procured items; drop-ship SKUs/suppliers; HR scope; warehouse/BI choice; approval cadence</td><td>Open</td></tr>
+<tr><td>L1</td><td class="legal">LEGAL</td><td>Custom-goods refund/cancellation terms</td><td>Open</td></tr>
+<tr><td>L2</td><td class="legal">LEGAL</td><td>Sales-tax nexus &amp; invoice compliance by state</td><td>Open</td></tr>
+<tr><td>L3</td><td class="legal">LEGAL</td><td>PCI scope; privacy/CCPA data-subject requests</td><td>Open</td></tr>
+<tr><td>L4</td><td class="legal">LEGAL</td><td>ADA/WCAG accessibility conformance</td><td>Open</td></tr>
+<tr><td>L5</td><td class="legal">LEGAL</td><td>AI disclosures &amp; customer photo consent/retention</td><td>Open</td></tr>
+<tr><td>L6</td><td class="legal">LEGAL</td><td>Third-party (ZSTARR) content/image/spec reuse authorization</td><td>Open</td></tr>
+<tr><td>L7</td><td class="legal">LEGAL</td><td>Dealer/manufacturer/affiliate agreements &amp; commission terms</td><td>Open</td></tr>
+</table>
+
+<h2>23. Appendices</h2>
+<h4>23.1 Glossary</h4>
+<p class="small"><b>Openness factor</b> — fabric weave openness affecting view-through/privacy. <b>SHGC</b> — solar heat gain coefficient. <b>U-factor</b> — insulation value. <b>Fascia/valance/cassette</b> — headrail cover. <b>Hem/bottom bar</b> — weighted base. <b>Side channels</b> — light-blocking side tracks. <b>OLTP/OLAP</b> — transactional vs analytical data. <b>RBAC</b> — role-based access control. <b>SoT</b> — source of truth. <b>RAG</b> — retrieval-augmented generation. <b>RPO/RTO</b> — recovery point/time objective. <b>RAID</b> — risks/assumptions/issues/dependencies.</p>
+<h4>23.2 Current-state inventory (summary)</h4>
+<p class="small">Shopify Basic · theme 152141168836 · USD/US/America-Chicago · new passwordless accounts · backend Express :3001 (JSON + SQLite, 30 services, Stripe/PayPal/SendGrid/Twilio/Anthropic) · admin 191 / dealer 6 / manufacturer 2 / installer 7 pages · 4 products / 12 orders / 3 quotes / 13 customers / 369 fabric-rate rows / ~689 unlabeled images.</p>
+<h4>23.3 Mandate index</h4>
+<p class="small">Requirements baseline = “Mandatory Shopify, GitHub, Admin-Portal and Recursive Engineering Module” §§1–21, traced in §6.2. Governing directives: recursive lifecycle (never stop at audit), native-first order, front-end protection, one source of truth per domain, deterministic/versioned pricing, least-privilege RBAC, P0/P1 before enhancements, architecture-first start.</p>
+
+<p class="small" style="margin-top:26px;border-top:2px solid #b08d57;padding-top:8px;">END OF DOCUMENT — Draft v2.0 for Owner &amp; Legal Review. No section herein authorizes execution. Each build phase proceeds only on written owner approval, with defects justified by a real-time example, and legal sign-off on all items marked [LEGAL].</p>
+
+</body></html>
