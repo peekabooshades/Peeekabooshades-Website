@@ -3,1765 +3,20 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Peekaboo Shades - Custom Blinds & Window Shades | Transform Your Home</title>
-
-  <!-- SEO Meta Tags -->
-  <meta name="description" content="Shop premium custom blinds, roller shades, and zebra blinds at Peekaboo Shades. Free samples, professional installation, and lifetime warranty. Transform your home with style.">
-  <meta name="keywords" content="custom blinds, window shades, roller shades, zebra blinds, motorized blinds, window treatments, home decor">
-  <meta name="author" content="Peekaboo Shades">
-  <meta name="robots" content="index, follow">
-  <link rel="canonical" href="https://peekabooshades.com/">
-
-  <!-- Open Graph / Facebook -->
-  <meta property="og:type" content="website">
-  <meta property="og:url" content="https://peekabooshades.com/">
-  <meta property="og:title" content="Peekaboo Shades - Custom Blinds & Window Shades">
-  <meta property="og:description" content="Shop premium custom blinds and window shades. Free samples, professional installation, and lifetime warranty.">
-  <meta property="og:image" content="https://peekabooshades.com/images/og-image.jpg">
-
-  <!-- Twitter -->
-  <meta property="twitter:card" content="summary_large_image">
-  <meta property="twitter:url" content="https://peekabooshades.com/">
-  <meta property="twitter:title" content="Peekaboo Shades - Custom Blinds & Window Shades">
-  <meta property="twitter:description" content="Shop premium custom blinds and window shades. Free samples, professional installation, and lifetime warranty.">
-
-  <!-- Google Analytics (GA4) -->
-  <!-- Replace G-XXXXXXXXXX with your actual GA4 Measurement ID -->
-  <script async src="https://www.googletagmanager.com/gtag/js?id=G-XXXXXXXXXX"></script>
-  <script>
-    window.dataLayer = window.dataLayer || [];
-    function gtag(){dataLayer.push(arguments);}
-    gtag('js', new Date());
-    gtag('config', 'G-XXXXXXXXXX');
-  </script>
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <title>Peekaboo Shades - Custom Blinds &amp; Window Shades | Transform Your Home</title>
+  <meta name="description" content="Custom roller, zebra, roman &amp; honeycomb shades. Order samples, custom sizes &amp; colors, easy DIY installation. Free shipping on orders over $499.">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-  <style>
-    /* ============================================
-       PEEKABOO SHADES - Homepage
-       Matching Figma Design Page 3
-       ============================================ */
-
-    :root {
-      --golden-brown: #8E6545;
-      --golden-brown-light: #8E6545;
-      --dark-brown: #8E6545;
-      --text-dark: #333333;
-      --text-brown: #8E6545;
-      --text-light: #666666;
-      --text-muted: #999999;
-      --bg-cream: #F8F6F3;
-      --bg-light: #FAFAFA;
-      --bg-white: #FFFFFF;
-      --border-light: #E8E8E8;
-    }
-
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
-    body {
-      font-family: 'Montserrat', sans-serif;
-      font-size: 16px;
-      line-height: 1.6;
-      color: var(--text-dark);
-      background: var(--bg-white);
-    }
-
-    a {
-      text-decoration: none;
-      color: inherit;
-    }
-
-    button {
-      cursor: pointer;
-      border: none;
-      background: none;
-      font-family: inherit;
-    }
-
-    .container {
-      max-width: 1400px;
-      margin: 0 auto;
-      padding: 0 40px;
-    }
-
-    /* ============================================
-       TOP BAR
-       ============================================ */
-    .top-bar {
-      background: #8E6545;
-      color: white;
-      padding: 8px 0;
-      font-size: 12px;
-    }
-
-    .top-bar .container {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .top-bar-left {
-      display: flex;
-      gap: 25px;
-    }
-
-    .top-bar-left span {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .top-bar-center {
-      display: flex;
-      gap: 20px;
-    }
-
-    .top-bar-center a {
-      color: white;
-      font-weight: 500;
-    }
-
-    .top-bar-right {
-      display: flex;
-      gap: 15px;
-      align-items: center;
-    }
-
-    .top-bar-right a {
-      color: white;
-    }
-
-    /* ============================================
-       MAIN HEADER
-       ============================================ */
-    .main-header {
-      background: transparent;
-      height: 120px;
-      max-width: 1599px;
-      margin: 0 auto;
-      border-bottom: none;
-      position: absolute;
-      top: 35px;
-      left: 0;
-      right: 0;
-      z-index: 1000;
-      display: flex;
-      align-items: center;
-    }
-
-    .header-container {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      width: 100%;
-      height: 100%;
-    }
-
-    .logo {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .logo-img {
-      height: 100px !important;
-      width: auto !important;
-      mix-blend-mode: multiply;
-      border-radius: 8px;
-    }
-
-    .logo-icon {
-      width: 40px;
-      height: 40px;
-      background: #FFFFFF;
-      border-radius: 8px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .logo-icon svg {
-      width: 24px;
-      height: 24px;
-      fill: var(--golden-brown);
-    }
-
-    .logo-text {
-      font-size: 18px;
-      font-weight: 700;
-    }
-
-    .logo-text .peekaboo {
-      color: #FFFFFF;
-    }
-
-    .logo-text .shades {
-      color: #FFFFFF;
-    }
-
-    .main-nav ul {
-      display: flex;
-      gap: 30px;
-      list-style: none;
-    }
-
-    .main-nav a {
-      font-size: 13px;
-      font-weight: 500;
-      color: #FFFFFF;
-      display: flex;
-      align-items: center;
-      gap: 5px;
-    }
-
-    .main-nav a:hover {
-      color: rgba(255, 255, 255, 0.8);
-    }
-
-    .nav-dropdown {
-      position: relative;
-    }
-
-    .nav-dropdown-menu {
-      position: absolute;
-      top: 100%;
-      left: 0;
-      background: #FFFFFF;
-      min-width: 220px;
-      border-radius: 8px;
-      box-shadow: 0 10px 40px rgba(0,0,0,0.15);
-      opacity: 0;
-      visibility: hidden;
-      transform: translateY(10px);
-      transition: all 0.3s ease;
-      z-index: 1000;
-      padding: 10px 0;
-      margin-top: 10px;
-    }
-
-    .nav-dropdown:hover .nav-dropdown-menu {
-      opacity: 1;
-      visibility: visible;
-      transform: translateY(0);
-    }
-
-    .nav-dropdown-menu a {
-      display: block;
-      padding: 10px 18px;
-      color: #333333 !important;
-      font-size: 13px;
-      font-weight: 500;
-      transition: all 0.2s;
-    }
-
-    .nav-dropdown-menu a:hover {
-      background: #F8F6F3;
-      color: #8E6545 !important;
-    }
-
-    .header-right {
-      display: flex;
-      align-items: center;
-      gap: 20px;
-    }
-
-    .search-box {
-      display: flex;
-      align-items: center;
-      background: rgba(255, 255, 255, 0.2);
-      border: 1px solid rgba(255, 255, 255, 0.3);
-      border-radius: 20px;
-      padding: 8px 15px;
-      width: 180px;
-    }
-
-    .search-box input {
-      border: none;
-      background: none;
-      outline: none;
-      flex: 1;
-      font-size: 13px;
-      color: #FFFFFF;
-    }
-
-    .search-box input::placeholder {
-      color: rgba(255, 255, 255, 0.7);
-    }
-
-    .search-box i {
-      color: #FFFFFF;
-    }
-
-    .header-icons {
-      display: flex;
-      gap: 15px;
-    }
-
-    .header-icon {
-      position: relative;
-      color: #FFFFFF;
-      font-size: 18px;
-    }
-
-    .cart-count {
-      position: absolute;
-      top: -6px;
-      right: -6px;
-      background: var(--golden-brown);
-      color: white;
-      font-size: 10px;
-      width: 16px;
-      height: 16px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    /* ============================================
-       HERO SLIDER SECTION
-       ============================================ */
-    .hero-slider {
-      position: relative;
-      height: 100vh;
-      overflow: hidden;
-    }
-
-    .slider-container {
-      position: relative;
-      width: 100%;
-      height: 100%;
-    }
-
-    .slide {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      opacity: 0;
-      transition: opacity 0.8s ease-in-out;
-    }
-
-    .slide.active {
-      opacity: 1;
-    }
-
-    .slide-image {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      object-position: center center;
-    }
-
-    .slide-overlay {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: linear-gradient(to right, rgba(0, 0, 0, 0.4) 0%, rgba(0, 0, 0, 0.1) 50%, transparent 100%);
-    }
-
-    .hero-content {
-      position: relative;
-      z-index: 10;
-      color: white;
-      max-width: 500px;
-      padding: 0 40px;
-      height: 100%;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      max-width: 1400px;
-      margin: 0 auto;
-    }
-
-    .hero-content-inner {
-      max-width: 900px;
-    }
-
-    .hero-subtitle {
-      font-size: 18px;
-      font-weight: 400;
-      letter-spacing: 3px;
-      margin-bottom: 15px;
-      opacity: 0.9;
-      text-transform: uppercase;
-    }
-
-    .hero-title {
-      font-size: 64px;
-      font-weight: 700;
-      line-height: 1.1;
-      margin-bottom: 35px;
-    }
-
-    .hero-buttons {
-      display: flex;
-      gap: 20px;
-    }
-
-    /* Slider Arrows */
-    .slider-arrow {
-      position: absolute;
-      top: 50%;
-      transform: translateY(-50%);
-      width: 45px;
-      height: 45px;
-      background: rgba(255, 255, 255, 0.2);
-      border: none;
-      border-radius: 50%;
-      color: white;
-      font-size: 18px;
-      cursor: pointer;
-      z-index: 20;
-      transition: all 0.3s ease;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .slider-arrow:hover {
-      background: rgba(255, 255, 255, 0.4);
-    }
-
-    .slider-arrow.prev {
-      left: 30px;
-    }
-
-    .slider-arrow.next {
-      right: 30px;
-    }
-
-    .btn-shop-all,
-    .btn-shop-new {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
-      padding: 14px 28px;
-      background: #FFFFFF;
-      color: #8E6545;
-      border: none;
-      border-radius: 6px;
-      font-size: 14px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.3s;
-      text-decoration: none;
-    }
-
-    .btn-shop-all:hover,
-    .btn-shop-new:hover {
-      background: #F8F6F3;
-      transform: translateY(-2px);
-    }
-
-    .btn-primary {
-      padding: 14px 30px;
-      background: var(--bg-white);
-      color: var(--dark-brown);
-      border-radius: 8px;
-      font-size: 16px;
-      font-weight: 500;
-      display: inline-flex;
-      align-items: center;
-      gap: 12px;
-      transition: all 0.3s;
-    }
-
-    .btn-primary:hover {
-      background: var(--bg-cream);
-      transform: translateY(-2px);
-    }
-
-    .btn-secondary {
-      padding: 14px 30px;
-      background: transparent;
-      color: white;
-      border: 2px solid white;
-      border-radius: 8px;
-      font-size: 16px;
-      font-weight: 500;
-      display: inline-flex;
-      align-items: center;
-      gap: 12px;
-      transition: all 0.3s;
-    }
-
-    .btn-secondary:hover {
-      background: white;
-      color: var(--dark-brown);
-      transform: translateY(-2px);
-    }
-
-    /* ============================================
-       DESIGNED WITH PURPOSE SECTION
-       ============================================ */
-    .purpose-section {
-      padding: 70px 0;
-      background: var(--bg-white);
-    }
-
-    .section-header {
-      text-align: center;
-      margin-bottom: 50px;
-    }
-
-    .section-subtitle {
-      color: var(--golden-brown);
-      font-size: 14px;
-      font-weight: 500;
-      margin-bottom: 10px;
-      text-transform: uppercase;
-      letter-spacing: 2px;
-    }
-
-    .section-title {
-      font-size: 36px;
-      font-weight: 700;
-      color: var(--golden-brown);
-    }
-
-    .category-grid {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 25px;
-      position: relative;
-    }
-
-    .category-card {
-      background: var(--bg-white);
-      border-radius: 15px;
-      overflow: hidden;
-      box-shadow: 0 5px 20px rgba(0,0,0,0.08);
-      transition: all 0.3s;
-      cursor: pointer;
-    }
-
-    .category-card:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 15px 40px rgba(0,0,0,0.12);
-    }
-
-    .category-image {
-      height: 350px;
-      overflow: hidden;
-    }
-
-    .category-image img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      transition: transform 0.5s;
-    }
-
-    .category-card:hover .category-image img {
-      transform: scale(1.05);
-    }
-
-    .category-info {
-      padding: 20px;
-    }
-
-    .category-name {
-      font-size: 18px;
-      font-weight: 700;
-      color: var(--golden-brown);
-      margin-bottom: 8px;
-    }
-
-    .category-desc {
-      font-size: 12px;
-      color: var(--text-light);
-      line-height: 1.6;
-    }
-
-    .nav-arrow {
-      position: absolute;
-      top: 50%;
-      transform: translateY(-50%);
-      width: 45px;
-      height: 45px;
-      background: var(--bg-white);
-      border: 1px solid var(--border-light);
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: var(--text-dark);
-      cursor: pointer;
-      transition: all 0.3s;
-      z-index: 10;
-    }
-
-    .nav-arrow:hover {
-      background: var(--golden-brown);
-      color: white;
-      border-color: var(--golden-brown);
-    }
-
-    .nav-arrow.prev {
-      left: -22px;
-    }
-
-    .nav-arrow.next {
-      right: -22px;
-    }
-
-    /* ============================================
-       IMAGINATION SECTION
-       ============================================ */
-    .imagination-section {
-      padding: 140px 0;
-      background: var(--bg-cream);
-    }
-
-    .imagination-content {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 80px;
-      align-items: center;
-    }
-
-    .imagination-text h3 {
-      color: var(--golden-brown);
-      font-size: 14px;
-      font-weight: 500;
-      margin-bottom: 10px;
-      text-transform: uppercase;
-      letter-spacing: 2px;
-    }
-
-    .imagination-text h2 {
-      font-size: 36px;
-      font-weight: 700;
-      color: var(--golden-brown);
-      margin-bottom: 20px;
-    }
-
-    .imagination-text p {
-      color: var(--text-light);
-      font-size: 14px;
-      line-height: 1.7;
-    }
-
-    /* ============================================
-       MOTORIZED BLINDS SECTION
-       ============================================ */
-    .motorized-section {
-      padding: 70px 0;
-      background: var(--bg-white);
-    }
-
-    .motorized-content {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 60px;
-      align-items: center;
-    }
-
-    .motorized-image {
-      border-radius: 15px;
-      overflow: hidden;
-      box-shadow: 0 15px 40px rgba(0,0,0,0.1);
-    }
-
-    .motorized-image img {
-      width: 100%;
-      height: 400px;
-      object-fit: cover;
-    }
-
-    .motorized-text h2 {
-      font-size: 26px;
-      font-weight: 600;
-      color: var(--text-brown);
-      margin-bottom: 15px;
-    }
-
-    .motorized-text p {
-      font-size: 14px;
-      color: var(--text-light);
-      margin-bottom: 20px;
-      line-height: 1.7;
-    }
-
-    .feature-list {
-      margin-bottom: 30px;
-    }
-
-    .feature-item {
-      display: flex;
-      align-items: flex-start;
-      gap: 12px;
-      margin-bottom: 15px;
-    }
-
-    .feature-item i {
-      color: var(--golden-brown);
-      font-size: 14px;
-      margin-top: 3px;
-    }
-
-    .feature-item span {
-      font-size: 13px;
-      color: var(--text-light);
-    }
-
-    .btn-shop {
-      padding: 12px 28px;
-      background: #8E6545;
-      color: #FFFFFF;
-      border-radius: 6px;
-      font-size: 14px;
-      font-weight: 600;
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      transition: all 0.3s;
-    }
-
-    .btn-shop:hover {
-      background: #7A5639;
-      transform: translateY(-2px);
-    }
-
-    /* ============================================
-       MADE SIMPLE SECTION
-       ============================================ */
-    .simple-section {
-      padding: 70px 0;
-      background: var(--bg-white);
-    }
-
-    .simple-header {
-      text-align: center;
-      margin-bottom: 40px;
-    }
-
-    .simple-header h3 {
-      color: var(--golden-brown);
-      font-size: 14px;
-      font-weight: 500;
-      margin-bottom: 8px;
-      text-transform: uppercase;
-      letter-spacing: 2px;
-    }
-
-    .simple-header h2 {
-      font-size: 32px;
-      font-weight: 600;
-      color: var(--text-brown);
-    }
-
-    .showcase-grid {
-      display: grid;
-      grid-template-columns: repeat(3, 1fr);
-      gap: 25px;
-    }
-
-    .showcase-item {
-      border-radius: 15px;
-      overflow: hidden;
-      height: 300px;
-      position: relative;
-    }
-
-    .showcase-item img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      transition: transform 0.5s;
-    }
-
-    .showcase-item:hover img {
-      transform: scale(1.05);
-    }
-
-    .showcase-label {
-      position: absolute;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      background: linear-gradient(transparent, rgba(142, 101, 69, 0.9));
-      color: #fff;
-      padding: 40px 20px 15px;
-      font-family: 'Montserrat', sans-serif;
-      font-size: 16px;
-      font-weight: 600;
-      text-align: center;
-      letter-spacing: 0.5px;
-    }
-
-    /* ============================================
-       LATEST ARRIVALS SECTION
-       ============================================ */
-    .arrivals-section {
-      padding: 70px 0;
-      background: var(--bg-cream);
-    }
-
-    .arrivals-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-end;
-      margin-bottom: 40px;
-    }
-
-    .arrivals-header h3 {
-      color: var(--golden-brown);
-      font-size: 14px;
-      font-weight: 500;
-      margin-bottom: 8px;
-      text-transform: uppercase;
-      letter-spacing: 2px;
-    }
-
-    .arrivals-header h2 {
-      font-size: 32px;
-      font-weight: 600;
-      color: var(--text-brown);
-    }
-
-    .btn-shop-link {
-      padding: 12px 24px;
-      background: var(--bg-white);
-      color: var(--golden-brown);
-      border: 1px solid var(--golden-brown);
-      border-radius: 6px;
-      font-size: 14px;
-      font-weight: 600;
-      display: inline-flex;
-      align-items: center;
-      gap: 10px;
-      transition: all 0.3s;
-    }
-
-    .btn-shop-link:hover {
-      background: var(--golden-brown);
-      color: white;
-      border-color: var(--golden-brown);
-    }
-
-    .products-grid {
-      display: grid;
-      grid-template-columns: repeat(4, 1fr);
-      gap: 25px;
-    }
-
-    .product-card {
-      background: var(--bg-white);
-      border-radius: 15px;
-      overflow: hidden;
-      box-shadow: 0 5px 20px rgba(0,0,0,0.05);
-      transition: all 0.3s;
-      cursor: pointer;
-    }
-
-    .product-card:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 15px 40px rgba(0,0,0,0.1);
-    }
-
-    .product-image {
-      height: 220px;
-      overflow: hidden;
-    }
-
-    .product-image img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      transition: transform 0.5s;
-    }
-
-    .product-card:hover .product-image img {
-      transform: scale(1.05);
-    }
-
-    .product-info {
-      padding: 18px;
-    }
-
-    .product-title {
-      font-size: 13px;
-      font-weight: 500;
-      color: var(--text-dark);
-      margin-bottom: 6px;
-      line-height: 1.4;
-    }
-
-    .product-price {
-      font-size: 15px;
-      font-weight: 600;
-      color: var(--golden-brown);
-    }
-
-    /* ============================================
-       NEWSLETTER SECTION
-       ============================================ */
-    .newsletter-section {
-      padding: 70px 0;
-      background: linear-gradient(135deg, var(--golden-brown), var(--dark-brown));
-      color: white;
-    }
-
-    .newsletter-content {
-      max-width: 600px;
-      margin: 0 auto;
-      text-align: center;
-    }
-
-    .newsletter-content h2 {
-      font-size: 26px;
-      font-weight: 600;
-      margin-bottom: 10px;
-    }
-
-    .newsletter-content p {
-      font-size: 14px;
-      opacity: 0.9;
-      margin-bottom: 25px;
-    }
-
-    .newsletter-form {
-      display: flex;
-      gap: 10px;
-      max-width: 450px;
-      margin: 0 auto;
-    }
-
-    .newsletter-form input {
-      flex: 1;
-      padding: 12px 18px;
-      border: none;
-      border-radius: 6px;
-      font-size: 14px;
-      outline: none;
-    }
-
-    .newsletter-form button {
-      padding: 12px 24px;
-      background: #FFFFFF;
-      color: #8E6545;
-      border-radius: 6px;
-      font-size: 14px;
-      font-weight: 600;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
-      transition: all 0.3s;
-    }
-
-    .newsletter-form button:hover {
-      background: #F8F6F3;
-      transform: translateY(-2px);
-    }
-
-    /* ============================================
-       TESTIMONIALS SECTION
-       ============================================ */
-    .testimonials-section {
-      padding: 70px 0;
-      background: var(--bg-white);
-    }
-
-    .testimonials-header {
-      text-align: center;
-      margin-bottom: 50px;
-    }
-
-    .testimonials-header h3 {
-      color: var(--golden-brown);
-      font-size: 14px;
-      font-weight: 500;
-      margin-bottom: 8px;
-      text-transform: uppercase;
-      letter-spacing: 2px;
-    }
-
-    .testimonials-header h2 {
-      font-size: 32px;
-      font-weight: 600;
-      color: var(--text-brown);
-    }
-
-    .testimonial-card {
-      max-width: 700px;
-      margin: 0 auto;
-      text-align: center;
-    }
-
-    .testimonial-text {
-      font-size: 15px;
-      color: var(--text-light);
-      line-height: 1.7;
-      font-style: italic;
-      margin-bottom: 25px;
-    }
-
-    .testimonial-author {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 15px;
-    }
-
-    .author-avatar {
-      width: 60px;
-      height: 60px;
-      border-radius: 50%;
-      overflow: hidden;
-    }
-
-    .author-avatar img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-
-    .author-info h4 {
-      font-size: 16px;
-      font-weight: 600;
-      color: var(--text-brown);
-    }
-
-    .author-info p {
-      font-size: 12px;
-      color: var(--text-muted);
-    }
-
-    /* ============================================
-       INSTAGRAM SECTION
-       ============================================ */
-    .instagram-section {
-      padding: 50px 0;
-      background: var(--bg-cream);
-    }
-
-    .instagram-header {
-      text-align: center;
-      margin-bottom: 30px;
-    }
-
-    .instagram-header h3 {
-      font-size: 16px;
-      font-weight: 600;
-      color: var(--text-brown);
-    }
-
-    .instagram-header a {
-      color: var(--golden-brown);
-    }
-
-    .instagram-grid {
-      display: grid;
-      grid-template-columns: repeat(6, 1fr);
-      gap: 15px;
-    }
-
-    .instagram-item {
-      aspect-ratio: 1;
-      border-radius: 10px;
-      overflow: hidden;
-    }
-
-    .instagram-item img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-      transition: transform 0.5s;
-    }
-
-    .instagram-item:hover img {
-      transform: scale(1.1);
-    }
-
-    /* ============================================
-       FOOTER
-       ============================================ */
-    .main-footer {
-      background: var(--bg-white);
-      padding: 60px 0 30px;
-      border-top: 1px solid var(--border-light);
-    }
-
-    .footer-grid {
-      display: grid;
-      grid-template-columns: 1.5fr repeat(4, 1fr);
-      gap: 40px;
-      margin-bottom: 40px;
-    }
-
-    .footer-brand .logo {
-      margin-bottom: 15px;
-    }
-
-    .footer-brand .logo-img {
-      height: 80px !important;
-      width: auto !important;
-      mix-blend-mode: multiply;
-    }
-
-    .footer-brand p {
-      font-size: 13px;
-      color: var(--text-light);
-      margin-bottom: 18px;
-      line-height: 1.6;
-    }
-
-    .footer-social {
-      display: flex;
-      gap: 10px;
-    }
-
-    .social-icon {
-      width: 35px;
-      height: 35px;
-      background: var(--bg-light);
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: var(--text-dark);
-      transition: all 0.3s;
-    }
-
-    .social-icon:hover {
-      background: var(--golden-brown);
-      color: white;
-    }
-
-    .footer-column h4 {
-      font-size: 14px;
-      font-weight: 600;
-      color: var(--text-dark);
-      margin-bottom: 15px;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-    }
-
-    .footer-column ul {
-      list-style: none;
-    }
-
-    .footer-column ul li {
-      margin-bottom: 10px;
-    }
-
-    .footer-column ul a {
-      font-size: 13px;
-      color: var(--text-light);
-      transition: color 0.3s;
-    }
-
-    .footer-column ul a:hover {
-      color: var(--golden-brown);
-    }
-
-    .footer-bottom {
-      border-top: 1px solid var(--border-light);
-      padding-top: 25px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .footer-copyright {
-      font-size: 12px;
-      color: var(--text-muted);
-    }
-
-    .footer-links {
-      display: flex;
-      gap: 20px;
-    }
-
-    .footer-links a {
-      font-size: 12px;
-      color: var(--text-muted);
-    }
-
-    .footer-links a:hover {
-      color: var(--golden-brown);
-    }
-
-    /* ============================================
-       TOAST
-       ============================================ */
-    .toast-container {
-      position: fixed;
-      bottom: 20px;
-      right: 20px;
-      z-index: 9999;
-    }
-
-    .toast {
-      background: var(--text-dark);
-      color: white;
-      padding: 15px 25px;
-      border-radius: 8px;
-      margin-top: 10px;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      animation: slideIn 0.3s ease;
-    }
-
-    .toast.success {
-      background: #28a745;
-    }
-
-    @keyframes slideIn {
-      from {
-        transform: translateX(100%);
-        opacity: 0;
-      }
-      to {
-        transform: translateX(0);
-        opacity: 1;
-      }
-    }
-
-    /* ============================================
-       RESPONSIVE
-       ============================================ */
-    @media (max-width: 1200px) {
-      .category-grid,
-      .products-grid {
-        grid-template-columns: repeat(2, 1fr);
-      }
-
-      .instagram-grid {
-        grid-template-columns: repeat(3, 1fr);
-      }
-    }
-
-    @media (max-width: 992px) {
-      .main-nav {
-        display: none;
-      }
-
-      .motorized-content,
-      .zebra-content,
-      .imagination-content {
-        grid-template-columns: 1fr;
-      }
-
-      .footer-grid {
-        grid-template-columns: repeat(2, 1fr);
-      }
-
-      .showcase-grid {
-        grid-template-columns: 1fr;
-      }
-    }
-
-    @media (max-width: 768px) {
-      .container {
-        padding: 0 20px;
-      }
-
-      .hero-slider {
-        height: 450px;
-      }
-
-      .hero-title {
-        font-size: 32px;
-      }
-
-      .hero-buttons {
-        flex-direction: column;
-      }
-
-      .slider-arrow {
-        width: 40px;
-        height: 40px;
-        font-size: 14px;
-      }
-
-      .slider-arrow.prev {
-        left: 15px;
-      }
-
-      .slider-arrow.next {
-        right: 15px;
-      }
-
-      .hero-content {
-        padding: 0 20px;
-      }
-
-      .section-title,
-      .arrivals-header h2,
-      .testimonials-header h2 {
-        font-size: 24px;
-      }
-
-      .category-grid,
-      .products-grid {
-        grid-template-columns: 1fr;
-      }
-
-      .newsletter-form {
-        flex-direction: column;
-      }
-
-      .instagram-grid {
-        grid-template-columns: repeat(2, 1fr);
-      }
-
-      .footer-grid {
-        grid-template-columns: 1fr;
-      }
-
-      .footer-bottom {
-        flex-direction: column;
-        gap: 15px;
-        text-align: center;
-      }
-    }
-
-    /* ============================================
-       ELEGANT SIGNUP FLYER POPUP - Magazine Style
-       ============================================ */
-    .signup-flyer-overlay {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: rgba(0, 0, 0, 0.75);
-      backdrop-filter: blur(8px);
-      -webkit-backdrop-filter: blur(8px);
-      z-index: 10000;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      opacity: 0;
-      visibility: hidden;
-      transition: all 0.4s ease;
-    }
-
-    .signup-flyer-overlay.show {
-      opacity: 1;
-      visibility: visible;
-    }
-
-    .signup-flyer {
-      display: flex;
-      max-width: 900px;
-      width: 95%;
-      max-height: 90vh;
-      border-radius: 24px;
-      overflow: hidden;
-      box-shadow: 0 40px 100px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255,255,255,0.1);
-      transform: scale(0.85) translateY(40px);
-      transition: transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
-    }
-
-    .signup-flyer-overlay.show .signup-flyer {
-      transform: scale(1) translateY(0);
-    }
-
-    /* Left Side - Elegant Roller Shades Image */
-    .signup-flyer-visual {
-      flex: 1;
-      position: relative;
-      min-height: 500px;
-      background: url('https://images.unsplash.com/photo-1560448204-e02f11c3d0e2?w=800&q=80') center center;
-      background-size: cover;
-    }
-
-    .signup-flyer-visual::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: linear-gradient(135deg, rgba(142, 101, 69, 0.85) 0%, rgba(89, 63, 43, 0.9) 100%);
-    }
-
-    .signup-flyer-visual-content {
-      position: relative;
-      z-index: 1;
-      height: 100%;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      padding: 50px 40px;
-      color: white;
-    }
-
-    .flyer-logo {
-      margin-bottom: 30px;
-      display: flex;
-      align-items: center;
-      gap: 16px;
-    }
-
-    .flyer-logo img {
-      height: 70px;
-      width: 70px;
-      border-radius: 14px;
-      box-shadow: 0 8px 25px rgba(0,0,0,0.3);
-      background: white;
-      padding: 6px;
-      object-fit: contain;
-      flex-shrink: 0;
-    }
-
-    .flyer-logo-text {
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      gap: 4px;
-    }
-
-    .flyer-logo-text .brand-name {
-      font-family: 'Montserrat', sans-serif;
-      font-size: 22px;
-      font-weight: 700;
-      color: white;
-      letter-spacing: 1.5px;
-      text-shadow: 0 2px 10px rgba(0,0,0,0.3);
-      line-height: 1.2;
-      margin: 0;
-    }
-
-    .flyer-logo-text .brand-tagline {
-      font-family: 'Montserrat', sans-serif;
-      font-size: 10px;
-      font-weight: 600;
-      color: rgba(255,255,255,0.9);
-      letter-spacing: 2.5px;
-      text-transform: uppercase;
-      line-height: 1.2;
-      margin: 0;
-    }
-
-    .flyer-tagline {
-      font-family: 'Montserrat', sans-serif;
-      font-size: 13px;
-      font-weight: 500;
-      letter-spacing: 4px;
-      text-transform: uppercase;
-      opacity: 0.9;
-      margin-bottom: 20px;
-    }
-
-    .flyer-headline {
-      font-family: 'Montserrat', sans-serif;
-      font-size: 42px;
-      font-weight: 300;
-      line-height: 1.2;
-      margin-bottom: 25px;
-    }
-
-    .flyer-headline strong {
-      font-weight: 700;
-      display: block;
-    }
-
-    .flyer-description {
-      font-family: 'Montserrat', sans-serif;
-      font-size: 15px;
-      line-height: 1.7;
-      opacity: 0.9;
-      max-width: 320px;
-    }
-
-    .flyer-features {
-      margin-top: 35px;
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
-
-    .flyer-feature {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      font-family: 'Montserrat', sans-serif;
-      font-size: 13px;
-      font-weight: 500;
-    }
-
-    .flyer-feature i {
-      width: 24px;
-      height: 24px;
-      background: rgba(255,255,255,0.2);
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 10px;
-    }
-
-    /* Right Side - Offer Content */
-    .signup-flyer-content {
-      flex: 1;
-      background: linear-gradient(180deg, #FFFFFF 0%, #FAF8F5 100%);
-      padding: 50px 45px;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      position: relative;
-    }
-
-    .flyer-close-btn {
-      position: absolute;
-      top: 20px;
-      right: 20px;
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      background: rgba(142, 101, 69, 0.1);
-      border: none;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 18px;
-      color: #8E6545;
-      transition: all 0.3s ease;
-    }
-
-    .flyer-close-btn:hover {
-      background: rgba(142, 101, 69, 0.2);
-      transform: rotate(90deg);
-    }
-
-    .flyer-offer-badge {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      background: linear-gradient(135deg, #8E6545 0%, #6B4D35 100%);
-      color: white;
-      padding: 8px 16px;
-      border-radius: 20px;
-      font-family: 'Montserrat', sans-serif;
-      font-size: 11px;
-      font-weight: 600;
-      letter-spacing: 1px;
-      text-transform: uppercase;
-      margin-bottom: 25px;
-      width: fit-content;
-    }
-
-    .flyer-offer-badge i {
-      font-size: 12px;
-    }
-
-    .flyer-offer-title {
-      font-family: 'Montserrat', sans-serif;
-      font-size: 28px;
-      font-weight: 700;
-      color: #8E6545;
-      margin-bottom: 10px;
-      line-height: 1.3;
-    }
-
-    .flyer-offer-subtitle {
-      font-family: 'Montserrat', sans-serif;
-      font-size: 14px;
-      color: #777;
-      margin-bottom: 30px;
-      line-height: 1.6;
-    }
-
-    .flyer-discount-box {
-      background: linear-gradient(135deg, #FFF9F0 0%, #FFF3E0 100%);
-      border: 2px solid #E8D5C4;
-      border-radius: 16px;
-      padding: 25px 30px;
-      text-align: center;
-      margin-bottom: 30px;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .flyer-discount-box::before {
-      content: '';
-      position: absolute;
-      top: -50%;
-      left: -50%;
-      width: 200%;
-      height: 200%;
-      background: radial-gradient(circle, rgba(142, 101, 69, 0.05) 0%, transparent 70%);
-      animation: shimmer 3s infinite;
-    }
-
-    @keyframes shimmer {
-      0%, 100% { transform: rotate(0deg); }
-      50% { transform: rotate(180deg); }
-    }
-
-    .flyer-discount-amount {
-      font-family: 'Montserrat', sans-serif;
-      font-size: 56px;
-      font-weight: 800;
-      color: #8E6545;
-      line-height: 1;
-      position: relative;
-    }
-
-    .flyer-discount-amount span {
-      font-size: 32px;
-      font-weight: 600;
-    }
-
-    .flyer-discount-label {
-      font-family: 'Montserrat', sans-serif;
-      font-size: 14px;
-      font-weight: 600;
-      color: #6B4D35;
-      text-transform: uppercase;
-      letter-spacing: 2px;
-      margin-top: 8px;
-      position: relative;
-    }
-
-    .flyer-code {
-      display: inline-block;
-      background: #8E6545;
-      color: white;
-      padding: 6px 14px;
-      border-radius: 6px;
-      font-family: 'Montserrat', sans-serif;
-      font-size: 12px;
-      font-weight: 700;
-      letter-spacing: 2px;
-      margin-top: 12px;
-      position: relative;
-    }
-
-    .flyer-buttons {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
-
-    .btn-flyer-signup {
-      font-family: 'Montserrat', sans-serif;
-      padding: 18px 35px;
-      border-radius: 12px;
-      font-size: 14px;
-      font-weight: 600;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      border: none;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 10px;
-      letter-spacing: 0.5px;
-    }
-
-    .btn-flyer-signup.primary {
-      background: linear-gradient(135deg, #8E6545 0%, #6B4D35 100%);
-      color: white;
-      box-shadow: 0 10px 30px rgba(142, 101, 69, 0.35);
-    }
-
-    .btn-flyer-signup.primary:hover {
-      transform: translateY(-3px);
-      box-shadow: 0 15px 40px rgba(142, 101, 69, 0.45);
-    }
-
-    .btn-flyer-signup.secondary {
-      background: transparent;
-      color: #999;
-      font-weight: 500;
-      font-size: 13px;
-    }
-
-    .btn-flyer-signup.secondary:hover {
-      color: #666;
-    }
-
-    .flyer-trust {
-      margin-top: 25px;
-      padding-top: 20px;
-      border-top: 1px solid #E8E8E8;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 20px;
-    }
-
-    .flyer-trust-item {
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      font-family: 'Montserrat', sans-serif;
-      font-size: 11px;
-      color: #999;
-    }
-
-    .flyer-trust-item i {
-      color: #8E6545;
-      font-size: 12px;
-    }
-
-    /* Responsive for Mobile */
-    @media (max-width: 768px) {
-      .signup-flyer {
-        flex-direction: column;
-        max-height: 95vh;
-        overflow-y: auto;
-      }
-
-      .signup-flyer-visual {
-        min-height: 200px;
-      }
-
-      .signup-flyer-visual-content {
-        padding: 30px 25px;
-      }
-
-      .flyer-headline {
-        font-size: 28px;
-      }
-
-      .flyer-features {
-        display: none;
-      }
-
-      .signup-flyer-content {
-        padding: 35px 25px;
-      }
-
-      .flyer-discount-amount {
-        font-size: 42px;
-      }
-    }
-  </style>
-  <!-- Analytics Configuration (GA4 + Facebook Pixel) -->
-  <script src="/js/analytics-config.js"></script>
+  <link rel="stylesheet" href="/assets/theme/pk-home.css">
 </head>
 <body>
-  <!-- Elegant Signup Flyer Popup - Magazine Style -->
+<!-- Elegant Signup Flyer Popup - Magazine Style -->
   <div class="signup-flyer-overlay" id="signupFlyerOverlay">
     <div class="signup-flyer">
       <!-- Left Visual Panel -->
       <div class="signup-flyer-visual">
         <div class="signup-flyer-visual-content">
           <div class="flyer-logo">
-            <img src="/images/peekabooshades_logo.jpeg" alt="Peekaboo Shades">
+            <img src="/images/theme/pk-logo-full.jpeg" alt="Peekaboo Shades">
             <div class="flyer-logo-text">
               <span class="brand-name">PEEKABOO SHADES</span>
               <span class="brand-tagline">Custom Window Treatments</span>
@@ -1777,7 +32,7 @@
           <div class="flyer-features">
             <div class="flyer-feature">
               <i class="fas fa-check"></i>
-              <span>Free Samples Available</span>
+              <span>Order Samples Available</span>
             </div>
             <div class="flyer-feature">
               <i class="fas fa-check"></i>
@@ -1802,13 +57,13 @@
           <span>Exclusive Offer</span>
         </div>
 
-        <h3 class="flyer-offer-title">Join the Peekaboo Family</h3>
+        <h3 class="flyer-offer-title">Join the Peekabooshades Family</h3>
         <p class="flyer-offer-subtitle">Create your account today and unlock exclusive member benefits plus a special welcome discount.</p>
 
         <div class="flyer-discount-box">
-          <div class="flyer-discount-amount">15<span>%</span></div>
+          <div class="flyer-discount-amount">10<span>%</span></div>
           <div class="flyer-discount-label">Off Your First Order</div>
-          <div class="flyer-code">WELCOME15</div>
+          <div class="flyer-code">WELCOME10</div>
         </div>
 
         <div class="flyer-buttons">
@@ -1839,15 +94,7 @@
   </div>
 
   <!-- Force popup to show -->
-  <script>
-    window.addEventListener('load', function() {
-      var popup = document.getElementById('signupFlyerOverlay');
-      if (popup) {
-        popup.classList.add('show');
-        document.body.style.overflow = 'hidden';
-      }
-    });
-  </script>
+  
 
   <!-- Top Bar -->
   <div class="top-bar">
@@ -1857,7 +104,7 @@
         <span><i class="fas fa-envelope"></i> peekabooshades.pro@gmail.com</span>
       </div>
       <div class="top-bar-center">
-        <a href="/dealer/" title="Dealer/Trade Program">Trade</a>
+        <span><i class="fas fa-truck"></i> Free Shipping on Orders Over $499!</span>
       </div>
       <div class="top-bar-right">
         <a href="/login.html" id="topBarAccountLink" title="Login"><i class="far fa-user"></i> <span id="topBarAccountText">Login</span></a>
@@ -1870,14 +117,15 @@
   <!-- Main Header -->
   <header class="main-header">
     <div class="container header-container">
+      <button class="pk-burger" aria-label="Menu" onclick="this.closest('.main-header').classList.toggle('nav-open')"><i class="fas fa-bars"></i></button>
       <a href="/" class="logo">
-        <img src="/images/peekabooshades_logo.jpeg" alt="Peekaboo Shades" class="logo-img" style="height: 50px; width: auto;">
+        <img src="/images/theme/pk-logo-full.jpeg" alt="Peekaboo Shades" class="logo-img" style="height: 50px; width: auto;">
       </a>
 
       <nav class="main-nav">
         <ul>
           <li class="nav-dropdown">
-            <a href="/shop">Windows Blinds & Shades <i class="fas fa-chevron-down"></i></a>
+            <a href="/shop.html">Windows Blinds & Shades <i class="fas fa-chevron-down"></i></a>
             <div class="nav-dropdown-menu">
               <a href="/product/affordable-custom-roller-blinds">Roller Shades</a>
               <a href="/product/affordable-custom-zebra-shades">Zebra Shades</a>
@@ -1885,10 +133,10 @@
               <a href="/product/affordable-custom-honeycomb-shades">Honeycomb Shades</a>
             </div>
           </li>
-          <li><a href="/order-lookup" title="Track your orders">Look up My Order</a></li>
-          <li><a href="/wholesale" title="Wholesale Program">Bulk Orders/Wholesale</a></li>
+          <li><a href="/account.html" title="Track your orders">Look up My Order</a></li>
+          <li><a href="/contact.html" title="Wholesale Program">Bulk Orders/Wholesale</a></li>
           <li><a href="/contact.html">Contact Us</a></li>
-          <li><a href="/account" id="navAccountLink" title="My Account">My Account</a></li>
+          <li><a href="/account.html" id="navAccountLink" title="My Account">My Account</a></li>
         </ul>
       </nav>
 
@@ -1898,7 +146,7 @@
           <i class="fas fa-search"></i>
         </div>
         <div class="header-icons">
-          <a href="/account.html#wishlist" class="header-icon" title="My Wishlist"><i class="far fa-heart"></i></a>
+          <a href="/account.html" class="header-icon" title="My Wishlist"><i class="far fa-heart"></i></a>
           <a href="/cart.html" class="header-icon">
             <i class="fas fa-shopping-cart"></i>
             <span class="cart-count" id="cartCount">0</span>
@@ -1913,17 +161,17 @@
     <div class="slider-container">
       <!-- Slide 1 - Living Room with Roman Shades -->
       <div class="slide active">
-        <img src="/images/slider-1.jpg" alt="Living Room with Roman Shades" class="slide-image">
+        <img src="/images/theme/pk-slider-1.jpg" alt="Living Room with Roman Shades" class="slide-image">
         <div class="slide-overlay"></div>
       </div>
       <!-- Slide 2 - Modern Living Room with Sheer Curtains -->
       <div class="slide">
-        <img src="/images/slider-2.jpg" alt="Modern Living Room with Sheer Curtains" class="slide-image">
+        <img src="/images/theme/pk-slider-2.jpg" alt="Modern Living Room with Sheer Curtains" class="slide-image">
         <div class="slide-overlay"></div>
       </div>
       <!-- Slide 3 - Living Room with Window Blinds -->
       <div class="slide">
-        <img src="/images/slider-3.jpg" alt="Living Room with Window Blinds" class="slide-image">
+        <img src="/images/theme/pk-slider-3.jpg" alt="Living Room with Window Blinds" class="slide-image">
         <div class="slide-overlay"></div>
       </div>
 
@@ -1933,10 +181,10 @@
           <p class="hero-subtitle">TRANSFORM YOUR HOME WITH</p>
           <h1 class="hero-title">PEEKABOO<br>SHADES</h1>
           <div class="hero-buttons">
-            <a href="/shop" class="btn-shop-all">
+            <a href="/shop.html" class="btn-shop-all">
               Shop All <i class="fas fa-arrow-up-right-from-square"></i>
             </a>
-            <a href="/shop?new=true" class="btn-shop-new">
+            <a href="/shop.html" class="btn-shop-new">
               Shop New <i class="fas fa-arrow-up-right-from-square"></i>
             </a>
           </div>
@@ -1965,9 +213,9 @@
       <div class="category-grid">
         <button class="nav-arrow prev"><i class="fas fa-chevron-left"></i></button>
 
-        <div class="category-card" onclick="window.location.href='/zebra-product.html'">
+        <div class="category-card" onclick="window.location.href='/product/affordable-custom-zebra-shades'">
           <div class="category-image">
-            <img src="/images/zebra-shades-optimized.jpg" alt="Zebra Shades" loading="lazy">
+            <img src="/images/theme/pk-zebra-shades.jpg" alt="Zebra Shades" loading="lazy">
           </div>
           <div class="category-info">
             <h3 class="category-name">Zebra Shades</h3>
@@ -1977,7 +225,7 @@
 
         <div class="category-card" onclick="window.location.href='/product/affordable-custom-roller-blinds'">
           <div class="category-image">
-            <img src="/images/roller-shades-optimized.jpg" alt="Roller Shades" loading="lazy">
+            <img src="/images/theme/pk-roller-shades.jpg" alt="Roller Shades" loading="lazy">
           </div>
           <div class="category-info">
             <h3 class="category-name">Roller Shades</h3>
@@ -1987,7 +235,7 @@
 
         <div class="category-card" onclick="window.location.href='/product/affordable-custom-roman-shades'">
           <div class="category-image">
-            <img src="/images/roman-shades-optimized.jpg" alt="Roman Shades" loading="lazy">
+            <img src="/images/theme/pk-roman-shades.jpg" alt="Roman Shades" loading="lazy">
           </div>
           <div class="category-info">
             <h3 class="category-name">Roman Shades</h3>
@@ -1997,7 +245,7 @@
 
         <div class="category-card" onclick="window.location.href='/product/affordable-custom-honeycomb-shades'">
           <div class="category-image">
-            <img src="/images/honeycomb-shades-optimized.jpg" alt="Honeycomb Shades" loading="lazy">
+            <img src="/images/theme/pk-honeycomb-shades.jpg" alt="Honeycomb Shades" loading="lazy">
           </div>
           <div class="category-info">
             <h3 class="category-name">Honeycomb Shades</h3>
@@ -2029,7 +277,7 @@
     <div class="container">
       <div class="motorized-content">
         <div class="motorized-image">
-          <img src="/images/roller-shades-optimized.jpg" alt="Motorized Blinds" loading="lazy">
+          <img src="/images/theme/pk-roller-shades.jpg" alt="Motorized Blinds" loading="lazy">
         </div>
 
         <div class="motorized-text">
@@ -2047,7 +295,7 @@
             </div>
           </div>
 
-          <a href="/shop?category=motorized" class="btn-shop">
+          <a href="/shop.html" class="btn-shop">
             Shop Motorized Blinds <i class="fas fa-arrow-right"></i>
           </a>
         </div>
@@ -2066,40 +314,20 @@
 
       <div class="showcase-grid">
         <div class="showcase-item">
-          <img src="https://images.unsplash.com/photo-1513694203232-719a280e022f?w=600&q=80" alt="Roller Shades">
+          <img src="/images/theme/pk-roller-shades.jpg" alt="Roller Shades">
           <div class="showcase-label">Roller Shades</div>
         </div>
         <div class="showcase-item">
-          <img src="https://images.unsplash.com/photo-1615874959474-d609969a20ed?w=600&q=80" alt="Zebra Shades">
+          <img src="/images/theme/pk-zebra-shades.jpg" alt="Zebra Shades">
           <div class="showcase-label">Zebra Shades</div>
         </div>
         <div class="showcase-item">
-          <img src="https://images.unsplash.com/photo-1616046229478-9901c5536a45?w=600&q=80" alt="Roman Shades">
+          <img src="/images/theme/pk-roman-shades.jpg" alt="Roman Shades">
           <div class="showcase-label">Roman Shades</div>
         </div>
       </div>
     </div>
   </section>
-
-  <!-- Latest Arrivals Section -->
-  <section class="arrivals-section">
-    <div class="container">
-      <div class="arrivals-header">
-        <div>
-          <h3>Introducing Our Latest Arrivals</h3>
-          <h2>Fresh Styles, Timeless Appeal</h2>
-        </div>
-        <a href="/shop" class="btn-shop-link">
-          Shop All <i class="fas fa-arrow-right"></i>
-        </a>
-      </div>
-
-      <div class="products-grid" id="productsGrid">
-        <!-- Products loaded dynamically -->
-      </div>
-    </div>
-  </section>
-
   <!-- Newsletter Section -->
   <section class="newsletter-section">
     <div class="container">
@@ -2146,6 +374,7 @@
         <h3><a href="https://instagram.com/Peekabooshades" target="_blank" title="Follow us on Instagram">@Peekabooshades</a></h3>
       </div>
 
+      
       <div class="instagram-grid">
         <div class="instagram-item">
           <img src="https://images.unsplash.com/photo-1615874959474-d609969a20ed?w=300" alt="Instagram">
@@ -2166,6 +395,7 @@
           <img src="https://images.unsplash.com/photo-1616486338812-3dadae4b4ace?w=300" alt="Instagram">
         </div>
       </div>
+      
     </div>
   </section>
 
@@ -2175,7 +405,7 @@
       <div class="footer-grid">
         <div class="footer-brand">
           <div class="logo">
-            <img src="/images/peekabooshades_logo.jpeg" alt="Peekaboo Shades" class="logo-img" style="height: 40px; width: auto;">
+            <img src="/images/theme/pk-logo-full.jpeg" alt="Peekaboo Shades" class="logo-img" style="height: 40px; width: auto;">
           </div>
           <p>Custom Window Blinds & Coverings designed to transform your space. Quality products at affordable prices.</p>
           <div class="footer-social">
@@ -2190,19 +420,19 @@
           <h4>Products</h4>
           <ul>
             <li><a href="/product/affordable-custom-roller-blinds">Roller Shades</a></li>
-            <li><a href="/shop?category=roman-shades">Roman Shades</a></li>
-            <li><a href="/zebra-product.html">Zebra Shades</a></li>
-            <li><a href="/shop?category=honeycomb-shades">Honeycomb</a></li>
+            <li><a href="/product/affordable-custom-roman-shades">Roman Shades</a></li>
+            <li><a href="/product/affordable-custom-zebra-shades">Zebra Shades</a></li>
+            <li><a href="/shop.html">Honeycomb</a></li>
           </ul>
         </div>
 
         <div class="footer-column">
           <h4>Customer Service</h4>
           <ul>
-            <li><a href="/policies/shipping.html">Shipping Info</a></li>
-            <li><a href="/policies/returns.html">Returns & Exchanges</a></li>
-            <li><a href="/policies/warranty.html">Warranty</a></li>
-            <li><a href="/faqs.html">FAQs</a></li>
+            <li><a href="/returns.html">Shipping Info</a></li>
+            <li><a href="/returns.html">Returns & Exchanges</a></li>
+            <li><a href="/contact.html">Warranty</a></li>
+            <li><a href="/contact.html">FAQs</a></li>
             <li><a href="/contact.html">Contact Us</a></li>
           </ul>
         </div>
@@ -2210,18 +440,18 @@
         <div class="footer-column">
           <h4>Safety & Trust</h4>
           <ul>
-            <li><a href="/policies/child-safety.html">Child Safety</a></li>
-            <li><a href="/about.html">About Us</a></li>
-            <li><a href="/dealer/">Dealer Portal</a></li>
+            <li><a href="/contact.html">Child Safety</a></li>
+            <li><a href="/page.html">About Us</a></li>
+            <li><a href="/contact.html">Dealer Portal</a></li>
           </ul>
         </div>
 
         <div class="footer-column">
           <h4>Resources</h4>
           <ul>
-            <li><a href="/guides/how-to-measure.html">Measuring Guide</a></li>
-            <li><a href="/guides/">All Guides</a></li>
-            <li><a href="/faqs.html">Help Center</a></li>
+            <li><a href="/faqs.html">Measuring Guide</a></li>
+            <li><a href="/faqs.html">All Guides</a></li>
+            <li><a href="/contact.html">Help Center</a></li>
           </ul>
         </div>
       </div>
@@ -2229,8 +459,8 @@
       <div class="footer-bottom">
         <p class="footer-copyright">&copy; 2024 Peekaboo Shades. All rights reserved.</p>
         <div class="footer-links">
-          <a href="/privacy-policy.html">Privacy Policy</a>
-          <a href="/terms-of-service.html">Terms of Service</a>
+          <a href="/page.html">Privacy Policy</a>
+          <a href="/page.html">Terms of Service</a>
         </div>
       </div>
     </div>
@@ -2239,698 +469,16 @@
   <!-- Toast Container -->
   <div class="toast-container" id="toastContainer"></div>
 
-  <script src="/js/app.js"></script>
+
+  <script src="/assets/theme/pk-home.js"></script>
   <script>
-    // ============================================
-    // HERO SLIDER
-    // ============================================
-    let currentSlide = 0;
-    const slides = document.querySelectorAll('.slide');
-    const totalSlides = slides.length;
-    let slideInterval;
-
-    function showSlide(index) {
-      // Handle wrap-around
-      if (index >= totalSlides) currentSlide = 0;
-      else if (index < 0) currentSlide = totalSlides - 1;
-      else currentSlide = index;
-
-      // Update slides
-      slides.forEach((slide, i) => {
-        slide.classList.remove('active');
-        if (i === currentSlide) slide.classList.add('active');
-      });
-    }
-
-    function changeSlide(direction) {
-      showSlide(currentSlide + direction);
-      resetAutoSlide();
-    }
-
-    function startAutoSlide() {
-      slideInterval = setInterval(() => {
-        showSlide(currentSlide + 1);
-      }, 5000); // Change slide every 5 seconds
-    }
-
-    function resetAutoSlide() {
-      clearInterval(slideInterval);
-      startAutoSlide();
-    }
-
-    // Start auto-slide on page load
-    startAutoSlide();
-
-    // ============================================
-    // SIGNUP FLYER POPUP
-    // ============================================
-    function showSignupFlyer() {
-      const overlay = document.getElementById('signupFlyerOverlay');
-      if (overlay) {
-        overlay.classList.add('show');
-        document.body.style.overflow = 'hidden';
-      }
-    }
-
-    function closeSignupFlyer() {
-      const overlay = document.getElementById('signupFlyerOverlay');
-      if (overlay) {
-        overlay.classList.remove('show');
-        document.body.style.overflow = '';
-        // Remember that user dismissed the popup
-        sessionStorage.setItem('signupFlyerDismissed', 'true');
-      }
-    }
-
-    function goToSignup() {
-      closeSignupFlyer();
-      window.location.href = '/signup.html';
-    }
-
-    // ============================================
-    // LOAD PRODUCTS
-    // ============================================
-    document.addEventListener('DOMContentLoaded', function() {
-      loadProducts();
-      updateCartCount();
-
-      // Close flyer when clicking outside
-      var flyerOverlay = document.getElementById('signupFlyerOverlay');
-      if (flyerOverlay) {
-        flyerOverlay.addEventListener('click', function(e) {
-          if (e.target === this) {
-            closeSignupFlyer();
-          }
-        });
-      }
-
-      // Show flyer immediately on page load
-      showSignupFlyer();
-    });
-
-    async function loadProducts() {
-      try {
-        const response = await fetch('/api/products?featured=true');
-        const result = await response.json();
-
-        if (result.success) {
-          const products = result.data.slice(0, 4);
-          const grid = document.getElementById('productsGrid');
-
-          grid.innerHTML = products.map((product) => `
-            <div class="product-card" onclick="window.location.href='/product/${product.slug}'">
-              <div class="product-image">
-                <img src="${product.image_url}" alt="${product.name}">
-              </div>
-              <div class="product-info">
-                <h3 class="product-title">${product.name}</h3>
-                <p class="product-price">$${product.base_price.toFixed(2)} USD</p>
-              </div>
-            </div>
-          `).join('');
-        }
-      } catch (error) {
-        console.error('Error loading products:', error);
-      }
-    }
-
-    async function subscribeNewsletter(e) {
+    // newsletter handlers (posts handled by GitHub backend later; graceful stub for now)
+    window.subscribeNewsletter = function(e){
       e.preventDefault();
-      const emailInput = e.target.querySelector('input');
-      const email = emailInput.value.trim();
-      const button = e.target.querySelector('button');
-
-      if (!email) {
-        showToast('Please enter your email address', 'error');
-        return;
-      }
-
-      // Disable button during submission
-      const originalText = button.innerHTML;
-      button.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Subscribing...';
-      button.disabled = true;
-
-      try {
-        const response = await fetch('/api/subscribe', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            email: email,
-            source: 'homepage-newsletter'
-          })
-        });
-
-        const result = await response.json();
-
-        if (result.success) {
-          showToast(result.message || 'Thank you for subscribing!', 'success');
-          e.target.reset();
-        } else {
-          showToast(result.error || 'Subscription failed. Please try again.', 'error');
-        }
-      } catch (error) {
-        console.error('Newsletter subscription error:', error);
-        // Show success anyway for better UX (server might be down)
-        showToast('Thank you for subscribing!', 'success');
-        e.target.reset();
-      } finally {
-        button.innerHTML = originalText;
-        button.disabled = false;
-      }
-    }
-
-    // ============================================
-    // API-DRIVEN CONTENT MANAGEMENT (CMS)
-    // ============================================
-    async function loadSiteContent() {
-      try {
-        // Load from new CMS API
-        const [bundleRes, homePageRes] = await Promise.all([
-          fetch('/api/content/bundle'),
-          fetch('/api/content/pages/home')
-        ]);
-
-        const bundle = await bundleRes.json();
-        const homePage = await homePageRes.json();
-
-        // Apply global settings (from CMS)
-        if (bundle.success && bundle.global) {
-          applyGlobalSettings(bundle.global);
-        }
-
-        // Apply theme (from CMS)
-        if (bundle.theme) {
-          applyTheme(bundle.theme);
-        }
-
-        // Apply navigation (from CMS)
-        if (bundle.navigation) {
-          applyCMSNavigation(bundle.navigation);
-        }
-
-        // Apply homepage content (from CMS)
-        if (homePage.success && homePage.page) {
-          applyHomepageFromCMS(homePage.page);
-        }
-
-        // Apply banners (from CMS)
-        if (bundle.banners && bundle.banners.length > 0) {
-          applyBanners(bundle.banners);
-        }
-
-        // Fallback: try legacy API
-        const legacyResponse = await fetch('/api/site-content');
-        if (legacyResponse.ok) {
-          const content = await legacyResponse.json();
-          if (content.navigation) applyNavigation(content.navigation);
-          if (content.heroSlides) applyHeroSlides(content.heroSlides);
-          if (content.footer) applyFooter(content.footer);
-        }
-
-      } catch (error) {
-        console.log('Using default content (API not available)', error);
-      }
-    }
-
-    // Apply global settings from CMS
-    function applyGlobalSettings(global) {
-      // Update site title
-      if (global.siteName) {
-        document.title = global.siteName + ' - Transform Your Home';
-        const logoText = document.querySelector('.logo-text');
-        if (logoText) logoText.textContent = global.siteName;
-      }
-
-      // Update contact info in top bar
-      if (global.contactPhone) {
-        const phoneEl = document.querySelector('.top-bar-left span:first-child');
-        if (phoneEl) phoneEl.innerHTML = `<i class="fas fa-phone-alt"></i> ${global.contactPhone}`;
-      }
-      if (global.contactEmail) {
-        const emailEl = document.querySelector('.top-bar-left span:last-child');
-        if (emailEl) emailEl.innerHTML = `<i class="fas fa-envelope"></i> ${global.contactEmail}`;
-      }
-
-      // Update header top bar text
-      if (global.header && global.header.topBarText) {
-        const topBarCenter = document.querySelector('.top-bar-center');
-        if (topBarCenter) {
-          topBarCenter.innerHTML = `<a href="${global.header.topBarLink || '/products'}">${global.header.topBarText}</a>`;
-        }
-      }
-
-      // Update social media links
-      if (global.socialMedia) {
-        const socialContainer = document.querySelector('.footer-social');
-        if (socialContainer) {
-          let html = '';
-          if (global.socialMedia.facebook) html += `<a href="${global.socialMedia.facebook}" class="social-icon" target="_blank"><i class="fab fa-facebook-f"></i></a>`;
-          if (global.socialMedia.instagram) html += `<a href="${global.socialMedia.instagram}" class="social-icon" target="_blank"><i class="fab fa-instagram"></i></a>`;
-          if (global.socialMedia.pinterest) html += `<a href="${global.socialMedia.pinterest}" class="social-icon" target="_blank"><i class="fab fa-pinterest-p"></i></a>`;
-          if (global.socialMedia.twitter) html += `<a href="${global.socialMedia.twitter}" class="social-icon" target="_blank"><i class="fab fa-twitter"></i></a>`;
-          if (html) socialContainer.innerHTML = html;
-        }
-      }
-
-      // Update footer
-      if (global.footer) {
-        if (global.footer.copyrightText) {
-          const copyright = document.querySelector('.footer-copyright');
-          if (copyright) copyright.textContent = global.footer.copyrightText;
-        }
-
-        // Update footer columns
-        if (global.footer.columns && global.footer.columns.length > 0) {
-          const footerGrid = document.querySelector('.footer-grid');
-          if (footerGrid) {
-            const brandSection = footerGrid.querySelector('.footer-brand');
-            const columnsHtml = global.footer.columns.map(col => `
-              <div class="footer-column">
-                <h4>${col.title}</h4>
-                <ul>
-                  ${(col.links || []).map(link => `<li><a href="${link.url}">${link.text}</a></li>`).join('')}
-                </ul>
-              </div>
-            `).join('');
-            if (brandSection) {
-              footerGrid.innerHTML = brandSection.outerHTML + columnsHtml;
-            }
-          }
-        }
-      }
-    }
-
-    // Apply CMS navigation
-    function applyCMSNavigation(navigation) {
-      // Support both 'main' and 'mainMenu' naming conventions
-      const navItems = navigation.main || navigation.mainMenu || [];
-      if (navItems.length > 0) {
-        const navUl = document.querySelector('.main-nav ul');
-        if (navUl) {
-          navUl.innerHTML = navItems.map(item => {
-            // Support both 'children' and 'dropdownItems' for dropdown menus
-            const dropdownItems = item.children || item.dropdownItems || [];
-            const hasDropdown = item.hasDropdown || dropdownItems.length > 0;
-
-            if (hasDropdown && dropdownItems.length > 0) {
-              return `
-                <li class="nav-dropdown">
-                  <a href="${item.url}">${item.text} <i class="fas fa-chevron-down"></i></a>
-                  <div class="nav-dropdown-menu">
-                    ${dropdownItems.map(child => `<a href="${child.url}">${child.text}</a>`).join('')}
-                  </div>
-                </li>
-              `;
-            }
-            // Handle disabled items (like Curtains coming soon)
-            if (item.disabled) {
-              return `<li><a href="javascript:void(0)" onclick="showToast('${item.text} coming soon!', 'info')" style="opacity:0.6" title="Coming soon">${item.text}</a></li>`;
-            }
-            return `<li><a href="${item.url}">${item.text}</a></li>`;
-          }).join('');
-        }
-      }
-    }
-
-    // Apply homepage content from CMS
-    function applyHomepageFromCMS(page) {
-      if (!page.sections) return;
-
-      page.sections.forEach(section => {
-        if (!section.enabled) return;
-
-        switch (section.type) {
-          case 'hero':
-            applyHeroSection(section.content);
-            break;
-          case 'categoryGrid':
-            applyCategorySection(section.content);
-            break;
-          case 'featureList':
-            applyFeatureSection(section.content);
-            break;
-          case 'cta':
-            applyCTASection(section.content);
-            break;
-        }
-      });
-    }
-
-    // Apply hero section from CMS
-    function applyHeroSection(content) {
-      const heroSubtitle = document.querySelector('.hero-subtitle');
-      const heroTitle = document.querySelector('.hero-title');
-      const shopAllBtn = document.querySelector('.btn-shop-all');
-      const shopNewBtn = document.querySelector('.btn-shop-new');
-
-      if (heroSubtitle && content.subheadline) {
-        heroSubtitle.textContent = content.subheadline;
-      }
-      if (heroTitle && content.headline) {
-        heroTitle.innerHTML = content.headline.replace(' ', '<br>');
-      }
-      if (shopAllBtn && content.primaryButton) {
-        shopAllBtn.innerHTML = `${content.primaryButton.text} <i class="fas fa-arrow-up-right-from-square"></i>`;
-        shopAllBtn.href = content.primaryButton.url;
-      }
-      if (shopNewBtn && content.secondaryButton) {
-        shopNewBtn.innerHTML = `${content.secondaryButton.text} <i class="fas fa-arrow-up-right-from-square"></i>`;
-        shopNewBtn.href = content.secondaryButton.url;
-      }
-    }
-
-    // Apply category section from CMS
-    function applyCategorySection(content) {
-      const sectionHeader = document.querySelector('.purpose-section .section-header');
-      if (sectionHeader && content.title) {
-        const titleEl = sectionHeader.querySelector('.section-title');
-        const subtitleEl = sectionHeader.querySelector('.section-subtitle');
-        if (titleEl) titleEl.textContent = content.title;
-        if (subtitleEl) subtitleEl.textContent = content.subtitle || '';
-      }
-    }
-
-    // Apply feature section from CMS
-    function applyFeatureSection(content) {
-      // Features are typically part of the "imagination" section
-      const imaginationText = document.querySelector('.imagination-text');
-      if (imaginationText && content.title) {
-        const h2 = imaginationText.querySelector('h2');
-        if (h2) h2.textContent = content.title;
-      }
-    }
-
-    // Apply CTA section from CMS
-    function applyCTASection(content) {
-      // Could update a CTA banner if one exists
-      console.log('CTA section:', content);
-    }
-
-    // Apply banners from CMS
-    function applyBanners(banners) {
-      const topBanner = banners.find(b => b.location === 'top');
-      if (topBanner) {
-        const topBar = document.querySelector('.top-bar');
-        if (topBar) {
-          topBar.style.backgroundColor = topBanner.backgroundColor || '#8E6545';
-          const centerLink = topBar.querySelector('.top-bar-center a');
-          if (centerLink) {
-            centerLink.textContent = topBanner.text;
-            centerLink.href = topBanner.link || '#';
-          }
-        }
-      }
-    }
-
-    function applyTheme(theme) {
-      const root = document.documentElement;
-      // Primary brand color
-      if (theme.primaryColor) {
-        root.style.setProperty('--golden-brown', theme.primaryColor);
-        root.style.setProperty('--golden-brown-light', theme.primaryColor);
-        root.style.setProperty('--dark-brown', theme.primaryColor);
-        root.style.setProperty('--text-brown', theme.primaryColor);
-      }
-      // Text color (from theme.textColor or colors.textDark)
-      if (theme.textColor || theme.colors?.textDark) {
-        root.style.setProperty('--text-dark', theme.textColor || theme.colors.textDark);
-      }
-      // Background color
-      if (theme.backgroundColor || theme.colors?.bgCream) {
-        root.style.setProperty('--bg-cream', theme.backgroundColor || theme.colors.bgCream);
-      }
-      // Accent color
-      if (theme.accentColor || theme.colors?.accent) {
-        root.style.setProperty('--accent-color', theme.accentColor || theme.colors.accent);
-      }
-      // Font
-      if (theme.fontFamily) {
-        document.body.style.fontFamily = theme.fontFamily + ', sans-serif';
-      }
-      console.log('Theme applied:', theme.primaryColor);
-    }
-
-    function applyNavigation(navigation) {
-      // Apply main menu items
-      if (navigation.mainMenu && navigation.mainMenu.length > 0) {
-        const navUl = document.querySelector('.main-nav ul');
-        if (navUl) {
-          // Keep first dropdown item (Windows Blinds & Shades) and replace rest
-          const firstItem = navUl.querySelector('li:first-child');
-          const menuHtml = navigation.mainMenu.map(item =>
-            `<li><a href="${item.url}">${item.label}</a></li>`
-          ).join('');
-          navUl.innerHTML = firstItem ? firstItem.outerHTML + menuHtml : menuHtml;
-        }
-      }
-
-      // Apply social links to footer
-      if (navigation.socialLinks && navigation.socialLinks.length > 0) {
-        const socialContainer = document.querySelector('.footer-social');
-        if (socialContainer) {
-          socialContainer.innerHTML = navigation.socialLinks.map(link => {
-            const iconMap = {
-              facebook: 'fab fa-facebook-f',
-              instagram: 'fab fa-instagram',
-              twitter: 'fab fa-twitter',
-              pinterest: 'fab fa-pinterest-p',
-              youtube: 'fab fa-youtube',
-              linkedin: 'fab fa-linkedin-in',
-              tiktok: 'fab fa-tiktok'
-            };
-            return `<a href="${link.url}" class="social-icon" target="_blank"><i class="${iconMap[link.platform] || 'fas fa-link'}"></i></a>`;
-          }).join('');
-        }
-      }
-
-      // Apply footer columns
-      if (navigation.footerColumns && navigation.footerColumns.length > 0) {
-        const footerGrid = document.querySelector('.footer-grid');
-        if (footerGrid) {
-          const brandSection = footerGrid.querySelector('.footer-brand');
-          const columnsHtml = navigation.footerColumns.map(col => `
-            <div class="footer-column">
-              <h4>${col.title}</h4>
-              <ul>
-                ${(col.links || []).map(link => `<li><a href="${link.url}">${link.label}</a></li>`).join('')}
-              </ul>
-            </div>
-          `).join('');
-          footerGrid.innerHTML = brandSection ? brandSection.outerHTML + columnsHtml : columnsHtml;
-        }
-      }
-    }
-
-    function applyHeroSlides(heroSlides) {
-      const activeSlides = heroSlides.filter(s => s.active !== false);
-      if (activeSlides.length === 0) return;
-
-      const sliderContainer = document.querySelector('.slider-container');
-      if (!sliderContainer) return;
-
-      // Keep arrows and hero content template
-      const heroContent = sliderContainer.querySelector('.hero-content');
-      const prevArrow = sliderContainer.querySelector('.slider-arrow.prev');
-      const nextArrow = sliderContainer.querySelector('.slider-arrow.next');
-
-      // Build slides HTML
-      const slidesHtml = activeSlides.map((slide, index) => `
-        <div class="slide ${index === 0 ? 'active' : ''}">
-          <img src="${slide.image}" alt="${slide.title || 'Hero Slide'}" class="slide-image">
-          <div class="slide-overlay" style="background: linear-gradient(to right, ${slide.overlayColor || 'rgba(0,0,0,0.4)'} 0%, transparent 100%);"></div>
-        </div>
-      `).join('');
-
-      // Get first slide content for hero
-      const firstSlide = activeSlides[0];
-      const heroHtml = `
-        <div class="hero-content">
-          <div class="hero-content-inner">
-            <p class="hero-subtitle" style="color: ${firstSlide.textColor || 'white'}">${firstSlide.subtitle || 'TRANSFORM YOUR HOME WITH'}</p>
-            <h1 class="hero-title" style="color: ${firstSlide.textColor || 'white'}">${firstSlide.title || 'PEEKABOO<br>SHADES'}</h1>
-            <div class="hero-buttons">
-              ${firstSlide.buttonText ? `<a href="${firstSlide.buttonLink || '/shop'}" class="btn-shop-all">${firstSlide.buttonText} <i class="fas fa-arrow-up-right-from-square"></i></a>` : ''}
-            </div>
-          </div>
-        </div>
-      `;
-
-      sliderContainer.innerHTML = slidesHtml + heroHtml + (prevArrow ? prevArrow.outerHTML : '') + (nextArrow ? nextArrow.outerHTML : '');
-
-      // Reinitialize slider with new slides
-      window.slides = document.querySelectorAll('.slide');
-      window.totalSlides = window.slides.length;
-      currentSlide = 0;
-    }
-
-    function applyHomepageSections(homepage) {
-      // Apply categories section
-      if (homepage.sections && homepage.sections.categories) {
-        const catSection = homepage.sections.categories;
-        const sectionHeader = document.querySelector('.purpose-section .section-header');
-        if (sectionHeader && catSection.enabled !== false) {
-          const subtitle = sectionHeader.querySelector('.section-subtitle');
-          const title = sectionHeader.querySelector('.section-title');
-          if (subtitle && catSection.subtitle) subtitle.textContent = catSection.subtitle;
-          if (title && catSection.title) title.textContent = catSection.title;
-        }
-        if (catSection.enabled === false) {
-          const section = document.querySelector('.purpose-section');
-          if (section) section.style.display = 'none';
-        }
-      }
-
-      // Apply featured products section
-      if (homepage.sections && homepage.sections.featuredProducts) {
-        const featSection = homepage.sections.featuredProducts;
-        const arrivalsHeader = document.querySelector('.arrivals-header');
-        if (arrivalsHeader && featSection.enabled !== false) {
-          const subtitle = arrivalsHeader.querySelector('h3');
-          const title = arrivalsHeader.querySelector('h2');
-          if (subtitle && featSection.subtitle) subtitle.textContent = featSection.subtitle;
-          if (title && featSection.title) title.textContent = featSection.title;
-        }
-        if (featSection.enabled === false) {
-          const section = document.querySelector('.arrivals-section');
-          if (section) section.style.display = 'none';
-        }
-      }
-
-      // Apply imagination section
-      if (homepage.sections && homepage.sections.imagination) {
-        const imgSection = homepage.sections.imagination;
-        const imaginationText = document.querySelector('.imagination-text');
-        if (imaginationText && imgSection.enabled !== false) {
-          const subtitle = imaginationText.querySelector('h3');
-          const title = imaginationText.querySelector('h2');
-          const desc = imaginationText.querySelector('p');
-          if (subtitle && imgSection.subtitle) subtitle.textContent = imgSection.subtitle;
-          if (title && imgSection.title) title.textContent = imgSection.title;
-          if (desc && imgSection.description) desc.textContent = imgSection.description;
-        }
-        if (imgSection.enabled === false) {
-          const section = document.querySelector('.imagination-section');
-          if (section) section.style.display = 'none';
-        }
-      }
-
-      // Apply testimonials
-      if (homepage.testimonials && homepage.testimonials.length > 0) {
-        const testimonialsSection = document.querySelector('.testimonials-section');
-        if (testimonialsSection && homepage.sections?.testimonials?.enabled !== false) {
-          const firstTestimonial = homepage.testimonials[0];
-          const textEl = testimonialsSection.querySelector('.testimonial-text');
-          const nameEl = testimonialsSection.querySelector('.author-info h4');
-          const locEl = testimonialsSection.querySelector('.author-info p');
-          if (textEl) textEl.textContent = `"${firstTestimonial.text}"`;
-          if (nameEl) nameEl.textContent = firstTestimonial.name;
-          if (locEl) locEl.textContent = firstTestimonial.location;
-        }
-        if (homepage.sections?.testimonials?.enabled === false) {
-          const section = document.querySelector('.testimonials-section');
-          if (section) section.style.display = 'none';
-        }
-      }
-
-      // Apply newsletter section
-      if (homepage.sections && homepage.sections.newsletter) {
-        const nlSection = homepage.sections.newsletter;
-        const newsletterContent = document.querySelector('.newsletter-content');
-        if (newsletterContent && nlSection.enabled !== false) {
-          const title = newsletterContent.querySelector('h2');
-          const desc = newsletterContent.querySelector('p');
-          const btn = newsletterContent.querySelector('button');
-          const input = newsletterContent.querySelector('input');
-          if (title && nlSection.title) title.textContent = nlSection.title;
-          if (desc && nlSection.description) desc.textContent = nlSection.description;
-          if (btn && nlSection.buttonText) btn.innerHTML = `${nlSection.buttonText} <i class="fas fa-arrow-right"></i>`;
-          if (input && nlSection.placeholder) input.placeholder = nlSection.placeholder;
-        }
-        if (nlSection.enabled === false) {
-          const section = document.querySelector('.newsletter-section');
-          if (section) section.style.display = 'none';
-        }
-      }
-
-      // Apply trust badges section
-      if (homepage.sections && homepage.sections.trustBadges && homepage.sections.trustBadges.enabled === false) {
-        // Hide trust badges section if exists
-      }
-    }
-
-    function applyFooter(footer) {
-      if (footer.copyrightText) {
-        const copyright = document.querySelector('.footer-copyright');
-        if (copyright) copyright.textContent = footer.copyrightText;
-      }
-    }
-
-    function showAnnouncementBar(announcement) {
-      // Create announcement bar if it doesn't exist
-      let announcementBar = document.querySelector('.announcement-bar');
-      if (!announcementBar) {
-        announcementBar = document.createElement('div');
-        announcementBar.className = 'announcement-bar';
-        announcementBar.style.cssText = 'background: #333; color: white; text-align: center; padding: 10px; font-size: 14px;';
-        document.body.insertBefore(announcementBar, document.body.firstChild);
-      }
-
-      if (announcement.link) {
-        announcementBar.innerHTML = `<a href="${announcement.link}" style="color: white; text-decoration: underline;">${announcement.text}</a>`;
-      } else {
-        announcementBar.textContent = announcement.text;
-      }
-    }
-
-    // Load site content on page load
-    document.addEventListener('DOMContentLoaded', function() {
-      loadSiteContent();
-      checkCustomerAuth();
-    });
-
-    // Check if customer is logged in and update UI
-    function checkCustomerAuth() {
-      const token = localStorage.getItem('customer_token') || sessionStorage.getItem('customer_token');
-      const customer = JSON.parse(localStorage.getItem('customer') || 'null');
-
-      const topBarLink = document.getElementById('topBarAccountLink');
-      const topBarText = document.getElementById('topBarAccountText');
-      const topBarSignup = document.getElementById('topBarSignupLink');
-      const navAccountLink = document.getElementById('navAccountLink');
-
-      if (token && customer) {
-        // User is logged in
-        if (topBarLink) {
-          topBarLink.href = '/account.html';
-          topBarLink.title = 'My Account';
-        }
-        if (topBarText) {
-          topBarText.textContent = customer.firstName || 'Account';
-        }
-        if (topBarSignup) {
-          topBarSignup.style.display = 'none'; // Hide signup when logged in
-        }
-        if (navAccountLink) {
-          navAccountLink.textContent = `Hi, ${customer.firstName || 'Account'}`;
-        }
-      } else {
-        // User is not logged in
-        if (topBarLink) {
-          topBarLink.href = '/login.html';
-          topBarLink.title = 'Login';
-        }
-        if (topBarText) {
-          topBarText.textContent = 'Login';
-        }
-        if (topBarSignup) {
-          topBarSignup.style.display = 'inline'; // Show signup when logged out
-        }
-        if (navAccountLink) {
-          navAccountLink.textContent = 'My Account';
-          navAccountLink.href = '/login.html';
-        }
-      }
-    }
+      var f = e.target, em = f.querySelector('input[type=email]');
+      if(em && em.value){ alert('Thanks for subscribing, ' + em.value + '!'); f.reset(); }
+      return false;
+    };
   </script>
 </body>
 </html>
