@@ -172,10 +172,11 @@ class ExtendedPricingEngine {
       throw new Error('Product is not available');
     }
 
-    // Validate dimensions
+    // Validate dimensions (collect any auto-correction warnings so they can be surfaced)
     const productRules = systemConfig.getProductRules();
-    const validatedWidth = this.validateDimension(width, 'width', productRules.dimensions);
-    const validatedHeight = this.validateDimension(height, 'height', productRules.dimensions);
+    const dimensionWarnings = [];
+    const validatedWidth = this.validateDimension(width, 'width', productRules.dimensions, dimensionWarnings);
+    const validatedHeight = this.validateDimension(height, 'height', productRules.dimensions, dimensionWarnings);
     const validatedQty = this.validateQuantity(quantity, productRules.quantity);
 
     // Step 1: Get manufacturer cost
@@ -253,6 +254,11 @@ class ExtendedPricingEngine {
       },
       quantity: validatedQty,
       fabricCode,
+      // Variant SKU generated deterministically from the configuration (skill: sku-generate)
+      sku: this.generateSku({ productType, fabricCode, options }),
+      // Surface dimension auto-corrections so the caller/customer can be warned (skill: measurement-validate)
+      dimensionWarnings,
+      dimensionAdjusted: dimensionWarnings.length > 0,
       pricing: {
         manufacturerCost: {
           unitCost: this.round(manufacturerCost.unitCost),
@@ -957,12 +963,50 @@ class ExtendedPricingEngine {
   }
 
   /**
+   * Parse a dimension value into decimal inches.
+   * Accepts numbers, decimal strings ("60.5"), and fractional-inch notation
+   * ("60 3/4", "60-3/4", "3/4"). Returns NaN for unparseable / garbage input.
+   * (skill: measurement-validate — "Parse fractional inches to decimal")
+   */
+  parseDimensionValue(value) {
+    if (typeof value === 'number') return value;
+    if (value === null || value === undefined) return NaN;
+    const str = String(value).trim();
+    if (str === '') return NaN;
+
+    // Whole number + fraction, e.g. "60 3/4" or "60-3/4"
+    let m = str.match(/^(\d+(?:\.\d+)?)[\s-]+(\d+)\/(\d+)$/);
+    if (m) {
+      const den = parseFloat(m[3]);
+      if (den === 0) return NaN;
+      return parseFloat(m[1]) + parseFloat(m[2]) / den;
+    }
+
+    // Fraction only, e.g. "3/4"
+    m = str.match(/^(\d+)\/(\d+)$/);
+    if (m) {
+      const den = parseFloat(m[2]);
+      if (den === 0) return NaN;
+      return parseFloat(m[1]) / den;
+    }
+
+    // Plain integer or decimal, e.g. "60" or "60.5"
+    if (/^\d+(?:\.\d+)?$/.test(str)) return parseFloat(str);
+
+    // Anything else (e.g. "24abc") is rejected rather than silently truncated
+    return NaN;
+  }
+
+  /**
    * Validate dimension
    * TICKET-012: Added zero-dimension check
+   * Now parses fractional inches and records auto-corrections into `warnings`.
+   * @param {Array} warnings - optional accumulator; when a value is clamped to
+   *                           min/max, a structured warning is pushed here.
    */
-  validateDimension(value, dimensionType, rules) {
+  validateDimension(value, dimensionType, rules, warnings = null) {
     const config = rules[dimensionType];
-    const numValue = parseFloat(value);
+    const numValue = this.parseDimensionValue(value);
 
     if (isNaN(numValue)) {
       throw new Error(`Invalid ${dimensionType}: must be a number`);
@@ -974,14 +1018,58 @@ class ExtendedPricingEngine {
     }
 
     if (numValue < config.min) {
+      if (Array.isArray(warnings)) {
+        warnings.push({
+          dimension: dimensionType,
+          entered: numValue,
+          adjustedTo: config.min,
+          reason: 'below_minimum',
+          message: `Entered ${dimensionType} ${numValue}" is below the minimum ${config.min}"; adjusted to ${config.min}".`
+        });
+      }
       return config.min; // Auto-correct to minimum
     }
 
     if (numValue > config.max) {
+      if (Array.isArray(warnings)) {
+        warnings.push({
+          dimension: dimensionType,
+          entered: numValue,
+          adjustedTo: config.max,
+          reason: 'above_maximum',
+          message: `Entered ${dimensionType} ${numValue}" exceeds the maximum ${config.max}"; adjusted to ${config.max}".`
+        });
+      }
       return config.max; // Auto-correct to maximum
     }
 
     return numValue;
+  }
+
+  /**
+   * Generate a stable, unique variant SKU from the configuration.
+   * Convention (skill: sku-generate): <TYPE>-[OPACITY]-<FABRIC>-<CONTROL>
+   * e.g. RS-LF-82067K-MOT. Deterministic: same config → same SKU.
+   */
+  generateSku(params) {
+    const { productType, fabricCode, options = {} } = params || {};
+    const typeMap = { roller: 'RS', zebra: 'ZS', roman: 'RM', honeycomb: 'HC' };
+    const opacityMap = {
+      transparent: 'LF', 'light-filtering': 'LF', 'light filtering': 'LF',
+      blackout: 'BO', 'semi-blackout': 'SB', 'super-blackout': 'XB'
+    };
+    const controlMap = {
+      manual: 'MAN', cordless: 'CL', motorized: 'MOT',
+      'motorized-app': 'MOT', 'cordless-motorized': 'CLM'
+    };
+    const clean = (s) => String(s || '').toUpperCase().replace(/[^A-Z0-9]/g, '');
+
+    const prefix = typeMap[String(productType || '').toLowerCase()] || clean(productType).slice(0, 2) || 'XX';
+    const opacity = opacityMap[String(options.lightFiltering || '').toLowerCase()]; // optional segment
+    const fabric = clean(fabricCode) || 'NOFAB';
+    const control = controlMap[String(options.controlType || 'manual').toLowerCase()] || 'MAN';
+
+    return [prefix, opacity, fabric, control].filter(Boolean).join('-');
   }
 
   /**

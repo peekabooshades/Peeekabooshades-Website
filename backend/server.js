@@ -766,6 +766,8 @@ app.post('/api/cart', (req, res) => {
       height: priceResult.dimensions.height,
       room_label: roomLabel || '',
       configuration: typeof configuration === 'string' ? configuration : JSON.stringify(configuration || {}),
+      // Variant SKU derived from the configuration (skill: sku-generate)
+      sku: priceResult.sku || null,
       // CRITICAL: Use server-calculated CUSTOMER price (manufacturer + margin)
       unit_price: priceResult.pricing.unitPrice,
       line_total: priceResult.pricing.lineTotal,
@@ -11962,6 +11964,8 @@ const defaultProductOptions = {
     label: "Motor Type",
     section: "mountControlSolar",
     type: "buttons",
+    // Display condition (Stage 5.3): motor options only when motorized
+    showWhen: { controlType: "motorized" },
     options: [
       { value: "battery", name: "Battery", isDefault: true },
       { value: "plugin-wire", name: "Plugin Wire" },
@@ -11973,6 +11977,8 @@ const defaultProductOptions = {
     label: "Remote Type",
     section: "mountControlSolar",
     type: "buttons",
+    // Display condition (Stage 5.3): remote only when motorized
+    showWhen: { controlType: "motorized" },
     options: [
       { value: "single-channel", name: "Single Channel", isDefault: true },
       { value: "6-channel", name: "6 Channel" },
@@ -11984,6 +11990,8 @@ const defaultProductOptions = {
     label: "Solar Type",
     section: "mountControlSolar",
     type: "buttons",
+    // Display condition (Stage 5.3): solar only when motorized
+    showWhen: { controlType: "motorized" },
     options: [
       { value: "yes", name: "Yes", isDefault: true },
       { value: "no", name: "No" }

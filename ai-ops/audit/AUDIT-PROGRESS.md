@@ -15,7 +15,7 @@
 | — | Admin RBAC + cache auth-bypass (§15.1) | ✅ FIXED + committed `20bd3a1` | defect-backlog.md (Pass 6) |
 | A | Discovery & Catalog (St 0,1) | ⬜ pending | — |
 | B | Samples (St 3) | ✅ FIXED + verified (S001–S005) | stage-03-samples.md |
-| C | Measure + Configure validation (St 4,5) | ⬜ pending | — |
+| C | Measure + Configure validation (St 4,5) | ✅ FIXED + verified (M001–M004) | stage-04-05-measure-configure.md |
 | D | Account & Authentication (St 8) | ⬜ pending | — |
 | E | Shipping / Fulfillment / Tracking (St 12) | ⬜ pending | — |
 | F | Installation (St 13) | ⬜ pending | — |
