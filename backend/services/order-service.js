@@ -488,7 +488,7 @@ function autoDeliveryUpdate(daysAfterShipment = 7, dryRun = false) {
         orderNumber: o.order_number,
         shippedAt: o.shipped_at || o.updated_at,
         daysSinceShipment: Math.floor((now - new Date(o.shipped_at || o.updated_at)) / (24 * 60 * 60 * 1000)),
-        hasTracking: !!(o.shipping?.trackingNumber)
+        hasTracking: !!(o.tracking?.trackingNumber || o.shipping?.trackingNumber)
       })),
       count: shippedOrders.length
     };
@@ -588,9 +588,9 @@ function getShippedOrdersPendingDelivery(daysThreshold = 7) {
       shippedAt: order.shipped_at || order.updated_at,
       daysSinceShipment,
       readyForAutoDelivery: shippedAt <= cutoffDate,
-      hasTracking: !!(order.shipping?.trackingNumber),
-      trackingNumber: order.shipping?.trackingNumber,
-      carrier: order.shipping?.carrier
+      hasTracking: !!(order.tracking?.trackingNumber || order.shipping?.trackingNumber),
+      trackingNumber: order.tracking?.trackingNumber || order.shipping?.trackingNumber,
+      carrier: order.tracking?.carrier || order.shipping?.carrier
     };
   });
 }

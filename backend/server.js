@@ -293,6 +293,16 @@ function saveDatabase(data) {
   dbCacheTime = Date.now();
 }
 
+// BUG-F005: server.js keeps this inline read cache while the service layer
+// (manufacturer-service, ledger-service, …) writes through services/db-loader's
+// SEPARATE cache. After a service-layer write to an order, call this so the next
+// server-side read (e.g. GET /api/orders/lookup) re-reads fresh disk instead of
+// serving a stale, pre-write copy for up to CACHE_TTL.
+function invalidateServerDbCache() {
+  dbCache = null;
+  dbCacheTime = 0;
+}
+
 // Middleware
 app.use(compression({ level: 6 })); // Enable gzip compression
 app.use(cors());
@@ -916,11 +926,18 @@ app.get('/api/orders/lookup', (req, res) => {
         pricing: {
           subtotal: order.subtotal,
           tax: order.tax,
-          shipping: order.shipping,
+          // order.shipping is the numeric shipping cost; guard against any
+          // legacy order where it was corrupted into a tracking object.
+          shipping: (typeof order.shipping === 'number')
+            ? order.shipping
+            : (order.pricing && typeof order.pricing.shipping === 'number' ? order.pricing.shipping : 0),
           total: order.total
         },
         shipping_address: order.shipping_address,
-        tracking: order.tracking || null
+        // Canonical tracking lives on order.tracking; fall back to any legacy
+        // tracking that older code wrote onto the order.shipping object.
+        tracking: order.tracking
+          || (order.shipping && typeof order.shipping === 'object' && order.shipping.trackingNumber ? order.shipping : null)
       }
     });
   } catch (error) {
@@ -1106,14 +1123,63 @@ app.post('/api/orders', (req, res) => {
 // Get order by number
 app.get('/api/orders/:orderNumber', (req, res) => {
   try {
-    const db = loadDatabase();
-    const order = db.orders.find(o => o.order_number === req.params.orderNumber);
-
-    if (!order) {
-      return res.status(404).json({ success: false, error: 'Order not found' });
+    // BUG-F001: this public route previously returned the ENTIRE order object
+    // (customer PII + internal manufacturer cost/margin) for any guessable
+    // order number with no auth and no email — an order-enumeration / IDOR
+    // hole that bypassed the email-gated /api/orders/lookup. Require the same
+    // credential pair (order number + matching email) and return the same
+    // reduced projection.
+    const { email } = req.query;
+    if (!email) {
+      return res.status(400).json({
+        success: false,
+        error: 'Order number and email are required'
+      });
     }
 
-    res.json({ success: true, data: order });
+    const db = loadDatabase();
+    const order = db.orders.find(o =>
+      (o.order_number === req.params.orderNumber || o.id === req.params.orderNumber) &&
+      o.customer_email &&
+      o.customer_email.toLowerCase() === String(email).toLowerCase()
+    );
+
+    if (!order) {
+      return res.status(404).json({
+        success: false,
+        error: 'Order not found. Please check your order number and email address.'
+      });
+    }
+
+    res.json({
+      success: true,
+      data: {
+        order_number: order.order_number,
+        status: order.status,
+        created_at: order.created_at,
+        items: order.items ? order.items.map(item => ({
+          product_name: item.product_name,
+          quantity: item.quantity,
+          width: item.width,
+          height: item.height
+        })) : [],
+        pricing: {
+          subtotal: order.subtotal,
+          tax: order.tax,
+          // order.shipping is the numeric shipping cost; guard against any
+          // legacy order where it was corrupted into a tracking object.
+          shipping: (typeof order.shipping === 'number')
+            ? order.shipping
+            : (order.pricing && typeof order.pricing.shipping === 'number' ? order.pricing.shipping : 0),
+          total: order.total
+        },
+        shipping_address: order.shipping_address,
+        // Canonical tracking lives on order.tracking; fall back to any legacy
+        // tracking that older code wrote onto the order.shipping object.
+        tracking: order.tracking
+          || (order.shipping && typeof order.shipping === 'object' && order.shipping.trackingNumber ? order.shipping : null)
+      }
+    });
   } catch (error) {
     res.status(500).json({ success: false, error: error.message });
   }
@@ -2246,12 +2312,56 @@ app.put('/api/admin/orders/:id/status', authMiddleware, (req, res) => {
       notes: notes || ''
     });
 
+    // BUG-F004: let the admin attach a fulfillment tracking number when
+    // marking an order shipped. Stored on the canonical order.tracking field
+    // the customer tracking page reads (order.shipping stays the numeric cost).
+    const { carrier, trackingNumber, trackingUrl, estimatedDelivery } = req.body;
+    if (trackingNumber && carrier) {
+      const trackTs = new Date().toISOString();
+      order.tracking = {
+        carrier,
+        trackingNumber,
+        trackingUrl: trackingUrl || null,
+        estimatedDelivery: estimatedDelivery || null,
+        shippedAt: (order.tracking && order.tracking.shippedAt) || trackTs,
+        updatedAt: trackTs,
+        updatedBy: (req.admin && req.admin.id) || 'admin'
+      };
+    }
+
+    // BUG-F004: queue a shipment-notification audit record when the order
+    // first transitions to shipped (mirrors the Stage-3 emailLogs pattern;
+    // no SMTP wired locally so it is queued, not sent).
+    if (status === 'shipped' && previousStatus !== 'shipped') {
+      if (!db.emailLogs) db.emailLogs = [];
+      db.emailLogs.push({
+        id: 'email-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 8),
+        type: 'shipment_notification',
+        to: order.customer_email || null,
+        orderId: order.id,
+        orderNumber: order.order_number,
+        subject: `Your order ${order.order_number} has shipped`,
+        carrier: (order.tracking && order.tracking.carrier) || null,
+        trackingNumber: (order.tracking && order.tracking.trackingNumber) || null,
+        status: 'queued',
+        createdAt: new Date().toISOString(),
+        source: 'admin_status_update'
+      });
+    }
+
     saveDatabase(db);
 
     // TICKET 014: Record profit when order ships
     let profitInfo = null;
     if (status === 'shipped' && previousStatus !== 'shipped') {
       try {
+        // BUG-F005: server.js keeps its own DB cache while the ledger/profit
+        // path reads through services/db-loader's SEPARATE cache. Without this
+        // invalidation, recordShippedProfit() re-reads a stale pre-save copy
+        // and its own save then clobbers the status/tracking/notification we
+        // just persisted (a lost write). Force the shared cache to re-read the
+        // fresh disk state first so both writes are coherent.
+        require('./services/db-loader').invalidateCache();
         profitInfo = recordShippedProfit(order.id);
         console.log(`Profit recorded for order ${order.order_number}:`, profitInfo);
       } catch (profitError) {
@@ -9403,6 +9513,9 @@ app.post('/api/manufacturer/orders/:orderId/tracking', manufacturerAuthMiddlewar
       { carrier, trackingNumber, trackingUrl, estimatedDelivery },
       req.manufacturer.id
     );
+    // BUG-F005: the write above went through db-loader; drop server's inline
+    // cache so the customer tracking lookup reads the fresh tracking number.
+    invalidateServerDbCache();
     res.json({ success: true, data: order });
   } catch (error) {
     res.status(400).json({ success: false, error: error.message });

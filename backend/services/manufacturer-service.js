@@ -331,16 +331,55 @@ function addTrackingInfo(manufacturerId, orderId, trackingData, userId) {
   const order = db.orders[orderIndex];
   const now = new Date().toISOString();
 
-  // Add shipping info
-  if (!order.shipping) order.shipping = {};
-  order.shipping.carrier = trackingData.carrier;
-  order.shipping.trackingNumber = trackingData.trackingNumber;
-  order.shipping.trackingUrl = trackingData.trackingUrl || null;
-  order.shipping.estimatedDelivery = trackingData.estimatedDelivery || null;
-  order.shipping.updatedAt = now;
-  order.shipping.updatedBy = userId;
+  // Store tracking on the canonical order.tracking field — the field the
+  // customer tracking page (GET /api/orders/lookup) actually reads. Do NOT
+  // touch order.shipping: on every real order that field holds the numeric
+  // shipping COST (edited in the manufacturer portal), so writing tracking
+  // there either silently no-ops (cost > 0, a number primitive) or clobbers
+  // the cost (cost === 0). (BUG-F002 / BUG-F003)
+  order.tracking = {
+    carrier: trackingData.carrier,
+    trackingNumber: trackingData.trackingNumber,
+    trackingUrl: trackingData.trackingUrl || null,
+    estimatedDelivery: trackingData.estimatedDelivery || null,
+    shippedAt: (order.tracking && order.tracking.shippedAt) || now,
+    updatedAt: now,
+    updatedBy: userId
+  };
+
+  // Sync order status to shipped (order-status-sync skill) unless the order
+  // is already at/after that state.
+  const terminalStates = ['shipped', 'delivered', 'closed', 'cancelled', 'refunded'];
+  if (!terminalStates.includes(order.status)) {
+    const previousStatus = order.status;
+    order.status = 'shipped';
+    if (!order.status_history) order.status_history = [];
+    order.status_history.push({
+      previousStatus,
+      newStatus: 'shipped',
+      changedAt: now,
+      notes: `Tracking added: ${trackingData.carrier} ${trackingData.trackingNumber}`
+    });
+  }
 
   order.updated_at = now;
+
+  // Shipment notification audit record (BUG-F004) — mirrors the Stage-3
+  // emailLogs pattern. No SMTP is wired locally, so it is queued, not sent.
+  if (!db.emailLogs) db.emailLogs = [];
+  db.emailLogs.push({
+    id: 'email-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 8),
+    type: 'shipment_notification',
+    to: order.customer_email || null,
+    orderId: order.id,
+    orderNumber: order.order_number,
+    subject: `Your order ${order.order_number} has shipped`,
+    carrier: trackingData.carrier,
+    trackingNumber: trackingData.trackingNumber,
+    status: 'queued',
+    createdAt: now,
+    source: 'manufacturer_portal'
+  });
 
   db.orders[orderIndex] = order;
   saveDatabase(db);
