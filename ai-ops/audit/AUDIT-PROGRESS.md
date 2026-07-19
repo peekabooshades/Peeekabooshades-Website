@@ -18,7 +18,7 @@
 | C | Measure + Configure validation (St 4,5) | ✅ FIXED + verified (M001–M004) | stage-04-05-measure-configure.md |
 | D | Account & Authentication (St 8) | ✅ FIXED + verified (AC001 IDOR, AC002 enum) | stage-08-account.md |
 | E | Shipping / Fulfillment / Tracking (St 12) | ✅ FIXED + verified (F001 IDOR, F002/F003 tracking, F004 notify, F005 cache) | stage-12-fulfillment.md |
-| F | Installation (St 13) | ⬜ pending | — |
+| F | Installation (St 13) | ✅ FIXED + verified (I001 completion→order sync, I002 record data-loss, I003 notify, I004 session revocation, I005 state validation; authz isolation clean) | stage-13-installation.md |
 | G | Final Invoice & Balance (St 14) | ⬜ pending | — |
 | H | Post-purchase / Warranty / Support (St 15) | ⬜ pending | — |
 | I | Admin panel deep (§11: BUG-A001/A002/A003, create-order, tracking) | ⬜ pending | — |

@@ -17629,6 +17629,17 @@ const technicianAuthMiddleware = (req, res, next) => {
     if (decoded.role !== 'technician') {
       return res.status(403).json({ success: false, error: 'Technician access required' });
     }
+    // BUG-I004: re-validate the technician still exists and is active on every
+    // request. JWTs live 7 days; without this a deactivated or deleted technician
+    // keeps full portal access (assigned jobs incl. customer PII) until expiry.
+    const db = loadDatabase();
+    const technician = (db.technicians || []).find(t => t.id === decoded.id);
+    if (!technician) {
+      return res.status(401).json({ success: false, error: 'Technician account no longer exists' });
+    }
+    if (technician.status && technician.status !== 'active') {
+      return res.status(403).json({ success: false, error: 'Technician account is not active' });
+    }
     req.technician = decoded;
     next();
   } catch (error) {
@@ -17856,6 +17867,24 @@ app.post('/api/admin/appointments', authMiddleware, (req, res) => {
         db.orders[orderIndex].appointmentId = newAppointment.id;
         db.orders[orderIndex].installationScheduled = true;
       }
+    }
+
+    // BUG-I003: queue a scheduling notification (notification-send). Previously
+    // assigning/scheduling an installer emitted nothing to the customer.
+    const scheduleTo = newAppointment.customerEmail || order?.customer_email || null;
+    if (scheduleTo) {
+      if (!db.emailLogs) db.emailLogs = [];
+      db.emailLogs.push({
+        id: 'email-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 8),
+        type: 'appointment_scheduled_notification',
+        to: scheduleTo,
+        appointmentId: newAppointment.id,
+        orderId: newAppointment.orderId,
+        subject: `Your installation is scheduled for ${scheduledDate} ${scheduledTime}`,
+        status: 'queued',
+        createdAt: new Date().toISOString(),
+        source: 'admin_appointment_create'
+      });
     }
 
     saveDatabase(db);
@@ -18185,17 +18214,76 @@ app.put('/api/technician/appointments/:id/status', technicianAuthMiddleware, (re
       return res.status(403).json({ success: false, error: 'Not authorized' });
     }
 
-    const { status, completionNotes, photos } = req.body;
-    const index = db.appointments.findIndex(a => a.id === req.params.id);
+    const { status, completionNotes, photos, afterPhotos, beforePhotos, signature, checklist } = req.body;
 
+    // BUG-I005: validate the appointment status against the allowed state set
+    // (order-status-sync requires transition validation; previously any string —
+    // e.g. "banana" — was accepted and persisted, corrupting dashboard buckets).
+    const ALLOWED_APPT_STATUS = ['scheduled', 'confirmed', 'in-progress', 'completed', 'cancelled', 'no-show'];
+    if (!status || !ALLOWED_APPT_STATUS.includes(status)) {
+      return res.status(400).json({ success: false, error: 'Invalid status', allowedStatuses: ALLOWED_APPT_STATUS });
+    }
+
+    const index = db.appointments.findIndex(a => a.id === req.params.id);
+    const existing = db.appointments[index];
+    const isCompleting = status === 'completed';
+    const completedAt = isCompleting ? new Date().toISOString() : existing.completedAt;
+
+    // BUG-I002: persist the full installation record (before/after photos,
+    // signature, completion checklist) instead of silently dropping them.
     db.appointments[index] = {
-      ...db.appointments[index],
+      ...existing,
       status,
-      completionNotes: completionNotes || db.appointments[index].completionNotes,
-      completionPhotos: photos || db.appointments[index].completionPhotos,
-      completedAt: status === 'completed' ? new Date().toISOString() : db.appointments[index].completedAt,
+      completionNotes: completionNotes !== undefined ? completionNotes : existing.completionNotes,
+      completionPhotos: (afterPhotos || photos) || existing.completionPhotos,
+      beforePhotos: beforePhotos || existing.beforePhotos,
+      signature: signature !== undefined ? signature : existing.signature,
+      checklist: checklist || existing.checklist,
+      completedAt,
       updatedAt: new Date().toISOString()
     };
+
+    // BUG-I001: on first transition to completed, propagate to the linked order
+    // (order-status-sync): record installation completion + customer acceptance
+    // and queue an installation-complete notification (notification-send).
+    if (isCompleting && existing.status !== 'completed' && existing.orderId) {
+      const orderIndex = db.orders?.findIndex(o => o.id === existing.orderId);
+      if (orderIndex >= 0) {
+        const order = db.orders[orderIndex];
+        order.installationStatus = 'completed';
+        order.installationComplete = true;
+        order.installationCompletedAt = completedAt;
+        order.customerAcceptance = {
+          accepted: !!signature,
+          signature: signature || null,
+          acceptedAt: completedAt,
+          appointmentId: existing.id,
+          technicianId: req.technician.id
+        };
+        if (!order.status_history) order.status_history = [];
+        order.status_history.push({
+          status: 'installation_completed',
+          note: `Installation completed by technician ${req.technician.id}`,
+          timestamp: completedAt,
+          source: 'technician_portal'
+        });
+        order.updated_at = new Date().toISOString();
+
+        if (!db.emailLogs) db.emailLogs = [];
+        db.emailLogs.push({
+          id: 'email-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 8),
+          type: 'installation_complete_notification',
+          to: order.customer_email || existing.customerEmail || null,
+          orderId: order.id,
+          orderNumber: order.order_number,
+          appointmentId: existing.id,
+          subject: `Your installation for order ${order.order_number || order.id} is complete`,
+          status: 'queued',
+          createdAt: new Date().toISOString(),
+          source: 'technician_status_update'
+        });
+      }
+    }
 
     saveDatabase(db);
     res.json({ success: true, appointment: db.appointments[index] });
@@ -18490,6 +18578,23 @@ app.post('/api/appointments/book', (req, res) => {
     };
 
     db.appointments.push(newAppointment);
+
+    // BUG-I003: queue a scheduling notification for the public booking path too.
+    if (newAppointment.customerEmail) {
+      if (!db.emailLogs) db.emailLogs = [];
+      db.emailLogs.push({
+        id: 'email-' + Date.now().toString(36) + '-' + Math.random().toString(36).slice(2, 8),
+        type: 'appointment_scheduled_notification',
+        to: newAppointment.customerEmail,
+        appointmentId: newAppointment.id,
+        orderId: newAppointment.orderId,
+        subject: `Your appointment is scheduled for ${scheduledDate} ${scheduledTime}`,
+        status: 'queued',
+        createdAt: new Date().toISOString(),
+        source: 'customer_booking'
+      });
+    }
+
     saveDatabase(db);
 
     res.json({
