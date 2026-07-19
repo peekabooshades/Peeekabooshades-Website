@@ -6,9 +6,16 @@ const JWT_SECRET = process.env.JWT_SECRET || 'peekaboo-shades-admin-secret-key-2
 // Token expiration
 const TOKEN_EXPIRY = '24h';
 
+// Roles permitted to use admin routes. Portal roles (manufacturer, dealer,
+// technician/installer, customer) authenticate through their own middlewares
+// and MUST NOT pass admin auth even though their tokens share JWT_SECRET.
+// Fixes BUG-D001 (broken access control): previously any validly-signed token
+// — including a manufacturer/technician portal token — reached /api/admin/*.
+const ADMIN_ROLES = ['super_admin', 'admin', 'manager', 'editor', 'viewer'];
+
 /**
  * Authentication middleware for admin routes
- * Verifies JWT token from Authorization header
+ * Verifies JWT token from Authorization header AND enforces an admin-side role.
  */
 function authMiddleware(req, res, next) {
   const authHeader = req.headers.authorization;
@@ -33,6 +40,16 @@ function authMiddleware(req, res, next) {
 
   try {
     const decoded = jwt.verify(token, JWT_SECRET);
+
+    // Authorization: signature valid, but the role must be an admin-side role.
+    // Portal tokens (manufacturer/dealer/technician/customer) are rejected here.
+    if (!decoded.role || !ADMIN_ROLES.includes(decoded.role)) {
+      return res.status(403).json({
+        success: false,
+        error: 'Forbidden: admin access required for this resource.'
+      });
+    }
+
     req.admin = decoded;
     next();
   } catch (error) {

@@ -312,6 +312,15 @@ function apiCacheMiddleware(req, res, next) {
     return next();
   }
 
+  // SECURITY (BUG-D002): never cache authenticated or admin responses. The cache
+  // key is the URL only, so a cached response would otherwise be replayed to any
+  // caller regardless of token — leaking admin/customer data (incl. password
+  // hashes) to unauthenticated requests and bypassing authMiddleware entirely.
+  // Only anonymous, non-admin GETs (public catalog/fabric data) are cacheable.
+  if (req.headers.authorization || req.originalUrl.startsWith('/api/admin')) {
+    return next();
+  }
+
   const key = req.originalUrl;
   const cached = apiCache.get(key);
 
