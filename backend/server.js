@@ -459,14 +459,45 @@ initDatabase();
 // ============================================
 // MOUNT CRM/OMS/FINANCE/ANALYTICS ROUTES
 // ============================================
-// Public pricing endpoint (no auth)
-app.use('/api/v1', crmRoutes);
+// BUG-H001 (stage-15): the full CRM/OMS/finance router was mounted whole at the
+// public prefixes /api/v1 and /api/public, exposing invoices, finance P&L,
+// manufacturer prices, price rules and order-status writes with NO auth
+// (customer PII + manufacturer cost + margin leaked, OWASP A01). The /api/v1
+// prefix is SHARED between crm-routes and many legitimate standalone public
+// routes (health, products, orders, promo, categories) defined later, which
+// reach their handlers by falling through the crm router. So this gate is a
+// deny-list of the sensitive crm handlers only: those return 401; every other
+// path (public crm pricing/track/analytics-event + all standalone /api/v1
+// routes) passes through untouched. Sensitive handlers stay reachable only via
+// the auth-gated app.use('/api/admin/crm', authMiddleware, crmRoutes) mount.
+const BLOCKED_PUBLIC_CRM_PATHS = [
+  /^\/init-schema(\/|$)/,
+  /^\/manufacturers(\/|$)/,
+  /^\/manufacturer-prices(\/|$)/,
+  /^\/price-rules(\/|$)/,
+  /^\/order-workflow(\/|$)/,
+  /^\/carriers(\/|$)/,
+  /^\/orders\/[^/]+\/(status|status-history|shipments)(\/|$)/,
+  /^\/shipments(\/|$)/,
+  /^\/invoices(\/|$)/,
+  /^\/finance(\/|$)/,
+  /^\/analytics\/(funnel|segments)(\/|$)/,
+];
+function publicCrmGate(req, res, next) {
+  if (BLOCKED_PUBLIC_CRM_PATHS.some((re) => re.test(req.path))) {
+    return res.status(401).json({ success: false, error: 'Authentication required' });
+  }
+  return next();
+}
+
+// Public CRM surface (no auth) — whitelisted paths only
+app.use('/api/v1', publicCrmGate, crmRoutes);
 
 // Admin CRM routes (auth required for most)
 app.use('/api/admin/crm', authMiddleware, crmRoutes);
 
 // Public order tracking (no auth, uses token verification)
-app.use('/api/public', crmRoutes);
+app.use('/api/public', publicCrmGate, crmRoutes);
 
 // Payment routes (public - handles its own validation)
 app.use('/api/payments', paymentRoutes);
@@ -955,13 +986,12 @@ app.post('/api/orders', (req, res) => {
     const db = loadDatabase();
     const {
       sessionId, customerName, customerEmail, customerPhone,
-      shippingAddress, billingAddress, subtotal, tax, shipping,
+      shippingAddress, billingAddress,
       paymentMethod, paymentDetails, paymentStatus
     } = req.body;
 
     const orderId = uuidv4();
     const orderNumber = 'ORD-' + Date.now().toString(36).toUpperCase();
-    const total = subtotal + (tax || 0) + (shipping || 0);
 
     // =====================================================
     // CUSTOMER LINKING: Find or create customer by email/phone
@@ -1011,6 +1041,26 @@ app.post('/api/orders', (req, res) => {
 
     // Get cart items
     const cartItems = db.cart.filter(item => item.session_id === sessionId);
+
+    // BUG-H003 (checkout): reject orders with no server-side cart (empty cart /
+    // bad session) instead of persisting an empty, mispriced order.
+    if (!cartItems || cartItems.length === 0) {
+      return res.status(400).json({ success: false, error: 'Cart is empty or session not found' });
+    }
+
+    // BUG-J001 / BUG-H001 (checkout price tampering): the order total was built
+    // from client-supplied subtotal/tax/shipping — a caller could POST
+    // subtotal:0.01 for a real cart and get a fully-priced order for one cent.
+    // Recompute money SERVER-SIDE from the engine-authoritative cart line totals
+    // (same field GET /api/cart trusts) and the canonical tax/shipping rules from
+    // /api/calculate-order-total. Any client-sent amounts are ignored.
+    const subtotal = Math.round(
+      cartItems.reduce((sum, item) => sum + (item.line_total || (item.unit_price || 0) * (item.quantity || 1)), 0) * 100
+    ) / 100;
+    const taxRate = 0.0725; // CA default — identical to /api/calculate-order-total
+    const tax = Math.round(subtotal * taxRate * 100) / 100;
+    const shipping = subtotal >= 99 ? 0 : 9.99;
+    const total = Math.round((subtotal + tax + shipping) * 100) / 100;
 
     // Calculate manufacturer cost totals from item price_snapshots
     let totalManufacturerCost = 0;
@@ -1282,7 +1332,11 @@ app.get('/api/orders/:orderId/history', (req, res) => {
 });
 
 // Get ledger entries for an order
-app.get('/api/orders/:orderId/ledger', (req, res) => {
+// BUG-G001: per-order ledger exposes internal manufacturer cost + margin
+// (manufacturer_payable/paid amounts and margin metadata). It is pure internal
+// accounting — every sibling ledger view is authMiddleware-gated and no
+// front-end consumes this route — so require admin auth here too.
+app.get('/api/orders/:orderId/ledger', authMiddleware, (req, res) => {
   try {
     const entries = getEntriesForOrder(req.params.orderId);
     res.json({ success: true, data: entries });
@@ -9251,13 +9305,68 @@ app.post('/api/admin/invoices/generate-missing', authMiddleware, (req, res) => {
  */
 app.get('/api/invoices/:id/print', (req, res) => {
   try {
-    const invoice = invoiceService.getInvoice(req.params.id);
-    if (!invoice) {
+    // BUG-G002: this route is public (print-by-link). Harden it three ways:
+    // (1) look up ONLY by the opaque UUID `id` — never the enumerable
+    //     invoiceNumber — to kill the IDOR-by-guessing vector (the admin
+    //     print page always passes inv.id).
+    // (2) serve customer invoices only — manufacturer invoices are payables
+    //     full of internal cost data.
+    // (3) return a customer-safe, currency-rounded projection that strips
+    //     manufacturer cost, margin and internal notes (BUG-G002 leak +
+    //     BUG-G003 fractional-cent rounding).
+    const db = loadDatabase();
+    const invoice = (db.invoices || []).find(i => i.id === req.params.id);
+    if (!invoice || invoice.type === invoiceService.INVOICE_TYPE.MANUFACTURER) {
       return res.status(404).json({ success: false, error: 'Invoice not found' });
     }
 
-    // Return invoice data for print view
-    res.json({ success: true, data: invoice });
+    const money = (v) => (typeof v === 'number' ? Math.round(v * 100) / 100 : v);
+
+    const safeItem = (item) => {
+      const { pricing, optionsPricing, accessoriesPricing, optionsBreakdown,
+        accessoriesBreakdown, ...rest } = item;
+      // Customer-safe pricing: drop manufacturerCost / margin* fields
+      const safePricing = pricing ? {
+        fabricBasePrice: money(pricing.fabricBasePrice),
+        optionsTotal: money(pricing.optionsTotal),
+        accessoriesTotal: money(pricing.accessoriesTotal),
+        unitPrice: money(pricing.unitPrice),
+        lineTotal: money(pricing.lineTotal)
+      } : pricing;
+      const stripMfr = (arr) => (Array.isArray(arr) ? arr.map(o => {
+        const { manufacturerCost, ...orest } = o || {};
+        return { ...orest, price: money(orest.price) };
+      }) : arr);
+      const safeOptionsPricing = optionsPricing ? Object.fromEntries(
+        Object.entries(optionsPricing).map(([k, v]) => [k, v ? { name: v.name, price: money(v.price) } : v])
+      ) : optionsPricing;
+      return {
+        ...rest,
+        unitPrice: money(rest.unitPrice),
+        lineTotal: money(rest.lineTotal),
+        pricing: safePricing,
+        optionsPricing: safeOptionsPricing,
+        accessoriesPricing: stripMfr(accessoriesPricing),
+        optionsBreakdown: stripMfr(optionsBreakdown),
+        accessoriesBreakdown: stripMfr(accessoriesBreakdown)
+      };
+    };
+
+    const { internalNotes, ...invRest } = invoice;
+    const safeInvoice = {
+      ...invRest,
+      subtotal: money(invoice.subtotal),
+      tax: money(invoice.tax),
+      shipping: money(invoice.shipping),
+      discount: money(invoice.discount),
+      total: money(invoice.total),
+      amountPaid: money(invoice.amountPaid),
+      amountDue: money(invoice.amountDue),
+      items: (invoice.items || []).map(safeItem)
+    };
+
+    // Return customer-safe invoice data for print view
+    res.json({ success: true, data: safeInvoice });
   } catch (error) {
     res.status(500).json({ success: false, error: error.message });
   }
@@ -17414,6 +17523,24 @@ app.get('/api/customer/account', customerAuthMiddleware, (req, res) => {
   }
 });
 
+// BUG-H003 (stage-15): strip internal economics (manufacturer cost + margin +
+// internal notes) from any object before it is returned on a customer-facing
+// surface. Deep, key-name based so nested item price_snapshots are covered
+// regardless of shape (blueprint §15.1 "margin is internal … customers never see it").
+const INTERNAL_ECON_KEY = /^margin|manufacturer.?cost|manufacturer_price|internalNotes/i;
+function stripInternalEconomics(value) {
+  if (Array.isArray(value)) return value.map(stripInternalEconomics);
+  if (value && typeof value === 'object') {
+    const out = {};
+    for (const [k, v] of Object.entries(value)) {
+      if (INTERNAL_ECON_KEY.test(k)) continue;
+      out[k] = stripInternalEconomics(v);
+    }
+    return out;
+  }
+  return value;
+}
+
 // Get Customer Orders
 app.get('/api/customer/orders', customerAuthMiddleware, (req, res) => {
   try {
@@ -17424,10 +17551,11 @@ app.get('/api/customer/orders', customerAuthMiddleware, (req, res) => {
       return res.status(404).json({ success: false, error: 'Customer not found' });
     }
 
-    // Get customer orders
+    // Get customer orders — projected to strip internal cost/margin (BUG-H003)
     const orders = (db.orders || [])
       .filter(o => o.customer_email?.toLowerCase() === customer.email?.toLowerCase())
-      .sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
+      .sort((a, b) => new Date(b.created_at) - new Date(a.created_at))
+      .map(stripInternalEconomics);
 
     res.json({
       success: true,
