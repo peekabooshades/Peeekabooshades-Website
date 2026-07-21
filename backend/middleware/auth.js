@@ -13,6 +13,15 @@ const TOKEN_EXPIRY = '24h';
 // — including a manufacturer/technician portal token — reached /api/admin/*.
 const ADMIN_ROLES = ['super_admin', 'admin', 'manager', 'editor', 'viewer'];
 
+// Least-privilege: the `viewer` role is read-only. HTTP methods that mutate
+// state are denied for viewers at this single choke point (authMiddleware runs
+// on every protected /api/admin route), rather than annotating 300+ routes.
+// Editor and above retain write access; finer per-resource rules (rbac.js
+// PERMISSIONS) can be layered on top later. Closes the BUG-D001 follow-up:
+// "viewer can still hit write endpoints — no requirePermission on routes."
+const MUTATING_METHODS = ['POST', 'PUT', 'PATCH', 'DELETE'];
+const READ_ONLY_ROLES = ['viewer'];
+
 /**
  * Authentication middleware for admin routes
  * Verifies JWT token from Authorization header AND enforces an admin-side role.
@@ -47,6 +56,14 @@ function authMiddleware(req, res, next) {
       return res.status(403).json({
         success: false,
         error: 'Forbidden: admin access required for this resource.'
+      });
+    }
+
+    // Least-privilege: read-only roles cannot perform mutating requests.
+    if (READ_ONLY_ROLES.includes(decoded.role) && MUTATING_METHODS.includes(req.method)) {
+      return res.status(403).json({
+        success: false,
+        error: 'Forbidden: your role has read-only access and cannot modify data.'
       });
     }
 
