@@ -212,3 +212,34 @@ P0 security/payment/data-loss/outage · P1 checkout/pricing/order/invoice failur
   - Cache-warm order (admin 200 → manufacturer → no-token): **403 / 401** (previously 200/200).
   - Public GETs still 200 and still cache (`X-Cache: MISS`→`HIT`).
 - **Not yet done (needs approval):** least-privilege *within* admin roles (viewer can still hit write endpoints — no `requirePermission` on routes). Separate follow-up.
+
+---
+
+# Program A — Fix Pass (2026-07-20, owner-authorized: "start working on it and push every commit")
+
+> Recursive Working Model applied per defect: reproduce → justify → real-time example → smallest safe change → test → retest downstream → commit + push. Branch `frontend-align-livetheme` (never main).
+
+## FIXED
+
+### BUG-B003 — Pricing slug fragility  ✅ `61497e2`
+- **Root cause:** frontend derives `productSlug` from the URL tail (`pathname.split('/').pop()`), so a query string / hash / trailing slash reached `extendedPricingEngine.calculateCustomerPrice()` verbatim → `db.products.find(p => p.slug === productSlug)` missed → `Product not found` (silent price failure on any campaign/shared URL).
+- **Real-time example (reproduced on running app):** `POST /api/v1/pricing/calculate {productSlug:'affordable-custom-roller-blinds?utm=x', 82032A, 24×36}` → **before** `{success:false,error:'Product not found'}` · **after** `{success:true, lineTotal:33.45}`.
+- **Fix:** normalize slug (strip `?query`/`#hash`/trailing `/`) at the true root-cause site (`services/extended-pricing-engine.js`) + defensive `normalizeSlug()` on `/api/store/price-quote` (`server.js`). *Note: the `app.post('/api/v1/pricing/calculate')` handler in server.js is shadowed by the `/api/v1` CRM router mount — the router → pricing engine is the live path; that is where the fix landed.*
+- **Downstream retest:** nonexistent slug still 404s (no false match); motorized parity still `$99.60`.
+
+### BUG-B001-residual — Client-side invented price on API failure  ✅ `08b308e`
+- **Root cause:** on pricing-API error/network failure, `pk-product.js` called `fallbackPriceCalculation()` using a hardcoded `pricePerSqMeter = $20/m²` that diverges from the authoritative server engine (mfr cost + 40% margin). Customer could see and add-to-cart a price the business's own engine disagrees with.
+- **Fix:** both error + catch paths now call new `displayPriceUnavailable()` ("Price unavailable — please retry" + add-to-cart disabled) instead of inventing a number. Old function marked DEPRECATED, 0 callers, hardcoded `$20/m²` now unreachable.
+- **Downstream retest:** happy path unchanged (`$33.45` / motorized `$99.60` still render); JS syntax OK.
+
+## RESOLVED BY DATA — no code change (loop discipline: reproduce before fixing)
+
+### BUG-B002 — Default fabric `82143A` unpriced → estimate on load  ✅ resolved
+- **Re-reproduced 2026-07-20:** `82143A` now returns `lineTotal:33.45` (a real price), no estimate flag. `PK_ROLLER_PRICING` (pk-product.js) now contains `"82143A":[19.91,23.15,40,40]`. The Pass-2 condition (default fabric had no price) no longer holds — the price list added during the roller-shades port fixed it. **Not a live defect; no change made.**
+
+## DEFERRED — need per-item owner decision (governance: no bulk change off a heuristic)
+
+- **BUG-A001** (triple duplicate product editors) — pick v2 canonical, redirect + delete the other two. Needs owner sign-off on which is canonical + verification each redirect is safe.
+- **BUG-A002** (placeholder/"coming soon" pages advertised as active) — a broad "coming soon" grep is unreliable (Pass 3 logged a false positive on `products.html`); mass-disabling nav items is not a smallest-safe change. Only `create-order` is nav-linked in this repo (search palette). Needs per-page owner decision: redirect to Shopify-native (draft orders / tracking) vs build vs mark `status:'disabled'`.
+- **BUG-A003** (dead `href="#"` links — 65 across 30 pages) — needs per-page intent confirmation (some may be JS-handled) before wiring/converting to `<button>`.
+- **Least-privilege within admin roles** (viewer can hit write endpoints) — security-sensitive; add `requirePermission` per route with regression tests.
