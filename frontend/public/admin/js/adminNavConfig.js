@@ -28,7 +28,10 @@ const AdminNavConfig = {
     { label: 'All Orders', href: '/admin/orders.html', keywords: ['purchases', 'sales', 'order list'] },
     { label: 'Quotes', href: '/admin/quotes.html', keywords: ['estimates', 'proposals', 'quote requests'] },
     { label: 'Production Queue', href: '/admin/production-queue.html', keywords: ['manufacturing', 'queue', 'production'] },
-    { label: 'Create Order', href: '/admin/create-order.html', keywords: ['new order', 'manual order'] },
+    // BUG-A002: 'Create Order' removed — create-order.html is a "coming soon" stub,
+    // so the command palette must not advertise it as a working feature. Manual
+    // order creation is natively covered by Shopify draft orders; re-add here only
+    // when a real page (or a Shopify draft-order redirect) is wired up.
     { label: 'Draft Orders', href: '/admin/draft-orders.html', keywords: ['pending', 'incomplete orders'] },
     { label: 'Invoices', href: '/admin/invoices.html', keywords: ['billing', 'invoice list'] },
     { label: 'Refunds', href: '/admin/refunds.html', keywords: ['returns', 'money back'] },
