@@ -762,6 +762,32 @@ class ExtendedPricingEngine {
       }
     }
 
+    // Chain type pricing — metal bean/bead chain is priced per m² across ALL
+    // fabrics and ALL blind types. DB-overridable via hardwareOptions.chainType;
+    // defaults to $1.50/m² for a metal bead chain when not configured in the database.
+    if (options.chainType) {
+      const chainDb = this.getHardwareOptionPrice(db, 'chainType', options.chainType, areaSqMeters);
+      let chainPrice = chainDb.price;
+      let chainMfr = chainDb.manufacturerCost;
+      let chainName = chainDb.name;
+      if (chainPrice === 0 && chainMfr === 0 && /metal/.test(String(options.chainType).toLowerCase())) {
+        chainPrice = 1.5 * areaSqMeters;   // metal bean chain — $1.50 per m²
+        chainMfr = 1.5 * areaSqMeters;
+        chainName = 'Metal Bead Chain';
+      }
+      if (chainPrice > 0 || chainMfr > 0) {
+        breakdown.push({
+          type: 'chain_type',
+          code: options.chainType,
+          name: chainName,
+          price: this.round(chainPrice),
+          manufacturerCost: this.round(chainMfr)
+        });
+        total += chainPrice;
+        manufacturerCost += chainMfr;
+      }
+    }
+
     // Valance/Cassette type pricing - prices from database (Admin > Product Pricing)
     const valanceValue = options.valanceType || options.standardCassette;
     if (valanceValue) {

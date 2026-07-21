@@ -535,6 +535,15 @@ function createInvoiceFromOrder(orderId, type = 'customer', options = {}) {
     };
   }
 
+  // BUG-G003: currency-round all monetary fields so invoices never present
+  // fractional-cent amounts (blueprint §15 pricing step 9 "round(currency)";
+  // upstream checkout stores unrounded tax/total). Rounds within the 0.01
+  // reconciliation tolerance used by validateOrderReceivedTransition.
+  const round2 = (v) => (typeof v === 'number' ? Math.round(v * 100) / 100 : v);
+  for (const f of ['subtotal', 'tax', 'shipping', 'discount', 'total', 'amountPaid', 'amountDue']) {
+    if (invoice[f] !== undefined) invoice[f] = round2(invoice[f]);
+  }
+
   db.invoices.push(invoice);
   saveDatabase(db);
 
@@ -654,12 +663,27 @@ function recordPayment(invoiceId, payment) {
 
   const invoice = db.invoices[index];
 
+  const round2 = (v) => Math.round((v || 0) * 100) / 100;
+
+  // BUG-G004: reject overpayment. amountDue must never go negative and money-in
+  // must never exceed money-owed (unreconcilable). Compare against the currently
+  // outstanding balance with a one-cent tolerance for rounding.
+  const currentPaid = round2(invoice.amountPaid || 0);
+  const outstanding = round2((invoice.total || 0) - currentPaid);
+  const amount = round2(payment.amount);
+  if (amount <= 0) {
+    throw new Error('Payment amount must be greater than zero');
+  }
+  if (amount > outstanding + 0.01) {
+    throw new Error(`Payment ($${amount.toFixed(2)}) exceeds balance due ($${outstanding.toFixed(2)})`);
+  }
+
   // Record payment
   if (!invoice.payments) invoice.payments = [];
 
   const paymentRecord = {
     id: uuidv4(),
-    amount: payment.amount,
+    amount,
     method: payment.method || 'other',
     reference: payment.reference || '',
     notes: payment.notes || '',
@@ -669,9 +693,9 @@ function recordPayment(invoiceId, payment) {
 
   invoice.payments.push(paymentRecord);
 
-  // Update amounts
-  invoice.amountPaid = (invoice.amountPaid || 0) + payment.amount;
-  invoice.amountDue = invoice.total - invoice.amountPaid;
+  // Update amounts (currency-rounded; clamp residual sub-cent to zero)
+  invoice.amountPaid = round2(currentPaid + amount);
+  invoice.amountDue = Math.max(0, round2((invoice.total || 0) - invoice.amountPaid));
 
   // Update status
   if (invoice.amountDue <= 0) {
@@ -682,6 +706,27 @@ function recordPayment(invoiceId, payment) {
   }
 
   invoice.updatedAt = new Date().toISOString();
+
+  // BUG-G004 (14.3 reconcile): mirror the customer invoice's payment state onto
+  // the order so a paid invoice reconciles the order's financial status instead
+  // of leaving order.payment undefined.
+  if (invoice.type === INVOICE_TYPE.CUSTOMER && invoice.orderId) {
+    const order = (db.orders || []).find(o => o.id === invoice.orderId);
+    if (order) {
+      const fullyPaid = invoice.status === INVOICE_STATUS.PAID;
+      order.financial_status = fullyPaid ? 'paid' : 'partially_paid';
+      order.payment = {
+        ...(order.payment || {}),
+        method: (order.payment && order.payment.method) || payment.method || 'other',
+        status: fullyPaid ? 'completed' : 'partial',
+        amountPaid: invoice.amountPaid,
+        amountDue: invoice.amountDue,
+        reconciledFrom: invoice.invoiceNumber,
+        reconciledAt: new Date().toISOString()
+      };
+      order.updated_at = new Date().toISOString();
+    }
+  }
 
   db.invoices[index] = invoice;
   saveDatabase(db);

@@ -505,7 +505,7 @@
         "margin_percent": 43.19
       },
       "created_at": "2026-01-11T21:45:30.975Z",
-      "updated_at": "2026-01-18T15:58:43.793Z",
+      "updated_at": "2026-07-19T15:15:23.667Z",
       "status_history": [
         {
           "previousStatus": "order_received",
@@ -530,7 +530,16 @@
       "manufacturerId": "mfr-zstarr",
       "manufacturerName": "Zstarr",
       "manufacturerAssignedAt": "2026-01-19T14:02:59.255Z",
-      "manufacturerAssignmentMethod": "manual"
+      "manufacturerAssignmentMethod": "manual",
+      "financial_status": "paid",
+      "payment": {
+        "method": "card",
+        "status": "completed",
+        "amountPaid": 94.81,
+        "amountDue": 0,
+        "reconciledFrom": "INV-MKA9J78SFIXB",
+        "reconciledAt": "2026-07-19T15:15:23.667Z"
+      }
     },
     {
       "id": "33a99b01-f60b-42c7-b484-ca04535adb38",
@@ -1013,7 +1022,17 @@
       "manufacturerId": "mfr-zstarr",
       "manufacturerName": "Zstarr",
       "manufacturerAssignedAt": "2026-01-19T14:02:59.255Z",
-      "manufacturerAssignmentMethod": "manual"
+      "manufacturerAssignmentMethod": "manual",
+      "financial_status": "partially_paid",
+      "payment": {
+        "method": "card",
+        "status": "partial",
+        "amountPaid": 50,
+        "amountDue": 142.81,
+        "reconciledFrom": "INV-MKJ4HIEE9E79",
+        "reconciledAt": "2026-07-19T15:15:23.811Z"
+      },
+      "updated_at": "2026-07-19T15:15:23.811Z"
     },
     {
       "id": "f7327359-5db2-4911-af8e-4bd9d882e722",
@@ -1651,9 +1670,9 @@
     {
       "id": "order-1768836005921",
       "order_number": "ORD-TEST-1768836005920",
-      "status": "pending",
+      "status": "order_received",
       "created_at": "2026-01-19T15:20:05.920Z",
-      "updated_at": "2026-01-19T15:20:05.920Z",
+      "updated_at": "2026-07-19T03:49:21.045Z",
       "customer_name": "Test Customer",
       "customer_email": "test@example.com",
       "customer_phone": "555-1234",
@@ -1714,7 +1733,155 @@
         "assigned_manufacturer_name": "Zstarr",
         "expected_lead_time_days": 14,
         "assignment_reason": "Fabric code ZS-R001 mapped to Zstarr"
-      }
+      },
+      "status_history": [
+        {
+          "previousStatus": "pending",
+          "newStatus": "order_received",
+          "changedAt": "2026-07-19T03:49:21.045Z",
+          "notes": ""
+        }
+      ]
+    },
+    {
+      "id": "d957fd45-b56a-4ece-b52e-5a893d80de83",
+      "order_number": "ORD-MRTGPHCJ",
+      "customerId": "cust-27f4d539",
+      "customer_name": "Verify Test",
+      "customer_email": "verify@test.com",
+      "subtotal": 33.45,
+      "tax": 2.43,
+      "shipping": 9.99,
+      "total": 45.87,
+      "status": "pending",
+      "payment": {
+        "method": "invoice",
+        "status": "paid",
+        "details": {},
+        "processedAt": "2026-07-20T16:51:55.027Z"
+      },
+      "items": [
+        {
+          "id": "8c94c2fd-fcf1-4eab-8f1f-9873830cc9fc",
+          "session_id": "audit-verify-1784566314",
+          "product_id": "b23180d5-7989-4f9d-bf28-9b210cb31256",
+          "product_name": "Affordable Custom Roller Blinds & shades",
+          "quantity": 1,
+          "width": 24,
+          "height": 36,
+          "room_label": "",
+          "configuration": "{\"fabricCode\":\"82032A\"}",
+          "sku": "RS-82032A-MAN",
+          "unit_price": 33.45,
+          "line_total": 33.45,
+          "extended_warranty": 0,
+          "price_snapshot": {
+            "captured_at": "2026-07-20T16:51:54.990Z",
+            "manufacturer_price": {
+              "unit_cost": 23.89,
+              "total_cost": 23.89,
+              "source": "manufacturer_price",
+              "fabric_code": "82032A"
+            },
+            "margin": {
+              "type": "percentage",
+              "value": 40,
+              "amount": 9.56,
+              "percentage": 40
+            },
+            "customer_price": {
+              "unit_price": 33.45,
+              "line_total": 33.45,
+              "options_total": 0,
+              "options_breakdown": [],
+              "accessories_total": 0,
+              "accessories_breakdown": []
+            }
+          },
+          "created_at": "2026-07-20T16:51:54.990Z",
+          "order_id": "d957fd45-b56a-4ece-b52e-5a893d80de83"
+        }
+      ],
+      "pricing": {
+        "subtotal": 33.45,
+        "tax": 2.43,
+        "shipping": 9.99,
+        "total": 45.87,
+        "manufacturer_cost_total": 23.89,
+        "margin_total": 9.56,
+        "margin_percent": 28.58
+      },
+      "created_at": "2026-07-20T16:51:55.027Z"
+    },
+    {
+      "id": "c72b27ac-56fe-4ec7-b077-cc979ff9a257",
+      "order_number": "ORD-MRTGPO25",
+      "customerId": "cust-27f4d539",
+      "customer_name": "Verify Test",
+      "customer_email": "verify@test.com",
+      "subtotal": 33.45,
+      "tax": 2.43,
+      "shipping": 9.99,
+      "total": 45.87,
+      "status": "pending",
+      "payment": {
+        "method": "invoice",
+        "status": "paid",
+        "details": {},
+        "processedAt": "2026-07-20T16:52:03.725Z"
+      },
+      "items": [
+        {
+          "id": "0484c0d8-a669-42d8-b4e7-294428b4a75b",
+          "session_id": "audit-verify2-1784566323",
+          "product_id": "b23180d5-7989-4f9d-bf28-9b210cb31256",
+          "product_name": "Affordable Custom Roller Blinds & shades",
+          "quantity": 1,
+          "width": 24,
+          "height": 36,
+          "room_label": "",
+          "configuration": "{\"fabricCode\":\"82032A\"}",
+          "sku": "RS-82032A-MAN",
+          "unit_price": 33.45,
+          "line_total": 33.45,
+          "extended_warranty": 0,
+          "price_snapshot": {
+            "captured_at": "2026-07-20T16:52:03.704Z",
+            "manufacturer_price": {
+              "unit_cost": 23.89,
+              "total_cost": 23.89,
+              "source": "manufacturer_price",
+              "fabric_code": "82032A"
+            },
+            "margin": {
+              "type": "percentage",
+              "value": 40,
+              "amount": 9.56,
+              "percentage": 40
+            },
+            "customer_price": {
+              "unit_price": 33.45,
+              "line_total": 33.45,
+              "options_total": 0,
+              "options_breakdown": [],
+              "accessories_total": 0,
+              "accessories_breakdown": []
+            }
+          },
+          "created_at": "2026-07-20T16:52:03.704Z",
+          "order_id": "c72b27ac-56fe-4ec7-b077-cc979ff9a257"
+        }
+      ],
+      "pricing": {
+        "subtotal": 33.45,
+        "tax": 2.43,
+        "shipping": 9.99,
+        "total": 45.87,
+        "manufacturer_cost_total": 23.89,
+        "margin_total": 9.56,
+        "margin_percent": 28.58
+      },
+      "created_at": "2026-07-20T16:52:03.725Z"
     }
   ],
   "quotes": [
@@ -1815,7 +1982,7 @@
       "name": "Admin",
       "role": "admin",
       "createdAt": "2025-01-01T00:00:00.000Z",
-      "lastLogin": "2026-01-22T23:56:20.140Z"
+      "lastLogin": "2026-07-20T16:54:10.253Z"
     }
   ],
   "settings": {
@@ -14562,6 +14729,176 @@
       "source": "direct",
       "page": "/shop",
       "createdAt": "2026-01-22T22:50:21.731Z"
+    },
+    {
+      "id": "event-30f5f2d1",
+      "type": "page_view",
+      "sessionId": "sess_as338t1v6mrr33y69",
+      "productId": null,
+      "value": 0,
+      "source": "direct",
+      "page": "/product/affordable-custom-roller-blinds",
+      "createdAt": "2026-07-19T01:14:07.148Z"
+    },
+    {
+      "id": "event-5d787b7d",
+      "type": "product_view",
+      "sessionId": "sess_as338t1v6mrr33y69",
+      "productId": "b23180d5-7989-4f9d-bf28-9b210cb31256",
+      "value": 0,
+      "source": "direct",
+      "page": "/product/affordable-custom-roller-blinds",
+      "createdAt": "2026-07-19T01:14:07.163Z"
+    },
+    {
+      "id": "event-8737d834",
+      "type": "page_view",
+      "sessionId": "sess_as338t1v6mrr33y69",
+      "productId": null,
+      "value": 0,
+      "source": "direct",
+      "page": "/shop",
+      "createdAt": "2026-07-19T01:14:09.298Z"
+    },
+    {
+      "id": "event-a94ee395",
+      "type": "page_view",
+      "sessionId": "sess_as338t1v6mrr33y69",
+      "productId": null,
+      "value": 0,
+      "source": "direct",
+      "page": "/shop",
+      "createdAt": "2026-07-19T01:14:10.471Z"
+    },
+    {
+      "id": "event-7fd0605e",
+      "type": "page_view",
+      "sessionId": "sess_as338t1v6mrr33y69",
+      "productId": null,
+      "value": 0,
+      "source": "direct",
+      "page": "/shop",
+      "createdAt": "2026-07-19T01:14:11.115Z"
+    },
+    {
+      "id": "event-4f31431b",
+      "type": "page_view",
+      "sessionId": "sess_as338t1v6mrr33y69",
+      "productId": null,
+      "value": 0,
+      "source": "direct",
+      "page": "/shop",
+      "createdAt": "2026-07-19T01:14:12.475Z"
+    },
+    {
+      "id": "event-559a0965",
+      "type": "page_view",
+      "sessionId": "sess_as338t1v6mrr33y69",
+      "productId": null,
+      "value": 0,
+      "source": "direct",
+      "page": "/shop",
+      "createdAt": "2026-07-19T01:14:14.332Z"
+    },
+    {
+      "id": "event-bfb0c6b1",
+      "type": "page_view",
+      "sessionId": "sess_as338t1v6mrr33y69",
+      "productId": null,
+      "value": 0,
+      "source": "direct",
+      "page": "/shop",
+      "createdAt": "2026-07-19T01:14:16.843Z"
+    },
+    {
+      "id": "event-7c54cb35",
+      "type": "page_view",
+      "sessionId": "sess_as338t1v6mrr33y69",
+      "productId": null,
+      "value": 0,
+      "source": "direct",
+      "page": "/shop",
+      "createdAt": "2026-07-19T01:14:18.848Z"
+    },
+    {
+      "id": "event-1301e260",
+      "type": "page_view",
+      "sessionId": "sess_as338t1v6mrr33y69",
+      "productId": null,
+      "value": 0,
+      "source": "direct",
+      "page": "/shop",
+      "createdAt": "2026-07-19T01:14:21.038Z"
+    },
+    {
+      "id": "event-485857fb",
+      "type": "page_view",
+      "sessionId": "sess_as338t1v6mrr33y69",
+      "productId": null,
+      "value": 0,
+      "source": "direct",
+      "page": "/shop",
+      "createdAt": "2026-07-19T01:14:22.064Z"
+    },
+    {
+      "id": "event-5f538c26",
+      "type": "page_view",
+      "sessionId": "sess_as338t1v6mrr33y69",
+      "productId": null,
+      "value": 0,
+      "source": "direct",
+      "page": "/shop",
+      "createdAt": "2026-07-19T01:14:23.245Z"
+    },
+    {
+      "id": "event-98037881",
+      "type": "page_view",
+      "sessionId": "sess_as338t1v6mrr33y69",
+      "productId": null,
+      "value": 0,
+      "source": "direct",
+      "page": "/product/affordable-custom-roller-blinds",
+      "createdAt": "2026-07-19T01:14:27.264Z"
+    },
+    {
+      "id": "event-7b7c8593",
+      "type": "product_view",
+      "sessionId": "sess_as338t1v6mrr33y69",
+      "productId": "b23180d5-7989-4f9d-bf28-9b210cb31256",
+      "value": 0,
+      "source": "direct",
+      "page": "/product/affordable-custom-roller-blinds",
+      "createdAt": "2026-07-19T01:14:27.289Z"
+    },
+    {
+      "id": "event-f680f565",
+      "type": "page_view",
+      "sessionId": "sess_as338t1v6mrr33y69",
+      "productId": null,
+      "value": 0,
+      "source": "direct",
+      "page": "/shop",
+      "createdAt": "2026-07-19T01:15:16.261Z"
+    },
+    {
+      "id": "event-8d9de192",
+      "type": "page_view",
+      "sessionId": "sess_as338t1v6mrr33y69",
+      "productId": null,
+      "value": 0,
+      "source": "direct",
+      "page": "/product/affordable-custom-roller-blinds",
+      "createdAt": "2026-07-19T01:18:47.741Z"
+    },
+    {
+      "id": "event-386b83f7",
+      "type": "product_view",
+      "sessionId": "sess_as338t1v6mrr33y69",
+      "productId": "b23180d5-7989-4f9d-bf28-9b210cb31256",
+      "value": 0,
+      "source": "direct",
+      "page": "/product/affordable-custom-roller-blinds",
+      "createdAt": "2026-07-19T01:18:47.755Z"
     }
   ],
   "notifications": [
@@ -14879,6 +15216,22 @@
       "totalSpent": 142.60855,
       "createdAt": "2026-01-18T03:17:59.355Z",
       "lastOrderAt": "2026-01-18T03:17:59.355Z"
+    },
+    {
+      "id": "cust-27f4d539",
+      "email": "verify@test.com",
+      "firstName": "Verify",
+      "lastName": "Test",
+      "phone": "",
+      "type": "retail",
+      "companyName": "",
+      "addresses": [],
+      "tags": [],
+      "notes": "Auto-created from order",
+      "totalOrders": 2,
+      "totalSpent": 91.74,
+      "createdAt": "2026-07-20T16:51:55.027Z",
+      "lastOrderAt": "2026-07-20T16:52:03.725Z"
     }
   ],
   "draftOrders": [
@@ -25040,6 +25393,78 @@
         "notes": "",
         "source": "manufacturer_portal"
       }
+    },
+    {
+      "id": "470e4b30-d478-4709-a125-0c88e9ceb3d6",
+      "timestamp": "2026-07-19T15:15:23.608Z",
+      "action": "invoice.create",
+      "severity": "info",
+      "actor": {
+        "userId": "admin-001",
+        "email": "admin@peekabooshades.com",
+        "ipAddress": null,
+        "userAgent": null
+      },
+      "resource": {
+        "type": "invoice",
+        "id": "f47a172d-523a-45d1-a126-9df2411317a2",
+        "name": "INV-MRRXTHZB0BO9"
+      },
+      "changes": {
+        "type": "create",
+        "data": {
+          "invoiceNumber": "INV-MRRXTHZB0BO9",
+          "total": 258.39,
+          "type": "customer"
+        }
+      },
+      "metadata": {}
+    },
+    {
+      "id": "e8d10493-61c9-4a39-8e4b-b76bb76c7af1",
+      "timestamp": "2026-07-19T15:15:23.669Z",
+      "action": "invoice.payment",
+      "severity": "info",
+      "actor": {
+        "userId": "admin-001",
+        "email": "admin@peekabooshades.com",
+        "ipAddress": null,
+        "userAgent": null
+      },
+      "resource": {
+        "type": "invoice",
+        "id": "85a8f40f-5bff-4de1-a228-f9f49cc4739e",
+        "name": "INV-MKA9J78SFIXB"
+      },
+      "changes": {
+        "amount": 94.81,
+        "method": "card",
+        "newAmountDue": 0
+      },
+      "metadata": {}
+    },
+    {
+      "id": "a9c55c9b-ac6e-4bbd-9d5d-38b7fca159e1",
+      "timestamp": "2026-07-19T15:15:23.813Z",
+      "action": "invoice.payment",
+      "severity": "info",
+      "actor": {
+        "userId": "admin-001",
+        "email": "admin@peekabooshades.com",
+        "ipAddress": null,
+        "userAgent": null
+      },
+      "resource": {
+        "type": "invoice",
+        "id": "e8967162-de38-45fa-8c45-ead1ddf6ecab",
+        "name": "INV-MKJ4HIEE9E79"
+      },
+      "changes": {
+        "amount": 50,
+        "method": "card",
+        "newAmountDue": 142.81
+      },
+      "metadata": {}
     }
   ],
   "cmsContent": {
@@ -36145,7 +36570,7 @@
       "id": "85a8f40f-5bff-4de1-a228-f9f49cc4739e",
       "invoiceNumber": "INV-MKA9J78SFIXB",
       "type": "customer",
-      "status": "draft",
+      "status": "paid",
       "orderId": "3cd170e0-e5ed-4082-9420-8f0138409b89",
       "orderNumber": "ORD-MKA9J78E",
       "customerId": "CUST-MKA9J78SPSHD",
@@ -36222,8 +36647,8 @@
       "discount": 0,
       "total": 94.8147,
       "currency": "USD",
-      "amountPaid": 0,
-      "amountDue": 94.8147,
+      "amountPaid": 94.81,
+      "amountDue": 0,
       "paymentMethod": null,
       "invoiceGeneratedAt": "2026-01-11T21:45:30.988Z",
       "invoiceGeneratedDate": "1/11/2026",
@@ -36234,11 +36659,22 @@
       "orderDate": "2026-01-11T21:45:30.975Z",
       "issueDate": "2026-01-11T21:45:30.988Z",
       "dueDate": "2026-02-10T21:45:30.988Z",
-      "paidAt": null,
+      "paidAt": "2026-07-19T15:15:23.666Z",
       "createdAt": "2026-01-11T21:45:30.988Z",
-      "updatedAt": "2026-01-11T21:45:30.988Z",
+      "updatedAt": "2026-07-19T15:15:23.666Z",
       "notes": "Auto-generated with order",
-      "internalNotes": ""
+      "internalNotes": "",
+      "payments": [
+        {
+          "id": "e43c4140-4788-4922-b3d6-7fddbcbe44c7",
+          "amount": 94.81,
+          "method": "card",
+          "reference": "",
+          "notes": "",
+          "recordedAt": "2026-07-19T15:15:23.666Z",
+          "recordedBy": "admin@peekabooshades.com"
+        }
+      ]
     },
     {
       "id": "471fd2fe-41b1-476e-a227-4c7ad63b7ce3",
@@ -36482,7 +36918,7 @@
       "id": "e8967162-de38-45fa-8c45-ead1ddf6ecab",
       "invoiceNumber": "INV-MKJ4HIEE9E79",
       "type": "customer",
-      "status": "draft",
+      "status": "partially_paid",
       "orderId": "8bf17569-2c86-4873-985a-11b0faee68a3",
       "orderNumber": "ORD-MKJ4HIDX",
       "customerId": "cust-d8744865",
@@ -36637,8 +37073,8 @@
       "discount": 0,
       "total": 192.8149,
       "currency": "USD",
-      "amountPaid": 0,
-      "amountDue": 192.8149,
+      "amountPaid": 50,
+      "amountDue": 142.81,
       "paymentMethod": null,
       "invoiceGeneratedAt": "2026-01-18T02:34:09.638Z",
       "invoiceGeneratedDate": "1/17/2026",
@@ -36651,9 +37087,20 @@
       "dueDate": "2026-02-17T02:34:09.638Z",
       "paidAt": null,
       "createdAt": "2026-01-18T02:34:09.638Z",
-      "updatedAt": "2026-01-18T02:34:09.638Z",
+      "updatedAt": "2026-07-19T15:15:23.811Z",
       "notes": "Auto-generated with order",
-      "internalNotes": ""
+      "internalNotes": "",
+      "payments": [
+        {
+          "id": "cf2cbfbb-434e-4fed-8ffe-349387c86b4a",
+          "amount": 50,
+          "method": "card",
+          "reference": "",
+          "notes": "",
+          "recordedAt": "2026-07-19T15:15:23.811Z",
+          "recordedBy": "admin@peekabooshades.com"
+        }
+      ]
     },
     {
       "id": "88493038-d9d2-441d-8882-a1ba25cbc128",
@@ -37364,6 +37811,194 @@
       "createdAt": "2026-01-18T03:17:59.374Z",
       "updatedAt": "2026-01-18T03:17:59.374Z",
       "notes": "Auto-generated with order",
+      "internalNotes": ""
+    },
+    {
+      "id": "f47a172d-523a-45d1-a126-9df2411317a2",
+      "invoiceNumber": "INV-MRRXTHZB0BO9",
+      "type": "customer",
+      "status": "draft",
+      "orderId": "1b6793d2-dabf-444d-8468-6f6ce0666f85",
+      "orderNumber": "ORD-MKJ3SCE2",
+      "customerId": "cust-094afe1f",
+      "customerNumber": "cust-094afe1f",
+      "customer": {
+        "id": "cust-094afe1f",
+        "number": "cust-094afe1f",
+        "name": "pavan",
+        "email": "pavan@gmail.com",
+        "phone": "8169449009",
+        "address": "205 Blue Jasmine trl , Georgetown, TX 78628, US"
+      },
+      "billingAddress": "205 Blue Jasmine trl , Georgetown, TX 78628, US",
+      "shippingAddress": "205 Blue Jasmine trl , Georgetown, TX 78628, US",
+      "items": [
+        {
+          "id": "4532ff31-f592-48ac-a58e-288ae00ae198",
+          "description": "Affordable Custom Roller Blinds & shades",
+          "details": "80\" W x 36\" H",
+          "roomLabel": "Master Bedroom",
+          "width": 80,
+          "height": 36,
+          "quantity": 1,
+          "pricing": {
+            "fabricBasePrice": 198.8,
+            "manufacturerCost": 0,
+            "marginPercent": 50,
+            "marginAmount": 18.5,
+            "optionsTotal": 143.31,
+            "accessoriesTotal": 39.9,
+            "unitPrice": 198.8,
+            "lineTotal": 238.7
+          },
+          "optionsPricing": {
+            "motor": {
+              "name": "Dooya Motor (Remote)",
+              "price": 65.8,
+              "manufacturerCost": 47
+            },
+            "remote": {
+              "name": "6 Channel",
+              "price": 16.04,
+              "manufacturerCost": 6.6
+            },
+            "solar": {
+              "name": "Yes",
+              "price": 49.41,
+              "manufacturerCost": 20.5
+            },
+            "valance": {
+              "name": "Fabric wrapped V3",
+              "price": 5.85,
+              "manufacturerCost": 4.09
+            },
+            "bottomRail": {
+              "name": "Type C Fabric Wrapped",
+              "price": 6.21,
+              "manufacturerCost": 4.09
+            },
+            "roller": null
+          },
+          "accessoriesPricing": [
+            {
+              "name": "Smart Hub x1",
+              "code": "smart-hub",
+              "price": 32.9,
+              "manufacturerCost": 23.5
+            },
+            {
+              "name": "USB Charger x1",
+              "code": "usb-charger",
+              "price": 7,
+              "manufacturerCost": 5
+            }
+          ],
+          "optionsBreakdown": [
+            {
+              "type": "motorization",
+              "code": "motorized",
+              "name": "Dooya Motor (Remote)",
+              "brand": "dooya",
+              "price": 65.8,
+              "manufacturerCost": 47
+            },
+            {
+              "type": "remote",
+              "code": "6-channel",
+              "name": "6 Channel",
+              "price": 16.04,
+              "manufacturerCost": 6.6
+            },
+            {
+              "type": "solar",
+              "code": "solar-panel",
+              "name": "Yes",
+              "price": 49.41,
+              "manufacturerCost": 20.5
+            },
+            {
+              "type": "valance_type",
+              "code": "fabric-wrapped-v3",
+              "name": "Fabric wrapped V3",
+              "price": 5.85,
+              "priceType": "sqm",
+              "areaSqMeters": 1.8581,
+              "manufacturerCost": 4.09
+            },
+            {
+              "type": "bottom_rail",
+              "code": "type-c-fabric-wrapped",
+              "name": "Type C Fabric Wrapped",
+              "price": 6.21,
+              "priceType": "sqm",
+              "areaSqMeters": 1.8581,
+              "manufacturerCost": 4.09
+            }
+          ],
+          "accessoriesBreakdown": [
+            {
+              "type": "accessory",
+              "code": "smart-hub",
+              "name": "Smart Hub x1",
+              "price": 32.9,
+              "manufacturerCost": 23.5
+            },
+            {
+              "type": "accessory",
+              "code": "usb-charger",
+              "name": "USB Charger x1",
+              "price": 7,
+              "manufacturerCost": 5
+            }
+          ],
+          "unitPrice": 198.8,
+          "lineTotal": 238.7,
+          "fabricCode": "82032B",
+          "fabricColor": "82143A",
+          "lightFiltering": "blackout",
+          "standardCassette": "fabric-wrapped-v3",
+          "standardBottomBar": "type-c-fabric-wrapped",
+          "rollerType": "forward-roll",
+          "mountType": "outside",
+          "controlType": "motorized",
+          "motorType": "plugin-wire",
+          "motorBrand": "dooya",
+          "remoteType": "6-channel",
+          "solarType": "yes",
+          "chainType": "bead-chain-plastic",
+          "chainSide": "left",
+          "smartHubQty": 1,
+          "usbChargerQty": 1,
+          "configuration": "{\"lightFiltering\":\"blackout\",\"fabricCode\":\"82032B\",\"fabricColor\":\"82143A\",\"standardCassette\":\"fabric-wrapped-v3\",\"standardBottomBar\":\"type-c-fabric-wrapped\",\"chainSide\":\"left\",\"chainType\":\"bead-chain-plastic\",\"rollerType\":\"forward-roll\",\"mountType\":\"outside\",\"controlType\":\"motorized\",\"motorBrand\":\"dooya\",\"motorType\":\"plugin-wire\",\"remoteType\":\"6-channel\",\"solarType\":\"yes\",\"smartHubQty\":1,\"usbChargerQty\":1}",
+          "product_type": "roller"
+        }
+      ],
+      "subtotal": 238.7,
+      "tax": 19.69,
+      "taxRate": 0.0825,
+      "taxState": "TX",
+      "taxNote": null,
+      "shipping": 0,
+      "shippingInfo": null,
+      "discount": 0,
+      "total": 258.39,
+      "currency": "USD",
+      "amountPaid": 0,
+      "amountDue": 258.39,
+      "paymentMethod": null,
+      "invoiceGeneratedAt": "2026-07-19T15:15:23.591Z",
+      "invoiceGeneratedDate": "7/19/2026",
+      "invoiceGeneratedTime": "10:15:23 AM",
+      "paymentDate": null,
+      "paymentDateFormatted": null,
+      "paymentTimeFormatted": null,
+      "orderDate": "2026-01-18T02:14:35.451Z",
+      "issueDate": "2026-07-19T15:15:23.591Z",
+      "dueDate": "2026-08-18T15:15:23.591Z",
+      "paidAt": null,
+      "createdAt": "2026-07-19T15:15:23.591Z",
+      "updatedAt": "2026-07-19T15:15:23.591Z",
+      "notes": "",
       "internalNotes": ""
     }
   ],
@@ -38449,7 +39084,7 @@
       "password": "$2b$10$ViryXeZs1cipZPv.uynTLOH369PW.DjAQ9he7M7wzSJnz9.1sWpx2",
       "role": "manager",
       "status": "active",
-      "lastLogin": "2026-01-19T14:13:02.383Z",
+      "lastLogin": "2026-07-20T00:45:21.647Z",
       "createdAt": "2026-01-03T06:14:30.191Z",
       "updatedAt": "2026-01-03T06:14:30.191Z"
     }
@@ -38465,7 +39100,7 @@
       "password": "$2b$10$ElcMjRwzqxrGcBdWx0aSnOh2./h.SqZ8/HMkL3GUrqWothAHhY7YO",
       "role": "admin",
       "status": "active",
-      "lastLogin": "2026-01-11T19:52:15.779Z",
+      "lastLogin": "2026-07-19T14:22:42.000Z",
       "createdAt": "2026-01-01T00:00:00.000Z",
       "updatedAt": "2026-01-01T00:00:00.000Z"
     },

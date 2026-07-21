@@ -1,0 +1,33 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 100">
+  <!-- Background -->
+  <rect width="120" height="100" fill="#ffffff"/>
+
+  <!-- Wall/Window Frame -->
+  <rect x="10" y="10" width="60" height="80" fill="#f0f0f0" stroke="#ccc" stroke-width="1"/>
+
+  <!-- Window glass -->
+  <rect x="15" y="20" width="50" height="65" fill="#e3f2fd" stroke="#90caf9" stroke-width="1"/>
+
+  <!-- Roller tube - positioned away from window -->
+  <rect x="72" y="12" width="40" height="10" rx="5" fill="#8E6545"/>
+  <circle cx="78" cy="17" r="3" fill="#6b4c35"/>
+  <circle cx="106" cy="17" r="3" fill="#6b4c35"/>
+
+  <!-- Fabric - rolling from BACK away from window -->
+  <path d="M75 22 C75 22 74 20 78 18 L106 18 C110 20 109 22 109 22 L109 60 L75 60 Z" fill="#d4c4b0" stroke="#b8a690" stroke-width="1"/>
+
+  <!-- Gap/clearance indicator -->
+  <line x1="68" y1="30" x2="68" y2="55" stroke="#8E6545" stroke-width="1.5" stroke-dasharray="3,2"/>
+  <text x="68" y="65" font-family="Arial" font-size="6" fill="#8E6545" text-anchor="middle">Gap</text>
+
+  <!-- Arrow showing fabric direction -->
+  <path d="M92 70 L92 80" stroke="#8E6545" stroke-width="2" marker-end="url(#arrow2)"/>
+  <defs>
+    <marker id="arrow2" markerWidth="8" markerHeight="6" refX="7" refY="3" orient="auto">
+      <polygon points="0 0, 8 3, 0 6" fill="#8E6545"/>
+    </marker>
+  </defs>
+
+  <!-- Labels -->
+  <text x="92" y="95" font-family="Arial" font-size="8" fill="#333" font-weight="bold" text-anchor="middle">Extra Clearance</text>
+</svg>
