@@ -286,6 +286,14 @@ function loadDatabase() {
   }
 }
 
+// Normalize a product slug from an untrusted source (frontend derives it from
+// the URL tail, so it can carry a query string, hash, or trailing slash).
+// Fixes BUG-B003: a `?utm=...` or trailing `/` must not break price lookup.
+function normalizeSlug(slug) {
+  if (typeof slug !== 'string') return slug;
+  return slug.split('?')[0].split('#')[0].replace(/\/+$/, '').trim();
+}
+
 // Save database and invalidate cache
 function saveDatabase(data) {
   fs.writeFileSync(DB_PATH, JSON.stringify(data, null, 2));
@@ -1513,7 +1521,8 @@ app.post('/api/calculate-price', (req, res) => {
  */
 app.post('/api/v1/pricing/calculate', (req, res) => {
   try {
-    const { productSlug, productType, width, height, quantity, fabricCode, options, manufacturerId } = req.body;
+    const { productSlug: rawSlug, productType, width, height, quantity, fabricCode, options, manufacturerId } = req.body;
+    const productSlug = normalizeSlug(rawSlug);
 
     // Find product by slug
     const db = getDatabase();
@@ -9430,7 +9439,8 @@ app.post('/api/admin/manufacturer/price-preview', authMiddleware, (req, res) => 
  */
 app.post('/api/store/price-quote', (req, res) => {
   try {
-    const { productSlug, width, height, quantity = 1, fabricCode, options = {} } = req.body;
+    const { productSlug: rawSlug, width, height, quantity = 1, fabricCode, options = {} } = req.body;
+    const productSlug = normalizeSlug(rawSlug);
 
     if (!productSlug || !width || !height) {
       return res.status(400).json({

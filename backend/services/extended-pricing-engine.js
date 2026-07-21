@@ -159,9 +159,15 @@ class ExtendedPricingEngine {
       throw new Error('Database unavailable');
     }
 
+    // Normalize slug: the frontend derives it from the URL tail, so it can
+    // arrive with a query string, hash, or trailing slash (BUG-B003).
+    const normalizedSlug = typeof productSlug === 'string'
+      ? productSlug.split('?')[0].split('#')[0].replace(/\/+$/, '').trim()
+      : productSlug;
+
     // Get product info
-    const product = productSlug
-      ? db.products.find(p => p.slug === productSlug)
+    const product = normalizedSlug
+      ? db.products.find(p => p.slug === normalizedSlug)
       : db.products.find(p => p.id === productId);
 
     if (!product) {
