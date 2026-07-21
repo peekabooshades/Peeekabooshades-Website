@@ -2183,13 +2183,49 @@
           displayPricingResult(result, warranty, quantity);
         } else {
           console.error('Pricing API error:', result.error);
-          // Fallback to basic calculation if API fails
-          fallbackPriceCalculation(width, height, quantity, warranty);
+          // Do not invent a price on API error — show unavailable + block cart.
+          displayPriceUnavailable();
         }
       } catch (error) {
         console.error('Failed to fetch pricing:', error);
-        // Fallback to basic calculation if API fails
-        fallbackPriceCalculation(width, height, quantity, warranty);
+        // Do not invent a price on network failure — show unavailable + block cart.
+        displayPriceUnavailable();
+      }
+    }
+
+    // Display "price unavailable" state when the pricing API fails.
+    // BUG-B001-residual: never invent a client-side price — the old fallback
+    // used a hardcoded $20/m² that did not match the server pricing engine.
+    function displayPriceUnavailable() {
+      const priceElement = document.querySelector('.price');
+      if (priceElement) {
+        priceElement.innerHTML = `
+          <div style="text-align: center;">
+            <span style="color: #8E6545; font-size: 20px; font-weight: 600;">Price unavailable</span>
+            <div style="font-size: 12px; color: #666; margin-top: 5px;">
+              We couldn't reach our pricing service. Please retry.
+            </div>
+          </div>
+        `;
+      }
+      const breakdownContainer = document.getElementById('priceBreakdown');
+      if (breakdownContainer) {
+        breakdownContainer.innerHTML = `
+          <div style="padding: 20px; text-align: center; background: #fff3cd; border-radius: 8px; margin: 10px 0;">
+            <i class="fas fa-exclamation-triangle" style="font-size: 22px; color: #856404; margin-bottom: 10px;"></i>
+            <p style="margin: 0; color: #856404; font-weight: 500;">Pricing temporarily unavailable</p>
+            <p style="margin: 5px 0 0; font-size: 12px; color: #856404;">
+              Please adjust an option or reload the page to get an up-to-date price.
+            </p>
+          </div>
+        `;
+      }
+      const addToCartBtn = document.querySelector('.add-to-cart-btn');
+      if (addToCartBtn) {
+        addToCartBtn.disabled = true;
+        addToCartBtn.style.opacity = '0.5';
+        addToCartBtn.style.cursor = 'not-allowed';
+        addToCartBtn.title = 'Price unavailable — please retry';
       }
     }
 
@@ -2427,6 +2463,9 @@
     }
 
     // Fallback price calculation if API fails
+    // DEPRECATED (BUG-B001-residual): no longer called. Invented a client-side
+    // price ($20/m²) that diverged from the server pricing engine. Kept only
+    // for reference; do not re-wire — use displayPriceUnavailable() on failure.
     function fallbackPriceCalculation(width, height, quantity, warranty) {
       const breakdown = [];
 
