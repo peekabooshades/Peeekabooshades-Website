@@ -237,9 +237,25 @@ P0 security/payment/data-loss/outage · P1 checkout/pricing/order/invoice failur
 ### BUG-B002 — Default fabric `82143A` unpriced → estimate on load  ✅ resolved
 - **Re-reproduced 2026-07-20:** `82143A` now returns `lineTotal:33.45` (a real price), no estimate flag. `PK_ROLLER_PRICING` (pk-product.js) now contains `"82143A":[19.91,23.15,40,40]`. The Pass-2 condition (default fabric had no price) no longer holds — the price list added during the roller-shades port fixed it. **Not a live defect; no change made.**
 
-## DEFERRED — need per-item owner decision (governance: no bulk change off a heuristic)
+## FIXED — architect-decided pass (owner delegated: "think like a professional architect and take decision")
 
-- **BUG-A001** (triple duplicate product editors) — pick v2 canonical, redirect + delete the other two. Needs owner sign-off on which is canonical + verification each redirect is safe.
-- **BUG-A002** (placeholder/"coming soon" pages advertised as active) — a broad "coming soon" grep is unreliable (Pass 3 logged a false positive on `products.html`); mass-disabling nav items is not a smallest-safe change. Only `create-order` is nav-linked in this repo (search palette). Needs per-page owner decision: redirect to Shopify-native (draft orders / tracking) vs build vs mark `status:'disabled'`.
-- **BUG-A003** (dead `href="#"` links — 65 across 30 pages) — needs per-page intent confirmation (some may be JS-handled) before wiring/converting to `<button>`.
-- **Least-privilege within admin roles** (viewer can hit write endpoints) — security-sensitive; add `requirePermission` per route with regression tests.
+### BUG-A001 — Triple duplicate product editors  ✅ `89aee25`
+- **Decision (evidence, not filesize):** `product-editor.html` is canonical — it has a complete `saveProduct()` data model and is what `products.html` edit links already use. `product-edit.html` (legacy 27KB/12-field stub) → query-preserving redirect to canonical; `product-launch.html` repointed. `product-editor-v2.html` ("Product Page Editor v2.0", 325 fields) is a *distinct advanced tool*, not a stub — left intact and out of the default edit path (a redirect would destroy capability). editor↔v2 data-model reconciliation flagged as a separate build task.
+- **Verified:** stub redirects (preserves `?id=`); canonical + v2 still 200; 0 live pages link the dead stub.
+
+### BUG-A002 — Placeholder stub advertised as a feature  ✅ `b4a7a83`
+- **Decision (no blind sweep):** removed only the one confirmed nav-linked stub — `Create Order` in the command palette (`create-order.html` is a "coming soon" body). Native-first: manual orders are covered by Shopify draft orders; re-add when a real page/redirect exists. Orphaned non-nav stubs left for a per-page build decision.
+- **Verified:** palette 69→68 entries; 0 live `create-order` links.
+
+### BUG-A003 — Dead `href="#"` links  ✅ `4860f2b`
+- **Analysis:** of 64 anchors across 29 files, **42 are JS-handled (functional, untouched)**. Truly-dead ones clustered in shared partials `theme/header.html` + `navigation/footer.html`. Wired 14 links to routes **verified live** (`/shop`,`/samples`,`/help`,`/product/{roller,zebra,motorized,roman}-shades`,`/guides`,`/faqs`,`/contact`,`/about`,`/trade`,`/reviews`,`/privacy-policy`). Left Shipping/Return/Terms non-wired — `/shipping-policy`,`/return-policy`,`/terms` are 404; not linking to broken routes until those pages exist.
+
+### Admin least-privilege — viewer could write  ✅ `9708816`
+- **Decision (single choke point, not 305 routes):** extended `authMiddleware` (runs on every protected `/api/admin` route) to deny mutating methods (POST/PUT/PATCH/DELETE) to the `viewer` role; editor+ retain write. One guard can't be forgotten on a new route; granular per-resource rules (rbac.js) can layer later.
+- **Verified with minted dev tokens:** GET → viewer/editor/admin 200, manufacturer 403, none 401; POST/PUT → viewer **403**, editor/admin reach handler (400/404), manufacturer 403. D001 regression intact.
+
+## Remaining follow-ups (need content/product intent, not code)
+- Build (or Shopify-redirect) the orphaned admin stub pages: `create-order`, `tracking`, `product-tags`, `product-content`.
+- Create the missing policy pages: Shipping Policy, Return Policy, Terms of Service (routes 404).
+- Reconcile `product-editor.html` (34 fields) ↔ `product-editor-v2.html` (325 fields) into one editor with progressive disclosure.
+- Layer granular rbac.js `PERMISSIONS` per route (e.g. editor can't delete) on top of the coarse viewer-read-only guard.
