@@ -1109,7 +1109,7 @@
         if (data.success) {
           Admin.Toast.success('Product launched successfully!');
           setTimeout(() => {
-            window.location.href = `/admin/product-edit.html?id=${data.product?.id || data.data?.id}`;
+            window.location.href = `/admin/product-editor.html?id=${data.product?.id || data.data?.id}`;
           }, 1000);
         } else {
           Admin.Toast.error(data.error || 'Failed to create product');
