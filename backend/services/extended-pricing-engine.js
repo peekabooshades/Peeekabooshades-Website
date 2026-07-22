@@ -190,9 +190,34 @@ class ExtendedPricingEngine {
 
     // Validate dimensions (collect any auto-correction warnings so they can be surfaced)
     const productRules = systemConfig.getProductRules();
+
+    // Per-fabric dimension limits: a fabric record may declare its own
+    // min/max width/height (e.g. a wide fabric supports a larger blind). If
+    // present they OVERRIDE the product-level default; otherwise the product
+    // default applies. Populate maxWidth/maxHeight/minWidth/minHeight on the
+    // fabric record in productContent.fabrics to enforce per-fabric sizing.
+    // The fabric catalog is a flat array of fabric objects (each with a `code`).
+    // Some legacy data nests them under category `.items`; support both.
+    const allFabrics = (db.productContent?.fabrics || [])
+      .flatMap(entry => (entry && Array.isArray(entry.items)) ? entry.items : [entry]);
+    const fabricRecord = fabricCode
+      ? allFabrics.find(it => it && it.code === fabricCode)
+      : null;
+    const dimensionRules = {
+      width: {
+        ...productRules.dimensions.width,
+        ...(fabricRecord?.minWidth != null ? { min: fabricRecord.minWidth } : {}),
+        ...(fabricRecord?.maxWidth != null ? { max: fabricRecord.maxWidth } : {})
+      },
+      height: {
+        ...productRules.dimensions.height,
+        ...(fabricRecord?.minHeight != null ? { min: fabricRecord.minHeight } : {}),
+        ...(fabricRecord?.maxHeight != null ? { max: fabricRecord.maxHeight } : {})
+      }
+    };
     const dimensionWarnings = [];
-    const validatedWidth = this.validateDimension(widthIn, 'width', productRules.dimensions, dimensionWarnings);
-    const validatedHeight = this.validateDimension(heightIn, 'height', productRules.dimensions, dimensionWarnings);
+    const validatedWidth = this.validateDimension(widthIn, 'width', dimensionRules, dimensionWarnings);
+    const validatedHeight = this.validateDimension(heightIn, 'height', dimensionRules, dimensionWarnings);
     const validatedQty = this.validateQuantity(quantity, productRules.quantity);
 
     // Step 1: Get manufacturer cost
@@ -226,6 +251,17 @@ class ExtendedPricingEngine {
     if (manufacturerCost.source === 'fallback') {
       baseCustomerPrice = Math.max(baseCustomerPrice, product.base_price);
     }
+
+    // F4: an explicit fabric code that resolves to the fallback estimate must
+    // NOT be priced silently (previously a typo/unknown code returned the $40
+    // base-price floor with no signal). Flag it so the UI can show
+    // "price on request" instead of quoting an invented number.
+    const knownFabric = fabricCode
+      ? (db.productContent?.fabrics || [])
+          .flatMap(entry => (entry && Array.isArray(entry.items)) ? entry.items : [entry])
+          .some(it => it && it.code === fabricCode)
+      : true;
+    const fabricPriceUnavailable = !!fabricCode && manufacturerCost.source === 'fallback';
 
     // Add per-unit option costs (excludes accessories)
     const unitPrice = baseCustomerPrice + optionCosts.perUnitTotal;
@@ -275,6 +311,11 @@ class ExtendedPricingEngine {
       // Surface dimension auto-corrections so the caller/customer can be warned (skill: measurement-validate)
       dimensionWarnings,
       dimensionAdjusted: dimensionWarnings.length > 0,
+      // F4: fabric price could not be resolved from the manufacturer price list;
+      // this price is an estimate, not a firm quote. UI should show "price on request".
+      fabricPriceUnavailable,
+      fabricUnknown: !knownFabric,
+      priceIsEstimate: fabricPriceUnavailable,
       pricing: {
         manufacturerCost: {
           unitCost: this.round(manufacturerCost.unitCost),
@@ -315,7 +356,11 @@ class ExtendedPricingEngine {
         grossMarginPercent: this.round(((unitPrice - manufacturerCost.unitCost - optionCosts.manufacturerCost) / unitPrice) * 100)
       },
       // Include warning if margin not defined (BUG-003 enhanced)
-      warning: marginResult.warning || null,
+      warning: fabricPriceUnavailable
+        ? (knownFabric
+            ? 'This fabric has no price in the manufacturer price list yet; the amount shown is an estimate. Please request a firm quote.'
+            : 'Unknown fabric code; the amount shown is an estimate only. Please request a firm quote.')
+        : (marginResult.warning || null),
       isCritical: marginResult.isCritical || false,
       zeroProfit: marginResult.zeroProfit || false
     };
@@ -945,16 +990,11 @@ class ExtendedPricingEngine {
    * Calculate shipping estimate
    */
   calculateShipping(subtotal, quantity, shippingState, shippingConfig) {
-    // Check free shipping threshold
-    if (subtotal >= shippingConfig.freeShippingThreshold) {
-      return {
-        method: 'free',
-        amount: 0,
-        description: `Free shipping on orders over $${shippingConfig.freeShippingThreshold}`
-      };
-    }
+    // Free shipping removed by request: shipping is ALWAYS charged, based on
+    // destination zone (location) and quantity/weight. The freeShippingThreshold
+    // config value is intentionally no longer honoured here.
 
-    // Zone-based shipping
+    // Zone-based shipping (location + weight from quantity)
     if (shippingConfig.zones && shippingState) {
       const alaskaHawaii = ['AK', 'HI'];
       const isRemote = alaskaHawaii.includes(shippingState.toUpperCase());

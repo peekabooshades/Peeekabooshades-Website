@@ -1664,8 +1664,14 @@ app.post('/api/calculate-order-total', (req, res) => {
     const taxRate = 0.0725;
     const taxAmount = subtotal * taxRate;
 
-    // Calculate shipping
-    const shippingAmount = subtotal >= 99 ? 0 : 9.99;
+    // Calculate shipping by DESTINATION (location) and total QUANTITY/weight.
+    // Free shipping removed by request: order value never waives shipping.
+    const totalQty = items.reduce((sum, it) => sum + (parseInt(it.quantity) || 1), 0);
+    const destState = shippingAddress?.state || null;
+    const shippingResult = extendedPricingEngine.calculateShipping(
+      subtotal, totalQty, destState, systemConfig.getShipping()
+    );
+    const shippingAmount = shippingResult.amount;
 
     // Calculate grand total
     const grandTotal = subtotal + taxAmount + shippingAmount;
@@ -1682,9 +1688,9 @@ app.post('/api/calculate-order-total', (req, res) => {
           description: 'California Sales Tax'
         },
         shipping: {
-          method: shippingAmount === 0 ? 'free' : 'standard',
+          method: shippingResult.method,
           amount: shippingAmount,
-          description: shippingAmount === 0 ? 'Free shipping' : 'Standard shipping'
+          description: shippingResult.description
         },
         grandTotal: Math.round(grandTotal * 100) / 100
       },
