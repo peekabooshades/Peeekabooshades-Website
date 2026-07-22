@@ -2622,13 +2622,21 @@
       const widthNum = parseFloat(width);
       const heightNum = parseFloat(height);
 
-      if (!width || isNaN(widthNum) || widthNum < 12 || widthNum > 120) {
+      // UNIT BUG FIX: the width/height inputs hold the value in the currently
+      // selected unit (in/cm/mm). The price PREVIEW (calculatePriceFromAPI)
+      // converts to inches, but add-to-cart previously sent the RAW value, so a
+      // cm or mm entry was priced as inches (2.54x / 25.4x overcharge on the
+      // order). Convert to inches here too, and validate the inch value.
+      const widthInches = widthNum / conversionFactors[currentUnit];
+      const heightInches = heightNum / conversionFactors[currentUnit];
+
+      if (!width || isNaN(widthInches) || widthInches < 12 || widthInches > 120) {
         showToast('Please enter a valid width (12-120 inches)', 'error');
         document.getElementById('widthInput').focus();
         return;
       }
 
-      if (!height || isNaN(heightNum) || heightNum < 12 || heightNum > 120) {
+      if (!height || isNaN(heightInches) || heightInches < 12 || heightInches > 120) {
         showToast('Please enter a valid height (12-120 inches)', 'error');
         document.getElementById('heightInput').focus();
         return;
@@ -2704,8 +2712,8 @@
             sessionId,
             productId: product?.id || 'demo-product',
             quantity: parseInt(quantity),
-            width: parseFloat(width),
-            height: parseFloat(height),
+            width: widthInches,
+            height: heightInches,
             roomLabel,
             configuration,
             unitPrice,
@@ -2738,8 +2746,8 @@
           productId: product?.id || 'demo-product',
           productName: document.getElementById('productTitle').textContent,
           quantity: parseInt(quantity),
-          width: parseFloat(width),
-          height: parseFloat(height),
+          width: widthInches,
+          height: heightInches,
           roomLabel,
           configuration,
           unitPrice,

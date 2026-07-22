@@ -149,10 +149,20 @@ class ExtendedPricingEngine {
       quantity = 1,
       fabricCode,
       options = {},
+      unit = 'in',
       shippingState = null,
       includeShipping = false,
       includeTax = false
     } = params;
+
+    // Unit normalization (defense-in-depth for the cm/mm pricing bug): all
+    // internal math assumes INCHES. If a caller passes width/height in cm or mm
+    // with unit set, convert to inches here so the engine is the single source
+    // of truth. Frontend callers already send inches (unit defaults to 'in').
+    const UNIT_TO_INCHES = { in: 1, inch: 1, inches: 1, cm: 1 / 2.54, mm: 1 / 25.4 };
+    const unitFactor = UNIT_TO_INCHES[String(unit).toLowerCase()] ?? 1;
+    const widthIn = (typeof width === 'number' || typeof width === 'string') ? parseFloat(width) * unitFactor : width;
+    const heightIn = (typeof height === 'number' || typeof height === 'string') ? parseFloat(height) * unitFactor : height;
 
     const db = this.loadDatabase();
     if (!db) {
@@ -181,8 +191,8 @@ class ExtendedPricingEngine {
     // Validate dimensions (collect any auto-correction warnings so they can be surfaced)
     const productRules = systemConfig.getProductRules();
     const dimensionWarnings = [];
-    const validatedWidth = this.validateDimension(width, 'width', productRules.dimensions, dimensionWarnings);
-    const validatedHeight = this.validateDimension(height, 'height', productRules.dimensions, dimensionWarnings);
+    const validatedWidth = this.validateDimension(widthIn, 'width', productRules.dimensions, dimensionWarnings);
+    const validatedHeight = this.validateDimension(heightIn, 'height', productRules.dimensions, dimensionWarnings);
     const validatedQty = this.validateQuantity(quantity, productRules.quantity);
 
     // Step 1: Get manufacturer cost
